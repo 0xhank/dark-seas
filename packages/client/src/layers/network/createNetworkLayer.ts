@@ -1,6 +1,11 @@
 import { createWorld } from "@latticexyz/recs";
 import { setupDevSystems } from "./setup";
-import { createActionSystem, setupMUDNetwork, defineCoordComponent } from "@latticexyz/std-client";
+import {
+  createActionSystem,
+  setupMUDNetwork,
+  defineCoordComponent,
+  defineNumberComponent,
+} from "@latticexyz/std-client";
 import { defineLoadingStateComponent } from "./components";
 import { SystemTypes } from "contracts/types/SystemTypes";
 import { SystemAbis } from "contracts/types/SystemAbis.mjs";
@@ -22,6 +27,7 @@ export async function createNetworkLayer(config: GameConfig) {
   const components = {
     LoadingState: defineLoadingStateComponent(world),
     Position: defineCoordComponent(world, { id: "Position", metadata: { contractId: "ds.component.Position" } }),
+    Rotation: defineNumberComponent(world, { id: "Rotation", metadata: { contractId: "ds.component.Rotation" } }),
   };
 
   // --- SETUP ----------------------------------------------------------------------
@@ -36,9 +42,10 @@ export async function createNetworkLayer(config: GameConfig) {
   // --- API ------------------------------------------------------------------------
 
   function move(dest: Coord) {
-    systems["ds.system.Move"].executeTyped(BigNumber.from(network.connectedAddress.get()), dest);
+    systems["ds.system.Move"].executeTyped(BigNumber.from(network.connectedAddress.get()), dest, {
+      gasLimit: 30_000_000,
+    });
   }
-
   // --- CONTEXT --------------------------------------------------------------------
   const context = {
     world,
