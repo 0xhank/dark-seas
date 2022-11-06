@@ -6,7 +6,7 @@ import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 import { IComponent } from "solecs/interfaces/IComponent.sol";
 import { getAddressById } from "solecs/utils.sol";
 
-uint256 constant ID = uint256(keccak256("mudwar.system.ComponentDev"));
+uint256 constant ID = uint256(keccak256("ds.system.ComponentDev"));
 
 contract ComponentDevSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
