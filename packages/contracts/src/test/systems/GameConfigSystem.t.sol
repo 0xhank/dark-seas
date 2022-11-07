@@ -20,9 +20,9 @@ contract GameConfigSystemTest is MudTest {
     vm.stopPrank();
   }
 
-  function testFailRequirement() public {
-    vm.startPrank(alice);
-    // GameConfigSystem(system(sysID)).requirement(new bytes(0));
-    vm.stopPrank();
-  }
+  // function testFailRequirement() public {
+  //   vm.startPrank(alice);
+  //   // GameConfigSystem(system(sysID)).requirement(new bytes(0));
+  //   vm.stopPrank();
+  // }
 }

@@ -2,7 +2,8 @@ import { namespaceWorld } from "@latticexyz/recs";
 import { createPhaserEngine } from "@latticexyz/phaserx";
 import { phaserConfig } from "./config";
 import { NetworkLayer } from "../network";
-
+import { createPositionSystem, createInputSystem } from "./systems";
+import { createRotationSystem } from "./systems/createRotationSystem";
 /**
  * The Phaser layer is responsible for rendering game objects to the screen.
  */
@@ -27,6 +28,9 @@ export async function createPhaserLayer(network: NetworkLayer) {
   };
 
   // --- SYSTEMS --------------------------------------------------------------------
+  createPositionSystem(network, context);
+  createRotationSystem(network, context);
+  createInputSystem(network, context);
 
   return context;
 }

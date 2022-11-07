@@ -1,4 +1,4 @@
 {
-  "components": ["ExampleComponent"],
-  "systems": [{ "name": "ComponentDevSystem", "writeAccess": ["*"] }]
+  "components": ["PositionComponent", "RotationComponent"],
+  "systems": [{ "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent"] }]
 }
