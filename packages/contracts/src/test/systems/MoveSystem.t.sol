@@ -22,7 +22,6 @@ contract MoveSystemTest is MudTest {
 
   function testMove() public prank(deployer) {
     setup();
-    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
 
     // // Get player's current coordinate
     Coord memory coord = Coord({ x: 1, y: 1 });
