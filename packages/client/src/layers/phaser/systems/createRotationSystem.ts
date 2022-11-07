@@ -1,4 +1,4 @@
-import { tileCoordToPixelCoord } from "@latticexyz/phaserx";
+import { tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
 import { defineComponentSystem } from "@latticexyz/recs";
 import { NetworkLayer } from "../../network";
 import { Sprites } from "../constants";
@@ -31,8 +31,21 @@ export function createRotationSystem(network: NetworkLayer, phaser: PhaserLayer)
 
     object.setComponent({
       id: Rotation.id,
+      // now: async (gameObject) => {
+      //   const duration = 500;
+      //   await tween(
+      //     {
+      //       targets: gameObject,
+      //       duration,
+      //       props: { rotation },
+      //       ease: Phaser.Math.Easing.Linear,
+      //     },
+      //     { keepExistingTweens: true }
+      //   );
+      // },
       once: (gameObject) => {
-        gameObject.setRotation(rotation.value);
+        gameObject.setOrigin(0.5, 0.5);
+        gameObject.setAngle(rotation.value);
       },
     });
   });
