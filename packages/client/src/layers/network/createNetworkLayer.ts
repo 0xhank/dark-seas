@@ -28,6 +28,18 @@ export async function createNetworkLayer(config: GameConfig) {
     LoadingState: defineLoadingStateComponent(world),
     Position: defineCoordComponent(world, { id: "Position", metadata: { contractId: "ds.component.Position" } }),
     Rotation: defineNumberComponent(world, { id: "Rotation", metadata: { contractId: "ds.component.Rotation" } }),
+    MoveAngle: defineNumberComponent(world, {
+      id: "MoveAngle",
+      metadata: { contractId: "ds.component.MoveAngle" },
+    }),
+    MoveDistance: defineNumberComponent(world, {
+      id: "MoveDistance",
+      metadata: { contractId: "ds.component.MoveDistance" },
+    }),
+    MoveRotation: defineNumberComponent(world, {
+      id: "MoveRotation",
+      metadata: { contractId: "ds.component.MoveRotation" },
+    }),
   };
 
   // --- SETUP ----------------------------------------------------------------------
@@ -41,11 +53,17 @@ export async function createNetworkLayer(config: GameConfig) {
 
   // --- API ------------------------------------------------------------------------
 
+  function spawnShip(location: Coord, rotation: number) {
+    console.log("spawning ship at", location, `with rotation ${rotation}`);
+    systems["ds.system.ShipSpawn"].executeTyped(location, rotation);
+  }
+
   function move(dest: Coord) {
     systems["ds.system.Move"].executeTyped(BigNumber.from(network.connectedAddress.get()), dest, {
       gasLimit: 30_000_000,
     });
   }
+
   // --- CONTEXT --------------------------------------------------------------------
   const context = {
     world,
@@ -56,7 +74,7 @@ export async function createNetworkLayer(config: GameConfig) {
     startSync,
     network,
     actions,
-    api: { move },
+    api: { spawnShip, move },
     dev: setupDevSystems(world, encoders, systems),
   };
 

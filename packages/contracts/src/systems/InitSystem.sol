@@ -29,18 +29,28 @@ contract InitSystem is System {
     moveDistanceComponent.set(moveEntity1, 50);
     moveRotationComponent.set(moveEntity1, 0);
 
-    // Initialize Prototypes
     uint256 moveEntity2 = uint256(keccak256("ds.prototype.moveEntity2"));
 
     moveAngleComponent.set(moveEntity2, 45);
     moveDistanceComponent.set(moveEntity2, 50);
     moveRotationComponent.set(moveEntity2, 90);
 
-    // Initialize Prototypes
     uint256 moveEntity3 = uint256(keccak256("ds.prototype.moveEntity3"));
 
     moveAngleComponent.set(moveEntity3, 27);
     moveDistanceComponent.set(moveEntity3, 50);
     moveRotationComponent.set(moveEntity3, 45);
+
+    uint256 moveEntity4 = uint256(keccak256("ds.prototype.moveEntity4"));
+
+    moveAngleComponent.set(moveEntity4, 315);
+    moveDistanceComponent.set(moveEntity4, 50);
+    moveRotationComponent.set(moveEntity4, 270);
+
+    uint256 moveEntity5 = uint256(keccak256("ds.prototype.moveEntity5"));
+
+    moveAngleComponent.set(moveEntity5, 333);
+    moveDistanceComponent.set(moveEntity5, 50);
+    moveRotationComponent.set(moveEntity5, 315);
   }
 }

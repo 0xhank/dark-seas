@@ -15,11 +15,11 @@ export function createInputSystem(network: NetworkLayer, phaser: PhaserLayer) {
     },
   } = phaser;
 
-  const clickSub = input.click$.subscribe((p) => {
-    const pointer = p as Phaser.Input.Pointer;
-    const tilePos = pixelCoordToTileCoord({ x: pointer.worldX, y: pointer.worldY }, tileWidth, tileHeight);
-    network.api.move(tilePos);
-  });
+  // const clickSub = input.click$.subscribe((p) => {
+  //   const pointer = p as Phaser.Input.Pointer;
+  //   const tilePos = pixelCoordToTileCoord({ x: pointer.worldX, y: pointer.worldY }, tileWidth, tileHeight);
+  //   network.api.spawnShip(tilePos, 0);
+  // });
 
-  world.registerDisposer(() => clickSub?.unsubscribe());
+  // world.registerDisposer(() => clickSub?.unsubscribe());
 }
