@@ -39,6 +39,40 @@ contract MoveSystemTest is MudTest {
     assertEq(playerRotation, startingRotation);
   }
 
+  function testMoveHardRight() public prank(deployer) {
+    setup();
+
+    Coord memory startingPosition = Coord({ x: 0, y: 0 });
+    uint32 startingRotation = 315;
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
+
+    uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity2"));
+
+    moveSystem.executeTyped(shipEntityId, moveStraightEntityId);
+
+    Coord memory currPosition = positionComponent.getValue(shipEntityId);
+    uint32 playerRotation = rotationComponent.getValue(shipEntityId);
+    assertCoordEq(Coord({ x: startingPosition.x + 50, y: startingPosition.y }), currPosition);
+    assertEq(playerRotation, (startingRotation + 90) % 360);
+  }
+
+  function testMoveSoftRight() public prank(deployer) {
+    setup();
+
+    Coord memory startingPosition = Coord({ x: 0, y: 0 });
+    uint32 startingRotation = 18;
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
+
+    uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity3"));
+
+    moveSystem.executeTyped(shipEntityId, moveStraightEntityId);
+
+    Coord memory currPosition = positionComponent.getValue(shipEntityId);
+    uint32 playerRotation = rotationComponent.getValue(shipEntityId);
+    assertCoordEq(Coord({ x: startingPosition.x + 35, y: startingPosition.y + 35 }), currPosition);
+    assertEq(playerRotation, (startingRotation + 45) % 360);
+  }
+
   /**
    * Helpers
    */
