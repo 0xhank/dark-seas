@@ -23,7 +23,7 @@ export function registerSpawnShipButton() {
     (layers) => {
       const {
         network: {
-          // api: { spawnShip },
+          api: { spawnShip },
         },
       } = layers;
       const [position, setPosition] = useState<Coord>({ x: 0, y: 0 });
@@ -42,10 +42,10 @@ export function registerSpawnShipButton() {
             }}
             onClick={() => {
               console.log("hello");
-              // spawnShip(position, rotation);
+              spawnShip(position, rotation);
             }}
           >
-            Spawn ship at (0,0)
+            Spawn ship at ({position.x},{position.y})
           </button>
         </div>
       );
