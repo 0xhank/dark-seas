@@ -59,27 +59,18 @@ contract MoveSystem is System {
   ) internal returns (Coord memory) {
     uint32 angleDegs = (initialRotation + moveAngle) % 360;
 
-    console.log("angle degs:", angleDegs);
-
     uint256 angleRadsTimes10000 = uint256(angleDegs * 1745);
-
-    console.log("angle rads times 10000:", angleRadsTimes10000);
 
     uint256 angleRadsConverted = angleRadsTimes10000 * 1e13 + Trigonometry.TWO_PI;
 
-    console.log("angle rads converted:", angleRadsConverted);
-
     int256 newX = Trigonometry.cos(angleRadsConverted) * int32(moveDistance);
-    console.log("new X:", angleRadsConverted);
 
     int256 newY = Trigonometry.sin(angleRadsConverted) * int32(moveDistance);
-
-    console.log("new Y:", angleRadsConverted);
 
     int256 unconvertedX = newX / 1e18;
     int256 unconvertedY = newY / 1e18;
 
-    return Coord({ x: int32(unconvertedX), y: int32(unconvertedY) });
+    return Coord({ x: int32(unconvertedX) + initialPosition.x, y: int32(unconvertedY) + initialPosition.y });
   }
 
   function executeTyped(uint256 entity, uint256 movementEntity) public returns (bytes memory) {
