@@ -45,7 +45,7 @@ export function createRotationSystem(network: NetworkLayer, phaser: PhaserLayer)
       // },
       once: (gameObject) => {
         gameObject.setOrigin(0.5, 0.5);
-        gameObject.setAngle(rotation.value);
+        gameObject.setAngle(rotation.value + 90);
       },
     });
   });

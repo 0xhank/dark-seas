@@ -8,3 +8,4 @@ royalty-registry/=../../node_modules/@manifoldxyz/royalty-registry-solidity/cont
 @openzeppelin/=../../node_modules/openzeppelin-solidity/
 base64/=../../node_modules/base64-sol/
 std-contracts/=../../node_modules/@latticexyz/std-contracts/src/
+trig/=../../node_modules/solidity-trigonometry/

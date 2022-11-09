@@ -47,7 +47,7 @@ export const phaserConfig = {
         }),
       },
       sprites: {
-        [Sprites.Settlement]: {
+        [Sprites.Crystal]: {
           assetKey: Assets.MainAtlas,
           frame: "sprites/resources/crystal.png",
         },

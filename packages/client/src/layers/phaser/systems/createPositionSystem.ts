@@ -28,7 +28,7 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
 
     const object = objectPool.get(update.entity, "Sprite");
     const { x, y } = tileCoordToPixelCoord({ x: position.x + 0.5, y: position.y + 0.5 }, tileWidth, tileHeight);
-    const sprite = config.sprites[Sprites.Donkey];
+    const sprite = config.sprites[Sprites.Crystal];
 
     object.setComponent({
       id: Position.id,

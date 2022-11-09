@@ -27,6 +27,7 @@ export enum Sprites {
   EmberCrown,
   EscapePortal,
   Donkey,
+  Crystal,
 }
 
 export enum Animations {}
