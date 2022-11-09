@@ -9,7 +9,7 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
-import { concat, map, of } from "rxjs";
+import { concat, map, merge, of } from "rxjs";
 import { ActionStateString, ActionState } from "@latticexyz/std-client";
 import { Coord } from "@latticexyz/utils";
 import { GodID } from "@latticexyz/network";
@@ -37,7 +37,7 @@ export function registerMoveSelection() {
         },
       } = layers;
 
-      return concat(MoveAngle.update$, SelectedMove.update$).pipe(
+      return merge(MoveAngle.update$, SelectedMove.update$).pipe(
         map(() => {
           console.log("updating move selection");
           return {
@@ -109,7 +109,7 @@ export function registerMoveSelection() {
                   <p>Angle: {angle.value}</p>
                   <p>Distance: {distance.value}</p>
                   <p>Rotation: {rotation.value}</p>
-                  <p>selected entity: {selected}</p>
+                  {/* <p>selected entity: {selected.value}</p> */}
                 </div>
               );
             })}

@@ -1,4 +1,4 @@
-import { createWorld } from "@latticexyz/recs";
+import { createWorld, EntityID } from "@latticexyz/recs";
 import { setupDevSystems } from "./setup";
 import {
   createActionSystem,
@@ -58,8 +58,8 @@ export async function createNetworkLayer(config: GameConfig) {
     systems["ds.system.ShipSpawn"].executeTyped(location, rotation);
   }
 
-  function move(dest: Coord) {
-    systems["ds.system.Move"].executeTyped(BigNumber.from(network.connectedAddress.get()), dest, {
+  function move(shipId: EntityID, moveId: EntityID) {
+    systems["ds.system.Move"].executeTyped(shipId, moveId, {
       gasLimit: 30_000_000,
     });
   }
