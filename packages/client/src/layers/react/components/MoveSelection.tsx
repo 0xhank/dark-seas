@@ -13,6 +13,7 @@ import { concat, map, merge, of } from "rxjs";
 import { ActionStateString, ActionState } from "@latticexyz/std-client";
 import { Coord } from "@latticexyz/utils";
 import { GodID } from "@latticexyz/network";
+import { Arrows } from "../../phaser/constants";
 
 export function registerMoveSelection() {
   registerUIComponent(
@@ -85,8 +86,24 @@ export function registerMoveSelection() {
               const rotation = getComponentValueStrict(MoveRotation, entity);
               const selected = getComponentValue(SelectedMove, GodEntityIndex);
 
-              console.log(`selected: ${selected}, current entity: ${entity}`);
               const isSelected = selected && selected.value == entity;
+
+              const imageUrl =
+                rotation.value == 360 || rotation.value == 0
+                  ? Arrows.Straight
+                  : rotation.value > 270
+                  ? Arrows.SoftLeft
+                  : rotation.value == 270
+                  ? Arrows.Left
+                  : rotation.value > 180
+                  ? Arrows.HardLeft
+                  : rotation.value == 180
+                  ? Arrows.UTurn
+                  : rotation.value > 90
+                  ? Arrows.HardRight
+                  : rotation.value == 90
+                  ? Arrows.Right
+                  : Arrows.SoftRight;
 
               return (
                 <div
@@ -106,10 +123,8 @@ export function registerMoveSelection() {
                     console.log(getComponentValue(SelectedMove, GodEntityIndex));
                   }}
                 >
-                  <p>Angle: {angle.value}</p>
+                  <img src={imageUrl} style={{ height: "70%", objectFit: "scale-down" }} />
                   <p>Distance: {distance.value}</p>
-                  <p>Rotation: {rotation.value}</p>
-                  {/* <p>selected entity: {selected.value}</p> */}
                 </div>
               );
             })}
