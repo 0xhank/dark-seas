@@ -27,7 +27,7 @@ contract MoveSystemTest is MudTest {
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
-    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 1);
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5);
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
 
@@ -44,7 +44,7 @@ contract MoveSystemTest is MudTest {
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 315;
-    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 1);
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5);
 
     uint256 moveHardRightId = uint256(keccak256("ds.prototype.moveEntity2"));
 
@@ -61,7 +61,7 @@ contract MoveSystemTest is MudTest {
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 18;
-    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 1);
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5);
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity3"));
 

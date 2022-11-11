@@ -5,14 +5,13 @@
     "MoveAngleComponent",
     "MoveDistanceComponent",
     "MoveRotationComponent",
-    "LengthComponent",
-    "WidthComponent"
+    "LengthComponent"
   ],
   "systems": [
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
     {
       "name": "ShipSpawnSystem",
-      "writeAccess": ["PositionComponent", "RotationComponent", "LengthComponent", "WidthComponent"]
+      "writeAccess": ["PositionComponent", "RotationComponent", "LengthComponent"]
     },
     { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent"] }
   ]
