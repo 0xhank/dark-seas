@@ -12,6 +12,7 @@ import { RotationComponent, ID as RotationComponentID } from "../components/Rota
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
 import { RangeComponent, ID as RangeComponentID } from "../components/RangeComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
+import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.ShipSpawn"));
 
@@ -28,6 +29,7 @@ contract ShipSpawnSystem is System {
     LengthComponent lengthComponent = LengthComponent(getAddressById(components, LengthComponentID));
     RangeComponent rangeComponent = RangeComponent(getAddressById(components, RangeComponentID));
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    ShipComponent shipComponent = ShipComponent(getAddressById(components, ShipComponentID));
 
     uint256 entity = world.getUniqueEntityId();
 
@@ -36,6 +38,7 @@ contract ShipSpawnSystem is System {
     lengthComponent.set(entity, length);
     rangeComponent.set(entity, range);
     healthComponent.set(entity, 100);
+    shipComponent.set(entity);
 
     return abi.encode(entity);
   }
