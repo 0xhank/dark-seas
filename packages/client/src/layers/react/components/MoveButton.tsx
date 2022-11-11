@@ -72,7 +72,6 @@ export function registerMoveButton() {
               cursor: "pointer",
             }}
             onClick={() => {
-              console.log("hello");
               move(world.entities[shipEntity.value], world.entities[moveEntity.value]);
             }}
           >

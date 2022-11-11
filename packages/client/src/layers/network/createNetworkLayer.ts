@@ -28,6 +28,8 @@ export async function createNetworkLayer(config: GameConfig) {
     LoadingState: defineLoadingStateComponent(world),
     Position: defineCoordComponent(world, { id: "Position", metadata: { contractId: "ds.component.Position" } }),
     Rotation: defineNumberComponent(world, { id: "Rotation", metadata: { contractId: "ds.component.Rotation" } }),
+    Width: defineNumberComponent(world, { id: "Width", metadata: { contractId: "ds.component.Width" } }),
+    Length: defineNumberComponent(world, { id: "Length", metadata: { contractId: "ds.component.Length" } }),
     MoveAngle: defineNumberComponent(world, {
       id: "MoveAngle",
       metadata: { contractId: "ds.component.MoveAngle" },
@@ -55,10 +57,11 @@ export async function createNetworkLayer(config: GameConfig) {
 
   function spawnShip(location: Coord, rotation: number) {
     console.log("spawning ship at", location, `with rotation ${rotation}`);
-    systems["ds.system.ShipSpawn"].executeTyped(location, rotation);
+    systems["ds.system.ShipSpawn"].executeTyped(location, rotation, 5, 1);
   }
 
   function move(shipId: EntityID, moveId: EntityID) {
+    console.log("moving ship");
     systems["ds.system.Move"].executeTyped(shipId, moveId, {
       gasLimit: 30_000_000,
     });
