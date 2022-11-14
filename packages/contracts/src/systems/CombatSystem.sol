@@ -19,22 +19,23 @@ import "../libraries/LibUtils.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.CombatSystem"));
 
+enum Side {
+  Right,
+  Left
+}
+
 contract CombatSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
-    (uint256 entity, uint32 side) = abi.decode(arguments, (uint256, uint32));
+    (uint256 entity, Side side) = abi.decode(arguments, (uint256, Side));
 
     ShipComponent shipComponent = ShipComponent(getAddressById(components, ShipComponentID));
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
 
     require(shipComponent.has(entity), "CombatSystem: Must engage in combat with ship");
-    require(side < 2, "CombatSystem: side must be 0 (right) or 1 (left)");
 
-    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(entity);
-    Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(entity);
-
-    Coord[4] memory firingRange = getFiringArea(components, entity, side, range, position);
+    Coord[4] memory firingRange = getFiringArea(components, entity, side);
 
     (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
@@ -42,7 +43,6 @@ contract CombatSystem is System {
       if (shipEntities[i] == entity) continue;
       (Coord memory aft, Coord memory stern) = LibPolygon.getShipSternAndAftLocation(components, shipEntities[i]);
 
-      if (!LibPolygon.inRange(aft, position, range) && !LibPolygon.inRange(stern, position, range)) continue;
       if (!LibPolygon.checkInside(firingRange, aft) && !LibPolygon.checkInside(firingRange, stern)) continue;
 
       uint32 enemyHealth = healthComponent.getValue(shipEntities[i]);
@@ -60,14 +60,14 @@ contract CombatSystem is System {
   function getFiringArea(
     IUint256Component components,
     uint256 entity,
-    uint32 side,
-    uint32 range,
-    Coord memory position
-  ) private returns (Coord[4] memory) {
+    Side side
+  ) public returns (Coord[4] memory) {
+    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(entity);
+    Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(entity);
     uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(entity);
     uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(entity);
-    uint32 topRange = side == 0 ? 80 : 280;
-    uint32 bottomRange = side == 0 ? 100 : 260;
+    uint32 topRange = side == Side.Left ? 90 : 270;
+    uint32 bottomRange = side == Side.Left ? 90 : 270;
     Coord memory sternLocation = LibPolygon.getSternLocation(position, rotation, length);
     Coord memory topCorner = LibPolygon.getPositionByVector(position, rotation, range, topRange);
     Coord memory bottomCorner = LibPolygon.getPositionByVector(sternLocation, rotation, range, bottomRange);

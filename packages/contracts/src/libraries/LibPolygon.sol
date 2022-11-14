@@ -34,10 +34,10 @@ library LibPolygon {
 
     int256 newY = Trigonometry.sin(angleRadsConverted) * int32(moveDistance);
 
-    int256 unconvertedX = newX / 1e18;
-    int256 unconvertedY = newY / 1e18;
+    int32 finalX = int32(newX / 1e18) + initialPosition.x;
+    int32 finalY = int32(newY / 1e18) + initialPosition.y;
 
-    return Coord({ x: int32(unconvertedX) + initialPosition.x, y: int32(unconvertedY) + initialPosition.y });
+    return Coord({ x: finalX, y: finalY });
   }
 
   function getShipSternAndAftLocation(IUint256Component components, uint256 shipEntityId)
