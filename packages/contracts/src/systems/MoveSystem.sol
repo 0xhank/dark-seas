@@ -38,7 +38,7 @@ contract MoveSystem is System {
 
     require(moveAngleComponent.has(movementEntity), "MoveSystem: movement entity not a movement entity");
 
-    Coord memory finalPosition = LibPolygon.calculatePositionByVector(
+    Coord memory finalPosition = LibPolygon.getPositionByVector(
       positionComponent.getValue(entity),
       rotationComponent.getValue(entity),
       moveDistanceComponent.getValue(movementEntity),

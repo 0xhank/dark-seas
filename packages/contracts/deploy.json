@@ -23,6 +23,7 @@
         "ShipComponent"
       ]
     },
-    { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent"] }
+    { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent"] },
+    { "name": "CombatSystem", "writeAccess": ["HealthComponent"] }
   ]
 }

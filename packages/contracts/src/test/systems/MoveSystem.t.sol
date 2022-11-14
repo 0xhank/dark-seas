@@ -85,20 +85,4 @@ contract MoveSystemTest is MudTest {
     positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
     rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
   }
-
-  // function movePlayerRight(int32 distance) internal returns (Coord memory) {
-  //   Coord memory currCoord = positionComponent.getValue(entityId);
-  //   Coord[] memory path = new Coord[](1);
-  //   path[0] = Coord({ x: currCoord.x + distance, y: currCoord.y });
-  //   moveSystem.executeTyped(entityId, path);
-  //   return path[0];
-  // }
-
-  // function spawnPlayer() internal {
-  //   // Player spawns
-  //   PlayerSpawnSystem(system(PlayerSpawnSystemID)).executeTyped();
-  //   moveSystem = MoveSystem(system(MoveSystemID));
-  //   entityId = addressToEntity(deployer);
-  //   positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
-  // }
 }

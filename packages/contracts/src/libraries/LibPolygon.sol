@@ -1,7 +1,14 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
 
+import { getAddressById, getSystemAddressById } from "solecs/utils.sol";
+import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
+
 import { Coord } from "../components/PositionComponent.sol";
+import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
+import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
+import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
+import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
 
 import "trig/src/Trigonometry.sol";
 
@@ -11,7 +18,7 @@ library LibPolygon {
     Coord p2;
   }
 
-  function calculatePositionByVector(
+  function getPositionByVector(
     Coord memory initialPosition,
     uint32 initialRotation,
     uint32 moveDistance,
@@ -31,6 +38,35 @@ library LibPolygon {
     int256 unconvertedY = newY / 1e18;
 
     return Coord({ x: int32(unconvertedX) + initialPosition.x, y: int32(unconvertedY) + initialPosition.y });
+  }
+
+  function getShipSternAndAftLocation(IUint256Component components, uint256 shipEntityId)
+    public
+    returns (Coord memory, Coord memory)
+  {
+    ShipComponent shipComponent = ShipComponent(getAddressById(components, ShipComponentID));
+    require(shipComponent.has(shipEntityId), "LibPolygon: not a ship");
+
+    PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
+    LengthComponent lengthComponent = LengthComponent(getAddressById(components, LengthComponentID));
+    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
+
+    uint32 length = lengthComponent.getValue(shipEntityId);
+    uint32 rotation = rotationComponent.getValue(shipEntityId);
+
+    Coord memory shipPosition = positionComponent.getValue(shipEntityId);
+    Coord memory sternPosition = getSternLocation(shipPosition, rotation, length);
+
+    return (shipPosition, sternPosition);
+  }
+
+  function getSternLocation(
+    Coord memory originPosition,
+    uint32 rotation,
+    uint32 length
+  ) internal returns (Coord memory) {
+    uint32 inverseRotation = rotation > 180 ? rotation - 180 : 180 - rotation;
+    return getPositionByVector(originPosition, inverseRotation, length, 0);
   }
 
   function direction(
@@ -93,5 +129,15 @@ library LibPolygon {
 
   function min(int32 a, int32 b) public returns (int32) {
     return a < b ? a : b;
+  }
+
+  function inRange(
+    Coord memory a,
+    Coord memory b,
+    uint32 range
+  ) public returns (bool) {
+    int32 distanceSquared = (a.x - b.x)**2 + (a.y - b.y)**2;
+
+    return range**2 >= uint32(distanceSquared);
   }
 }
