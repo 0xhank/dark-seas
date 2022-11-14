@@ -65,8 +65,7 @@ library LibPolygon {
     uint32 rotation,
     uint32 length
   ) internal returns (Coord memory) {
-    uint32 inverseRotation = rotation > 180 ? rotation - 180 : 180 - rotation;
-    return getPositionByVector(originPosition, inverseRotation, length, 0);
+    return getPositionByVector(originPosition, rotation, length, 180);
   }
 
   function direction(
