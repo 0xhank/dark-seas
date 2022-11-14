@@ -53,7 +53,7 @@ contract CombatSystem is System {
     }
   }
 
-  function executeTyped(uint256 entity, uint32 side) public returns (bytes memory) {
+  function executeTyped(uint256 entity, Side side) public returns (bytes memory) {
     return execute(abi.encode(entity, side));
   }
 
@@ -66,8 +66,8 @@ contract CombatSystem is System {
     Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(entity);
     uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(entity);
     uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(entity);
-    uint32 topRange = side == Side.Left ? 90 : 270;
-    uint32 bottomRange = side == Side.Left ? 90 : 270;
+    uint32 topRange = side == Side.Left ? 80 : 280;
+    uint32 bottomRange = side == Side.Left ? 100 : 260;
     Coord memory sternLocation = LibPolygon.getSternLocation(position, rotation, length);
     Coord memory topCorner = LibPolygon.getPositionByVector(position, rotation, range, topRange);
     Coord memory bottomCorner = LibPolygon.getPositionByVector(sternLocation, rotation, range, bottomRange);
