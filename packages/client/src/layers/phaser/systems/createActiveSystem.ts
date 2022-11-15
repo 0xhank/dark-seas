@@ -31,6 +31,7 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
       },
     },
     components: { SelectedShip },
+    polygonRegistry,
   } = phaser;
 
   defineSystem(world, [Has(SelectedShip)], ({ entity, type }) => {
@@ -55,9 +56,10 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
       })
     );
 
-    const object = objectPool.get(shipEntityId, "Rectangle");
+    let rangeGroup = polygonRegistry.get("rangeGroup");
 
-    const rangeGroup = phaserScene.add.group();
+    if (rangeGroup) rangeGroup.clear(true, true);
+    else rangeGroup = phaserScene.add.group();
 
     const position = getComponentValueStrict(Position, shipEntityId);
     const range = getComponentValueStrict(Range, shipEntityId);
@@ -95,6 +97,10 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
 
     rangeGroup.add(rightFiringRange, true);
     rangeGroup.add(leftFiringRange, true);
+
+    polygonRegistry.set("rangeGroup", rangeGroup);
+
+    const object = objectPool.get(shipEntityId, "Rectangle");
     object.setComponent({
       id: SelectedShip.id,
 

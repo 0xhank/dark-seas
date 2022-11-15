@@ -22,6 +22,8 @@ export async function createPhaserLayer(network: NetworkLayer) {
   const { game, scenes, dispose: disposePhaser } = await createPhaserEngine(phaserConfig);
   world.registerDisposer(disposePhaser);
 
+  const polygonRegistry = new Map<string, Phaser.GameObjects.Group>();
+
   // --- LAYER CONTEXT --------------------------------------------------------------
   const context = {
     world,
@@ -29,6 +31,7 @@ export async function createPhaserLayer(network: NetworkLayer) {
     network,
     game,
     scenes,
+    polygonRegistry,
   };
 
   // --- SYSTEMS --------------------------------------------------------------------

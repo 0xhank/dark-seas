@@ -10,6 +10,7 @@ import {
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
+import { deg2rad } from "../../../utils/trig";
 import { NetworkLayer } from "../../network";
 import { Sprites } from "../constants";
 import { PhaserLayer } from "../types";
@@ -56,6 +57,9 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
         gameObject.setSize(length * tileWidth, shipWidth * tileHeight);
         gameObject.setPosition(x, y);
         gameObject.setOrigin(1, 0.5);
+
+        console.log(`rotation of ship ${update.entity}: ${rotation}`);
+        gameObject.setRotation(deg2rad(rotation));
 
         gameObject.setInteractive();
         gameObject.on("pointerdown", () => {

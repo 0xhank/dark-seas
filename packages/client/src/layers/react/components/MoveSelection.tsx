@@ -116,6 +116,7 @@ export function registerMoveSelection() {
                     padding: "5px",
                     borderWidth: `${isSelected ? "3px" : "1px"}`,
                     pointerEvents: "all",
+                    height: "70%",
                   }}
                   key={entity}
                   onClick={() => {
@@ -123,7 +124,7 @@ export function registerMoveSelection() {
                     console.log(getComponentValue(SelectedMove, GodEntityIndex));
                   }}
                 >
-                  <img src={imageUrl} style={{ height: "70%", objectFit: "scale-down" }} />
+                  <img src={imageUrl} style={{ height: "80%", objectFit: "scale-down" }} />
                   <p>Distance: {distance.value}</p>
                 </div>
               );
