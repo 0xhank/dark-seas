@@ -17,7 +17,7 @@ import { RotationComponent, ID as RotationComponentID } from "../components/Rota
 import "../libraries/LibPolygon.sol";
 import "../libraries/LibUtils.sol";
 
-uint256 constant ID = uint256(keccak256("ds.system.CombatSystem"));
+uint256 constant ID = uint256(keccak256("ds.system.Combat"));
 
 enum Side {
   Right,
