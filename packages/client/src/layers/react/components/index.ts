@@ -4,6 +4,7 @@ import { registerLoadingState } from "./LoadingState";
 import { registerSpawnShipButton } from "./SpawnShipButton";
 import { registerMoveSelection } from "./MoveSelection";
 import { registerMoveButton } from "./MoveButton";
+import { registerAttackButton } from "./AttackButton";
 
 export function registerUIComponents() {
   registerLoadingState();
@@ -11,5 +12,7 @@ export function registerUIComponents() {
   registerActionQueue();
   registerSpawnShipButton();
   registerMoveSelection();
+  registerAttackButton();
+
   registerMoveButton();
 }

@@ -21,7 +21,7 @@ export function registerMoveSelection() {
     "MoveSelection",
     // grid location
     {
-      rowStart: 11,
+      rowStart: 10,
       rowEnd: 13,
       colStart: 1,
       colEnd: 10,
