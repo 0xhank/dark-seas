@@ -11,6 +11,7 @@ import { HealthComponent, ID as HealthComponentID } from "../../components/Healt
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
 import { CombatSystem, ID as CombatSystemID, Side } from "../../systems/CombatSystem.sol";
+import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
 
 // Internal
 import "../../libraries/LibPolygon.sol";
@@ -57,21 +58,21 @@ contract CombatSystemTest is MudTest {
 
     Coord memory sternLocation = LibPolygon.getSternLocation(startingPosition, rotation, length);
 
-    Coord memory expectedLocation = Coord({ x: -35, y: 35 });
+    Coord memory expectedLocation = Coord({ x: -35, y: -35 });
     assertCoordEq(sternLocation, expectedLocation);
   }
 
-  function testGetShipSternAndAftLocation() public prank(deployer) {
+  function testGetShipBowAndSternLocation() public prank(deployer) {
     setup();
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
     uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 50, 50);
 
-    (Coord memory aft, Coord memory stern) = LibPolygon.getShipSternAndAftLocation(components, shipEntityId);
+    (Coord memory bow, Coord memory stern) = LibPolygon.getShipBowAndSternLocation(components, shipEntityId);
 
-    assertCoordEq(startingPosition, aft);
-    Coord memory expectedStern = Coord({ x: -35, y: 35 });
+    assertCoordEq(startingPosition, bow);
+    Coord memory expectedStern = Coord({ x: -35, y: -35 });
     assertCoordEq(stern, expectedStern);
   }
 
@@ -85,14 +86,43 @@ contract CombatSystemTest is MudTest {
 
     Coord[4] memory firingArea = combatSystem.getFiringArea(components, shipEntityId, Side.Right);
 
-    Coord memory aft = Coord({ x: -49, y: 8 });
-    Coord memory topCorner = Coord({ x: 0, y: -49 });
-    Coord memory bottomCorner = Coord({ x: -66, y: -38 });
+    Coord memory stern = Coord({ x: -49, y: 8 });
+    Coord memory bottomCorner = Coord({ x: 0, y: -49 });
+    Coord memory topCorner = Coord({ x: -66, y: -38 });
 
     assertCoordEq(startingPosition, firingArea[0]);
-    assertCoordEq(aft, firingArea[1]);
+    assertCoordEq(stern, firingArea[1]);
     assertCoordEq(topCorner, firingArea[2]);
     assertCoordEq(bottomCorner, firingArea[3]);
+  }
+
+  function testInsidePolygon() public prank(deployer) {
+    setup();
+
+    Coord[4] memory polygon = [
+      Coord({ x: 0, y: 0 }),
+      Coord({ x: 0, y: 10 }),
+      Coord({ x: 10, y: 10 }),
+      Coord({ x: 10, y: 0 })
+    ];
+
+    Coord memory point1 = Coord({ x: 5, y: 10 }); // not inside
+    Coord memory point2 = Coord({ x: 5, y: 0 }); // not inside
+    Coord memory point3 = Coord({ x: 5, y: 5 }); // inside
+    Coord memory point4 = Coord({ x: 0, y: 5 }); // not inside
+    Coord memory point5 = Coord({ x: -5, y: 5 }); // not inside
+    Coord memory point6 = Coord({ x: 5, y: -5 }); // not inside
+    Coord memory point7 = Coord({ x: 15, y: 5 }); // not inside
+    Coord memory point8 = Coord({ x: 9, y: 9 }); // inside
+
+    assertTrue(!LibPolygon.winding(polygon, point1), "point 1 failed");
+    assertTrue(!LibPolygon.winding(polygon, point2), "point 2 failed");
+    assertTrue(LibPolygon.winding(polygon, point3), "point 3 failed");
+    assertTrue(!LibPolygon.winding(polygon, point4), "point 4 failed");
+    assertTrue(!LibPolygon.winding(polygon, point5), "point 5 failed");
+    assertTrue(!LibPolygon.winding(polygon, point6), "point 6 failed");
+    assertTrue(!LibPolygon.winding(polygon, point7), "point 7 failed");
+    assertTrue(LibPolygon.winding(polygon, point8), "point 8 failed");
   }
 
   function testCombatSystem() public prank(deployer) {
@@ -114,6 +144,7 @@ contract CombatSystemTest is MudTest {
 
     uint32 origHealth = healthComponent.getValue(defenderId);
     uint32 orig2Health = healthComponent.getValue(defender2Id);
+    uint32 attackerHealth = healthComponent.getValue(attackerId);
 
     combatSystem.executeTyped(attackerId, Side.Right);
 
@@ -121,6 +152,42 @@ contract CombatSystemTest is MudTest {
     assertEq(newHealth, origHealth - 1);
 
     newHealth = healthComponent.getValue(defender2Id);
+    assertEq(newHealth, orig2Health);
+
+    newHealth = healthComponent.getValue(attackerId);
+    assertEq(newHealth, attackerHealth);
+  }
+
+  function testCombatAfterMove() public prank(deployer) {
+    setup();
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    MoveSystem moveSystem = MoveSystem(system(MoveSystemID));
+
+    Coord memory startingPosition = Coord({ x: 0, y: 0 });
+    uint256 attackerId = shipSpawnSystem.executeTyped(startingPosition, 0, 10, 30);
+
+    uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
+
+    moveSystem.executeTyped(attackerId, moveStraightEntityId);
+
+    uint256 defenderId = shipSpawnSystem.executeTyped(startingPosition, 0, 10, 30);
+
+    uint32 origHealth = healthComponent.getValue(defenderId);
+    uint32 attackerHealth = healthComponent.getValue(attackerId);
+
+    combatSystem.executeTyped(attackerId, Side.Right);
+
+    Coord[4] memory firingArea = combatSystem.getFiringArea(components, attackerId, Side.Right);
+
+    (Coord memory targetPosition, Coord memory targetAft) = LibPolygon.getShipBowAndSternLocation(
+      components,
+      defenderId
+    );
+
+    uint32 newHealth = healthComponent.getValue(attackerId);
+    assertEq(newHealth, attackerHealth);
+
+    newHealth = healthComponent.getValue(defenderId);
     assertEq(newHealth, origHealth);
   }
 

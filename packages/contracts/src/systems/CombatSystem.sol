@@ -72,6 +72,6 @@ contract CombatSystem is System {
     Coord memory topCorner = LibPolygon.getPositionByVector(position, rotation, range, topRange);
     Coord memory bottomCorner = LibPolygon.getPositionByVector(sternLocation, rotation, range, bottomRange);
 
-    return ([position, sternLocation, topCorner, bottomCorner]);
+    return ([position, sternLocation, bottomCorner, topCorner]);
   }
 }

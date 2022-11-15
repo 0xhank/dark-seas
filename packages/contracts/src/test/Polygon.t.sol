@@ -22,9 +22,9 @@ contract PolygonTest is MudTest {
     Coord memory outsideCoord = Coord({ x: -1, y: 3 });
     Coord memory onLineCoord = Coord({ x: 0, y: 3 });
 
-    bool isInside = LibPolygon.checkInside(coords, insideCoord);
-    bool isOutside = LibPolygon.checkInside(coords, outsideCoord);
-    bool isOnLine = LibPolygon.checkInside(coords, onLineCoord);
+    bool isInside = LibPolygon.winding(coords, insideCoord);
+    bool isOutside = LibPolygon.winding(coords, outsideCoord);
+    bool isOnLine = LibPolygon.winding(coords, onLineCoord);
 
     assertTrue(isInside);
     assertTrue(!isOutside);
@@ -43,9 +43,9 @@ contract PolygonTest is MudTest {
     Coord memory outsideCoord = Coord({ x: 0, y: 4 });
     Coord memory onLineCoord = Coord({ x: 1, y: 2 });
 
-    bool isInside = LibPolygon.checkInside(coords, insideCoord);
-    bool isOutside = LibPolygon.checkInside(coords, outsideCoord);
-    bool isOnLine = LibPolygon.checkInside(coords, onLineCoord);
+    bool isInside = LibPolygon.winding(coords, insideCoord);
+    bool isOutside = LibPolygon.winding(coords, outsideCoord);
+    bool isOnLine = LibPolygon.winding(coords, onLineCoord);
 
     assertTrue(isInside);
     assertTrue(!isOutside);

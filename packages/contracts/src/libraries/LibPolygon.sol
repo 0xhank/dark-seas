@@ -9,6 +9,7 @@ import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponen
 import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
+import { console } from "forge-std/console.sol";
 
 import "trig/src/Trigonometry.sol";
 
@@ -40,7 +41,7 @@ library LibPolygon {
     return Coord({ x: finalX, y: finalY });
   }
 
-  function getShipSternAndAftLocation(IUint256Component components, uint256 shipEntityId)
+  function getShipBowAndSternLocation(IUint256Component components, uint256 shipEntityId)
     public
     returns (Coord memory, Coord memory)
   {
@@ -68,66 +69,18 @@ library LibPolygon {
     return getPositionByVector(originPosition, rotation, length, 180);
   }
 
-  function direction(
-    Coord memory a,
-    Coord memory b,
-    Coord memory c
-  ) public returns (uint32) {
-    int32 val = (b.y - a.y) * (c.x - b.x) - (b.x - a.x) * (c.y - b.y);
-    if (val == 0) return 0;
-    if (val < 0) return 2;
-    return 1;
-  }
+  function winding(Coord[4] memory coords, Coord memory point) public returns (bool) {
+    int32 wn = 0;
+    for (uint32 i = 0; i < 4; i++) {
+      Coord memory point1 = coords[i];
+      Coord memory point2 = i == 3 ? coords[0] : coords[i + 1];
 
-  function onLine(Line memory l1, Coord memory p) public returns (bool) {
-    if (
-      p.x <= max(l1.p1.x, l1.p2.x) &&
-      p.x <= min(l1.p1.x, l1.p2.x) &&
-      p.y <= max(l1.p1.y, l1.p2.y) &&
-      p.y <= min(l1.p1.y, l1.p2.y)
-    ) {
-      return true;
+      int32 isLeft = ((point2.x - point1.x) * (point.y - point1.y)) - ((point.x - point1.x) * (point2.y - point1.y));
+      if (isLeft == 0) return false;
+      if (point1.y <= point.y && point2.y > point.y && isLeft > 0) wn++;
+      else if (point1.y > point.y && point2.y <= point.y && isLeft < 0) wn--;
     }
-    return false;
-  }
-
-  function isIntersect(Line memory l1, Line memory l2) public returns (bool) {
-    uint32 dir1 = direction(l1.p1, l1.p2, l2.p1);
-    uint32 dir2 = direction(l1.p1, l1.p2, l2.p2);
-    uint32 dir3 = direction(l2.p1, l2.p2, l1.p1);
-    uint32 dir4 = direction(l2.p1, l2.p2, l1.p2);
-
-    if (dir1 != dir2 && dir3 != dir4) return true;
-    if (dir1 == 0 && onLine(l1, l2.p1)) return true;
-    if (dir2 == 0 && onLine(l1, l2.p2)) return true;
-    if (dir3 == 0 && onLine(l2, l1.p1)) return true;
-    if (dir4 == 0 && onLine(l2, l1.p2)) return true;
-    return false;
-  }
-
-  function checkInside(Coord[4] memory coords, Coord memory p) public returns (bool) {
-    Line memory exline = Line({ p1: p, p2: Coord({ x: 65535, y: p.y }) });
-    uint32 count = 0;
-    uint32 i = 0;
-    do {
-      uint32 iPlusOne = i == 3 ? 0 : i + 1;
-      Line memory side = Line({ p1: coords[i], p2: coords[iPlusOne] });
-      if (isIntersect(side, exline)) {
-        if (direction(side.p1, p, side.p2) == 0) return onLine(side, p);
-        count++;
-      }
-      i = iPlusOne;
-    } while (i != 0);
-
-    return count % 2 == 1;
-  }
-
-  function max(int32 a, int32 b) public returns (int32) {
-    return a > b ? a : b;
-  }
-
-  function min(int32 a, int32 b) public returns (int32) {
-    return a < b ? a : b;
+    return wn != 0;
   }
 
   function inRange(
