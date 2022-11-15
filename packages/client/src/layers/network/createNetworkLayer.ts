@@ -5,6 +5,7 @@ import {
   setupMUDNetwork,
   defineCoordComponent,
   defineNumberComponent,
+  defineBoolComponent,
 } from "@latticexyz/std-client";
 import { defineLoadingStateComponent } from "./components";
 import { SystemTypes } from "contracts/types/SystemTypes";
@@ -12,6 +13,7 @@ import { SystemAbis } from "contracts/types/SystemAbis.mjs";
 import { GameConfig, getNetworkConfig } from "./config";
 import { BigNumber } from "ethers";
 import { Coord } from "@latticexyz/utils";
+import { Side } from "../../constants";
 
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -28,8 +30,6 @@ export async function createNetworkLayer(config: GameConfig) {
     LoadingState: defineLoadingStateComponent(world),
     Position: defineCoordComponent(world, { id: "Position", metadata: { contractId: "ds.component.Position" } }),
     Rotation: defineNumberComponent(world, { id: "Rotation", metadata: { contractId: "ds.component.Rotation" } }),
-    Width: defineNumberComponent(world, { id: "Width", metadata: { contractId: "ds.component.Width" } }),
-    Length: defineNumberComponent(world, { id: "Length", metadata: { contractId: "ds.component.Length" } }),
     MoveAngle: defineNumberComponent(world, {
       id: "MoveAngle",
       metadata: { contractId: "ds.component.MoveAngle" },
@@ -42,6 +42,10 @@ export async function createNetworkLayer(config: GameConfig) {
       id: "MoveRotation",
       metadata: { contractId: "ds.component.MoveRotation" },
     }),
+    Length: defineNumberComponent(world, { id: "Length", metadata: { contractId: "ds.component.Length" } }),
+    Range: defineNumberComponent(world, { id: "Range", metadata: { contractId: "ds.component.Range" } }),
+    Health: defineNumberComponent(world, { id: "Health", metadata: { contractId: "ds.component.Health" } }),
+    Ship: defineBoolComponent(world, { id: "Ship", metadata: { contractId: "ds.component.Ship" } }),
   };
 
   // --- SETUP ----------------------------------------------------------------------
@@ -57,7 +61,7 @@ export async function createNetworkLayer(config: GameConfig) {
 
   function spawnShip(location: Coord, rotation: number) {
     console.log("spawning ship at", location, `with rotation ${rotation}`);
-    systems["ds.system.ShipSpawn"].executeTyped(location, rotation, 5, 1);
+    systems["ds.system.ShipSpawn"].executeTyped(location, rotation, 10, 30);
   }
 
   function move(shipId: EntityID, moveId: EntityID) {
@@ -65,6 +69,11 @@ export async function createNetworkLayer(config: GameConfig) {
     systems["ds.system.Move"].executeTyped(shipId, moveId, {
       gasLimit: 30_000_000,
     });
+  }
+
+  function attack(shipId: EntityID, side: Side) {
+    console.log("attacking!");
+    systems["ds.system.Combat"].executeTyped(shipId, side);
   }
 
   // --- CONTEXT --------------------------------------------------------------------
@@ -77,7 +86,7 @@ export async function createNetworkLayer(config: GameConfig) {
     startSync,
     network,
     actions,
-    api: { spawnShip, move },
+    api: { spawnShip, move, attack },
     dev: setupDevSystems(world, encoders, systems),
   };
 
