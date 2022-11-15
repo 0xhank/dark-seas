@@ -76,5 +76,5 @@ export function getFiringArea(position: Coord, range: number, length: number, ro
   const topCorner = getPositionByVector(position, rotation, range, topRange);
   const bottomCorner = getPositionByVector(sternLocation, rotation, range, bottomRange);
 
-  return [position, sternLocation, topCorner, bottomCorner];
+  return [position, sternLocation, bottomCorner, topCorner];
 }
