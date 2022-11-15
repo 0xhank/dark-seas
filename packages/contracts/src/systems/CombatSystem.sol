@@ -41,9 +41,9 @@ contract CombatSystem is System {
 
     for (uint256 i = 0; i < shipEntities.length; i++) {
       if (shipEntities[i] == entity) continue;
-      (Coord memory aft, Coord memory stern) = LibPolygon.getShipSternAndAftLocation(components, shipEntities[i]);
+      (Coord memory aft, Coord memory stern) = LibPolygon.getShipBowAndSternLocation(components, shipEntities[i]);
 
-      if (!LibPolygon.checkInside(firingRange, aft) && !LibPolygon.checkInside(firingRange, stern)) continue;
+      if (!LibPolygon.winding(firingRange, aft) && !LibPolygon.winding(firingRange, stern)) continue;
 
       uint32 enemyHealth = healthComponent.getValue(shipEntities[i]);
 
