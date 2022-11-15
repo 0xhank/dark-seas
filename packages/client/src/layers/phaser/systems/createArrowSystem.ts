@@ -10,7 +10,7 @@ export function createArrowSystem(network: NetworkLayer, phaser: PhaserLayer) {
     components: { SelectedShip, SelectedMove },
     scenes: {
       Main: {
-        objectPool,
+        phaserScene,
         input,
 
         maps: {
@@ -24,24 +24,21 @@ export function createArrowSystem(network: NetworkLayer, phaser: PhaserLayer) {
     components: { Position },
   } = network;
 
-  defineSystem(world, [Has(SelectedMove), Has(SelectedShip)], ({ entity, value }) => {
-    const arrow = objectPool.get(`${entity}-hover-highlight`, "Rectangle");
+  // const data = [0, 20, 84, 20, 84, 0, 120, 50, 84, 100, 84, 80, 0, 80];
 
-    const data = [0, 20, 84, 20, 84, 0, 120, 50, 84, 100, 84, 80, 0, 80];
+  // // const arrows = phaserScene.add.group();
 
-    arrow.setComponent({
-      id: "arrow",
-      once: (arrow) => {
-        const pixelCoord = tileCoordToPixelCoord({ x: 0, y: 0 }, tileWidth, tileHeight);
+  // // defineSystem(world, [Has(Position)], ({ entity, value }) => {
+  // console.log("made it here");
+  // const pixelCoord = tileCoordToPixelCoord({ x: 0, y: 0 }, tileWidth, tileHeight);
 
-        arrow.setSize(tileWidth, tileHeight);
-        arrow.setPosition(pixelCoord.x, pixelCoord.y);
-        // arrow.set
-        arrow.setDepth(12);
+  // const arrow = phaserScene.add.polygon(pixelCoord.x, pixelCoord.y, data, 0xff0000);
+  // arrow.setData("directional arrow");
+  // // const arrow = phaserScene.add.rectangle(pixelCoord.x, pixelCoord.y, 10, 10, 0xff0000);
+  // arrow.setDepth(9999);
 
-        arrow.setPipeline(HueTintAndOutlineFXPipeline.KEY);
-        // arrow.setPipelineData("hueTint", hoverHighlght.color);
-      },
-    });
-  });
+  // arrows.add(arrow, true);
+
+  // arrow.setPipelineData("hueTint", hoverHighlght.color);
+  // });
 }

@@ -27,16 +27,18 @@ export function createInputSystem(network: NetworkLayer, phaser: PhaserLayer) {
     const pointer = p as Phaser.Input.Pointer;
     const tilePos = pixelCoordToTileCoord({ x: pointer.worldX, y: pointer.worldY }, tileWidth, tileHeight);
 
-    const entitiesAtPosition = [...getEntitiesWithValue(Position, tilePos)];
+    console.log("tile position:", tilePos);
+    console.log("pixel position:", pointer.worldX, pointer.worldY);
+    // const entitiesAtPosition = [...getEntitiesWithValue(Position, tilePos)];
 
-    if (entitiesAtPosition.length == 0) {
-      return;
-    }
+    // if (entitiesAtPosition.length == 0) {
+    //   return;
+    // }
 
-    const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
+    // const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
-    console.log("setting selected ship to ", entitiesAtPosition[0]);
-    setComponent(SelectedShip, GodEntityIndex, { value: entitiesAtPosition[0] });
+    // console.log("setting selected ship to ", entitiesAtPosition[0]);
+    // setComponent(SelectedShip, GodEntityIndex, { value: entitiesAtPosition[0] });
   });
 
   world.registerDisposer(() => clickSub?.unsubscribe());
