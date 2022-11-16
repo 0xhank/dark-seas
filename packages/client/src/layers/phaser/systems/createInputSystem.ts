@@ -11,17 +11,12 @@ export function createInputSystem(network: NetworkLayer, phaser: PhaserLayer) {
     scenes: {
       Main: {
         input,
-
         maps: {
           Main: { tileWidth, tileHeight },
         },
       },
     },
   } = phaser;
-
-  const {
-    components: { Position },
-  } = network;
 
   const clickSub = input.click$.subscribe((p) => {
     const pointer = p as Phaser.Input.Pointer;

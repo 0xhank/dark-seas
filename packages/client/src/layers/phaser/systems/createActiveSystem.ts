@@ -72,8 +72,8 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
 
     const leftFiringRange = phaserScene.add.polygon(undefined, undefined, leftSidePoints, 0xfffff, 0.5);
 
-    rightFiringRange.setDisplayOrigin(position.x, position.y);
-    leftFiringRange.setDisplayOrigin(position.x, position.y);
+    rightFiringRange.setDisplayOrigin(0);
+    leftFiringRange.setDisplayOrigin(0);
 
     rangeGroup.add(rightFiringRange, true);
     rangeGroup.add(leftFiringRange, true);

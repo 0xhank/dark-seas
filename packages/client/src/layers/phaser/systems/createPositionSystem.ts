@@ -52,7 +52,7 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
     if (!position) return console.warn("no position");
 
     const object = objectPool.get(update.entity, "Rectangle");
-    const { x, y } = tileCoordToPixelCoord({ x: position.x + 0.5, y: position.y + 0.5 }, tileWidth, tileHeight);
+    const { x, y } = tileCoordToPixelCoord({ x: position.x, y: position.y }, tileWidth, tileHeight);
 
     object.setComponent({
       id: Position.id,
@@ -62,7 +62,7 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
         gameObject.setPosition(x, y);
         gameObject.setOrigin(1, 0.5);
 
-        gameObject.setRotation(deg2rad(rotation));
+        gameObject.setAngle(rotation);
 
         gameObject.setInteractive();
         gameObject.on("pointerdown", () => {
