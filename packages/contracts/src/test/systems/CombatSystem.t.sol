@@ -82,13 +82,13 @@ contract CombatSystemTest is MudTest {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 0;
 
-    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, 350, 50, 50);
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, 0, 10, 50);
 
     Coord[4] memory firingArea = combatSystem.getFiringArea(components, shipEntityId, Side.Right);
 
-    Coord memory stern = Coord({ x: -49, y: 8 });
-    Coord memory bottomCorner = Coord({ x: 0, y: -49 });
-    Coord memory topCorner = Coord({ x: -66, y: -38 });
+    Coord memory stern = Coord({ x: -9, y: 0 });
+    Coord memory bottomCorner = Coord({ x: 8, y: 49 });
+    Coord memory topCorner = Coord({ x: -17, y: 49 });
 
     assertCoordEq(startingPosition, firingArea[0]);
     assertCoordEq(stern, firingArea[1]);
@@ -137,10 +137,10 @@ contract CombatSystemTest is MudTest {
     uint256 attackerId = shipSpawnSystem.executeTyped(startingPosition, 350, 50, 50);
 
     startingPosition = Coord({ x: -25, y: -25 });
-    uint256 defenderId = shipSpawnSystem.executeTyped(startingPosition, rotation, 50, 50);
+    uint256 defender2Id = shipSpawnSystem.executeTyped(startingPosition, rotation, 50, 50);
 
     startingPosition = Coord({ x: 25, y: 25 });
-    uint256 defender2Id = shipSpawnSystem.executeTyped(startingPosition, rotation, 50, 50);
+    uint256 defenderId = shipSpawnSystem.executeTyped(startingPosition, rotation, 50, 50);
 
     uint32 origHealth = healthComponent.getValue(defenderId);
     uint32 orig2Health = healthComponent.getValue(defender2Id);

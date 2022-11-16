@@ -35,7 +35,7 @@ contract MoveSystemTest is MudTest {
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
     uint32 playerRotation = rotationComponent.getValue(shipEntityId);
-    assertCoordEq(Coord({ x: startingPosition.x + 35, y: startingPosition.y + 35 }), currPosition);
+    assertCoordEq(Coord({ x: startingPosition.x + 14, y: startingPosition.y + 14 }), currPosition);
     assertEq(playerRotation, startingRotation);
   }
 
@@ -52,7 +52,7 @@ contract MoveSystemTest is MudTest {
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
     uint32 playerRotation = rotationComponent.getValue(shipEntityId);
-    assertCoordEq(Coord({ x: startingPosition.x + 50, y: startingPosition.y }), currPosition);
+    assertCoordEq(Coord({ x: startingPosition.x + 20, y: startingPosition.y }), currPosition);
     assertEq(playerRotation, (startingRotation + 90) % 360);
   }
 
@@ -69,7 +69,7 @@ contract MoveSystemTest is MudTest {
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
     uint32 playerRotation = rotationComponent.getValue(shipEntityId);
-    assertCoordEq(Coord({ x: startingPosition.x + 35, y: startingPosition.y + 35 }), currPosition);
+    assertCoordEq(Coord({ x: startingPosition.x + 14, y: startingPosition.y + 14 }), currPosition);
     assertEq(playerRotation, (startingRotation + 45) % 360);
   }
 
