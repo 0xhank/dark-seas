@@ -2,10 +2,15 @@ import { namespaceWorld } from "@latticexyz/recs";
 import { createPhaserEngine } from "@latticexyz/phaserx";
 import { phaserConfig } from "./config";
 import { NetworkLayer } from "../network";
-import { createPositionSystem, createInputSystem } from "./systems";
+import {
+  createPositionSystem,
+  createInputSystem,
+  createArrowSystem,
+  createActiveSystem,
+  createHealthSystem,
+} from "./systems";
 import { defineNumberComponent } from "@latticexyz/std-client";
 
-import { createRotationSystem } from "./systems/createRotationSystem";
 /**
  * The Phaser layer is responsible for rendering game objects to the screen.
  */
@@ -23,6 +28,8 @@ export async function createPhaserLayer(network: NetworkLayer) {
   const { game, scenes, dispose: disposePhaser } = await createPhaserEngine(phaserConfig);
   world.registerDisposer(disposePhaser);
 
+  const polygonRegistry = new Map<string, Phaser.GameObjects.Group>();
+
   // --- LAYER CONTEXT --------------------------------------------------------------
   const context = {
     world,
@@ -30,12 +37,15 @@ export async function createPhaserLayer(network: NetworkLayer) {
     network,
     game,
     scenes,
+    polygonRegistry,
   };
 
   // --- SYSTEMS --------------------------------------------------------------------
-  createPositionSystem(network, context);
-  createRotationSystem(network, context);
   createInputSystem(network, context);
+  createPositionSystem(network, context);
+  createArrowSystem(network, context);
+  createActiveSystem(network, context);
+  createHealthSystem(network, context);
 
   return context;
 }

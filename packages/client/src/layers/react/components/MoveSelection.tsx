@@ -13,6 +13,7 @@ import { concat, map, merge, of } from "rxjs";
 import { ActionStateString, ActionState } from "@latticexyz/std-client";
 import { Coord } from "@latticexyz/utils";
 import { GodID } from "@latticexyz/network";
+import { Arrows } from "../../phaser/constants";
 
 export function registerMoveSelection() {
   registerUIComponent(
@@ -20,7 +21,7 @@ export function registerMoveSelection() {
     "MoveSelection",
     // grid location
     {
-      rowStart: 11,
+      rowStart: 10,
       rowEnd: 13,
       colStart: 1,
       colEnd: 10,
@@ -39,7 +40,6 @@ export function registerMoveSelection() {
 
       return merge(MoveAngle.update$, SelectedMove.update$).pipe(
         map(() => {
-          console.log("updating move selection");
           return {
             SelectedMove,
             MoveDistance,
@@ -85,8 +85,24 @@ export function registerMoveSelection() {
               const rotation = getComponentValueStrict(MoveRotation, entity);
               const selected = getComponentValue(SelectedMove, GodEntityIndex);
 
-              console.log(`selected: ${selected}, current entity: ${entity}`);
               const isSelected = selected && selected.value == entity;
+
+              const imageUrl =
+                rotation.value == 360 || rotation.value == 0
+                  ? Arrows.Straight
+                  : rotation.value > 270
+                  ? Arrows.SoftLeft
+                  : rotation.value == 270
+                  ? Arrows.Left
+                  : rotation.value > 180
+                  ? Arrows.HardLeft
+                  : rotation.value == 180
+                  ? Arrows.UTurn
+                  : rotation.value > 90
+                  ? Arrows.HardRight
+                  : rotation.value == 90
+                  ? Arrows.Right
+                  : Arrows.SoftRight;
 
               return (
                 <div
@@ -99,17 +115,13 @@ export function registerMoveSelection() {
                     padding: "5px",
                     borderWidth: `${isSelected ? "3px" : "1px"}`,
                     pointerEvents: "all",
+                    height: "70%",
                   }}
                   key={entity}
-                  onClick={() => {
-                    setComponent(SelectedMove, GodEntityIndex, { value: entity });
-                    console.log(getComponentValue(SelectedMove, GodEntityIndex));
-                  }}
+                  onClick={() => setComponent(SelectedMove, GodEntityIndex, { value: entity })}
                 >
-                  <p>Angle: {angle.value}</p>
+                  <img src={imageUrl} style={{ height: "80%", objectFit: "scale-down" }} />
                   <p>Distance: {distance.value}</p>
-                  <p>Rotation: {rotation.value}</p>
-                  {/* <p>selected entity: {selected.value}</p> */}
                 </div>
               );
             })}

@@ -14,7 +14,7 @@ export function registerSpawnShipButton() {
       rowStart: 1,
       rowEnd: 2,
       colStart: 1,
-      colEnd: 2,
+      colEnd: 3,
     },
     // requirement
     (layers) => {
@@ -26,11 +26,9 @@ export function registerSpawnShipButton() {
           api: { spawnShip },
         },
       } = layers;
-      const [position, setPosition] = useState<Coord>({ x: 0, y: 0 });
-      const [rotation, setRotation] = useState<number>(0);
 
       return (
-        <div style={{ width: "100%", height: "100%", background: "red", pointerEvents: "all" }}>
+        <div style={{ width: "100%", height: "100%", pointerEvents: "all" }}>
           <button
             style={{
               width: "100%",
@@ -41,11 +39,10 @@ export function registerSpawnShipButton() {
               cursor: "pointer",
             }}
             onClick={() => {
-              console.log("hello");
-              spawnShip(position, rotation);
+              spawnShip({ x: 0, y: 0 }, 0);
             }}
           >
-            Spawn ship at ({position.x},{position.y})
+            Spawn ship at (0, 0)
           </button>
         </div>
       );

@@ -17,7 +17,7 @@ import { MoveAngleComponent, ID as MoveAngleComponentID } from "../components/Mo
 import { MoveDistanceComponent, ID as MoveDistanceComponentID } from "../components/MoveDistanceComponent.sol";
 import { MoveRotationComponent, ID as MoveRotationComponentID } from "../components/MoveRotationComponent.sol";
 
-import "trig/src/Trigonometry.sol";
+import "../libraries/LibPolygon.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Move"));
 
@@ -38,7 +38,7 @@ contract MoveSystem is System {
 
     require(moveAngleComponent.has(movementEntity), "MoveSystem: movement entity not a movement entity");
 
-    Coord memory finalPosition = calculateFinalPosition(
+    Coord memory finalPosition = LibPolygon.getPositionByVector(
       positionComponent.getValue(entity),
       rotationComponent.getValue(entity),
       moveDistanceComponent.getValue(movementEntity),
@@ -49,28 +49,6 @@ contract MoveSystem is System {
 
     positionComponent.set(entity, finalPosition);
     rotationComponent.set(entity, newRotation);
-  }
-
-  function calculateFinalPosition(
-    Coord memory initialPosition,
-    uint32 initialRotation,
-    uint32 moveDistance,
-    uint32 moveAngle
-  ) internal returns (Coord memory) {
-    uint32 angleDegs = (initialRotation + moveAngle) % 360;
-
-    uint256 angleRadsTimes10000 = uint256(angleDegs * 1745);
-
-    uint256 angleRadsConverted = angleRadsTimes10000 * 1e13 + Trigonometry.TWO_PI;
-
-    int256 newX = Trigonometry.cos(angleRadsConverted) * int32(moveDistance);
-
-    int256 newY = Trigonometry.sin(angleRadsConverted) * int32(moveDistance);
-
-    int256 unconvertedX = newX / 1e18;
-    int256 unconvertedY = newY / 1e18;
-
-    return Coord({ x: int32(unconvertedX) + initialPosition.x, y: int32(unconvertedY) + initialPosition.y });
   }
 
   function executeTyped(uint256 entity, uint256 movementEntity) public returns (bytes memory) {

@@ -15,7 +15,7 @@ export function registerMoveButton() {
       rowStart: 2,
       rowEnd: 3,
       colStart: 1,
-      colEnd: 2,
+      colEnd: 3,
     },
     // requirement
     (layers) => {
@@ -23,7 +23,6 @@ export function registerMoveButton() {
         network: {
           world,
           api: { move },
-          components: { MoveDistance, MoveAngle, MoveRotation },
         },
         phaser: {
           components: { SelectedMove, SelectedShip },
@@ -35,33 +34,17 @@ export function registerMoveButton() {
           SelectedShip,
           move,
           world,
-          MoveDistance,
-          MoveAngle,
-          MoveRotation,
         }))
       );
     },
-    ({ SelectedMove, SelectedShip, move, world, MoveDistance, MoveAngle, MoveRotation }) => {
+    ({ SelectedMove, SelectedShip, move, world }) => {
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
       const shipEntity = getComponentValue(SelectedShip, GodEntityIndex);
       const moveEntity = getComponentValue(SelectedMove, GodEntityIndex);
 
-      if (!shipEntity || !moveEntity) {
-        return <div>Select a ship and a move to continue</div>;
-      }
-
-      const moveEntityIndex = moveEntity.value as EntityIndex;
-      const moveDistance = getComponentValueStrict(MoveDistance, moveEntityIndex);
-      const moveAngle = getComponentValueStrict(MoveAngle, moveEntityIndex);
-      const moveRotation = getComponentValueStrict(MoveRotation, moveEntityIndex);
-
       return (
         <div style={{ width: "100%", height: "100%", background: "red", pointerEvents: "all" }}>
-          <span>Move ship {shipEntity.value}</span>
-          {/* <span>
-            Move distance: {moveDistance.value}, move angle: {moveAngle.value}, move rotation: {moveRotation.value}
-          </span> */}
           <button
             style={{
               width: "100%",
@@ -71,13 +54,19 @@ export function registerMoveButton() {
               padding: "5px",
               cursor: "pointer",
             }}
+            disabled={!shipEntity || !moveEntity}
             onClick={() => {
-              console.log("hello");
+              if (!shipEntity || !moveEntity) return;
               move(world.entities[shipEntity.value], world.entities[moveEntity.value]);
             }}
           >
-            {" "}
-            MOVE IT!
+            {!shipEntity ? (
+              <span>Choose a ship</span>
+            ) : !moveEntity ? (
+              <span>Choose a move</span>
+            ) : (
+              <span>Move {shipEntity.value}</span>
+            )}
           </button>
         </div>
       );

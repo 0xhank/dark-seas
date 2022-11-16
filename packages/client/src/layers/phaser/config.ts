@@ -88,15 +88,15 @@ export const phaserConfig = {
   },
   scale: defineScaleConfig({
     parent: "phaser-game",
-    zoom: 2,
+    zoom: 0.5,
     mode: Phaser.Scale.NONE,
   }),
   cameraConfig: defineCameraConfig({
     phaserSelector: "phaser-game",
     pinchSpeed: 1,
     wheelSpeed: 1,
-    maxZoom: 4,
-    minZoom: 1,
+    maxZoom: 2,
+    minZoom: 0.1,
   }),
   cullingChunkSize: TILE_HEIGHT * 16,
 };

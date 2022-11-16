@@ -11,7 +11,6 @@ export function createInputSystem(network: NetworkLayer, phaser: PhaserLayer) {
     scenes: {
       Main: {
         input,
-
         maps: {
           Main: { tileWidth, tileHeight },
         },
@@ -19,24 +18,12 @@ export function createInputSystem(network: NetworkLayer, phaser: PhaserLayer) {
     },
   } = phaser;
 
-  const {
-    components: { Position },
-  } = network;
-
   const clickSub = input.click$.subscribe((p) => {
     const pointer = p as Phaser.Input.Pointer;
     const tilePos = pixelCoordToTileCoord({ x: pointer.worldX, y: pointer.worldY }, tileWidth, tileHeight);
 
-    const entitiesAtPosition = [...getEntitiesWithValue(Position, tilePos)];
-
-    if (entitiesAtPosition.length == 0) {
-      return;
-    }
-
-    const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
-
-    console.log("setting selected ship to ", entitiesAtPosition[0]);
-    setComponent(SelectedShip, GodEntityIndex, { value: entitiesAtPosition[0] });
+    console.log("tile position:", tilePos);
+    console.log("pixel position:", pointer.worldX, pointer.worldY);
   });
 
   world.registerDisposer(() => clickSub?.unsubscribe());
