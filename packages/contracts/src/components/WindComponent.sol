@@ -3,7 +3,6 @@ pragma solidity >=0.8.0;
 import "solecs/Component.sol";
 
 struct Wind {
-  // Block timestamp when the game started
   uint32 speed;
   uint32 direction;
 }
@@ -15,8 +14,8 @@ contract WindComponent is Component {
   constructor(address world) Component(world, ID) {}
 
   function getSchema() public pure override returns (string[] memory keys, LibTypes.SchemaValue[] memory values) {
-    keys = new string[](4);
-    values = new LibTypes.SchemaValue[](4);
+    keys = new string[](2);
+    values = new LibTypes.SchemaValue[](2);
 
     keys[0] = "speed";
     values[0] = LibTypes.SchemaValue.UINT32;
