@@ -8,7 +8,8 @@
     "LengthComponent",
     "RangeComponent",
     "HealthComponent",
-    "ShipComponent"
+    "ShipComponent",
+    "WindComponent"
   ],
   "systems": [
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
