@@ -11,13 +11,13 @@ import { getAddressById, getSystemAddressById } from "solecs/utils.sol";
 // Components
 import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
-import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
-import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
 import { MoveAngleComponent, ID as MoveAngleComponentID } from "../components/MoveAngleComponent.sol";
 import { MoveDistanceComponent, ID as MoveDistanceComponentID } from "../components/MoveDistanceComponent.sol";
 import { MoveRotationComponent, ID as MoveRotationComponentID } from "../components/MoveRotationComponent.sol";
+import { WindComponent, ID as WindComponentID, Wind, GodID } from "../components/WindComponent.sol";
 
 import "../libraries/LibVector.sol";
+import "../libraries/LibNature.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Move"));
 
@@ -35,17 +35,26 @@ contract MoveSystem is System {
     MoveDistanceComponent moveDistanceComponent = MoveDistanceComponent(
       getAddressById(components, MoveDistanceComponentID)
     );
+    Wind memory wind = WindComponent(getAddressById(components, WindComponentID)).getValue(GodID);
+
+    uint32 rotation = rotationComponent.getValue(entity);
+    // uint32 rotation = 0;
+    uint32 moveDistance = LibNature.getMoveDistanceWithWind(
+      moveDistanceComponent.getValue(movementEntity),
+      rotation,
+      wind
+    );
 
     require(moveAngleComponent.has(movementEntity), "MoveSystem: movement entity not a movement entity");
 
     Coord memory finalPosition = LibVector.getPositionByVector(
       positionComponent.getValue(entity),
-      rotationComponent.getValue(entity),
-      moveDistanceComponent.getValue(movementEntity),
+      rotation,
+      moveDistance,
       moveAngleComponent.getValue(movementEntity)
     );
 
-    uint32 newRotation = (rotationComponent.getValue(entity) + moveRotationComponent.getValue(movementEntity)) % 360;
+    uint32 newRotation = (rotation + moveRotationComponent.getValue(movementEntity)) % 360;
 
     positionComponent.set(entity, finalPosition);
     rotationComponent.set(entity, newRotation);

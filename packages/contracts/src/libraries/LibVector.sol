@@ -14,11 +14,6 @@ import { console } from "forge-std/console.sol";
 import "trig/src/Trigonometry.sol";
 
 library LibVector {
-  struct Line {
-    Coord p1;
-    Coord p2;
-  }
-
   function getPositionByVector(
     Coord memory initialPosition,
     uint32 initialRotation,
