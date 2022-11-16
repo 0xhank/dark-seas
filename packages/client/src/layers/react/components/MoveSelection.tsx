@@ -23,7 +23,7 @@ export function registerMoveSelection() {
     {
       rowStart: 10,
       rowEnd: 13,
-      colStart: 1,
+      colStart: 3,
       colEnd: 10,
     },
     // requirement
