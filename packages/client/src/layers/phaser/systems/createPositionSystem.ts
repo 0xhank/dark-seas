@@ -34,12 +34,17 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
       },
     },
     components: { SelectedShip },
+    polygonRegistry,
   } = phaser;
 
   defineSystem(world, [Has(Position), Has(Rotation), Has(Length)], (update) => {
     if (update.type == UpdateType.Exit) {
       return;
     }
+
+    const rangeGroup = polygonRegistry.get("rangeGroup");
+
+    if (rangeGroup) rangeGroup.clear(true, true);
 
     const length = getComponentValueStrict(Length, update.entity).value;
     const rotation = getComponentValueStrict(Rotation, update.entity).value;
@@ -52,13 +57,11 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
     object.setComponent({
       id: Position.id,
       once: async (gameObject: Phaser.GameObjects.Rectangle) => {
-        console.log("game object is:", gameObject);
-        gameObject.setFillStyle(0xffff00, 1);
+        gameObject.setFillStyle(0xe97451, 1);
         gameObject.setSize(length * tileWidth, shipWidth * tileHeight);
         gameObject.setPosition(x, y);
         gameObject.setOrigin(1, 0.5);
 
-        console.log(`rotation of ship ${update.entity}: ${rotation}`);
         gameObject.setRotation(deg2rad(rotation));
 
         gameObject.setInteractive();

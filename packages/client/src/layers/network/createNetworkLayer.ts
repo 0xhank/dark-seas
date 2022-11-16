@@ -61,7 +61,10 @@ export async function createNetworkLayer(config: GameConfig) {
 
   function spawnShip(location: Coord, rotation: number) {
     console.log("spawning ship at", location, `with rotation ${rotation}`);
-    systems["ds.system.ShipSpawn"].executeTyped(location, rotation, 10, 30);
+
+    const length = 10;
+    const range = 50;
+    systems["ds.system.ShipSpawn"].executeTyped(location, rotation, length, range);
   }
 
   function move(shipId: EntityID, moveId: EntityID) {

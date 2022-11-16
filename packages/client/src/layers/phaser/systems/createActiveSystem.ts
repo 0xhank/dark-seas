@@ -9,7 +9,6 @@ import {
   UpdateType,
 } from "@latticexyz/recs";
 import { Side } from "../../../constants";
-import { coordToArray } from "../../../utils/coords";
 import { getFiringArea } from "../../../utils/trig";
 import { NetworkLayer } from "../../network";
 import { PhaserLayer } from "../types";
@@ -35,7 +34,6 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
   } = phaser;
 
   defineSystem(world, [Has(SelectedShip)], ({ entity, type }) => {
-    console.log("in create active system");
     if (type === UpdateType.Exit) {
       return;
     }
@@ -51,7 +49,7 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
         id: SelectedShip.id,
 
         once: async (gameObject) => {
-          gameObject.setFillStyle(0xffff00, 1);
+          gameObject.setFillStyle(0xe97451, 1);
         },
       })
     );
@@ -62,38 +60,20 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
     else rangeGroup = phaserScene.add.group();
 
     const position = getComponentValueStrict(Position, shipEntityId);
-    const range = getComponentValueStrict(Range, shipEntityId);
-    const length = getComponentValueStrict(Length, shipEntityId);
-    const rotation = getComponentValueStrict(Rotation, shipEntityId);
+    const range = getComponentValueStrict(Range, shipEntityId).value;
+    const length = getComponentValueStrict(Length, shipEntityId).value;
+    const rotation = getComponentValueStrict(Rotation, shipEntityId).value;
 
     const pixelPosition = tileCoordToPixelCoord(position, tileWidth, tileHeight);
 
-    const rightSidePoints = getFiringArea(
-      pixelPosition,
-      range.value * tileHeight,
-      length.value * tileHeight,
-      rotation.value,
-      Side.Right
-    );
-    const leftSidePoints = getFiringArea(
-      pixelPosition,
-      range.value * tileHeight,
-      length.value * tileHeight,
-      rotation.value,
-      Side.Left
-    );
+    const rightSidePoints = getFiringArea(pixelPosition, range * tileHeight, length * tileHeight, rotation, Side.Right);
+    const leftSidePoints = getFiringArea(pixelPosition, range * tileHeight, length * tileHeight, rotation, Side.Left);
+    const rightFiringRange = phaserScene.add.polygon(undefined, undefined, rightSidePoints, 0xfffff, 0.5);
 
-    const rightSideArray = rightSidePoints.map((coord) => coordToArray(coord)).flat();
-    const leftSideArray = leftSidePoints.map((coord) => coordToArray(coord)).flat();
+    const leftFiringRange = phaserScene.add.polygon(undefined, undefined, leftSidePoints, 0xfffff, 0.5);
 
-    // console.log("rightSideArray:", rightSideArray);
-    // console.log("leftSideArray:", leftSideArray);
-
-    const rightFiringRange = phaserScene.add.polygon(pixelPosition.x, pixelPosition.y, rightSideArray, 0xfffff, 0.5);
-    const leftFiringRange = phaserScene.add.polygon(pixelPosition.x, pixelPosition.y, leftSideArray, 0xfffff, 0.5);
-
-    rightFiringRange.setOrigin(0, 0);
-    leftFiringRange.setOrigin(0, 0);
+    rightFiringRange.setDisplayOrigin(position.x, position.y);
+    leftFiringRange.setDisplayOrigin(position.x, position.y);
 
     rangeGroup.add(rightFiringRange, true);
     rangeGroup.add(leftFiringRange, true);
@@ -105,7 +85,7 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
       id: SelectedShip.id,
 
       once: async (gameObject) => {
-        gameObject.setFillStyle(0xff0000, 1);
+        gameObject.setFillStyle(0xffff00, 1);
       },
     });
   });

@@ -40,7 +40,6 @@ export function registerMoveSelection() {
 
       return merge(MoveAngle.update$, SelectedMove.update$).pipe(
         map(() => {
-          console.log("updating move selection");
           return {
             SelectedMove,
             MoveDistance,
@@ -119,10 +118,7 @@ export function registerMoveSelection() {
                     height: "70%",
                   }}
                   key={entity}
-                  onClick={() => {
-                    setComponent(SelectedMove, GodEntityIndex, { value: entity });
-                    console.log(getComponentValue(SelectedMove, GodEntityIndex));
-                  }}
+                  onClick={() => setComponent(SelectedMove, GodEntityIndex, { value: entity })}
                 >
                   <img src={imageUrl} style={{ height: "80%", objectFit: "scale-down" }} />
                   <p>Distance: {distance.value}</p>
