@@ -2,7 +2,13 @@ import { namespaceWorld } from "@latticexyz/recs";
 import { createPhaserEngine } from "@latticexyz/phaserx";
 import { phaserConfig } from "./config";
 import { NetworkLayer } from "../network";
-import { createPositionSystem, createInputSystem, createArrowSystem, createActiveSystem } from "./systems";
+import {
+  createPositionSystem,
+  createInputSystem,
+  createArrowSystem,
+  createActiveSystem,
+  createHealthSystem,
+} from "./systems";
 import { defineNumberComponent } from "@latticexyz/std-client";
 
 /**
@@ -35,10 +41,11 @@ export async function createPhaserLayer(network: NetworkLayer) {
   };
 
   // --- SYSTEMS --------------------------------------------------------------------
-  createPositionSystem(network, context);
   createInputSystem(network, context);
+  createPositionSystem(network, context);
   createArrowSystem(network, context);
   createActiveSystem(network, context);
+  createHealthSystem(network, context);
 
   return context;
 }
