@@ -14,7 +14,7 @@ import { HealthComponent, ID as HealthComponentID } from "../components/HealthCo
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
 
-import "../libraries/LibPolygon.sol";
+import "../libraries/LibVector.sol";
 import "../libraries/LibUtils.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Combat"));
@@ -41,9 +41,9 @@ contract CombatSystem is System {
 
     for (uint256 i = 0; i < shipEntities.length; i++) {
       if (shipEntities[i] == entity) continue;
-      (Coord memory aft, Coord memory stern) = LibPolygon.getShipBowAndSternLocation(components, shipEntities[i]);
+      (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
 
-      if (!LibPolygon.winding(firingRange, aft) && !LibPolygon.winding(firingRange, stern)) continue;
+      if (!LibVector.winding(firingRange, aft) && !LibVector.winding(firingRange, stern)) continue;
 
       uint32 enemyHealth = healthComponent.getValue(shipEntities[i]);
 
@@ -68,9 +68,9 @@ contract CombatSystem is System {
     uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(entity);
     uint32 topRange = side == Side.Right ? 80 : 280;
     uint32 bottomRange = side == Side.Right ? 100 : 260;
-    Coord memory sternLocation = LibPolygon.getSternLocation(position, rotation, length);
-    Coord memory topCorner = LibPolygon.getPositionByVector(position, rotation, range, topRange);
-    Coord memory bottomCorner = LibPolygon.getPositionByVector(sternLocation, rotation, range, bottomRange);
+    Coord memory sternLocation = LibVector.getSternLocation(position, rotation, length);
+    Coord memory topCorner = LibVector.getPositionByVector(position, rotation, range, topRange);
+    Coord memory bottomCorner = LibVector.getPositionByVector(sternLocation, rotation, range, bottomRange);
 
     return ([position, sternLocation, bottomCorner, topCorner]);
   }

@@ -17,7 +17,7 @@ import { MoveAngleComponent, ID as MoveAngleComponentID } from "../components/Mo
 import { MoveDistanceComponent, ID as MoveDistanceComponentID } from "../components/MoveDistanceComponent.sol";
 import { MoveRotationComponent, ID as MoveRotationComponentID } from "../components/MoveRotationComponent.sol";
 
-import "../libraries/LibPolygon.sol";
+import "../libraries/LibVector.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Move"));
 
@@ -38,7 +38,7 @@ contract MoveSystem is System {
 
     require(moveAngleComponent.has(movementEntity), "MoveSystem: movement entity not a movement entity");
 
-    Coord memory finalPosition = LibPolygon.getPositionByVector(
+    Coord memory finalPosition = LibVector.getPositionByVector(
       positionComponent.getValue(entity),
       rotationComponent.getValue(entity),
       moveDistanceComponent.getValue(movementEntity),

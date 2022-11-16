@@ -13,7 +13,7 @@ import { console } from "forge-std/console.sol";
 
 import "trig/src/Trigonometry.sol";
 
-library LibPolygon {
+library LibVector {
   struct Line {
     Coord p1;
     Coord p2;
@@ -46,7 +46,7 @@ library LibPolygon {
     returns (Coord memory, Coord memory)
   {
     ShipComponent shipComponent = ShipComponent(getAddressById(components, ShipComponentID));
-    require(shipComponent.has(shipEntityId), "LibPolygon: not a ship");
+    require(shipComponent.has(shipEntityId), "LibVector: not a ship");
 
     PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
     LengthComponent lengthComponent = LengthComponent(getAddressById(components, LengthComponentID));

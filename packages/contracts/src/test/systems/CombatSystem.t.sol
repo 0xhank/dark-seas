@@ -14,7 +14,7 @@ import { CombatSystem, ID as CombatSystemID, Side } from "../../systems/CombatSy
 import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
 
 // Internal
-import "../../libraries/LibPolygon.sol";
+import "../../libraries/LibVector.sol";
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
 
@@ -32,20 +32,20 @@ contract CombatSystemTest is MudTest {
     Coord memory endPosition = Coord({ x: 10, y: 0 });
 
     uint32 range = 9;
-    bool inRange = LibPolygon.inRange(startingPosition, endPosition, range);
+    bool inRange = LibVector.inRange(startingPosition, endPosition, range);
     assertTrue(!inRange, "9 within range");
 
     range = 11;
-    inRange = LibPolygon.inRange(startingPosition, endPosition, range);
+    inRange = LibVector.inRange(startingPosition, endPosition, range);
     assertTrue(inRange, "11 out of range");
 
     endPosition = Coord({ x: 3, y: 6 });
     range = 6;
-    inRange = LibPolygon.inRange(startingPosition, endPosition, range);
+    inRange = LibVector.inRange(startingPosition, endPosition, range);
     assertTrue(!inRange, "6 within range");
 
     range = 7;
-    inRange = LibPolygon.inRange(startingPosition, endPosition, range);
+    inRange = LibVector.inRange(startingPosition, endPosition, range);
     assertTrue(inRange, "7 out of range");
   }
 
@@ -56,7 +56,7 @@ contract CombatSystemTest is MudTest {
     uint32 rotation = 45;
     uint32 length = 50;
 
-    Coord memory sternLocation = LibPolygon.getSternLocation(startingPosition, rotation, length);
+    Coord memory sternLocation = LibVector.getSternLocation(startingPosition, rotation, length);
 
     Coord memory expectedLocation = Coord({ x: -35, y: -35 });
     assertCoordEq(sternLocation, expectedLocation);
@@ -69,7 +69,7 @@ contract CombatSystemTest is MudTest {
     uint32 startingRotation = 45;
     uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 50, 50);
 
-    (Coord memory bow, Coord memory stern) = LibPolygon.getShipBowAndSternLocation(components, shipEntityId);
+    (Coord memory bow, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntityId);
 
     assertCoordEq(startingPosition, bow);
     Coord memory expectedStern = Coord({ x: -35, y: -35 });
@@ -115,14 +115,14 @@ contract CombatSystemTest is MudTest {
     Coord memory point7 = Coord({ x: 15, y: 5 }); // not inside
     Coord memory point8 = Coord({ x: 9, y: 9 }); // inside
 
-    assertTrue(!LibPolygon.winding(polygon, point1), "point 1 failed");
-    assertTrue(!LibPolygon.winding(polygon, point2), "point 2 failed");
-    assertTrue(LibPolygon.winding(polygon, point3), "point 3 failed");
-    assertTrue(!LibPolygon.winding(polygon, point4), "point 4 failed");
-    assertTrue(!LibPolygon.winding(polygon, point5), "point 5 failed");
-    assertTrue(!LibPolygon.winding(polygon, point6), "point 6 failed");
-    assertTrue(!LibPolygon.winding(polygon, point7), "point 7 failed");
-    assertTrue(LibPolygon.winding(polygon, point8), "point 8 failed");
+    assertTrue(!LibVector.winding(polygon, point1), "point 1 failed");
+    assertTrue(!LibVector.winding(polygon, point2), "point 2 failed");
+    assertTrue(LibVector.winding(polygon, point3), "point 3 failed");
+    assertTrue(!LibVector.winding(polygon, point4), "point 4 failed");
+    assertTrue(!LibVector.winding(polygon, point5), "point 5 failed");
+    assertTrue(!LibVector.winding(polygon, point6), "point 6 failed");
+    assertTrue(!LibVector.winding(polygon, point7), "point 7 failed");
+    assertTrue(LibVector.winding(polygon, point8), "point 8 failed");
   }
 
   function testCombatSystem() public prank(deployer) {
@@ -179,7 +179,7 @@ contract CombatSystemTest is MudTest {
 
     Coord[4] memory firingArea = combatSystem.getFiringArea(components, attackerId, Side.Right);
 
-    (Coord memory targetPosition, Coord memory targetAft) = LibPolygon.getShipBowAndSternLocation(
+    (Coord memory targetPosition, Coord memory targetAft) = LibVector.getShipBowAndSternLocation(
       components,
       defenderId
     );
