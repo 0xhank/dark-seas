@@ -13,6 +13,7 @@ import { LengthComponent, ID as LengthComponentID } from "../components/LengthCo
 import { RangeComponent, ID as RangeComponentID } from "../components/RangeComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
+import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.ShipSpawn"));
 
@@ -24,21 +25,16 @@ contract ShipSpawnSystem is System {
       arguments,
       (Coord, uint32, uint32, uint32)
     );
-    PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
-    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
-    LengthComponent lengthComponent = LengthComponent(getAddressById(components, LengthComponentID));
-    RangeComponent rangeComponent = RangeComponent(getAddressById(components, RangeComponentID));
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
-    ShipComponent shipComponent = ShipComponent(getAddressById(components, ShipComponentID));
 
     uint256 entity = world.getUniqueEntityId();
 
-    positionComponent.set(entity, location);
-    rotationComponent.set(entity, rotation);
-    lengthComponent.set(entity, length);
-    rangeComponent.set(entity, range);
-    healthComponent.set(entity, 100);
-    shipComponent.set(entity);
+    PositionComponent(getAddressById(components, PositionComponentID)).set(entity, location);
+    RotationComponent(getAddressById(components, RotationComponentID)).set(entity, rotation);
+    LengthComponent(getAddressById(components, LengthComponentID)).set(entity, length);
+    RangeComponent(getAddressById(components, RangeComponentID)).set(entity, range);
+    HealthComponent(getAddressById(components, HealthComponentID)).set(entity, 100);
+    ShipComponent(getAddressById(components, ShipComponentID)).set(entity);
+    SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(entity);
 
     return abi.encode(entity);
   }
