@@ -14,6 +14,8 @@ import { ActionStateString, ActionState } from "@latticexyz/std-client";
 import { Coord } from "@latticexyz/utils";
 import { GodID } from "@latticexyz/network";
 import { Arrows } from "../../phaser/constants";
+import { Container, MoveOption } from "../styles/global";
+import { getMoveDistanceWithWind, getWindBoost } from "../../../utils/directions";
 
 export function registerMoveSelection() {
   registerUIComponent(
@@ -23,7 +25,7 @@ export function registerMoveSelection() {
     {
       rowStart: 10,
       rowEnd: 13,
-      colStart: 1,
+      colStart: 3,
       colEnd: 10,
     },
     // requirement
@@ -31,44 +33,55 @@ export function registerMoveSelection() {
       const {
         network: {
           world,
-          components: { MoveAngle, MoveDistance, MoveRotation },
+          components: { Rotation, MoveAngle, MoveDistance, MoveRotation, Wind },
         },
         phaser: {
-          components: { SelectedMove },
+          components: { SelectedShip, SelectedMove },
         },
       } = layers;
 
-      return merge(MoveAngle.update$, SelectedMove.update$).pipe(
+      return merge(MoveAngle.update$, SelectedMove.update$, SelectedShip.update$).pipe(
         map(() => {
           return {
             SelectedMove,
             MoveDistance,
             MoveRotation,
             MoveAngle,
+            Rotation,
+            SelectedShip,
+            Wind,
             world,
           };
         })
       );
     },
-    ({ MoveAngle, MoveDistance, MoveRotation, world, SelectedMove }) => {
+    ({ MoveAngle, MoveDistance, MoveRotation, SelectedMove, SelectedShip, Rotation, Wind, world }) => {
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
+      const wind = getComponentValueStrict(Wind, GodEntityIndex);
+      const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
+      const selectedMove = getComponentValue(SelectedMove, GodEntityIndex);
+
+      if (!selectedShip) {
+        return (
+          <Container>
+            <span>Select a ship</span>
+          </Container>
+        );
+      }
+      const rotation = getComponentValueStrict(Rotation, selectedShip).value;
+      const windSpeedBoost = getWindBoost(wind.speed, wind.direction, rotation);
       const moveEntities = [...getComponentEntities(MoveAngle)];
       return (
-        <div
-          style={{
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-            background: "brown",
-            textAlign: "center",
-            padding: "5px",
-            cursor: "pointer",
-            pointerEvents: "all",
-          }}
-        >
-          <span>Your move options</span>
+        <Container>
+          <span>
+            The wind is{" "}
+            {windSpeedBoost < 0
+              ? `slowing this ship by ${Math.abs(windSpeedBoost)} knots!`
+              : windSpeedBoost > 0
+              ? `giving this ship a ${Math.abs(windSpeedBoost)} knot boost!`
+              : "doing nothing for this ship."}
+          </span>
 
           <div
             style={{
@@ -76,57 +89,45 @@ export function registerMoveSelection() {
               height: "100%",
               display: "flex",
               justifyContent: "center",
-              gap: "16px",
+              gap: "8px",
             }}
           >
             {moveEntities.map((entity) => {
-              const angle = getComponentValueStrict(MoveAngle, entity);
-              const distance = getComponentValueStrict(MoveDistance, entity);
-              const rotation = getComponentValueStrict(MoveRotation, entity);
-              const selected = getComponentValue(SelectedMove, GodEntityIndex);
+              const moveDistance = getComponentValueStrict(MoveDistance, entity).value;
+              const moveRotation = getComponentValueStrict(MoveRotation, entity).value;
 
-              const isSelected = selected && selected.value == entity;
+              const isSelected = selectedMove && selectedMove.value == entity;
 
               const imageUrl =
-                rotation.value == 360 || rotation.value == 0
+                moveRotation == 360 || moveRotation == 0
                   ? Arrows.Straight
-                  : rotation.value > 270
+                  : moveRotation > 270
                   ? Arrows.SoftLeft
-                  : rotation.value == 270
+                  : moveRotation == 270
                   ? Arrows.Left
-                  : rotation.value > 180
+                  : moveRotation > 180
                   ? Arrows.HardLeft
-                  : rotation.value == 180
+                  : moveRotation == 180
                   ? Arrows.UTurn
-                  : rotation.value > 90
+                  : moveRotation > 90
                   ? Arrows.HardRight
-                  : rotation.value == 90
+                  : moveRotation == 90
                   ? Arrows.Right
                   : Arrows.SoftRight;
 
               return (
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    // background: "hsla(120,100,100,.4)",
-                    border: "1px solid white",
-                    cursor: "pointer",
-                    padding: "5px",
-                    borderWidth: `${isSelected ? "3px" : "1px"}`,
-                    pointerEvents: "all",
-                    height: "70%",
-                  }}
+                <MoveOption
+                  isSelected={isSelected}
                   key={entity}
                   onClick={() => setComponent(SelectedMove, GodEntityIndex, { value: entity })}
                 >
                   <img src={imageUrl} style={{ height: "80%", objectFit: "scale-down" }} />
-                  <p>Distance: {distance.value}</p>
-                </div>
+                  <p>Distance: {getMoveDistanceWithWind(wind.speed, wind.direction, moveDistance, rotation)}</p>
+                </MoveOption>
               );
             })}
           </div>
-        </div>
+        </Container>
       );
     }
   );

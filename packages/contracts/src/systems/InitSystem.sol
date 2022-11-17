@@ -6,6 +6,7 @@ import { getAddressById, getSystemAddressById } from "solecs/utils.sol";
 import { MoveAngleComponent, ID as MoveAngleComponentID } from "../components/MoveAngleComponent.sol";
 import { MoveDistanceComponent, ID as MoveDistanceComponentID } from "../components/MoveDistanceComponent.sol";
 import { MoveRotationComponent, ID as MoveRotationComponentID } from "../components/MoveRotationComponent.sol";
+import { WindComponent, ID as WindComponentID, GodID, Wind } from "../components/WindComponent.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Init"));
 
@@ -21,6 +22,7 @@ contract InitSystem is System {
     MoveRotationComponent moveRotationComponent = MoveRotationComponent(
       getAddressById(components, MoveRotationComponentID)
     );
+    WindComponent windComponent = WindComponent(getAddressById(components, WindComponentID));
 
     // Initialize Prototypes
     uint256 moveEntity1 = uint256(keccak256("ds.prototype.moveEntity1"));
@@ -52,5 +54,7 @@ contract InitSystem is System {
     moveAngleComponent.set(moveEntity5, 333);
     moveDistanceComponent.set(moveEntity5, 20);
     moveRotationComponent.set(moveEntity5, 315);
+
+    windComponent.set(GodID, Wind(10, 0));
   }
 }

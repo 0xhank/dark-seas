@@ -7,7 +7,7 @@ pragma solidity >=0.8.0;
 
 // Internal
 import "./MudTest.t.sol";
-import "../libraries/LibPolygon.sol";
+import "../libraries/LibVector.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../systems/ShipSpawnSystem.sol";
@@ -39,9 +39,9 @@ contract SystemGasTest is MudTest {
     Coord memory outsideCoord = Coord({ x: 0, y: 4 });
     Coord memory onLineCoord = Coord({ x: 1, y: 2 });
 
-    bool isInside = LibPolygon.winding(coords, insideCoord);
-    bool isOutside = LibPolygon.winding(coords, outsideCoord);
-    bool isOnLine = LibPolygon.winding(coords, onLineCoord);
+    bool isInside = LibVector.winding(coords, insideCoord);
+    bool isOutside = LibVector.winding(coords, outsideCoord);
+    bool isOnLine = LibVector.winding(coords, onLineCoord);
 
     assertTrue(isInside);
     assertTrue(!isOutside);
