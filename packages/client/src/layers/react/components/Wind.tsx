@@ -76,23 +76,17 @@ export function registerWind() {
       return (
         <Container>
           <Compass>
-            <CompassWindRose style={{ transform: `rotate(-${dir}deg)` }}>
-              {[...Array(10)].map((k, i) => (
-                <CompassMark key={i + 1} />
-              ))}
+            <CompassWindRose>
               <CompassMarkH></CompassMarkH>
               <CompassMarkV></CompassMarkV>
             </CompassWindRose>
-            <CompassArrowContainer>
+            <CompassArrowContainer style={{ transform: `translate(-50%,-50%) rotate(${(dir + 90) % 360}deg)` }}>
               <CompassArrow />
-              <CompassLabels />
-              <CompassSpan>
-                {speed} knot{speed == 1 ? "" : "s"}
-              </CompassSpan>
-              <CompassSpan>
-                {dir}
-                <Sup>o</Sup>
-              </CompassSpan>
+              <CompassLabels>
+                <CompassSpan style={{ transform: `rotate(${(dir - 90) % 360}deg)` }}>
+                  {speed} kt{speed == 1 ? "" : "s"}
+                </CompassSpan>
+              </CompassLabels>
             </CompassArrowContainer>
           </Compass>
         </Container>
@@ -110,13 +104,96 @@ const Compass = styled.div`
   position: relative;
 `;
 
+const CompassMark = styled.div`
+  &,
+  &--direction-h,
+  &--direction-v {
+    width: 4px;
+    height: 100%;
+    left: calc(50% - 2px);
+    position: absolute;
+
+    &:before,
+    &:after {
+      content: "";
+      position: absolute;
+      left: 0;
+      width: 4px;
+      height: 4px;
+      border-radius: 50px;
+      background-color: #fff;
+    }
+
+    &:before {
+      top: 12%;
+    }
+
+    &:after {
+      bottom: 12%;
+    }
+  }
+
+  &--direction-h,
+  &--direction-v {
+    &:before,
+    &:after {
+      width: auto;
+      height: auto;
+      font-size: 42px;
+      line-height: 42px;
+      border-radius: 0;
+      background: transparent;
+      color: #fff;
+      font-weight: 100;
+      font-family: "Roboto Slab", serif;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.35);
+    }
+
+    &:before {
+      top: 8.5%;
+    }
+
+    &:after {
+      bottom: 8.5%;
+      transform: rotate(180deg);
+    }
+  }
+
+  &--direction-h {
+    &:before {
+      content: "N";
+      left: -13px;
+      font-weight: 400;
+    }
+
+    &:after {
+      content: "S";
+      left: -9px;
+    }
+  }
+
+  &--direction-v {
+    transform: rotate(90deg);
+
+    &:before {
+      content: "E";
+      left: -11px;
+    }
+
+    &:after {
+      content: "W";
+      left: -18px;
+    }
+  }
+`;
+
 const CompassWindRose = styled.div`
   box-sizing: border-box;
   width: 100%;
   height: 100%;
   border-radius: 50%;
   background-color: ${darkColor};
-  border: 12px solid ${accentColor};
+  border: 4px solid ${accentColor};
   position: relative;
   box-shadow: inset 0 0 5px 3px rgba(0, 0, 0, 0.05);
   transition: transform 0.3s ease;
@@ -130,22 +207,24 @@ const CompassWindRose = styled.div`
 
   &:before {
     top: -16px;
-    left: calc(50% - 18px);
-    width: 36px;
-    height: 36px;
+    left: calc(50% - 11px);
+    width: 24px;
+    height: 24px;
     border-radius: 1000% 50% 0 50%;
     transform: rotate(45deg);
     box-shadow: 0 0 5px 3px rgba(0, 0, 0, 0.05);
-    z-index: 1;
   }
 
   &:after {
-    top: -10px;
-    left: calc(50% - 30px);
-    width: 60px;
-    height: 12px;
+    top: -13px;
+    left: calc(50% - 16.5px);
+    width: 35px;
+    height: 14px;
     z-index: 10;
     border-radius: 15px 15px 0 0;
+  }
+  & :nth-child(i) {
+    transform: rotate(i deg);
   }
 `;
 
@@ -178,8 +257,8 @@ const CompassMarkV = styled.div`
   &:after {
     width: auto;
     height: auto;
-    font-size: 42px;
-    line-height: 42px;
+    font-size: 15px;
+    line-height: 15px;
     border-radius: 0;
     background: transparent;
     color: #fff;
@@ -200,19 +279,19 @@ const CompassMarkV = styled.div`
 
   &:before {
     content: "E";
-    left: -11px;
+    left: -2px;
   }
 
   &:after {
     content: "W";
-    left: -18px;
+    left: -6px;
   }
 `;
 
 const CompassMarkH = styled.div`
   width: 4px;
   height: 100%;
-  left: calc(50% - 2px);
+  left: calc(50% + 5px);
   position: absolute;
 
   &:before,
@@ -220,8 +299,8 @@ const CompassMarkH = styled.div`
     content: "";
     position: absolute;
     left: 0;
-    width: 4px;
-    height: 4px;
+    width: 20px;
+    height: 20px;
     border-radius: 50px;
     background-color: #fff;
   }
@@ -238,8 +317,8 @@ const CompassMarkH = styled.div`
   &:after {
     width: auto;
     height: auto;
-    font-size: 30px;
-    line-height: 30px;
+    font-size: 15px;
+    line-height: 15px;
     border-radius: 0;
     background: transparent;
     color: #fff;
@@ -259,7 +338,7 @@ const CompassMarkH = styled.div`
 
   &:before {
     content: "N";
-    left: -13px;
+    left: -10px;
     font-weight: 400;
   }
 
@@ -269,104 +348,9 @@ const CompassMarkH = styled.div`
   }
 `;
 
-const CompassMark = styled.div`
-    &,
-    &--direction-h,
-    &--direction-v {
-        width: 4px;
-        height: 100%;
-        left: calc(50% - 2px);
-        position: absolute;
-
-        &:before,
-        &:after {
-            content: '';
-            position: absolute;
-            left: 0;
-            width: 4px;
-            height: 4px;
-            border-radius: 50px;
-            background-color: #fff;
-        }
-
-        &:before {
-            top: 12%;
-        }
-
-        &:after {
-            bottom: 12%;
-        }
-    }
-
-    &--direction-h,
-    &--direction-v {
-        &:before,
-        &:after {
-            width: auto;
-            height: auto;
-            font-size: 42px;
-            line-height: 42px;
-            border-radius: 0;
-            background: transparent;
-            color: #fff;
-            font-weight: 100;
-            font-family: 'Roboto Slab', serif;
-            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.35);
-        }
-
-        &:before {
-            top: 8.5%;
-        }
-
-        &:after {
-            bottom: 8.5%;
-            transform: rotate(180deg);
-        }
-    }
-
-    &--direction-h {
-        &:before {
-            content: 'N';
-            left: -13px;
-            font-weight: 400;
-        }
-
-        &:after {
-            content: 'S';
-            left: -9px;
-        }
-    }
-
-    &--direction-v {
-        transform: rotate(90deg);
-
-        &:before {
-            content: 'E';
-            left: -11px;
-        }
-
-        &:after {
-            content: 'W';
-            left: -18px;
-        }
-    }
-}
-
-@for $i from 1 through 11 {
-    $val: 15 * $i;
-
-    @if $i > 5 {
-        $val: $val + 15;
-    }
-
-    .compass__mark:nth-child(#{$i}) {
-        transform: rotate(#{$val}deg);
-    }
-`;
-
 const CompassArrowContainer = styled.div`
-  width: 48.076923%;
-  height: 48.076923%;
+  width: 56%;
+  height: 56%;
   border-radius: 50%;
   background-color: #20292e;
   box-sizing: border-box;
@@ -379,6 +363,7 @@ const CompassArrowContainer = styled.div`
 `;
 
 const CompassArrow = styled.div`
+  position: absolute;
   width: 71%;
   height: 71%;
   margin-left: 14.5%;
@@ -401,32 +386,9 @@ const CompassLabels = styled.div`
   border-radius: 50%;
   box-sizing: border-box;
   box-shadow: inset 0 0 5px 3px rgba(0, 0, 0, 0.05);
-  padding-top: 34px;
-
-  & > span {
-    display: inline-block;
-    width: 100%;
-    text-align: center;
-    color: #fff6de;
-    font-family: "Roboto Slab", serif;
-
-    &:first-child {
-      font-size: 56px;
-      line-height: 42px;
-      font-weight: 400;
-
-      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.35);
-    }
-
-    &:last-child {
-      font-size: 38px;
-      line-height: 42px;
-      font-weight: 100;
-      padding-left: 6px;
-      opacity: 0.9;
-      text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.25);
-    }
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const CompassSpan = styled.span`
@@ -435,23 +397,11 @@ const CompassSpan = styled.span`
   text-align: center;
   color: #fff6de;
   font-family: "Roboto Slab", serif;
+  font-size: 16px;
+  line-height: 16px;
+  font-weight: 400;
 
-  &:first-child {
-    font-size: 56px;
-    line-height: 42px;
-    font-weight: 400;
-
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.35);
-  }
-
-  &:last-child {
-    font-size: 38px;
-    line-height: 42px;
-    font-weight: 100;
-    padding-left: 6px;
-    opacity: 0.9;
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.25);
-  }
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.35);
 `;
 
 const Sup = styled.span`
