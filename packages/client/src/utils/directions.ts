@@ -1,13 +1,12 @@
 import { Direction, Directions } from "../constants";
-import { WorldCoord } from "../types";
-import { random } from "@latticexyz/utils";
+import { Coord, random } from "@latticexyz/utils";
 
 /**
  * @param coord Initial coordinate
  * @param translation Relative translation of the initial coordinate
  * @returns New coordinate after translating
  */
-export function translate(coord: WorldCoord, translation: WorldCoord): WorldCoord {
+export function translate(coord: Coord, translation: Coord): Coord {
   return { x: coord.x + translation.x, y: coord.y + translation.y };
 }
 
@@ -16,7 +15,7 @@ export function translate(coord: WorldCoord, translation: WorldCoord): WorldCoor
  * @param direction Direction to move to
  * @returns New coordiante after moving in the specified direction
  */
-export function translateDirection(coord: WorldCoord, direction: Direction): WorldCoord {
+export function translateDirection(coord: Coord, direction: Direction): Coord {
   return translate(coord, Directions[direction]);
 }
 
@@ -27,8 +26,8 @@ export function randomDirection(): Direction {
   return random(3, 0);
 }
 
-export function getSurroundingCoords(coord: WorldCoord, distance = 1): WorldCoord[] {
-  const surroundingCoords: WorldCoord[] = [];
+export function getSurroundingCoords(coord: Coord, distance = 1): Coord[] {
+  const surroundingCoords: Coord[] = [];
 
   for (let x = -1 * distance; x <= distance; x++) {
     for (let y = -1 * distance; y <= distance; y++) {
@@ -37,4 +36,21 @@ export function getSurroundingCoords(coord: WorldCoord, distance = 1): WorldCoor
   }
 
   return surroundingCoords;
+}
+
+export function getWindBoost(windSpeed: number, windDirection: number, rotation: number): number {
+  const rotationDiff: number = Math.abs(windDirection - rotation);
+  if (rotationDiff < 21 || rotationDiff > 339 || (rotationDiff > 120 && rotationDiff <= 240)) return -windSpeed;
+  if (rotationDiff < 80 || rotationDiff > 280) return windSpeed;
+  return 0;
+}
+
+export function getMoveDistanceWithWind(
+  windSpeed: number,
+  windDirection: number,
+  distance: number,
+  rotation: number
+): number {
+  const moveDistance = getWindBoost(windSpeed, windDirection, rotation) + distance;
+  return moveDistance > 0 ? moveDistance : 0;
 }
