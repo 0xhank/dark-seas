@@ -1,4 +1,4 @@
-import { createWorld, EntityID } from "@latticexyz/recs";
+import { createWorld, defineComponent, EntityID, Type } from "@latticexyz/recs";
 import { setupDevSystems } from "./setup";
 import {
   createActionSystem,
@@ -14,6 +14,7 @@ import { GameConfig, getNetworkConfig } from "./config";
 import { BigNumber } from "ethers";
 import { Coord } from "@latticexyz/utils";
 import { Side } from "../../constants";
+import { defineWindComponent } from "./components/WindComponent";
 
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -28,6 +29,7 @@ export async function createNetworkLayer(config: GameConfig) {
   // --- COMPONENTS -----------------------------------------------------------------
   const components = {
     LoadingState: defineLoadingStateComponent(world),
+    Wind: defineWindComponent(world),
     Position: defineCoordComponent(world, { id: "Position", metadata: { contractId: "ds.component.Position" } }),
     Rotation: defineNumberComponent(world, { id: "Rotation", metadata: { contractId: "ds.component.Rotation" } }),
     MoveAngle: defineNumberComponent(world, {
