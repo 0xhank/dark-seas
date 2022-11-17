@@ -26,6 +26,7 @@
       ]
     },
     { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent"] },
-    { "name": "CombatSystem", "writeAccess": ["HealthComponent"] }
+    { "name": "CombatSystem", "writeAccess": ["HealthComponent"] },
+    { "name": "ChangeSailSystem", "writeAccess": ["SailPositionComponent"] }
   ]
 }

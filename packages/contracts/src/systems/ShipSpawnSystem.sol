@@ -34,7 +34,7 @@ contract ShipSpawnSystem is System {
     RangeComponent(getAddressById(components, RangeComponentID)).set(entity, range);
     HealthComponent(getAddressById(components, HealthComponentID)).set(entity, 100);
     ShipComponent(getAddressById(components, ShipComponentID)).set(entity);
-    SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(entity);
+    SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(entity, 3);
 
     return abi.encode(entity);
   }

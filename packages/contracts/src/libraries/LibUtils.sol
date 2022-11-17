@@ -80,7 +80,6 @@ library LibUtils {
     fragments[0] = QueryFragment(QueryType.Has, IComponent(getAddressById(components, componentID)), new bytes(0));
     uint256[] memory entities = LibQuery.query(fragments);
     if (entities.length == 0) {
-      uint256[] memory entity;
       return (entity, false);
     }
     return (entities, true);
