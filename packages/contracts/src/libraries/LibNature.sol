@@ -36,14 +36,14 @@ library LibNature {
     return moveDistance;
   }
 
-  function getMoveDistanceAndRotationWithSails(
+  function getMoveWithSails(
     uint32 moveDistance,
     uint32 moveRotation,
-    uint32 moveAngle,
+    uint32 moveDirection,
     uint32 sailPosition
   ) public returns (uint32, uint32) {
     if (sailPosition == 3) {
-      return (moveDistance, moveRotation, moveAngle);
+      return (moveDistance, moveRotation, moveDirection);
     } else if (sailPosition == 2) {
       moveDistance = (moveDistance * 75) / 100;
       if (moveRotation > 180) {
@@ -51,12 +51,12 @@ library LibNature {
       } else {
         moveRotation = (moveRotation * 75) / 100;
       }
-      if (moveAngle > 180) {
-        moveAngle = 360 - (((360 - moveAngle) * 75) / 100);
+      if (moveDirection > 180) {
+        moveDirection = 360 - (((360 - moveDirection) * 75) / 100);
       } else {
-        moveAngle = (moveAngle * 75) / 100;
+        moveDirection = (moveDirection * 75) / 100;
       }
-      return (moveDistance, moveRotation, moveAngle);
+      return (moveDistance, moveRotation, moveDirection);
     } else if (sailPosition == 1) {
       moveDistance = (moveDistance * 40) / 100;
       if (moveRotation > 180) {
@@ -64,12 +64,12 @@ library LibNature {
       } else {
         moveRotation = (moveRotation * 100) / 40;
       }
-      if (moveAngle > 180) {
-        moveAngle = 360 - (((360 - moveAngle) * 40) / 100);
+      if (moveDirection > 180) {
+        moveDirection = 360 - (((360 - moveDirection) * 40) / 100);
       } else {
-        moveAngle = (moveAngle * 100) / 40;
+        moveDirection = (moveDirection * 100) / 40;
       }
-      return (moveDistance, moveRotation, moveAngle);
+      return (moveDistance, moveRotation, moveDirection);
     } else return (0, 0);
   }
 }

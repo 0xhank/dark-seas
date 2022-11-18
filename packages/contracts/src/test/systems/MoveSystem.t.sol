@@ -110,45 +110,45 @@ contract MoveSystemTest is MudTest {
   function testGetMoveDistanceAndRotationWithSails() public prank(deployer) {
     uint32 moveDistance = 50;
     uint32 moveRotation = 90;
-    uint32 moveAngle = 45;
+    uint32 moveDirection = 45;
     uint32 sailPosition = 3;
     uint32 newMoveDistance;
     uint32 newMoveRotation;
-    uint32 newMoveAngle;
+    uint32 newMoveDirection;
 
-    (newMoveDistance, newMoveRotation, newMoveAngle) = LibNature.getMoveDistanceAndRotationWithSails(
+    (newMoveDistance, newMoveRotation, newMoveDirection) = LibNature.getMoveDistanceAndRotationWithSails(
       moveDistance,
       moveRotation,
-      moveAngle,
+      moveDirection,
       sailPosition
     );
     assertEq(moveDistance, newMoveDistance, "full sails distance failed");
     assertEq(moveRotation, newMoveRotation, "full sails rotation failed");
-    assertEq(moveAngle, newMoveAngle, "full sails angle failed");
+    assertEq(moveDirection, newMoveDirection, "full sails angle failed");
 
     sailPosition = 2;
-    (newMoveDistance, newMoveRotation, newMoveAngle) = LibNature.getMoveDistanceAndRotationWithSails(
+    (newMoveDistance, newMoveRotation, newMoveDirection) = LibNature.getMoveDistanceAndRotationWithSails(
       moveDistance,
       moveRotation,
-      moveAngle,
+      moveDirection,
       sailPosition
     );
     assertEq(moveDistance, (newMoveDistance * 100) / 75, "battle sails distance failed");
     assertEq(moveRotation, (newMoveRotation * 100) / 75, "battle sails rotation failed");
-    assertEq(moveAngle, (newMoveAngle * 100) / 75, "battle sails angle failed");
+    assertEq(moveDirection, (newMoveDirection * 100) / 75, "battle sails angle failed");
 
     moveRotation = 270;
-    moveAngle = 315;
+    moveDirection = 315;
 
-    (newMoveDistance, newMoveRotation, newMoveAngle) = LibNature.getMoveDistanceAndRotationWithSails(
+    (newMoveDistance, newMoveRotation, newMoveDirection) = LibNature.getMoveDistanceAndRotationWithSails(
       moveDistance,
       moveRotation,
-      moveAngle,
+      moveDirection,
       sailPosition
     );
     assertEq(newMoveDistance, 20, "closed sails distance failed");
     assertEq(newMoveRotation, 306, "closed sails rotation failed");
-    assertEq(newMoveAngle, 333, "closed sails angle failed");
+    assertEq(newMoveDirection, 333, "closed sails angle failed");
   }
 
   function testMoveWithBattleSails() public prank(deployer) {
