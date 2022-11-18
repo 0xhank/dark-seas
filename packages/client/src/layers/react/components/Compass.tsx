@@ -17,10 +17,10 @@ import { Arrows } from "../../phaser/constants";
 import { Container } from "../styles/global";
 import styled from "styled-components";
 
-export function registerWind() {
+export function registerCompass() {
   registerUIComponent(
     // name
-    "Wind",
+    "Compass",
     // grid location
     {
       rowStart: 10,
@@ -83,7 +83,7 @@ export function registerWind() {
             <CompassArrowContainer style={{ transform: `translate(-50%,-50%) rotate(${(dir + 90) % 360}deg)` }}>
               <CompassArrow />
               <CompassLabels>
-                <CompassSpan style={{ transform: `rotate(${(dir - 90) % 360}deg)` }}>
+                <CompassSpan style={{ transform: `rotate(${360 - ((dir + 90) % 360)}deg)` }}>
                   {speed} kt{speed == 1 ? "" : "s"}
                 </CompassSpan>
               </CompassLabels>
