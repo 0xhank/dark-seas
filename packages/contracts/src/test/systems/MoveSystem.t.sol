@@ -6,11 +6,12 @@ pragma solidity >=0.8.0;
 // Components
 import { Coord, PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
+import { WindComponent, ID as WindComponentID, Wind, GodID } from "../../components/WindComponent.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
 import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
-import { WindComponent, ID as WindComponentID, Wind, GodID } from "../../components/WindComponent.sol";
+import { ChangeSailSystem, ID as ChangeSailSystemID } from "../../systems/ChangeSailSystem.sol";
 
 // Internal
 import "../MudTest.t.sol";
@@ -104,6 +105,90 @@ contract MoveSystemTest is MudTest {
 
     moveDistance = LibNature.getMoveDistanceWithWind(10, 100, wind);
     assertEq(moveDistance, 10);
+  }
+
+  function testGetMoveDistanceAndRotationWithSails() public prank(deployer) {
+    uint32 moveDistance = 50;
+    uint32 moveRotation = 90;
+    uint32 moveAngle = 45;
+    uint32 sailPosition = 3;
+    uint32 newMoveDistance;
+    uint32 newMoveRotation;
+    uint32 newMoveAngle;
+
+    (newMoveDistance, newMoveRotation, newMoveAngle) = LibNature.getMoveDistanceAndRotationWithSails(
+      moveDistance,
+      moveRotation,
+      moveAngle,
+      sailPosition
+    );
+    assertEq(moveDistance, newMoveDistance, "full sails distance failed");
+    assertEq(moveRotation, newMoveRotation, "full sails rotation failed");
+    assertEq(moveAngle, newMoveAngle, "full sails angle failed");
+
+    sailPosition = 2;
+    (newMoveDistance, newMoveRotation, newMoveAngle) = LibNature.getMoveDistanceAndRotationWithSails(
+      moveDistance,
+      moveRotation,
+      moveAngle,
+      sailPosition
+    );
+    assertEq(moveDistance, (newMoveDistance * 100) / 75, "battle sails distance failed");
+    assertEq(moveRotation, (newMoveRotation * 100) / 75, "battle sails rotation failed");
+    assertEq(moveAngle, (newMoveAngle * 100) / 75, "battle sails angle failed");
+
+    moveRotation = 270;
+    moveAngle = 315;
+
+    (newMoveDistance, newMoveRotation, newMoveAngle) = LibNature.getMoveDistanceAndRotationWithSails(
+      moveDistance,
+      moveRotation,
+      moveAngle,
+      sailPosition
+    );
+    assertEq(newMoveDistance, 20, "closed sails distance failed");
+    assertEq(newMoveRotation, 306, "closed sails rotation failed");
+    assertEq(newMoveAngle, 333, "closed sails angle failed");
+  }
+
+  function testMoveWithBattleSails() public prank(deployer) {
+    setup();
+
+    ChangeSailSystem changeSailSystem = ChangeSailSystem(system(ChangeSailSystemID));
+
+    Coord memory startingPosition = Coord({ x: 0, y: 0 });
+    uint32 startingRotation = 0;
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 50);
+
+    changeSailSystem.executeTyped(shipEntityId, 2);
+
+    uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
+
+    moveSystem.executeTyped(shipEntityId, moveStraightEntityId);
+
+    Coord memory currPosition = positionComponent.getValue(shipEntityId);
+
+    assertCoordEq(currPosition, Coord({ x: 15, y: 0 }));
+  }
+
+  function testMoveWithClosedSails() public prank(deployer) {
+    setup();
+
+    ChangeSailSystem changeSailSystem = ChangeSailSystem(system(ChangeSailSystemID));
+
+    Coord memory startingPosition = Coord({ x: 0, y: 0 });
+    uint32 startingRotation = 0;
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 50);
+
+    changeSailSystem.executeTyped(shipEntityId, 2);
+
+    uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
+
+    moveSystem.executeTyped(shipEntityId, moveStraightEntityId);
+
+    Coord memory currPosition = positionComponent.getValue(shipEntityId);
+
+    assertCoordEq(currPosition, Coord({ x: 15, y: 0 }));
   }
 
   /**

@@ -15,6 +15,7 @@ import { MoveAngleComponent, ID as MoveAngleComponentID } from "../components/Mo
 import { MoveDistanceComponent, ID as MoveDistanceComponentID } from "../components/MoveDistanceComponent.sol";
 import { MoveRotationComponent, ID as MoveRotationComponentID } from "../components/MoveRotationComponent.sol";
 import { WindComponent, ID as WindComponentID, Wind, GodID } from "../components/WindComponent.sol";
+import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 
 import "../libraries/LibVector.sol";
 import "../libraries/LibNature.sol";
@@ -29,32 +30,35 @@ contract MoveSystem is System {
     PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
     RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
     MoveAngleComponent moveAngleComponent = MoveAngleComponent(getAddressById(components, MoveAngleComponentID));
-    MoveRotationComponent moveRotationComponent = MoveRotationComponent(
-      getAddressById(components, MoveRotationComponentID)
-    );
-    MoveDistanceComponent moveDistanceComponent = MoveDistanceComponent(
-      getAddressById(components, MoveDistanceComponentID)
-    );
     Wind memory wind = WindComponent(getAddressById(components, WindComponentID)).getValue(GodID);
-
-    uint32 rotation = rotationComponent.getValue(entity);
-    // uint32 rotation = 0;
-    uint32 moveDistance = LibNature.getMoveDistanceWithWind(
-      moveDistanceComponent.getValue(movementEntity),
-      rotation,
-      wind
-    );
 
     require(moveAngleComponent.has(movementEntity), "MoveSystem: movement entity not a movement entity");
 
-    Coord memory finalPosition = LibVector.getPositionByVector(
-      positionComponent.getValue(entity),
-      rotation,
-      moveDistance,
-      moveAngleComponent.getValue(movementEntity)
+    uint32 moveDistance = MoveDistanceComponent(getAddressById(components, MoveDistanceComponentID)).getValue(
+      movementEntity
+    );
+    uint32 moveAngle = moveAngleComponent.getValue(movementEntity);
+    uint32 moveRotation = MoveRotationComponent(getAddressById(components, MoveRotationComponentID)).getValue(
+      movementEntity
     );
 
-    uint32 newRotation = (rotation + moveRotationComponent.getValue(movementEntity)) % 360;
+    moveDistance = LibNature.getMoveDistanceWithWind(moveDistance, rotationComponent.getValue(entity), wind);
+
+    (moveDistance, moveRotation, moveAngle) = LibNature.getMoveDistanceAndRotationWithSails(
+      moveDistance,
+      moveRotation,
+      moveAngle,
+      SailPositionComponent(getAddressById(components, SailPositionComponentID)).getValue(entity)
+    );
+
+    Coord memory finalPosition = LibVector.getPositionByVector(
+      positionComponent.getValue(entity),
+      rotationComponent.getValue(entity),
+      moveDistance,
+      moveAngle
+    );
+
+    rotation = (rotation + moveAngle) % 360;
 
     positionComponent.set(entity, finalPosition);
     rotationComponent.set(entity, newRotation);
