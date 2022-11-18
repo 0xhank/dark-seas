@@ -108,7 +108,7 @@ contract MoveSystemTest is MudTest {
     assertEq(moveDistance, 10);
   }
 
-  function testGetMoveDistanceAndRotationWithSails() public prank(deployer) {
+  function testGetMoveWithSails() public prank(deployer) {
     MoveCard memory moveCard = MoveCard({ distance: 50, rotation: 90, direction: 45 });
     uint32 sailPosition = 3;
 
@@ -121,17 +121,19 @@ contract MoveSystemTest is MudTest {
 
     sailPosition = 2;
     newMoveCard = LibMove.getMoveWithSails(moveCard, sailPosition);
-    assertEq(moveCard.distance, (newMoveCard.distance * 100) / 75, "battle sails distance failed");
-    assertEq(moveCard.rotation, (newMoveCard.rotation * 100) / 75, "battle sails rotation failed");
-    assertEq(moveCard.direction, (newMoveCard.direction * 100) / 75, "battle sails angle failed");
+    assertApproxEqAbs(moveCard.distance, (newMoveCard.distance * 100) / 75, 1, "battle sails distance failed");
+    assertApproxEqAbs(moveCard.rotation, (newMoveCard.rotation * 100) / 75, 1, "battle sails rotation failed");
+    assertApproxEqAbs(moveCard.direction, (newMoveCard.direction * 100) / 75, 1, "battle sails angle failed");
 
     moveCard.rotation = 270;
     moveCard.direction = 315;
 
+    sailPosition = 1;
+
     newMoveCard = LibMove.getMoveWithSails(moveCard, sailPosition);
-    assertEq(moveCard.distance, 20, "closed sails distance failed");
-    assertEq(moveCard.rotation, 306, "closed sails rotation failed");
-    assertEq(moveCard.direction, 333, "closed sails angle failed");
+    assertEq(newMoveCard.distance, 20, "closed sails distance failed");
+    assertEq(newMoveCard.rotation, 324, "closed sails rotation failed");
+    assertEq(newMoveCard.direction, 342, "closed sails angle failed");
   }
 
   function testMoveWithBattleSails() public prank(deployer) {

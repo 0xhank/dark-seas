@@ -2,6 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { DSTest } from "ds-test/test.sol";
+import "forge-std/Test.sol";
 import { World } from "solecs/World.sol";
 import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 import { Cheats } from "./utils/Cheats.sol";
@@ -12,8 +13,7 @@ import { getAddressById } from "solecs/utils.sol";
 import { console } from "forge-std/console.sol";
 import { Coord } from "std-contracts/components/CoordComponent.sol";
 
-contract MudTest is DSTest {
-  Cheats internal immutable vm = Cheats(HEVM_ADDRESS);
+contract MudTest is Test {
   Utilities internal immutable utils = new Utilities();
 
   address payable internal alice;

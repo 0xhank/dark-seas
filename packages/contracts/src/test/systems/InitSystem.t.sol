@@ -44,6 +44,6 @@ contract InitSystemTest is MudTest {
     Wind memory wind = windComponent.getValue(GodID);
 
     assertEq(wind.speed, 10, "wind speed failed");
-    assertEq(wind.direction, 0, "wind direction failed");
+    assertEq(wind.direction, 90, "wind direction failed");
   }
 }
