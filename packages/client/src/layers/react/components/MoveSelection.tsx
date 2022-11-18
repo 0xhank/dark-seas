@@ -26,7 +26,7 @@ export function registerMoveSelection() {
       rowStart: 10,
       rowEnd: 13,
       colStart: 3,
-      colEnd: 10,
+      colEnd: 8,
     },
     // requirement
     (layers) => {
@@ -40,7 +40,7 @@ export function registerMoveSelection() {
         },
       } = layers;
 
-      return merge(MoveCard.update$, SelectedMove.update$, SelectedShip.update$).pipe(
+      return merge(MoveCard.update$, SelectedMove.update$, SelectedShip.update$, Rotation.update$).pipe(
         map(() => {
           return {
             SelectedMove,
@@ -53,6 +53,7 @@ export function registerMoveSelection() {
         })
       );
     },
+    // render
     ({ MoveCard, SelectedMove, SelectedShip, Rotation, Wind, world }) => {
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
@@ -61,11 +62,7 @@ export function registerMoveSelection() {
       const selectedMove = getComponentValue(SelectedMove, GodEntityIndex);
 
       if (!selectedShip) {
-        return (
-          <Container>
-            <span>Select a ship</span>
-          </Container>
-        );
+        return <Container />;
       }
       const rotation = getComponentValueStrict(Rotation, selectedShip).value;
       const windSpeedBoost = getWindBoost(wind.speed, wind.direction, rotation);
@@ -78,13 +75,13 @@ export function registerMoveSelection() {
               ? `slowing this ship by ${Math.abs(windSpeedBoost)} knots!`
               : windSpeedBoost > 0
               ? `giving this ship a ${Math.abs(windSpeedBoost)} knot boost!`
-              : "doing nothing for this ship."}
+              : "doing nothing to this ship."}
           </span>
 
           <div
             style={{
               width: "100%",
-              height: "100%",
+              height: "70%",
               display: "flex",
               justifyContent: "center",
               gap: "8px",

@@ -15,6 +15,7 @@ export const Container = styled.div`
   align-items: center;
   padding: 5px;
   pointer-events: all;
+  gap: 5px;
 `;
 
 export const MoveOption = styled.div<{ isSelected?: boolean }>`
@@ -26,6 +27,5 @@ export const MoveOption = styled.div<{ isSelected?: boolean }>`
   padding: 5px;
   border-width: 1px;
   pointer-events: all;
-  height: 70%;
   color: ${({ isSelected }) => `${isSelected ? darkBrown : gold}`};
 `;

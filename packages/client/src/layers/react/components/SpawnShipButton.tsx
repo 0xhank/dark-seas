@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { registerUIComponent } from "../engine";
-import { getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
-import { map, of } from "rxjs";
-import { ActionStateString, ActionState } from "@latticexyz/std-client";
-import { Coord } from "@latticexyz/utils";
+import { of } from "rxjs";
+import { Container } from "../styles/global";
 
 export function registerSpawnShipButton() {
   registerUIComponent(
@@ -14,7 +12,7 @@ export function registerSpawnShipButton() {
       rowStart: 1,
       rowEnd: 2,
       colStart: 1,
-      colEnd: 3,
+      colEnd: 2,
     },
     // requirement
     (layers) => {
@@ -28,23 +26,13 @@ export function registerSpawnShipButton() {
       } = layers;
 
       return (
-        <div style={{ width: "100%", height: "100%", pointerEvents: "all" }}>
-          <button
-            style={{
-              width: "100%",
-              height: "100%",
-              background: "brown",
-              textAlign: "center",
-              padding: "5px",
-              cursor: "pointer",
-            }}
-            onClick={() => {
-              spawnShip({ x: 0, y: 0 }, 0);
-            }}
-          >
-            Spawn ship at (0, 0)
-          </button>
-        </div>
+        <Container
+          onClick={() => {
+            spawnShip({ x: 0, y: 0 }, 0);
+          }}
+        >
+          Spawn ship at (0, 0)
+        </Container>
       );
     }
   );

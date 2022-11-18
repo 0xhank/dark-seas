@@ -101,7 +101,9 @@ const darkColor = "#2A3539";
 const Compass = styled.div`
   width: 150px;
   height: 150px;
-  position: relative;
+  position: absolute;
+  bottom: 10;
+  left: 10;
 `;
 
 const CompassMark = styled.div`
