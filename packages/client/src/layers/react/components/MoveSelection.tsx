@@ -33,20 +33,20 @@ export function registerMoveSelection() {
       const {
         network: {
           world,
-          components: { Rotation, MoveAngle, MoveDistance, MoveRotation, Wind },
+          components: { Rotation, MoveDirection, MoveDistance, MoveRotation, Wind },
         },
         phaser: {
           components: { SelectedShip, SelectedMove },
         },
       } = layers;
 
-      return merge(MoveAngle.update$, SelectedMove.update$, SelectedShip.update$).pipe(
+      return merge(MoveDirection.update$, SelectedMove.update$, SelectedShip.update$).pipe(
         map(() => {
           return {
             SelectedMove,
             MoveDistance,
             MoveRotation,
-            MoveAngle,
+            MoveDirection,
             Rotation,
             SelectedShip,
             Wind,
@@ -55,7 +55,7 @@ export function registerMoveSelection() {
         })
       );
     },
-    ({ MoveAngle, MoveDistance, MoveRotation, SelectedMove, SelectedShip, Rotation, Wind, world }) => {
+    ({ MoveDirection, MoveDistance, MoveRotation, SelectedMove, SelectedShip, Rotation, Wind, world }) => {
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
       const wind = getComponentValueStrict(Wind, GodEntityIndex);
@@ -71,7 +71,7 @@ export function registerMoveSelection() {
       }
       const rotation = getComponentValueStrict(Rotation, selectedShip).value;
       const windSpeedBoost = getWindBoost(wind.speed, wind.direction, rotation);
-      const moveEntities = [...getComponentEntities(MoveAngle)];
+      const moveEntities = [...getComponentEntities(MoveDirection)];
       return (
         <Container>
           <span>

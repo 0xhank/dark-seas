@@ -7,9 +7,9 @@ export function getPositionByVector(
   initialPosition: Coord,
   initialRotation: number,
   moveDistance: number,
-  moveAngle: number
+  moveDirection: number
 ): Coord {
-  const finalAngle = (initialRotation + moveAngle) % 360;
+  const finalAngle = (initialRotation + moveDirection) % 360;
   const finalAngleRad = deg2rad(finalAngle);
   const x = Math.cos(finalAngleRad) * moveDistance + initialPosition.x;
   const y = Math.sin(finalAngleRad) * moveDistance + initialPosition.y;
