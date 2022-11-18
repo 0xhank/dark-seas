@@ -18,9 +18,9 @@ library LibVector {
     Coord memory initialPosition,
     uint32 initialRotation,
     uint32 moveDistance,
-    uint32 moveAngle
+    uint32 moveDirection
   ) internal returns (Coord memory) {
-    uint32 angleDegs = (initialRotation + moveAngle) % 360;
+    uint32 angleDegs = (initialRotation + moveDirection) % 360;
 
     uint256 angleRadsTimes10000 = uint256(angleDegs * 1745);
 

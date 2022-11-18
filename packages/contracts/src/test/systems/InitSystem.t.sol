@@ -5,7 +5,7 @@ pragma solidity >=0.8.0;
 
 // Components
 
-import { MoveAngleComponent, ID as MoveAngleComponentID } from "../../components/MoveAngleComponent.sol";
+import { MoveDirectionComponent, ID as MoveDirectionComponentID } from "../../components/MoveDirectionComponent.sol";
 import { MoveDistanceComponent, ID as MoveDistanceComponentID } from "../../components/MoveDistanceComponent.sol";
 import { MoveRotationComponent, ID as MoveRotationComponentID } from "../../components/MoveRotationComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
@@ -22,7 +22,9 @@ contract InitSystemTest is MudTest {
   function testExecute() public prank(deployer) {
     RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
 
-    MoveAngleComponent moveAngleComponent = MoveAngleComponent(getAddressById(components, MoveAngleComponentID));
+    MoveDirectionComponent moveDirectionComponent = MoveDirectionComponent(
+      getAddressById(components, MoveDirectionComponentID)
+    );
     MoveDistanceComponent moveDistanceComponent = MoveDistanceComponent(
       getAddressById(components, MoveDistanceComponentID)
     );
@@ -31,27 +33,27 @@ contract InitSystemTest is MudTest {
     );
     WindComponent windComponent = WindComponent(getAddressById(components, WindComponentID));
 
-    uint32 moveAngle = moveAngleComponent.getValue(entity1Id);
+    uint32 moveDirection = moveDirectionComponent.getValue(entity1Id);
     uint32 moveDistance = moveDistanceComponent.getValue(entity1Id);
     uint32 moveRotation = moveRotationComponent.getValue(entity1Id);
 
-    assertEq(moveAngle, 0);
+    assertEq(moveDirection, 0);
     assertEq(moveDistance, 20);
     assertEq(moveRotation, 0);
 
     moveDistance = moveDistanceComponent.getValue(entity2Id);
     moveRotation = moveRotationComponent.getValue(entity2Id);
-    moveAngle = moveAngleComponent.getValue(entity2Id);
+    moveDirection = moveDirectionComponent.getValue(entity2Id);
 
-    assertEq(moveAngle, 45);
+    assertEq(moveDirection, 45);
     assertEq(moveDistance, 20);
     assertEq(moveRotation, 90);
 
-    moveAngle = moveAngleComponent.getValue(entity3Id);
+    moveDirection = moveDirectionComponent.getValue(entity3Id);
     moveDistance = moveDistanceComponent.getValue(entity3Id);
     moveRotation = moveRotationComponent.getValue(entity3Id);
 
-    assertEq(moveAngle, 27);
+    assertEq(moveDirection, 27);
     assertEq(moveDistance, 20);
     assertEq(moveRotation, 45);
 
