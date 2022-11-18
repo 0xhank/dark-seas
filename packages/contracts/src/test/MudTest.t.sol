@@ -51,8 +51,8 @@ contract MudTest is Test {
   }
 
   function assertCoordEq(Coord memory a, Coord memory b) internal {
-    assertEq(a.x, b.x);
-    assertEq(a.y, b.y);
+    assertEq(a.x, b.x, "different x value");
+    assertEq(a.y, b.y, "different y value");
   }
 
   function assertCoordNotEq(Coord memory a, Coord memory b) internal {

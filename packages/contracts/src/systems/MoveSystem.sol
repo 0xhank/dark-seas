@@ -53,7 +53,7 @@ contract MoveSystem is System {
 
     position = LibVector.getPositionByVector(position, rotation, moveCard.distance, moveCard.direction);
 
-    rotation = (rotation + moveCard.direction) % 360;
+    rotation = (rotation + moveCard.rotation) % 360;
 
     positionComponent.set(entity, position);
     rotationComponent.set(entity, rotation);
