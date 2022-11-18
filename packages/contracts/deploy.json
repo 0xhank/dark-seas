@@ -2,9 +2,7 @@
   "components": [
     "PositionComponent",
     "RotationComponent",
-    "MoveDirectionComponent",
-    "MoveDistanceComponent",
-    "MoveRotationComponent",
+    "MoveCardComponent",
     "LengthComponent",
     "RangeComponent",
     "HealthComponent",

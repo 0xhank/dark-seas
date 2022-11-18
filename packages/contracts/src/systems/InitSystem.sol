@@ -3,9 +3,7 @@ pragma solidity >=0.8.0;
 import "solecs/System.sol";
 import { getAddressById, getSystemAddressById } from "solecs/utils.sol";
 
-import { MoveDirectionComponent, ID as MoveDirectionComponentID } from "../components/MoveDirectionComponent.sol";
-import { MoveDistanceComponent, ID as MoveDistanceComponentID } from "../components/MoveDistanceComponent.sol";
-import { MoveRotationComponent, ID as MoveRotationComponentID } from "../components/MoveRotationComponent.sol";
+import { MoveCardComponent, ID as MoveCardComponentID, MoveCard } from "../components/MoveCardComponent.sol";
 import { WindComponent, ID as WindComponentID, GodID, Wind } from "../components/WindComponent.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Init"));
@@ -15,47 +13,29 @@ contract InitSystem is System {
 
   function execute(bytes memory) public returns (bytes memory) {
     // require(LibECS.isAdmin(components, msg.sender), "admin only system");
-    MoveDirectionComponent moveDirectionComponent = MoveDirectionComponent(
-      getAddressById(components, MoveDirectionComponentID)
-    );
-    MoveDistanceComponent moveDistanceComponent = MoveDistanceComponent(
-      getAddressById(components, MoveDistanceComponentID)
-    );
-    MoveRotationComponent moveRotationComponent = MoveRotationComponent(
-      getAddressById(components, MoveRotationComponentID)
-    );
+    MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
     WindComponent windComponent = WindComponent(getAddressById(components, WindComponentID));
 
     // Initialize Prototypes
     uint256 moveEntity1 = uint256(keccak256("ds.prototype.moveEntity1"));
 
-    moveDirectionComponent.set(moveEntity1, 0);
-    moveDistanceComponent.set(moveEntity1, 20);
-    moveRotationComponent.set(moveEntity1, 0);
+    moveCardComponent.set(moveEntity1, MoveCard({ direction: 0, distance: 20, rotation: 0 }));
 
     uint256 moveEntity2 = uint256(keccak256("ds.prototype.moveEntity2"));
 
-    moveDirectionComponent.set(moveEntity2, 45);
-    moveDistanceComponent.set(moveEntity2, 20);
-    moveRotationComponent.set(moveEntity2, 90);
+    moveCardComponent.set(moveEntity2, MoveCard({ direction: 45, distance: 20, rotation: 90 }));
 
     uint256 moveEntity3 = uint256(keccak256("ds.prototype.moveEntity3"));
 
-    moveDirectionComponent.set(moveEntity3, 27);
-    moveDistanceComponent.set(moveEntity3, 20);
-    moveRotationComponent.set(moveEntity3, 45);
+    moveCardComponent.set(moveEntity3, MoveCard({ direction: 27, distance: 20, rotation: 45 }));
 
     uint256 moveEntity4 = uint256(keccak256("ds.prototype.moveEntity4"));
 
-    moveDirectionComponent.set(moveEntity4, 315);
-    moveDistanceComponent.set(moveEntity4, 20);
-    moveRotationComponent.set(moveEntity4, 270);
+    moveCardComponent.set(moveEntity4, MoveCard({ direction: 315, distance: 20, rotation: 270 }));
 
     uint256 moveEntity5 = uint256(keccak256("ds.prototype.moveEntity5"));
 
-    moveDirectionComponent.set(moveEntity5, 333);
-    moveDistanceComponent.set(moveEntity5, 20);
-    moveRotationComponent.set(moveEntity5, 315);
+    moveCardComponent.set(moveEntity5, MoveCard({ direction: 333, distance: 20, rotation: 315 }));
 
     windComponent.set(GodID, Wind(10, 90));
   }

@@ -7,6 +7,7 @@ pragma solidity >=0.8.0;
 import { Coord, PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
 import { WindComponent, ID as WindComponentID, Wind, GodID } from "../../components/WindComponent.sol";
+import { MoveCardComponent, ID as MoveCardComponentID, MoveCard } from "../../components/MoveCardComponent.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
@@ -17,7 +18,7 @@ import { ChangeSailSystem, ID as ChangeSailSystemID } from "../../systems/Change
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
 
-import "../../libraries/LibNature.sol";
+import "../../libraries/LibMove.sol";
 
 contract MoveSystemTest is MudTest {
   uint256 entityId;
@@ -82,73 +83,55 @@ contract MoveSystemTest is MudTest {
   function testGetWindBoost() public prank(deployer) {
     setup();
 
-    assertEq(LibNature.getWindBoost(wind, 0), -10);
-    assertEq(LibNature.getWindBoost(wind, 22), 10);
-    assertEq(LibNature.getWindBoost(wind, 81), 0);
-    assertEq(LibNature.getWindBoost(wind, 121), -10);
-    assertEq(LibNature.getWindBoost(wind, 241), 0);
-    assertEq(LibNature.getWindBoost(wind, 281), 10);
-    assertEq(LibNature.getWindBoost(wind, 340), -10);
+    assertEq(LibMove.getWindBoost(wind, 0), -10);
+    assertEq(LibMove.getWindBoost(wind, 22), 10);
+    assertEq(LibMove.getWindBoost(wind, 81), 0);
+    assertEq(LibMove.getWindBoost(wind, 121), -10);
+    assertEq(LibMove.getWindBoost(wind, 241), 0);
+    assertEq(LibMove.getWindBoost(wind, 281), 10);
+    assertEq(LibMove.getWindBoost(wind, 340), -10);
   }
 
   function testGetMoveDistanceWithWind() public prank(deployer) {
     setup();
 
-    uint32 moveDistance = LibNature.getMoveDistanceWithWind(20, 0, wind);
+    uint32 moveDistance = LibMove.getMoveDistanceWithWind(20, 0, wind);
     assertEq(moveDistance, 10);
 
-    moveDistance = LibNature.getMoveDistanceWithWind(5, 0, wind);
+    moveDistance = LibMove.getMoveDistanceWithWind(5, 0, wind);
     assertEq(moveDistance, 0);
 
-    moveDistance = LibNature.getMoveDistanceWithWind(10, 40, wind);
+    moveDistance = LibMove.getMoveDistanceWithWind(10, 40, wind);
     assertEq(moveDistance, 20);
 
-    moveDistance = LibNature.getMoveDistanceWithWind(10, 100, wind);
+    moveDistance = LibMove.getMoveDistanceWithWind(10, 100, wind);
     assertEq(moveDistance, 10);
   }
 
   function testGetMoveDistanceAndRotationWithSails() public prank(deployer) {
-    uint32 moveDistance = 50;
-    uint32 moveRotation = 90;
-    uint32 moveDirection = 45;
+    MoveCard memory moveCard = MoveCard({ distance: 50, rotation: 90, direction: 45 });
     uint32 sailPosition = 3;
-    uint32 newMoveDistance;
-    uint32 newMoveRotation;
-    uint32 newMoveDirection;
 
-    (newMoveDistance, newMoveRotation, newMoveDirection) = LibNature.getMoveDistanceAndRotationWithSails(
-      moveDistance,
-      moveRotation,
-      moveDirection,
-      sailPosition
-    );
-    assertEq(moveDistance, newMoveDistance, "full sails distance failed");
-    assertEq(moveRotation, newMoveRotation, "full sails rotation failed");
-    assertEq(moveDirection, newMoveDirection, "full sails angle failed");
+    MoveCard memory newMoveCard;
+
+    newMoveCard = LibMove.getMoveWithSails(moveCard, sailPosition);
+    assertEq(moveCard.distance, newMoveCard.distance, "full sails distance failed");
+    assertEq(moveCard.rotation, newMoveCard.rotation, "full sails rotation failed");
+    assertEq(moveCard.direction, newMoveCard.direction, "full sails angle failed");
 
     sailPosition = 2;
-    (newMoveDistance, newMoveRotation, newMoveDirection) = LibNature.getMoveDistanceAndRotationWithSails(
-      moveDistance,
-      moveRotation,
-      moveDirection,
-      sailPosition
-    );
-    assertEq(moveDistance, (newMoveDistance * 100) / 75, "battle sails distance failed");
-    assertEq(moveRotation, (newMoveRotation * 100) / 75, "battle sails rotation failed");
-    assertEq(moveDirection, (newMoveDirection * 100) / 75, "battle sails angle failed");
+    newMoveCard = LibMove.getMoveWithSails(moveCard, sailPosition);
+    assertEq(moveCard.distance, (newMoveCard.distance * 100) / 75, "battle sails distance failed");
+    assertEq(moveCard.rotation, (newMoveCard.rotation * 100) / 75, "battle sails rotation failed");
+    assertEq(moveCard.direction, (newMoveCard.direction * 100) / 75, "battle sails angle failed");
 
-    moveRotation = 270;
-    moveDirection = 315;
+    moveCard.rotation = 270;
+    moveCard.direction = 315;
 
-    (newMoveDistance, newMoveRotation, newMoveDirection) = LibNature.getMoveDistanceAndRotationWithSails(
-      moveDistance,
-      moveRotation,
-      moveDirection,
-      sailPosition
-    );
-    assertEq(newMoveDistance, 20, "closed sails distance failed");
-    assertEq(newMoveRotation, 306, "closed sails rotation failed");
-    assertEq(newMoveDirection, 333, "closed sails angle failed");
+    newMoveCard = LibMove.getMoveWithSails(moveCard, sailPosition);
+    assertEq(moveCard.distance, 20, "closed sails distance failed");
+    assertEq(moveCard.rotation, 306, "closed sails rotation failed");
+    assertEq(moveCard.direction, 333, "closed sails angle failed");
   }
 
   function testMoveWithBattleSails() public prank(deployer) {

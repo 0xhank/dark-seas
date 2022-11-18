@@ -12,7 +12,6 @@ import { ChangeSailSystem, ID as ChangeSailSystemID } from "../../systems/Change
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
 
 // Internal
-import "../../libraries/LibPolygon.sol";
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
 
