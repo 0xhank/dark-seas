@@ -15,6 +15,7 @@ import { BigNumber } from "ethers";
 import { Coord } from "@latticexyz/utils";
 import { Side } from "../../constants";
 import { defineWindComponent } from "./components/WindComponent";
+import { defineMoveCardComponent } from "./components/MoveCardComponent";
 
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -30,20 +31,9 @@ export async function createNetworkLayer(config: GameConfig) {
   const components = {
     LoadingState: defineLoadingStateComponent(world),
     Wind: defineWindComponent(world),
+    MoveCard: defineMoveCardComponent(world),
     Position: defineCoordComponent(world, { id: "Position", metadata: { contractId: "ds.component.Position" } }),
     Rotation: defineNumberComponent(world, { id: "Rotation", metadata: { contractId: "ds.component.Rotation" } }),
-    MoveDirection: defineNumberComponent(world, {
-      id: "MoveDirection",
-      metadata: { contractId: "ds.component.MoveDirection" },
-    }),
-    MoveDistance: defineNumberComponent(world, {
-      id: "MoveDistance",
-      metadata: { contractId: "ds.component.MoveDistance" },
-    }),
-    MoveRotation: defineNumberComponent(world, {
-      id: "MoveRotation",
-      metadata: { contractId: "ds.component.MoveRotation" },
-    }),
     Length: defineNumberComponent(world, { id: "Length", metadata: { contractId: "ds.component.Length" } }),
     Range: defineNumberComponent(world, { id: "Range", metadata: { contractId: "ds.component.Range" } }),
     Health: defineNumberComponent(world, { id: "Health", metadata: { contractId: "ds.component.Health" } }),

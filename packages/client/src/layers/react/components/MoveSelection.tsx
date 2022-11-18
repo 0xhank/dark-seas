@@ -33,20 +33,18 @@ export function registerMoveSelection() {
       const {
         network: {
           world,
-          components: { Rotation, MoveDirection, MoveDistance, MoveRotation, Wind },
+          components: { Rotation, MoveCard, Wind },
         },
         phaser: {
           components: { SelectedShip, SelectedMove },
         },
       } = layers;
 
-      return merge(MoveDirection.update$, SelectedMove.update$, SelectedShip.update$).pipe(
+      return merge(MoveCard.update$, SelectedMove.update$, SelectedShip.update$).pipe(
         map(() => {
           return {
             SelectedMove,
-            MoveDistance,
-            MoveRotation,
-            MoveDirection,
+            MoveCard,
             Rotation,
             SelectedShip,
             Wind,
@@ -55,7 +53,7 @@ export function registerMoveSelection() {
         })
       );
     },
-    ({ MoveDirection, MoveDistance, MoveRotation, SelectedMove, SelectedShip, Rotation, Wind, world }) => {
+    ({ MoveCard, SelectedMove, SelectedShip, Rotation, Wind, world }) => {
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
       const wind = getComponentValueStrict(Wind, GodEntityIndex);
@@ -71,7 +69,7 @@ export function registerMoveSelection() {
       }
       const rotation = getComponentValueStrict(Rotation, selectedShip).value;
       const windSpeedBoost = getWindBoost(wind.speed, wind.direction, rotation);
-      const moveEntities = [...getComponentEntities(MoveDirection)];
+      const moveEntities = [...getComponentEntities(MoveCard)];
       return (
         <Container>
           <span>
@@ -93,25 +91,24 @@ export function registerMoveSelection() {
             }}
           >
             {moveEntities.map((entity) => {
-              const moveDistance = getComponentValueStrict(MoveDistance, entity).value;
-              const moveRotation = getComponentValueStrict(MoveRotation, entity).value;
+              const moveCard = getComponentValueStrict(MoveCard, entity);
 
               const isSelected = selectedMove && selectedMove.value == entity;
 
               const imageUrl =
-                moveRotation == 360 || moveRotation == 0
+                moveCard.rotation == 360 || moveCard.rotation == 0
                   ? Arrows.Straight
-                  : moveRotation > 270
+                  : moveCard.rotation > 270
                   ? Arrows.SoftLeft
-                  : moveRotation == 270
+                  : moveCard.rotation == 270
                   ? Arrows.Left
-                  : moveRotation > 180
+                  : moveCard.rotation > 180
                   ? Arrows.HardLeft
-                  : moveRotation == 180
+                  : moveCard.rotation == 180
                   ? Arrows.UTurn
-                  : moveRotation > 90
+                  : moveCard.rotation > 90
                   ? Arrows.HardRight
-                  : moveRotation == 90
+                  : moveCard.rotation == 90
                   ? Arrows.Right
                   : Arrows.SoftRight;
 
@@ -122,7 +119,7 @@ export function registerMoveSelection() {
                   onClick={() => setComponent(SelectedMove, GodEntityIndex, { value: entity })}
                 >
                   <img src={imageUrl} style={{ height: "80%", objectFit: "scale-down" }} />
-                  <p>Distance: {getMoveDistanceWithWind(wind.speed, wind.direction, moveDistance, rotation)}</p>
+                  <p>Distance: {getMoveDistanceWithWind(wind.speed, wind.direction, moveCard.distance, rotation)}</p>
                 </MoveOption>
               );
             })}

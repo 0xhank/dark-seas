@@ -108,7 +108,7 @@ contract MoveSystemTest is MudTest {
     assertEq(moveDistance, 10);
   }
 
-  function testGetMoveWithSails() public prank(deployer) {
+  function testGetMoveWithOpenSails() public prank(deployer) {
     MoveCard memory moveCard = MoveCard({ distance: 50, rotation: 90, direction: 45 });
     uint32 sailPosition = 3;
 
@@ -166,6 +166,7 @@ contract MoveSystemTest is MudTest {
     uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 50);
 
     changeSailSystem.executeTyped(shipEntityId, 2);
+    changeSailSystem.executeTyped(shipEntityId, 1);
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
 
@@ -173,7 +174,7 @@ contract MoveSystemTest is MudTest {
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
 
-    assertCoordEq(currPosition, Coord({ x: 15, y: 0 }));
+    assertCoordEq(currPosition, Coord({ x: 8, y: 0 }));
   }
 
   /**
