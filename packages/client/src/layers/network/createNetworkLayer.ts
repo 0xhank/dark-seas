@@ -32,9 +32,9 @@ export async function createNetworkLayer(config: GameConfig) {
     Wind: defineWindComponent(world),
     Position: defineCoordComponent(world, { id: "Position", metadata: { contractId: "ds.component.Position" } }),
     Rotation: defineNumberComponent(world, { id: "Rotation", metadata: { contractId: "ds.component.Rotation" } }),
-    MoveAngle: defineNumberComponent(world, {
-      id: "MoveAngle",
-      metadata: { contractId: "ds.component.MoveAngle" },
+    MoveDirection: defineNumberComponent(world, {
+      id: "MoveDirection",
+      metadata: { contractId: "ds.component.MoveDirection" },
     }),
     MoveDistance: defineNumberComponent(world, {
       id: "MoveDistance",

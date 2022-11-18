@@ -11,7 +11,7 @@ import { getAddressById, getSystemAddressById } from "solecs/utils.sol";
 // Components
 import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
-import { MoveAngleComponent, ID as MoveAngleComponentID } from "../components/MoveAngleComponent.sol";
+import { MoveDirectionComponent, ID as MoveDirectionComponentID } from "../components/MoveDirectionComponent.sol";
 import { MoveDistanceComponent, ID as MoveDistanceComponentID } from "../components/MoveDistanceComponent.sol";
 import { MoveRotationComponent, ID as MoveRotationComponentID } from "../components/MoveRotationComponent.sol";
 import { WindComponent, ID as WindComponentID, Wind, GodID } from "../components/WindComponent.sol";
@@ -28,7 +28,9 @@ contract MoveSystem is System {
     (uint256 entity, uint256 movementEntity) = abi.decode(arguments, (uint256, uint256));
     PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
     RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
-    MoveAngleComponent moveAngleComponent = MoveAngleComponent(getAddressById(components, MoveAngleComponentID));
+    MoveDirectionComponent moveDirectionComponent = MoveDirectionComponent(
+      getAddressById(components, MoveDirectionComponentID)
+    );
     MoveRotationComponent moveRotationComponent = MoveRotationComponent(
       getAddressById(components, MoveRotationComponentID)
     );
@@ -45,13 +47,13 @@ contract MoveSystem is System {
       wind
     );
 
-    require(moveAngleComponent.has(movementEntity), "MoveSystem: movement entity not a movement entity");
+    require(moveDirectionComponent.has(movementEntity), "MoveSystem: movement entity not a movement entity");
 
     Coord memory finalPosition = LibVector.getPositionByVector(
       positionComponent.getValue(entity),
       rotation,
       moveDistance,
-      moveAngleComponent.getValue(movementEntity)
+      moveDirectionComponent.getValue(movementEntity)
     );
 
     uint32 newRotation = (rotation + moveRotationComponent.getValue(movementEntity)) % 360;
