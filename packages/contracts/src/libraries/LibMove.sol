@@ -60,12 +60,12 @@ library LibMove {
       if (moveCard.rotation > 180) {
         moveCard.rotation = 360 - (((360 - moveCard.rotation) * 40) / 100);
       } else {
-        moveCard.rotation = (moveCard.rotation * 100) / 40;
+        moveCard.rotation = (moveCard.rotation * 40) / 100;
       }
       if (moveCard.direction > 180) {
         moveCard.direction = 360 - (((360 - moveCard.direction) * 40) / 100);
       } else {
-        moveCard.direction = (moveCard.direction * 100) / 40;
+        moveCard.direction = (moveCard.direction * 40) / 100;
       }
       return moveCard;
     }
