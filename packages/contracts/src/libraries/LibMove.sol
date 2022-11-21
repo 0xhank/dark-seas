@@ -10,12 +10,13 @@ import { PositionComponent, ID as PositionComponentID, Coord } from "../componen
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
 import { Wind } from "../components/WindComponent.sol";
+import { MoveCard } from "../components/MoveCardComponent.sol";
 
 import { console } from "forge-std/console.sol";
 
 import "trig/src/Trigonometry.sol";
 
-library LibNature {
+library LibMove {
   function getWindBoost(Wind memory wind, uint32 rotation) public pure returns (int32) {
     uint32 rotationDiff = wind.direction > rotation ? wind.direction - rotation : rotation - wind.direction;
     int32 windSpeed = int32(wind.speed);
@@ -31,8 +32,44 @@ library LibNature {
   ) public pure returns (uint32) {
     int32 windBoost = getWindBoost(wind, rotation);
 
-    uint32 moveDistance = -windBoost >= int32(moveDistance) ? 0 : uint32(int32(moveDistance) + windBoost);
+    return -windBoost >= int32(moveDistance) ? 0 : uint32(int32(moveDistance) + windBoost);
+  }
 
-    return moveDistance;
+  function getMoveWithSails(MoveCard memory moveCard, uint32 sailPosition) public returns (MoveCard memory) {
+    if (sailPosition == 3) {
+      return moveCard;
+    }
+
+    if (sailPosition == 2) {
+      moveCard.distance = (moveCard.distance * 75) / 100;
+      if (moveCard.rotation > 180) {
+        moveCard.rotation = 360 - (((360 - moveCard.rotation) * 75) / 100);
+      } else {
+        moveCard.rotation = (moveCard.rotation * 75) / 100;
+      }
+      if (moveCard.direction > 180) {
+        moveCard.direction = 360 - (((360 - moveCard.direction) * 75) / 100);
+      } else {
+        moveCard.direction = (moveCard.direction * 75) / 100;
+      }
+      return moveCard;
+    }
+
+    if (sailPosition == 1) {
+      moveCard.distance = (moveCard.distance * 40) / 100;
+      if (moveCard.rotation > 180) {
+        moveCard.rotation = 360 - (((360 - moveCard.rotation) * 40) / 100);
+      } else {
+        moveCard.rotation = (moveCard.rotation * 40) / 100;
+      }
+      if (moveCard.direction > 180) {
+        moveCard.direction = 360 - (((360 - moveCard.direction) * 40) / 100);
+      } else {
+        moveCard.direction = (moveCard.direction * 40) / 100;
+      }
+      return moveCard;
+    }
+
+    return MoveCard(0, 0, 0);
   }
 }

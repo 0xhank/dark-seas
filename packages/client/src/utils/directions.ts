@@ -1,4 +1,4 @@
-import { Direction, Directions } from "../constants";
+import { Direction, Directions, MoveCard, Wind } from "../constants";
 import { Coord, random } from "@latticexyz/utils";
 
 /**
@@ -45,12 +45,45 @@ export function getWindBoost(windSpeed: number, windDirection: number, rotation:
   return 0;
 }
 
-export function getMoveDistanceWithWind(
-  windSpeed: number,
-  windDirection: number,
-  distance: number,
-  rotation: number
-): number {
-  const moveDistance = getWindBoost(windSpeed, windDirection, rotation) + distance;
+export function getMoveDistanceWithWind(wind: Wind, distance: number, rotation: number): number {
+  const moveDistance = getWindBoost(wind.speed, wind.direction, rotation) + distance;
   return moveDistance > 0 ? moveDistance : 0;
+}
+
+export function getMoveWithSails(moveCard: MoveCard, sailPosition: number): MoveCard {
+  if (sailPosition == 3) {
+    return moveCard;
+  }
+
+  if (sailPosition == 2) {
+    moveCard.distance = (moveCard.distance * 75) / 100;
+    if (moveCard.rotation > 180) {
+      moveCard.rotation = 360 - ((360 - moveCard.rotation) * 75) / 100;
+    } else {
+      moveCard.rotation = (moveCard.rotation * 75) / 100;
+    }
+    if (moveCard.direction > 180) {
+      moveCard.direction = 360 - ((360 - moveCard.direction) * 75) / 100;
+    } else {
+      moveCard.direction = (moveCard.direction * 75) / 100;
+    }
+    return moveCard;
+  }
+
+  if (sailPosition == 1) {
+    moveCard.distance = (moveCard.distance * 40) / 100;
+    if (moveCard.rotation > 180) {
+      moveCard.rotation = 360 - ((360 - moveCard.rotation) * 40) / 100;
+    } else {
+      moveCard.rotation = (moveCard.rotation * 40) / 100;
+    }
+    if (moveCard.direction > 180) {
+      moveCard.direction = 360 - ((360 - moveCard.direction) * 40) / 100;
+    } else {
+      moveCard.direction = (moveCard.direction * 40) / 100;
+    }
+    return moveCard;
+  }
+
+  return { distance: 0, rotation: 0, direction: 0 };
 }

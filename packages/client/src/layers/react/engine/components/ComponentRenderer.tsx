@@ -10,6 +10,7 @@ import { Layers } from "../../../../types";
 
 const UIGrid = styled.div`
   display: grid;
+  overflow: hidden;
   grid-template-columns: repeat(12, 8.33%);
   grid-template-rows: repeat(12, 8.33%);
   position: absolute;

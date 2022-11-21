@@ -5,9 +5,7 @@ pragma solidity >=0.8.0;
 
 // Components
 
-import { MoveDirectionComponent, ID as MoveDirectionComponentID } from "../../components/MoveDirectionComponent.sol";
-import { MoveDistanceComponent, ID as MoveDistanceComponentID } from "../../components/MoveDistanceComponent.sol";
-import { MoveRotationComponent, ID as MoveRotationComponentID } from "../../components/MoveRotationComponent.sol";
+import { MoveCardComponent, ID as MoveCardComponentID, MoveCard } from "../../components/MoveCardComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
 import { WindComponent, ID as WindComponentID, GodID, Wind } from "../../components/WindComponent.sol";
 
@@ -22,44 +20,30 @@ contract InitSystemTest is MudTest {
   function testExecute() public prank(deployer) {
     RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
 
-    MoveDirectionComponent moveDirectionComponent = MoveDirectionComponent(
-      getAddressById(components, MoveDirectionComponentID)
-    );
-    MoveDistanceComponent moveDistanceComponent = MoveDistanceComponent(
-      getAddressById(components, MoveDistanceComponentID)
-    );
-    MoveRotationComponent moveRotationComponent = MoveRotationComponent(
-      getAddressById(components, MoveRotationComponentID)
-    );
+    MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
     WindComponent windComponent = WindComponent(getAddressById(components, WindComponentID));
 
-    uint32 moveDirection = moveDirectionComponent.getValue(entity1Id);
-    uint32 moveDistance = moveDistanceComponent.getValue(entity1Id);
-    uint32 moveRotation = moveRotationComponent.getValue(entity1Id);
+    MoveCard memory moveCard = moveCardComponent.getValue(entity1Id);
 
-    assertEq(moveDirection, 0);
-    assertEq(moveDistance, 20);
-    assertEq(moveRotation, 0);
+    assertEq(moveCard.direction, 0);
+    assertEq(moveCard.distance, 20);
+    assertEq(moveCard.rotation, 0);
 
-    moveDistance = moveDistanceComponent.getValue(entity2Id);
-    moveRotation = moveRotationComponent.getValue(entity2Id);
-    moveDirection = moveDirectionComponent.getValue(entity2Id);
+    moveCard = moveCardComponent.getValue(entity2Id);
 
-    assertEq(moveDirection, 45);
-    assertEq(moveDistance, 20);
-    assertEq(moveRotation, 90);
+    assertEq(moveCard.direction, 45);
+    assertEq(moveCard.distance, 20);
+    assertEq(moveCard.rotation, 90);
 
-    moveDirection = moveDirectionComponent.getValue(entity3Id);
-    moveDistance = moveDistanceComponent.getValue(entity3Id);
-    moveRotation = moveRotationComponent.getValue(entity3Id);
+    moveCard = moveCardComponent.getValue(entity3Id);
 
-    assertEq(moveDirection, 27);
-    assertEq(moveDistance, 20);
-    assertEq(moveRotation, 45);
+    assertEq(moveCard.direction, 27);
+    assertEq(moveCard.distance, 20);
+    assertEq(moveCard.rotation, 45);
 
     Wind memory wind = windComponent.getValue(GodID);
 
     assertEq(wind.speed, 10, "wind speed failed");
-    assertEq(wind.direction, 0, "wind direction failed");
+    assertEq(wind.direction, 90, "wind direction failed");
   }
 }

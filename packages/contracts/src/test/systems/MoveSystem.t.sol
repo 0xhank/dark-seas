@@ -6,17 +6,19 @@ pragma solidity >=0.8.0;
 // Components
 import { Coord, PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
+import { WindComponent, ID as WindComponentID, Wind, GodID } from "../../components/WindComponent.sol";
+import { MoveCardComponent, ID as MoveCardComponentID, MoveCard } from "../../components/MoveCardComponent.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
 import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
-import { WindComponent, ID as WindComponentID, Wind, GodID } from "../../components/WindComponent.sol";
+import { ChangeSailSystem, ID as ChangeSailSystemID } from "../../systems/ChangeSailSystem.sol";
 
 // Internal
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
 
-import "../../libraries/LibNature.sol";
+import "../../libraries/LibMove.sol";
 
 contract MoveSystemTest is MudTest {
   uint256 entityId;
@@ -48,7 +50,7 @@ contract MoveSystemTest is MudTest {
     setup();
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
-    uint32 startingRotation = 315;
+    uint32 startingRotation = 45;
     uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 50);
 
     uint256 moveHardRightId = uint256(keccak256("ds.prototype.moveEntity2"));
@@ -57,7 +59,7 @@ contract MoveSystemTest is MudTest {
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
     uint32 playerRotation = rotationComponent.getValue(shipEntityId);
-    assertCoordEq(Coord({ x: startingPosition.x + 30, y: startingPosition.y }), currPosition);
+    assertCoordEq(Coord({ x: startingPosition.x, y: startingPosition.y + 29 }), currPosition);
     assertEq(playerRotation, (startingRotation + 90) % 360);
   }
 
@@ -65,7 +67,7 @@ contract MoveSystemTest is MudTest {
     setup();
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
-    uint32 startingRotation = 18;
+    uint32 startingRotation = 108;
     uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 50);
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity3"));
@@ -74,36 +76,105 @@ contract MoveSystemTest is MudTest {
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
     uint32 playerRotation = rotationComponent.getValue(shipEntityId);
-    assertCoordEq(Coord({ x: startingPosition.x + 7, y: startingPosition.y + 7 }), currPosition);
+    assertCoordEq(Coord({ x: startingPosition.x - 7, y: startingPosition.y + 7 }), currPosition);
     assertEq(playerRotation, (startingRotation + 45) % 360);
   }
 
   function testGetWindBoost() public prank(deployer) {
     setup();
 
-    assertEq(LibNature.getWindBoost(wind, 0), -10);
-    assertEq(LibNature.getWindBoost(wind, 22), 10);
-    assertEq(LibNature.getWindBoost(wind, 81), 0);
-    assertEq(LibNature.getWindBoost(wind, 121), -10);
-    assertEq(LibNature.getWindBoost(wind, 241), 0);
-    assertEq(LibNature.getWindBoost(wind, 281), 10);
-    assertEq(LibNature.getWindBoost(wind, 340), -10);
+    assertEq(LibMove.getWindBoost(wind, 90), -10);
+    assertEq(LibMove.getWindBoost(wind, 112), 10);
+    assertEq(LibMove.getWindBoost(wind, 171), 0);
+    assertEq(LibMove.getWindBoost(wind, 211), -10);
+    assertEq(LibMove.getWindBoost(wind, 331), 0);
+    assertEq(LibMove.getWindBoost(wind, 11), 10);
+    assertEq(LibMove.getWindBoost(wind, 70), -10);
   }
 
   function testGetMoveDistanceWithWind() public prank(deployer) {
     setup();
 
-    uint32 moveDistance = LibNature.getMoveDistanceWithWind(20, 0, wind);
+    uint32 moveDistance = LibMove.getMoveDistanceWithWind(20, 90, wind);
     assertEq(moveDistance, 10);
 
-    moveDistance = LibNature.getMoveDistanceWithWind(5, 0, wind);
+    moveDistance = LibMove.getMoveDistanceWithWind(5, 90, wind);
     assertEq(moveDistance, 0);
 
-    moveDistance = LibNature.getMoveDistanceWithWind(10, 40, wind);
+    moveDistance = LibMove.getMoveDistanceWithWind(10, 130, wind);
     assertEq(moveDistance, 20);
 
-    moveDistance = LibNature.getMoveDistanceWithWind(10, 100, wind);
+    moveDistance = LibMove.getMoveDistanceWithWind(10, 190, wind);
     assertEq(moveDistance, 10);
+  }
+
+  function testGetMoveWithOpenSails() public prank(deployer) {
+    MoveCard memory moveCard = MoveCard({ distance: 50, rotation: 90, direction: 45 });
+    uint32 sailPosition = 3;
+
+    MoveCard memory newMoveCard;
+
+    newMoveCard = LibMove.getMoveWithSails(moveCard, sailPosition);
+    assertEq(moveCard.distance, newMoveCard.distance, "full sails distance failed");
+    assertEq(moveCard.rotation, newMoveCard.rotation, "full sails rotation failed");
+    assertEq(moveCard.direction, newMoveCard.direction, "full sails angle failed");
+
+    sailPosition = 2;
+    newMoveCard = LibMove.getMoveWithSails(moveCard, sailPosition);
+    assertApproxEqAbs(moveCard.distance, (newMoveCard.distance * 100) / 75, 1, "battle sails distance failed");
+    assertApproxEqAbs(moveCard.rotation, (newMoveCard.rotation * 100) / 75, 1, "battle sails rotation failed");
+    assertApproxEqAbs(moveCard.direction, (newMoveCard.direction * 100) / 75, 1, "battle sails angle failed");
+
+    moveCard.rotation = 270;
+    moveCard.direction = 315;
+
+    sailPosition = 1;
+
+    newMoveCard = LibMove.getMoveWithSails(moveCard, sailPosition);
+    assertEq(newMoveCard.distance, 20, "closed sails distance failed");
+    assertEq(newMoveCard.rotation, 324, "closed sails rotation failed");
+    assertEq(newMoveCard.direction, 342, "closed sails angle failed");
+  }
+
+  function testMoveWithBattleSails() public prank(deployer) {
+    setup();
+
+    ChangeSailSystem changeSailSystem = ChangeSailSystem(system(ChangeSailSystemID));
+
+    Coord memory startingPosition = Coord({ x: 0, y: 0 });
+    uint32 startingRotation = 0;
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 50);
+
+    changeSailSystem.executeTyped(shipEntityId, 2);
+
+    uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
+
+    moveSystem.executeTyped(shipEntityId, moveStraightEntityId);
+
+    Coord memory currPosition = positionComponent.getValue(shipEntityId);
+
+    assertCoordEq(currPosition, Coord({ x: 15, y: 0 }));
+  }
+
+  function testMoveWithClosedSails() public prank(deployer) {
+    setup();
+
+    ChangeSailSystem changeSailSystem = ChangeSailSystem(system(ChangeSailSystemID));
+
+    Coord memory startingPosition = Coord({ x: 0, y: 0 });
+    uint32 startingRotation = 0;
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 50);
+
+    changeSailSystem.executeTyped(shipEntityId, 2);
+    changeSailSystem.executeTyped(shipEntityId, 1);
+
+    uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
+
+    moveSystem.executeTyped(shipEntityId, moveStraightEntityId);
+
+    Coord memory currPosition = positionComponent.getValue(shipEntityId);
+
+    assertCoordEq(currPosition, Coord({ x: 8, y: 0 }));
   }
 
   /**

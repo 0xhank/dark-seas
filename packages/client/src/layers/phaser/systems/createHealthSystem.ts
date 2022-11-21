@@ -21,22 +21,10 @@ const shipWidth = 2;
 export function createHealthSystem(network: NetworkLayer, phaser: PhaserLayer) {
   const {
     world,
-    components: { Health, Position },
+    components: { Health },
   } = network;
 
-  const {
-    scenes: {
-      Main: {
-        objectPool,
-        config,
-        maps: {
-          Main: { tileWidth, tileHeight },
-        },
-      },
-    },
-    components: { SelectedShip },
-    polygonRegistry,
-  } = phaser;
+  const { objectPool } = phaser.scenes.Main;
 
   defineUpdateSystem(world, [Has(Health)], (update) => {
     const object = objectPool.get(update.entity, "Rectangle");

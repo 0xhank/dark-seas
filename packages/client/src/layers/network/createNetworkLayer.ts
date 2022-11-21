@@ -1,4 +1,4 @@
-import { createWorld, defineComponent, EntityID, Type } from "@latticexyz/recs";
+import { createWorld, EntityID, Type } from "@latticexyz/recs";
 import { setupDevSystems } from "./setup";
 import {
   createActionSystem,
@@ -8,13 +8,14 @@ import {
   defineBoolComponent,
 } from "@latticexyz/std-client";
 import { defineLoadingStateComponent } from "./components";
-import { SystemTypes } from "contracts/types/SystemTypes";
-import { SystemAbis } from "contracts/types/SystemAbis.mjs";
+
+import { SystemTypes } from "../../../../contracts/types/SystemTypes";
+import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { GameConfig, getNetworkConfig } from "./config";
-import { BigNumber } from "ethers";
 import { Coord } from "@latticexyz/utils";
 import { Side } from "../../constants";
 import { defineWindComponent } from "./components/WindComponent";
+import { defineMoveCardComponent } from "./components/MoveCardComponent";
 
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -30,24 +31,17 @@ export async function createNetworkLayer(config: GameConfig) {
   const components = {
     LoadingState: defineLoadingStateComponent(world),
     Wind: defineWindComponent(world),
+    MoveCard: defineMoveCardComponent(world),
     Position: defineCoordComponent(world, { id: "Position", metadata: { contractId: "ds.component.Position" } }),
     Rotation: defineNumberComponent(world, { id: "Rotation", metadata: { contractId: "ds.component.Rotation" } }),
-    MoveDirection: defineNumberComponent(world, {
-      id: "MoveDirection",
-      metadata: { contractId: "ds.component.MoveDirection" },
-    }),
-    MoveDistance: defineNumberComponent(world, {
-      id: "MoveDistance",
-      metadata: { contractId: "ds.component.MoveDistance" },
-    }),
-    MoveRotation: defineNumberComponent(world, {
-      id: "MoveRotation",
-      metadata: { contractId: "ds.component.MoveRotation" },
-    }),
     Length: defineNumberComponent(world, { id: "Length", metadata: { contractId: "ds.component.Length" } }),
     Range: defineNumberComponent(world, { id: "Range", metadata: { contractId: "ds.component.Range" } }),
     Health: defineNumberComponent(world, { id: "Health", metadata: { contractId: "ds.component.Health" } }),
     Ship: defineBoolComponent(world, { id: "Ship", metadata: { contractId: "ds.component.Ship" } }),
+    SailPosition: defineNumberComponent(world, {
+      id: "SailPosition",
+      metadata: { contractId: "ds.component.SailPosition" },
+    }),
   };
 
   // --- SETUP ----------------------------------------------------------------------
@@ -81,6 +75,11 @@ export async function createNetworkLayer(config: GameConfig) {
     systems["ds.system.Combat"].executeTyped(shipId, side);
   }
 
+  function changeSail(shipId: EntityID, newPosition: number) {
+    console.log(`changing sails of ${shipId} to ${newPosition}`);
+    systems["ds.system.ChangeSail"].executeTyped(shipId, newPosition);
+  }
+
   // --- CONTEXT --------------------------------------------------------------------
   const context = {
     world,
@@ -91,8 +90,8 @@ export async function createNetworkLayer(config: GameConfig) {
     startSync,
     network,
     actions,
-    api: { spawnShip, move, attack },
-    dev: setupDevSystems(world, encoders, systems),
+    api: { spawnShip, move, attack, changeSail },
+    dev: setupDevSystems(world, encoders as any, systems),
   };
 
   return context;

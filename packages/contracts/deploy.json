@@ -2,13 +2,12 @@
   "components": [
     "PositionComponent",
     "RotationComponent",
-    "MoveDirectionComponent",
-    "MoveDistanceComponent",
-    "MoveRotationComponent",
+    "MoveCardComponent",
     "LengthComponent",
     "RangeComponent",
     "HealthComponent",
     "ShipComponent",
+    "SailPositionComponent",
     "WindComponent"
   ],
   "systems": [
@@ -21,10 +20,12 @@
         "LengthComponent",
         "RangeComponent",
         "HealthComponent",
-        "ShipComponent"
+        "ShipComponent",
+        "SailPositionComponent"
       ]
     },
     { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent"] },
-    { "name": "CombatSystem", "writeAccess": ["HealthComponent"] }
+    { "name": "CombatSystem", "writeAccess": ["HealthComponent"] },
+    { "name": "ChangeSailSystem", "writeAccess": ["SailPositionComponent"] }
   ]
 }
