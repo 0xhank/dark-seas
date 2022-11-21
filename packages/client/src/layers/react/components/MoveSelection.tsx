@@ -15,7 +15,8 @@ import { Coord } from "@latticexyz/utils";
 import { GodID } from "@latticexyz/network";
 import { Arrows } from "../../phaser/constants";
 import { Container, MoveOption } from "../styles/global";
-import { getMoveDistanceWithWind, getWindBoost } from "../../../utils/directions";
+import { getMoveDistanceWithWind, getMoveWithSails, getWindBoost } from "../../../utils/directions";
+import { MoveCard } from "../../../constants";
 
 export function registerMoveSelection() {
   registerUIComponent(
@@ -33,20 +34,28 @@ export function registerMoveSelection() {
       const {
         network: {
           world,
-          components: { Rotation, MoveCard, Wind },
+          components: { Rotation, MoveCard, Wind, SailPosition, Position },
         },
         phaser: {
           components: { SelectedShip, SelectedMove },
         },
       } = layers;
 
-      return merge(MoveCard.update$, SelectedMove.update$, SelectedShip.update$, Rotation.update$).pipe(
+      return merge(
+        MoveCard.update$,
+        SelectedMove.update$,
+        SelectedShip.update$,
+        Rotation.update$,
+        SailPosition.update$,
+        Position.update$
+      ).pipe(
         map(() => {
           return {
             SelectedMove,
             MoveCard,
             Rotation,
             SelectedShip,
+            SailPosition,
             Wind,
             world,
           };
@@ -54,7 +63,7 @@ export function registerMoveSelection() {
       );
     },
     // render
-    ({ MoveCard, SelectedMove, SelectedShip, Rotation, Wind, world }) => {
+    ({ MoveCard, SelectedMove, SelectedShip, Rotation, SailPosition, Wind, world }) => {
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
       const wind = getComponentValueStrict(Wind, GodEntityIndex);
@@ -87,39 +96,51 @@ export function registerMoveSelection() {
               gap: "8px",
             }}
           >
-            {moveEntities.map((entity) => {
-              const moveCard = getComponentValueStrict(MoveCard, entity);
+            {moveEntities
+              .sort((a, b) => a - b)
+              .map((entity) => {
+                const sailPosition = getComponentValueStrict(SailPosition, selectedShip).value;
+                let moveCard = getComponentValueStrict(MoveCard, entity) as MoveCard;
 
-              const isSelected = selectedMove && selectedMove.value == entity;
+                moveCard = { ...moveCard, distance: getMoveDistanceWithWind(wind, moveCard.distance, rotation) };
 
-              const imageUrl =
-                moveCard.rotation == 360 || moveCard.rotation == 0
-                  ? Arrows.Straight
-                  : moveCard.rotation > 270
-                  ? Arrows.SoftLeft
-                  : moveCard.rotation == 270
-                  ? Arrows.Left
-                  : moveCard.rotation > 180
-                  ? Arrows.HardLeft
-                  : moveCard.rotation == 180
-                  ? Arrows.UTurn
-                  : moveCard.rotation > 90
-                  ? Arrows.HardRight
-                  : moveCard.rotation == 90
-                  ? Arrows.Right
-                  : Arrows.SoftRight;
+                moveCard = getMoveWithSails(moveCard, sailPosition);
 
-              return (
-                <MoveOption
-                  isSelected={isSelected}
-                  key={entity}
-                  onClick={() => setComponent(SelectedMove, GodEntityIndex, { value: entity })}
-                >
-                  <img src={imageUrl} style={{ height: "80%", objectFit: "scale-down" }} />
-                  <p>Distance: {getMoveDistanceWithWind(wind.speed, wind.direction, moveCard.distance, rotation)}</p>
-                </MoveOption>
-              );
-            })}
+                const isSelected = selectedMove && selectedMove.value == entity;
+
+                const imageUrl =
+                  moveCard.rotation == 360 || moveCard.rotation == 0
+                    ? Arrows.Straight
+                    : moveCard.rotation > 270
+                    ? Arrows.SoftLeft
+                    : moveCard.rotation == 270
+                    ? Arrows.Left
+                    : moveCard.rotation > 180
+                    ? Arrows.HardLeft
+                    : moveCard.rotation == 180
+                    ? Arrows.UTurn
+                    : moveCard.rotation > 90
+                    ? Arrows.HardRight
+                    : moveCard.rotation == 90
+                    ? Arrows.Right
+                    : Arrows.SoftRight;
+
+                return (
+                  <MoveOption
+                    isSelected={isSelected}
+                    key={entity}
+                    onClick={() => {
+                      console.log("movecard: ", moveCard);
+                      setComponent(SelectedMove, GodEntityIndex, { value: entity });
+                    }}
+                  >
+                    <img src={imageUrl} style={{ height: "80%", objectFit: "scale-down" }} />
+                    <p>
+                      {moveCard.distance}kts / {Math.round((moveCard.direction + rotation) % 360)}º
+                    </p>
+                  </MoveOption>
+                );
+              })}
           </div>
         </Container>
       );

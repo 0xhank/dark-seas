@@ -37,3 +37,14 @@ export const SailPositionNames: Record<number, string> = {
   [SailPositions.Battle]: "Battle",
   [SailPositions.Open]: "Open",
 };
+
+export type MoveCard = {
+  distance: number;
+  rotation: number;
+  direction: number;
+};
+
+export type Wind = {
+  speed: number;
+  direction: number;
+};
