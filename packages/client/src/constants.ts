@@ -23,3 +23,17 @@ export type Line = {
   p1: Coord;
   p2: Coord;
 };
+
+export enum SailPositions {
+  Broken,
+  Closed,
+  Battle,
+  Open,
+}
+
+export const SailPositionNames: Record<number, string> = {
+  [SailPositions.Broken]: "Broken",
+  [SailPositions.Closed]: "Closed",
+  [SailPositions.Battle]: "Battle",
+  [SailPositions.Open]: "Open",
+};

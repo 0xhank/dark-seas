@@ -27,6 +27,7 @@ export function registerSpawnShipButton() {
 
       return (
         <Container
+          style={{ cursor: "pointer" }}
           onClick={() => {
             spawnShip({ x: 0, y: 0 }, 0);
           }}

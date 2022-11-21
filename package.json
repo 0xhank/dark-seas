@@ -1,10 +1,10 @@
 {
-  "name": "mudbasics",
+  "name": "dark-seas",
   "version": "0.0.0",
-  "description": "A simple mud reference implementation",
+  "description": "Multiplayer naval combat browser game",
   "repository": {
     "type": "git",
-    "url": "https://github.com/latticexyz/mudbasics.git"
+    "url": "https://github.com/0xhank/dark-seas.git"
   },
   "private": true,
   "workspaces": {
