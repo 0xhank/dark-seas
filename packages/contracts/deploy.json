@@ -8,7 +8,11 @@
     "HealthComponent",
     "ShipComponent",
     "SailPositionComponent",
-    "WindComponent"
+    "WindComponent",
+    "OnFireComponent",
+    "LeakComponent",
+    "CrewCountComponent",
+    "DamagedSailComponent"
   ],
   "systems": [
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
@@ -21,11 +25,15 @@
         "RangeComponent",
         "HealthComponent",
         "ShipComponent",
-        "SailPositionComponent"
+        "SailPositionComponent",
+        "CrewCountComponent"
       ]
     },
     { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent"] },
-    { "name": "CombatSystem", "writeAccess": ["HealthComponent"] },
+    {
+      "name": "CombatSystem",
+      "writeAccess": ["HealthComponent", "LeakComponent", "OnFireComponent", "DamagedSailComponent"]
+    },
     { "name": "ChangeSailSystem", "writeAccess": ["SailPositionComponent"] }
   ]
 }
