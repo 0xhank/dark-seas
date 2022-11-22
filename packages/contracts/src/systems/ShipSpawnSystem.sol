@@ -15,6 +15,7 @@ import { HealthComponent, ID as HealthComponentID } from "../components/HealthCo
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
+import { FirepowerComponent, ID as FirepowerComponentID } from "../components/FirepowerComponent.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.ShipSpawn"));
 
@@ -37,6 +38,7 @@ contract ShipSpawnSystem is System {
     ShipComponent(getAddressById(components, ShipComponentID)).set(entity);
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(entity, 3);
     CrewCountComponent(getAddressById(components, CrewCountComponentID)).set(entity, 8);
+    FirepowerComponent(getAddressById(components, FirepowerComponentID)).set(entity, 10);
 
     return abi.encode(entity);
   }

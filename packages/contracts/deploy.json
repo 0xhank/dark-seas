@@ -12,7 +12,8 @@
     "OnFireComponent",
     "LeakComponent",
     "CrewCountComponent",
-    "DamagedSailComponent"
+    "DamagedSailComponent",
+    "FirepowerComponent"
   ],
   "systems": [
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
@@ -26,7 +27,8 @@
         "HealthComponent",
         "ShipComponent",
         "SailPositionComponent",
-        "CrewCountComponent"
+        "CrewCountComponent",
+        "FirepowerComponent"
       ]
     },
     { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent"] },

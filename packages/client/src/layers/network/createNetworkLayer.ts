@@ -49,6 +49,7 @@ export async function createNetworkLayer(config: GameConfig) {
     }),
     Leak: defineBoolComponent(world, { id: "Leak", metadata: { contractId: "ds.component.Leak" } }),
     OnFire: defineNumberComponent(world, { id: "OnFire", metadata: { contractId: "ds.component.OnFire" } }),
+    Firepower: defineNumberComponent(world, { id: "Firepower", metadata: { contractId: "ds.component.Firepower" } }),
   };
 
   // --- SETUP ----------------------------------------------------------------------
