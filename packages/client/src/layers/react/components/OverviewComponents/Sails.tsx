@@ -23,13 +23,13 @@ export default function Sails({
             disabled={sailPosition == SailPositions.Open}
             onClick={() => changeSail(shipEntity, sailPosition + 1)}
           >
-            Raise sails
+            RAISE THOSE SAILS
           </button>
           <button
             disabled={sailPosition == SailPositions.Closed}
             onClick={() => changeSail(shipEntity, sailPosition - 1)}
           >
-            Lower sails
+            LOWER THOSE SAILS
           </button>
         </span>
       )}

@@ -9,38 +9,35 @@ export default function AttackButton({
   shipEntity: EntityID;
 }) {
   return (
-    <div style={{ width: "100%", background: "brown", pointerEvents: "all" }}>
-      <span>Attack with {shipEntity}</span>
-      <div style={{ display: "flex" }}>
-        <button
-          style={{
-            textAlign: "center",
-            padding: "5px",
-            cursor: "pointer",
-          }}
-          disabled={!shipEntity}
-          onClick={() => {
-            if (!shipEntity) return;
-            attack(shipEntity, Side.Left);
-          }}
-        >
-          LEFT
-        </button>
-        <button
-          style={{
-            textAlign: "center",
-            padding: "5px",
-            cursor: "pointer",
-          }}
-          disabled={!shipEntity}
-          onClick={() => {
-            if (!shipEntity) return;
-            attack(shipEntity, Side.Right);
-          }}
-        >
-          RIGHT
-        </button>
-      </div>
+    <div style={{ width: "100%", display: "flex", justifyContent: "center", pointerEvents: "all" }}>
+      <button
+        style={{
+          textAlign: "center",
+          padding: "5px",
+          cursor: "pointer",
+        }}
+        disabled={!shipEntity}
+        onClick={() => {
+          if (!shipEntity) return;
+          attack(shipEntity, Side.Left);
+        }}
+      >
+        ATTACK LEFT
+      </button>
+      <button
+        style={{
+          textAlign: "center",
+          padding: "5px",
+          cursor: "pointer",
+        }}
+        disabled={!shipEntity}
+        onClick={() => {
+          if (!shipEntity) return;
+          attack(shipEntity, Side.Right);
+        }}
+      >
+        ATTACK RIGHT
+      </button>
     </div>
   );
 }

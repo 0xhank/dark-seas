@@ -13,7 +13,6 @@ export default function MoveButton({
     <button
       style={{
         width: "100%",
-        background: "brown",
         textAlign: "center",
         padding: "5px",
         cursor: "pointer",
@@ -29,7 +28,7 @@ export default function MoveButton({
       ) : !moveEntity ? (
         <span>Choose a move</span>
       ) : (
-        <span>Move {shipEntity}</span>
+        <span>MOVE THAT SHIP</span>
       )}
     </button>
   );
