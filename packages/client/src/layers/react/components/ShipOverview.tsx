@@ -1,21 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import { registerUIComponent } from "../engine";
-import {
-  EntityID,
-  EntityIndex,
-  getComponentEntities,
-  getComponentValue,
-  getComponentValueStrict,
-  setComponent,
-} from "@latticexyz/recs";
-import { concat, map, merge, of } from "rxjs";
-import { ActionStateString, ActionState } from "@latticexyz/std-client";
-import { Coord } from "@latticexyz/utils";
+import { EntityID, EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
+import { map, merge, of } from "rxjs";
 import { GodID } from "@latticexyz/network";
-import { Arrows } from "../../phaser/constants";
-import { Container, MoveOption } from "../styles/global";
-import { getMoveDistanceWithWind, getWindBoost } from "../../../utils/directions";
+import { Container } from "../styles/global";
 import { SailPositionNames, SailPositions, Side } from "../../../constants";
+import Sails from "./OverviewComponents/Sails";
+import MoveButton from "./OverviewComponents/MoveButton";
+import AttackButton from "./OverviewComponents/AttackButton";
 
 export function registerShipOverview() {
   registerUIComponent(
@@ -33,15 +25,26 @@ export function registerShipOverview() {
       const {
         network: {
           world,
-          api: { changeSail, move, attack },
-          components: { Health, SailPosition },
+          api: { changeSail, move, attack, repairMast, repairLeak, repairSail, extinguishFire },
+          components: { Health, SailPosition, CrewCount, DamagedSail, Firepower, Leak, OnFire },
         },
         phaser: {
           components: { SelectedMove, SelectedShip },
         },
       } = layers;
 
-      return merge(Health.update$, SelectedShip.update$, SelectedMove.update$, SailPosition.update$).pipe(
+      return merge(
+        of(0),
+        Health.update$,
+        SelectedShip.update$,
+        SelectedMove.update$,
+        SailPosition.update$,
+        CrewCount.update$,
+        DamagedSail.update$,
+        Firepower.update$,
+        Leak.update$,
+        OnFire.update$
+      ).pipe(
         map(() => {
           return {
             world,
@@ -49,127 +52,112 @@ export function registerShipOverview() {
             Health,
             SelectedMove,
             SailPosition,
+            CrewCount,
+            DamagedSail,
+            Firepower,
+            Leak,
+            OnFire,
             changeSail,
             move,
             attack,
+            repairMast,
+            repairLeak,
+            repairSail,
+            extinguishFire,
           };
         })
       );
     },
-    ({ world, SelectedShip, Health, SelectedMove, SailPosition, changeSail, move, attack }) => {
+    ({
+      world,
+      SelectedShip,
+      Health,
+      SelectedMove,
+      SailPosition,
+      CrewCount,
+      DamagedSail,
+      Firepower,
+      Leak,
+      OnFire,
+      changeSail,
+      move,
+      attack,
+      repairMast,
+      repairLeak,
+      repairSail,
+      extinguishFire,
+    }) => {
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
       const shipEntity = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
       if (!shipEntity) {
-        return <Container />;
+        return <></>;
       }
       const moveEntity = getComponentValue(SelectedMove, GodEntityIndex)?.value as EntityIndex | undefined;
 
       const health = getComponentValueStrict(Health, shipEntity).value;
+      const firepower = getComponentValueStrict(Firepower, shipEntity).value;
+      const leak = getComponentValue(Leak, shipEntity);
+      const onFire = getComponentValue(OnFire, shipEntity);
+      const damagedSail = getComponentValue(DamagedSail, shipEntity);
+      const crewCount = getComponentValueStrict(CrewCount, shipEntity).value;
       const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value as SailPositions;
       return (
         <Container>
-          <span>Ship health: {health}</span>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span>Sail position: {SailPositionNames[sailPosition]}</span>
-            <span>
+          {onFire && (
+            <span style={{ color: "red" }}>
+              YOUR SHIP IS ON FIRE!
               <button
-                disabled={sailPosition == SailPositions.Open}
-                onClick={() => changeSail(world.entities[shipEntity], sailPosition + 1)}
+                onClick={() => {
+                  extinguishFire(world.entities[shipEntity]);
+                }}
               >
-                Raise sails
-              </button>
-              <button
-                disabled={sailPosition == SailPositions.Closed}
-                onClick={() => changeSail(world.entities[shipEntity], sailPosition - 1)}
-              >
-                Lower sails
+                Extinguish
               </button>
             </span>
-          </div>
-          <MoveButton move={move} world={world} shipEntity={shipEntity} moveEntity={moveEntity} />
-          <AttackButton attack={attack} world={world} shipEntity={shipEntity} />
+          )}
+          {leak && (
+            <span style={{ color: "red" }}>
+              YOUR SHIP HAS SPRUNG A LEAK!
+              <button
+                onClick={() => {
+                  repairLeak(world.entities[shipEntity]);
+                }}
+              >
+                Repair
+              </button>
+            </span>
+          )}
+          {damagedSail && (
+            <span style={{ color: "red" }}>
+              YOUR SHIP'S SAIL IS DAMAGED!
+              <button
+                onClick={() => {
+                  repairSail(world.entities[shipEntity]);
+                }}
+              >
+                Repair
+              </button>
+            </span>
+          )}
+          <span>Ship health: {health}</span>
+          <span>Ship firepower: {firepower}</span>
+          <span>Ship crew: {crewCount}</span>
+
+          <Sails
+            changeSail={changeSail}
+            repairMast={repairMast}
+            shipEntity={world.entities[shipEntity]}
+            sailPosition={sailPosition}
+          />
+          <MoveButton
+            move={move}
+            shipEntity={world.entities[shipEntity]}
+            moveEntity={moveEntity ? world.entities[moveEntity] : undefined}
+          />
+          <AttackButton attack={attack} shipEntity={world.entities[shipEntity]} />
         </Container>
       );
     }
   );
 }
-
-const MoveButton = ({
-  move,
-  world,
-  shipEntity,
-  moveEntity,
-}: {
-  move: (shipId: EntityID, moveId: EntityID) => void;
-  world: any;
-  shipEntity: EntityIndex | undefined;
-  moveEntity: EntityIndex | undefined;
-}) => (
-  <button
-    style={{
-      width: "100%",
-      background: "brown",
-      textAlign: "center",
-      padding: "5px",
-      cursor: "pointer",
-    }}
-    disabled={!shipEntity || !moveEntity}
-    onClick={() => {
-      if (!shipEntity || !moveEntity) return;
-      move(world.entities[shipEntity], world.entities[moveEntity]);
-    }}
-  >
-    {!shipEntity ? (
-      <span>Choose a ship</span>
-    ) : !moveEntity ? (
-      <span>Choose a move</span>
-    ) : (
-      <span>Move {shipEntity}</span>
-    )}
-  </button>
-);
-
-const AttackButton = ({
-  attack,
-  world,
-  shipEntity,
-}: {
-  attack: (shipId: EntityID, side: Side) => void;
-  world: any;
-  shipEntity: EntityIndex;
-}) => (
-  <div style={{ width: "100%", background: "brown", pointerEvents: "all" }}>
-    <span>Attack with {shipEntity}</span>
-    <div style={{ display: "flex" }}>
-      <button
-        style={{
-          textAlign: "center",
-          padding: "5px",
-          cursor: "pointer",
-        }}
-        disabled={!shipEntity}
-        onClick={() => {
-          if (!shipEntity) return;
-          attack(world.entities[shipEntity], Side.Left);
-        }}
-      >
-        LEFT
-      </button>
-      <button
-        style={{
-          textAlign: "center",
-          padding: "5px",
-          cursor: "pointer",
-        }}
-        disabled={!shipEntity}
-        onClick={() => {
-          if (!shipEntity) return;
-          attack(world.entities[shipEntity], Side.Right);
-        }}
-      >
-        RIGHT
-      </button>
-    </div>
-  </div>
-);

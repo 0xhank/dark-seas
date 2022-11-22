@@ -3,10 +3,10 @@ import { registerUIComponent } from "../engine";
 import { of } from "rxjs";
 import { Container } from "../styles/global";
 
-export function registerSpawnShipButton() {
+export function registerShipSpawnButton() {
   registerUIComponent(
     // name
-    "SpawnShipButton",
+    "ShipSpawnButton",
     // grid location
     {
       rowStart: 1,

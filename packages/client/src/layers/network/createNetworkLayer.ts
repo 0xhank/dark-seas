@@ -42,6 +42,14 @@ export async function createNetworkLayer(config: GameConfig) {
       id: "SailPosition",
       metadata: { contractId: "ds.component.SailPosition" },
     }),
+    CrewCount: defineNumberComponent(world, { id: "CrewCount", metadata: { contractId: "ds.component.CrewCount" } }),
+    DamagedSail: defineBoolComponent(world, {
+      id: "DamagedSail",
+      metadata: { contractId: "ds.component.DamagedSail" },
+    }),
+    Leak: defineBoolComponent(world, { id: "Leak", metadata: { contractId: "ds.component.Leak" } }),
+    OnFire: defineNumberComponent(world, { id: "OnFire", metadata: { contractId: "ds.component.OnFire" } }),
+    Firepower: defineNumberComponent(world, { id: "Firepower", metadata: { contractId: "ds.component.Firepower" } }),
   };
 
   // --- SETUP ----------------------------------------------------------------------
@@ -80,6 +88,25 @@ export async function createNetworkLayer(config: GameConfig) {
     systems["ds.system.ChangeSail"].executeTyped(shipId, newPosition);
   }
 
+  function extinguishFire(shipId: EntityID) {
+    console.log("extinguishing fire!");
+    systems["ds.system.ExtinguishFire"].executeTyped(shipId);
+  }
+
+  function repairLeak(shipId: EntityID) {
+    console.log("repairing leak!");
+    systems["ds.system.RepairLeak"].executeTyped(shipId);
+  }
+
+  function repairMast(shipId: EntityID) {
+    console.log("extinguishing fire!");
+    systems["ds.system.RepairMast"].executeTyped(shipId);
+  }
+
+  function repairSail(shipId: EntityID) {
+    console.log("extinguishing fire!");
+    systems["ds.system.RepairSails"].executeTyped(shipId);
+  }
   // --- CONTEXT --------------------------------------------------------------------
   const context = {
     world,
@@ -90,7 +117,7 @@ export async function createNetworkLayer(config: GameConfig) {
     startSync,
     network,
     actions,
-    api: { spawnShip, move, attack, changeSail },
+    api: { spawnShip, move, attack, changeSail, extinguishFire, repairLeak, repairMast, repairSail },
     dev: setupDevSystems(world, encoders as any, systems),
   };
 

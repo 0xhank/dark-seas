@@ -8,7 +8,12 @@
     "HealthComponent",
     "ShipComponent",
     "SailPositionComponent",
-    "WindComponent"
+    "WindComponent",
+    "OnFireComponent",
+    "LeakComponent",
+    "CrewCountComponent",
+    "DamagedSailComponent",
+    "FirepowerComponent"
   ],
   "systems": [
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
@@ -21,11 +26,20 @@
         "RangeComponent",
         "HealthComponent",
         "ShipComponent",
-        "SailPositionComponent"
+        "SailPositionComponent",
+        "CrewCountComponent",
+        "FirepowerComponent"
       ]
     },
     { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent"] },
-    { "name": "CombatSystem", "writeAccess": ["HealthComponent"] },
-    { "name": "ChangeSailSystem", "writeAccess": ["SailPositionComponent"] }
+    {
+      "name": "CombatSystem",
+      "writeAccess": ["HealthComponent", "LeakComponent", "OnFireComponent", "DamagedSailComponent"]
+    },
+    { "name": "ChangeSailSystem", "writeAccess": ["SailPositionComponent"] },
+    { "name": "RepairLeakSystem", "writeAccess": ["LeakComponent"] },
+    { "name": "ExtinguishFireSystem", "writeAccess": ["OnFireComponent"] },
+    { "name": "RepairSailsSystem", "writeAccess": ["DamagedSailComponent"] },
+    { "name": "RepairMastSystem", "writeAccess": ["SailPositionComponent"] }
   ]
 }
