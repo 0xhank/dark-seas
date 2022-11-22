@@ -1,7 +1,7 @@
 import { registerComponentBrowser } from "./ComponentBrowser";
 import { registerActionQueue } from "./ActionQueue";
 import { registerLoadingState } from "./LoadingState";
-import { registerSpawnShipButton } from "./SpawnShipButton";
+import { registerShipSpawnButton } from "./ShipSpawnButton";
 import { registerMoveButton } from "./MoveButton";
 import { registerAttackButton } from "./AttackButton";
 import { registerMoveSelection } from "./MoveSelection";
@@ -14,8 +14,6 @@ export function registerUIComponents() {
   registerActionQueue();
   registerShipSpawnButton();
   registerMoveSelection();
-  // registerAttackButton();
-  // registerMoveButton();
   registerCompass();
   registerShipOverview();
 }

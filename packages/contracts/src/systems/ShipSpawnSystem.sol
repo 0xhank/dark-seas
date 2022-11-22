@@ -38,7 +38,7 @@ contract ShipSpawnSystem is System {
     ShipComponent(getAddressById(components, ShipComponentID)).set(entity);
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(entity, 3);
     CrewCountComponent(getAddressById(components, CrewCountComponentID)).set(entity, 8);
-    FirepowerComponent(getAddressById(components, FirepowerComponentID)).set(entity, 10);
+    FirepowerComponent(getAddressById(components, FirepowerComponentID)).set(entity, 50);
 
     return abi.encode(entity);
   }
