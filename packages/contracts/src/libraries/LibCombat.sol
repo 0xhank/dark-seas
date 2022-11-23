@@ -8,6 +8,13 @@ import { IComponent } from "solecs/interfaces/IComponent.sol";
 import { ABDKMath64x64 as Math } from "./ABDKMath64x64.sol";
 
 import { console } from "forge-std/console.sol";
+import { Side } from "../systems/CombatSystem.sol";
+import { RangeComponent, ID as RangeComponentID } from "../components/RangeComponent.sol";
+import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
+import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
+import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
+
+import "./LibVector.sol";
 
 library LibCombat {
   function getRandomness(uint256 seed) public returns (uint256) {
@@ -39,5 +46,23 @@ library LibCombat {
     ret = Math.toUInt(Math.mul(beforeDebuff, firepowerDebuff));
 
     console.log("ret:", ret);
+  }
+
+  function getFiringArea(
+    IUint256Component components,
+    uint256 entity,
+    Side side
+  ) public returns (Coord[4] memory) {
+    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(entity);
+    Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(entity);
+    uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(entity);
+    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(entity);
+    uint32 topRange = side == Side.Right ? 80 : 280;
+    uint32 bottomRange = side == Side.Right ? 100 : 260;
+    Coord memory sternLocation = LibVector.getSternLocation(position, rotation, length);
+    Coord memory topCorner = LibVector.getPositionByVector(position, rotation, range, topRange);
+    Coord memory bottomCorner = LibVector.getPositionByVector(sternLocation, rotation, range, bottomRange);
+
+    return ([position, sternLocation, bottomCorner, topCorner]);
   }
 }

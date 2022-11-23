@@ -7,16 +7,16 @@ import { HealthComponent, ID as HealthComponentID } from "../../components/Healt
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
-import { CombatSystem, ID as CombatSystemID, Side } from "../../systems/CombatSystem.sol";
+import { Side } from "../../systems/CombatSystem.sol";
 import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
 
 // Internal
 import "../../libraries/LibVector.sol";
+import "../../libraries/LibCombat.sol";
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
 
 contract LibVectorTest is MudTest {
-  CombatSystem combatSystem;
   ShipSpawnSystem shipSpawnSystem;
 
   function testInRange() public prank(deployer) {
@@ -78,7 +78,7 @@ contract LibVectorTest is MudTest {
 
     uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, 0, 10, 50);
 
-    Coord[4] memory firingArea = combatSystem.getFiringArea(components, shipEntityId, Side.Right);
+    Coord[4] memory firingArea = LibCombat.getFiringArea(components, shipEntityId, Side.Right);
 
     Coord memory stern = Coord({ x: -9, y: 0 });
     Coord memory bottomCorner = Coord({ x: 8, y: 49 });

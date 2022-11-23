@@ -15,6 +15,7 @@ import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
 
 // Internal
 import "../../libraries/LibVector.sol";
+import "../../libraries/LibCombat.sol";
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
 
@@ -77,7 +78,7 @@ contract CombatSystemTest is MudTest {
 
     combatSystem.executeTyped(attackerId, Side.Right);
 
-    Coord[4] memory firingArea = combatSystem.getFiringArea(components, attackerId, Side.Right);
+    Coord[4] memory firingArea = LibCombat.getFiringArea(components, attackerId, Side.Right);
 
     (Coord memory targetPosition, Coord memory targetAft) = LibVector.getShipBowAndSternLocation(
       components,

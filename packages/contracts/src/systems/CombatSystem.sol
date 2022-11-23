@@ -9,12 +9,10 @@ import { getAddressById, getSystemAddressById } from "solecs/utils.sol";
 // Components
 import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
-import { RangeComponent, ID as RangeComponentID } from "../components/RangeComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
-import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
-import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
 
 import "../libraries/LibVector.sol";
+import "../libraries/LibCombat.sol";
 import "../libraries/LibUtils.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Combat"));
@@ -35,7 +33,7 @@ contract CombatSystem is System {
 
     require(shipComponent.has(entity), "CombatSystem: Must engage in combat with ship");
 
-    Coord[4] memory firingRange = getFiringArea(components, entity, side);
+    Coord[4] memory firingRange = LibCombat.getFiringArea(components, entity, side);
 
     (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
