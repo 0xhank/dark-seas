@@ -183,6 +183,5 @@ contract LibVectorTest is MudTest {
 
   function setup() internal {
     shipSpawnSystem = ShipSpawnSystem(system(ShipSpawnSystemID));
-    combatSystem = CombatSystem(system(CombatSystemID));
   }
 }

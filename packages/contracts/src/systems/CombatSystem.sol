@@ -54,22 +54,4 @@ contract CombatSystem is System {
   function executeTyped(uint256 entity, Side side) public returns (bytes memory) {
     return execute(abi.encode(entity, side));
   }
-
-  function getFiringArea(
-    IUint256Component components,
-    uint256 entity,
-    Side side
-  ) public returns (Coord[4] memory) {
-    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(entity);
-    Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(entity);
-    uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(entity);
-    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(entity);
-    uint32 topRange = side == Side.Right ? 80 : 280;
-    uint32 bottomRange = side == Side.Right ? 100 : 260;
-    Coord memory sternLocation = LibVector.getSternLocation(position, rotation, length);
-    Coord memory topCorner = LibVector.getPositionByVector(position, rotation, range, topRange);
-    Coord memory bottomCorner = LibVector.getPositionByVector(sternLocation, rotation, range, bottomRange);
-
-    return ([position, sternLocation, bottomCorner, topCorner]);
-  }
 }
