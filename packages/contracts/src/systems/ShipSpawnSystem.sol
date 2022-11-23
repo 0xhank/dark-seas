@@ -34,7 +34,7 @@ contract ShipSpawnSystem is System {
     RotationComponent(getAddressById(components, RotationComponentID)).set(entity, rotation);
     LengthComponent(getAddressById(components, LengthComponentID)).set(entity, length);
     RangeComponent(getAddressById(components, RangeComponentID)).set(entity, range);
-    HealthComponent(getAddressById(components, HealthComponentID)).set(entity, 100);
+    HealthComponent(getAddressById(components, HealthComponentID)).set(entity, 10);
     ShipComponent(getAddressById(components, ShipComponentID)).set(entity);
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(entity, 3);
     CrewCountComponent(getAddressById(components, CrewCountComponentID)).set(entity, 8);

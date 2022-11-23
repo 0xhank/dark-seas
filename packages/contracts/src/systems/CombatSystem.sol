@@ -9,12 +9,10 @@ import { getAddressById, getSystemAddressById } from "solecs/utils.sol";
 // Components
 import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
-import { RangeComponent, ID as RangeComponentID } from "../components/RangeComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
-import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
-import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
 
 import "../libraries/LibVector.sol";
+import "../libraries/LibCombat.sol";
 import "../libraries/LibUtils.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Combat"));
@@ -35,7 +33,7 @@ contract CombatSystem is System {
 
     require(shipComponent.has(entity), "CombatSystem: Must engage in combat with ship");
 
-    Coord[4] memory firingRange = getFiringArea(components, entity, side);
+    Coord[4] memory firingRange = LibCombat.getFiringArea(components, entity, side);
 
     (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
@@ -55,23 +53,5 @@ contract CombatSystem is System {
 
   function executeTyped(uint256 entity, Side side) public returns (bytes memory) {
     return execute(abi.encode(entity, side));
-  }
-
-  function getFiringArea(
-    IUint256Component components,
-    uint256 entity,
-    Side side
-  ) public returns (Coord[4] memory) {
-    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(entity);
-    Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(entity);
-    uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(entity);
-    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(entity);
-    uint32 topRange = side == Side.Right ? 80 : 280;
-    uint32 bottomRange = side == Side.Right ? 100 : 260;
-    Coord memory sternLocation = LibVector.getSternLocation(position, rotation, length);
-    Coord memory topCorner = LibVector.getPositionByVector(position, rotation, range, topRange);
-    Coord memory bottomCorner = LibVector.getPositionByVector(sternLocation, rotation, range, bottomRange);
-
-    return ([position, sternLocation, bottomCorner, topCorner]);
   }
 }
