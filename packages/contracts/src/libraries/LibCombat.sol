@@ -33,12 +33,21 @@ library LibCombat {
     }
   }
 
-  // 50 * e^(-.03 * distance) * (firepower / 100)
+  // 50 * e^(-.03 * distance) * (firepower / 100), multiplied by 100 for precision
   function getBaseHitChance(uint256 distance, uint256 firepower) public returns (uint256 ret) {
     int128 _scaleInv = Math.exp(Math.divu(distance * 3, 100));
     int128 firepowerDebuff = Math.divu(firepower, 100);
-    int128 beforeDebuff = Math.div(Math.fromUInt(50), _scaleInv);
+    int128 beforeDebuff = Math.div(Math.fromUInt(5000), _scaleInv);
     ret = Math.toUInt(Math.mul(beforeDebuff, firepowerDebuff));
+  }
+
+  function getHullDamage(uint256 baseHitChance, uint256 randomSeed) public returns (uint256) {
+    uint256 odds = randomSeed % 10000;
+
+    if (odds <= baseHitChance) return 3;
+    if (odds <= (baseHitChance * 270) / 100) return 2;
+    if (odds <= (baseHitChance * 550) / 100) return 1;
+    return 0;
   }
 
   function getFiringArea(
@@ -60,6 +69,7 @@ library LibCombat {
   }
 
   function damageEnemy(IUint256Component components, uint256 defenderEntity) public {
+    uint256 randomSeed = uint256(keccak256(abi.encodePacked(block.timestamp * defenderEntity)));
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
 
     uint32 defenderHealth = healthComponent.getValue(defenderEntity);
