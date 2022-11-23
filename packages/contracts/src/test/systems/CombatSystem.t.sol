@@ -8,6 +8,7 @@ import { Coord, PositionComponent, ID as PositionComponentID } from "../../compo
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
 import { RangeComponent, ID as RangeComponentID } from "../../components/RangeComponent.sol";
+import { FirepowerComponent, ID as FirepowerComponentID } from "../../components/FirepowerComponent.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
@@ -34,8 +35,6 @@ contract CombatSystemTest is MudTest {
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 rotation = 0;
-    uint32 range = 50;
-    uint32 length = 50;
     uint256 attackerId = shipSpawnSystem.executeTyped(startingPosition, 350, 50, 50);
 
     startingPosition = Coord({ x: -25, y: -25 });
@@ -51,7 +50,8 @@ contract CombatSystemTest is MudTest {
     combatSystem.executeTyped(attackerId, Side.Right);
 
     uint32 newHealth = healthComponent.getValue(defenderId);
-    assertEq(newHealth, origHealth - 1);
+
+    assertLe(newHealth, origHealth - 1);
 
     newHealth = healthComponent.getValue(defender2Id);
     assertEq(newHealth, orig2Health);
@@ -81,16 +81,31 @@ contract CombatSystemTest is MudTest {
 
     Coord[4] memory firingArea = LibCombat.getFiringArea(components, attackerId, Side.Right);
 
-    (Coord memory targetPosition, Coord memory targetAft) = LibVector.getShipBowAndSternLocation(
-      components,
-      defenderId
-    );
-
     uint32 newHealth = healthComponent.getValue(attackerId);
     assertEq(newHealth, attackerHealth);
 
     newHealth = healthComponent.getValue(defenderId);
     assertEq(newHealth, origHealth);
+  }
+
+  function testCombatPrecise() public prank(deployer) {
+    setup();
+
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+
+    uint256 attackerId = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350, 50, 50);
+    uint256 defenderId = shipSpawnSystem.executeTyped(Coord({ x: 25, y: 25 }), 0, 50, 50);
+
+    uint32 origHealth = healthComponent.getValue(defenderId);
+    uint32 attackerHealth = healthComponent.getValue(attackerId);
+
+    combatSystem.executeTyped(attackerId, Side.Right);
+
+    uint32 newHealth = healthComponent.getValue(defenderId);
+
+    uint32 ehd = expectedHealthDecrease(attackerId, defenderId);
+    console.log("expected health decrease:", ehd);
+    assertEq(newHealth, origHealth - ehd);
   }
 
   /**
@@ -103,5 +118,18 @@ contract CombatSystemTest is MudTest {
     entityId = addressToEntity(deployer);
     positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
     rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
+  }
+
+  function expectedHealthDecrease(uint256 attackerId, uint256 defenderId) public returns (uint32) {
+    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(attackerId);
+    Coord memory attackerPosition = positionComponent.getValue(attackerId);
+    Coord memory defenderPosition = positionComponent.getValue(defenderId);
+
+    uint256 distance = LibVector.distance(attackerPosition, defenderPosition);
+    return
+      LibCombat.getHullDamage(
+        LibCombat.getBaseHitChance(distance, firepower),
+        LibCombat.randomness(attackerId, defenderId)
+      );
   }
 }

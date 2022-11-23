@@ -44,8 +44,11 @@ contract CombatSystem is System {
       if (shipEntities[i] == entity) continue;
       (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
 
-      if (!LibVector.withinPolygon(firingRange, aft) && !LibVector.withinPolygon(firingRange, stern)) continue;
-      LibCombat.damageEnemy(components, shipEntities[i]);
+      if (LibVector.withinPolygon(firingRange, aft)) {
+        LibCombat.damageEnemy(components, entity, shipEntities[i], aft);
+      } else if (LibVector.withinPolygon(firingRange, stern)) {
+        LibCombat.damageEnemy(components, entity, shipEntities[i], stern);
+      }
     }
   }
 

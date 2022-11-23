@@ -14,6 +14,7 @@ import { LengthComponent, ID as LengthComponentID } from "../components/LengthCo
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
 import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
+import { FirepowerComponent, ID as FirepowerComponentID } from "../components/FirepowerComponent.sol";
 
 import "./LibVector.sol";
 
@@ -68,13 +69,33 @@ library LibCombat {
     return ([position, sternLocation, bottomCorner, topCorner]);
   }
 
-  function damageEnemy(IUint256Component components, uint256 defenderEntity) public {
+  function damageEnemy(
+    IUint256Component components,
+    uint256 attackerEntity,
+    uint256 defenderEntity,
+    Coord memory defenderPosition
+  ) public {
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
+    FirepowerComponent firepowerComponent = FirepowerComponent(getAddressById(components, FirepowerComponentID));
+
+    Coord memory attackerPosition = positionComponent.getValue(attackerEntity);
+    uint32 firepower = firepowerComponent.getValue(attackerEntity);
+    uint256 distance = LibVector.distance(attackerPosition, defenderPosition);
+
+    uint256 baseHitChance = getBaseHitChance(distance, firepower);
+    uint32 damage = getHullDamage(baseHitChance, randomness(attackerEntity, defenderEntity));
 
     uint32 defenderHealth = healthComponent.getValue(defenderEntity);
 
-    if (defenderHealth <= 0) return;
+    if (defenderHealth <= damage) {
+      healthComponent.set(defenderEntity, 0);
+    } else {
+      healthComponent.set(defenderEntity, defenderHealth - damage);
+    }
+  }
 
-    healthComponent.set(defenderEntity, defenderHealth - 1);
+  function randomness(uint256 r1, uint256 r2) public view returns (uint256 r) {
+    r = uint256(keccak256(abi.encodePacked(r1, r2, block.timestamp, r1)));
   }
 }
