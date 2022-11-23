@@ -161,6 +161,26 @@ contract LibVectorTest is MudTest {
     assertTrue(!isOnLine);
   }
 
+  function testSqrt() public prank(deployer) {
+    Coord memory a = Coord(0, 0);
+    Coord memory b = Coord(5, 0);
+    assertEq(LibVector.distance(a, b), 5, "testSqrt: (0,0) and (5,0) failed");
+
+    b = Coord(0, 5);
+    assertEq(LibVector.distance(a, b), 5, "testSqrt: (0,0) and (0,5) failed");
+
+    b = Coord(5, 5);
+    assertApproxEqAbs(LibVector.distance(a, b), 7, 1, "testSqrt: (0,0) and (5,5) failed");
+
+    a = Coord(24, 17);
+    b = Coord(91, 3);
+    assertApproxEqAbs(LibVector.distance(a, b), 68, 1, "testSqrt: (24,17) and (91,3) failed");
+
+    uint256 initialGas = gasleft();
+    LibVector.distance(a, b);
+    console.log("sqrt gas used:", initialGas - gasleft());
+  }
+
   function setup() internal {
     shipSpawnSystem = ShipSpawnSystem(system(ShipSpawnSystemID));
     combatSystem = CombatSystem(system(CombatSystemID));

@@ -88,8 +88,8 @@ library LibVector {
     return range**2 >= uint32(distanceSquared);
   }
 
-  function distance(Coord memory a, Coord memory b) public returns (int128) {
+  function distance(Coord memory a, Coord memory b) public returns (uint256) {
     int128 distanceSquared = (a.x - b.x)**2 + (a.y - b.y)**2;
-    return Math.sqrt(distanceSquared);
+    return Math.toUInt(Math.sqrt(Math.fromInt(distanceSquared)));
   }
 }
