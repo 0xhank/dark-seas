@@ -74,7 +74,6 @@ contract LibVectorTest is MudTest {
     setup();
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
-    uint32 startingRotation = 0;
 
     uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, 0, 10, 50);
 

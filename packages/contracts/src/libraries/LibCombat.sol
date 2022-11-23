@@ -19,10 +19,6 @@ import { FirepowerComponent, ID as FirepowerComponentID } from "../components/Fi
 import "./LibVector.sol";
 
 library LibCombat {
-  function getRandomness(uint256 seed) public returns (uint256) {
-    return block.timestamp * seed;
-  }
-
   // inclusive on both ends
   function getByteUInt(
     bytes memory _b,

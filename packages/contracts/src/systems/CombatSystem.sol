@@ -25,7 +25,7 @@ enum Side {
 contract CombatSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
-  function isValid(bytes memory arguments) internal returns (uint256 entity, Side side) {
+  function isValid(bytes memory arguments) internal view returns (uint256 entity, Side side) {
     (entity, side) = abi.decode(arguments, (uint256, Side));
     ShipComponent shipComponent = ShipComponent(getAddressById(components, ShipComponentID));
     require(shipComponent.has(entity), "CombatSystem: Must engage in combat with ship");
@@ -33,8 +33,6 @@ contract CombatSystem is System {
 
   function execute(bytes memory arguments) public returns (bytes memory) {
     (uint256 entity, Side side) = isValid(arguments);
-
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
 
     Coord[4] memory firingRange = LibCombat.getFiringArea(components, entity, side);
 
