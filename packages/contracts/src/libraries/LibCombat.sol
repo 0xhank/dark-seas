@@ -69,7 +69,6 @@ library LibCombat {
   }
 
   function damageEnemy(IUint256Component components, uint256 defenderEntity) public {
-    uint256 randomSeed = uint256(keccak256(abi.encodePacked(block.timestamp * defenderEntity)));
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
 
     uint32 defenderHealth = healthComponent.getValue(defenderEntity);

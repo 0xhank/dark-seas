@@ -34,6 +34,8 @@ contract CombatSystem is System {
   function execute(bytes memory arguments) public returns (bytes memory) {
     (uint256 entity, Side side) = isValid(arguments);
 
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+
     Coord[4] memory firingRange = LibCombat.getFiringArea(components, entity, side);
 
     (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
@@ -42,11 +44,8 @@ contract CombatSystem is System {
       if (shipEntities[i] == entity) continue;
       (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
 
-      if (LibVector.withinPolygon(firingRange, aft)) {
-        LibCombat.damageEnemy(components, shipEntities[i]);
-      } else if (LibVector.withinPolygon(firingRange, stern)) {
-        LibCombat.damageEnemy(components, shipEntities[i]);
-      }
+      if (!LibVector.withinPolygon(firingRange, aft) && !LibVector.withinPolygon(firingRange, stern)) continue;
+      LibCombat.damageEnemy(components, shipEntities[i]);
     }
   }
 
