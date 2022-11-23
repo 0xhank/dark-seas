@@ -109,14 +109,14 @@ contract LibVectorTest is MudTest {
     Coord memory point7 = Coord({ x: 15, y: 5 }); // not inside
     Coord memory point8 = Coord({ x: 9, y: 9 }); // inside
 
-    assertTrue(!LibVector.winding(polygon, point1), "point 1 failed");
-    assertTrue(!LibVector.winding(polygon, point2), "point 2 failed");
-    assertTrue(LibVector.winding(polygon, point3), "point 3 failed");
-    assertTrue(!LibVector.winding(polygon, point4), "point 4 failed");
-    assertTrue(!LibVector.winding(polygon, point5), "point 5 failed");
-    assertTrue(!LibVector.winding(polygon, point6), "point 6 failed");
-    assertTrue(!LibVector.winding(polygon, point7), "point 7 failed");
-    assertTrue(LibVector.winding(polygon, point8), "point 8 failed");
+    assertTrue(!LibVector.withinPolygon(polygon, point1), "point 1 failed");
+    assertTrue(!LibVector.withinPolygon(polygon, point2), "point 2 failed");
+    assertTrue(LibVector.withinPolygon(polygon, point3), "point 3 failed");
+    assertTrue(!LibVector.withinPolygon(polygon, point4), "point 4 failed");
+    assertTrue(!LibVector.withinPolygon(polygon, point5), "point 5 failed");
+    assertTrue(!LibVector.withinPolygon(polygon, point6), "point 6 failed");
+    assertTrue(!LibVector.withinPolygon(polygon, point7), "point 7 failed");
+    assertTrue(LibVector.withinPolygon(polygon, point8), "point 8 failed");
   }
 
   function testPointInsideRectangle() public prank(deployer) {
@@ -131,9 +131,9 @@ contract LibVectorTest is MudTest {
     Coord memory outsideCoord = Coord({ x: -1, y: 3 });
     Coord memory onLineCoord = Coord({ x: 0, y: 3 });
 
-    bool isInside = LibVector.winding(coords, insideCoord);
-    bool isOutside = LibVector.winding(coords, outsideCoord);
-    bool isOnLine = LibVector.winding(coords, onLineCoord);
+    bool isInside = LibVector.withinPolygon(coords, insideCoord);
+    bool isOutside = LibVector.withinPolygon(coords, outsideCoord);
+    bool isOnLine = LibVector.withinPolygon(coords, onLineCoord);
 
     assertTrue(isInside);
     assertTrue(!isOutside);
@@ -152,9 +152,9 @@ contract LibVectorTest is MudTest {
     Coord memory outsideCoord = Coord({ x: 0, y: 4 });
     Coord memory onLineCoord = Coord({ x: 1, y: 2 });
 
-    bool isInside = LibVector.winding(coords, insideCoord);
-    bool isOutside = LibVector.winding(coords, outsideCoord);
-    bool isOnLine = LibVector.winding(coords, onLineCoord);
+    bool isInside = LibVector.withinPolygon(coords, insideCoord);
+    bool isOutside = LibVector.withinPolygon(coords, outsideCoord);
+    bool isOnLine = LibVector.withinPolygon(coords, onLineCoord);
 
     assertTrue(isInside);
     assertTrue(!isOutside);

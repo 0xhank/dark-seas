@@ -25,13 +25,14 @@ enum Side {
 contract CombatSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
-  function execute(bytes memory arguments) public returns (bytes memory) {
-    (uint256 entity, Side side) = abi.decode(arguments, (uint256, Side));
-
+  function isValid(bytes memory arguments) internal returns (uint256 entity, Side side) {
+    (entity, side) = abi.decode(arguments, (uint256, Side));
     ShipComponent shipComponent = ShipComponent(getAddressById(components, ShipComponentID));
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
-
     require(shipComponent.has(entity), "CombatSystem: Must engage in combat with ship");
+  }
+
+  function execute(bytes memory arguments) public returns (bytes memory) {
+    (uint256 entity, Side side) = isValid(arguments);
 
     Coord[4] memory firingRange = LibCombat.getFiringArea(components, entity, side);
 
@@ -41,13 +42,11 @@ contract CombatSystem is System {
       if (shipEntities[i] == entity) continue;
       (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
 
-      if (!LibVector.winding(firingRange, aft) && !LibVector.winding(firingRange, stern)) continue;
-
-      uint32 enemyHealth = healthComponent.getValue(shipEntities[i]);
-
-      if (enemyHealth <= 0) continue;
-
-      healthComponent.set(shipEntities[i], enemyHealth - 1);
+      if (LibVector.withinPolygon(firingRange, aft)) {
+        LibCombat.damageEnemy(components, shipEntities[i]);
+      } else if (LibVector.withinPolygon(firingRange, stern)) {
+        LibCombat.damageEnemy(components, shipEntities[i]);
+      }
     }
   }
 

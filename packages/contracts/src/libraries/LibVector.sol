@@ -64,7 +64,8 @@ library LibVector {
     return getPositionByVector(originPosition, rotation, length, 180);
   }
 
-  function winding(Coord[4] memory coords, Coord memory point) public returns (bool) {
+  // uses the winding algorithm to calculate if point is within the polygon comprised of coords
+  function withinPolygon(Coord[4] memory coords, Coord memory point) public returns (bool) {
     int32 wn = 0;
     for (uint32 i = 0; i < 4; i++) {
       Coord memory point1 = coords[i];

@@ -7,6 +7,7 @@ pragma solidity >=0.8.0;
 import { Coord, PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
+import { RangeComponent, ID as RangeComponentID } from "../../components/RangeComponent.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
@@ -61,7 +62,7 @@ contract CombatSystemTest is MudTest {
 
   function testCombatAfterMove() public prank(deployer) {
     setup();
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    HealthComponent healthComponent = HealthComponent(component(HealthComponentID));
     MoveSystem moveSystem = MoveSystem(system(MoveSystemID));
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });

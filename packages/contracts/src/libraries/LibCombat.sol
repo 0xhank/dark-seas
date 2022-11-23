@@ -13,6 +13,7 @@ import { RangeComponent, ID as RangeComponentID } from "../components/RangeCompo
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
 import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
+import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 
 import "./LibVector.sol";
 
@@ -32,20 +33,12 @@ library LibCombat {
     }
   }
 
+  // 50 * e^(-.03 * distance) * (firepower / 100)
   function getBaseHitChance(uint256 distance, uint256 firepower) public returns (uint256 ret) {
     int128 _scaleInv = Math.exp(Math.divu(distance * 3, 100));
-
     int128 firepowerDebuff = Math.divu(firepower, 100);
-
-    console.logInt(_scaleInv);
-
     int128 beforeDebuff = Math.div(Math.fromUInt(50), _scaleInv);
-
-    console.logInt(beforeDebuff);
-
     ret = Math.toUInt(Math.mul(beforeDebuff, firepowerDebuff));
-
-    console.log("ret:", ret);
   }
 
   function getFiringArea(
@@ -64,5 +57,15 @@ library LibCombat {
     Coord memory bottomCorner = LibVector.getPositionByVector(sternLocation, rotation, range, bottomRange);
 
     return ([position, sternLocation, bottomCorner, topCorner]);
+  }
+
+  function damageEnemy(IUint256Component components, uint256 defenderEntity) public {
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+
+    uint32 defenderHealth = healthComponent.getValue(defenderEntity);
+
+    if (defenderHealth <= 0) return;
+
+    healthComponent.set(defenderEntity, defenderHealth - 1);
   }
 }
