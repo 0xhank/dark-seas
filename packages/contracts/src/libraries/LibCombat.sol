@@ -39,7 +39,7 @@ library LibCombat {
     uint256 _b,
     uint256 length,
     uint256 shift
-  ) public view returns (uint256 _byteUInt) {
+  ) public pure returns (uint256 _byteUInt) {
     uint256 mask = ((1 << length) - 1) << shift;
     _byteUInt = (_b & mask) >> shift;
   }
@@ -113,33 +113,26 @@ library LibCombat {
     uint256 distance = LibVector.distance(attackerPosition, defenderPosition);
     uint256 baseHitChance = getBaseHitChance(distance, firepower);
 
-    uint256 randomness = randomness(attackerEntity, defenderEntity);
+    uint256 r = randomness(attackerEntity, defenderEntity);
 
-    uint32 hullDamage = getHullDamage(baseHitChance, randomness);
+    uint32 hullDamage = getHullDamage(baseHitChance, r);
 
     bool dead = damageUint32(components, HealthComponentID, hullDamage, defenderEntity);
     if (dead) return;
 
-    dead = damageUint32(components, CrewCountComponentID, getCrewDamage(baseHitChance, randomness), defenderEntity);
+    dead = damageUint32(components, CrewCountComponentID, getCrewDamage(baseHitChance, r), defenderEntity);
     if (dead) return;
 
-    if (hullDamage == 0) return;
-    if (getSpecialChance(baseHitChance, randomness, 0)) {
+    if (getSpecialChance(baseHitChance, r, 0)) {
       OnFireComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity);
-      hullDamage--;
-      if (hullDamage == 0) return;
     }
-    if (getSpecialChance(baseHitChance, randomness, 3)) {
+    if (getSpecialChance(baseHitChance, r, 3)) {
       LeakComponent(getAddressById(components, LeakComponentID));
-      hullDamage--;
-      if (hullDamage == 0) return;
     }
-    if (getSpecialChance(baseHitChance, randomness, 1)) {
+    if (getSpecialChance(baseHitChance, r, 1)) {
       DamagedSailComponent(getAddressById(components, DamagedSailComponentID)).set(defenderEntity);
-      hullDamage--;
-      if (hullDamage == 0) return;
     }
-    if (getSpecialChance(baseHitChance, randomness, 2)) {
+    if (getSpecialChance(baseHitChance, r, 2)) {
       SailPositionComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity, 0);
     }
   }
@@ -151,7 +144,7 @@ library LibCombat {
     uint256 entity
   ) public returns (bool) {
     Uint32Component component = Uint32Component(getAddressById(components, componentID));
-
+    // yo mama
     uint32 value = component.getValue(entity);
 
     if (value <= damage) {

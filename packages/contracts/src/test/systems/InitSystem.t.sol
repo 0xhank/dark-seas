@@ -18,8 +18,6 @@ contract InitSystemTest is MudTest {
   uint256 entity3Id = uint256(keccak256("ds.prototype.moveEntity3"));
 
   function testExecute() public prank(deployer) {
-    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
-
     MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
     WindComponent windComponent = WindComponent(getAddressById(components, WindComponentID));
 

@@ -79,8 +79,6 @@ contract CombatSystemTest is MudTest {
 
     combatSystem.executeTyped(attackerId, Side.Right);
 
-    Coord[4] memory firingArea = LibCombat.getFiringArea(components, attackerId, Side.Right);
-
     uint32 newHealth = healthComponent.getValue(attackerId);
     assertEq(newHealth, attackerHealth);
 

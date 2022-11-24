@@ -60,7 +60,7 @@ library LibVector {
     Coord memory originPosition,
     uint32 rotation,
     uint32 length
-  ) internal returns (Coord memory) {
+  ) internal pure returns (Coord memory) {
     return getPositionByVector(originPosition, rotation, length, 180);
   }
 
