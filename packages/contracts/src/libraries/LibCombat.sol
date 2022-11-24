@@ -9,12 +9,21 @@ import { ABDKMath64x64 as Math } from "./ABDKMath64x64.sol";
 
 import { console } from "forge-std/console.sol";
 import { Side } from "../systems/CombatSystem.sol";
+
+import "std-contracts/components/Uint32Component.sol";
+import "std-contracts/components/BoolComponent.sol";
+
 import { RangeComponent, ID as RangeComponentID } from "../components/RangeComponent.sol";
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
 import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { FirepowerComponent, ID as FirepowerComponentID } from "../components/FirepowerComponent.sol";
+import { LeakComponent, ID as LeakComponentID } from "../components/LeakComponent.sol";
+import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireComponent.sol";
+import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
+import { DamagedSailComponent, ID as DamagedSailComponentID } from "../components/DamagedSailComponent.sol";
+import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 
 import "./LibVector.sol";
 
@@ -52,6 +61,27 @@ library LibCombat {
     return 0;
   }
 
+  function getCrewDamage(uint256 baseHitChance, uint256 randomSeed) public view returns (uint32) {
+    // use second 14 bits for hull damage (log_2(10000) = ~13.2)
+    uint256 odds = getByteUInt(randomSeed, 14, 14) % 10000;
+
+    if (odds <= (baseHitChance * 50) / 100) return 3;
+    if (odds <= baseHitChance) return 2;
+    if (odds <= (baseHitChance * 250) / 100) return 1;
+    return 0;
+  }
+
+  function getSpecialChance(
+    uint256 baseHitChance,
+    uint256 randomSeed,
+    uint256 shift
+  ) public view returns (bool) {
+    // pre-shifted to account for hull and crew damage
+    uint256 odds = getByteUInt(randomSeed, 14, (shift + 2) * 14) % 10000;
+    uint256 outcome = ((baseHitChance**2) * 5) / 10000;
+    return (odds <= outcome);
+  }
+
   function getFiringArea(
     IUint256Component components,
     uint256 entity,
@@ -81,31 +111,56 @@ library LibCombat {
     );
     uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(attackerEntity);
     uint256 distance = LibVector.distance(attackerPosition, defenderPosition);
-
     uint256 baseHitChance = getBaseHitChance(distance, firepower);
+
     uint256 randomness = randomness(attackerEntity, defenderEntity);
 
-    bool dead = damageHull(components, getHullDamage(baseHitChance, randomness), defenderEntity);
+    uint32 hullDamage = getHullDamage(baseHitChance, randomness);
+
+    bool dead = damageUint32(components, HealthComponentID, hullDamage, defenderEntity);
     if (dead) return;
-    // uint32 crewDamage = getCrewDamage(baseHitChance, randomness);
+
+    dead = damageUint32(components, CrewCountComponentID, getCrewDamage(baseHitChance, randomness), defenderEntity);
+    if (dead) return;
+
+    if (hullDamage == 0) return;
+    if (getSpecialChance(baseHitChance, randomness, 0)) {
+      OnFireComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity);
+      hullDamage--;
+      if (hullDamage == 0) return;
+    }
+    if (getSpecialChance(baseHitChance, randomness, 3)) {
+      LeakComponent(getAddressById(components, LeakComponentID));
+      hullDamage--;
+      if (hullDamage == 0) return;
+    }
+    if (getSpecialChance(baseHitChance, randomness, 1)) {
+      DamagedSailComponent(getAddressById(components, DamagedSailComponentID)).set(defenderEntity);
+      hullDamage--;
+      if (hullDamage == 0) return;
+    }
+    if (getSpecialChance(baseHitChance, randomness, 2)) {
+      SailPositionComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity, 0);
+    }
   }
 
-  function damageHull(
+  function damageUint32(
     IUint256Component components,
+    uint256 componentID,
     uint32 damage,
     uint256 entity
   ) public returns (bool) {
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    Uint32Component component = Uint32Component(getAddressById(components, componentID));
 
-    uint32 health = healthComponent.getValue(entity);
+    uint32 value = component.getValue(entity);
 
-    if (health <= damage) {
-      healthComponent.set(entity, 0);
-      return false;
+    if (value <= damage) {
+      component.set(entity, 0);
+      return true;
     }
 
-    healthComponent.set(entity, health - damage);
-    return true;
+    component.set(entity, value - damage);
+    return false;
   }
 
   function randomness(uint256 r1, uint256 r2) public view returns (uint256 r) {
