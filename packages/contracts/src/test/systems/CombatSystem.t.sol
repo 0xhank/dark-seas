@@ -103,7 +103,7 @@ contract CombatSystemTest is MudTest {
 
     uint32 newHealth = healthComponent.getValue(defenderId);
 
-    uint32 ehd = expectedHealthDecrease(attackerId, defenderId);
+    uint32 ehd = expectedHealthDecrease(attackerId, defenderId, Side.Right);
     console.log("expected health decrease:", ehd);
     assertEq(newHealth, origHealth - ehd);
   }
@@ -120,12 +120,22 @@ contract CombatSystemTest is MudTest {
     rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
   }
 
-  function expectedHealthDecrease(uint256 attackerId, uint256 defenderId) public returns (uint32) {
+  function expectedHealthDecrease(
+    uint256 attackerId,
+    uint256 defenderId,
+    Side side
+  ) public returns (uint32) {
     uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(attackerId);
     Coord memory attackerPosition = positionComponent.getValue(attackerId);
-    Coord memory defenderPosition = positionComponent.getValue(defenderId);
+    (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, defenderId);
+    Coord[4] memory firingRange = LibCombat.getFiringArea(components, attackerId, side);
 
-    uint256 distance = LibVector.distance(attackerPosition, defenderPosition);
+    uint256 distance;
+    if (LibVector.withinPolygon(firingRange, aft)) {
+      distance = LibVector.distance(attackerPosition, aft);
+    } else {
+      distance = LibVector.distance(attackerPosition, stern);
+    }
     return
       LibCombat.getHullDamage(
         LibCombat.getBaseHitChance(distance, firepower),

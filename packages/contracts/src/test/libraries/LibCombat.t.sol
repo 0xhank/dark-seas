@@ -21,4 +21,17 @@ contract LibCombatTest is MudTest {
     baseHitChance = LibCombat.getBaseHitChance(48, 5);
     assertApproxEqAbs(baseHitChance, 100, 50, "baseHitChance: 48 and 5 failed");
   }
+
+  function testGetByteUInt() public prank(deployer) {
+    uint256 randomness = LibCombat.randomness(69, 420);
+
+    uint256 byteUInt = LibCombat.getByteUInt(randomness, 0, 14);
+    console.log("byte (0, 1):", byteUInt);
+
+    byteUInt = LibCombat.getByteUInt(randomness, 15, 5);
+    console.log("byte (5, 15):", byteUInt);
+
+    byteUInt = LibCombat.getByteUInt(randomness, 40, 20);
+    console.log("byte (40, 20):", byteUInt);
+  }
 }

@@ -19,15 +19,20 @@ import { FirepowerComponent, ID as FirepowerComponentID } from "../components/Fi
 import "./LibVector.sol";
 
 library LibCombat {
-  // inclusive on both ends
+  /**
+   * @notice  masks a bit string based on length and shift
+   * @param   _b  bit string to mask
+   * @param   length  length in bits of return bit string
+   * @param   shift  starting location of mask
+   * @return  _byteUInt masked bit string
+   */
   function getByteUInt(
-    bytes memory _b,
-    uint256 _startByte,
-    uint256 _endByte
-  ) public pure returns (uint256 _byteUInt) {
-    for (uint256 i = _startByte; i <= _endByte; i++) {
-      _byteUInt += uint256(uint8(_b[i])) * (256**(_endByte - i));
-    }
+    uint256 _b,
+    uint256 length,
+    uint256 shift
+  ) public view returns (uint256 _byteUInt) {
+    uint256 mask = ((1 << length) - 1) << shift;
+    _byteUInt = (_b & mask) >> shift;
   }
 
   // 50 * e^(-.03 * distance) * (firepower / 100), multiplied by 100 for precision
@@ -38,9 +43,9 @@ library LibCombat {
     ret = Math.toUInt(Math.mul(beforeDebuff, firepowerDebuff));
   }
 
-  function getHullDamage(uint256 baseHitChance, uint256 randomSeed) public returns (uint256) {
-    uint256 odds = randomSeed % 10000;
-
+  function getHullDamage(uint256 baseHitChance, uint256 randomSeed) public view returns (uint32) {
+    // use first 14 bits for hull damage (log_2(10000) = ~13.2)
+    uint256 odds = getByteUInt(randomSeed, 14, 0) % 10000;
     if (odds <= baseHitChance) return 3;
     if (odds <= (baseHitChance * 270) / 100) return 2;
     if (odds <= (baseHitChance * 550) / 100) return 1;
@@ -71,24 +76,36 @@ library LibCombat {
     uint256 defenderEntity,
     Coord memory defenderPosition
   ) public {
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
-    PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
-    FirepowerComponent firepowerComponent = FirepowerComponent(getAddressById(components, FirepowerComponentID));
-
-    Coord memory attackerPosition = positionComponent.getValue(attackerEntity);
-    uint32 firepower = firepowerComponent.getValue(attackerEntity);
+    Coord memory attackerPosition = PositionComponent(getAddressById(components, PositionComponentID)).getValue(
+      attackerEntity
+    );
+    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(attackerEntity);
     uint256 distance = LibVector.distance(attackerPosition, defenderPosition);
 
     uint256 baseHitChance = getBaseHitChance(distance, firepower);
-    uint32 damage = getHullDamage(baseHitChance, randomness(attackerEntity, defenderEntity));
+    uint256 randomness = randomness(attackerEntity, defenderEntity);
 
-    uint32 defenderHealth = healthComponent.getValue(defenderEntity);
+    bool dead = damageHull(components, getHullDamage(baseHitChance, randomness), defenderEntity);
+    if (dead) return;
+    // uint32 crewDamage = getCrewDamage(baseHitChance, randomness);
+  }
 
-    if (defenderHealth <= damage) {
-      healthComponent.set(defenderEntity, 0);
-    } else {
-      healthComponent.set(defenderEntity, defenderHealth - damage);
+  function damageHull(
+    IUint256Component components,
+    uint32 damage,
+    uint256 entity
+  ) public returns (bool) {
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+
+    uint32 health = healthComponent.getValue(entity);
+
+    if (health <= damage) {
+      healthComponent.set(entity, 0);
+      return false;
     }
+
+    healthComponent.set(entity, health - damage);
+    return true;
   }
 
   function randomness(uint256 r1, uint256 r2) public view returns (uint256 r) {
