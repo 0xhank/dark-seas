@@ -19,7 +19,7 @@ library LibVector {
     uint32 initialRotation,
     uint32 moveDistance,
     uint32 moveDirection
-  ) internal returns (Coord memory) {
+  ) internal pure returns (Coord memory) {
     uint32 angleDegs = (initialRotation + moveDirection) % 360;
 
     uint256 angleRadsTimes10000 = uint256(angleDegs * 1745);
@@ -60,11 +60,12 @@ library LibVector {
     Coord memory originPosition,
     uint32 rotation,
     uint32 length
-  ) internal returns (Coord memory) {
+  ) internal pure returns (Coord memory) {
     return getPositionByVector(originPosition, rotation, length, 180);
   }
 
-  function winding(Coord[4] memory coords, Coord memory point) public returns (bool) {
+  // uses the winding algorithm to calculate if point is within the polygon comprised of coords
+  function withinPolygon(Coord[4] memory coords, Coord memory point) public pure returns (bool) {
     int32 wn = 0;
     for (uint32 i = 0; i < 4; i++) {
       Coord memory point1 = coords[i];
@@ -82,13 +83,13 @@ library LibVector {
     Coord memory a,
     Coord memory b,
     uint32 range
-  ) public returns (bool) {
+  ) public pure returns (bool) {
     int32 distanceSquared = (a.x - b.x)**2 + (a.y - b.y)**2;
 
     return range**2 >= uint32(distanceSquared);
   }
 
-  function distance(Coord memory a, Coord memory b) public returns (uint256) {
+  function distance(Coord memory a, Coord memory b) public pure returns (uint256) {
     int128 distanceSquared = (a.x - b.x)**2 + (a.y - b.y)**2;
     return Math.toUInt(Math.sqrt(Math.fromInt(distanceSquared)));
   }

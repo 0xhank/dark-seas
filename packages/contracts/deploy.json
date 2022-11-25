@@ -34,7 +34,13 @@
     { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent"] },
     {
       "name": "CombatSystem",
-      "writeAccess": ["HealthComponent", "LeakComponent", "OnFireComponent", "DamagedSailComponent"]
+      "writeAccess": [
+        "HealthComponent",
+        "LeakComponent",
+        "OnFireComponent",
+        "DamagedSailComponent",
+        "CrewCountComponent"
+      ]
     },
     { "name": "ChangeSailSystem", "writeAccess": ["SailPositionComponent"] },
     { "name": "RepairLeakSystem", "writeAccess": ["LeakComponent"] },

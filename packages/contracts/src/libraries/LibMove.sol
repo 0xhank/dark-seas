@@ -35,7 +35,7 @@ library LibMove {
     return -windBoost >= int32(moveDistance) ? 0 : uint32(int32(moveDistance) + windBoost);
   }
 
-  function getMoveWithSails(MoveCard memory moveCard, uint32 sailPosition) public returns (MoveCard memory) {
+  function getMoveWithSails(MoveCard memory moveCard, uint32 sailPosition) public pure returns (MoveCard memory) {
     if (sailPosition == 3) {
       return moveCard;
     }
