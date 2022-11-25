@@ -10,7 +10,7 @@ export function registerUIComponents() {
   registerLoadingState();
   // registerComponentBrowser();
   registerActionQueue();
-  // registerShipSpawnButton();
+  registerShipSpawnButton();
   registerMoveSelection();
   registerTopBar();
   registerShipOverview();

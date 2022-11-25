@@ -1,22 +1,20 @@
-import React, { useState } from "react";
+import React from "react";
 import { registerUIComponent } from "../engine";
 import {
   EntityIndex,
   getComponentEntities,
   getComponentValue,
   getComponentValueStrict,
-  getEntityComponents,
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
 import { concat, map, merge, of } from "rxjs";
-import { ActionStateString, ActionState } from "@latticexyz/std-client";
-import { Coord } from "@latticexyz/utils";
 import { GodID } from "@latticexyz/network";
 import { Arrows } from "../../phaser/constants";
-import { Container, MoveOption } from "../styles/global";
+import { Container, Button, ConfirmButton } from "../styles/global";
 import { getMoveDistanceWithWind, getMoveWithSails, getWindBoost } from "../../../utils/directions";
 import { MoveCard } from "../../../constants";
+import styled from "styled-components";
 
 export function registerMoveSelection() {
   registerUIComponent(
@@ -24,10 +22,10 @@ export function registerMoveSelection() {
     "MoveSelection",
     // grid location
     {
-      rowStart: 10,
+      rowStart: 11,
       rowEnd: 13,
-      colStart: 3,
-      colEnd: 8,
+      colStart: 1,
+      colEnd: 13,
     },
     // requirement
     (layers) => {
@@ -35,6 +33,7 @@ export function registerMoveSelection() {
         network: {
           world,
           components: { Rotation, MoveCard, Wind, SailPosition, Position },
+          api: { move },
         },
         phaser: {
           components: { SelectedShip, SelectedMove },
@@ -42,6 +41,7 @@ export function registerMoveSelection() {
       } = layers;
 
       return merge(
+        // of(0),
         MoveCard.update$,
         SelectedMove.update$,
         SelectedShip.update$,
@@ -51,6 +51,7 @@ export function registerMoveSelection() {
       ).pipe(
         map(() => {
           return {
+            Position,
             SelectedMove,
             MoveCard,
             Rotation,
@@ -58,92 +59,132 @@ export function registerMoveSelection() {
             SailPosition,
             Wind,
             world,
+            move,
           };
         })
       );
     },
     // render
-    ({ MoveCard, SelectedMove, SelectedShip, Rotation, SailPosition, Wind, world }) => {
+    ({ MoveCard, SelectedMove, SelectedShip, Rotation, SailPosition, Position, Wind, world, move }) => {
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
       const wind = getComponentValueStrict(Wind, GodEntityIndex);
       const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
       const selectedMove = getComponentValue(SelectedMove, GodEntityIndex);
 
-      if (!selectedShip) {
-        return <Container />;
-      }
+      if (!selectedShip)
+        return (
+          <Container>
+            <InternalContainer style={{ alignItems: "center", justifyContent: "center" }}>
+              Select a ship
+            </InternalContainer>
+          </Container>
+        );
       const rotation = getComponentValueStrict(Rotation, selectedShip).value;
-      const windSpeedBoost = getWindBoost(wind.speed, wind.direction, rotation);
+      const sailPosition = getComponentValueStrict(SailPosition, selectedShip).value;
+
       const moveEntities = [...getComponentEntities(MoveCard)];
+
       return (
         <Container>
-          <span>
-            The wind is{" "}
-            {windSpeedBoost < 0
-              ? `slowing this ship by ${Math.abs(windSpeedBoost)} knots!`
-              : windSpeedBoost > 0
-              ? `giving this ship a ${Math.abs(windSpeedBoost)} knot boost!`
-              : "doing nothing to this ship."}
-          </span>
+          <InternalContainer>
+            <MoveButtons>
+              {moveEntities
+                .sort((a, b) => a - b)
+                .map((entity) => {
+                  let moveCard = getComponentValueStrict(MoveCard, entity) as MoveCard;
 
-          <div
-            style={{
-              width: "100%",
-              height: "70%",
-              display: "flex",
-              justifyContent: "center",
-              gap: "8px",
-            }}
-          >
-            {moveEntities
-              .sort((a, b) => a - b)
-              .map((entity) => {
-                const sailPosition = getComponentValueStrict(SailPosition, selectedShip).value;
-                let moveCard = getComponentValueStrict(MoveCard, entity) as MoveCard;
+                  moveCard = { ...moveCard, distance: getMoveDistanceWithWind(wind, moveCard.distance, rotation) };
 
-                moveCard = { ...moveCard, distance: getMoveDistanceWithWind(wind, moveCard.distance, rotation) };
+                  moveCard = getMoveWithSails(moveCard, sailPosition);
 
-                moveCard = getMoveWithSails(moveCard, sailPosition);
+                  const isSelected = selectedMove && selectedMove.value == entity;
 
-                const isSelected = selectedMove && selectedMove.value == entity;
+                  const imageUrl =
+                    moveCard.rotation == 360 || moveCard.rotation == 0
+                      ? Arrows.Straight
+                      : moveCard.rotation > 270
+                      ? Arrows.SoftLeft
+                      : moveCard.rotation == 270
+                      ? Arrows.Left
+                      : moveCard.rotation > 180
+                      ? Arrows.HardLeft
+                      : moveCard.rotation == 180
+                      ? Arrows.UTurn
+                      : moveCard.rotation > 90
+                      ? Arrows.HardRight
+                      : moveCard.rotation == 90
+                      ? Arrows.Right
+                      : Arrows.SoftRight;
 
-                const imageUrl =
-                  moveCard.rotation == 360 || moveCard.rotation == 0
-                    ? Arrows.Straight
-                    : moveCard.rotation > 270
-                    ? Arrows.SoftLeft
-                    : moveCard.rotation == 270
-                    ? Arrows.Left
-                    : moveCard.rotation > 180
-                    ? Arrows.HardLeft
-                    : moveCard.rotation == 180
-                    ? Arrows.UTurn
-                    : moveCard.rotation > 90
-                    ? Arrows.HardRight
-                    : moveCard.rotation == 90
-                    ? Arrows.Right
-                    : Arrows.SoftRight;
-
-                return (
-                  <MoveOption
-                    isSelected={isSelected}
-                    key={entity}
-                    onClick={() => {
-                      console.log("movecard: ", moveCard);
-                      setComponent(SelectedMove, GodEntityIndex, { value: entity });
-                    }}
-                  >
-                    <img src={imageUrl} style={{ height: "80%", objectFit: "scale-down" }} />
-                    <p>
-                      {moveCard.distance}kts / {Math.round((moveCard.direction + rotation) % 360)}º
-                    </p>
-                  </MoveOption>
-                );
-              })}
-          </div>
+                  return (
+                    <Button
+                      isSelected={isSelected}
+                      key={entity}
+                      onClick={() => {
+                        console.log("movecard: ", moveCard);
+                        setComponent(SelectedMove, GodEntityIndex, { value: entity });
+                      }}
+                    >
+                      <img
+                        src={imageUrl}
+                        style={{ height: "80%", objectFit: "scale-down", transform: `rotate(${rotation + 90}deg)` }}
+                      />
+                      <p>
+                        {moveCard.distance}kts / {Math.round((moveCard.direction + rotation) % 360)}º
+                      </p>
+                    </Button>
+                  );
+                })}
+            </MoveButtons>
+            <ConfirmButtons>
+              <Button
+                onClick={() => removeComponent(SelectedMove, GodEntityIndex)}
+                style={{ flex: 2, fontSize: "24px", lineHeight: "30px" }}
+              >
+                Clear Move
+              </Button>
+              <ConfirmButton
+                disabled={!selectedMove?.value}
+                style={{ flex: 3, fontSize: "24px", lineHeight: "30px" }}
+                onClick={() => {
+                  if (!selectedMove) return;
+                  move(world.entities[selectedShip], world.entities[selectedMove.value]);
+                }}
+              >
+                Submit Move
+              </ConfirmButton>
+            </ConfirmButtons>
+          </InternalContainer>
         </Container>
       );
     }
   );
 }
+
+const InternalContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  padding: 6px;
+  border-radius: 6px;
+  background: hsla(0, 0%, 100%, 0.25);
+  justify-content: space-between;
+`;
+
+const MoveButtons = styled.div`
+  flex: 4;
+  display: flex;
+  justify-content: "flex-start";
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+`;
+
+const ConfirmButtons = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+`;

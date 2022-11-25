@@ -1,11 +1,24 @@
 import styled from "styled-components";
 
 const gold = "#FFC415";
+const darkGold = "#9e7700";
 const lightBrown = "#B47B41";
 const darkBrown = "#6b3200";
 const white = "fff";
 const black = "000";
-const lightGray = "BBB";
+const lighterGray = "#DDD";
+const lightGray = "#BBB";
+const darkGray = "#AAA";
+
+export const colors = {
+  gold,
+  lightBrown,
+  darkBrown,
+  white,
+  black,
+  lightGray,
+  darkGray,
+};
 
 export const Container = styled.div`
   width: 100%;
@@ -21,23 +34,39 @@ export const Container = styled.div`
   gap: 5px;
 `;
 
-export const MoveOption = styled.div<{ isSelected?: boolean }>`
+export const Button = styled.button<{ isSelected?: boolean }>`
   display: flex;
+  justify-content: center;
+  align-items: center;
   flex-direction: column;
-  background: ${({ isSelected }) => `${isSelected ? gold : lightBrown}`};
-  border: ${({ isSelected }) => `1px solid ${isSelected ? darkBrown : gold}`};
+  background: ${({ isSelected }) => `${isSelected ? gold : "hsla(0, 0%, 100%, 0.25)"}`};
+  border: 1px solid ${gold};
   cursor: pointer;
   padding: 5px;
-  border-width: 1px;
+  border-radius: 7px;
+  border-color: ${gold};
   pointer-events: all;
-  color: ${({ isSelected }) => `${isSelected ? darkBrown : gold}`};
+  color: ${darkBrown};
+
+  :hover {
+    background: ${({ isSelected }) => `${isSelected ? gold : "hsla(0, 0%, 100%, 0.5)"}`};
+  }
 `;
 
-export const colors = {
-  gold,
-  lightBrown,
-  darkBrown,
-  white,
-  black,
-  lightGray,
-};
+export const ConfirmButton = styled(Button)`
+  background: ${gold};
+
+  :hover {
+    background: ${gold};
+  }
+
+  :disabled {
+    background: ${lightGray};
+    color: ${lighterGray};
+    border-color: ${darkGray};
+    cursor: not-allowed;
+    hover: {
+      background: ${lightGray};
+    }
+  }
+`;
