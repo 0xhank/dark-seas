@@ -27,8 +27,11 @@ const CompassBody = styled.div`
   width: 150px;
   height: 150px;
   position: absolute;
-  top: 20;
   left: 20;
+  top: 0;
+  bottom: 0;
+  margin-top: auto;
+  margin-bottom: auto;
 `;
 
 const CompassWindRose = styled.div`
