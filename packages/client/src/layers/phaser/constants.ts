@@ -1,6 +1,7 @@
 export const TILE_WIDTH = 16;
 export const TILE_HEIGHT = 16;
 
+export const SHIP_RATIO = 113 / 66;
 export enum Scenes {
   Main = "Main",
 }
@@ -30,15 +31,42 @@ export enum Arrows {
 }
 
 export enum Sprites {
-  Hero,
-  Settlement,
-  Gold,
-  Inventory,
-  GoldShrine,
-  EmberCrown,
-  EscapePortal,
-  Donkey,
-  Crystal,
+  Cannon,
+  Cannonball,
+  Explosion1,
+  Explosion2,
+  Explosion3,
+  Fire1,
+  Fire2,
+  ShipBlack,
+  ShipBlackDead,
+  ShipBlackMajor,
+  ShipBlackMinor,
+
+  ShipWhite,
+  ShipWhiteDead,
+  ShipWhiteMajor,
+  ShipWhiteMinor,
+
+  ShipYellow,
+  ShipYellowDead,
+  ShipYellowMajor,
+  ShipYellowMinor,
+
+  ShipGreen,
+  ShipGreenDead,
+  ShipGreenMajor,
+  ShipGreenMinor,
+
+  ShipRed,
+  ShipRedDead,
+  ShipRedMajor,
+  ShipRedMinor,
+
+  ShipBlue,
+  ShipBlueDead,
+  ShipBlueMajor,
+  ShipBlueMinor,
 }
 
 export enum Animations {}

@@ -1,21 +1,9 @@
 import { GodID } from "@latticexyz/network";
-import { tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
-import {
-  defineComponentSystem,
-  defineSystem,
-  EntityIndex,
-  getComponentValue,
-  getComponentValueStrict,
-  Has,
-  setComponent,
-  UpdateType,
-} from "@latticexyz/recs";
-import { deg2rad } from "../../../utils/trig";
+import { tileCoordToPixelCoord } from "@latticexyz/phaserx";
+import { defineSystem, EntityIndex, getComponentValueStrict, Has, setComponent, UpdateType } from "@latticexyz/recs";
 import { NetworkLayer } from "../../network";
-import { Sprites } from "../constants";
+import { SHIP_RATIO, Sprites } from "../constants";
 import { PhaserLayer } from "../types";
-
-const shipWidth = 2;
 
 export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer) {
   const {
@@ -51,20 +39,26 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
     const position = getComponentValueStrict(Position, update.entity);
     if (!position) return console.warn("no position");
 
-    const object = objectPool.get(update.entity, "Rectangle");
+    const object = objectPool.get(update.entity, "Sprite");
+
+    const sprite = config.sprites[Sprites.ShipBlack];
+
     const { x, y } = tileCoordToPixelCoord({ x: position.x, y: position.y }, tileWidth, tileHeight);
 
     object.setComponent({
       id: Position.id,
-      once: async (gameObject: Phaser.GameObjects.Rectangle) => {
-        gameObject.setFillStyle(0xe97451, 1);
-        gameObject.setSize(length * tileWidth, shipWidth * tileHeight);
-        gameObject.setPosition(x, y);
-        gameObject.setOrigin(1, 0.5);
+      once: async (gameObject: Phaser.GameObjects.Sprite) => {
+        gameObject.setTexture(sprite.assetKey, sprite.frame);
 
-        gameObject.setAngle(rotation);
+        gameObject.setAngle(rotation - 90);
+        const shipLength = length * tileWidth * 1.25;
+        const shipWidth = shipLength / SHIP_RATIO;
+        gameObject.setOrigin(0.5, 0.92);
+        gameObject.setDisplaySize(shipWidth, shipLength);
+        gameObject.setPosition(x, y);
 
         gameObject.setInteractive();
+        console.log("updated position");
         gameObject.on("pointerdown", () => {
           console.log("you just clicked on entity", update.entity);
           const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);

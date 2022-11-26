@@ -22,7 +22,6 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
   const {
     scenes: {
       Main: {
-        objectPool,
         phaserScene,
         maps: {
           Main: { tileWidth, tileHeight },
@@ -42,18 +41,6 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
 
     const shipEntityId = getComponentValueStrict(SelectedShip, GodEntityIndex).value as EntityIndex;
 
-    const ships = [...getEntitiesWithValue(Ship, { value: true })];
-
-    ships.map((ship) =>
-      objectPool.get(ship, "Rectangle").setComponent({
-        id: SelectedShip.id,
-
-        once: async (gameObject) => {
-          gameObject.setFillStyle(0xe97451, 1);
-        },
-      })
-    );
-
     let rangeGroup = polygonRegistry.get("rangeGroup");
 
     if (rangeGroup) rangeGroup.clear(true, true);
@@ -68,9 +55,9 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
 
     const rightSidePoints = getFiringArea(pixelPosition, range * tileHeight, length * tileHeight, rotation, Side.Right);
     const leftSidePoints = getFiringArea(pixelPosition, range * tileHeight, length * tileHeight, rotation, Side.Left);
-    const rightFiringRange = phaserScene.add.polygon(undefined, undefined, rightSidePoints, 0xfffff, 0.5);
+    const rightFiringRange = phaserScene.add.polygon(undefined, undefined, rightSidePoints, 0xffffff, 0.5);
 
-    const leftFiringRange = phaserScene.add.polygon(undefined, undefined, leftSidePoints, 0xfffff, 0.5);
+    const leftFiringRange = phaserScene.add.polygon(undefined, undefined, leftSidePoints, 0xffffff, 0.5);
 
     rightFiringRange.setDisplayOrigin(0);
     leftFiringRange.setDisplayOrigin(0);
@@ -79,14 +66,5 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
     rangeGroup.add(leftFiringRange, true);
 
     polygonRegistry.set("rangeGroup", rangeGroup);
-
-    const object = objectPool.get(shipEntityId, "Rectangle");
-    object.setComponent({
-      id: SelectedShip.id,
-
-      once: async (gameObject) => {
-        gameObject.setFillStyle(0xffff00, 1);
-      },
-    });
   });
 }
