@@ -1,5 +1,6 @@
-import { Direction, Directions, MoveCard, Wind } from "../constants";
+import { Direction, Directions, MoveCard, SailPositions, Wind } from "../constants";
 import { Coord, random } from "@latticexyz/utils";
+import { getPositionByVector } from "./trig";
 
 /**
  * @param coord Initial coordinate
@@ -86,4 +87,27 @@ export function getMoveWithSails(moveCard: MoveCard, sailPosition: number): Move
   }
 
   return { distance: 0, rotation: 0, direction: 0 };
+}
+
+export function getFinalMoveCard(moveCard: MoveCard, rotation: number, sailPosition: number, wind: Wind): MoveCard {
+  moveCard = { ...moveCard, distance: getMoveDistanceWithWind(wind, moveCard.distance, rotation) };
+  moveCard = getMoveWithSails(moveCard, sailPosition);
+  return moveCard;
+}
+
+export function getFinalPosition(
+  moveCard: MoveCard,
+  position: Coord,
+  rotation: number,
+  sailPosition: number,
+  wind: Wind
+): { finalPosition: Coord; finalRotation: number } {
+  moveCard = { ...moveCard, distance: getMoveDistanceWithWind(wind, moveCard.distance, rotation) };
+
+  moveCard = getMoveWithSails(moveCard, sailPosition);
+
+  const finalPosition = getPositionByVector(position, rotation, moveCard.distance, moveCard.direction);
+  const finalRotation = rotation + (moveCard.rotation % 360);
+
+  return { finalPosition, finalRotation };
 }

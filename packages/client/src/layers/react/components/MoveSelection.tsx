@@ -12,7 +12,7 @@ import { concat, map, merge, of } from "rxjs";
 import { GodID } from "@latticexyz/network";
 import { Arrows } from "../../phaser/constants";
 import { Container, Button, ConfirmButton, InternalContainer } from "../styles/global";
-import { getMoveDistanceWithWind, getMoveWithSails, getWindBoost } from "../../../utils/directions";
+import { getFinalMoveCard, getMoveDistanceWithWind, getMoveWithSails, getWindBoost } from "../../../utils/directions";
 import { MoveCard } from "../../../constants";
 import styled from "styled-components";
 
@@ -88,9 +88,7 @@ export function registerMoveSelection() {
                 .map((entity) => {
                   let moveCard = getComponentValueStrict(MoveCard, entity) as MoveCard;
 
-                  moveCard = { ...moveCard, distance: getMoveDistanceWithWind(wind, moveCard.distance, rotation) };
-
-                  moveCard = getMoveWithSails(moveCard, sailPosition);
+                  moveCard = getFinalMoveCard(moveCard, rotation, sailPosition, wind);
 
                   const isSelected = selectedMove && selectedMove.value == entity;
 
@@ -114,7 +112,7 @@ export function registerMoveSelection() {
                   return (
                     <Button
                       isSelected={isSelected}
-                      key={entity}
+                      key={`move-selection-${entity}`}
                       onClick={() => {
                         console.log("movecard: ", moveCard);
                         setComponent(SelectedMove, GodEntityIndex, { value: entity });

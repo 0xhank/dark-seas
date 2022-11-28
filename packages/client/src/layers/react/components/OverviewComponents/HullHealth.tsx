@@ -14,6 +14,7 @@ export default function HullHealth({ health }: { health: number }) {
             return (
               <div
                 style={{ height: "100%", flex: 1, background: idx > health ? colors.darkGold : colors.lightBrown }}
+                key={`hull-health-${idx}`}
               />
             );
           })}
