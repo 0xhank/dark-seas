@@ -6,20 +6,15 @@ import {
   defineCameraConfig,
 } from "@latticexyz/phaserx";
 import { Sprites, Assets, Maps, Scenes, TILE_HEIGHT, TILE_WIDTH } from "./constants";
-import {
-  Tileset as OverworldTileset,
-  TileAnimations as OverworldTileAnimations,
-} from "../phaser/assets/tilesets/overworldTileset";
-import overworldTileset from "./assets/tilesets/overworld-tileset.png";
-import mountainTileset from "./assets/tilesets/mountain-tileset.png";
+import dsTileset from "./assets/tilesets/ds-tilesheet.png";
+import { DSTileset } from "./assets/tilesets/dsTilesheet";
 const ANIMATION_INTERVAL = 200;
 
 export const phaserConfig = {
   sceneConfig: {
     [Scenes.Main]: defineSceneConfig({
       assets: {
-        [Assets.OverworldTileset]: { type: AssetType.Image, key: Assets.OverworldTileset, path: overworldTileset },
-        [Assets.MountainTileset]: { type: AssetType.Image, key: Assets.MountainTileset, path: mountainTileset },
+        [Assets.DSTileset]: { type: AssetType.Image, key: Assets.DSTileset, path: dsTileset },
         [Assets.MainAtlas]: {
           type: AssetType.MultiAtlas,
           key: Assets.MainAtlas,
@@ -31,12 +26,12 @@ export const phaserConfig = {
       },
       maps: {
         [Maps.Main]: defineMapConfig({
-          chunkSize: TILE_WIDTH * 64 * 16, // tile size * tile amount
+          chunkSize: TILE_WIDTH * 64, // tile size * tile amount
           tileWidth: TILE_WIDTH,
           tileHeight: TILE_HEIGHT,
-          backgroundTile: [OverworldTileset.Water],
+          backgroundTile: [DSTileset.Water],
           animationInterval: ANIMATION_INTERVAL,
-          tileAnimations: OverworldTileAnimations,
+          // tileAnimations: OverworldTileAnimations,
           layers: {
             layers: {
               Background: { tilesets: ["Default"], hasHueTintShader: true },
@@ -172,7 +167,7 @@ export const phaserConfig = {
       },
       animations: [],
       tilesets: {
-        Default: { assetKey: Assets.OverworldTileset, tileWidth: TILE_WIDTH, tileHeight: TILE_HEIGHT },
+        Default: { assetKey: Assets.DSTileset, tileWidth: TILE_WIDTH, tileHeight: TILE_HEIGHT },
       },
     }),
   },

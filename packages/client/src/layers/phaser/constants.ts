@@ -1,5 +1,5 @@
-export const TILE_WIDTH = 16;
-export const TILE_HEIGHT = 16;
+export const TILE_WIDTH = 64;
+export const TILE_HEIGHT = 64;
 
 export const SHIP_RATIO = 113 / 66;
 export enum Scenes {
@@ -14,8 +14,7 @@ export enum Maps {
 }
 
 export enum Assets {
-  OverworldTileset = "OverworldTileset",
-  MountainTileset = "MountainTileset",
+  DSTileset = "DSTileset",
   MainAtlas = "MainAtlas",
 }
 
