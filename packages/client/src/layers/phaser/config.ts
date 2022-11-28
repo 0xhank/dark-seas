@@ -26,7 +26,7 @@ export const phaserConfig = {
       },
       maps: {
         [Maps.Main]: defineMapConfig({
-          chunkSize: TILE_WIDTH * 64 * 16, // tile size * tile amount
+          chunkSize: TILE_WIDTH * 64, // tile size * tile amount
           tileWidth: TILE_WIDTH,
           tileHeight: TILE_HEIGHT,
           backgroundTile: [DSTileset.Water],
