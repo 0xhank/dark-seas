@@ -1,5 +1,6 @@
 import { EntityID } from "@latticexyz/recs";
 import { Side } from "../../../../constants";
+import { Button } from "../../styles/global";
 
 export default function AttackButton({
   attack,
@@ -9,8 +10,8 @@ export default function AttackButton({
   shipEntity: EntityID;
 }) {
   return (
-    <div style={{ width: "100%", display: "flex", justifyContent: "center", pointerEvents: "all" }}>
-      <button
+    <div style={{ width: "100%", display: "flex", gap: "5px", justifyContent: "center", pointerEvents: "all" }}>
+      <Button
         style={{
           textAlign: "center",
           padding: "5px",
@@ -23,8 +24,8 @@ export default function AttackButton({
         }}
       >
         ATTACK LEFT
-      </button>
-      <button
+      </Button>
+      <Button
         style={{
           textAlign: "center",
           padding: "5px",
@@ -37,7 +38,7 @@ export default function AttackButton({
         }}
       >
         ATTACK RIGHT
-      </button>
+      </Button>
     </div>
   );
 }

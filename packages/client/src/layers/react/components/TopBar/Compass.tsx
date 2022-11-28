@@ -93,7 +93,7 @@ const CompassMarkV = styled.div`
     line-height: 15px;
     border-radius: 0;
     background: transparent;
-    color: #${colors.black};
+    color: ${colors.black};
     font-weight: 100;
     text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.35);
   }

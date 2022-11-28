@@ -20,9 +20,9 @@ export default function ShipAttribute({
   return (
     <AttributeContainer>
       <LeftSide>
-        <img src={source} alt="Icon" style={{ height: "36px" }} />
+        <img src={source} alt="Icon" style={{ height: "30px" }} />
       </LeftSide>
-      <RightSide style={{ fontSize: `${attributeString.length > 2 ? "18px" : "24px"}` }}>{attribute}</RightSide>
+      <RightSide style={{ fontSize: `${attributeString.length > 2 ? "14px" : "20px"}` }}>{attribute}</RightSide>
     </AttributeContainer>
   );
 }
@@ -55,5 +55,5 @@ const RightSide = styled.div`
   align-items: center;
   font-size: 24px;
   color: ${colors.darkBrown};
-  line-height: 36px;
+  line-height: 30px;
 `;
