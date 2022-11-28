@@ -34,40 +34,42 @@ const Container = styled.div`
   color: white;
 
   img {
-    transition: all 2s ease;
+    transition: all 5s ease;
     width: 100px;
   }
 `;
 
 const pulse = keyframes`
 	0% {
-		transform: rotate(265deg)  translate(-10, -50px);
-		box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+		transform: rotate(250deg)  translate(0, -200px);
 	}
 
 	25% {
-		transform: rotate(270deg) translate(0, 0px);
+		transform: rotate(270deg) translate(10px, -100px);
 	}
 
 	50% {
-		transform: rotate(275deg) translate(0, 50px);
+		transform: rotate(290deg) translate(0, 0px);
 		box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
 	}
 
   75% {
-		transform: rotate(270deg) translate(0, 0px);
+		transform: rotate(270deg) translate(-10px, 100px);
 	}
 
-	100% {
-		transform: rotate(265deg) translate(0, -50px);
+  100% {
+		transform: rotate(250deg) translate(0px, 200px);
 		box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
 	}
+
+
 `;
 
 const Img = styled.img<{ opacity?: number }>`
   opacity: ${({ opacity }) => `${opacity ? opacity : "100"}`};
   transform: rotate(270deg);
   animation-name: ${pulse};
-  animation-duration: 2s;
+  animation-duration: 4s;
   animation-iteration-count: infinite;
+  animation-timing-function: linear;
 `;
