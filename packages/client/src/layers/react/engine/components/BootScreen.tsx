@@ -8,7 +8,8 @@ export const BootScreen: React.FC<{ initialOpacity?: number }> = ({ children, in
 
   return (
     <Container>
-      <img src="/img/mud.png" style={{ opacity }}></img>
+      <img src="/img/ds-ship.png" style={{ opacity, transform: "rotate(270deg)" }}></img>
+      <div style={{ fontSize: "2rem" }}>Dark Seas</div>
       <div>{children || <>&nbsp;</>}</div>
     </Container>
   );
@@ -18,20 +19,17 @@ const Container = styled.div`
   width: 100%;
   height: 100%;
   position: absolute;
-  background-color: #000;
+  background-color: #0667a4;
   display: grid;
   align-content: center;
   align-items: center;
   justify-content: center;
   justify-items: center;
   transition: all 2s ease;
-  grid-gap: 50px;
+  grid-gap: 16px;
   z-index: 100;
   pointer-events: all;
-
-  div {
-    font-family: "Space Grotesk", sans-serif;
-  }
+  color: white;
 
   img {
     transition: all 2s ease;

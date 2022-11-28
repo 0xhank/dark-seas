@@ -39,7 +39,7 @@ export const Button = styled.button<{ isSelected?: boolean }>`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  background: ${({ isSelected }) => `${isSelected ? gold : "hsla(0, 0%, 100%, 0.25)"}`};
+  background: ${({ isSelected }) => `${isSelected ? gold : "hsla(0, 0%, 100%, 0.5)"}`};
   border: 1px solid ${gold};
   cursor: pointer;
   padding: 5px;
@@ -49,7 +49,7 @@ export const Button = styled.button<{ isSelected?: boolean }>`
   color: ${darkBrown};
 
   :hover {
-    background: ${({ isSelected }) => `${isSelected ? gold : "hsla(0, 0%, 100%, 0.5)"}`};
+    background: ${({ isSelected }) => `${isSelected ? gold : "hsla(0, 0%, 100%, 0.75)"}`};
   }
 `;
 
@@ -78,6 +78,6 @@ export const InternalContainer = styled.div`
   flex-direction: row;
   padding: 6px;
   border-radius: 6px;
-  background: hsla(0, 0%, 100%, 0.25);
+  background: hsla(0, 0%, 100%, 0.5);
   justify-content: space-between;
 `;
