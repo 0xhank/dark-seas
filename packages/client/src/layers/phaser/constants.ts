@@ -71,6 +71,12 @@ export enum Sprites {
   ShipBlueMinor,
 }
 
+export enum ShipAttributeTypes {
+  Firepower,
+  Crew,
+  Sails,
+}
+
 export enum Animations {}
 
 export const UnitTypeSprites: Record<number, Sprites> = {};

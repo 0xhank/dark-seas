@@ -22,6 +22,7 @@ export const colors = {
   darkGray,
   darkerGray,
   blue,
+  darkGold,
 };
 
 export const Container = styled.div`
