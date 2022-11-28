@@ -8,6 +8,7 @@ import { SailPositions } from "../../../constants";
 import Sails from "./OverviewComponents/Sails";
 import AttackButton from "./OverviewComponents/AttackButton";
 import styled from "styled-components";
+import HullHealth from "./OverviewComponents/HullHealth";
 
 export function registerShipOverview() {
   registerUIComponent(
@@ -144,7 +145,7 @@ export function registerShipOverview() {
                   </button>
                 </span>
               )}
-              <span>Ship health: {health}</span>
+              <HullHealth health={health} />
               <span>Ship firepower: {firepower}</span>
               <span>Ship crew: {crewCount}</span>
 
