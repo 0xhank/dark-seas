@@ -21,15 +21,11 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
 
   const {
     scenes: {
-      Main: {
-        phaserScene,
-        maps: {
-          Main: { tileWidth, tileHeight },
-        },
-      },
+      Main: { phaserScene },
     },
     components: { SelectedShip },
     polygonRegistry,
+    positions,
   } = phaser;
 
   defineSystem(world, [Has(SelectedShip)], ({ entity, type }) => {
@@ -51,10 +47,22 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
     const length = getComponentValueStrict(Length, shipEntityId).value;
     const rotation = getComponentValueStrict(Rotation, shipEntityId).value;
 
-    const pixelPosition = tileCoordToPixelCoord(position, tileWidth, tileHeight);
+    const pixelPosition = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
 
-    const rightSidePoints = getFiringArea(pixelPosition, range * tileHeight, length * tileHeight, rotation, Side.Right);
-    const leftSidePoints = getFiringArea(pixelPosition, range * tileHeight, length * tileHeight, rotation, Side.Left);
+    const rightSidePoints = getFiringArea(
+      pixelPosition,
+      range * positions.posHeight,
+      length * positions.posHeight,
+      rotation,
+      Side.Right
+    );
+    const leftSidePoints = getFiringArea(
+      pixelPosition,
+      range * positions.posHeight,
+      length * positions.posHeight,
+      rotation,
+      Side.Left
+    );
     const rightFiringRange = phaserScene.add.polygon(undefined, undefined, rightSidePoints, 0xffffff, 0.5);
 
     const leftFiringRange = phaserScene.add.polygon(undefined, undefined, leftSidePoints, 0xffffff, 0.5);

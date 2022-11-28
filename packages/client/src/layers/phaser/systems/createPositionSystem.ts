@@ -13,16 +13,11 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
 
   const {
     scenes: {
-      Main: {
-        objectPool,
-        config,
-        maps: {
-          Main: { tileWidth, tileHeight },
-        },
-      },
+      Main: { objectPool, config },
     },
     components: { SelectedShip },
     polygonRegistry,
+    positions,
   } = phaser;
 
   defineSystem(world, [Has(Position), Has(Rotation), Has(Length)], (update) => {
@@ -43,7 +38,7 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
 
     const sprite = config.sprites[Sprites.ShipBlack];
 
-    const { x, y } = tileCoordToPixelCoord({ x: position.x, y: position.y }, tileWidth, tileHeight);
+    const { x, y } = tileCoordToPixelCoord({ x: position.x, y: position.y }, positions.posWidth, positions.posHeight);
 
     object.setComponent({
       id: Position.id,
@@ -51,7 +46,7 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
         gameObject.setTexture(sprite.assetKey, sprite.frame);
 
         gameObject.setAngle(rotation - 90);
-        const shipLength = length * tileWidth * 1.25;
+        const shipLength = length * positions.posWidth * 1.25;
         const shipWidth = shipLength / SHIP_RATIO;
         gameObject.setOrigin(0.5, 0.92);
         gameObject.setDisplaySize(shipWidth, shipLength);

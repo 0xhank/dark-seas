@@ -70,3 +70,14 @@ export const ConfirmButton = styled(Button)`
     }
   }
 `;
+
+export const InternalContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  padding: 6px;
+  border-radius: 6px;
+  background: hsla(0, 0%, 100%, 0.25);
+  justify-content: space-between;
+`;

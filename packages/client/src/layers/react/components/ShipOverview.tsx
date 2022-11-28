@@ -3,7 +3,7 @@ import { registerUIComponent } from "../engine";
 import { EntityID, EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { map, merge, of } from "rxjs";
 import { GodID } from "@latticexyz/network";
-import { Container } from "../styles/global";
+import { Container, InternalContainer } from "../styles/global";
 import { SailPositionNames, SailPositions, Side } from "../../../constants";
 import Sails from "./OverviewComponents/Sails";
 import MoveButton from "./OverviewComponents/MoveButton";
@@ -16,9 +16,9 @@ export function registerShipOverview() {
     // grid location
     {
       rowStart: 1,
-      rowEnd: 13,
-      colStart: 8,
-      colEnd: 10,
+      rowEnd: 11,
+      colStart: 11,
+      colEnd: 13,
     },
     // requirement
     (layers) => {
@@ -104,58 +104,55 @@ export function registerShipOverview() {
       const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value as SailPositions;
       return (
         <Container>
-          {onFire && (
-            <span style={{ color: "red" }}>
-              YOUR SHIP IS ON FIRE!
-              <button
-                onClick={() => {
-                  extinguishFire(world.entities[shipEntity]);
-                }}
-              >
-                Extinguish
-              </button>
-            </span>
-          )}
-          {leak && (
-            <span style={{ color: "red" }}>
-              YOUR SHIP HAS SPRUNG A LEAK!
-              <button
-                onClick={() => {
-                  repairLeak(world.entities[shipEntity]);
-                }}
-              >
-                Repair
-              </button>
-            </span>
-          )}
-          {damagedSail && (
-            <span style={{ color: "red" }}>
-              YOUR SHIP'S SAIL IS DAMAGED!
-              <button
-                onClick={() => {
-                  repairSail(world.entities[shipEntity]);
-                }}
-              >
-                Repair
-              </button>
-            </span>
-          )}
-          <span>Ship health: {health}</span>
-          <span>Ship firepower: {firepower}</span>
-          <span>Ship crew: {crewCount}</span>
+          <InternalContainer style={{ flexDirection: "column" }}>
+            {onFire && (
+              <span style={{ color: "red" }}>
+                YOUR SHIP IS ON FIRE!
+                <button
+                  onClick={() => {
+                    extinguishFire(world.entities[shipEntity]);
+                  }}
+                >
+                  Extinguish
+                </button>
+              </span>
+            )}
+            {leak && (
+              <span style={{ color: "red" }}>
+                YOUR SHIP HAS SPRUNG A LEAK!
+                <button
+                  onClick={() => {
+                    repairLeak(world.entities[shipEntity]);
+                  }}
+                >
+                  Repair
+                </button>
+              </span>
+            )}
+            {damagedSail && (
+              <span style={{ color: "red" }}>
+                YOUR SHIP'S SAIL IS DAMAGED!
+                <button
+                  onClick={() => {
+                    repairSail(world.entities[shipEntity]);
+                  }}
+                >
+                  Repair
+                </button>
+              </span>
+            )}
+            <span>Ship health: {health}</span>
+            <span>Ship firepower: {firepower}</span>
+            <span>Ship crew: {crewCount}</span>
 
-          <Sails
-            changeSail={changeSail}
-            repairMast={repairMast}
-            shipEntity={world.entities[shipEntity]}
-            sailPosition={sailPosition}
-          />
-          <MoveButton
-            move={move}
-            shipEntity={world.entities[shipEntity]}
-            moveEntity={moveEntity ? world.entities[moveEntity] : undefined}
-          />
-          <AttackButton attack={attack} shipEntity={world.entities[shipEntity]} />
+            <Sails
+              changeSail={changeSail}
+              repairMast={repairMast}
+              shipEntity={world.entities[shipEntity]}
+              sailPosition={sailPosition}
+            />
+            <AttackButton attack={attack} shipEntity={world.entities[shipEntity]} />
+          </InternalContainer>
         </Container>
       );
     }

@@ -26,7 +26,7 @@ export const phaserConfig = {
       },
       maps: {
         [Maps.Main]: defineMapConfig({
-          chunkSize: TILE_WIDTH * 64, // tile size * tile amount
+          chunkSize: TILE_WIDTH * 64 * 16, // tile size * tile amount
           tileWidth: TILE_WIDTH,
           tileHeight: TILE_HEIGHT,
           backgroundTile: [DSTileset.Water],
@@ -173,7 +173,7 @@ export const phaserConfig = {
   },
   scale: defineScaleConfig({
     parent: "phaser-game",
-    zoom: 1,
+    zoom: 0.5,
     mode: Phaser.Scale.NONE,
   }),
   cameraConfig: defineCameraConfig({

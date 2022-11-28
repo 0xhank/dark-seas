@@ -1,6 +1,9 @@
 export const TILE_WIDTH = 64;
 export const TILE_HEIGHT = 64;
 
+export const POS_WIDTH = TILE_WIDTH / 4;
+export const POS_HEIGHT = TILE_HEIGHT / 4;
+
 export const SHIP_RATIO = 113 / 66;
 export enum Scenes {
   Main = "Main",

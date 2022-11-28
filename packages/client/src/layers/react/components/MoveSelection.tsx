@@ -11,7 +11,7 @@ import {
 import { concat, map, merge, of } from "rxjs";
 import { GodID } from "@latticexyz/network";
 import { Arrows } from "../../phaser/constants";
-import { Container, Button, ConfirmButton } from "../styles/global";
+import { Container, Button, ConfirmButton, InternalContainer } from "../styles/global";
 import { getMoveDistanceWithWind, getMoveWithSails, getWindBoost } from "../../../utils/directions";
 import { MoveCard } from "../../../constants";
 import styled from "styled-components";
@@ -72,14 +72,8 @@ export function registerMoveSelection() {
       const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
       const selectedMove = getComponentValue(SelectedMove, GodEntityIndex);
 
-      if (!selectedShip)
-        return (
-          <Container>
-            <InternalContainer style={{ alignItems: "center", justifyContent: "center" }}>
-              Select a ship
-            </InternalContainer>
-          </Container>
-        );
+      if (!selectedShip) return null;
+
       const rotation = getComponentValueStrict(Rotation, selectedShip).value;
       const sailPosition = getComponentValueStrict(SailPosition, selectedShip).value;
 
@@ -161,17 +155,6 @@ export function registerMoveSelection() {
     }
   );
 }
-
-const InternalContainer = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: row;
-  padding: 6px;
-  border-radius: 6px;
-  background: hsla(0, 0%, 100%, 0.25);
-  justify-content: space-between;
-`;
 
 const MoveButtons = styled.div`
   flex: 4;
