@@ -16,9 +16,11 @@ export const BootScreen: React.FC<{ initialOpacity?: number }> = ({ children, in
 };
 
 const Container = styled.div`
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   position: absolute;
+  top: 0;
+  left: 0;
   background-color: #0667a4;
   display: grid;
   align-content: center;
@@ -27,7 +29,7 @@ const Container = styled.div`
   justify-items: center;
   transition: all 2s ease;
   grid-gap: 16px;
-  z-index: 100;
+  z-index: 500;
   pointer-events: all;
   color: white;
 
