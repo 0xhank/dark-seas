@@ -80,4 +80,5 @@ export const InternalContainer = styled.div`
   border-radius: 6px;
   background: hsla(0, 0%, 100%, 0.5);
   justify-content: space-between;
+  color: ${darkBrown};
 `;
