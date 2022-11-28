@@ -125,7 +125,7 @@ export function registerMoveSelection() {
                         style={{ height: "80%", objectFit: "scale-down", transform: `rotate(${rotation + 90}deg)` }}
                       />
                       <p>
-                        {moveCard.distance}lgs / {Math.round((moveCard.direction + rotation) % 360)}º
+                        {moveCard.distance}M / {Math.round((moveCard.direction + rotation) % 360)}º
                       </p>
                     </Button>
                   );

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 export const BootScreen: React.FC<{ initialOpacity?: number }> = ({ children, initialOpacity }) => {
   const [opacity, setOpacity] = useState(initialOpacity ?? 0);
@@ -8,7 +8,7 @@ export const BootScreen: React.FC<{ initialOpacity?: number }> = ({ children, in
 
   return (
     <Container>
-      <img src="/img/ds-ship.png" style={{ opacity, transform: "rotate(270deg)" }}></img>
+      <Img src="/img/ds-ship.png" style={{ opacity, transform: "rotate(270deg)" }}></Img>
       <div style={{ fontSize: "2rem" }}>Dark Seas</div>
       <div>{children || <>&nbsp;</>}</div>
     </Container>
@@ -37,4 +37,37 @@ const Container = styled.div`
     transition: all 2s ease;
     width: 100px;
   }
+`;
+
+const pulse = keyframes`
+	0% {
+		transform: rotate(265deg)  translate(-10, -50px);
+		box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+	}
+
+	25% {
+		transform: rotate(270deg) translate(0, 0px);
+	}
+
+	50% {
+		transform: rotate(275deg) translate(0, 50px);
+		box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+	}
+
+  75% {
+		transform: rotate(270deg) translate(0, 0px);
+	}
+
+	100% {
+		transform: rotate(265deg) translate(0, -50px);
+		box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+	}
+`;
+
+const Img = styled.img<{ opacity?: number }>`
+  opacity: ${({ opacity }) => `${opacity ? opacity : "100"}`};
+  transform: rotate(270deg);
+  animation-name: ${pulse};
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
 `;
