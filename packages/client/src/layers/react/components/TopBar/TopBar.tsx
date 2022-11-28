@@ -61,7 +61,7 @@ export function registerTopBar() {
             }}
           >
             <span style={{ fontWeight: "bolder", fontSize: "30px", lineHeight: "40px" }}>
-              Cpt. {connectedAddress.get()?.slice(0, 7)}'s Log
+              Captain {connectedAddress.get()?.slice(0, 7)}'s Log
             </span>
             <span>{date.toLocaleDateString("en-UK", options as any)}</span>
           </div>

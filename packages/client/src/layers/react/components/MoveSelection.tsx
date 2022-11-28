@@ -125,7 +125,7 @@ export function registerMoveSelection() {
                         style={{ height: "80%", objectFit: "scale-down", transform: `rotate(${rotation + 90}deg)` }}
                       />
                       <p>
-                        {moveCard.distance}kts / {Math.round((moveCard.direction + rotation) % 360)}º
+                        {moveCard.distance}lgs / {Math.round((moveCard.direction + rotation) % 360)}º
                       </p>
                     </Button>
                   );
@@ -135,6 +135,7 @@ export function registerMoveSelection() {
               <Button
                 onClick={() => removeComponent(SelectedMove, GodEntityIndex)}
                 style={{ flex: 2, fontSize: "24px", lineHeight: "30px" }}
+                disabled={!selectedMove?.value}
               >
                 Clear Move
               </Button>
