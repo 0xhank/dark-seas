@@ -47,7 +47,7 @@ library LibAction {
 
     uint32 currentSailPosition = sailPositionComponent.getValue(entity);
 
-    require(currentSailPosition > 0 && currentSailPosition < 4, "RaiseSail: invalid sail position");
+    require(currentSailPosition > 0 && currentSailPosition < 3, "RaiseSail: invalid sail position");
 
     sailPositionComponent.set(entity, currentSailPosition + 1);
   }
