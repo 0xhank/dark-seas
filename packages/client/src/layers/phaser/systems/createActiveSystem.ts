@@ -9,84 +9,60 @@ import {
   UpdateType,
 } from "@latticexyz/recs";
 import { Side } from "../../../constants";
+import { getWindBoost } from "../../../utils/directions";
 import { getFiringArea } from "../../../utils/trig";
 import { NetworkLayer } from "../../network";
+import { SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
 
 export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
   const {
     world,
-    components: { Ship, Position, Range, Length, Rotation },
+    components: { Position, Length, Rotation, Wind },
   } = network;
 
   const {
     scenes: {
-      Main: {
-        objectPool,
-        phaserScene,
-        maps: {
-          Main: { tileWidth, tileHeight },
-        },
-      },
+      Main: { phaserScene },
     },
     components: { SelectedShip },
     polygonRegistry,
+    positions,
   } = phaser;
 
-  defineSystem(world, [Has(SelectedShip)], ({ entity, type }) => {
+  defineSystem(world, [Has(SelectedShip), Has(Wind)], ({ type }) => {
+    const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
+
+    let activeGroup = polygonRegistry.get("activeGroup");
+    if (activeGroup) activeGroup.clear(true, true);
+
     if (type === UpdateType.Exit) {
       return;
     }
 
-    const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
-
     const shipEntityId = getComponentValueStrict(SelectedShip, GodEntityIndex).value as EntityIndex;
+    const wind = getComponentValueStrict(Wind, GodEntityIndex);
 
-    const ships = [...getEntitiesWithValue(Ship, { value: true })];
-
-    ships.map((ship) =>
-      objectPool.get(ship, "Rectangle").setComponent({
-        id: SelectedShip.id,
-
-        once: async (gameObject) => {
-          gameObject.setFillStyle(0xe97451, 1);
-        },
-      })
-    );
-
-    let rangeGroup = polygonRegistry.get("rangeGroup");
-
-    if (rangeGroup) rangeGroup.clear(true, true);
-    else rangeGroup = phaserScene.add.group();
+    if (!activeGroup) activeGroup = phaserScene.add.group();
 
     const position = getComponentValueStrict(Position, shipEntityId);
-    const range = getComponentValueStrict(Range, shipEntityId).value;
     const length = getComponentValueStrict(Length, shipEntityId).value;
     const rotation = getComponentValueStrict(Rotation, shipEntityId).value;
 
-    const pixelPosition = tileCoordToPixelCoord(position, tileWidth, tileHeight);
+    const pixelPosition = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
 
-    const rightSidePoints = getFiringArea(pixelPosition, range * tileHeight, length * tileHeight, rotation, Side.Right);
-    const leftSidePoints = getFiringArea(pixelPosition, range * tileHeight, length * tileHeight, rotation, Side.Left);
-    const rightFiringRange = phaserScene.add.polygon(undefined, undefined, rightSidePoints, 0xfffff, 0.5);
+    const circleWidth = length * positions.posWidth * 1.5;
+    const circleHeight = circleWidth / SHIP_RATIO;
 
-    const leftFiringRange = phaserScene.add.polygon(undefined, undefined, leftSidePoints, 0xfffff, 0.5);
+    const windBoost = getWindBoost(wind.speed, wind.direction, rotation);
 
-    rightFiringRange.setDisplayOrigin(0);
-    leftFiringRange.setDisplayOrigin(0);
+    const color = windBoost > 0 ? 0xa3ffa9 : windBoost < 0 ? 0xffa3a3 : 0xffffff;
+    const circle = phaserScene.add.ellipse(pixelPosition.x, pixelPosition.y, circleWidth, circleHeight, color, 0.5);
 
-    rangeGroup.add(rightFiringRange, true);
-    rangeGroup.add(leftFiringRange, true);
+    circle.setAngle(rotation % 360);
+    circle.setOrigin(0.85, 0.5);
+    activeGroup.add(circle, true);
 
-    polygonRegistry.set("rangeGroup", rangeGroup);
-
-    const object = objectPool.get(shipEntityId, "Rectangle");
-    object.setComponent({
-      id: SelectedShip.id,
-
-      once: async (gameObject) => {
-        gameObject.setFillStyle(0xffff00, 1);
-      },
-    });
+    polygonRegistry.set("activeGroup", activeGroup);
   });
 }

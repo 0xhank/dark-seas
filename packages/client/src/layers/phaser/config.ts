@@ -6,20 +6,15 @@ import {
   defineCameraConfig,
 } from "@latticexyz/phaserx";
 import { Sprites, Assets, Maps, Scenes, TILE_HEIGHT, TILE_WIDTH } from "./constants";
-import {
-  Tileset as OverworldTileset,
-  TileAnimations as OverworldTileAnimations,
-} from "../phaser/assets/tilesets/overworldTileset";
-import overworldTileset from "./assets/tilesets/overworld-tileset.png";
-import mountainTileset from "./assets/tilesets/mountain-tileset.png";
+import dsTileset from "./assets/tilesets/ds-tilesheet.png";
+import { DSTileset } from "./assets/tilesets/dsTilesheet";
 const ANIMATION_INTERVAL = 200;
 
 export const phaserConfig = {
   sceneConfig: {
     [Scenes.Main]: defineSceneConfig({
       assets: {
-        [Assets.OverworldTileset]: { type: AssetType.Image, key: Assets.OverworldTileset, path: overworldTileset },
-        [Assets.MountainTileset]: { type: AssetType.Image, key: Assets.MountainTileset, path: mountainTileset },
+        [Assets.DSTileset]: { type: AssetType.Image, key: Assets.DSTileset, path: dsTileset },
         [Assets.MainAtlas]: {
           type: AssetType.MultiAtlas,
           key: Assets.MainAtlas,
@@ -34,9 +29,9 @@ export const phaserConfig = {
           chunkSize: TILE_WIDTH * 64, // tile size * tile amount
           tileWidth: TILE_WIDTH,
           tileHeight: TILE_HEIGHT,
-          backgroundTile: [OverworldTileset.Water],
+          backgroundTile: [DSTileset.Water],
           animationInterval: ANIMATION_INTERVAL,
-          tileAnimations: OverworldTileAnimations,
+          // tileAnimations: OverworldTileAnimations,
           layers: {
             layers: {
               Background: { tilesets: ["Default"], hasHueTintShader: true },
@@ -47,55 +42,145 @@ export const phaserConfig = {
         }),
       },
       sprites: {
-        [Sprites.Crystal]: {
+        [Sprites.Cannon]: {
           assetKey: Assets.MainAtlas,
-          frame: "sprites/resources/crystal.png",
+          frame: "cannon.png",
         },
-        [Sprites.Gold]: {
+        [Sprites.Cannonball]: {
           assetKey: Assets.MainAtlas,
-          frame: "sprites/resources/gold.png",
+          frame: "cannonBall.png",
         },
-        [Sprites.Container]: {
+        [Sprites.Explosion1]: {
           assetKey: Assets.MainAtlas,
-          frame: "sprites/resources/chest.png",
+          frame: "explosion1.png",
         },
-        [Sprites.GoldShrine]: {
+        [Sprites.Explosion2]: {
           assetKey: Assets.MainAtlas,
-          frame: "sprites/resources/gold.png",
+          frame: "explosion2.png",
         },
-        [Sprites.EscapePortal]: {
+        [Sprites.Explosion3]: {
           assetKey: Assets.MainAtlas,
-          frame: "sprites/resources/wood.png",
+          frame: "explosion3.png",
         },
-        [Sprites.EmberCrown]: {
+
+        [Sprites.ShipGreen]: {
           assetKey: Assets.MainAtlas,
-          frame: "sprites/resources/wood.png",
+          frame: "shipGreen.png",
         },
-        [Sprites.Donkey]: {
+        [Sprites.ShipGreenDead]: {
           assetKey: Assets.MainAtlas,
-          frame: "sprites/workers/donkey.png",
+          frame: "shipGreenDead.png",
         },
-        [Sprites.Soldier]: {
+        [Sprites.ShipGreenMajor]: {
           assetKey: Assets.MainAtlas,
-          frame: "sprites/warriors/hero.png",
+          frame: "shipGreenMajor.png",
+        },
+        [Sprites.ShipGreenMinor]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipGreenMinor.png",
+        },
+
+        [Sprites.ShipWhite]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipWhite.png",
+        },
+        [Sprites.ShipWhiteDead]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipWhiteDead.png",
+        },
+        [Sprites.ShipWhiteMajor]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipWhiteMajor.png",
+        },
+        [Sprites.ShipWhiteMinor]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipWhiteMinor.png",
+        },
+
+        [Sprites.ShipBlue]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipBlue.png",
+        },
+        [Sprites.ShipBlueDead]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipBlueDead.png",
+        },
+        [Sprites.ShipBlueMajor]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipBlueMajor.png",
+        },
+        [Sprites.ShipBlueMinor]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipBlueMinor.png",
+        },
+
+        [Sprites.ShipBlack]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipBlack.png",
+        },
+        [Sprites.ShipBlackDead]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipBlackDead.png",
+        },
+        [Sprites.ShipBlackMajor]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipBlackMajor.png",
+        },
+        [Sprites.ShipBlackMinor]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipBlackMinor.png",
+        },
+
+        [Sprites.ShipYellow]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipYellow.png",
+        },
+        [Sprites.ShipYellowDead]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipYellowDead.png",
+        },
+        [Sprites.ShipYellowMajor]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipYellowMajor.png",
+        },
+        [Sprites.ShipYellowMinor]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipYellowMinor.png",
+        },
+
+        [Sprites.ShipRed]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipRed.png",
+        },
+        [Sprites.ShipRedDead]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipRedDead.png",
+        },
+        [Sprites.ShipRedMajor]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipRedMajor.png",
+        },
+        [Sprites.ShipRedMinor]: {
+          assetKey: Assets.MainAtlas,
+          frame: "shipRedMinor.png",
         },
       },
       animations: [],
       tilesets: {
-        Default: { assetKey: Assets.OverworldTileset, tileWidth: TILE_WIDTH, tileHeight: TILE_HEIGHT },
+        Default: { assetKey: Assets.DSTileset, tileWidth: TILE_WIDTH, tileHeight: TILE_HEIGHT },
       },
     }),
   },
   scale: defineScaleConfig({
     parent: "phaser-game",
-    zoom: 0.25,
+    zoom: 0.5,
     mode: Phaser.Scale.NONE,
   }),
   cameraConfig: defineCameraConfig({
     phaserSelector: "phaser-game",
     pinchSpeed: 1,
     wheelSpeed: 1,
-    maxZoom: 2,
+    maxZoom: 4,
     minZoom: 0.1,
   }),
   cullingChunkSize: TILE_HEIGHT * 16,

@@ -1,3022 +1,840 @@
 {
-    "meta": {
-        "app": "",
-        "version": "1.0.0"
-    },
-    "textures": [
+  "meta": {
+    "app": "https://www.codeandweb.com/texturepacker",
+    "version": "1.0",
+    "image": "atlas.png",
+    "format": "RGBA8888",
+    "size": { "w": 512, "h": 736 },
+    "scale": "1",
+    "smartupdate": "$TexturePacker:SmartUpdate:08c307f413039692dfc0da16aa39b91c:8bd072ad4b65efc4f2c87e7a1828d09b:cbce6b53f0f49e0bf15173c25c41f876$"
+  },
+  "textures": [
+    {
+      "image": "atlas.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 512,
+        "h": 736
+      },
+      "scale": 1,
+      "frames": [
         {
-            "image": "atlas.png",
-            "format": "RGBA8888",
-            "size": {
-                "w": 2048,
-                "h": 2048
-            },
-            "scale": 1,
-            "frames": [
-                {
-                    "filename": "sprites/base/big-base.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 32
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 32
-                    },
-                    "frame": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 32
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Clothes/0.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 0,
-                        "y": 32,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Eyes/0.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 48,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Eyes/1.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 48,
-                        "y": 48,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Eyes/10.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 0,
-                        "y": 80,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Eyes/11.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 96,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Eyes/12.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 96,
-                        "y": 48,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Eyes/13.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 0,
-                        "y": 128,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Eyes/2.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 48,
-                        "y": 96,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Eyes/3.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 96,
-                        "y": 96,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Eyes/4.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 144,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Eyes/5.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 144,
-                        "y": 48,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Eyes/6.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 144,
-                        "y": 96,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Eyes/7.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 0,
-                        "y": 176,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Eyes/9.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 48,
-                        "y": 144,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Hair/0.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 96,
-                        "y": 144,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Hair/1.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 144,
-                        "y": 144,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Hair/2.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 192,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Hair/3.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 192,
-                        "y": 48,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Hair/4.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 192,
-                        "y": 96,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Hair/5.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 192,
-                        "y": 144,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Head/0.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 0,
-                        "y": 224,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Head/1.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 48,
-                        "y": 192,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Head/2.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 96,
-                        "y": 192,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Head/3.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 144,
-                        "y": 192,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Head/4.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 192,
-                        "y": 192,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Head/5.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 240,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Nose/0.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 240,
-                        "y": 48,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Nose/1.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 240,
-                        "y": 96,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Nose/10.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 240,
-                        "y": 144,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Nose/11.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 240,
-                        "y": 192,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Nose/12.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 0,
-                        "y": 272,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Nose/2.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 48,
-                        "y": 240,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Nose/3.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 96,
-                        "y": 240,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Nose/4.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 144,
-                        "y": 240,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Nose/5.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 192,
-                        "y": 240,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Nose/6.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 240,
-                        "y": 240,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Nose/7.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 288,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Nose/8.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 288,
-                        "y": 48,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Nose/9.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 288,
-                        "y": 96,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/accessory/0.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 288,
-                        "y": 144,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/accessory/1.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 288,
-                        "y": 192,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/accessory/2.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 288,
-                        "y": 240,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/accessory/3.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 0,
-                        "y": 320,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/accessory/4.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 48,
-                        "y": 288,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/accessory/5.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 96,
-                        "y": 288,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/accessory/6.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 144,
-                        "y": 288,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/clothes/1.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 192,
-                        "y": 288,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/clothes/12.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 240,
-                        "y": 288,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/clothes/13.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 288,
-                        "y": 288,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/clothes/14.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 336,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/clothes/15.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 336,
-                        "y": 48,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/clothes/16.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 336,
-                        "y": 96,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/clothes/17.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 336,
-                        "y": 144,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/clothes/18.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 336,
-                        "y": 192,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/clothes/19.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 336,
-                        "y": 240,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/eyes/14.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 336,
-                        "y": 288,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/eyes/15.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 0,
-                        "y": 368,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/eyes/16.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 48,
-                        "y": 336,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/eyes/17.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 96,
-                        "y": 336,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/eyes/18.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 144,
-                        "y": 336,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/eyes/19.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 192,
-                        "y": 336,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/hair-background/0.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 240,
-                        "y": 336,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/hair-background/1.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 288,
-                        "y": 336,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/hair-background/2.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 336,
-                        "y": 336,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/hair-background/3.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 384,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/hair-background/4.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 384,
-                        "y": 48,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/hair-background/5.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 384,
-                        "y": 96,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/hair/10.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 384,
-                        "y": 144,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/hair/6.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 384,
-                        "y": 192,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/hair/7.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 384,
-                        "y": 240,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/hair/8.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 384,
-                        "y": 288,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/hair/9.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 384,
-                        "y": 336,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/head/6.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 0,
-                        "y": 416,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/head/7.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 48,
-                        "y": 384,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/head/8.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 96,
-                        "y": 384,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/head/9.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 144,
-                        "y": 384,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/0.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 192,
-                        "y": 384,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/1.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 240,
-                        "y": 384,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/10.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 288,
-                        "y": 384,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/11.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 336,
-                        "y": 384,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/12.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 384,
-                        "y": 384,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/13.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 432,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/14.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 432,
-                        "y": 48,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/15.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 432,
-                        "y": 96,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/16.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 432,
-                        "y": 144,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/17.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 432,
-                        "y": 192,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/18.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 432,
-                        "y": 240,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/19.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 432,
-                        "y": 288,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/2.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 432,
-                        "y": 336,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/3.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 432,
-                        "y": 384,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/4.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 0,
-                        "y": 464,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/5.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 48,
-                        "y": 432,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/6.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 96,
-                        "y": 432,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/7.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 144,
-                        "y": 432,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/8.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 192,
-                        "y": 432,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/mouth/9.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 240,
-                        "y": 432,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/nose/13.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 288,
-                        "y": 432,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/nose/14.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 336,
-                        "y": 432,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/base/building-base.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 32,
-                        "h": 32
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 32,
-                        "h": 32
-                    },
-                    "frame": {
-                        "x": 48,
-                        "y": 480,
-                        "w": 32,
-                        "h": 32
-                    }
-                },
-                {
-                    "filename": "sprites/base/medium-base.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 32,
-                        "h": 32
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 32,
-                        "h": 32
-                    },
-                    "frame": {
-                        "x": 80,
-                        "y": 480,
-                        "w": 32,
-                        "h": 32
-                    }
-                },
-                {
-                    "filename": "sprites/buildings/ruins.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 32,
-                        "h": 32
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 32,
-                        "h": 32
-                    },
-                    "frame": {
-                        "x": 112,
-                        "y": 480,
-                        "w": 32,
-                        "h": 32
-                    }
-                },
-                {
-                    "filename": "sprites/buildings/settlements.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 32,
-                        "h": 32
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 32,
-                        "h": 32
-                    },
-                    "frame": {
-                        "x": 144,
-                        "y": 480,
-                        "w": 32,
-                        "h": 32
-                    }
-                },
-                {
-                    "filename": "sprites/base/small-base.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 16,
-                        "h": 16
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 16,
-                        "h": 16
-                    },
-                    "frame": {
-                        "x": 176,
-                        "y": 480,
-                        "w": 16,
-                        "h": 16
-                    }
-                },
-                {
-                    "filename": "sprites/resources/chest.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 16,
-                        "h": 16
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 16,
-                        "h": 16
-                    },
-                    "frame": {
-                        "x": 176,
-                        "y": 496,
-                        "w": 16,
-                        "h": 16
-                    }
-                },
-                {
-                    "filename": "sprites/resources/crystal.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 16,
-                        "h": 16
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 16,
-                        "h": 16
-                    },
-                    "frame": {
-                        "x": 192,
-                        "y": 480,
-                        "w": 16,
-                        "h": 16
-                    }
-                },
-                {
-                    "filename": "sprites/resources/dai-coin.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 16,
-                        "h": 16
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 16,
-                        "h": 16
-                    },
-                    "frame": {
-                        "x": 192,
-                        "y": 496,
-                        "w": 16,
-                        "h": 16
-                    }
-                },
-                {
-                    "filename": "sprites/resources/dai.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 16,
-                        "h": 16
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 16,
-                        "h": 16
-                    },
-                    "frame": {
-                        "x": 208,
-                        "y": 480,
-                        "w": 16,
-                        "h": 16
-                    }
-                },
-                {
-                    "filename": "sprites/resources/gems.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 16,
-                        "h": 16
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 16,
-                        "h": 16
-                    },
-                    "frame": {
-                        "x": 208,
-                        "y": 496,
-                        "w": 16,
-                        "h": 16
-                    }
-                },
-                {
-                    "filename": "sprites/resources/gold.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 16,
-                        "h": 16
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 16,
-                        "h": 16
-                    },
-                    "frame": {
-                        "x": 224,
-                        "y": 480,
-                        "w": 16,
-                        "h": 16
-                    }
-                },
-                {
-                    "filename": "sprites/resources/oil.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 16,
-                        "h": 16
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 16,
-                        "h": 16
-                    },
-                    "frame": {
-                        "x": 224,
-                        "y": 496,
-                        "w": 16,
-                        "h": 16
-                    }
-                },
-                {
-                    "filename": "sprites/resources/rock.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 16,
-                        "h": 16
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 16,
-                        "h": 16
-                    },
-                    "frame": {
-                        "x": 240,
-                        "y": 480,
-                        "w": 16,
-                        "h": 16
-                    }
-                },
-                {
-                    "filename": "sprites/resources/sulfur.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 16,
-                        "h": 16
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 16,
-                        "h": 16
-                    },
-                    "frame": {
-                        "x": 240,
-                        "y": 496,
-                        "w": 16,
-                        "h": 16
-                    }
-                },
-                {
-                    "filename": "sprites/resources/wood.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 16,
-                        "h": 16
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 16,
-                        "h": 16
-                    },
-                    "frame": {
-                        "x": 256,
-                        "y": 480,
-                        "w": 16,
-                        "h": 16
-                    }
-                },
-                {
-                    "filename": "sprites/warriors/archer.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 16,
-                        "h": 16
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 16,
-                        "h": 16
-                    },
-                    "frame": {
-                        "x": 256,
-                        "y": 496,
-                        "w": 16,
-                        "h": 16
-                    }
-                },
-                {
-                    "filename": "sprites/warriors/hero.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 16,
-                        "h": 16
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 16,
-                        "h": 16
-                    },
-                    "frame": {
-                        "x": 272,
-                        "y": 480,
-                        "w": 16,
-                        "h": 16
-                    }
-                },
-                {
-                    "filename": "sprites/workers/bridge-builder-imp.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 16,
-                        "h": 16
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 16,
-                        "h": 16
-                    },
-                    "frame": {
-                        "x": 272,
-                        "y": 496,
-                        "w": 16,
-                        "h": 16
-                    }
-                },
-                {
-                    "filename": "sprites/workers/crypto-picker-imp.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 16,
-                        "h": 16
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 16,
-                        "h": 16
-                    },
-                    "frame": {
-                        "x": 288,
-                        "y": 480,
-                        "w": 16,
-                        "h": 16
-                    }
-                },
-                {
-                    "filename": "sprites/workers/donkey.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 16,
-                        "h": 16
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 16,
-                        "h": 16
-                    },
-                    "frame": {
-                        "x": 288,
-                        "y": 496,
-                        "w": 16,
-                        "h": 16
-                    }
-                },
-                {
-                    "filename": "sprites/workers/fortify-imp.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 16,
-                        "h": 16
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 16,
-                        "h": 16
-                    },
-                    "frame": {
-                        "x": 304,
-                        "y": 480,
-                        "w": 16,
-                        "h": 16
-                    }
-                },
-                {
-                    "filename": "sprites/workers/mining-imp.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 16,
-                        "h": 16
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 16,
-                        "h": 16
-                    },
-                    "frame": {
-                        "x": 304,
-                        "y": 496,
-                        "w": 16,
-                        "h": 16
-                    }
-                },
-                {
-                    "filename": "sprites/workers/road-builder-imp.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 16,
-                        "h": 16
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 16,
-                        "h": 16
-                    },
-                    "frame": {
-                        "x": 320,
-                        "y": 480,
-                        "w": 16,
-                        "h": 16
-                    }
-                },
-                {
-                    "filename": "sprites/digits/0.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 5,
-                        "h": 5
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 5,
-                        "h": 5
-                    },
-                    "frame": {
-                        "x": 320,
-                        "y": 496,
-                        "w": 5,
-                        "h": 5
-                    }
-                },
-                {
-                    "filename": "sprites/digits/1.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 5,
-                        "h": 5
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 5,
-                        "h": 5
-                    },
-                    "frame": {
-                        "x": 320,
-                        "y": 501,
-                        "w": 5,
-                        "h": 5
-                    }
-                },
-                {
-                    "filename": "sprites/digits/2.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 5,
-                        "h": 5
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 5,
-                        "h": 5
-                    },
-                    "frame": {
-                        "x": 320,
-                        "y": 506,
-                        "w": 5,
-                        "h": 5
-                    }
-                },
-                {
-                    "filename": "sprites/digits/3.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 5,
-                        "h": 5
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 5,
-                        "h": 5
-                    },
-                    "frame": {
-                        "x": 325,
-                        "y": 496,
-                        "w": 5,
-                        "h": 5
-                    }
-                },
-                {
-                    "filename": "sprites/digits/4.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 5,
-                        "h": 5
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 5,
-                        "h": 5
-                    },
-                    "frame": {
-                        "x": 325,
-                        "y": 501,
-                        "w": 5,
-                        "h": 5
-                    }
-                },
-                {
-                    "filename": "sprites/digits/5.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 5,
-                        "h": 5
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 5,
-                        "h": 5
-                    },
-                    "frame": {
-                        "x": 325,
-                        "y": 506,
-                        "w": 5,
-                        "h": 5
-                    }
-                },
-                {
-                    "filename": "sprites/digits/6.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 5,
-                        "h": 5
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 5,
-                        "h": 5
-                    },
-                    "frame": {
-                        "x": 330,
-                        "y": 496,
-                        "w": 5,
-                        "h": 5
-                    }
-                },
-                {
-                    "filename": "sprites/digits/7.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 5,
-                        "h": 5
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 5,
-                        "h": 5
-                    },
-                    "frame": {
-                        "x": 330,
-                        "y": 501,
-                        "w": 5,
-                        "h": 5
-                    }
-                },
-                {
-                    "filename": "sprites/digits/8.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 5,
-                        "h": 5
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 5,
-                        "h": 5
-                    },
-                    "frame": {
-                        "x": 330,
-                        "y": 506,
-                        "w": 5,
-                        "h": 5
-                    }
-                },
-                {
-                    "filename": "sprites/digits/9.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 5,
-                        "h": 5
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 5,
-                        "h": 5
-                    },
-                    "frame": {
-                        "x": 335,
-                        "y": 496,
-                        "w": 5,
-                        "h": 5
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/clothes/10.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 0,
-                        "y": 32,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/Eyes/8.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 48,
-                        "y": 48,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/clothes/11.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 192,
-                        "y": 288,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/clothes/2.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 240,
-                        "y": 288,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/clothes/3.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 288,
-                        "y": 288,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/clothes/4.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 336,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/clothes/5.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 336,
-                        "y": 48,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/clothes/6.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 336,
-                        "y": 96,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/clothes/7.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 336,
-                        "y": 144,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/clothes/8.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 336,
-                        "y": 192,
-                        "w": 48,
-                        "h": 48
-                    }
-                },
-                {
-                    "filename": "sprites/portraits/clothes/9.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 48,
-                        "h": 48
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 48,
-                        "h": 48
-                    },
-                    "frame": {
-                        "x": 336,
-                        "y": 240,
-                        "w": 48,
-                        "h": 48
-                    }
-                }
-            ]
+          "filename": "cannon.png",
+          "frame": { "x": 371, "y": 0, "w": 29, "h": 16 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 29, "h": 16 },
+          "sourceSize": { "w": 29, "h": 16 }
+        },
+        {
+          "filename": "cannonBall.png",
+          "frame": { "x": 0, "y": 0, "w": 10, "h": 10 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 10, "h": 10 },
+          "sourceSize": { "w": 10, "h": 10 }
+        },
+        {
+          "filename": "cannonLoose.png",
+          "frame": { "x": 88, "y": 0, "w": 20, "h": 12 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 12 },
+          "sourceSize": { "w": 20, "h": 12 }
+        },
+        {
+          "filename": "cannonMobile.png",
+          "frame": { "x": 400, "y": 0, "w": 29, "h": 20 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 29, "h": 20 },
+          "sourceSize": { "w": 29, "h": 20 }
+        },
+        {
+          "filename": "crew.png",
+          "frame": { "x": 191, "y": 0, "w": 22, "h": 20 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 20 },
+          "sourceSize": { "w": 22, "h": 20 }
+        },
+        {
+          "filename": "crew1.png",
+          "frame": { "x": 213, "y": 0, "w": 22, "h": 20 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 20 },
+          "sourceSize": { "w": 22, "h": 20 }
+        },
+        {
+          "filename": "crew3.png",
+          "frame": { "x": 235, "y": 0, "w": 22, "h": 20 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 20 },
+          "sourceSize": { "w": 22, "h": 20 }
+        },
+        {
+          "filename": "crew4.png",
+          "frame": { "x": 305, "y": 0, "w": 22, "h": 22 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 22 },
+          "sourceSize": { "w": 22, "h": 22 }
+        },
+        {
+          "filename": "crew5.png",
+          "frame": { "x": 327, "y": 0, "w": 22, "h": 22 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 22 },
+          "sourceSize": { "w": 22, "h": 22 }
+        },
+        {
+          "filename": "crew6.png",
+          "frame": { "x": 349, "y": 0, "w": 22, "h": 22 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 22 },
+          "sourceSize": { "w": 22, "h": 22 }
+        },
+        {
+          "filename": "dinghyLarge.png",
+          "frame": { "x": 18, "y": 36, "w": 20, "h": 38 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 38 },
+          "sourceSize": { "w": 20, "h": 38 }
+        },
+        {
+          "filename": "dinghyLargeMajor.png",
+          "frame": { "x": 38, "y": 36, "w": 20, "h": 38 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 38 },
+          "sourceSize": { "w": 20, "h": 38 }
+        },
+        {
+          "filename": "dinghyLargeMinor.png",
+          "frame": { "x": 58, "y": 36, "w": 20, "h": 38 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 38 },
+          "sourceSize": { "w": 20, "h": 38 }
+        },
+        {
+          "filename": "dinghySmall.png",
+          "frame": { "x": 257, "y": 0, "w": 16, "h": 26 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 26 },
+          "sourceSize": { "w": 16, "h": 26 }
+        },
+        {
+          "filename": "dinghySmallMajor.png",
+          "frame": { "x": 273, "y": 0, "w": 16, "h": 26 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 26 },
+          "sourceSize": { "w": 16, "h": 26 }
+        },
+        {
+          "filename": "dinghySmallMinor.png",
+          "frame": { "x": 289, "y": 0, "w": 16, "h": 26 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 26 },
+          "sourceSize": { "w": 16, "h": 26 }
+        },
+        {
+          "filename": "explosion1.png",
+          "frame": { "x": 40, "y": 284, "w": 74, "h": 75 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 74, "h": 75 },
+          "sourceSize": { "w": 74, "h": 75 }
+        },
+        {
+          "filename": "explosion2.png",
+          "frame": { "x": 330, "y": 176, "w": 60, "h": 59 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 60, "h": 59 },
+          "sourceSize": { "w": 60, "h": 59 }
+        },
+        {
+          "filename": "explosion3.png",
+          "frame": { "x": 78, "y": 36, "w": 42, "h": 41 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 42, "h": 41 },
+          "sourceSize": { "w": 42, "h": 41 }
+        },
+        {
+          "filename": "fire1.png",
+          "frame": { "x": 0, "y": 36, "w": 18, "h": 39 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 18, "h": 39 },
+          "sourceSize": { "w": 18, "h": 39 }
+        },
+        {
+          "filename": "fire2.png",
+          "frame": { "x": 160, "y": 0, "w": 11, "h": 27 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 11, "h": 27 },
+          "sourceSize": { "w": 11, "h": 27 }
+        },
+        {
+          "filename": "flag1.png",
+          "frame": { "x": 52, "y": 0, "w": 6, "h": 22 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 6, "h": 22 },
+          "sourceSize": { "w": 6, "h": 22 }
+        },
+        {
+          "filename": "flag2.png",
+          "frame": { "x": 58, "y": 0, "w": 6, "h": 22 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 6, "h": 22 },
+          "sourceSize": { "w": 6, "h": 22 }
+        },
+        {
+          "filename": "flag3.png",
+          "frame": { "x": 64, "y": 0, "w": 6, "h": 22 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 6, "h": 22 },
+          "sourceSize": { "w": 6, "h": 22 }
+        },
+        {
+          "filename": "flag4.png",
+          "frame": { "x": 70, "y": 0, "w": 6, "h": 22 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 6, "h": 22 },
+          "sourceSize": { "w": 6, "h": 22 }
+        },
+        {
+          "filename": "flag5.png",
+          "frame": { "x": 76, "y": 0, "w": 6, "h": 22 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 6, "h": 22 },
+          "sourceSize": { "w": 6, "h": 22 }
+        },
+        {
+          "filename": "flag6.png",
+          "frame": { "x": 82, "y": 0, "w": 6, "h": 22 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 6, "h": 22 },
+          "sourceSize": { "w": 6, "h": 22 }
+        },
+        {
+          "filename": "hullLarge.png",
+          "frame": { "x": 114, "y": 284, "w": 50, "h": 108 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 50, "h": 108 },
+          "sourceSize": { "w": 50, "h": 108 }
+        },
+        {
+          "filename": "hullLargeDead.png",
+          "frame": { "x": 164, "y": 284, "w": 50, "h": 108 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 50, "h": 108 },
+          "sourceSize": { "w": 50, "h": 108 }
+        },
+        {
+          "filename": "hullLargeMajor.png",
+          "frame": { "x": 214, "y": 284, "w": 50, "h": 108 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 50, "h": 108 },
+          "sourceSize": { "w": 50, "h": 108 }
+        },
+        {
+          "filename": "hullLargeMinor.png",
+          "frame": { "x": 264, "y": 284, "w": 50, "h": 108 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 50, "h": 108 },
+          "sourceSize": { "w": 50, "h": 108 }
+        },
+        {
+          "filename": "hullSmall.png",
+          "frame": { "x": 390, "y": 176, "w": 40, "h": 108 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 40, "h": 108 },
+          "sourceSize": { "w": 40, "h": 108 }
+        },
+        {
+          "filename": "hullSmallDead.png",
+          "frame": { "x": 430, "y": 176, "w": 40, "h": 108 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 40, "h": 108 },
+          "sourceSize": { "w": 40, "h": 108 }
+        },
+        {
+          "filename": "hullSmallMajor.png",
+          "frame": { "x": 470, "y": 176, "w": 40, "h": 108 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 40, "h": 108 },
+          "sourceSize": { "w": 40, "h": 108 }
+        },
+        {
+          "filename": "hullSmallMinor.png",
+          "frame": { "x": 0, "y": 284, "w": 40, "h": 108 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 40, "h": 108 },
+          "sourceSize": { "w": 40, "h": 108 }
+        },
+        {
+          "filename": "nest.png",
+          "frame": { "x": 171, "y": 0, "w": 20, "h": 18 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 18 },
+          "sourceSize": { "w": 20, "h": 18 }
+        },
+        {
+          "filename": "pole.png",
+          "frame": { "x": 25, "y": 0, "w": 12, "h": 11 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 12, "h": 11 },
+          "sourceSize": { "w": 12, "h": 11 }
+        },
+        {
+          "filename": "sailLargeBlack.png",
+          "frame": { "x": 120, "y": 36, "w": 66, "h": 46 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 46 },
+          "sourceSize": { "w": 66, "h": 46 }
+        },
+        {
+          "filename": "sailLargeBlackDead.png",
+          "frame": { "x": 66, "y": 82, "w": 66, "h": 47 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 47 },
+          "sourceSize": { "w": 66, "h": 47 }
+        },
+        {
+          "filename": "sailLargeBlackMajor.png",
+          "frame": { "x": 132, "y": 82, "w": 66, "h": 47 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 47 },
+          "sourceSize": { "w": 66, "h": 47 }
+        },
+        {
+          "filename": "sailLargeBlackMinor.png",
+          "frame": { "x": 198, "y": 82, "w": 66, "h": 47 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 47 },
+          "sourceSize": { "w": 66, "h": 47 }
+        },
+        {
+          "filename": "sailLargeBlue.png",
+          "frame": { "x": 186, "y": 36, "w": 66, "h": 46 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 46 },
+          "sourceSize": { "w": 66, "h": 46 }
+        },
+        {
+          "filename": "sailLargeBlueDead.png",
+          "frame": { "x": 264, "y": 82, "w": 66, "h": 47 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 47 },
+          "sourceSize": { "w": 66, "h": 47 }
+        },
+        {
+          "filename": "sailLargeBlueMajor.png",
+          "frame": { "x": 330, "y": 82, "w": 66, "h": 47 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 47 },
+          "sourceSize": { "w": 66, "h": 47 }
+        },
+        {
+          "filename": "sailLargeBlueMinor.png",
+          "frame": { "x": 396, "y": 82, "w": 66, "h": 47 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 47 },
+          "sourceSize": { "w": 66, "h": 47 }
+        },
+        {
+          "filename": "sailLargeGreen.png",
+          "frame": { "x": 252, "y": 36, "w": 66, "h": 46 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 46 },
+          "sourceSize": { "w": 66, "h": 46 }
+        },
+        {
+          "filename": "sailLargeGreenDead.png",
+          "frame": { "x": 0, "y": 129, "w": 66, "h": 47 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 47 },
+          "sourceSize": { "w": 66, "h": 47 }
+        },
+        {
+          "filename": "sailLargeGreenMajor.png",
+          "frame": { "x": 66, "y": 129, "w": 66, "h": 47 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 47 },
+          "sourceSize": { "w": 66, "h": 47 }
+        },
+        {
+          "filename": "sailLargeGreenMinor.png",
+          "frame": { "x": 132, "y": 129, "w": 66, "h": 47 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 47 },
+          "sourceSize": { "w": 66, "h": 47 }
+        },
+        {
+          "filename": "sailLargeRed.png",
+          "frame": { "x": 318, "y": 36, "w": 66, "h": 46 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 46 },
+          "sourceSize": { "w": 66, "h": 46 }
+        },
+        {
+          "filename": "sailLargeRedDead.png",
+          "frame": { "x": 198, "y": 129, "w": 66, "h": 47 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 47 },
+          "sourceSize": { "w": 66, "h": 47 }
+        },
+        {
+          "filename": "sailLargeRedMajor.png",
+          "frame": { "x": 264, "y": 129, "w": 66, "h": 47 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 47 },
+          "sourceSize": { "w": 66, "h": 47 }
+        },
+        {
+          "filename": "sailLargeRedMinor.png",
+          "frame": { "x": 330, "y": 129, "w": 66, "h": 47 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 47 },
+          "sourceSize": { "w": 66, "h": 47 }
+        },
+        {
+          "filename": "sailLargeWhite.png",
+          "frame": { "x": 384, "y": 36, "w": 66, "h": 46 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 46 },
+          "sourceSize": { "w": 66, "h": 46 }
+        },
+        {
+          "filename": "sailLargeWhiteDead.png",
+          "frame": { "x": 396, "y": 129, "w": 66, "h": 47 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 47 },
+          "sourceSize": { "w": 66, "h": 47 }
+        },
+        {
+          "filename": "sailLargeWhiteMajor.png",
+          "frame": { "x": 0, "y": 176, "w": 66, "h": 47 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 47 },
+          "sourceSize": { "w": 66, "h": 47 }
+        },
+        {
+          "filename": "sailLargeWhiteMinor.png",
+          "frame": { "x": 66, "y": 176, "w": 66, "h": 47 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 47 },
+          "sourceSize": { "w": 66, "h": 47 }
+        },
+        {
+          "filename": "sailLargeYellow.png",
+          "frame": { "x": 0, "y": 82, "w": 66, "h": 46 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 46 },
+          "sourceSize": { "w": 66, "h": 46 }
+        },
+        {
+          "filename": "sailLargeYellowDead.png",
+          "frame": { "x": 132, "y": 176, "w": 66, "h": 47 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 47 },
+          "sourceSize": { "w": 66, "h": 47 }
+        },
+        {
+          "filename": "sailLargeYellowMajor.png",
+          "frame": { "x": 198, "y": 176, "w": 66, "h": 47 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 47 },
+          "sourceSize": { "w": 66, "h": 47 }
+        },
+        {
+          "filename": "sailLargeYellowMinor.png",
+          "frame": { "x": 264, "y": 176, "w": 66, "h": 47 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 47 },
+          "sourceSize": { "w": 66, "h": 47 }
+        },
+        {
+          "filename": "sailSmallBlackMajor.png",
+          "frame": { "x": 126, "y": 27, "w": 42, "h": 9 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 42, "h": 9 },
+          "sourceSize": { "w": 42, "h": 9 }
+        },
+        {
+          "filename": "sailSmallBlue.png",
+          "frame": { "x": 429, "y": 0, "w": 42, "h": 8 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 42, "h": 8 },
+          "sourceSize": { "w": 42, "h": 8 }
+        },
+        {
+          "filename": "sailSmallBlueMajor.png",
+          "frame": { "x": 168, "y": 27, "w": 42, "h": 9 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 42, "h": 9 },
+          "sourceSize": { "w": 42, "h": 9 }
+        },
+        {
+          "filename": "sailSmallBlueMinor.png",
+          "frame": { "x": 210, "y": 27, "w": 42, "h": 9 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 42, "h": 9 },
+          "sourceSize": { "w": 42, "h": 9 }
+        },
+        {
+          "filename": "sailSmallGreen.png",
+          "frame": { "x": 0, "y": 27, "w": 42, "h": 8 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 42, "h": 8 },
+          "sourceSize": { "w": 42, "h": 8 }
+        },
+        {
+          "filename": "sailSmallGreenMajor.png",
+          "frame": { "x": 252, "y": 27, "w": 42, "h": 9 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 42, "h": 9 },
+          "sourceSize": { "w": 42, "h": 9 }
+        },
+        {
+          "filename": "sailSmallGreenMinor.png",
+          "frame": { "x": 294, "y": 27, "w": 42, "h": 9 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 42, "h": 9 },
+          "sourceSize": { "w": 42, "h": 9 }
+        },
+        {
+          "filename": "sailSmallRed.png",
+          "frame": { "x": 42, "y": 27, "w": 42, "h": 8 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 42, "h": 8 },
+          "sourceSize": { "w": 42, "h": 8 }
+        },
+        {
+          "filename": "sailSmallRedMajor.png",
+          "frame": { "x": 336, "y": 27, "w": 42, "h": 9 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 42, "h": 9 },
+          "sourceSize": { "w": 42, "h": 9 }
+        },
+        {
+          "filename": "sailSmallRedMinor.png",
+          "frame": { "x": 378, "y": 27, "w": 42, "h": 9 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 42, "h": 9 },
+          "sourceSize": { "w": 42, "h": 9 }
+        },
+        {
+          "filename": "sailSmallYellow.png",
+          "frame": { "x": 84, "y": 27, "w": 42, "h": 8 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 42, "h": 8 },
+          "sourceSize": { "w": 42, "h": 8 }
+        },
+        {
+          "filename": "sailSmallYellowMajor.png",
+          "frame": { "x": 420, "y": 27, "w": 42, "h": 9 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 42, "h": 9 },
+          "sourceSize": { "w": 42, "h": 9 }
+        },
+        {
+          "filename": "sailSmallYellowMinor.png",
+          "frame": { "x": 462, "y": 27, "w": 42, "h": 9 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 42, "h": 9 },
+          "sourceSize": { "w": 42, "h": 9 }
+        },
+        {
+          "filename": "shipBlack.png",
+          "frame": { "x": 314, "y": 284, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipBlackDead.png",
+          "frame": { "x": 380, "y": 284, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipBlackMajor.png",
+          "frame": { "x": 446, "y": 284, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipBlackMinor.png",
+          "frame": { "x": 0, "y": 397, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipBlue.png",
+          "frame": { "x": 66, "y": 397, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipBlueDead.png",
+          "frame": { "x": 132, "y": 397, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipBlueMajor.png",
+          "frame": { "x": 198, "y": 397, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipBlueMinor.png",
+          "frame": { "x": 264, "y": 397, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipGreen.png",
+          "frame": { "x": 330, "y": 397, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipGreenDead.png",
+          "frame": { "x": 396, "y": 397, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipGreenMajor.png",
+          "frame": { "x": 0, "y": 510, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipGreenMinor.png",
+          "frame": { "x": 66, "y": 510, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipRed.png",
+          "frame": { "x": 132, "y": 510, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipRedDead.png",
+          "frame": { "x": 198, "y": 510, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipRedMajor.png",
+          "frame": { "x": 264, "y": 510, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipRedMinor.png",
+          "frame": { "x": 330, "y": 510, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipWhite.png",
+          "frame": { "x": 396, "y": 510, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipWhiteDead.png",
+          "frame": { "x": 0, "y": 623, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipWhiteMajor.png",
+          "frame": { "x": 66, "y": 623, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipWhiteMinor.png",
+          "frame": { "x": 132, "y": 623, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipYellow.png",
+          "frame": { "x": 198, "y": 623, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipYellowDead.png",
+          "frame": { "x": 264, "y": 623, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipYellowMajor.png",
+          "frame": { "x": 330, "y": 623, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "shipYellowMinor.png",
+          "frame": { "x": 396, "y": 623, "w": 66, "h": 113 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 113 },
+          "sourceSize": { "w": 66, "h": 113 }
+        },
+        {
+          "filename": "wood (1).png",
+          "frame": { "x": 10, "y": 0, "w": 15, "h": 7 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 15, "h": 7 },
+          "sourceSize": { "w": 15, "h": 7 }
+        },
+        {
+          "filename": "wood (2).png",
+          "frame": { "x": 134, "y": 0, "w": 26, "h": 10 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 10 },
+          "sourceSize": { "w": 26, "h": 10 }
+        },
+        {
+          "filename": "wood (3).png",
+          "frame": { "x": 37, "y": 0, "w": 15, "h": 10 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 15, "h": 10 },
+          "sourceSize": { "w": 15, "h": 10 }
+        },
+        {
+          "filename": "wood (4).png",
+          "frame": { "x": 108, "y": 0, "w": 26, "h": 7 },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 7 },
+          "sourceSize": { "w": 26, "h": 7 }
         }
-    ]
+      ]
+    }
+  ]
 }

@@ -1,13 +1,16 @@
 import React from "react";
 import { registerUIComponent } from "../engine";
-import { EntityID, EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
+import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { map, merge, of } from "rxjs";
 import { GodID } from "@latticexyz/network";
-import { Container } from "../styles/global";
-import { SailPositionNames, SailPositions, Side } from "../../../constants";
+import { colors, Container } from "../styles/global";
+import { SailPositions } from "../../../constants";
 import Sails from "./OverviewComponents/Sails";
-import MoveButton from "./OverviewComponents/MoveButton";
 import AttackButton from "./OverviewComponents/AttackButton";
+import styled from "styled-components";
+import HullHealth from "./OverviewComponents/HullHealth";
+import ShipAttribute from "./OverviewComponents/ShipAttribute";
+import { ShipAttributeTypes } from "../../phaser/constants";
 
 export function registerShipOverview() {
   registerUIComponent(
@@ -16,9 +19,9 @@ export function registerShipOverview() {
     // grid location
     {
       rowStart: 1,
-      rowEnd: 13,
-      colStart: 8,
-      colEnd: 10,
+      rowEnd: 11,
+      colStart: 10,
+      colEnd: 13,
     },
     // requirement
     (layers) => {
@@ -102,62 +105,97 @@ export function registerShipOverview() {
       const damagedSail = getComponentValue(DamagedSail, shipEntity);
       const crewCount = getComponentValueStrict(CrewCount, shipEntity).value;
       const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value as SailPositions;
-      return (
-        <Container>
-          {onFire && (
-            <span style={{ color: "red" }}>
-              YOUR SHIP IS ON FIRE!
-              <button
-                onClick={() => {
-                  extinguishFire(world.entities[shipEntity]);
-                }}
-              >
-                Extinguish
-              </button>
-            </span>
-          )}
-          {leak && (
-            <span style={{ color: "red" }}>
-              YOUR SHIP HAS SPRUNG A LEAK!
-              <button
-                onClick={() => {
-                  repairLeak(world.entities[shipEntity]);
-                }}
-              >
-                Repair
-              </button>
-            </span>
-          )}
-          {damagedSail && (
-            <span style={{ color: "red" }}>
-              YOUR SHIP'S SAIL IS DAMAGED!
-              <button
-                onClick={() => {
-                  repairSail(world.entities[shipEntity]);
-                }}
-              >
-                Repair
-              </button>
-            </span>
-          )}
-          <span>Ship health: {health}</span>
-          <span>Ship firepower: {firepower}</span>
-          <span>Ship crew: {crewCount}</span>
 
-          <Sails
-            changeSail={changeSail}
-            repairMast={repairMast}
-            shipEntity={world.entities[shipEntity]}
-            sailPosition={sailPosition}
-          />
-          <MoveButton
-            move={move}
-            shipEntity={world.entities[shipEntity]}
-            moveEntity={moveEntity ? world.entities[moveEntity] : undefined}
-          />
-          <AttackButton attack={attack} shipEntity={world.entities[shipEntity]} />
+      return (
+        <Container style={{ paddingBottom: "0" }}>
+          <BorderContainer>
+            <ShipName style={{}}>{shipEntity.toString().slice(0, 7)}</ShipName>
+            <OverviewContainer>
+              <div style={{ width: "100%" }}>
+                <HullHealth health={health} />
+                <div style={{ display: "flex", justifyContent: "space-around" }}>
+                  <ShipAttribute attributeType={ShipAttributeTypes.Firepower} attribute={crewCount} />
+                  <ShipAttribute attributeType={ShipAttributeTypes.Crew} attribute={firepower} />
+                  <ShipAttribute attributeType={ShipAttributeTypes.Sails} attribute={SailPositions[sailPosition]} />
+                </div>
+              </div>
+              <div>
+                {onFire && (
+                  <span style={{ color: "red" }}>
+                    YOUR SHIP IS ON FIRE!
+                    <button
+                      onClick={() => {
+                        extinguishFire(world.entities[shipEntity]);
+                      }}
+                    >
+                      Extinguish
+                    </button>
+                  </span>
+                )}
+                {leak && (
+                  <span style={{ color: "red" }}>
+                    YOUR SHIP HAS SPRUNG A LEAK!
+                    <button
+                      onClick={() => {
+                        repairLeak(world.entities[shipEntity]);
+                      }}
+                    >
+                      Repair
+                    </button>
+                  </span>
+                )}
+                {damagedSail && (
+                  <span style={{ color: "red" }}>
+                    YOUR SHIP'S SAIL IS DAMAGED!
+                    <button
+                      onClick={() => {
+                        repairSail(world.entities[shipEntity]);
+                      }}
+                    >
+                      Repair
+                    </button>
+                  </span>
+                )}
+              </div>
+
+              <div style={{ width: "100%" }}>
+                <Sails
+                  changeSail={changeSail}
+                  repairMast={repairMast}
+                  shipEntity={world.entities[shipEntity]}
+                  sailPosition={sailPosition}
+                />
+                <AttackButton attack={attack} shipEntity={world.entities[shipEntity]} />
+              </div>
+            </OverviewContainer>
+          </BorderContainer>
         </Container>
       );
     }
   );
 }
+
+const borderThickness = 42;
+
+const OverviewContainer = styled(Container)`
+  border-radius: 20px;
+  background: ${colors.blue};
+  width: calc(100% - ${borderThickness}px);
+  height: calc(100% - ${borderThickness}px);
+  justify-content: space-between;
+`;
+
+const BorderContainer = styled(Container)`
+  background: ${colors.gold};
+  border-radius: 20px;
+`;
+
+const ShipName = styled.div`
+  position: absolute;
+  top: 4;
+  left: ${borderThickness};
+  font-weight: 800;
+  color: ${colors.darkBrown};
+  line-height: 20px;
+  font-size: 22px;
+`;

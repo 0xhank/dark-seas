@@ -10,6 +10,8 @@ import {
   createHealthSystem,
 } from "./systems";
 import { defineNumberComponent } from "@latticexyz/std-client";
+import { POS_HEIGHT, POS_WIDTH } from "./constants";
+import { createProjectionSystem } from "./systems/createProjectionSystem";
 
 /**
  * The Phaser layer is responsible for rendering game objects to the screen.
@@ -38,6 +40,7 @@ export async function createPhaserLayer(network: NetworkLayer) {
     game,
     scenes,
     polygonRegistry,
+    positions: { posWidth: POS_WIDTH, posHeight: POS_HEIGHT },
   };
 
   // --- SYSTEMS --------------------------------------------------------------------
@@ -46,6 +49,7 @@ export async function createPhaserLayer(network: NetworkLayer) {
   createArrowSystem(network, context);
   createActiveSystem(network, context);
   createHealthSystem(network, context);
+  createProjectionSystem(network, context);
 
   return context;
 }

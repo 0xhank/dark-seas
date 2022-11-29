@@ -1,6 +1,10 @@
-export const TILE_WIDTH = 16;
-export const TILE_HEIGHT = 16;
+export const TILE_WIDTH = 64;
+export const TILE_HEIGHT = 64;
 
+export const POS_WIDTH = TILE_WIDTH / 4;
+export const POS_HEIGHT = TILE_HEIGHT / 4;
+
+export const SHIP_RATIO = 113 / 66;
 export enum Scenes {
   Main = "Main",
 }
@@ -13,8 +17,7 @@ export enum Maps {
 }
 
 export enum Assets {
-  OverworldTileset = "OverworldTileset",
-  MountainTileset = "MountainTileset",
+  DSTileset = "DSTileset",
   MainAtlas = "MainAtlas",
 }
 
@@ -30,15 +33,48 @@ export enum Arrows {
 }
 
 export enum Sprites {
-  Hero,
-  Settlement,
-  Gold,
-  Inventory,
-  GoldShrine,
-  EmberCrown,
-  EscapePortal,
-  Donkey,
-  Crystal,
+  Cannon,
+  Cannonball,
+  Explosion1,
+  Explosion2,
+  Explosion3,
+  Fire1,
+  Fire2,
+  ShipBlack,
+  ShipBlackDead,
+  ShipBlackMajor,
+  ShipBlackMinor,
+
+  ShipWhite,
+  ShipWhiteDead,
+  ShipWhiteMajor,
+  ShipWhiteMinor,
+
+  ShipYellow,
+  ShipYellowDead,
+  ShipYellowMajor,
+  ShipYellowMinor,
+
+  ShipGreen,
+  ShipGreenDead,
+  ShipGreenMajor,
+  ShipGreenMinor,
+
+  ShipRed,
+  ShipRedDead,
+  ShipRedMajor,
+  ShipRedMinor,
+
+  ShipBlue,
+  ShipBlueDead,
+  ShipBlueMajor,
+  ShipBlueMinor,
+}
+
+export enum ShipAttributeTypes {
+  Firepower,
+  Crew,
+  Sails,
 }
 
 export enum Animations {}
