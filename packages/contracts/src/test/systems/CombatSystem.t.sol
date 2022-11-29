@@ -13,7 +13,7 @@ import { FirepowerComponent, ID as FirepowerComponentID } from "../../components
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
 import { CombatSystem, ID as CombatSystemID, Side } from "../../systems/CombatSystem.sol";
-import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
+import { MoveSystem, ID as MoveSystemID } from "../../systems/moveSystem.sol";
 
 // Internal
 import "../../libraries/LibVector.sol";
@@ -27,6 +27,9 @@ contract CombatSystemTest is MudTest {
   RotationComponent rotationComponent;
   CombatSystem combatSystem;
   ShipSpawnSystem shipSpawnSystem;
+
+  uint256[] shipEntities = new uint256[](0);
+  uint256[] moveEntities = new uint256[](0);
 
   function testCombatSystem() public prank(deployer) {
     setup();
@@ -70,7 +73,9 @@ contract CombatSystemTest is MudTest {
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
 
-    moveSystem.executeTyped(attackerId, moveStraightEntityId);
+    shipEntities.push(attackerId);
+    moveEntities.push(moveStraightEntityId);
+    moveSystem.executeTyped(shipEntities, moveEntities);
 
     uint256 defenderId = shipSpawnSystem.executeTyped(startingPosition, 0, 10, 30);
 

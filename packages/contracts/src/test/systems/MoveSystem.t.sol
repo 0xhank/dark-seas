@@ -29,21 +29,35 @@ contract MoveSystemTest is MudTest {
   MoveSystem moveSystem;
   ShipSpawnSystem shipSpawnSystem;
 
+  uint256[] shipEntities = new uint256[](0);
+  uint256[] moveEntities = new uint256[](0);
+
   function testMove() public prank(deployer) {
     setup();
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
     uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 50);
+    uint256 shipEntity2Id = shipSpawnSystem.executeTyped(startingPosition, 0, 5, 50);
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
 
-    moveSystem.executeTyped(shipEntityId, moveStraightEntityId);
+    console.log("move straight entity id", moveStraightEntityId);
+    shipEntities.push(shipEntityId);
+    moveEntities.push(moveStraightEntityId);
+    shipEntities.push(shipEntity2Id);
+    moveEntities.push(moveStraightEntityId);
+    moveSystem.executeTyped(shipEntities, moveEntities);
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
     uint32 playerRotation = rotationComponent.getValue(shipEntityId);
     assertCoordEq(Coord({ x: startingPosition.x + 21, y: startingPosition.y + 21 }), currPosition);
     assertEq(playerRotation, startingRotation);
+
+    currPosition = positionComponent.getValue(shipEntity2Id);
+    playerRotation = rotationComponent.getValue(shipEntity2Id);
+    assertCoordEq(Coord({ x: startingPosition.x + 20, y: startingPosition.y }), currPosition);
+    assertEq(playerRotation, 0);
   }
 
   function testMoveHardRight() public prank(deployer) {
@@ -55,7 +69,11 @@ contract MoveSystemTest is MudTest {
 
     uint256 moveHardRightId = uint256(keccak256("ds.prototype.moveEntity2"));
 
-    moveSystem.executeTyped(shipEntityId, moveHardRightId);
+    delete shipEntities;
+    delete moveEntities;
+    shipEntities.push(shipEntityId);
+    moveEntities.push(moveHardRightId);
+    moveSystem.executeTyped(shipEntities, moveEntities);
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
     uint32 playerRotation = rotationComponent.getValue(shipEntityId);
@@ -72,7 +90,11 @@ contract MoveSystemTest is MudTest {
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity3"));
 
-    moveSystem.executeTyped(shipEntityId, moveStraightEntityId);
+    delete shipEntities;
+    delete moveEntities;
+    shipEntities.push(shipEntityId);
+    moveEntities.push(moveStraightEntityId);
+    moveSystem.executeTyped(shipEntities, moveEntities);
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
     uint32 playerRotation = rotationComponent.getValue(shipEntityId);
@@ -149,7 +171,11 @@ contract MoveSystemTest is MudTest {
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
 
-    moveSystem.executeTyped(shipEntityId, moveStraightEntityId);
+    delete shipEntities;
+    delete moveEntities;
+    shipEntities.push(shipEntityId);
+    moveEntities.push(moveStraightEntityId);
+    moveSystem.executeTyped(shipEntities, moveEntities);
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
 
@@ -170,7 +196,11 @@ contract MoveSystemTest is MudTest {
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
 
-    moveSystem.executeTyped(shipEntityId, moveStraightEntityId);
+    delete shipEntities;
+    delete moveEntities;
+    shipEntities.push(shipEntityId);
+    moveEntities.push(moveStraightEntityId);
+    moveSystem.executeTyped(shipEntities, moveEntities);
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
 
