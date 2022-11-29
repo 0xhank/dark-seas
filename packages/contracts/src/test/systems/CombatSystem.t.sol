@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 // External
 
 // Components
-import { Coord, PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
+import { PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
 import { RangeComponent, ID as RangeComponentID } from "../../components/RangeComponent.sol";
@@ -12,7 +12,7 @@ import { FirepowerComponent, ID as FirepowerComponentID } from "../../components
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
-import { CombatSystem, ID as CombatSystemID, Side } from "../../systems/CombatSystem.sol";
+import { CombatSystem, ID as CombatSystemID } from "../../systems/CombatSystem.sol";
 import { MoveSystem, ID as MoveSystemID } from "../../systems/moveSystem.sol";
 
 // Internal
@@ -20,6 +20,7 @@ import "../../libraries/LibVector.sol";
 import "../../libraries/LibCombat.sol";
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
+import { Side, Coord } from "../../libraries/DSTypes.sol";
 
 contract CombatSystemTest is MudTest {
   uint256 entityId;

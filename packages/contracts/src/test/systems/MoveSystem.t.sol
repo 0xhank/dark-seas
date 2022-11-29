@@ -6,8 +6,8 @@ pragma solidity >=0.8.0;
 // Components
 import { Coord, PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
-import { WindComponent, ID as WindComponentID, Wind, GodID } from "../../components/WindComponent.sol";
-import { MoveCardComponent, ID as MoveCardComponentID, MoveCard } from "../../components/MoveCardComponent.sol";
+import { WindComponent, ID as WindComponentID } from "../../components/WindComponent.sol";
+import { MoveCardComponent, ID as MoveCardComponentID } from "../../components/MoveCardComponent.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
@@ -17,6 +17,7 @@ import { ChangeSailSystem, ID as ChangeSailSystemID } from "../../systems/Change
 // Internal
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
+import { Wind, GodID, MoveCard } from "../../libraries/DSTypes.sol";
 
 import "../../libraries/LibMove.sol";
 

@@ -7,20 +7,16 @@ import { IWorld } from "solecs/interfaces/IWorld.sol";
 import { getAddressById, getSystemAddressById } from "solecs/utils.sol";
 
 // Components
-import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
+import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 
 import "../libraries/LibVector.sol";
 import "../libraries/LibCombat.sol";
 import "../libraries/LibUtils.sol";
+import { Coord } from "../libraries/DSTypes.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Combat"));
-
-enum Side {
-  Right,
-  Left
-}
 
 contract CombatSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}

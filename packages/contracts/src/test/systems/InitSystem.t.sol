@@ -5,12 +5,13 @@ pragma solidity >=0.8.0;
 
 // Components
 
-import { MoveCardComponent, ID as MoveCardComponentID, MoveCard } from "../../components/MoveCardComponent.sol";
+import { MoveCardComponent, ID as MoveCardComponentID } from "../../components/MoveCardComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
-import { WindComponent, ID as WindComponentID, GodID, Wind } from "../../components/WindComponent.sol";
+import { WindComponent, ID as WindComponentID } from "../../components/WindComponent.sol";
 
 // Internal
 import "../MudTest.t.sol";
+import { Wind, GodID, MoveCard } from "../../libraries/DSTypes.sol";
 
 contract InitSystemTest is MudTest {
   uint256 entity1Id = uint256(keccak256("ds.prototype.moveEntity1"));

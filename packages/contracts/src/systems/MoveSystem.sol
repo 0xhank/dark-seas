@@ -10,12 +10,13 @@ import { getAddressById, getSystemAddressById } from "solecs/utils.sol";
 
 // Components
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
-import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
-import { MoveCardComponent, ID as MoveCardComponentID, MoveCard } from "../components/MoveCardComponent.sol";
+import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
+import { MoveCardComponent, ID as MoveCardComponentID } from "../components/MoveCardComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
-import { WindComponent, ID as WindComponentID, Wind, GodID } from "../components/WindComponent.sol";
+import { WindComponent, ID as WindComponentID } from "../components/WindComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 
+import { Wind, GodID, MoveCard } from "../libraries/DSTypes.sol";
 import "../libraries/LibVector.sol";
 import "../libraries/LibMove.sol";
 

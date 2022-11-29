@@ -4,13 +4,12 @@ pragma solidity >=0.8.0;
 import { getAddressById, getSystemAddressById } from "solecs/utils.sol";
 import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 
-import { Coord } from "../components/PositionComponent.sol";
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
-import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
+import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
-import { Wind } from "../components/WindComponent.sol";
-import { MoveCard } from "../components/MoveCardComponent.sol";
+
+import { MoveCard, Wind, Coord } from "./DSTypes.sol";
 
 import { console } from "forge-std/console.sol";
 

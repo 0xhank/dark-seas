@@ -3,8 +3,10 @@ pragma solidity >=0.8.0;
 import "solecs/System.sol";
 import { getAddressById, getSystemAddressById } from "solecs/utils.sol";
 
-import { MoveCardComponent, ID as MoveCardComponentID, MoveCard } from "../components/MoveCardComponent.sol";
-import { WindComponent, ID as WindComponentID, GodID, Wind } from "../components/WindComponent.sol";
+import { MoveCardComponent, ID as MoveCardComponentID } from "../components/MoveCardComponent.sol";
+import { WindComponent, ID as WindComponentID } from "../components/WindComponent.sol";
+
+import { Wind, GodID, MoveCard } from "../libraries/DSTypes.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Init"));
 

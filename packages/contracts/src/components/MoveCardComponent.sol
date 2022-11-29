@@ -2,12 +2,7 @@
 pragma solidity >=0.8.0;
 import "solecs/Component.sol";
 
-struct MoveCard {
-  uint32 distance;
-  uint32 direction;
-  uint32 rotation;
-}
-
+import { MoveCard } from "../libraries/DSTypes.sol";
 uint256 constant ID = uint256(keccak256("ds.component.MoveCard"));
 
 contract MoveCardComponent is Component {
