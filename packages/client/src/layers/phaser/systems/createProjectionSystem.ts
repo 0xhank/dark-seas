@@ -33,31 +33,26 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
     positions,
   } = phaser;
 
-  defineExitSystem(world, [Has(SelectedShip)], ({ entity }) => {
-    const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
-    removeComponent(SelectedMove, GodEntityIndex);
+  defineExitSystem(world, [Has(SelectedMove)], ({ entity }) => {
+    removeComponent(SelectedMove, entity);
     const rangeGroup = polygonRegistry.get("rangeGroup");
     if (rangeGroup) rangeGroup.clear(true, true);
 
-    objectPool.remove("projection");
+    objectPool.remove(`projection-${entity}`);
   });
 
-  defineSystem(world, [Has(SelectedShip), Has(SelectedMove), Has(Wind)], ({ entity, type }) => {
+  defineSystem(world, [Has(SelectedMove)], ({ entity, type }) => {
+    if (type == UpdateType.Exit) return;
     const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
     const shipEntityId = getComponentValueStrict(SelectedShip, GodEntityIndex).value as EntityIndex;
-    const moveCardEntity = getComponentValue(SelectedMove, GodEntityIndex);
+    const moveCardEntity = getComponentValue(SelectedMove, entity);
 
     let rangeGroup = polygonRegistry.get("rangeGroup");
-    const object = objectPool.get("projection", "Sprite");
+    const object = objectPool.get(`projection-${entity}`, "Sprite");
 
     if (rangeGroup) rangeGroup.clear(true, true);
-
-    if (type === UpdateType.Exit || !moveCardEntity) {
-      objectPool.remove("projection");
-      return;
-    }
-
+    if (!moveCardEntity) return;
     if (!rangeGroup) rangeGroup = phaserScene.add.group();
 
     const moveCard = getComponentValueStrict(MoveCard, moveCardEntity.value as EntityIndex);

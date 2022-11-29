@@ -28,7 +28,7 @@ export function registerShipOverview() {
       const {
         network: {
           world,
-          api: { changeSail, move, attack, repairMast, repairLeak, repairSail, extinguishFire },
+          api: { move },
           components: { Health, SailPosition, CrewCount, DamagedSail, Firepower, Leak, OnFire },
         },
         phaser: {
@@ -60,36 +60,12 @@ export function registerShipOverview() {
             Firepower,
             Leak,
             OnFire,
-            changeSail,
             move,
-            attack,
-            repairMast,
-            repairLeak,
-            repairSail,
-            extinguishFire,
           };
         })
       );
     },
-    ({
-      world,
-      SelectedShip,
-      Health,
-      SelectedMove,
-      SailPosition,
-      CrewCount,
-      DamagedSail,
-      Firepower,
-      Leak,
-      OnFire,
-      changeSail,
-      move,
-      attack,
-      repairMast,
-      repairLeak,
-      repairSail,
-      extinguishFire,
-    }) => {
+    ({ world, SelectedShip, Health, SelectedMove, SailPosition, CrewCount, DamagedSail, Firepower, Leak, OnFire }) => {
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
       const shipEntity = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
@@ -118,54 +94,6 @@ export function registerShipOverview() {
                   <ShipAttribute attributeType={ShipAttributeTypes.Crew} attribute={firepower} />
                   <ShipAttribute attributeType={ShipAttributeTypes.Sails} attribute={SailPositions[sailPosition]} />
                 </div>
-              </div>
-              <div>
-                {onFire && (
-                  <span style={{ color: "red" }}>
-                    YOUR SHIP IS ON FIRE!
-                    <button
-                      onClick={() => {
-                        extinguishFire(world.entities[shipEntity]);
-                      }}
-                    >
-                      Extinguish
-                    </button>
-                  </span>
-                )}
-                {leak && (
-                  <span style={{ color: "red" }}>
-                    YOUR SHIP HAS SPRUNG A LEAK!
-                    <button
-                      onClick={() => {
-                        repairLeak(world.entities[shipEntity]);
-                      }}
-                    >
-                      Repair
-                    </button>
-                  </span>
-                )}
-                {damagedSail && (
-                  <span style={{ color: "red" }}>
-                    YOUR SHIP'S SAIL IS DAMAGED!
-                    <button
-                      onClick={() => {
-                        repairSail(world.entities[shipEntity]);
-                      }}
-                    >
-                      Repair
-                    </button>
-                  </span>
-                )}
-              </div>
-
-              <div style={{ width: "100%" }}>
-                <Sails
-                  changeSail={changeSail}
-                  repairMast={repairMast}
-                  shipEntity={world.entities[shipEntity]}
-                  sailPosition={sailPosition}
-                />
-                <AttackButton attack={attack} shipEntity={world.entities[shipEntity]} />
               </div>
             </OverviewContainer>
           </BorderContainer>

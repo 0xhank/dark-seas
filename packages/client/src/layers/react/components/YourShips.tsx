@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { registerUIComponent } from "../engine";
 import {
+  EntityID,
   EntityIndex,
   getComponentEntities,
   getComponentValue,
@@ -97,14 +98,32 @@ export function registerYourShips() {
 
       const wind = getComponentValueStrict(Wind, GodEntityIndex);
       const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
-      const selectedMove = getComponentValue(SelectedMove, GodEntityIndex);
 
       const yourShips = [...getEntitiesWithValue(Ship, { value: true })];
+
+      const handleSubmit = () => {
+        const shipsAndMoves: { ships: EntityID[]; moves: EntityID[] } = yourShips.reduce(
+          (prev: { ships: EntityID[]; moves: EntityID[] }, curr: EntityIndex) => {
+            const shipMove = getComponentValue(SelectedMove, curr);
+            if (!shipMove) return prev;
+            return {
+              ships: [...prev.ships, world.entities[curr]],
+              moves: [...prev.moves, world.entities[shipMove.value]],
+            };
+          },
+          { ships: [], moves: [] }
+        );
+
+        if (shipsAndMoves.ships.length == 0) return;
+
+        move(shipsAndMoves.ships, shipsAndMoves.moves);
+      };
 
       const selectShip = (ship: EntityIndex, position: Coord) => {
         camera.phaserCamera.pan(position.x * positions.posWidth, position.y * positions.posHeight, 200, "Linear");
         camera.phaserCamera.zoomTo(1, 200, "Linear");
         setComponent(SelectedShip, GodEntityIndex, { value: ship });
+        setComponent(ShowMoves, GodEntityIndex, { value: true });
       };
 
       return (
@@ -121,14 +140,14 @@ export function registerYourShips() {
                 const SelectButton = () => {
                   if (!moveCardEntity)
                     return (
-                      <SelectShipButton
+                      <SelectShip
                         onClick={() => {
                           selectShip(ship, position);
                           setComponent(ShowMoves, GodEntityIndex, { value: true });
                         }}
                       >
                         Select Move
-                      </SelectShipButton>
+                      </SelectShip>
                     );
 
                   let moveCard = getComponentValueStrict(MoveCard, moveCardEntity.value as EntityIndex) as MoveCard;
@@ -153,7 +172,7 @@ export function registerYourShips() {
                       : Arrows.SoftRight;
 
                   return (
-                    <SelectShipButton
+                    <SelectShip
                       isSelected={isSelected}
                       onClick={() => {
                         console.log("movecard: ", moveCard);
@@ -172,7 +191,7 @@ export function registerYourShips() {
                       <p>
                         {moveCard.distance}M / {Math.round((moveCard.direction + rotation) % 360)}º
                       </p>
-                    </SelectShipButton>
+                    </SelectShip>
                   );
                 };
 
@@ -195,21 +214,16 @@ export function registerYourShips() {
             </MoveButtons>
             <ConfirmButtons>
               <Button
-                onClick={() => removeComponent(SelectedMove, GodEntityIndex)}
-                style={{ flex: 2, fontSize: "24px", lineHeight: "30px" }}
-                disabled={!selectedMove?.value}
-              >
-                Clear Move
-              </Button>
-              <ConfirmButton
-                disabled={!selectedMove?.value}
-                style={{ flex: 3, fontSize: "24px", lineHeight: "30px" }}
                 onClick={() => {
-                  if (!selectedMove) return;
-                  // move(world.entities[selectedShip], world.entities[selectedMove.value]);
+                  const entities = [...getComponentEntities(SelectedMove)];
+                  entities.map((entity) => removeComponent(SelectedMove, entity));
                 }}
+                style={{ flex: 2, fontSize: "24px", lineHeight: "30px" }}
               >
-                Submit Move
+                Clear Moves
+              </Button>
+              <ConfirmButton style={{ flex: 3, fontSize: "24px", lineHeight: "30px" }} onClick={handleSubmit}>
+                Submit Moves
               </ConfirmButton>
             </ConfirmButtons>
           </InternalContainer>
@@ -235,7 +249,7 @@ const ConfirmButtons = styled.div`
   gap: 5px;
 `;
 
-const SelectShipButton = styled.div<{ isSelected?: boolean }>`
+const SelectShip = styled.div<{ isSelected?: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
