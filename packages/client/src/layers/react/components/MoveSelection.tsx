@@ -22,10 +22,10 @@ export function registerMoveSelection() {
     "MoveSelection",
     // grid location
     {
-      rowStart: 11,
-      rowEnd: 13,
-      colStart: 1,
-      colEnd: 13,
+      rowStart: 8,
+      rowEnd: 10,
+      colStart: 4,
+      colEnd: 10,
     },
     // requirement
     (layers) => {
@@ -36,7 +36,7 @@ export function registerMoveSelection() {
           api: { move },
         },
         phaser: {
-          components: { SelectedShip, SelectedMove },
+          components: { SelectedShip, SelectedMove, ShowMoves },
         },
       } = layers;
 
@@ -47,7 +47,8 @@ export function registerMoveSelection() {
         SelectedShip.update$,
         Rotation.update$,
         SailPosition.update$,
-        Position.update$
+        Position.update$,
+        ShowMoves.update$
       ).pipe(
         map(() => {
           return {
@@ -57,6 +58,7 @@ export function registerMoveSelection() {
             Rotation,
             SelectedShip,
             SailPosition,
+            ShowMoves,
             Wind,
             world,
             move,
@@ -65,12 +67,15 @@ export function registerMoveSelection() {
       );
     },
     // render
-    ({ MoveCard, SelectedMove, SelectedShip, Rotation, SailPosition, Position, Wind, world, move }) => {
+    ({ MoveCard, SelectedMove, SelectedShip, Rotation, SailPosition, ShowMoves, Position, Wind, world, move }) => {
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
+
+      const showMoves = getComponentValue(ShowMoves, GodEntityIndex);
+      if (!showMoves) return null;
 
       const wind = getComponentValueStrict(Wind, GodEntityIndex);
       const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
-      const selectedMove = getComponentValue(SelectedMove, GodEntityIndex);
+      const selectedMove = getComponentValue(SelectedMove, selectedShip as EntityIndex);
 
       if (!selectedShip) return null;
 
@@ -80,82 +85,76 @@ export function registerMoveSelection() {
       const moveEntities = [...getComponentEntities(MoveCard)];
 
       return (
-        <Container>
-          <InternalContainer>
-            <MoveButtons>
-              {moveEntities
-                .sort((a, b) => a - b)
-                .map((entity) => {
-                  let moveCard = getComponentValueStrict(MoveCard, entity) as MoveCard;
+        <Container style={{ width: "auto", marginTop: "6px" }}>
+          <CloseButton
+            onClick={() => {
+              console.log("closing");
+              removeComponent(ShowMoves, GodEntityIndex);
+            }}
+          >
+            Close
+          </CloseButton>
+          <MoveButtons>
+            {moveEntities
+              .sort((a, b) => a - b)
+              .map((entity) => {
+                let moveCard = getComponentValueStrict(MoveCard, entity) as MoveCard;
 
-                  moveCard = getFinalMoveCard(moveCard, rotation, sailPosition, wind);
+                moveCard = getFinalMoveCard(moveCard, rotation, sailPosition, wind);
 
-                  const isSelected = selectedMove && selectedMove.value == entity;
+                const isSelected = selectedMove && selectedMove.value == entity;
 
-                  const imageUrl =
-                    moveCard.rotation == 360 || moveCard.rotation == 0
-                      ? Arrows.Straight
-                      : moveCard.rotation > 270
-                      ? Arrows.SoftLeft
-                      : moveCard.rotation == 270
-                      ? Arrows.Left
-                      : moveCard.rotation > 180
-                      ? Arrows.HardLeft
-                      : moveCard.rotation == 180
-                      ? Arrows.UTurn
-                      : moveCard.rotation > 90
-                      ? Arrows.HardRight
-                      : moveCard.rotation == 90
-                      ? Arrows.Right
-                      : Arrows.SoftRight;
+                const imageUrl =
+                  moveCard.rotation == 360 || moveCard.rotation == 0
+                    ? Arrows.Straight
+                    : moveCard.rotation > 270
+                    ? Arrows.SoftLeft
+                    : moveCard.rotation == 270
+                    ? Arrows.Left
+                    : moveCard.rotation > 180
+                    ? Arrows.HardLeft
+                    : moveCard.rotation == 180
+                    ? Arrows.UTurn
+                    : moveCard.rotation > 90
+                    ? Arrows.HardRight
+                    : moveCard.rotation == 90
+                    ? Arrows.Right
+                    : Arrows.SoftRight;
 
-                  return (
-                    <Button
-                      isSelected={isSelected}
-                      key={`move-selection-${entity}`}
-                      onClick={() => {
-                        console.log("movecard: ", moveCard);
-                        setComponent(SelectedMove, GodEntityIndex, { value: entity });
-                      }}
-                    >
-                      <img
-                        src={imageUrl}
-                        style={{ height: "80%", objectFit: "scale-down", transform: `rotate(${rotation + 90}deg)` }}
-                      />
-                      <p>
-                        {moveCard.distance}M / {Math.round((moveCard.direction + rotation) % 360)}º
-                      </p>
-                    </Button>
-                  );
-                })}
-            </MoveButtons>
-            <ConfirmButtons>
-              <Button
-                onClick={() => removeComponent(SelectedMove, GodEntityIndex)}
-                style={{ flex: 2, fontSize: "24px", lineHeight: "30px" }}
-                disabled={!selectedMove?.value}
-              >
-                Clear Move
-              </Button>
-              <ConfirmButton
-                disabled={!selectedMove?.value}
-                style={{ flex: 3, fontSize: "24px", lineHeight: "30px" }}
-                onClick={() => {
-                  if (!selectedMove) return;
-                  move(world.entities[selectedShip], world.entities[selectedMove.value]);
-                }}
-              >
-                Submit Move
-              </ConfirmButton>
-            </ConfirmButtons>
-          </InternalContainer>
+                return (
+                  <Button
+                    isSelected={isSelected}
+                    key={`move-selection-${entity}`}
+                    onClick={() => {
+                      console.log("movecard: ", moveCard);
+                      setComponent(SelectedMove, selectedShip, { value: entity });
+                    }}
+                  >
+                    <img
+                      src={imageUrl}
+                      style={{ height: "80%", objectFit: "scale-down", transform: `rotate(${rotation + 90}deg)` }}
+                    />
+                    <p>
+                      {moveCard.distance}M / {Math.round((moveCard.direction + rotation) % 360)}º
+                    </p>
+                  </Button>
+                );
+              })}
+            <Button
+              onClick={() => {
+                removeComponent(SelectedMove, selectedShip);
+              }}
+            >
+              Clear
+            </Button>
+          </MoveButtons>
         </Container>
       );
     }
   );
 }
 
-const MoveButtons = styled.div`
+const MoveButtons = styled(InternalContainer)`
   flex: 4;
   display: flex;
   justify-content: "flex-start";
@@ -164,9 +163,17 @@ const MoveButtons = styled.div`
   font-weight: 700;
 `;
 
-const ConfirmButtons = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
-  gap: 5px;
+const CloseButton = styled.button`
+  height: 30px;
+  width: 30px;
+  position: absolute;
+  top: 5;
+  right: 5;
+  border-radius: 50%;
+  border: 0;
+  background: hsla(0, 0%, 100%, 75%);
+  font-size: 10px;
+  pointer-events: all;
+  z-index: 1000;
+  cursor: pointer;
 `;

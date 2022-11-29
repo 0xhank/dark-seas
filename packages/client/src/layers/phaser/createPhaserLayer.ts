@@ -9,7 +9,7 @@ import {
   createActiveSystem,
   createHealthSystem,
 } from "./systems";
-import { defineNumberComponent } from "@latticexyz/std-client";
+import { defineBoolComponent, defineNumberComponent } from "@latticexyz/std-client";
 import { POS_HEIGHT, POS_WIDTH } from "./constants";
 import { createProjectionSystem } from "./systems/createProjectionSystem";
 
@@ -24,6 +24,7 @@ export async function createPhaserLayer(network: NetworkLayer) {
   const components = {
     SelectedMove: defineNumberComponent(world, { id: "SelectedMove" }),
     SelectedShip: defineNumberComponent(world, { id: "SelectedShip" }),
+    ShowMoves: defineBoolComponent(world, { id: "ShowMoves" }),
   };
 
   // --- PHASER ENGINE SETUP --------------------------------------------------------

@@ -19,7 +19,7 @@ export function registerShipOverview() {
     // grid location
     {
       rowStart: 1,
-      rowEnd: 11,
+      rowEnd: 10,
       colStart: 10,
       colEnd: 13,
     },

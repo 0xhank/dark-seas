@@ -19,6 +19,7 @@ export const colors = {
   white,
   black,
   lightGray,
+  lighterGray,
   darkGray,
   darkerGray,
   blue,
