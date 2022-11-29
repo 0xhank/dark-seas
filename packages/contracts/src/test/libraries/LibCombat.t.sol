@@ -5,12 +5,12 @@ pragma solidity >=0.8.0;
 import "../../libraries/LibVector.sol";
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
-import { LibCombat } from "../../libraries/LibCombat.sol";
+import "../../libraries/LibCombat.sol";
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
 
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
 import { CrewCountComponent, ID as CrewCountComponentID } from "../../components/CrewCountComponent.sol";
-import { Coord } from "../../components/PositionComponent.sol";
+import { Coord } from "../../libraries/DSTypes.sol";
 
 contract LibCombatTest is MudTest {
   function testGetBaseHitChance() public prank(deployer) {

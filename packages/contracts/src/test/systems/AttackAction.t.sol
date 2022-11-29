@@ -12,27 +12,27 @@ import { FirepowerComponent, ID as FirepowerComponentID } from "../../components
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
-import { CombatSystem, ID as CombatSystemID } from "../../systems/CombatSystem.sol";
-import { MoveSystem, ID as MoveSystemID } from "../../systems/moveSystem.sol";
-
+import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
+import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.sol";
 // Internal
 import "../../libraries/LibVector.sol";
 import "../../libraries/LibCombat.sol";
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
-import { Side, Coord } from "../../libraries/DSTypes.sol";
+import { Side, Coord, Action } from "../../libraries/DSTypes.sol";
 
-contract CombatSystemTest is MudTest {
+contract AttackActionTest is MudTest {
   uint256 entityId;
   PositionComponent positionComponent;
   RotationComponent rotationComponent;
-  CombatSystem combatSystem;
+  ActionSystem actionSystem;
   ShipSpawnSystem shipSpawnSystem;
 
   uint256[] shipEntities = new uint256[](0);
   uint256[] moveEntities = new uint256[](0);
+  Action[] actions = new Action[](0);
 
-  function testCombatSystem() public prank(deployer) {
+  function testAttackAction() public prank(deployer) {
     setup();
 
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
@@ -51,11 +51,12 @@ contract CombatSystemTest is MudTest {
     uint32 orig2Health = healthComponent.getValue(defender2Id);
     uint32 attackerHealth = healthComponent.getValue(attackerId);
 
-    combatSystem.executeTyped(attackerId, Side.Right);
+    actions.push(Action.FireRight);
+    actionSystem.executeTyped(actions, attackerId);
 
     uint32 newHealth = healthComponent.getValue(defenderId);
 
-    assertLe(newHealth, origHealth - 1);
+    assertGe(newHealth, origHealth - 1);
 
     newHealth = healthComponent.getValue(defender2Id);
     assertEq(newHealth, orig2Health);
@@ -83,7 +84,9 @@ contract CombatSystemTest is MudTest {
     uint32 origHealth = healthComponent.getValue(defenderId);
     uint32 attackerHealth = healthComponent.getValue(attackerId);
 
-    combatSystem.executeTyped(attackerId, Side.Right);
+    delete actions;
+    actions.push(Action.FireRight);
+    actionSystem.executeTyped(actions, attackerId);
 
     uint32 newHealth = healthComponent.getValue(attackerId);
     assertEq(newHealth, attackerHealth);
@@ -103,7 +106,9 @@ contract CombatSystemTest is MudTest {
     uint32 origHealth = healthComponent.getValue(defenderId);
     uint32 attackerHealth = healthComponent.getValue(attackerId);
 
-    combatSystem.executeTyped(attackerId, Side.Right);
+    delete actions;
+    actions.push(Action.FireRight);
+    actionSystem.executeTyped(actions, attackerId);
 
     uint32 newHealth = healthComponent.getValue(defenderId);
 
@@ -118,7 +123,7 @@ contract CombatSystemTest is MudTest {
 
   function setup() internal {
     shipSpawnSystem = ShipSpawnSystem(system(ShipSpawnSystemID));
-    combatSystem = CombatSystem(system(CombatSystemID));
+    actionSystem = ActionSystem(system(ActionSystemID));
     entityId = addressToEntity(deployer);
     positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
     rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));

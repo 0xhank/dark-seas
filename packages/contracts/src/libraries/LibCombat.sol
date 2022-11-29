@@ -144,7 +144,6 @@ library LibCombat {
     uint256 entity
   ) public returns (bool) {
     Uint32Component component = Uint32Component(getAddressById(components, componentID));
-    // yo mama
     uint32 value = component.getValue(entity);
 
     if (value <= damage) {
