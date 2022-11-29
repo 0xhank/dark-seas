@@ -42,6 +42,7 @@
         "CrewCountComponent",
         "SailPositionComponent"
       ]
-    }
+    },
+    { "name": "ComponentDevSystem", "writeAccess": ["*"] }
   ]
 }
