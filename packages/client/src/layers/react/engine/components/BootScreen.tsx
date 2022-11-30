@@ -2,13 +2,9 @@ import React, { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
 
 export const BootScreen: React.FC<{ initialOpacity?: number }> = ({ children, initialOpacity }) => {
-  const [opacity, setOpacity] = useState(initialOpacity ?? 0);
-
-  useEffect(() => setOpacity(1), []);
-
   return (
     <Container>
-      <Img src="/img/ds-ship.png" style={{ opacity, transform: "rotate(270deg)" }}></Img>
+      <Img src="/img/ds-ship.png" style={{ transform: "rotate(270deg)" }}></Img>
       <div style={{ fontSize: "2rem" }}>Dark Seas</div>
       <div>{children || <>&nbsp;</>}</div>
     </Container>
@@ -32,11 +28,6 @@ const Container = styled.div`
   z-index: 500;
   pointer-events: all;
   color: white;
-
-  img {
-    transition: all 5s ease;
-    width: 100px;
-  }
 `;
 
 const pulse = keyframes`
@@ -65,8 +56,7 @@ const pulse = keyframes`
 
 `;
 
-const Img = styled.img<{ opacity?: number }>`
-  opacity: ${({ opacity }) => `${opacity ? opacity : "100"}`};
+const Img = styled.img`
   transform: rotate(270deg);
   animation-name: ${pulse};
   animation-duration: 4s;

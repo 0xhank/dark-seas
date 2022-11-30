@@ -1,16 +1,16 @@
 import React from "react";
 import { registerUIComponent } from "../engine";
-import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
+import { EntityIndex, getComponentValue, getComponentValueStrict, setComponent } from "@latticexyz/recs";
 import { map, merge, of } from "rxjs";
 import { GodID } from "@latticexyz/network";
-import { colors, Container } from "../styles/global";
-import { SailPositions } from "../../../constants";
+import { Button, colors, Container } from "../styles/global";
+import { Action, ActionImg, ActionNames, SailPositions } from "../../../constants";
 import Sails from "./OverviewComponents/Sails";
 import AttackButton from "./OverviewComponents/AttackButton";
 import styled from "styled-components";
 import HullHealth from "./OverviewComponents/HullHealth";
 import ShipAttribute from "./OverviewComponents/ShipAttribute";
-import { ShipAttributeTypes } from "../../phaser/constants";
+import { SelectionType, ShipAttributeTypes } from "../../phaser/constants";
 
 export function registerShipOverview() {
   registerUIComponent(
@@ -19,7 +19,7 @@ export function registerShipOverview() {
     // grid location
     {
       rowStart: 1,
-      rowEnd: 11,
+      rowEnd: 10,
       colStart: 10,
       colEnd: 13,
     },
@@ -28,11 +28,11 @@ export function registerShipOverview() {
       const {
         network: {
           world,
-          api: { changeSail, move, attack, repairMast, repairLeak, repairSail, extinguishFire },
+          api: { submitActions },
           components: { Health, SailPosition, CrewCount, DamagedSail, Firepower, Leak, OnFire },
         },
         phaser: {
-          components: { SelectedMove, SelectedShip },
+          components: { SelectedShip, Selection, SelectedActions },
         },
       } = layers;
 
@@ -40,33 +40,29 @@ export function registerShipOverview() {
         of(0),
         Health.update$,
         SelectedShip.update$,
-        SelectedMove.update$,
         SailPosition.update$,
         CrewCount.update$,
         DamagedSail.update$,
         Firepower.update$,
         Leak.update$,
-        OnFire.update$
+        OnFire.update$,
+        Selection.update$,
+        SelectedActions.update$
       ).pipe(
         map(() => {
           return {
             world,
             SelectedShip,
             Health,
-            SelectedMove,
             SailPosition,
             CrewCount,
             DamagedSail,
             Firepower,
             Leak,
             OnFire,
-            changeSail,
-            move,
-            attack,
-            repairMast,
-            repairLeak,
-            repairSail,
-            extinguishFire,
+            Selection,
+            SelectedActions,
+            submitActions,
           };
         })
       );
@@ -75,20 +71,15 @@ export function registerShipOverview() {
       world,
       SelectedShip,
       Health,
-      SelectedMove,
       SailPosition,
       CrewCount,
       DamagedSail,
       Firepower,
       Leak,
       OnFire,
-      changeSail,
-      move,
-      attack,
-      repairMast,
-      repairLeak,
-      repairSail,
-      extinguishFire,
+      Selection,
+      SelectedActions,
+      submitActions,
     }) => {
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
@@ -96,7 +87,6 @@ export function registerShipOverview() {
       if (!shipEntity) {
         return <></>;
       }
-      const moveEntity = getComponentValue(SelectedMove, GodEntityIndex)?.value as EntityIndex | undefined;
 
       const health = getComponentValueStrict(Health, shipEntity).value;
       const firepower = getComponentValueStrict(Firepower, shipEntity).value;
@@ -105,6 +95,37 @@ export function registerShipOverview() {
       const damagedSail = getComponentValue(DamagedSail, shipEntity);
       const crewCount = getComponentValueStrict(CrewCount, shipEntity).value;
       const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value as SailPositions;
+      const selection = getComponentValue(Selection, GodEntityIndex)?.value;
+
+      const shipActions = getComponentValue(SelectedActions, shipEntity);
+
+      const ActionButton = ({ index }: { index: SelectionType }) => {
+        const action = shipActions && shipActions.value[index] ? shipActions.value[index] : undefined;
+        return (
+          <Button
+            isSelected={index == selection}
+            onClick={() => {
+              setComponent(Selection, GodEntityIndex, { value: index });
+            }}
+            key={`action-button-${index}`}
+          >
+            {action && action !== -1 ? (
+              <>
+                <img src={ActionImg[action]} style={{ height: "80%", objectFit: "scale-down" }} />
+                <p>{ActionNames[action]}</p>
+              </>
+            ) : (
+              <p>Choose Action {index}</p>
+            )}
+          </Button>
+        );
+      };
+
+      const handleSubmit = () => {
+        if (!shipActions) return;
+        const actionEntities = shipActions.value.filter((element) => element >= 0);
+        submitActions(world.entities[shipEntity], actionEntities);
+      };
 
       return (
         <Container style={{ paddingBottom: "0" }}>
@@ -119,54 +140,19 @@ export function registerShipOverview() {
                   <ShipAttribute attributeType={ShipAttributeTypes.Sails} attribute={SailPositions[sailPosition]} />
                 </div>
               </div>
-              <div>
-                {onFire && (
-                  <span style={{ color: "red" }}>
-                    YOUR SHIP IS ON FIRE!
-                    <button
-                      onClick={() => {
-                        extinguishFire(world.entities[shipEntity]);
-                      }}
-                    >
-                      Extinguish
-                    </button>
-                  </span>
-                )}
-                {leak && (
-                  <span style={{ color: "red" }}>
-                    YOUR SHIP HAS SPRUNG A LEAK!
-                    <button
-                      onClick={() => {
-                        repairLeak(world.entities[shipEntity]);
-                      }}
-                    >
-                      Repair
-                    </button>
-                  </span>
-                )}
-                {damagedSail && (
-                  <span style={{ color: "red" }}>
-                    YOUR SHIP'S SAIL IS DAMAGED!
-                    <button
-                      onClick={() => {
-                        repairSail(world.entities[shipEntity]);
-                      }}
-                    >
-                      Repair
-                    </button>
-                  </span>
-                )}
-              </div>
-
-              <div style={{ width: "100%" }}>
-                <Sails
-                  changeSail={changeSail}
-                  repairMast={repairMast}
-                  shipEntity={world.entities[shipEntity]}
-                  sailPosition={sailPosition}
-                />
-                <AttackButton attack={attack} shipEntity={world.entities[shipEntity]} />
-              </div>
+              <ActionsContainer>
+                <ActionButtons>
+                  <ActionButton index={SelectionType.Action1} />
+                  <ActionButton index={SelectionType.Action2} />
+                  <ActionButton index={SelectionType.Action3} />
+                </ActionButtons>
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!shipActions || shipActions.value.every((action) => (action = -1))}
+                >
+                  Submit Actions
+                </Button>
+              </ActionsContainer>
             </OverviewContainer>
           </BorderContainer>
         </Container>
@@ -176,6 +162,23 @@ export function registerShipOverview() {
 }
 
 const borderThickness = 42;
+
+const ActionsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 6px;
+  line-height: 20px;
+`;
+
+const ActionButtons = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-between;
+  gap: 6px;
+  line-height: 20px;
+`;
 
 const OverviewContainer = styled(Container)`
   border-radius: 20px;

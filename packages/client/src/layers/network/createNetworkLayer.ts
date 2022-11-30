@@ -13,7 +13,7 @@ import { SystemTypes } from "../../../../contracts/types/SystemTypes";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { GameConfig, getNetworkConfig } from "./config";
 import { Coord } from "@latticexyz/utils";
-import { Side } from "../../constants";
+import { Action } from "../../constants";
 import { defineWindComponent } from "./components/WindComponent";
 import { defineMoveCardComponent } from "./components/MoveCardComponent";
 
@@ -71,42 +71,18 @@ export async function createNetworkLayer(config: GameConfig) {
     systems["ds.system.ShipSpawn"].executeTyped(location, rotation, length, range);
   }
 
-  function move(shipId: EntityID, moveId: EntityID) {
+  function move(ships: EntityID[], moves: EntityID[]) {
     console.log("moving ship");
-    systems["ds.system.Move"].executeTyped(shipId, moveId, {
+    systems["ds.system.Move"].executeTyped(ships, moves, {
       gasLimit: 30_000_000,
     });
   }
 
-  function attack(shipId: EntityID, side: Side) {
-    console.log("attacking!");
-    systems["ds.system.Combat"].executeTyped(shipId, side);
+  function submitActions(ship: EntityID, actions: Action[]) {
+    console.log("submitting actions");
+    systems["ds.system.Action"].executeTyped(ship, actions);
   }
 
-  function changeSail(shipId: EntityID, newPosition: number) {
-    console.log(`changing sails of ${shipId} to ${newPosition}`);
-    systems["ds.system.ChangeSail"].executeTyped(shipId, newPosition);
-  }
-
-  function extinguishFire(shipId: EntityID) {
-    console.log("extinguishing fire!");
-    systems["ds.system.ExtinguishFire"].executeTyped(shipId);
-  }
-
-  function repairLeak(shipId: EntityID) {
-    console.log("repairing leak!");
-    systems["ds.system.RepairLeak"].executeTyped(shipId);
-  }
-
-  function repairMast(shipId: EntityID) {
-    console.log("extinguishing fire!");
-    systems["ds.system.RepairMast"].executeTyped(shipId);
-  }
-
-  function repairSail(shipId: EntityID) {
-    console.log("extinguishing fire!");
-    systems["ds.system.RepairSails"].executeTyped(shipId);
-  }
   // --- CONTEXT --------------------------------------------------------------------
   const context = {
     world,
@@ -117,7 +93,7 @@ export async function createNetworkLayer(config: GameConfig) {
     startSync,
     network,
     actions,
-    api: { spawnShip, move, attack, changeSail, extinguishFire, repairLeak, repairMast, repairSail },
+    api: { spawnShip, move, submitActions },
     dev: setupDevSystems(world, encoders as any, systems),
   };
 

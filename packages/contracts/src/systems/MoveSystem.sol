@@ -10,12 +10,13 @@ import { getAddressById, getSystemAddressById } from "solecs/utils.sol";
 
 // Components
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
-import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
-import { MoveCardComponent, ID as MoveCardComponentID, MoveCard } from "../components/MoveCardComponent.sol";
+import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
+import { MoveCardComponent, ID as MoveCardComponentID } from "../components/MoveCardComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
-import { WindComponent, ID as WindComponentID, Wind, GodID } from "../components/WindComponent.sol";
+import { WindComponent, ID as WindComponentID } from "../components/WindComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 
+import { Wind, GodID, MoveCard } from "../libraries/DSTypes.sol";
 import "../libraries/LibVector.sol";
 import "../libraries/LibMove.sol";
 
@@ -25,41 +26,51 @@ contract MoveSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
-    (uint256 entity, uint256 moveCardEntity) = abi.decode(arguments, (uint256, uint256));
+    (uint256[] memory entities, uint256[] memory moveCardEntities) = abi.decode(arguments, (uint256[], uint256[]));
+
+    require(entities.length == moveCardEntities.length, "MoveSystem: array length mismatch");
 
     MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
-    require(moveCardComponent.has(moveCardEntity), "MoveSystem: invalid movecard entity id");
-    require(
-      ShipComponent(getAddressById(components, ShipComponentID)).has(entity),
-      "MoveSystem: invalid ship entity id"
-    );
-
-    MoveCard memory moveCard = moveCardComponent.getValue(moveCardEntity);
-
     PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
     RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
-
+    ShipComponent shipComponent = ShipComponent(getAddressById(components, ShipComponentID));
+    SailPositionComponent sailPositionComponent = SailPositionComponent(
+      getAddressById(components, SailPositionComponentID)
+    );
     Wind memory wind = WindComponent(getAddressById(components, WindComponentID)).getValue(GodID);
 
-    Coord memory position = positionComponent.getValue(entity);
-    uint32 rotation = rotationComponent.getValue(entity);
+    for (uint256 i = 0; i < entities.length; i++) {
+      uint256 moveCardEntity = moveCardEntities[i];
+      uint256 entity = entities[i];
 
-    moveCard.distance = LibMove.getMoveDistanceWithWind(moveCard.distance, rotation, wind);
+      console.log("move card entity:", moveCardEntity);
+      console.log("expected:", uint256(keccak256("ds.prototype.moveEntity1")));
 
-    moveCard = LibMove.getMoveWithSails(
-      moveCard,
-      SailPositionComponent(getAddressById(components, SailPositionComponentID)).getValue(entity)
-    );
+      require(moveCardComponent.has(moveCardEntity), "MoveSystem: invalid move card entity id");
+      require(shipComponent.has(entity), "MoveSystem: invalid ship entity id");
 
-    position = LibVector.getPositionByVector(position, rotation, moveCard.distance, moveCard.direction);
+      MoveCard memory moveCard = moveCardComponent.getValue(moveCardEntity);
 
-    rotation = (rotation + moveCard.rotation) % 360;
+      Coord memory position = positionComponent.getValue(entity);
+      uint32 rotation = rotationComponent.getValue(entity);
 
-    positionComponent.set(entity, position);
-    rotationComponent.set(entity, rotation);
+      moveCard.distance = LibMove.getMoveDistanceWithWind(moveCard.distance, rotation, wind);
+
+      moveCard = LibMove.getMoveWithSails(moveCard, sailPositionComponent.getValue(entity));
+
+      position = LibVector.getPositionByVector(position, rotation, moveCard.distance, moveCard.direction);
+
+      rotation = (rotation + moveCard.rotation) % 360;
+
+      positionComponent.set(entity, position);
+      rotationComponent.set(entity, rotation);
+    }
   }
 
-  function executeTyped(uint256 entity, uint256 moveCardEntity) public returns (bytes memory) {
-    return execute(abi.encode(entity, moveCardEntity));
+  function executeTyped(uint256[] calldata entities, uint256[] calldata moveCardEntities)
+    public
+    returns (bytes memory)
+  {
+    return execute(abi.encode(entities, moveCardEntities));
   }
 }

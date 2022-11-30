@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 // External
 
 // Components
-import { Coord, PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
+import { PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
 import { RangeComponent, ID as RangeComponentID } from "../../components/RangeComponent.sol";
@@ -12,23 +12,27 @@ import { FirepowerComponent, ID as FirepowerComponentID } from "../../components
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
-import { CombatSystem, ID as CombatSystemID, Side } from "../../systems/CombatSystem.sol";
 import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
-
+import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.sol";
 // Internal
 import "../../libraries/LibVector.sol";
 import "../../libraries/LibCombat.sol";
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
+import { Side, Coord, Action } from "../../libraries/DSTypes.sol";
 
-contract CombatSystemTest is MudTest {
+contract AttackActionTest is MudTest {
   uint256 entityId;
   PositionComponent positionComponent;
   RotationComponent rotationComponent;
-  CombatSystem combatSystem;
+  ActionSystem actionSystem;
   ShipSpawnSystem shipSpawnSystem;
 
-  function testCombatSystem() public prank(deployer) {
+  uint256[] shipEntities = new uint256[](0);
+  uint256[] moveEntities = new uint256[](0);
+  Action[] actions = new Action[](0);
+
+  function testAttackAction() public prank(deployer) {
     setup();
 
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
@@ -47,7 +51,8 @@ contract CombatSystemTest is MudTest {
     uint32 orig2Health = healthComponent.getValue(defender2Id);
     uint32 attackerHealth = healthComponent.getValue(attackerId);
 
-    combatSystem.executeTyped(attackerId, Side.Right);
+    actions.push(Action.FireRight);
+    actionSystem.executeTyped(attackerId, actions);
 
     uint32 newHealth = healthComponent.getValue(defenderId);
 
@@ -70,14 +75,18 @@ contract CombatSystemTest is MudTest {
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
 
-    moveSystem.executeTyped(attackerId, moveStraightEntityId);
+    shipEntities.push(attackerId);
+    moveEntities.push(moveStraightEntityId);
+    moveSystem.executeTyped(shipEntities, moveEntities);
 
     uint256 defenderId = shipSpawnSystem.executeTyped(startingPosition, 0, 10, 30);
 
     uint32 origHealth = healthComponent.getValue(defenderId);
     uint32 attackerHealth = healthComponent.getValue(attackerId);
 
-    combatSystem.executeTyped(attackerId, Side.Right);
+    delete actions;
+    actions.push(Action.FireRight);
+    actionSystem.executeTyped(attackerId, actions);
 
     uint32 newHealth = healthComponent.getValue(attackerId);
     assertEq(newHealth, attackerHealth);
@@ -97,7 +106,9 @@ contract CombatSystemTest is MudTest {
     uint32 origHealth = healthComponent.getValue(defenderId);
     uint32 attackerHealth = healthComponent.getValue(attackerId);
 
-    combatSystem.executeTyped(attackerId, Side.Right);
+    delete actions;
+    actions.push(Action.FireRight);
+    actionSystem.executeTyped(attackerId, actions);
 
     uint32 newHealth = healthComponent.getValue(defenderId);
 
@@ -112,7 +123,7 @@ contract CombatSystemTest is MudTest {
 
   function setup() internal {
     shipSpawnSystem = ShipSpawnSystem(system(ShipSpawnSystemID));
-    combatSystem = CombatSystem(system(CombatSystemID));
+    actionSystem = ActionSystem(system(ActionSystemID));
     entityId = addressToEntity(deployer);
     positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
     rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));

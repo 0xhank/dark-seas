@@ -8,7 +8,7 @@ import { IComponent } from "solecs/interfaces/IComponent.sol";
 import { ABDKMath64x64 as Math } from "./ABDKMath64x64.sol";
 
 import { console } from "forge-std/console.sol";
-import { Side } from "../systems/CombatSystem.sol";
+import { Side, Coord } from "../libraries/DSTypes.sol";
 
 import "std-contracts/components/Uint32Component.sol";
 import "std-contracts/components/BoolComponent.sol";
@@ -16,7 +16,7 @@ import "std-contracts/components/BoolComponent.sol";
 import { RangeComponent, ID as RangeComponentID } from "../components/RangeComponent.sol";
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
-import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
+import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { FirepowerComponent, ID as FirepowerComponentID } from "../components/FirepowerComponent.sol";
 import { LeakComponent, ID as LeakComponentID } from "../components/LeakComponent.sol";
@@ -144,7 +144,6 @@ library LibCombat {
     uint256 entity
   ) public returns (bool) {
     Uint32Component component = Uint32Component(getAddressById(components, componentID));
-    // yo mama
     uint32 value = component.getValue(entity);
 
     if (value <= damage) {

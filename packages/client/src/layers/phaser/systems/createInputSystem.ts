@@ -1,6 +1,6 @@
 import { GodID } from "@latticexyz/network";
-import { pixelCoordToTileCoord } from "@latticexyz/phaserx";
-import { EntityIndex, getEntitiesWithValue, setComponent } from "@latticexyz/recs";
+import { GameObjectClasses, pixelCoordToTileCoord } from "@latticexyz/phaserx";
+import { EntityIndex, getEntitiesWithValue, removeComponent, setComponent } from "@latticexyz/recs";
 import { NetworkLayer } from "../../network";
 import { PhaserLayer } from "../types";
 
@@ -14,6 +14,7 @@ export function createInputSystem(network: NetworkLayer, phaser: PhaserLayer) {
         maps: {
           Main: { tileWidth, tileHeight },
         },
+        objectPool,
       },
     },
   } = phaser;

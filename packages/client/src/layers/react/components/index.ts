@@ -10,6 +10,7 @@ import { registerYourShips } from "./YourShips";
 export function registerUIComponents() {
   registerLoadingState();
   // registerComponentBrowser();
+  registerShipSpawnButton();
   registerActionQueue();
   registerMoveSelection();
   registerTopBar();

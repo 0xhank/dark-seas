@@ -1,8 +1,10 @@
 import { GodID } from "@latticexyz/network";
 import { tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
 import {
+  defineExitSystem,
   defineSystem,
   EntityIndex,
+  getComponentValue,
   getComponentValueStrict,
   Has,
   removeComponent,
@@ -23,25 +25,28 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
     scenes: {
       Main: { objectPool, config },
     },
-    components: { SelectedShip },
+    components: { SelectedShip, SelectedMove },
     polygonRegistry,
     positions,
   } = phaser;
 
+  defineExitSystem(world, [Has(Position), Has(Rotation)], (update) => {
+    objectPool.remove(update.entity);
+  });
+
   defineSystem(world, [Has(Position), Has(Rotation), Has(Length)], (update) => {
     const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
-    if (update.type == UpdateType.Exit) {
-      return;
-    }
-
-    const rangeGroup = polygonRegistry.get("rangeGroup");
-    const activeGroup = polygonRegistry.get("activeGroup");
+    const rangeGroup = polygonRegistry.get(`rangeGroup-${update.entity}`);
+    const activeGroup = polygonRegistry.get(`activeGroup-${update.entity}`);
 
     if (rangeGroup) rangeGroup.clear(true, true);
     if (activeGroup) activeGroup.clear(true, true);
-    objectPool.remove("projection");
-    removeComponent(SelectedShip, GodEntityIndex);
+    objectPool.remove(`projection-${update.entity}`);
+    removeComponent(SelectedMove, update.entity);
+    if (update.entity == getComponentValue(SelectedShip, GodEntityIndex)?.value) {
+      removeComponent(SelectedShip, GodEntityIndex);
+    }
 
     const length = getComponentValueStrict(Length, update.entity).value;
     const rotation = getComponentValueStrict(Rotation, update.entity).value;
@@ -89,6 +94,7 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
         }
       },
       once: async (gameObject: Phaser.GameObjects.Sprite) => {
+        gameObject.setName(update.entity.toString());
         gameObject.setTexture(sprite.assetKey, sprite.frame);
 
         gameObject.setAngle((rotation - 90) % 360);

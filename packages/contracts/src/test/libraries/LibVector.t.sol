@@ -2,12 +2,10 @@
 pragma solidity >=0.8.0;
 
 // Components
-import { Coord } from "../../components/PositionComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
-import { Side } from "../../systems/CombatSystem.sol";
 import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
 
 // Internal
@@ -15,6 +13,7 @@ import "../../libraries/LibVector.sol";
 import "../../libraries/LibCombat.sol";
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
+import { Side, Coord } from "../../libraries/DSTypes.sol";
 
 contract LibVectorTest is MudTest {
   ShipSpawnSystem shipSpawnSystem;
