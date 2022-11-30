@@ -1,4 +1,4 @@
-import { namespaceWorld } from "@latticexyz/recs";
+import { defineComponent, namespaceWorld, Type } from "@latticexyz/recs";
 import { createPhaserEngine } from "@latticexyz/phaserx";
 import { phaserConfig } from "./config";
 import { NetworkLayer } from "../network";
@@ -24,7 +24,8 @@ export async function createPhaserLayer(network: NetworkLayer) {
   const components = {
     SelectedMove: defineNumberComponent(world, { id: "SelectedMove" }),
     SelectedShip: defineNumberComponent(world, { id: "SelectedShip" }),
-    ShowMoves: defineBoolComponent(world, { id: "ShowMoves" }),
+    Selection: defineNumberComponent(world, { id: "Selection" }),
+    SelectedActions: defineComponent(world, { value: Type.NumberArray }, { id: "Actions" }),
   };
 
   // --- PHASER ENGINE SETUP --------------------------------------------------------

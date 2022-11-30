@@ -10,10 +10,10 @@ import {
 } from "@latticexyz/recs";
 import { concat, map, merge, of } from "rxjs";
 import { GodID } from "@latticexyz/network";
-import { Arrows } from "../../phaser/constants";
+import { Arrows, SelectionType } from "../../phaser/constants";
 import { Container, Button, ConfirmButton, InternalContainer } from "../styles/global";
 import { getFinalMoveCard, getMoveDistanceWithWind, getMoveWithSails, getWindBoost } from "../../../utils/directions";
-import { MoveCard } from "../../../constants";
+import { Action, ActionImg, ActionNames, MoveCard } from "../../../constants";
 import styled from "styled-components";
 
 export function registerMoveSelection() {
@@ -36,7 +36,7 @@ export function registerMoveSelection() {
           api: { move },
         },
         phaser: {
-          components: { SelectedShip, SelectedMove, ShowMoves },
+          components: { SelectedShip, SelectedMove, Selection, SelectedActions },
         },
       } = layers;
 
@@ -48,7 +48,8 @@ export function registerMoveSelection() {
         Rotation.update$,
         SailPosition.update$,
         Position.update$,
-        ShowMoves.update$
+        Selection.update$,
+        SelectedActions.update$
       ).pipe(
         map(() => {
           return {
@@ -58,43 +59,41 @@ export function registerMoveSelection() {
             Rotation,
             SelectedShip,
             SailPosition,
-            ShowMoves,
+            Selection,
+            SelectedActions,
             Wind,
             world,
-            move,
           };
         })
       );
     },
     // render
-    ({ MoveCard, SelectedMove, SelectedShip, Rotation, SailPosition, ShowMoves, Position, Wind, world, move }) => {
+    ({ MoveCard, SelectedMove, SelectedShip, Rotation, SailPosition, Selection, SelectedActions, Wind, world }) => {
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
-      const showMoves = getComponentValue(ShowMoves, GodEntityIndex);
-      if (!showMoves) return null;
+      const selection = getComponentValue(Selection, GodEntityIndex)?.value;
+      const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
+
+      console.log("selection:", selection);
+      console.log("selectedship:", selectedShip);
+
+      if (selection == undefined || selection == SelectionType.None || !selectedShip) return null;
 
       const wind = getComponentValueStrict(Wind, GodEntityIndex);
-      const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
-      const selectedMove = getComponentValue(SelectedMove, selectedShip as EntityIndex);
 
-      if (!selectedShip) return null;
+      let content: JSX.Element = <></>;
 
-      const rotation = getComponentValueStrict(Rotation, selectedShip).value;
-      const sailPosition = getComponentValueStrict(SailPosition, selectedShip).value;
+      if (selection == SelectionType.Move) {
+        console.log("move selected");
+        const selectedMove = getComponentValue(SelectedMove, selectedShip as EntityIndex);
 
-      const moveEntities = [...getComponentEntities(MoveCard)];
+        const moveEntities = [...getComponentEntities(MoveCard)];
 
-      return (
-        <Container style={{ width: "auto", marginTop: "6px" }}>
-          <CloseButton
-            onClick={() => {
-              console.log("closing");
-              removeComponent(ShowMoves, GodEntityIndex);
-            }}
-          >
-            Close
-          </CloseButton>
-          <MoveButtons>
+        const rotation = getComponentValueStrict(Rotation, selectedShip).value;
+        const sailPosition = getComponentValueStrict(SailPosition, selectedShip).value;
+
+        content = (
+          <>
             {moveEntities
               .sort((a, b) => a - b)
               .map((entity) => {
@@ -147,7 +146,61 @@ export function registerMoveSelection() {
             >
               Clear
             </Button>
-          </MoveButtons>
+          </>
+        );
+      } else {
+        const selectedActions = getComponentValue(SelectedActions, selectedShip)?.value || [-1, -1, -1];
+
+        const selectedAction = selectedActions[selection];
+
+        console.log("actions:", Object.values(Action));
+        content = (
+          <>
+            {Object.keys(Action).map((a) => {
+              const action = Number(a);
+              if (isNaN(action)) {
+                console.log(`${a} is not a number`);
+                return null;
+              }
+              return (
+                <Button
+                  isSelected={selectedAction == action}
+                  key={`selectedAction-${action}`}
+                  onClick={() => {
+                    console.log("action: ", action);
+                    const newArray = selectedActions;
+                    selectedActions[selection] = action;
+                    setComponent(SelectedActions, selectedShip, { value: newArray });
+                  }}
+                >
+                  <img src={ActionImg[action]} style={{ height: "80%", objectFit: "scale-down" }} />
+                  <p>{ActionNames[action]}</p>
+                </Button>
+              );
+            })}
+            <Button
+              onClick={() => {
+                let newArray = selectedActions;
+                newArray[selection] = -1;
+                setComponent(SelectedActions, selectedShip, { value: newArray });
+              }}
+            >
+              Clear
+            </Button>
+          </>
+        );
+      }
+
+      return (
+        <Container style={{ width: "auto", marginTop: "6px" }}>
+          <CloseButton
+            onClick={() => {
+              removeComponent(Selection, GodEntityIndex);
+            }}
+          >
+            Close
+          </CloseButton>
+          <MoveButtons>{content}</MoveButtons>
         </Container>
       );
     }

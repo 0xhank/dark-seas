@@ -12,7 +12,7 @@ import {
 } from "@latticexyz/recs";
 import { map, merge } from "rxjs";
 import { GodID } from "@latticexyz/network";
-import { Arrows } from "../../phaser/constants";
+import { Arrows, SelectionType } from "../../phaser/constants";
 import { Container, Button, ConfirmButton, InternalContainer, colors } from "../styles/global";
 import { getFinalMoveCard } from "../../../utils/directions";
 import { MoveCard } from "../../../constants";
@@ -39,7 +39,7 @@ export function registerYourShips() {
           api: { move },
         },
         phaser: {
-          components: { SelectedShip, SelectedMove, ShowMoves },
+          components: { SelectedShip, SelectedMove, Selection },
           scenes: {
             Main: { camera },
           },
@@ -55,7 +55,7 @@ export function registerYourShips() {
         Rotation.update$,
         SailPosition.update$,
         Position.update$,
-        ShowMoves.update$
+        Selection.update$
       ).pipe(
         map(() => {
           return {
@@ -65,7 +65,7 @@ export function registerYourShips() {
             Rotation,
             SelectedShip,
             SailPosition,
-            ShowMoves,
+            Selection,
             Wind,
             Ship,
             world,
@@ -84,7 +84,7 @@ export function registerYourShips() {
         SelectedShip,
         Rotation,
         SailPosition,
-        ShowMoves,
+        Selection,
         camera,
         positions,
         Position,
@@ -123,7 +123,7 @@ export function registerYourShips() {
         camera.phaserCamera.pan(position.x * positions.posWidth, position.y * positions.posHeight, 200, "Linear");
         camera.phaserCamera.zoomTo(1, 200, "Linear");
         setComponent(SelectedShip, GodEntityIndex, { value: ship });
-        setComponent(ShowMoves, GodEntityIndex, { value: true });
+        setComponent(Selection, GodEntityIndex, { value: SelectionType.Move });
       };
 
       return (
@@ -143,7 +143,7 @@ export function registerYourShips() {
                       <SelectShip
                         onClick={() => {
                           selectShip(ship, position);
-                          setComponent(ShowMoves, GodEntityIndex, { value: true });
+                          setComponent(Selection, GodEntityIndex, { value: SelectionType.Move });
                         }}
                       >
                         Select Move
@@ -205,7 +205,12 @@ export function registerYourShips() {
                     <span style={{ flex: 1, fontSize: "20px" }}>HMS {ship}</span>
                     <img
                       src="/img/ds-ship.png"
-                      style={{ flex: 1, width: "50%", transform: `rotate(${rotation - 90}deg)` }}
+                      style={{
+                        flex: 1,
+                        width: "50%",
+                        objectFit: "scale-down",
+                        transform: `rotate(${rotation - 90}deg)`,
+                      }}
                     />
                     <SelectButton />
                   </Button>
