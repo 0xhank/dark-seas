@@ -13,7 +13,8 @@
     "LeakComponent",
     "CrewCountComponent",
     "DamagedSailComponent",
-    "FirepowerComponent"
+    "FirepowerComponent",
+    "GameConfigComponent"
   ],
   "systems": [
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },

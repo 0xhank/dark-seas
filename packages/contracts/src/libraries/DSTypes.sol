@@ -30,3 +30,10 @@ enum Side {
   Right,
   Left
 }
+
+struct GameConfig {
+  // Block timestamp when the game started
+  uint256 startTime;
+  // Number of seconds
+  uint256 turnLength;
+}
