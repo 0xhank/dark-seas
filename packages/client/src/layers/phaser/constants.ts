@@ -9,6 +9,14 @@ export enum Scenes {
   Main = "Main",
 }
 
+export enum SelectionType {
+  Move,
+  Action1,
+  Action2,
+  Action3,
+  None,
+}
+
 export enum Maps {
   Main = "Main",
   Pixel = "Pixel",

@@ -13,7 +13,7 @@ import { SystemTypes } from "../../../../contracts/types/SystemTypes";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { GameConfig, getNetworkConfig } from "./config";
 import { Coord } from "@latticexyz/utils";
-import { Side } from "../../constants";
+import { Action } from "../../constants";
 import { defineWindComponent } from "./components/WindComponent";
 import { defineMoveCardComponent } from "./components/MoveCardComponent";
 
@@ -78,6 +78,11 @@ export async function createNetworkLayer(config: GameConfig) {
     });
   }
 
+  function submitActions(ship: EntityID, actions: Action[]) {
+    console.log("submitting actions");
+    systems["ds.system.Action"].executeTyped(ship, actions);
+  }
+
   // --- CONTEXT --------------------------------------------------------------------
   const context = {
     world,
@@ -88,7 +93,7 @@ export async function createNetworkLayer(config: GameConfig) {
     startSync,
     network,
     actions,
-    api: { spawnShip, move },
+    api: { spawnShip, move, submitActions },
     dev: setupDevSystems(world, encoders as any, systems),
   };
 

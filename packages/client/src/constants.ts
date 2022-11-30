@@ -1,23 +1,42 @@
 import { Coord } from "@latticexyz/utils";
 
-export enum Direction {
-  Top,
-  Right,
-  Bottom,
-  Left,
+export enum Action {
+  FireRight,
+  FireLeft,
+  RaiseSail,
+  LowerSail,
+  ExtinguishFire,
+  RepairLeak,
+  RepairMast,
+  RepairSail,
 }
-
-export const Directions = {
-  [Direction.Top]: { x: 0, y: -1 },
-  [Direction.Right]: { x: 1, y: 0 },
-  [Direction.Bottom]: { x: 0, y: 1 },
-  [Direction.Left]: { x: -1, y: 0 },
-};
 
 export enum Side {
   Right,
   Left,
 }
+
+export const ActionNames: Record<number, string> = {
+  [Action.FireRight]: "Fire Right",
+  [Action.FireLeft]: "Fire Left",
+  [Action.RaiseSail]: "Raise Sail",
+  [Action.LowerSail]: "Lower Sail",
+  [Action.ExtinguishFire]: "Extinguish Fire",
+  [Action.RepairLeak]: "Repair Leak",
+  [Action.RepairMast]: "Repair Mast",
+  [Action.RepairSail]: "Repair Sail",
+};
+
+export const ActionImg: Record<number, string> = {
+  [Action.FireRight]: "",
+  [Action.FireLeft]: "",
+  [Action.RaiseSail]: "",
+  [Action.LowerSail]: "",
+  [Action.ExtinguishFire]: "",
+  [Action.RepairLeak]: "",
+  [Action.RepairMast]: "",
+  [Action.RepairSail]: "",
+};
 
 export type Line = {
   p1: Coord;
