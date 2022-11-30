@@ -52,11 +52,11 @@ contract AttackActionTest is MudTest {
     uint32 attackerHealth = healthComponent.getValue(attackerId);
 
     actions.push(Action.FireRight);
-    actionSystem.executeTyped(actions, attackerId);
+    actionSystem.executeTyped(attackerId, actions);
 
     uint32 newHealth = healthComponent.getValue(defenderId);
 
-    assertGe(newHealth, origHealth - 1);
+    assertLe(newHealth, origHealth - 1);
 
     newHealth = healthComponent.getValue(defender2Id);
     assertEq(newHealth, orig2Health);
@@ -86,7 +86,7 @@ contract AttackActionTest is MudTest {
 
     delete actions;
     actions.push(Action.FireRight);
-    actionSystem.executeTyped(actions, attackerId);
+    actionSystem.executeTyped(attackerId, actions);
 
     uint32 newHealth = healthComponent.getValue(attackerId);
     assertEq(newHealth, attackerHealth);
@@ -108,7 +108,7 @@ contract AttackActionTest is MudTest {
 
     delete actions;
     actions.push(Action.FireRight);
-    actionSystem.executeTyped(actions, attackerId);
+    actionSystem.executeTyped(attackerId, actions);
 
     uint32 newHealth = healthComponent.getValue(defenderId);
 

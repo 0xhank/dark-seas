@@ -169,7 +169,7 @@ contract MoveSystemTest is MudTest {
     uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 50);
 
     actions.push(Action.LowerSail);
-    actionSystem.executeTyped(actions, shipEntityId);
+    actionSystem.executeTyped(shipEntityId, actions);
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
 
@@ -194,7 +194,7 @@ contract MoveSystemTest is MudTest {
     delete actions;
     actions.push(Action.LowerSail);
     actions.push(Action.LowerSail);
-    actionSystem.executeTyped(actions, shipEntityId);
+    actionSystem.executeTyped(shipEntityId, actions);
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
 

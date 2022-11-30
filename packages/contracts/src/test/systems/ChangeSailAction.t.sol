@@ -31,7 +31,7 @@ contract ChangeSailActionTest is MudTest {
     uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 50);
 
     actions.push(Action.LowerSail);
-    actionSystem.executeTyped(actions, shipEntityId);
+    actionSystem.executeTyped(shipEntityId, actions);
 
     uint32 newSailPosition = sailPositionComponent.getValue(shipEntityId);
 
@@ -48,7 +48,7 @@ contract ChangeSailActionTest is MudTest {
     actions.push(Action.RaiseSail);
 
     vm.expectRevert(abi.encodePacked("RaiseSail: invalid sail position"));
-    actionSystem.executeTyped(actions, shipEntityId);
+    actionSystem.executeTyped(shipEntityId, actions);
 
     delete actions;
     actions.push(Action.LowerSail);
@@ -57,7 +57,7 @@ contract ChangeSailActionTest is MudTest {
     actions.push(Action.LowerSail);
 
     vm.expectRevert(abi.encodePacked("LowerSail: invalid sail position"));
-    actionSystem.executeTyped(actions, shipEntityId);
+    actionSystem.executeTyped(shipEntityId, actions);
   }
 
   /**

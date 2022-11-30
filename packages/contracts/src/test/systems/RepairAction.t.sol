@@ -39,7 +39,7 @@ contract RepairActionTest is MudTest {
     assertTrue(onFireComponent.has(entityID));
     actions.push(Action.ExtinguishFire);
 
-    actionSystem.executeTyped(actions, entityID);
+    actionSystem.executeTyped(entityID, actions);
   }
 
   function testRepairLeak() public prank(deployer) {
@@ -55,7 +55,7 @@ contract RepairActionTest is MudTest {
     delete actions;
     actions.push(Action.RepairLeak);
 
-    actionSystem.executeTyped(actions, entityID);
+    actionSystem.executeTyped(entityID, actions);
     assertFalse(leakComponent.has(entityID));
   }
 
@@ -73,7 +73,7 @@ contract RepairActionTest is MudTest {
 
     delete actions;
     actions.push(Action.RepairMast);
-    actionSystem.executeTyped(actions, entityID);
+    actionSystem.executeTyped(entityID, actions);
     assertEq(sailPositionComponent.getValue(entityID), 1);
   }
 
@@ -89,7 +89,7 @@ contract RepairActionTest is MudTest {
 
     delete actions;
     actions.push(Action.RepairSail);
-    actionSystem.executeTyped(actions, entityID);
+    actionSystem.executeTyped(entityID, actions);
     assertFalse(damagedSailComponent.has(entityID));
   }
 

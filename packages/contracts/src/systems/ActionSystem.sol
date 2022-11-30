@@ -24,7 +24,7 @@ contract ActionSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
-    (Action[] memory actions, uint256 shipEntity) = abi.decode(arguments, (Action[], uint256));
+    (uint256 shipEntity, Action[] memory actions) = abi.decode(arguments, (uint256, Action[]));
 
     require(
       ShipComponent(getAddressById(components, ShipComponentID)).has(shipEntity),
@@ -55,7 +55,7 @@ contract ActionSystem is System {
     }
   }
 
-  function executeTyped(Action[] calldata actions, uint256 shipEntity) public returns (bytes memory) {
-    return execute(abi.encode(actions, shipEntity));
+  function executeTyped(uint256 shipEntity, Action[] calldata actions) public returns (bytes memory) {
+    return execute(abi.encode(shipEntity, actions));
   }
 }
