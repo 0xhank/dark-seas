@@ -36,7 +36,7 @@
         "LastActionComponent"
       ]
     },
-    { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent"] },
+    { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent", "LastMoveComponent"] },
     {
       "name": "ActionSystem",
       "writeAccess": [
@@ -45,7 +45,8 @@
         "OnFireComponent",
         "DamagedSailComponent",
         "CrewCountComponent",
-        "SailPositionComponent"
+        "SailPositionComponent",
+        "LastActionComponent"
       ]
     },
     { "name": "ComponentDevSystem", "writeAccess": ["*"] }

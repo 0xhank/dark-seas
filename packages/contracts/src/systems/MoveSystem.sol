@@ -6,7 +6,7 @@ import { console } from "forge-std/console.sol";
 // External
 import "solecs/System.sol";
 import { IWorld } from "solecs/interfaces/IWorld.sol";
-import { getAddressById, getSystemAddressById } from "solecs/utils.sol";
+import { getAddressById, getSystemAddressById, addressToEntity } from "solecs/utils.sol";
 
 // Components
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
@@ -15,10 +15,12 @@ import { MoveCardComponent, ID as MoveCardComponentID } from "../components/Move
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
 import { WindComponent, ID as WindComponentID } from "../components/WindComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
+import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
 
-import { Wind, GodID, MoveCard } from "../libraries/DSTypes.sol";
+import { Wind, GodID, MoveCard, Phase } from "../libraries/DSTypes.sol";
 import "../libraries/LibVector.sol";
 import "../libraries/LibMove.sol";
+import "../libraries/LibTurn.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Move"));
 
@@ -30,10 +32,20 @@ contract MoveSystem is System {
 
     require(entities.length == moveCardEntities.length, "MoveSystem: array length mismatch");
 
+    LastMoveComponent lastMoveComponent = LastMoveComponent(getAddressById(components, LastMoveComponentID));
+    require(LibTurn.getCurrentPhase(components) == Phase.Move, "MoveSystem: incorrect turn phase");
+
+    uint32 currentTurn = LibTurn.getCurrentTurn(components);
+    uint256 addressEntity = addressToEntity(msg.sender);
+    require(
+      lastMoveComponent.getValue(addressToEntity(msg.sender)) < currentTurn,
+      "MoveSystem: already moved this turn"
+    );
+    lastMoveComponent.set(addressEntity, currentTurn);
+
     MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
     PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
     RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
-    ShipComponent shipComponent = ShipComponent(getAddressById(components, ShipComponentID));
     SailPositionComponent sailPositionComponent = SailPositionComponent(
       getAddressById(components, SailPositionComponentID)
     );
@@ -47,7 +59,10 @@ contract MoveSystem is System {
       console.log("expected:", uint256(keccak256("ds.prototype.moveEntity1")));
 
       require(moveCardComponent.has(moveCardEntity), "MoveSystem: invalid move card entity id");
-      require(shipComponent.has(entity), "MoveSystem: invalid ship entity id");
+      require(
+        ShipComponent(getAddressById(components, ShipComponentID)).has(entity),
+        "MoveSystem: invalid ship entity id"
+      );
 
       MoveCard memory moveCard = moveCardComponent.getValue(moveCardEntity);
 

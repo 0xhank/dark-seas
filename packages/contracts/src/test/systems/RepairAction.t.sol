@@ -14,7 +14,8 @@ import { OnFireComponent, ID as OnFireComponentID } from "../../components/OnFir
 import { LeakComponent, ID as LeakComponentID } from "../../components/LeakComponent.sol";
 import { DamagedSailComponent, ID as DamagedSailComponentID } from "../../components/DamagedSailComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../../components/SailPositionComponent.sol";
-import { Action, Coord } from "../../libraries/DSTypes.sol";
+import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
+import { Action, Coord, GameConfig, GodID } from "../../libraries/DSTypes.sol";
 
 // Internal
 import "../MudTest.t.sol";
@@ -22,6 +23,7 @@ import { addressToEntity } from "solecs/utils.sol";
 
 contract RepairActionTest is MudTest {
   SailPositionComponent sailPositionComponent;
+  GameConfig gameConfig;
   ActionSystem actionSystem;
   ShipSpawnSystem shipSpawnSystem;
   ComponentDevSystem componentDevSystem;
@@ -39,7 +41,11 @@ contract RepairActionTest is MudTest {
     assertTrue(onFireComponent.has(entityID));
     actions.push(Action.ExtinguishFire);
 
+    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
+    vm.warp(newTurn);
+
     actionSystem.executeTyped(entityID, actions);
+    assertFalse(onFireComponent.has(entityID));
   }
 
   function testRepairLeak() public prank(deployer) {
@@ -54,6 +60,9 @@ contract RepairActionTest is MudTest {
 
     delete actions;
     actions.push(Action.RepairLeak);
+
+    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
+    vm.warp(newTurn);
 
     actionSystem.executeTyped(entityID, actions);
     assertFalse(leakComponent.has(entityID));
@@ -73,6 +82,10 @@ contract RepairActionTest is MudTest {
 
     delete actions;
     actions.push(Action.RepairMast);
+
+    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
+    vm.warp(newTurn);
+
     actionSystem.executeTyped(entityID, actions);
     assertEq(sailPositionComponent.getValue(entityID), 1);
   }
@@ -89,6 +102,10 @@ contract RepairActionTest is MudTest {
 
     delete actions;
     actions.push(Action.RepairSail);
+
+    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
+    vm.warp(newTurn);
+
     actionSystem.executeTyped(entityID, actions);
     assertFalse(damagedSailComponent.has(entityID));
   }
@@ -101,6 +118,8 @@ contract RepairActionTest is MudTest {
     actionSystem = ActionSystem(system(ActionSystemID));
     shipSpawnSystem = ShipSpawnSystem(system(ShipSpawnSystemID));
     componentDevSystem = ComponentDevSystem(system(ComponentDevSystemID));
+
+    gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID);
 
     sailPositionComponent = SailPositionComponent(getAddressById(components, SailPositionComponentID));
   }

@@ -9,6 +9,7 @@ import { RotationComponent, ID as RotationComponentID } from "../../components/R
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
 import { RangeComponent, ID as RangeComponentID } from "../../components/RangeComponent.sol";
 import { FirepowerComponent, ID as FirepowerComponentID } from "../../components/FirepowerComponent.sol";
+import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
@@ -19,14 +20,17 @@ import "../../libraries/LibVector.sol";
 import "../../libraries/LibCombat.sol";
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
-import { Side, Coord, Action } from "../../libraries/DSTypes.sol";
+import { Side, Coord, Action, GameConfig, GodID } from "../../libraries/DSTypes.sol";
 
 contract AttackActionTest is MudTest {
   uint256 entityId;
   PositionComponent positionComponent;
   RotationComponent rotationComponent;
+  GameConfig gameConfig;
   ActionSystem actionSystem;
   ShipSpawnSystem shipSpawnSystem;
+
+  uint256 blocktimestamp = 1;
 
   uint256[] shipEntities = new uint256[](0);
   uint256[] moveEntities = new uint256[](0);
@@ -50,6 +54,9 @@ contract AttackActionTest is MudTest {
     uint32 origHealth = healthComponent.getValue(defenderId);
     uint32 orig2Health = healthComponent.getValue(defender2Id);
     uint32 attackerHealth = healthComponent.getValue(attackerId);
+
+    blocktimestamp = blocktimestamp + gameConfig.movePhaseLength * 10;
+    vm.warp(blocktimestamp);
 
     actions.push(Action.FireRight);
     actionSystem.executeTyped(attackerId, actions);
@@ -77,12 +84,24 @@ contract AttackActionTest is MudTest {
 
     shipEntities.push(attackerId);
     moveEntities.push(moveStraightEntityId);
+
+    console.log("start time: ", gameConfig.startTime);
+    console.log("timestamp: ", block.timestamp);
+
+    uint256 warp = 2 + (10 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength));
+    console.log("warp:", warp);
+    vm.warp(warp);
+
     moveSystem.executeTyped(shipEntities, moveEntities);
 
     uint256 defenderId = shipSpawnSystem.executeTyped(startingPosition, 0, 10, 30);
 
     uint32 origHealth = healthComponent.getValue(defenderId);
     uint32 attackerHealth = healthComponent.getValue(attackerId);
+
+    warp = gameConfig.movePhaseLength + 1 + (15 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength));
+    console.log(warp);
+    vm.warp(gameConfig.movePhaseLength + 1 + (15 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength)));
 
     delete actions;
     actions.push(Action.FireRight);
@@ -106,6 +125,9 @@ contract AttackActionTest is MudTest {
     uint32 origHealth = healthComponent.getValue(defenderId);
     uint32 attackerHealth = healthComponent.getValue(attackerId);
 
+    blocktimestamp = blocktimestamp + gameConfig.movePhaseLength * 10;
+    vm.warp(blocktimestamp);
+
     delete actions;
     actions.push(Action.FireRight);
     actionSystem.executeTyped(attackerId, actions);
@@ -125,6 +147,9 @@ contract AttackActionTest is MudTest {
     shipSpawnSystem = ShipSpawnSystem(system(ShipSpawnSystemID));
     actionSystem = ActionSystem(system(ActionSystemID));
     entityId = addressToEntity(deployer);
+
+    gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID);
+
     positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
     rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
   }
