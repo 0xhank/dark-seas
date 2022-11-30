@@ -1,10 +1,6 @@
-import { EntityID } from "@latticexyz/recs";
 import styled from "styled-components";
 import { colors, Container } from "../../styles/global";
 
-import Backup from "../../../../public/icons/backup.svg";
-import Gunshot from "../../../../public/icons/gunshot.svg";
-import Sail from "../../../../public/icons/sail.svg";
 import { ShipAttributeTypes } from "../../../phaser/constants";
 
 export default function ShipAttribute({
@@ -15,7 +11,11 @@ export default function ShipAttribute({
   attribute: number | string;
 }) {
   const source =
-    attributeType == ShipAttributeTypes.Crew ? Backup : attributeType == ShipAttributeTypes.Sails ? Sail : Gunshot;
+    attributeType == ShipAttributeTypes.Crew
+      ? "/icons/backup.svg"
+      : attributeType == ShipAttributeTypes.Sails
+      ? "/icons/sail.svg"
+      : "/icons/gunshot.svg";
   const attributeString = attribute.toString();
   return (
     <AttributeContainer>

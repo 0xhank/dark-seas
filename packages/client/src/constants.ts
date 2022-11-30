@@ -28,14 +28,14 @@ export const ActionNames: Record<number, string> = {
 };
 
 export const ActionImg: Record<number, string> = {
-  [Action.FireRight]: "",
-  [Action.FireLeft]: "",
-  [Action.RaiseSail]: "",
-  [Action.LowerSail]: "",
-  [Action.ExtinguishFire]: "",
-  [Action.RepairLeak]: "",
-  [Action.RepairMast]: "",
-  [Action.RepairSail]: "",
+  [Action.FireRight]: "/icons/fire-right.svg",
+  [Action.FireLeft]: "/icons/fire-left.svg",
+  [Action.RaiseSail]: "/icons/sail.svg",
+  [Action.LowerSail]: "/icons/anchor.svg",
+  [Action.ExtinguishFire]: "/icons/extinguish.svg",
+  [Action.RepairLeak]: "/icons/planks.svg",
+  [Action.RepairMast]: "/icons/broken-mast.svg",
+  [Action.RepairSail]: "/icons/broken-sails.svg",
 };
 
 export type Line = {
