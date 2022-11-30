@@ -47,7 +47,7 @@ library LibAction {
 
     uint32 currentSailPosition = sailPositionComponent.getValue(entity);
 
-    require(currentSailPosition > 0 && currentSailPosition < 3, "RaiseSail: invalid sail position");
+    if (!(currentSailPosition > 0 && currentSailPosition < 3)) return;
 
     sailPositionComponent.set(entity, currentSailPosition + 1);
   }
@@ -59,7 +59,7 @@ library LibAction {
 
     uint32 currentSailPosition = sailPositionComponent.getValue(entity);
 
-    require(currentSailPosition > 1 && currentSailPosition <= 4, "LowerSail: invalid sail position");
+    if (!(currentSailPosition > 1 && currentSailPosition <= 4)) return;
 
     sailPositionComponent.set(entity, currentSailPosition - 1);
   }
@@ -67,7 +67,7 @@ library LibAction {
   function extinguishFire(IUint256Component components, uint256 entity) public {
     OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
 
-    require(onFireComponent.has(entity), "ExtinguishFire: entity is not on fire");
+    if (!onFireComponent.has(entity)) return;
 
     onFireComponent.remove(entity);
   }
@@ -75,7 +75,7 @@ library LibAction {
   function repairLeak(IUint256Component components, uint256 entity) public {
     LeakComponent leakComponent = LeakComponent(getAddressById(components, LeakComponentID));
 
-    require(leakComponent.has(entity), "RepairLeakSystem: entity does not have a leak");
+    if (!leakComponent.has(entity)) return;
 
     leakComponent.remove(entity);
   }
@@ -85,8 +85,8 @@ library LibAction {
       getAddressById(components, SailPositionComponentID)
     );
 
-    require(sailPositionComponent.has(entity), "RepairMastSystem: entity sails are not broken");
-    require(sailPositionComponent.getValue(entity) == 0, "RepairMastSystem: entity sails are not broken");
+    if (!sailPositionComponent.has(entity)) return;
+    if (sailPositionComponent.getValue(entity) != 0) return;
 
     sailPositionComponent.set(entity, 1);
   }
@@ -96,7 +96,7 @@ library LibAction {
       getAddressById(components, DamagedSailComponentID)
     );
 
-    require(damagedSailComponent.has(entity), "RepairSailsSystem: entity's sails are not damaged");
+    if (!damagedSailComponent.has(entity)) return;
 
     damagedSailComponent.remove(entity);
   }

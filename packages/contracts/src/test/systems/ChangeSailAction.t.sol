@@ -38,7 +38,7 @@ contract ChangeSailActionTest is MudTest {
     assertEq(newSailPosition, 2);
   }
 
-  function testReversions() public prank(deployer) {
+  function testNoEffect() public prank(deployer) {
     setup();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
@@ -46,9 +46,11 @@ contract ChangeSailActionTest is MudTest {
 
     delete actions;
     actions.push(Action.RaiseSail);
-
-    vm.expectRevert(abi.encodePacked("RaiseSail: invalid sail position"));
     actionSystem.executeTyped(shipEntityId, actions);
+
+    uint32 newSailPosition = sailPositionComponent.getValue(shipEntityId);
+
+    assertEq(newSailPosition, 3);
 
     delete actions;
     actions.push(Action.LowerSail);
@@ -56,8 +58,10 @@ contract ChangeSailActionTest is MudTest {
     actions.push(Action.LowerSail);
     actions.push(Action.LowerSail);
 
-    vm.expectRevert(abi.encodePacked("LowerSail: invalid sail position"));
     actionSystem.executeTyped(shipEntityId, actions);
+
+    newSailPosition = sailPositionComponent.getValue(shipEntityId);
+    assertEq(newSailPosition, 1);
   }
 
   /**
