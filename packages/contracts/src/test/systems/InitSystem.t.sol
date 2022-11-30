@@ -48,6 +48,7 @@ contract InitSystemTest is MudTest {
     assertEq(wind.speed, 10, "wind speed failed");
     assertEq(wind.direction, 90, "wind direction failed");
     assertEq(gameConfig.startTime, block.timestamp);
-    assertEq(gameConfig.turnLength, 60);
+    assertEq(gameConfig.movePhaseLength, 45);
+    assertEq(gameConfig.actionPhaseLength, 75);
   }
 }

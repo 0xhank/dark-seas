@@ -20,7 +20,10 @@ contract InitSystem is System {
     WindComponent windComponent = WindComponent(getAddressById(components, WindComponentID));
     GameConfigComponent gameConfigComponent = GameConfigComponent(getAddressById(components, GameConfigComponentID));
 
-    gameConfigComponent.set(GodID, GameConfig({ startTime: block.timestamp, turnLength: uint256(60) }));
+    gameConfigComponent.set(
+      GodID,
+      GameConfig({ startTime: block.timestamp, movePhaseLength: uint256(45), actionPhaseLength: uint256(75) })
+    );
 
     // Initialize Prototypes
     uint256 moveEntity1 = uint256(keccak256("ds.prototype.moveEntity1"));

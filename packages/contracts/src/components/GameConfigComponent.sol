@@ -11,14 +11,17 @@ contract GameConfigComponent is Component {
   constructor(address world) Component(world, ID) {}
 
   function getSchema() public pure override returns (string[] memory keys, LibTypes.SchemaValue[] memory values) {
-    keys = new string[](2);
-    values = new LibTypes.SchemaValue[](2);
+    keys = new string[](3);
+    values = new LibTypes.SchemaValue[](3);
 
     keys[0] = "startTime";
     values[0] = LibTypes.SchemaValue.UINT256;
 
-    keys[1] = "turnLength";
+    keys[1] = "movePhaseLength";
     values[1] = LibTypes.SchemaValue.UINT256;
+
+    keys[2] = "actionPhaseLength";
+    values[2] = LibTypes.SchemaValue.UINT256;
   }
 
   function set(uint256 entity, GameConfig calldata config) public {
@@ -26,8 +29,11 @@ contract GameConfigComponent is Component {
   }
 
   function getValue(uint256 entity) public view returns (GameConfig memory) {
-    (uint256 startTime, uint256 turnLength) = abi.decode(getRawValue(entity), (uint256, uint256));
-    return GameConfig(startTime, turnLength);
+    (uint256 startTime, uint256 movePhaseLength, uint256 actionPhaseLength) = abi.decode(
+      getRawValue(entity),
+      (uint256, uint256, uint256)
+    );
+    return GameConfig(startTime, movePhaseLength, actionPhaseLength);
   }
 
   function getEntitiesWithValue(GameConfig calldata config) public view returns (uint256[] memory) {
@@ -35,6 +41,6 @@ contract GameConfigComponent is Component {
   }
 
   function encodedValue(GameConfig calldata config) private pure returns (bytes memory) {
-    return abi.encode(config.startTime, config.turnLength);
+    return abi.encode(config.startTime, config.movePhaseLength, config.actionPhaseLength);
   }
 }
