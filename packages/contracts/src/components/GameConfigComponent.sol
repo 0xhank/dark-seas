@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 import "solecs/Component.sol";
 
 uint256 constant GodID = uint256(0x060D);
-uint256 constant ID = uint256(keccak256("mudwar.component.GameConfig"));
+uint256 constant ID = uint256(keccak256("ds.component.GameConfig"));
 
 import { GameConfig } from "../libraries/DSTypes.sol";
 

@@ -16,8 +16,11 @@ import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponen
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 import { FirepowerComponent, ID as FirepowerComponentID } from "../components/FirepowerComponent.sol";
+import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
+import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.ShipSpawn"));
+import "../libraries/LibAction.sol";
 
 contract ShipSpawnSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
@@ -39,6 +42,8 @@ contract ShipSpawnSystem is System {
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(entity, 3);
     CrewCountComponent(getAddressById(components, CrewCountComponentID)).set(entity, 8);
     FirepowerComponent(getAddressById(components, FirepowerComponentID)).set(entity, 50);
+    LastActionComponent(getAddressById(components, LastActionComponentID)).set(entity, 0);
+    LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(entity, 0);
 
     return abi.encode(entity);
   }

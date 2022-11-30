@@ -14,7 +14,9 @@
     "CrewCountComponent",
     "DamagedSailComponent",
     "FirepowerComponent",
-    "GameConfigComponent"
+    "GameConfigComponent",
+    "LastMoveComponent",
+    "LastActionComponent"
   ],
   "systems": [
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
@@ -29,7 +31,9 @@
         "ShipComponent",
         "SailPositionComponent",
         "CrewCountComponent",
-        "FirepowerComponent"
+        "FirepowerComponent",
+        "LastMoveComponent",
+        "LastActionComponent"
       ]
     },
     { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent"] },
