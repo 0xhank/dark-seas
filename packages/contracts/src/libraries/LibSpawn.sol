@@ -8,10 +8,10 @@ import { IWorld } from "solecs/interfaces/IWorld.sol";
 import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 import { getAddressById, addressToEntity } from "solecs/utils.sol";
 
-import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { PlayerComponent, ID as PlayerComponentID } from "../components/PlayerComponent.sol";
 import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
+
 import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
@@ -41,14 +41,14 @@ library LibSpawn {
     IUint256Component components,
     uint256 playerEntity
   ) public {
-    int32 x = 0;
+    int32 x = -10;
     int32 y = 0;
     uint32 rotation = 0;
     for (uint256 i = 0; i < 3; i++) {
-      x += 10;
-      rotation += 10;
       uint256 entity = world.getUniqueEntityId();
       spawnShip(components, entity, playerEntity, Coord(x, y), rotation);
+      x += 10;
+      rotation += 10;
     }
 
     LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 0);
