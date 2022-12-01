@@ -21,7 +21,7 @@ contract PlayerSpawnSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
-    require(!LibSpawn.playerExists(components, msg.sender), "PlayerSpawnSystem: player has already spawned");
+    require(!LibSpawn.playerAddrExists(components, msg.sender), "PlayerSpawnSystem: player has already spawned");
 
     string memory name = abi.decode(arguments, (string));
     require(bytes(name).length > 0, "PlayerSpawnSystem: name is blank");

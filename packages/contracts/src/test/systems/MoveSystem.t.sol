@@ -70,6 +70,35 @@ contract MoveSystemTest is MudTest {
     assertEq(playerRotation, 0);
   }
 
+  function testRevertNotPlayer() public {
+    setup();
+
+    vm.expectRevert(bytes("MoveSystem: player does not exist"));
+    moveSystem.executeTyped(shipEntities, moveEntities);
+  }
+
+  function testRevertNotOwner() public {
+    setup();
+
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(Coord(0, 0), 0);
+    uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
+
+    shipEntities.push(shipEntityId);
+    moveEntities.push(moveStraightEntityId);
+
+    uint256 newTurn = 2 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength) + 2;
+
+    vm.warp(newTurn);
+
+    vm.prank(deployer);
+    shipSpawnSystem.executeTyped(Coord(0, 0), 0);
+
+    vm.prank(deployer);
+
+    vm.expectRevert(bytes("MoveSystem: you don't own this ship"));
+    moveSystem.executeTyped(shipEntities, moveEntities);
+  }
+
   function testMoveHardRight() public prank(deployer) {
     setup();
 

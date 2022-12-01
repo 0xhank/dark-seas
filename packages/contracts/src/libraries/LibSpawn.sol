@@ -55,7 +55,12 @@ library LibSpawn {
     LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 0);
   }
 
-  function playerExists(IUint256Component components, address playerAddress) internal view returns (bool) {
+  function playerIdExists(IUint256Component components, uint256 playerEntityId) internal view returns (bool) {
+    PlayerComponent playerComponent = PlayerComponent(getAddressById(components, PlayerComponentID));
+    return playerComponent.has(playerEntityId);
+  }
+
+  function playerAddrExists(IUint256Component components, address playerAddress) internal view returns (bool) {
     PlayerComponent playerComponent = PlayerComponent(getAddressById(components, PlayerComponentID));
     return playerComponent.has(addressToEntity(playerAddress));
   }

@@ -37,7 +37,8 @@
         "FirepowerComponent",
         "LastMoveComponent",
         "LastActionComponent",
-        "OwnedByComponent"
+        "OwnedByComponent",
+        "PlayerComponent"
       ]
     },
     { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent", "LastMoveComponent"] },

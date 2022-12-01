@@ -9,6 +9,7 @@ import { getAddressById, getSystemAddressById, addressToEntity } from "solecs/ut
 // Components
 import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
+import { PlayerComponent, ID as PlayerComponentID } from "../components/PlayerComponent.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.ShipSpawn"));
 import "../libraries/LibTurn.sol";
@@ -22,6 +23,8 @@ contract ShipSpawnSystem is System {
 
     uint256 entity = world.getUniqueEntityId();
     uint256 playerEntity = addressToEntity(msg.sender);
+
+    if (!LibSpawn.playerIdExists(components, entity)) LibSpawn.createPlayerEntity(components, msg.sender);
     LibSpawn.spawnShip(components, entity, playerEntity, location, rotation);
     uint32 turn = LibTurn.getCurrentTurn(components);
 
