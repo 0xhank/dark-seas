@@ -275,7 +275,7 @@ const SelectShip = styled.div<{ isSelected?: boolean }>`
   color: ${colors.darkBrown};
 
   :hover {
-    background: ${({ isSelected }) => `${isSelected ? colors.gold : "hsla(0, 0%, 100%, 0.75)"}`};
+    background: ${({ isSelected }) => `${isSelected ? colors.gold : colors.glass}`};
   }
 
   :disabled {
@@ -290,6 +290,6 @@ const SelectShip = styled.div<{ isSelected?: boolean }>`
 
   padding: 3;
   line-height: 30px;
-  background: hsla(0, 0%, 100%, 0.5);
+  background: ${colors.glass};
   width: 95%;
 `;
