@@ -18,10 +18,10 @@ contract GameConfigComponent is Component {
     values[0] = LibTypes.SchemaValue.UINT256;
 
     keys[1] = "movePhaseLength";
-    values[1] = LibTypes.SchemaValue.UINT256;
+    values[1] = LibTypes.SchemaValue.UINT32;
 
     keys[2] = "actionPhaseLength";
-    values[2] = LibTypes.SchemaValue.UINT256;
+    values[2] = LibTypes.SchemaValue.UINT32;
   }
 
   function set(uint256 entity, GameConfig calldata config) public {
@@ -29,9 +29,9 @@ contract GameConfigComponent is Component {
   }
 
   function getValue(uint256 entity) public view returns (GameConfig memory) {
-    (uint256 startTime, uint256 movePhaseLength, uint256 actionPhaseLength) = abi.decode(
+    (uint256 startTime, uint32 movePhaseLength, uint32 actionPhaseLength) = abi.decode(
       getRawValue(entity),
-      (uint256, uint256, uint256)
+      (uint256, uint32, uint32)
     );
     return GameConfig(startTime, movePhaseLength, actionPhaseLength);
   }
