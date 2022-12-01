@@ -98,3 +98,32 @@ export const InternalContainer = styled.div`
   justify-content: space-between;
   color: ${darkBrown};
 `;
+
+export const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
+export const Input = styled.input`
+  border-radius: 6px;
+  padding: 7px;
+  font-size: 1.5em;
+  background: ${thickGlass};
+  border: 1px solid ${gold};
+  color: ${darkBrown};
+
+  &:focus {
+    outline: none;
+  }
+  ::selection {
+    color: white;
+    background: #d07e1a;
+  }
+  ::placeholder {
+    color: ${darkGray};
+  }
+`;
