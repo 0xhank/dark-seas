@@ -45,14 +45,14 @@ library LibCombat {
   }
 
   // 50 * e^(-.03 * distance) * (firepower / 100), multiplied by 100 for precision
-  function getBaseHitChance(uint256 distance, uint256 firepower) public returns (uint256 ret) {
+  function getBaseHitChance(uint256 distance, uint256 firepower) public pure returns (uint256 ret) {
     int128 _scaleInv = Math.exp(Math.divu(distance * 3, 100));
     int128 firepowerDebuff = Math.divu(firepower, 100);
     int128 beforeDebuff = Math.div(Math.fromUInt(5000), _scaleInv);
     ret = Math.toUInt(Math.mul(beforeDebuff, firepowerDebuff));
   }
 
-  function getHullDamage(uint256 baseHitChance, uint256 randomSeed) public view returns (uint32) {
+  function getHullDamage(uint256 baseHitChance, uint256 randomSeed) public pure returns (uint32) {
     // use first 14 bits for hull damage (log_2(10000) = ~13.2)
     uint256 odds = getByteUInt(randomSeed, 14, 0) % 10000;
     if (odds <= baseHitChance) return 3;
@@ -61,7 +61,7 @@ library LibCombat {
     return 0;
   }
 
-  function getCrewDamage(uint256 baseHitChance, uint256 randomSeed) public view returns (uint32) {
+  function getCrewDamage(uint256 baseHitChance, uint256 randomSeed) public pure returns (uint32) {
     // use second 14 bits for hull damage (log_2(10000) = ~13.2)
     uint256 odds = getByteUInt(randomSeed, 14, 14) % 10000;
 
@@ -75,7 +75,7 @@ library LibCombat {
     uint256 baseHitChance,
     uint256 randomSeed,
     uint256 shift
-  ) public view returns (bool) {
+  ) public pure returns (bool) {
     // pre-shifted to account for hull and crew damage
     uint256 odds = getByteUInt(randomSeed, 14, (shift + 2) * 14) % 10000;
     uint256 outcome = ((baseHitChance**2) * 5) / 10000;
@@ -86,7 +86,7 @@ library LibCombat {
     IUint256Component components,
     uint256 entity,
     Side side
-  ) public returns (Coord[4] memory) {
+  ) public view returns (Coord[4] memory) {
     uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(entity);
     Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(entity);
     uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(entity);

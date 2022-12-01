@@ -183,10 +183,6 @@ contract MoveSystemTest is MudTest {
     uint32 startingRotation = 0;
     uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 50);
 
-    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
-      GodID
-    );
-
     vm.warp(gameConfig.movePhaseLength + 1);
     actions.push(Action.LowerSail);
 
@@ -216,10 +212,6 @@ contract MoveSystemTest is MudTest {
 
   function testMoveWithClosedSails() public prank(deployer) {
     setup();
-
-    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
-      GodID
-    );
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 0;

@@ -123,7 +123,6 @@ contract AttackActionTest is MudTest {
     uint256 defenderId = shipSpawnSystem.executeTyped(Coord({ x: 25, y: 25 }), 0, 50, 50);
 
     uint32 origHealth = healthComponent.getValue(defenderId);
-    uint32 attackerHealth = healthComponent.getValue(attackerId);
 
     blocktimestamp = blocktimestamp + gameConfig.movePhaseLength * 10;
     vm.warp(blocktimestamp);
@@ -158,7 +157,7 @@ contract AttackActionTest is MudTest {
     uint256 attackerId,
     uint256 defenderId,
     Side side
-  ) public returns (uint32) {
+  ) public view returns (uint32) {
     uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(attackerId);
     Coord memory attackerPosition = positionComponent.getValue(attackerId);
     (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, defenderId);

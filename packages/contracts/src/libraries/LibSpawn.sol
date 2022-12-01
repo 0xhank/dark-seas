@@ -77,7 +77,7 @@ library LibSpawn {
     uint256 playerEntity,
     Coord memory location,
     uint32 rotation
-  ) internal returns (bool) {
+  ) internal {
     PositionComponent(getAddressById(components, PositionComponentID)).set(entity, location);
     RotationComponent(getAddressById(components, RotationComponentID)).set(entity, rotation);
     LengthComponent(getAddressById(components, LengthComponentID)).set(entity, 10);

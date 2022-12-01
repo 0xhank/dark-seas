@@ -70,9 +70,6 @@ contract RepairActionTest is MudTest {
 
   function testRepairMast() public prank(deployer) {
     setup();
-    SailPositionComponent sailPositionComponent = SailPositionComponent(
-      getAddressById(components, SailPositionComponentID)
-    );
 
     uint256 entityID = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350, 50, 50);
 
