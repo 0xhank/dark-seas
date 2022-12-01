@@ -139,8 +139,8 @@ export function registerYourShips() {
       };
 
       return (
-        <Container>
-          <InternalContainer>
+        <Container style={{ justifyContent: "flex-end" }}>
+          <InternalContainer style={{ height: "auto", maxHeight: "100%", gap: "24px" }}>
             <MoveButtons>
               {yourShips.map((ship) => {
                 const sailPosition = getComponentValueStrict(SailPosition, ship).value;
@@ -153,6 +153,7 @@ export function registerYourShips() {
                   if (!moveCardEntity)
                     return (
                       <SelectShip
+                        isSelected={isSelected}
                         onClick={() => {
                           selectShip(ship, position);
                           setComponent(Selection, GodEntityIndex, { value: SelectionType.Move });
@@ -209,8 +210,15 @@ export function registerYourShips() {
 
                 return (
                   <Button
+                    noGoldBorder
                     onClick={() => selectShip(ship, position)}
-                    style={{ position: "relative", display: "flex", justifyContent: "center", minWidth: "150px" }}
+                    style={{
+                      position: "relative",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      minWidth: "150px",
+                      flex: "1",
+                    }}
                     isSelected={isSelected}
                     key={`move-selection-${ship}`}
                   >
@@ -218,8 +226,6 @@ export function registerYourShips() {
                     <img
                       src="/img/ds-ship.png"
                       style={{
-                        flex: 1,
-                        width: "50%",
                         objectFit: "scale-down",
                         transform: `rotate(${rotation - 90}deg)`,
                       }}
@@ -231,6 +237,7 @@ export function registerYourShips() {
             </MoveButtons>
             <ConfirmButtons>
               <Button
+                noGoldBorder
                 onClick={() => {
                   const entities = [...getComponentEntities(SelectedMove)];
                   entities.map((entity) => removeComponent(SelectedMove, entity));
@@ -275,21 +282,13 @@ const SelectShip = styled.div<{ isSelected?: boolean }>`
   color: ${colors.darkBrown};
 
   :hover {
-    background: ${({ isSelected }) => `${isSelected ? colors.gold : colors.glass}`};
-  }
-
-  :disabled {
-    background: ${colors.lightGray};
-    color: ${colors.lighterGray};
-    border-color: ${colors.darkGray};
-    cursor: not-allowed;
-    hover: {
-      background: ${colors.lightGray};
-    }
+    background: ${({ isSelected }) => `${isSelected ? colors.thickGlass : colors.gold}`};
   }
 
   padding: 3;
   line-height: 30px;
   background: ${colors.glass};
   width: 95%;
+  border: 1px solid ${colors.gold};
+  height: 40px;
 `;

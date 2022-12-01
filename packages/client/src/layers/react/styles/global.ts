@@ -1,5 +1,6 @@
 import styled from "styled-components";
 
+const lightGold = "hsl(45,100%,60%)";
 const gold = "hsl(45,100%,54.1%)";
 const darkGold = "hsl(45,100%,31%)";
 const lightBrown = "hsl(30,46.9%,48%)";
@@ -48,13 +49,13 @@ export const Container = styled.div`
   gap: 5px;
 `;
 
-export const Button = styled.button<{ isSelected?: boolean }>`
+export const Button = styled.button<{ isSelected?: boolean; noGoldBorder?: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  background: ${({ isSelected }) => `${isSelected ? gold : "hsla(0, 0%, 100%, 0.5)"}`};
-  border: 1px solid ${gold};
+  background: ${({ isSelected }) => `${isSelected ? gold : glass}`};
+  border: ${({ noGoldBorder }) => `${noGoldBorder ? "0" : "1"}px solid ${gold}`};
   cursor: pointer;
   padding: 8px;
   border-radius: 7px;
@@ -63,7 +64,7 @@ export const Button = styled.button<{ isSelected?: boolean }>`
   color: ${darkBrown};
 
   :hover {
-    background: ${({ isSelected }) => `${isSelected ? gold : "hsla(0, 0%, 100%, 0.75)"}`};
+    background: ${({ isSelected }) => `${isSelected ? lightGold : thickGlass}`};
   }
 
   :disabled {
@@ -102,7 +103,7 @@ export const InternalContainer = styled.div`
   flex-direction: row;
   padding: 12px;
   border-radius: 6px;
-  background: ${thickGlass};
+  background: ${glass};
   justify-content: space-between;
   color: ${darkBrown};
 `;
