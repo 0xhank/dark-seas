@@ -58,22 +58,21 @@ export function registerTurnTimer() {
       if (!phaseLength) return null;
 
       return (
-        <Container>
-          <InternalContainer>
-            <Text>
-              {secondsUntilNextPhase} seconds left in {PhaseNames[phase]} Phase
-            </Text>
-
-            <ProgressBar phaseLength={phaseLength} secondsUntilNextPhase={secondsUntilNextPhase} />
-          </InternalContainer>
-        </Container>
+        <InternalContainer>
+          <Text>
+            {secondsUntilNextPhase} seconds left in {PhaseNames[phase]} Phase
+          </Text>
+          <ProgressBar phaseLength={phaseLength} secondsUntilNextPhase={secondsUntilNextPhase} />
+        </InternalContainer>
       );
     }
   );
 }
 
 const InternalContainer = styled.div`
-  width: 100%;
+  top: 20px;
+  left: 50%;
+  transform: translate(-50%, 0);
   background: ${colors.glass};
   border-radius: 6px;
   height: 30px;
