@@ -13,7 +13,10 @@
     "LeakComponent",
     "CrewCountComponent",
     "DamagedSailComponent",
-    "FirepowerComponent"
+    "FirepowerComponent",
+    "GameConfigComponent",
+    "LastMoveComponent",
+    "LastActionComponent"
   ],
   "systems": [
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
@@ -28,10 +31,12 @@
         "ShipComponent",
         "SailPositionComponent",
         "CrewCountComponent",
-        "FirepowerComponent"
+        "FirepowerComponent",
+        "LastMoveComponent",
+        "LastActionComponent"
       ]
     },
-    { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent"] },
+    { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent", "LastMoveComponent"] },
     {
       "name": "ActionSystem",
       "writeAccess": [
@@ -40,7 +45,8 @@
         "OnFireComponent",
         "DamagedSailComponent",
         "CrewCountComponent",
-        "SailPositionComponent"
+        "SailPositionComponent",
+        "LastActionComponent"
       ]
     },
     { "name": "ComponentDevSystem", "writeAccess": ["*"] }

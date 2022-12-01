@@ -6,6 +6,7 @@ import { registerMoveSelection } from "./MoveSelection";
 import { registerShipOverview } from "./ShipOverview";
 import { registerTopBar } from "./TopBar/TopBar";
 import { registerYourShips } from "./YourShips";
+import { registerTurnTimer } from "./TurnTimer";
 
 export function registerUIComponents() {
   registerLoadingState();
@@ -16,4 +17,5 @@ export function registerUIComponents() {
   registerTopBar();
   registerShipOverview();
   registerYourShips();
+  registerTurnTimer();
 }

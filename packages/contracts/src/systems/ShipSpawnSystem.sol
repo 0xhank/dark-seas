@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 // External
 import "solecs/System.sol";
 import { IWorld } from "solecs/interfaces/IWorld.sol";
-import { getAddressById, getSystemAddressById } from "solecs/utils.sol";
+import { getAddressById, getSystemAddressById, addressToEntity } from "solecs/utils.sol";
 
 // Components
 import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
@@ -16,8 +16,12 @@ import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponen
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 import { FirepowerComponent, ID as FirepowerComponentID } from "../components/FirepowerComponent.sol";
+import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
+import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.ShipSpawn"));
+import "../libraries/LibAction.sol";
+import "../libraries/LibTurn.sol";
 
 contract ShipSpawnSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
@@ -29,7 +33,7 @@ contract ShipSpawnSystem is System {
     );
 
     uint256 entity = world.getUniqueEntityId();
-
+    uint32 turn = LibTurn.getCurrentTurn(components);
     PositionComponent(getAddressById(components, PositionComponentID)).set(entity, location);
     RotationComponent(getAddressById(components, RotationComponentID)).set(entity, rotation);
     LengthComponent(getAddressById(components, LengthComponentID)).set(entity, length);
@@ -39,6 +43,8 @@ contract ShipSpawnSystem is System {
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(entity, 3);
     CrewCountComponent(getAddressById(components, CrewCountComponentID)).set(entity, 8);
     FirepowerComponent(getAddressById(components, FirepowerComponentID)).set(entity, 50);
+    LastActionComponent(getAddressById(components, LastActionComponentID)).set(addressToEntity(msg.sender), turn);
+    LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(addressToEntity(msg.sender), turn);
 
     return abi.encode(entity);
   }
