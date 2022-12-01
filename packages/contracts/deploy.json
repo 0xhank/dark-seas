@@ -16,7 +16,10 @@
     "FirepowerComponent",
     "GameConfigComponent",
     "LastMoveComponent",
-    "LastActionComponent"
+    "LastActionComponent",
+    "OwnedByComponent",
+    "NameComponent",
+    "PlayerComponent"
   ],
   "systems": [
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
@@ -33,7 +36,9 @@
         "CrewCountComponent",
         "FirepowerComponent",
         "LastMoveComponent",
-        "LastActionComponent"
+        "LastActionComponent",
+        "OwnedByComponent",
+        "PlayerComponent"
       ]
     },
     { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent", "LastMoveComponent"] },
@@ -49,6 +54,25 @@
         "LastActionComponent"
       ]
     },
-    { "name": "ComponentDevSystem", "writeAccess": ["*"] }
+    { "name": "ComponentDevSystem", "writeAccess": ["*"] },
+    {
+      "name": "PlayerSpawnSystem",
+      "writeAccess": [
+        "PositionComponent",
+        "RotationComponent",
+        "LengthComponent",
+        "RangeComponent",
+        "HealthComponent",
+        "ShipComponent",
+        "SailPositionComponent",
+        "CrewCountComponent",
+        "FirepowerComponent",
+        "LastMoveComponent",
+        "LastActionComponent",
+        "OwnedByComponent",
+        "PlayerComponent",
+        "NameComponent"
+      ]
+    }
   ]
 }

@@ -11,6 +11,11 @@ const lightGray = "hsl(0,0%,73.3%)";
 const darkGray = "hsl(0,0%,66.7%)";
 const darkerGray = "hsl(0,0%,40%)";
 const blue = "hsl(203,93.8%,44.3%)";
+const glass = "hsla(0, 0%, 100%, 0.5)";
+const thickGlass = "hsla(0, 0%, 100%, 0.75)";
+
+const blueGradient =
+  "linear-gradient(45deg, hsla(203, 93%, 33%, 1) 0%, hsla(203, 97%, 37%, 1) 51%, hsla(203, 100%, 53%, 1) 100%)";
 
 export const colors = {
   gold,
@@ -24,6 +29,9 @@ export const colors = {
   darkerGray,
   blue,
   darkGold,
+  glass,
+  thickGlass,
+  blueGradient,
 };
 
 export const Container = styled.div`
@@ -94,7 +102,36 @@ export const InternalContainer = styled.div`
   flex-direction: row;
   padding: 12px;
   border-radius: 6px;
-  background: hsla(0, 0%, 100%, 0.5);
+  background: ${thickGlass};
   justify-content: space-between;
   color: ${darkBrown};
+`;
+
+export const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
+export const Input = styled.input`
+  border-radius: 6px;
+  padding: 7px;
+  font-size: 1.5em;
+  background: ${thickGlass};
+  border: 1px solid ${gold};
+  color: ${darkBrown};
+
+  &:focus {
+    outline: none;
+  }
+  ::selection {
+    color: white;
+    background: #d07e1a;
+  }
+  ::placeholder {
+    color: ${darkGray};
+  }
 `;

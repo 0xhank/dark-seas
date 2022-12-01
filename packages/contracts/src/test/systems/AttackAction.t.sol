@@ -36,6 +36,31 @@ contract AttackActionTest is MudTest {
   uint256[] moveEntities = new uint256[](0);
   Action[] actions = new Action[](0);
 
+  function testRevertNotPlayer() public {
+    setup();
+
+    vm.expectRevert(bytes("ActionSystem: player does not exist"));
+    actionSystem.executeTyped(69, actions);
+  }
+
+  function testRevertNotOwner() public {
+    setup();
+
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(Coord(0, 0), 0);
+    uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
+
+    vm.prank(deployer);
+    shipSpawnSystem.executeTyped(Coord(0, 0), 0);
+    uint256 newTurn = 2 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength) + 2;
+
+    vm.warp(newTurn);
+
+    vm.prank(deployer);
+
+    vm.expectRevert(bytes("ActionSystem: you don't own this ship"));
+    actionSystem.executeTyped(shipEntityId, actions);
+  }
+
   function testAttackAction() public prank(deployer) {
     setup();
 
@@ -43,13 +68,13 @@ contract AttackActionTest is MudTest {
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 rotation = 0;
-    uint256 attackerId = shipSpawnSystem.executeTyped(startingPosition, 350, 50, 50);
+    uint256 attackerId = shipSpawnSystem.executeTyped(startingPosition, 350);
 
     startingPosition = Coord({ x: -25, y: -25 });
-    uint256 defender2Id = shipSpawnSystem.executeTyped(startingPosition, rotation, 50, 50);
+    uint256 defender2Id = shipSpawnSystem.executeTyped(startingPosition, rotation);
 
     startingPosition = Coord({ x: 25, y: 25 });
-    uint256 defenderId = shipSpawnSystem.executeTyped(startingPosition, rotation, 50, 50);
+    uint256 defenderId = shipSpawnSystem.executeTyped(startingPosition, rotation);
 
     uint32 origHealth = healthComponent.getValue(defenderId);
     uint32 orig2Health = healthComponent.getValue(defender2Id);
@@ -63,7 +88,7 @@ contract AttackActionTest is MudTest {
 
     uint32 newHealth = healthComponent.getValue(defenderId);
 
-    assertLe(newHealth, origHealth - 1);
+    assertGe(newHealth, origHealth - 1);
 
     newHealth = healthComponent.getValue(defender2Id);
     assertEq(newHealth, orig2Health);
@@ -78,7 +103,7 @@ contract AttackActionTest is MudTest {
     MoveSystem moveSystem = MoveSystem(system(MoveSystemID));
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
-    uint256 attackerId = shipSpawnSystem.executeTyped(startingPosition, 0, 10, 30);
+    uint256 attackerId = shipSpawnSystem.executeTyped(startingPosition, 0);
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
 
@@ -94,7 +119,7 @@ contract AttackActionTest is MudTest {
 
     moveSystem.executeTyped(shipEntities, moveEntities);
 
-    uint256 defenderId = shipSpawnSystem.executeTyped(startingPosition, 0, 10, 30);
+    uint256 defenderId = shipSpawnSystem.executeTyped(startingPosition, 0);
 
     uint32 origHealth = healthComponent.getValue(defenderId);
     uint32 attackerHealth = healthComponent.getValue(attackerId);
@@ -119,11 +144,10 @@ contract AttackActionTest is MudTest {
 
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
 
-    uint256 attackerId = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350, 50, 50);
-    uint256 defenderId = shipSpawnSystem.executeTyped(Coord({ x: 25, y: 25 }), 0, 50, 50);
+    uint256 attackerId = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
+    uint256 defenderId = shipSpawnSystem.executeTyped(Coord({ x: 9, y: 25 }), 0);
 
     uint32 origHealth = healthComponent.getValue(defenderId);
-    uint32 attackerHealth = healthComponent.getValue(attackerId);
 
     blocktimestamp = blocktimestamp + gameConfig.movePhaseLength * 10;
     vm.warp(blocktimestamp);
@@ -158,7 +182,7 @@ contract AttackActionTest is MudTest {
     uint256 attackerId,
     uint256 defenderId,
     Side side
-  ) public returns (uint32) {
+  ) public view returns (uint32) {
     uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(attackerId);
     Coord memory attackerPosition = positionComponent.getValue(attackerId);
     (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, defenderId);

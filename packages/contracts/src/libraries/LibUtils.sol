@@ -6,6 +6,7 @@ import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 import { getAddressById } from "solecs/utils.sol";
 import { IComponent } from "solecs/interfaces/IComponent.sol";
 import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
+import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 
 library LibUtils {
   function toHex(bytes memory data) internal pure returns (bytes memory res) {

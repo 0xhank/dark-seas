@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { registerUIComponent } from "../../engine";
-import { EntityIndex } from "@latticexyz/recs";
+import { EntityIndex, getComponentValue } from "@latticexyz/recs";
 import { map, merge, of } from "rxjs";
 import { GodID } from "@latticexyz/network";
 import styled from "styled-components";
@@ -23,22 +23,25 @@ export function registerTopBar() {
       const {
         network: {
           world,
-          components: { Wind },
+          components: { Wind, Name },
           network: { connectedAddress },
+          utils: { getPlayerEntity },
         },
       } = layers;
 
-      return merge(of(0), Wind.update$).pipe(
+      return merge(of(0), Wind.update$, Name.update$).pipe(
         map(() => {
           return {
             Wind,
+            Name,
             world,
             connectedAddress,
+            getPlayerEntity,
           };
         })
       );
     },
-    ({ Wind, world, connectedAddress }) => {
+    ({ Wind, Name, world, connectedAddress, getPlayerEntity }) => {
       const manyYearsAgo = 1000 * 60 * 60 * 24 * 265 * 322;
       const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
 
@@ -47,6 +50,9 @@ export function registerTopBar() {
       const dir: number = Wind.values.direction.get(GodEntityIndex) || 0;
       const speed: number = Wind.values.speed.get(GodEntityIndex) || 0;
 
+      const playerEntity = getPlayerEntity(connectedAddress.get());
+      const name = playerEntity ? getComponentValue(Name, playerEntity)?.value : undefined;
+      if (!name) return null;
       return (
         <Container>
           <Compass direction={dir} speed={speed} />
@@ -60,9 +66,7 @@ export function registerTopBar() {
               textAlign: "left",
             }}
           >
-            <span style={{ fontWeight: "bolder", fontSize: "30px", lineHeight: "40px" }}>
-              Captain {connectedAddress.get()?.slice(0, 7)}'s Log
-            </span>
+            <span style={{ fontWeight: "bolder", fontSize: "24px", lineHeight: "40px" }}>Captain {name}'s Log</span>
             <span>{date.toLocaleDateString("en-UK", options as any)}</span>
           </div>
         </Container>

@@ -60,12 +60,12 @@ contract LibVectorTest is MudTest {
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
-    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 50, 50);
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
 
     (Coord memory bow, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntityId);
 
     assertCoordEq(startingPosition, bow);
-    Coord memory expectedStern = Coord({ x: -35, y: -35 });
+    Coord memory expectedStern = Coord({ x: -7, y: -7 });
     assertCoordEq(stern, expectedStern);
   }
 
@@ -74,7 +74,7 @@ contract LibVectorTest is MudTest {
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
-    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, 0, 10, 50);
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, 0);
 
     Coord[4] memory firingArea = LibCombat.getFiringArea(components, shipEntityId, Side.Right);
 

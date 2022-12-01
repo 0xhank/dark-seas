@@ -11,14 +11,13 @@ import { PositionComponent, ID as PositionComponentID } from "../components/Posi
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
+import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 
 import { Coord, Action, Phase } from "../libraries/DSTypes.sol";
 
-import "../libraries/LibVector.sol";
-import "../libraries/LibCombat.sol";
-import "../libraries/LibUtils.sol";
 import "../libraries/LibAction.sol";
 import "../libraries/LibTurn.sol";
+import "../libraries/LibSpawn.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Action"));
 
@@ -28,16 +27,25 @@ contract ActionSystem is System {
   function execute(bytes memory arguments) public returns (bytes memory) {
     (uint256 shipEntity, Action[] memory actions) = abi.decode(arguments, (uint256, Action[]));
 
+    uint256 playerEntity = addressToEntity(msg.sender);
+
+    require(LibSpawn.playerIdExists(components, playerEntity), "ActionSystem: player does not exist");
+
+    require(
+      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(shipEntity) ==
+        addressToEntity(msg.sender),
+      "ActionSystem: you don't own this ship"
+    );
+
     LastActionComponent lastActionComponent = LastActionComponent(getAddressById(components, LastActionComponentID));
     require(LibTurn.getCurrentPhase(components) == Phase.Action, "ActionSystem: incorrect turn phase");
 
     uint32 currentTurn = LibTurn.getCurrentTurn(components);
-    uint256 addressEntity = addressToEntity(msg.sender);
     require(
       lastActionComponent.getValue(addressToEntity(msg.sender)) < currentTurn,
       "ActionSystem: already acted this turn"
     );
-    lastActionComponent.set(addressEntity, currentTurn);
+    lastActionComponent.set(playerEntity, currentTurn);
 
     require(
       ShipComponent(getAddressById(components, ShipComponentID)).has(shipEntity),

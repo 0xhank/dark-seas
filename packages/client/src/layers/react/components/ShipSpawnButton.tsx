@@ -21,18 +21,18 @@ export function registerShipSpawnButton() {
     (layers) => {
       const {
         network: {
-          api: { spawnShip },
+          api: { spawnPlayer },
         },
       } = layers;
 
       return (
         <Button
-          style={{ width: "100%", height: "100%" }}
+          style={{ width: "100%", height: "100%", lineHeight: "24px" }}
           onClick={() => {
-            spawnShip({ x: 0, y: 0 }, 0);
+            spawnPlayer("Blackbeard");
           }}
         >
-          Spawn ship at (0, 0)
+          Spawn Player
         </Button>
       );
     }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
+import { colors } from "../../styles/global";
 
 export const BootScreen: React.FC<{ initialOpacity?: number }> = ({ children, initialOpacity }) => {
   return (
@@ -17,7 +18,8 @@ const Container = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-  background-color: #0667a4;
+  background: ${colors.blueGradient};
+
   display: grid;
   align-content: center;
   align-items: center;

@@ -16,11 +16,13 @@ import { RotationComponent, ID as RotationComponentID } from "../components/Rota
 import { WindComponent, ID as WindComponentID } from "../components/WindComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
+import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 
 import { Wind, GodID, MoveCard, Phase } from "../libraries/DSTypes.sol";
 import "../libraries/LibVector.sol";
 import "../libraries/LibMove.sol";
 import "../libraries/LibTurn.sol";
+import "../libraries/LibSpawn.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Move"));
 
@@ -32,16 +34,15 @@ contract MoveSystem is System {
 
     require(entities.length == moveCardEntities.length, "MoveSystem: array length mismatch");
 
+    uint256 playerEntity = addressToEntity(msg.sender);
+    require(LibSpawn.playerIdExists(components, playerEntity), "MoveSystem: player does not exist");
+
     LastMoveComponent lastMoveComponent = LastMoveComponent(getAddressById(components, LastMoveComponentID));
     require(LibTurn.getCurrentPhase(components) == Phase.Move, "MoveSystem: incorrect turn phase");
 
     uint32 currentTurn = LibTurn.getCurrentTurn(components);
-    uint256 addressEntity = addressToEntity(msg.sender);
-    require(
-      lastMoveComponent.getValue(addressToEntity(msg.sender)) < currentTurn,
-      "MoveSystem: already moved this turn"
-    );
-    lastMoveComponent.set(addressEntity, currentTurn);
+    require(lastMoveComponent.getValue(playerEntity) < currentTurn, "MoveSystem: already moved this turn");
+    lastMoveComponent.set(playerEntity, currentTurn);
 
     MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
     PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
@@ -58,6 +59,10 @@ contract MoveSystem is System {
       console.log("move card entity:", moveCardEntity);
       console.log("expected:", uint256(keccak256("ds.prototype.moveEntity1")));
 
+      require(
+        OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(entity) == playerEntity,
+        "MoveSystem: you don't own this ship"
+      );
       require(moveCardComponent.has(moveCardEntity), "MoveSystem: invalid move card entity id");
       require(
         ShipComponent(getAddressById(components, ShipComponentID)).has(entity),

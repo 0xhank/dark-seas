@@ -32,8 +32,10 @@ export function registerMoveSelection() {
       const {
         network: {
           world,
-          components: { Rotation, MoveCard, Wind, SailPosition, Position },
+          components: { Rotation, MoveCard, Wind, SailPosition, Position, Player },
+          network: { connectedAddress },
           api: { move },
+          utils: { getPlayerEntity },
         },
         phaser: {
           components: { SelectedShip, SelectedMove, Selection, SelectedActions },
@@ -49,7 +51,8 @@ export function registerMoveSelection() {
         SailPosition.update$,
         Position.update$,
         Selection.update$,
-        SelectedActions.update$
+        SelectedActions.update$,
+        Player.update$
       ).pipe(
         map(() => {
           return {
@@ -61,14 +64,33 @@ export function registerMoveSelection() {
             SailPosition,
             Selection,
             SelectedActions,
+            Player,
             Wind,
             world,
+            connectedAddress,
+            getPlayerEntity,
           };
         })
       );
     },
     // render
-    ({ MoveCard, SelectedMove, SelectedShip, Rotation, SailPosition, Selection, SelectedActions, Wind, world }) => {
+    ({
+      MoveCard,
+      SelectedMove,
+      SelectedShip,
+      Rotation,
+      SailPosition,
+      Selection,
+      SelectedActions,
+      Wind,
+      Player,
+      connectedAddress,
+      world,
+      getPlayerEntity,
+    }) => {
+      const playerEntity = getPlayerEntity(connectedAddress.get());
+      if (!playerEntity || !getComponentValue(Player, playerEntity)) return null;
+
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
       const selection = getComponentValue(Selection, GodEntityIndex)?.value;

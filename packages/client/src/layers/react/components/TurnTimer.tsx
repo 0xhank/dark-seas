@@ -19,7 +19,7 @@ export function registerTurnTimer() {
       const {
         network: { clock, connectedAddress },
         components: {},
-        api: { getGameConfig },
+        utils: { getGameConfig },
       } = layers.network;
 
       return clock.time$.pipe(
@@ -74,7 +74,7 @@ export function registerTurnTimer() {
 
 const InternalContainer = styled.div`
   width: 100%;
-  background: hsla(0, 0%, 100%, 0.5);
+  background: ${colors.glass};
   border-radius: 6px;
   height: 30px;
   position: relative;

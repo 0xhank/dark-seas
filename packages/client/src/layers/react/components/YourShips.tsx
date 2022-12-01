@@ -35,8 +35,10 @@ export function registerYourShips() {
       const {
         network: {
           world,
-          components: { Rotation, MoveCard, Wind, SailPosition, Position, Ship },
+          components: { Rotation, MoveCard, Wind, SailPosition, Position, Ship, Player },
           api: { move },
+          network: { connectedAddress },
+          utils: { getPlayerEntity },
         },
         phaser: {
           components: { SelectedShip, SelectedMove, Selection },
@@ -55,7 +57,8 @@ export function registerYourShips() {
         Rotation.update$,
         SailPosition.update$,
         Position.update$,
-        Selection.update$
+        Selection.update$,
+        Player.update$
       ).pipe(
         map(() => {
           return {
@@ -66,12 +69,15 @@ export function registerYourShips() {
             SelectedShip,
             SailPosition,
             Selection,
+            Player,
             Wind,
             Ship,
             world,
             camera,
             positions,
+            connectedAddress,
             move,
+            getPlayerEntity,
           };
         })
       );
@@ -90,9 +96,15 @@ export function registerYourShips() {
         Position,
         Wind,
         Ship,
+        Player,
         world,
+        connectedAddress,
+        getPlayerEntity,
         move,
       } = props;
+
+      const playerEntity = getPlayerEntity(connectedAddress.get());
+      if (!playerEntity || !getComponentValue(Player, playerEntity)) return null;
 
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
@@ -263,7 +275,7 @@ const SelectShip = styled.div<{ isSelected?: boolean }>`
   color: ${colors.darkBrown};
 
   :hover {
-    background: ${({ isSelected }) => `${isSelected ? colors.gold : "hsla(0, 0%, 100%, 0.75)"}`};
+    background: ${({ isSelected }) => `${isSelected ? colors.gold : colors.glass}`};
   }
 
   :disabled {
@@ -278,6 +290,6 @@ const SelectShip = styled.div<{ isSelected?: boolean }>`
 
   padding: 3;
   line-height: 30px;
-  background: hsla(0, 0%, 100%, 0.5);
+  background: ${colors.glass};
   width: 95%;
 `;

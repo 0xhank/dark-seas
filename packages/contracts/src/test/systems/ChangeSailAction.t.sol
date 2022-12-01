@@ -32,7 +32,7 @@ contract ChangeSailActionTest is MudTest {
     setup();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
-    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 50);
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
 
     actions.push(Action.LowerSail);
 
@@ -50,7 +50,7 @@ contract ChangeSailActionTest is MudTest {
     setup();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
-    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 50);
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
 
     uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
     vm.warp(newTurn);
