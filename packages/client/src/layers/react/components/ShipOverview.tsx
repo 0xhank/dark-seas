@@ -29,7 +29,9 @@ export function registerShipOverview() {
         network: {
           world,
           api: { submitActions },
-          components: { Health, SailPosition, CrewCount, DamagedSail, Firepower, Leak, OnFire },
+          utils: { getPlayerEntity },
+          network: { connectedAddress },
+          components: { Health, SailPosition, CrewCount, DamagedSail, Firepower, Leak, OnFire, Player },
         },
         phaser: {
           components: { SelectedShip, Selection, SelectedActions },
@@ -47,7 +49,8 @@ export function registerShipOverview() {
         Leak.update$,
         OnFire.update$,
         Selection.update$,
-        SelectedActions.update$
+        SelectedActions.update$,
+        Player.update$
       ).pipe(
         map(() => {
           return {
@@ -62,7 +65,10 @@ export function registerShipOverview() {
             OnFire,
             Selection,
             SelectedActions,
+            Player,
+            connectedAddress,
             submitActions,
+            getPlayerEntity,
           };
         })
       );
@@ -77,10 +83,16 @@ export function registerShipOverview() {
       Firepower,
       Leak,
       OnFire,
+      Player,
       Selection,
       SelectedActions,
+      connectedAddress,
       submitActions,
+      getPlayerEntity,
     }) => {
+      const playerEntity = getPlayerEntity(connectedAddress.get());
+      if (!playerEntity || !getComponentValue(Player, playerEntity)) return null;
+
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
       const shipEntity = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
@@ -148,9 +160,9 @@ export function registerShipOverview() {
                 </ActionButtons>
                 <Button
                   onClick={handleSubmit}
-                  disabled={!shipActions || shipActions.value.every((action) => (action = -1))}
+                  disabled={!shipActions || shipActions.value.every((action) => action == -1)}
                 >
-                  Submit Actions
+                  Submit Actions {shipActions?.value}
                 </Button>
               </ActionsContainer>
             </OverviewContainer>

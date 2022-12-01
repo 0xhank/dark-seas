@@ -19,7 +19,7 @@ export function registerTurnTimer() {
       const {
         network: { clock, connectedAddress },
         components: {},
-        api: { getGameConfig },
+        utils: { getGameConfig },
       } = layers.network;
 
       return clock.time$.pipe(
