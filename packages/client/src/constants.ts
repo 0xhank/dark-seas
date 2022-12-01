@@ -45,7 +45,7 @@ export const ActionImg: Record<number, string> = {
   [Action.ExtinguishFire]: "/icons/extinguish.svg",
   [Action.RepairLeak]: "/icons/planks.svg",
   [Action.RepairMast]: "/icons/broken-mast.svg",
-  [Action.RepairSail]: "/icons/broken-sails.svg",
+  [Action.RepairSail]: "/icons/broken-sail.svg",
 };
 
 export type Line = {

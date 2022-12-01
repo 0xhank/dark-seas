@@ -20,7 +20,14 @@ export default function ShipAttribute({
   return (
     <AttributeContainer>
       <LeftSide>
-        <img src={source} alt="Icon" style={{ height: "30px" }} />
+        <img
+          src={source}
+          alt="Icon"
+          style={{
+            height: "30px",
+            filter: `invert(81%) sepia(24%) saturate(2269%) hue-rotate(344deg) brightness(104%) contrast(103%)`,
+          }}
+        />
       </LeftSide>
       <RightSide style={{ fontSize: `${attributeString.length > 2 ? "14px" : "20px"}` }}>{attribute}</RightSide>
     </AttributeContainer>

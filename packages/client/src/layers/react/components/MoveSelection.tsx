@@ -153,7 +153,11 @@ export function registerMoveSelection() {
                   >
                     <img
                       src={imageUrl}
-                      style={{ height: "80%", objectFit: "scale-down", transform: `rotate(${rotation + 90}deg)` }}
+                      style={{
+                        height: "80%",
+                        objectFit: "scale-down",
+                        transform: `rotate(${rotation + 90}deg)`,
+                      }}
                     />
                     <p>
                       {moveCard.distance}M / {Math.round((moveCard.direction + rotation) % 360)}º
@@ -195,7 +199,14 @@ export function registerMoveSelection() {
                     setComponent(SelectedActions, selectedShip, { value: newArray });
                   }}
                 >
-                  <img src={ActionImg[action]} style={{ height: "80%", objectFit: "scale-down" }} />
+                  <img
+                    src={ActionImg[action]}
+                    style={{
+                      height: "80%",
+                      objectFit: "scale-down",
+                      filter: "invert(19%) sepia(89%) saturate(1106%) hue-rotate(7deg) brightness(93%) contrast(102%)",
+                    }}
+                  />
                   <p>{ActionNames[action]}</p>
                 </Button>
               );
