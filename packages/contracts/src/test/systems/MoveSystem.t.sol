@@ -8,6 +8,7 @@ import { Coord, PositionComponent, ID as PositionComponentID } from "../../compo
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
 import { WindComponent, ID as WindComponentID } from "../../components/WindComponent.sol";
 import { MoveCardComponent, ID as MoveCardComponentID } from "../../components/MoveCardComponent.sol";
+import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
@@ -17,7 +18,7 @@ import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.s
 // Internal
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
-import { Wind, GodID, MoveCard, Action } from "../../libraries/DSTypes.sol";
+import { Wind, GodID, MoveCard, Action, GameConfig } from "../../libraries/DSTypes.sol";
 
 import "../../libraries/LibMove.sol";
 
@@ -30,6 +31,7 @@ contract MoveSystemTest is MudTest {
   MoveSystem moveSystem;
   ShipSpawnSystem shipSpawnSystem;
   ActionSystem actionSystem;
+  GameConfig gameConfig;
 
   Action[] actions = new Action[](0);
   uint256[] shipEntities = new uint256[](0);
@@ -40,8 +42,8 @@ contract MoveSystemTest is MudTest {
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
-    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 50);
-    uint256 shipEntity2Id = shipSpawnSystem.executeTyped(startingPosition, 0, 5, 50);
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
+    uint256 shipEntity2Id = shipSpawnSystem.executeTyped(startingPosition, 0);
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
 
@@ -50,6 +52,11 @@ contract MoveSystemTest is MudTest {
     moveEntities.push(moveStraightEntityId);
     shipEntities.push(shipEntity2Id);
     moveEntities.push(moveStraightEntityId);
+
+    uint256 newTurn = 2 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength) + 2;
+
+    vm.warp(newTurn);
+
     moveSystem.executeTyped(shipEntities, moveEntities);
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
@@ -63,12 +70,41 @@ contract MoveSystemTest is MudTest {
     assertEq(playerRotation, 0);
   }
 
+  function testRevertNotPlayer() public {
+    setup();
+
+    vm.expectRevert(bytes("MoveSystem: player does not exist"));
+    moveSystem.executeTyped(shipEntities, moveEntities);
+  }
+
+  function testRevertNotOwner() public {
+    setup();
+
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(Coord(0, 0), 0);
+    uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
+
+    shipEntities.push(shipEntityId);
+    moveEntities.push(moveStraightEntityId);
+
+    uint256 newTurn = 2 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength) + 2;
+
+    vm.warp(newTurn);
+
+    vm.prank(deployer);
+    shipSpawnSystem.executeTyped(Coord(0, 0), 0);
+
+    vm.prank(deployer);
+
+    vm.expectRevert(bytes("MoveSystem: you don't own this ship"));
+    moveSystem.executeTyped(shipEntities, moveEntities);
+  }
+
   function testMoveHardRight() public prank(deployer) {
     setup();
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
-    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 50);
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
 
     uint256 moveHardRightId = uint256(keccak256("ds.prototype.moveEntity2"));
 
@@ -76,6 +112,10 @@ contract MoveSystemTest is MudTest {
     delete moveEntities;
     shipEntities.push(shipEntityId);
     moveEntities.push(moveHardRightId);
+
+    uint256 newTurn = gameConfig.movePhaseLength + gameConfig.actionPhaseLength + 2;
+    vm.warp(newTurn);
+
     moveSystem.executeTyped(shipEntities, moveEntities);
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
@@ -89,7 +129,7 @@ contract MoveSystemTest is MudTest {
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 108;
-    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 50);
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity3"));
 
@@ -97,6 +137,10 @@ contract MoveSystemTest is MudTest {
     delete moveEntities;
     shipEntities.push(shipEntityId);
     moveEntities.push(moveStraightEntityId);
+
+    uint256 newTurn = gameConfig.movePhaseLength + gameConfig.actionPhaseLength + 2;
+    vm.warp(newTurn);
+
     moveSystem.executeTyped(shipEntities, moveEntities);
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
@@ -166,17 +210,28 @@ contract MoveSystemTest is MudTest {
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 0;
-    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 50);
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
 
+    vm.warp(gameConfig.movePhaseLength + 1);
     actions.push(Action.LowerSail);
+
+    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
+    vm.warp(newTurn);
+
     actionSystem.executeTyped(shipEntityId, actions);
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
+
+    vm.warp(gameConfig.actionPhaseLength);
 
     delete shipEntities;
     delete moveEntities;
     shipEntities.push(shipEntityId);
     moveEntities.push(moveStraightEntityId);
+
+    newTurn = 2 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength) + 2;
+    vm.warp(newTurn);
+
     moveSystem.executeTyped(shipEntities, moveEntities);
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
@@ -189,7 +244,10 @@ contract MoveSystemTest is MudTest {
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 0;
-    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation, 5, 50);
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
+
+    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
+    vm.warp(newTurn);
 
     delete actions;
     actions.push(Action.LowerSail);
@@ -198,10 +256,16 @@ contract MoveSystemTest is MudTest {
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
 
+    vm.warp(gameConfig.actionPhaseLength);
+
     delete shipEntities;
     delete moveEntities;
     shipEntities.push(shipEntityId);
     moveEntities.push(moveStraightEntityId);
+
+    newTurn = 2 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength) + 2;
+    vm.warp(newTurn);
+
     moveSystem.executeTyped(shipEntities, moveEntities);
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
@@ -221,5 +285,6 @@ contract MoveSystemTest is MudTest {
     positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
     rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
     wind = WindComponent(getAddressById(components, WindComponentID)).getValue(GodID);
+    gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID);
   }
 }

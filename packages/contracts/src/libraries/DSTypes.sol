@@ -30,3 +30,16 @@ enum Side {
   Right,
   Left
 }
+
+enum Phase {
+  Move,
+  Action
+}
+
+struct GameConfig {
+  // Block timestamp when the game started
+  uint256 startTime;
+  // Number of seconds
+  uint32 movePhaseLength;
+  uint32 actionPhaseLength;
+}

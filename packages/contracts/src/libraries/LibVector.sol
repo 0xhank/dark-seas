@@ -38,6 +38,7 @@ library LibVector {
 
   function getShipBowAndSternLocation(IUint256Component components, uint256 shipEntityId)
     public
+    view
     returns (Coord memory, Coord memory)
   {
     ShipComponent shipComponent = ShipComponent(getAddressById(components, ShipComponentID));

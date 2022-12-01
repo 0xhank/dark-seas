@@ -4,51 +4,37 @@ pragma solidity >=0.8.0;
 // External
 import "solecs/System.sol";
 import { IWorld } from "solecs/interfaces/IWorld.sol";
-import { getAddressById, getSystemAddressById } from "solecs/utils.sol";
+import { getAddressById, getSystemAddressById, addressToEntity } from "solecs/utils.sol";
 
 // Components
-import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
-import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
-import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
-import { RangeComponent, ID as RangeComponentID } from "../components/RangeComponent.sol";
-import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
-import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
-import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
-import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
-import { FirepowerComponent, ID as FirepowerComponentID } from "../components/FirepowerComponent.sol";
+import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
+import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
+import { PlayerComponent, ID as PlayerComponentID } from "../components/PlayerComponent.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.ShipSpawn"));
+import "../libraries/LibTurn.sol";
+import "../libraries/LibSpawn.sol";
 
 contract ShipSpawnSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
-    (Coord memory location, uint32 rotation, uint32 length, uint32 range) = abi.decode(
-      arguments,
-      (Coord, uint32, uint32, uint32)
-    );
+    (Coord memory location, uint32 rotation) = abi.decode(arguments, (Coord, uint32));
 
     uint256 entity = world.getUniqueEntityId();
+    uint256 playerEntity = addressToEntity(msg.sender);
 
-    PositionComponent(getAddressById(components, PositionComponentID)).set(entity, location);
-    RotationComponent(getAddressById(components, RotationComponentID)).set(entity, rotation);
-    LengthComponent(getAddressById(components, LengthComponentID)).set(entity, length);
-    RangeComponent(getAddressById(components, RangeComponentID)).set(entity, range);
-    HealthComponent(getAddressById(components, HealthComponentID)).set(entity, 10);
-    ShipComponent(getAddressById(components, ShipComponentID)).set(entity);
-    SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(entity, 3);
-    CrewCountComponent(getAddressById(components, CrewCountComponentID)).set(entity, 8);
-    FirepowerComponent(getAddressById(components, FirepowerComponentID)).set(entity, 50);
+    if (!LibSpawn.playerIdExists(components, entity)) LibSpawn.createPlayerEntity(components, msg.sender);
+    LibSpawn.spawnShip(components, entity, playerEntity, location, rotation);
+    uint32 turn = LibTurn.getCurrentTurn(components);
+
+    LastActionComponent(getAddressById(components, LastActionComponentID)).set(addressToEntity(msg.sender), 0);
+    LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(addressToEntity(msg.sender), 0);
 
     return abi.encode(entity);
   }
 
-  function executeTyped(
-    Coord memory location,
-    uint32 rotation,
-    uint32 length,
-    uint32 range
-  ) public returns (uint256) {
-    return abi.decode(execute(abi.encode(location, rotation, length, range)), (uint256));
+  function executeTyped(Coord memory location, uint32 rotation) public returns (uint256) {
+    return abi.decode(execute(abi.encode(location, rotation)), (uint256));
   }
 }

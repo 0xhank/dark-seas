@@ -1,4 +1,12 @@
-import { createWorld, EntityID, Type } from "@latticexyz/recs";
+import {
+  createWorld,
+  defineComponent,
+  EntityID,
+  EntityIndex,
+  getComponentValue,
+  hasComponent,
+  Type,
+} from "@latticexyz/recs";
 import { setupDevSystems } from "./setup";
 import {
   createActionSystem,
@@ -6,6 +14,7 @@ import {
   defineCoordComponent,
   defineNumberComponent,
   defineBoolComponent,
+  defineStringComponent,
 } from "@latticexyz/std-client";
 import { defineLoadingStateComponent } from "./components";
 
@@ -16,6 +25,7 @@ import { Coord } from "@latticexyz/utils";
 import { Action } from "../../constants";
 import { defineWindComponent } from "./components/WindComponent";
 import { defineMoveCardComponent } from "./components/MoveCardComponent";
+import { GodID } from "@latticexyz/network";
 
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -29,6 +39,11 @@ export async function createNetworkLayer(config: GameConfig) {
 
   // --- COMPONENTS -----------------------------------------------------------------
   const components = {
+    GameConfig: defineComponent(
+      world,
+      { startTime: Type.String, movePhaseLength: Type.Number, actionPhaseLength: Type.Number },
+      { id: "GameConfig", metadata: { contractId: "ds.component.GameConfig" } }
+    ),
     LoadingState: defineLoadingStateComponent(world),
     Wind: defineWindComponent(world),
     MoveCard: defineMoveCardComponent(world),
@@ -50,6 +65,15 @@ export async function createNetworkLayer(config: GameConfig) {
     Leak: defineBoolComponent(world, { id: "Leak", metadata: { contractId: "ds.component.Leak" } }),
     OnFire: defineNumberComponent(world, { id: "OnFire", metadata: { contractId: "ds.component.OnFire" } }),
     Firepower: defineNumberComponent(world, { id: "Firepower", metadata: { contractId: "ds.component.Firepower" } }),
+    LastMove: defineNumberComponent(world, { id: "LastMove", metadata: { contractId: "ds.component.LastMove" } }),
+    LastAction: defineNumberComponent(world, { id: "LastAction", metadata: { contractId: "ds.component.LastAction" } }),
+    OwnedBy: defineComponent(
+      world,
+      { value: Type.Entity },
+      { id: "OwnedBy", metadata: { contractId: "ds.component.OwnedBy" } }
+    ),
+    Player: defineBoolComponent(world, { id: "Player", metadata: { contractId: "ds.component.Player" } }),
+    Name: defineStringComponent(world, { id: "Name", metadata: { contractId: "ds.component.Name" } }),
   };
 
   // --- SETUP ----------------------------------------------------------------------
@@ -58,17 +82,36 @@ export async function createNetworkLayer(config: GameConfig) {
     SystemTypes
   >(getNetworkConfig(config), world, components, SystemAbis);
 
+  // --- UTILITIES ------------------------------------------------------------------
+  const getGameConfig = () => {
+    const godEntityIndex = world.entityToIndex.get(GodID);
+    if (godEntityIndex == null) return;
+
+    return getComponentValue(components.GameConfig, godEntityIndex);
+  };
+
+  function getPlayerEntity(address: string | undefined): EntityIndex | undefined {
+    if (!address) return;
+
+    const playerEntity = world.entityToIndex.get(address as EntityID);
+    if (playerEntity == null || !hasComponent(components.Player, playerEntity)) return;
+
+    return playerEntity;
+  }
+
   // --- ACTION SYSTEM --------------------------------------------------------------
   const actions = createActionSystem(world, txReduced$);
 
   // --- API ------------------------------------------------------------------------
 
+  function spawnPlayer(name: string) {
+    systems["ds.system.PlayerSpawn"].executeTyped(name);
+  }
+
   function spawnShip(location: Coord, rotation: number) {
     console.log("spawning ship at", location, `with rotation ${rotation}`);
 
-    const length = 10;
-    const range = 50;
-    systems["ds.system.ShipSpawn"].executeTyped(location, rotation, length, range);
+    systems["ds.system.ShipSpawn"].executeTyped(location, rotation);
   }
 
   function move(ships: EntityID[], moves: EntityID[]) {
@@ -93,7 +136,8 @@ export async function createNetworkLayer(config: GameConfig) {
     startSync,
     network,
     actions,
-    api: { spawnShip, move, submitActions },
+    utils: { getGameConfig, getPlayerEntity },
+    api: { spawnShip, move, submitActions, spawnPlayer },
     dev: setupDevSystems(world, encoders as any, systems),
   };
 

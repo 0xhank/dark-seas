@@ -1,4 +1,4 @@
-import { Direction, Directions, MoveCard, SailPositions, Wind } from "../constants";
+import { MoveCard, SailPositions, Wind } from "../constants";
 import { Coord, random } from "@latticexyz/utils";
 import { getPositionByVector } from "./trig";
 
@@ -16,16 +16,6 @@ export function translate(coord: Coord, translation: Coord): Coord {
  * @param direction Direction to move to
  * @returns New coordiante after moving in the specified direction
  */
-export function translateDirection(coord: Coord, direction: Direction): Coord {
-  return translate(coord, Directions[direction]);
-}
-
-/**
- * @returns Random direction (Top, Right, Bottom or Left)
- */
-export function randomDirection(): Direction {
-  return random(3, 0);
-}
 
 export function getSurroundingCoords(coord: Coord, distance = 1): Coord[] {
   const surroundingCoords: Coord[] = [];
