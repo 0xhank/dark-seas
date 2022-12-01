@@ -51,8 +51,8 @@ library LibSpawn {
       spawnShip(components, entity, playerEntity, Coord(x, y), rotation);
     }
 
-    LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 1);
-    LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 1);
+    LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 0);
+    LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 0);
   }
 
   function playerExists(IUint256Component components, address playerAddress) internal view returns (bool) {

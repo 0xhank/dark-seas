@@ -34,7 +34,7 @@ contract RepairActionTest is MudTest {
     setup();
     OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
 
-    uint256 entityID = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350, 50, 50);
+    uint256 entityID = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
 
     componentDevSystem.executeTyped(OnFireComponentID, entityID, abi.encode(true));
 
@@ -52,7 +52,7 @@ contract RepairActionTest is MudTest {
     setup();
     LeakComponent leakComponent = LeakComponent(getAddressById(components, LeakComponentID));
 
-    uint256 entityID = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350, 50, 50);
+    uint256 entityID = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
 
     componentDevSystem.executeTyped(LeakComponentID, entityID, abi.encode(true));
 
@@ -71,7 +71,7 @@ contract RepairActionTest is MudTest {
   function testRepairMast() public prank(deployer) {
     setup();
 
-    uint256 entityID = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350, 50, 50);
+    uint256 entityID = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
 
     componentDevSystem.executeTyped(SailPositionComponentID, entityID, abi.encode(0));
 
@@ -92,7 +92,7 @@ contract RepairActionTest is MudTest {
     DamagedSailComponent damagedSailComponent = DamagedSailComponent(
       getAddressById(components, DamagedSailComponentID)
     );
-    uint256 entityID = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350, 50, 50);
+    uint256 entityID = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
     componentDevSystem.executeTyped(DamagedSailComponentID, entityID, abi.encode(true));
 
     assertTrue(damagedSailComponent.has(entityID));
