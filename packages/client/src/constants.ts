@@ -16,6 +16,16 @@ export enum Side {
   Left,
 }
 
+export enum Phase {
+  Move,
+  Action,
+}
+
+export const PhaseNames: Record<number, string> = {
+  [Phase.Move]: "Move",
+  [Phase.Action]: "Action",
+};
+
 export const ActionNames: Record<number, string> = {
   [Action.FireRight]: "Fire Right",
   [Action.FireLeft]: "Fire Left",
