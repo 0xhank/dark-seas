@@ -7,7 +7,10 @@ import {
   getComponentValue,
   getComponentValueStrict,
   getEntitiesWithValue,
+  Has,
+  HasValue,
   removeComponent,
+  runQuery,
   setComponent,
 } from "@latticexyz/recs";
 import { map, merge } from "rxjs";
@@ -15,7 +18,7 @@ import { GodID } from "@latticexyz/network";
 import { Arrows, SelectionType, ShipAttributeTypes } from "../../phaser/constants";
 import { Container, Button, ConfirmButton, InternalContainer, colors } from "../styles/global";
 import { getFinalMoveCard } from "../../../utils/directions";
-import { MoveCard, SailPositions } from "../../../constants";
+import { ActionImg, ActionNames, MoveCard, Phase, SailPositions } from "../../../constants";
 import styled from "styled-components";
 import { Coord } from "@latticexyz/utils";
 import HullHealth from "./OverviewComponents/HullHealth";
@@ -52,13 +55,14 @@ export function registerYourShips() {
             Leak,
             OnFire,
             Ship,
+            OwnedBy,
           },
           api: { move, submitActions },
-          network: { connectedAddress },
-          utils: { getPlayerEntity },
+          network: { connectedAddress, clock },
+          utils: { getPlayerEntity, getCurrentGamePhase },
         },
         phaser: {
-          components: { SelectedShip, SelectedMove, Selection },
+          components: { SelectedShip, SelectedMove, Selection, SelectedActions },
           scenes: {
             Main: { camera },
           },
@@ -67,6 +71,7 @@ export function registerYourShips() {
       } = layers;
 
       return merge(
+        clock.time$,
         MoveCard.update$,
         SelectedMove.update$,
         SelectedShip.update$,
@@ -81,7 +86,9 @@ export function registerYourShips() {
         Firepower.update$,
         Leak.update$,
         OnFire.update$,
-        Ship.update$
+        Ship.update$,
+        SelectedActions.update$,
+        OwnedBy.update$
       ).pipe(
         map(() => {
           return {
@@ -101,12 +108,15 @@ export function registerYourShips() {
             Leak,
             OnFire,
             DamagedSail,
+            SelectedActions,
+            OwnedBy,
             world,
             camera,
             positions,
             connectedAddress,
             move,
             getPlayerEntity,
+            getCurrentGamePhase,
           };
         })
       );
@@ -130,14 +140,22 @@ export function registerYourShips() {
         Firepower,
         SailPosition,
         DamagedSail,
+        OwnedBy,
         OnFire,
         Leak,
+        SelectedActions,
         world,
         connectedAddress,
         getPlayerEntity,
+        getCurrentGamePhase,
         move,
       } = props;
 
+      const currentGamePhase: Phase | undefined = getCurrentGamePhase();
+
+      if (currentGamePhase == undefined) return null;
+
+      console.log("current game phase:", currentGamePhase);
       const playerEntity = getPlayerEntity(connectedAddress.get());
       if (!playerEntity || !getComponentValue(Player, playerEntity)) return null;
 
@@ -145,27 +163,32 @@ export function registerYourShips() {
 
       const wind = getComponentValueStrict(Wind, GodEntityIndex);
       const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
+      const selection = getComponentValue(Selection, GodEntityIndex)?.value;
 
-      const yourShips = [...getEntitiesWithValue(Ship, { value: true })];
+      const yourShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
 
       const selectedMoves = [...getComponentEntities(SelectedMove)];
 
       const handleSubmit = () => {
-        const shipsAndMoves: { ships: EntityID[]; moves: EntityID[] } = yourShips.reduce(
-          (prev: { ships: EntityID[]; moves: EntityID[] }, curr: EntityIndex) => {
-            const shipMove = getComponentValue(SelectedMove, curr);
-            if (!shipMove) return prev;
-            return {
-              ships: [...prev.ships, world.entities[curr]],
-              moves: [...prev.moves, world.entities[shipMove.value]],
-            };
-          },
-          { ships: [], moves: [] }
-        );
+        if (currentGamePhase == Phase.Move) {
+          const shipsAndMoves: { ships: EntityID[]; moves: EntityID[] } = yourShips.reduce(
+            (prev: { ships: EntityID[]; moves: EntityID[] }, curr: EntityIndex) => {
+              const shipMove = getComponentValue(SelectedMove, curr);
+              if (!shipMove) return prev;
+              return {
+                ships: [...prev.ships, world.entities[curr]],
+                moves: [...prev.moves, world.entities[shipMove.value]],
+              };
+            },
+            { ships: [], moves: [] }
+          );
 
-        if (shipsAndMoves.ships.length == 0) return;
+          if (shipsAndMoves.ships.length == 0) return;
 
-        move(shipsAndMoves.ships, shipsAndMoves.moves);
+          move(shipsAndMoves.ships, shipsAndMoves.moves);
+        } else {
+          return;
+        }
       };
 
       const selectShip = (ship: EntityIndex, position: Coord) => {
@@ -173,6 +196,35 @@ export function registerYourShips() {
         camera.phaserCamera.zoomTo(1, 200, "Linear");
         setComponent(SelectedShip, GodEntityIndex, { value: ship });
         setComponent(Selection, GodEntityIndex, { value: SelectionType.Move });
+      };
+
+      const ActionButton = ({ index, shipActions }: { index: SelectionType; shipActions: number[] | undefined }) => {
+        const action = shipActions && shipActions[index] ? shipActions[index] : undefined;
+        return (
+          <Button
+            isSelected={index == selection}
+            onClick={() => {
+              setComponent(Selection, GodEntityIndex, { value: index });
+            }}
+            key={`action-button-${index}`}
+          >
+            {action && action !== -1 ? (
+              <>
+                <img
+                  src={ActionImg[action]}
+                  style={{
+                    height: "80%",
+                    objectFit: "scale-down",
+                    filter: "invert(19%) sepia(89%) saturate(1106%) hue-rotate(7deg) brightness(93%) contrast(102%)",
+                  }}
+                />
+                <p>{ActionNames[action]}</p>
+              </>
+            ) : (
+              <p>Choose Action {index}</p>
+            )}
+          </Button>
+        );
       };
 
       return (
@@ -191,8 +243,9 @@ export function registerYourShips() {
                 const damagedSail = getComponentValue(DamagedSail, ship)?.value;
                 const moveCardEntity = getComponentValue(SelectedMove, ship);
                 const isSelected = selectedShip == ship;
+                const shipActions = getComponentValue(SelectedActions, ship)?.value;
 
-                const SelectButton = () => {
+                const SelectMoveButton = () => {
                   if (!moveCardEntity)
                     return (
                       <SelectShip
@@ -309,8 +362,15 @@ export function registerYourShips() {
                         </div>
                       </div>
                     </div>
-
-                    <SelectButton />
+                    {currentGamePhase == Phase.Move ? (
+                      <SelectMoveButton />
+                    ) : (
+                      <ActionButtons>
+                        <ActionButton index={SelectionType.Action1} shipActions={shipActions} />
+                        <ActionButton index={SelectionType.Action2} shipActions={shipActions} />
+                        <ActionButton index={SelectionType.Action3} shipActions={shipActions} />
+                      </ActionButtons>
+                    )}
                   </Button>
                 );
               })}
@@ -324,14 +384,14 @@ export function registerYourShips() {
                 }}
                 style={{ flex: 2, fontSize: "24px", lineHeight: "30px" }}
               >
-                Clear Moves
+                Clear
               </Button>
               <ConfirmButton
                 disabled={selectedMoves.length == 0}
                 style={{ flex: 3, fontSize: "24px", lineHeight: "30px" }}
                 onClick={handleSubmit}
               >
-                Submit Moves
+                Submit
               </ConfirmButton>
             </ConfirmButtons>
           </InternalContainer>
@@ -376,4 +436,21 @@ const SelectShip = styled.div<{ isSelected?: boolean }>`
   width: 95%;
   border: 1px solid ${colors.gold};
   height: 60px;
+`;
+
+const ActionsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 6px;
+  line-height: 20px;
+`;
+
+const ActionButtons = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-between;
+  gap: 6px;
+  line-height: 20px;
 `;
