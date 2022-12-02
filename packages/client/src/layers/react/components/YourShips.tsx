@@ -6,7 +6,6 @@ import {
   getComponentEntities,
   getComponentValue,
   getComponentValueStrict,
-  getEntitiesWithValue,
   Has,
   HasValue,
   removeComponent,
@@ -18,7 +17,7 @@ import { GodID } from "@latticexyz/network";
 import { Arrows, SelectionType, ShipAttributeTypes } from "../../phaser/constants";
 import { Container, Button, ConfirmButton, InternalContainer, colors } from "../styles/global";
 import { getFinalMoveCard } from "../../../utils/directions";
-import { ActionImg, ActionNames, MoveCard, Phase, SailPositions } from "../../../constants";
+import { Action, ActionImg, ActionNames, MoveCard, Phase, SailPositions } from "../../../constants";
 import styled from "styled-components";
 import { Coord } from "@latticexyz/utils";
 import HullHealth from "./OverviewComponents/HullHealth";
@@ -31,7 +30,7 @@ export function registerYourShips() {
     "YourShips",
     // grid location
     {
-      rowStart: 10,
+      rowStart: 9,
       rowEnd: 13,
       colStart: 1,
       colEnd: 13,
@@ -117,6 +116,7 @@ export function registerYourShips() {
             move,
             getPlayerEntity,
             getCurrentGamePhase,
+            submitActions,
           };
         })
       );
@@ -149,13 +149,13 @@ export function registerYourShips() {
         getPlayerEntity,
         getCurrentGamePhase,
         move,
+        submitActions,
       } = props;
 
       const currentGamePhase: Phase | undefined = getCurrentGamePhase();
 
       if (currentGamePhase == undefined) return null;
 
-      console.log("current game phase:", currentGamePhase);
       const playerEntity = getPlayerEntity(connectedAddress.get());
       if (!playerEntity || !getComponentValue(Player, playerEntity)) return null;
 
@@ -168,26 +168,46 @@ export function registerYourShips() {
       const yourShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
 
       const selectedMoves = [...getComponentEntities(SelectedMove)];
+      const selectedActions = [...getComponentEntities(SelectedActions)].map(
+        (entity) => getComponentValue(SelectedActions, entity)?.value
+      );
+
+      const disabled =
+        currentGamePhase == Phase.Move
+          ? selectedMoves.length == 0
+          : selectedActions.length == 0 || selectedActions?.every((arr) => arr?.every((elem) => elem == -1));
 
       const handleSubmit = () => {
         if (currentGamePhase == Phase.Move) {
-          const shipsAndMoves: { ships: EntityID[]; moves: EntityID[] } = yourShips.reduce(
+          const shipsAndMoves = yourShips.reduce(
             (prev: { ships: EntityID[]; moves: EntityID[] }, curr: EntityIndex) => {
-              const shipMove = getComponentValue(SelectedMove, curr);
+              const shipMove = getComponentValue(SelectedMove, curr)?.value;
               if (!shipMove) return prev;
               return {
                 ships: [...prev.ships, world.entities[curr]],
-                moves: [...prev.moves, world.entities[shipMove.value]],
+                moves: [...prev.moves, world.entities[shipMove]],
               };
             },
             { ships: [], moves: [] }
           );
 
           if (shipsAndMoves.ships.length == 0) return;
-
           move(shipsAndMoves.ships, shipsAndMoves.moves);
         } else {
-          return;
+          const shipsAndActions = yourShips.reduce(
+            (prev: { ships: EntityID[]; actions: Action[][] }, curr: EntityIndex) => {
+              const actions = getComponentValue(SelectedActions, curr)?.value;
+              if (!actions) return prev;
+              const filteredActions = actions.filter((action) => action !== -1);
+              return {
+                ships: [...prev.ships, world.entities[curr]],
+                actions: [...prev.actions, filteredActions],
+              };
+            },
+            { ships: [], actions: [] }
+          );
+          if (shipsAndActions.ships.length == 0) return;
+          submitActions(shipsAndActions.ships, shipsAndActions.actions);
         }
       };
 
@@ -195,18 +215,34 @@ export function registerYourShips() {
         camera.phaserCamera.pan(position.x * positions.posWidth, position.y * positions.posHeight, 200, "Linear");
         camera.phaserCamera.zoomTo(1, 200, "Linear");
         setComponent(SelectedShip, GodEntityIndex, { value: ship });
-        setComponent(Selection, GodEntityIndex, { value: SelectionType.Move });
       };
 
-      const ActionButton = ({ index, shipActions }: { index: SelectionType; shipActions: number[] | undefined }) => {
-        const action = shipActions && shipActions[index] ? shipActions[index] : undefined;
+      const ActionButton = ({
+        ship,
+        selectionType,
+        actionIndex,
+        shipActions,
+      }: {
+        ship: EntityIndex;
+        selectionType: SelectionType;
+        actionIndex: number;
+        shipActions: number[] | undefined;
+      }) => {
+        const action = shipActions && shipActions[actionIndex] ? shipActions[actionIndex] : undefined;
+
+        console;
         return (
           <Button
-            isSelected={index == selection}
+            isSelected={selectionType == selection && selectedShip == ship}
             onClick={() => {
-              setComponent(Selection, GodEntityIndex, { value: index });
+              setComponent(Selection, GodEntityIndex, { value: selectionType });
+              setComponent(SelectedShip, GodEntityIndex, { value: ship });
+              console.log("ship clicked:", ship);
+              console.log("selection clicked:", selectionType);
+              console.log("action index:", actionIndex);
+              console.log("ship actions:", shipActions);
             }}
-            key={`action-button-${index}`}
+            key={`action-button-${ship}-${selectionType}`}
           >
             {action && action !== -1 ? (
               <>
@@ -221,7 +257,9 @@ export function registerYourShips() {
                 <p>{ActionNames[action]}</p>
               </>
             ) : (
-              <p>Choose Action {index}</p>
+              <p>
+                Choose Action {selectionType} {action}
+              </p>
             )}
           </Button>
         );
@@ -321,28 +359,34 @@ export function registerYourShips() {
                     <div style={{ display: "flex", borderRadius: "6px", width: "100%", height: "100%" }}>
                       <div
                         style={{
-                          flex: 1,
+                          flex: 2,
                           display: "flex",
                           flexDirection: "column",
                           height: "100%",
                           position: "relative",
+                          maxWidth: "120px",
+                          minWidth: "80px",
                         }}
                       >
                         <span style={{ fontSize: "20px", lineHeight: "28px" }}>HMS {ship}</span>
                         <span style={{ lineHeight: "16px", fontSize: "14px" }}>
                           ({position.x}, {position.y})
                         </span>
-                        <img
-                          src="/img/ds-ship.png"
-                          style={{
-                            objectFit: "scale-down",
-                            position: "absolute",
-                            bottom: 30,
-                            margin: "auto",
-                            left: "50%",
-                            transform: `rotate(${rotation - 90}deg) translate(50%, 0)`,
-                          }}
-                        />
+                        <BoxImage>
+                          <img
+                            src="/img/ds-ship.png"
+                            style={{
+                              objectFit: "scale-down",
+                              left: "50%",
+                              position: "absolute",
+                              top: "50%",
+                              margin: "auto",
+                              transform: `rotate(${rotation - 90}deg) translate(-50%,-50%)`,
+                              transformOrigin: `top left`,
+                              maxWidth: "50px",
+                            }}
+                          />
+                        </BoxImage>
                       </div>
                       <div style={{ flex: 3, display: "flex", flexDirection: "column" }}>
                         <HullHealth health={health} />
@@ -366,9 +410,24 @@ export function registerYourShips() {
                       <SelectMoveButton />
                     ) : (
                       <ActionButtons>
-                        <ActionButton index={SelectionType.Action1} shipActions={shipActions} />
-                        <ActionButton index={SelectionType.Action2} shipActions={shipActions} />
-                        <ActionButton index={SelectionType.Action3} shipActions={shipActions} />
+                        <ActionButton
+                          ship={ship}
+                          selectionType={SelectionType.Action1}
+                          actionIndex={0}
+                          shipActions={shipActions}
+                        />
+                        <ActionButton
+                          ship={ship}
+                          selectionType={SelectionType.Action2}
+                          actionIndex={1}
+                          shipActions={shipActions}
+                        />
+                        <ActionButton
+                          ship={ship}
+                          selectionType={SelectionType.Action3}
+                          actionIndex={2}
+                          shipActions={shipActions}
+                        />
                       </ActionButtons>
                     )}
                   </Button>
@@ -377,7 +436,7 @@ export function registerYourShips() {
             </MoveButtons>
             <ConfirmButtons>
               <Button
-                disabled={selectedMoves.length == 0}
+                disabled={disabled}
                 noGoldBorder
                 onClick={() => {
                   selectedMoves.map((entity) => removeComponent(SelectedMove, entity));
@@ -387,7 +446,7 @@ export function registerYourShips() {
                 Clear
               </Button>
               <ConfirmButton
-                disabled={selectedMoves.length == 0}
+                disabled={disabled}
                 style={{ flex: 3, fontSize: "24px", lineHeight: "30px" }}
                 onClick={handleSubmit}
               >
@@ -404,7 +463,6 @@ export function registerYourShips() {
 const MoveButtons = styled.div`
   flex: 5;
   display: flex;
-  justify-content: "flex-start";
   gap: 8px;
   font-size: 16px;
   font-weight: 700;
@@ -438,14 +496,6 @@ const SelectShip = styled.div<{ isSelected?: boolean }>`
   height: 60px;
 `;
 
-const ActionsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 6px;
-  line-height: 20px;
-`;
-
 const ActionButtons = styled.div`
   display: flex;
   flex-direction: row;
@@ -453,4 +503,15 @@ const ActionButtons = styled.div`
   justify-content: space-between;
   gap: 6px;
   line-height: 20px;
+`;
+
+const BoxImage = styled.div`
+  position: relative;
+  max-width: 100%;
+
+  :before {
+    content: "";
+    display: block;
+    padding-top: 100%;
+  }
 `;

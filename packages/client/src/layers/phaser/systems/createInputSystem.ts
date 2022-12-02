@@ -23,8 +23,8 @@ export function createInputSystem(network: NetworkLayer, phaser: PhaserLayer) {
     const pointer = p as Phaser.Input.Pointer;
     const tilePos = pixelCoordToTileCoord({ x: pointer.worldX, y: pointer.worldY }, tileWidth, tileHeight);
 
-    console.log("tile position:", tilePos);
-    console.log("pixel position:", pointer.worldX, pointer.worldY);
+    // console.log("tile position:", tilePos);
+    // console.log("pixel position:", pointer.worldX, pointer.worldY);
   });
 
   world.registerDisposer(() => clickSub?.unsubscribe());

@@ -54,7 +54,6 @@ export function registerTurnTimer() {
       );
     },
     ({ phaseLength, secondsUntilNextPhase, phase }) => {
-      console.log("turn length:", phaseLength);
       if (!phaseLength) return null;
 
       return (

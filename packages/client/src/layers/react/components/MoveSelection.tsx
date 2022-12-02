@@ -13,7 +13,7 @@ import { GodID } from "@latticexyz/network";
 import { Arrows, SelectionType } from "../../phaser/constants";
 import { Container, Button, ConfirmButton, InternalContainer } from "../styles/global";
 import { getFinalMoveCard, getMoveDistanceWithWind, getMoveWithSails, getWindBoost } from "../../../utils/directions";
-import { Action, ActionImg, ActionNames, MoveCard } from "../../../constants";
+import { Action, ActionImg, ActionNames, MoveCard, Phase } from "../../../constants";
 import styled from "styled-components";
 
 export function registerMoveSelection() {
@@ -22,8 +22,8 @@ export function registerMoveSelection() {
     "MoveSelection",
     // grid location
     {
-      rowStart: 8,
-      rowEnd: 10,
+      rowStart: 7,
+      rowEnd: 9,
       colStart: 1,
       colEnd: 13,
     },
@@ -33,9 +33,8 @@ export function registerMoveSelection() {
         network: {
           world,
           components: { Rotation, MoveCard, Wind, SailPosition, Position, Player },
-          network: { connectedAddress },
-          api: { move },
-          utils: { getPlayerEntity },
+          network: { connectedAddress, clock },
+          utils: { getPlayerEntity, getCurrentGamePhase },
         },
         phaser: {
           components: { SelectedShip, SelectedMove, Selection, SelectedActions },
@@ -44,6 +43,7 @@ export function registerMoveSelection() {
 
       return merge(
         // of(0),
+        clock.time$,
         MoveCard.update$,
         SelectedMove.update$,
         SelectedShip.update$,
@@ -69,6 +69,7 @@ export function registerMoveSelection() {
             world,
             connectedAddress,
             getPlayerEntity,
+            getCurrentGamePhase,
           };
         })
       );
@@ -87,7 +88,12 @@ export function registerMoveSelection() {
       connectedAddress,
       world,
       getPlayerEntity,
+      getCurrentGamePhase,
     }) => {
+      const currentGamePhase: Phase | undefined = getCurrentGamePhase();
+
+      if (currentGamePhase == undefined) return null;
+
       const playerEntity = getPlayerEntity(connectedAddress.get());
       if (!playerEntity || !getComponentValue(Player, playerEntity)) return null;
 
@@ -104,8 +110,7 @@ export function registerMoveSelection() {
 
       let content: JSX.Element = <></>;
 
-      if (selection == SelectionType.Move) {
-        console.log("move selected");
+      if (currentGamePhase == Phase.Move) {
         const selectedMove = getComponentValue(SelectedMove, selectedShip as EntityIndex);
 
         const moveEntities = [...getComponentEntities(MoveCard)];
@@ -146,7 +151,6 @@ export function registerMoveSelection() {
                     isSelected={isSelected}
                     key={`move-selection-${entity}`}
                     onClick={() => {
-                      console.log("movecard: ", moveCard);
                       setComponent(SelectedMove, selectedShip, { value: entity });
                     }}
                   >
@@ -158,7 +162,7 @@ export function registerMoveSelection() {
                         transform: `rotate(${rotation + 90}deg)`,
                       }}
                     />
-                    <p>
+                    <p style={{ lineHeight: "16px" }}>
                       {moveCard.distance}M / {Math.round((moveCard.direction + rotation) % 360)}º
                     </p>
                   </Button>
@@ -169,23 +173,19 @@ export function registerMoveSelection() {
       } else {
         const selectedAction = selectedActions[selection];
 
-        console.log("actions:", Object.values(Action));
         content = (
           <>
             {Object.keys(Action).map((a) => {
               const action = Number(a);
-              if (isNaN(action)) {
-                console.log(`${a} is not a number`);
-                return null;
-              }
+              if (isNaN(action)) return null;
               return (
                 <Button
                   isSelected={selectedAction == action}
                   key={`selectedAction-${action}`}
                   onClick={() => {
-                    console.log("action: ", action);
+                    // console.log("action: ", action);
                     const newArray = selectedActions;
-                    selectedActions[selection] = action;
+                    selectedActions[selection - 1] = action;
                     setComponent(SelectedActions, selectedShip, { value: newArray });
                   }}
                 >
@@ -197,7 +197,7 @@ export function registerMoveSelection() {
                       filter: "invert(19%) sepia(89%) saturate(1106%) hue-rotate(7deg) brightness(93%) contrast(102%)",
                     }}
                   />
-                  <p>{ActionNames[action]}</p>
+                  <p style={{ lineHeight: "16px" }}>{ActionNames[action]}</p>
                 </Button>
               );
             })}
@@ -207,9 +207,9 @@ export function registerMoveSelection() {
 
       return (
         <Container>
-          <InternalContainer style={{ width: "auto" }}>
+          <InternalContainer>
             <MoveButtons>{content}</MoveButtons>
-            <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
+            <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
               <Button
                 onClick={() => {
                   removeComponent(Selection, GodEntityIndex);

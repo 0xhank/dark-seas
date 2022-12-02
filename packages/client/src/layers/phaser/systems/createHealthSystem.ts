@@ -27,14 +27,14 @@ export function createHealthSystem(network: NetworkLayer, phaser: PhaserLayer) {
   const { objectPool } = phaser.scenes.Main;
 
   defineUpdateSystem(world, [Has(Health)], (update) => {
-    const object = objectPool.get(update.entity, "Rectangle");
+    const object = objectPool.get(update.entity, "Sprite");
 
     object.setComponent({
       id: "flash-red",
       now: (sprite) => {
-        sprite.setFillStyle(0xff0000);
+        sprite.setTint(0xff0000);
 
-        setTimeout(() => sprite.setFillStyle(0xe97451), 500);
+        setTimeout(() => sprite.clearTint());
       },
     });
   });
