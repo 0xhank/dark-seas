@@ -98,6 +98,9 @@ export function registerYourShips() {
             Health,
             CrewCount,
             Firepower,
+            Leak,
+            OnFire,
+            DamagedSail,
             world,
             camera,
             positions,
@@ -126,6 +129,9 @@ export function registerYourShips() {
         CrewCount,
         Firepower,
         SailPosition,
+        DamagedSail,
+        OnFire,
+        Leak,
         world,
         connectedAddress,
         getPlayerEntity,
@@ -180,6 +186,9 @@ export function registerYourShips() {
                 const health = getComponentValueStrict(Health, ship).value;
                 const crewCount = getComponentValueStrict(CrewCount, ship).value;
                 const firepower = getComponentValueStrict(Firepower, ship).value;
+                const onFire = getComponentValue(OnFire, ship)?.value;
+                const leak = getComponentValue(Leak, ship)?.value;
+                const damagedSail = getComponentValue(DamagedSail, ship)?.value;
                 const moveCardEntity = getComponentValue(SelectedMove, ship);
                 const isSelected = selectedShip == ship;
 
@@ -285,15 +294,18 @@ export function registerYourShips() {
                       <div style={{ flex: 3, display: "flex", flexDirection: "column" }}>
                         <HullHealth health={health} />
                         <div style={{ display: "flex", width: "100%" }}>
-                          <ShipAttribute attributeType={ShipAttributeTypes.Firepower} attribute={crewCount} />
-                          <ShipAttribute attributeType={ShipAttributeTypes.Crew} attribute={firepower} />
+                          <ShipAttribute attributeType={ShipAttributeTypes.Crew} attribute={crewCount} />
+                          <ShipAttribute attributeType={ShipAttributeTypes.Firepower} attribute={firepower} />
                           <ShipAttribute
                             attributeType={ShipAttributeTypes.Sails}
                             attribute={SailPositions[sailPosition]}
                           />
                         </div>
                         <div style={{ display: "flex" }}>
-                          <ShipDamage message="sails damaged" />
+                          {damagedSail && <ShipDamage message="sails torn" />}
+                          {onFire && <ShipDamage message="on fire" />}
+                          {leak && <ShipDamage message="leaking" />}
+                          {sailPosition == 0 && <ShipDamage message="mast broken" />}
                         </div>
                       </div>
                     </div>
