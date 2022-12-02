@@ -8,7 +8,7 @@ import {
   Has,
   UpdateType,
 } from "@latticexyz/recs";
-import { Side } from "../../../constants";
+import { Phase, Side } from "../../../constants";
 import { getWindBoost } from "../../../utils/directions";
 import { getFiringArea } from "../../../utils/trig";
 import { NetworkLayer } from "../../network";
@@ -18,7 +18,8 @@ import { PhaserLayer } from "../types";
 export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
   const {
     world,
-    components: { Position, Length, Rotation, Wind },
+    components: { Position, Length, Rotation, Wind, Range },
+    utils: { getCurrentGamePhase },
   } = network;
 
   const {
@@ -31,6 +32,10 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
   } = phaser;
 
   defineSystem(world, [Has(SelectedShip), Has(Wind)], ({ type }) => {
+    const currentGamePhase: Phase | undefined = getCurrentGamePhase();
+
+    if (currentGamePhase == undefined) return;
+
     const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
     let activeGroup = polygonRegistry.get("activeGroup");
@@ -56,11 +61,46 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
 
     const windBoost = getWindBoost(wind.speed, wind.direction, rotation);
 
-    const color = windBoost > 0 ? 0xa3ffa9 : windBoost < 0 ? 0xffa3a3 : 0xffffff;
+    const color =
+      currentGamePhase == Phase.Move ? (windBoost > 0 ? 0xa3ffa9 : windBoost < 0 ? 0xffa3a3 : 0xffffff) : 0xffffff;
     const circle = phaserScene.add.ellipse(pixelPosition.x, pixelPosition.y, circleWidth, circleHeight, color, 0.5);
 
     circle.setAngle(rotation % 360);
     circle.setOrigin(0.85, 0.5);
+
+    if (currentGamePhase == Phase.Action) {
+      const position = getComponentValueStrict(Position, shipEntityId);
+      const range = getComponentValueStrict(Range, shipEntityId).value;
+      const length = getComponentValueStrict(Length, shipEntityId).value;
+      const rotation = getComponentValueStrict(Rotation, shipEntityId).value;
+
+      const pixelPosition = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
+
+      const rightSidePoints = getFiringArea(
+        pixelPosition,
+        range * positions.posHeight,
+        length * positions.posHeight,
+        rotation,
+        Side.Right
+      );
+      const leftSidePoints = getFiringArea(
+        pixelPosition,
+        range * positions.posHeight,
+        length * positions.posHeight,
+        rotation,
+        Side.Left
+      );
+
+      const rightFiringRange = phaserScene.add.polygon(undefined, undefined, rightSidePoints, 0xffffff, 0.3);
+
+      const leftFiringRange = phaserScene.add.polygon(undefined, undefined, leftSidePoints, 0xffffff, 0.3);
+
+      rightFiringRange.setDisplayOrigin(0);
+      leftFiringRange.setDisplayOrigin(0);
+      activeGroup.add(rightFiringRange, true);
+      activeGroup.add(leftFiringRange, true);
+    }
+
     activeGroup.add(circle, true);
 
     polygonRegistry.set("activeGroup", activeGroup);

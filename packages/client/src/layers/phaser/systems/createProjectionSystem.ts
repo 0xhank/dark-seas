@@ -11,7 +11,7 @@ import {
   removeComponent,
   UpdateType,
 } from "@latticexyz/recs";
-import { Side } from "../../../constants";
+import { Phase, Side } from "../../../constants";
 import { getFinalPosition } from "../../../utils/directions";
 import { getFiringArea } from "../../../utils/trig";
 import { NetworkLayer } from "../../network";
@@ -22,6 +22,7 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
   const {
     world,
     components: { Wind, Position, Range, Length, Rotation, SailPosition, MoveCard },
+    utils: { getCurrentGamePhase },
   } = network;
 
   const {
@@ -42,6 +43,10 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
   });
 
   defineSystem(world, [Has(SelectedMove)], ({ entity, type }) => {
+    const currentGamePhase: Phase | undefined = getCurrentGamePhase();
+
+    if (currentGamePhase == undefined || currentGamePhase == Phase.Action) return;
+
     if (type == UpdateType.Exit) return;
     const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 

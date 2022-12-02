@@ -1,10 +1,13 @@
 import React from "react";
 import { registerUIComponent } from "../engine";
-import { map } from "rxjs";
+import { map, merge } from "rxjs";
 import { colors, Container } from "../styles/global";
 import { Phase, PhaseNames } from "../../../constants";
 import { autoAction } from "mobx/dist/internal";
 import styled from "styled-components";
+import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
+import { GodID } from "@latticexyz/network";
+import { getWindBoost } from "../../../utils/directions";
 
 export function registerTurnTimer() {
   registerUIComponent(
@@ -17,17 +20,22 @@ export function registerTurnTimer() {
     },
     (layers) => {
       const {
+        world,
         network: { clock, connectedAddress },
-        components: {},
+        components: { Wind, Rotation },
         utils: { getGameConfig },
       } = layers.network;
 
-      return clock.time$.pipe(
-        map((time) => {
+      const {
+        components: { SelectedShip },
+      } = layers.phaser;
+
+      return merge(clock.time$, Wind.update$, SelectedShip.update$).pipe(
+        map(() => {
           const gameConfig = getGameConfig();
           if (!gameConfig) return;
 
-          const timeElapsed = Math.floor(time / 1000) - parseInt(gameConfig.startTime);
+          const timeElapsed = Math.floor(clock.currentTime / 1000) - parseInt(gameConfig.startTime);
           const turnLength = gameConfig.movePhaseLength + gameConfig.actionPhaseLength;
 
           const secondsUntilNextTurn = turnLength - (timeElapsed % turnLength);
@@ -49,36 +57,59 @@ export function registerTurnTimer() {
             secondsUntilNextPhase,
             address,
             phase,
+            Wind,
+            SelectedShip,
+            Rotation,
+            world,
           };
         })
       );
     },
-    ({ phaseLength, secondsUntilNextPhase, phase }) => {
+    ({ phaseLength, secondsUntilNextPhase, phase, Wind, world, SelectedShip, Rotation }) => {
       if (!phaseLength) return null;
+      const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
+      const wind = getComponentValueStrict(Wind, GodEntityIndex);
+      const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value;
+      const rotation = selectedShip ? getComponentValueStrict(Rotation, selectedShip as EntityIndex).value : undefined;
+      const windBoost = rotation ? getWindBoost(wind.speed, wind.direction, rotation) : 0;
+      console.log("windboost:", windBoost);
       return (
-        <InternalContainer>
-          <Text>
-            {secondsUntilNextPhase} seconds left in {PhaseNames[phase]} Phase
-          </Text>
-          <ProgressBar phaseLength={phaseLength} secondsUntilNextPhase={secondsUntilNextPhase} />
-        </InternalContainer>
+        <OuterContainer>
+          <InternalContainer>
+            <Text>
+              {secondsUntilNextPhase} seconds left in {PhaseNames[phase]} Phase
+            </Text>
+            <ProgressBar phaseLength={phaseLength} secondsUntilNextPhase={secondsUntilNextPhase} />
+          </InternalContainer>
+          {windBoost != 0 && (
+            <span>
+              The wind is {windBoost > 0 ? "speeding this ship by" : "slowing this ship by"} {Math.abs(windBoost)}
+              kts!
+            </span>
+          )}
+        </OuterContainer>
       );
     }
   );
 }
 
-const InternalContainer = styled.div`
+const OuterContainer = styled.div`
   top: 20px;
   left: 50%;
   transform: translate(-50%, 0);
-  background: ${colors.glass};
-  border-radius: 6px;
-  height: 30px;
+
   position: relative;
+  text-align: center;
+`;
+
+const InternalContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  background: ${colors.glass};
+  border-radius: 6px;
+  height: ;
 `;
 
 const Text = styled.div`
@@ -93,7 +124,7 @@ const ProgressBar = styled.div<{ phaseLength: number; secondsUntilNextPhase: num
   position: absolute;
   top: 0;
   left: 0;
-  height: 100%;
+  height: 30px;
   transition: width 1s linear;
   background-color: ${colors.gold};
   width: ${({ phaseLength, secondsUntilNextPhase }) =>
