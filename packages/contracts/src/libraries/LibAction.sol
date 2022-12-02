@@ -10,6 +10,7 @@ import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireCo
 import { LeakComponent, ID as LeakComponentID } from "../components/LeakComponent.sol";
 import { DamagedSailComponent, ID as DamagedSailComponentID } from "../components/DamagedSailComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
+import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 
 import { console } from "forge-std/console.sol";
 
@@ -24,12 +25,17 @@ library LibAction {
     uint256 entity,
     Side side
   ) public {
+    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
+
     Coord[4] memory firingRange = LibCombat.getFiringArea(components, entity, side);
 
     (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
+    uint256 owner = ownedByComponent.getValue(entity);
     for (uint256 i = 0; i < shipEntities.length; i++) {
       if (shipEntities[i] == entity) continue;
+      if (owner == ownedByComponent.getValue(shipEntities[i])) continue;
+
       (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
 
       if (LibVector.withinPolygon(firingRange, aft)) {
