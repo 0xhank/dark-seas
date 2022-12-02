@@ -176,7 +176,11 @@ contract AttackActionTest is MudTest {
     shipEntities.push(attackerId);
     actions.push(Action.FireRight);
     allActions.push(actions);
+
+    uint256 gas = gasleft();
     actionSystem.executeTyped(shipEntities, allActions);
+
+    console.log("gas:", gas - gasleft());
 
     uint32 newHealth = healthComponent.getValue(defenderId);
 

@@ -17,6 +17,7 @@ import { WindComponent, ID as WindComponentID } from "../components/WindComponen
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
+import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 
 import { Wind, GodID, MoveCard, Phase } from "../libraries/DSTypes.sol";
 import "../libraries/LibVector.sol";
@@ -56,9 +57,10 @@ contract MoveSystem is System {
       uint256 moveCardEntity = moveCardEntities[i];
       uint256 entity = entities[i];
 
-      console.log("move card entity:", moveCardEntity);
-      console.log("expected:", uint256(keccak256("ds.prototype.moveEntity1")));
-
+      require(
+        HealthComponent(getAddressById(components, HealthComponentID)).getValue(entity) > 0,
+        "MoveSystem: ship is sunk"
+      );
       require(
         OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(entity) == playerEntity,
         "MoveSystem: you don't own this ship"
