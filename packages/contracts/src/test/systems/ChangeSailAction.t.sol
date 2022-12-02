@@ -26,6 +26,9 @@ contract ChangeSailActionTest is MudTest {
   ShipSpawnSystem shipSpawnSystem;
   GameConfig gameConfig;
 
+  uint256[] shipEntities = new uint256[](0);
+  uint256[] moveEntities = new uint256[](0);
+  Action[][] allActions = new Action[][](0);
   Action[] actions = new Action[](0);
 
   function testExecute() public prank(deployer) {
@@ -34,12 +37,14 @@ contract ChangeSailActionTest is MudTest {
     uint32 startingRotation = 45;
     uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
 
+    shipEntities.push(shipEntityId);
     actions.push(Action.LowerSail);
+    allActions.push(actions);
 
     uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
     vm.warp(newTurn);
 
-    actionSystem.executeTyped(shipEntityId, actions);
+    actionSystem.executeTyped(shipEntities, allActions);
 
     uint32 newSailPosition = sailPositionComponent.getValue(shipEntityId);
 
@@ -55,24 +60,32 @@ contract ChangeSailActionTest is MudTest {
     uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
     vm.warp(newTurn);
 
+    delete shipEntities;
     delete actions;
+    delete allActions;
+
+    shipEntities.push(shipEntityId);
     actions.push(Action.RaiseSail);
-    actionSystem.executeTyped(shipEntityId, actions);
+    allActions.push(actions);
+
+    actionSystem.executeTyped(shipEntities, allActions);
 
     uint32 newSailPosition = sailPositionComponent.getValue(shipEntityId);
 
     assertEq(newSailPosition, 3);
 
     delete actions;
+    delete allActions;
     actions.push(Action.LowerSail);
     actions.push(Action.LowerSail);
     actions.push(Action.LowerSail);
     actions.push(Action.LowerSail);
+    allActions.push(actions);
 
     newTurn = 1 + gameConfig.movePhaseLength + (2 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength));
     vm.warp(newTurn);
 
-    actionSystem.executeTyped(shipEntityId, actions);
+    actionSystem.executeTyped(shipEntities, allActions);
 
     newSailPosition = sailPositionComponent.getValue(shipEntityId);
     assertEq(newSailPosition, 1);

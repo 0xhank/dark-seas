@@ -25,17 +25,13 @@ contract ActionSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
-    (uint256 shipEntity, Action[] memory actions) = abi.decode(arguments, (uint256, Action[]));
+    (uint256[] memory entities, Action[][] memory actions) = abi.decode(arguments, (uint256[], Action[][]));
+
+    require(entities.length == actions.length, "ActionSystem: array length mismatch");
 
     uint256 playerEntity = addressToEntity(msg.sender);
 
     require(LibSpawn.playerIdExists(components, playerEntity), "ActionSystem: player does not exist");
-
-    require(
-      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(shipEntity) ==
-        addressToEntity(msg.sender),
-      "ActionSystem: you don't own this ship"
-    );
 
     LastActionComponent lastActionComponent = LastActionComponent(getAddressById(components, LastActionComponentID));
     require(LibTurn.getCurrentPhase(components) == Phase.Action, "ActionSystem: incorrect turn phase");
@@ -47,36 +43,47 @@ contract ActionSystem is System {
     );
     lastActionComponent.set(playerEntity, currentTurn);
 
-    require(
-      ShipComponent(getAddressById(components, ShipComponentID)).has(shipEntity),
-      "ChangeSailSystem: Entity must be a ship"
-    );
+    for (uint256 i = 0; i < entities.length; i++) {
+      Action[] memory shipActions = actions[i];
+      uint256 shipEntity = entities[i];
 
-    for (uint256 i = 0; i < actions.length; i++) {
-      Action action = actions[i];
-      if (action == Action.FireRight) {
-        LibAction.attack(components, shipEntity, Side.Right);
-      } else if (action == Action.FireLeft) {
-        LibAction.attack(components, shipEntity, Side.Left);
-      } else if (action == Action.RaiseSail) {
-        LibAction.raiseSail(components, shipEntity);
-      } else if (action == Action.LowerSail) {
-        LibAction.lowerSail(components, shipEntity);
-      } else if (action == Action.ExtinguishFire) {
-        LibAction.extinguishFire(components, shipEntity);
-      } else if (action == Action.RepairLeak) {
-        LibAction.repairLeak(components, shipEntity);
-      } else if (action == Action.RepairMast) {
-        LibAction.repairMast(components, shipEntity);
-      } else if (action == Action.RepairSail) {
-        LibAction.repairSail(components, shipEntity);
-      } else {
-        revert("ActionSystem: invalid action");
+      require(
+        OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(shipEntity) ==
+          addressToEntity(msg.sender),
+        "ActionSystem: you don't own this ship"
+      );
+
+      require(
+        ShipComponent(getAddressById(components, ShipComponentID)).has(shipEntity),
+        "ActionSystem: Entity must be a ship"
+      );
+
+      for (uint256 j = 0; j < shipActions.length; j++) {
+        Action action = shipActions[i];
+        if (action == Action.FireRight) {
+          LibAction.attack(components, shipEntity, Side.Right);
+        } else if (action == Action.FireLeft) {
+          LibAction.attack(components, shipEntity, Side.Left);
+        } else if (action == Action.RaiseSail) {
+          LibAction.raiseSail(components, shipEntity);
+        } else if (action == Action.LowerSail) {
+          LibAction.lowerSail(components, shipEntity);
+        } else if (action == Action.ExtinguishFire) {
+          LibAction.extinguishFire(components, shipEntity);
+        } else if (action == Action.RepairLeak) {
+          LibAction.repairLeak(components, shipEntity);
+        } else if (action == Action.RepairMast) {
+          LibAction.repairMast(components, shipEntity);
+        } else if (action == Action.RepairSail) {
+          LibAction.repairSail(components, shipEntity);
+        } else {
+          revert("ActionSystem: invalid action");
+        }
       }
     }
   }
 
-  function executeTyped(uint256 shipEntity, Action[] calldata actions) public returns (bytes memory) {
+  function executeTyped(uint256[] calldata shipEntity, Action[][] calldata actions) public returns (bytes memory) {
     return execute(abi.encode(shipEntity, actions));
   }
 }

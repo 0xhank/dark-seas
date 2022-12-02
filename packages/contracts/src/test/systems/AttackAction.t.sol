@@ -34,13 +34,14 @@ contract AttackActionTest is MudTest {
 
   uint256[] shipEntities = new uint256[](0);
   uint256[] moveEntities = new uint256[](0);
+  Action[][] allActions = new Action[][](0);
   Action[] actions = new Action[](0);
 
   function testRevertNotPlayer() public {
     setup();
 
     vm.expectRevert(bytes("ActionSystem: player does not exist"));
-    actionSystem.executeTyped(69, actions);
+    actionSystem.executeTyped(shipEntities, allActions);
   }
 
   function testRevertNotOwner() public {
@@ -51,14 +52,17 @@ contract AttackActionTest is MudTest {
 
     vm.prank(deployer);
     shipSpawnSystem.executeTyped(Coord(0, 0), 0);
-    uint256 newTurn = 2 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength) + 2;
+    uint256 newTurn = 2 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength) + 2 + gameConfig.movePhaseLength;
 
     vm.warp(newTurn);
 
     vm.prank(deployer);
 
+    shipEntities.push(shipEntityId);
+    allActions.push(actions);
+
     vm.expectRevert(bytes("ActionSystem: you don't own this ship"));
-    actionSystem.executeTyped(shipEntityId, actions);
+    actionSystem.executeTyped(shipEntities, allActions);
   }
 
   function testAttackAction() public prank(deployer) {
@@ -83,8 +87,14 @@ contract AttackActionTest is MudTest {
     blocktimestamp = blocktimestamp + gameConfig.movePhaseLength * 10;
     vm.warp(blocktimestamp);
 
+    delete shipEntities;
+    delete actions;
+    delete allActions;
+
+    shipEntities.push(attackerId);
     actions.push(Action.FireRight);
-    actionSystem.executeTyped(attackerId, actions);
+    allActions.push(actions);
+    actionSystem.executeTyped(shipEntities, allActions);
 
     uint32 newHealth = healthComponent.getValue(defenderId);
 
@@ -128,9 +138,14 @@ contract AttackActionTest is MudTest {
     console.log(warp);
     vm.warp(gameConfig.movePhaseLength + 1 + (15 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength)));
 
+    delete shipEntities;
     delete actions;
+    delete allActions;
+
+    shipEntities.push(attackerId);
     actions.push(Action.FireRight);
-    actionSystem.executeTyped(attackerId, actions);
+    allActions.push(actions);
+    actionSystem.executeTyped(shipEntities, allActions);
 
     uint32 newHealth = healthComponent.getValue(attackerId);
     assertEq(newHealth, attackerHealth);
@@ -152,9 +167,14 @@ contract AttackActionTest is MudTest {
     blocktimestamp = blocktimestamp + gameConfig.movePhaseLength * 10;
     vm.warp(blocktimestamp);
 
+    delete shipEntities;
     delete actions;
+    delete allActions;
+
+    shipEntities.push(attackerId);
     actions.push(Action.FireRight);
-    actionSystem.executeTyped(attackerId, actions);
+    allActions.push(actions);
+    actionSystem.executeTyped(shipEntities, allActions);
 
     uint32 newHealth = healthComponent.getValue(defenderId);
 
