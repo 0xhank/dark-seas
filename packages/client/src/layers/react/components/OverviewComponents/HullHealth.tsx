@@ -24,7 +24,7 @@ export default function HullHealth({ health }: { health: number }) {
 }
 
 const HealthContainer = styled(Container)`
-  background: ${colors.gold};
+  background: ${colors.thickGlass};
   height: 45px;
   width: 100%;
   color: ${colors.darkBrown};

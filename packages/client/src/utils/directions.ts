@@ -101,3 +101,16 @@ export function getFinalPosition(
 
   return { finalPosition, finalRotation };
 }
+
+export function rotationToDirectionName(rotation: number): string {
+  rotation = rotation % 360;
+  let ret = "";
+  if (rotation > 215 && rotation < 315) ret += "N";
+  if (rotation > 45 && rotation < 135) ret += "S";
+  if ((rotation > 259 && rotation < 281) || (rotation > 79 && rotation < 101)) return ret;
+
+  if (rotation > 248 && rotation < 292) return (ret += "NE");
+  if (rotation > 68 && rotation < 112) return (ret += "SE");
+
+  return ret;
+}

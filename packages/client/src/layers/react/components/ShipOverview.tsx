@@ -109,10 +109,10 @@ export function registerShipOverview() {
       const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value as SailPositions;
       const selection = getComponentValue(Selection, GodEntityIndex)?.value;
 
-      const shipActions = getComponentValue(SelectedActions, shipEntity);
+      const shipActions = getComponentValue(SelectedActions, shipEntity)?.value;
 
       const ActionButton = ({ index }: { index: SelectionType }) => {
-        const action = shipActions && shipActions.value[index] ? shipActions.value[index] : undefined;
+        const action = shipActions && shipActions[index] ? shipActions[index] : undefined;
         return (
           <Button
             isSelected={index == selection}
@@ -123,7 +123,14 @@ export function registerShipOverview() {
           >
             {action && action !== -1 ? (
               <>
-                <img src={ActionImg[action]} style={{ height: "80%", objectFit: "scale-down" }} />
+                <img
+                  src={ActionImg[action]}
+                  style={{
+                    height: "80%",
+                    objectFit: "scale-down",
+                    filter: "invert(19%) sepia(89%) saturate(1106%) hue-rotate(7deg) brightness(93%) contrast(102%)",
+                  }}
+                />
                 <p>{ActionNames[action]}</p>
               </>
             ) : (
@@ -135,7 +142,7 @@ export function registerShipOverview() {
 
       const handleSubmit = () => {
         if (!shipActions) return;
-        const actionEntities = shipActions.value.filter((element) => element >= 0);
+        const actionEntities = shipActions.filter((element) => element >= 0);
         submitActions(world.entities[shipEntity], actionEntities);
       };
 
@@ -158,11 +165,8 @@ export function registerShipOverview() {
                   <ActionButton index={SelectionType.Action2} />
                   <ActionButton index={SelectionType.Action3} />
                 </ActionButtons>
-                <Button
-                  onClick={handleSubmit}
-                  disabled={!shipActions || shipActions.value.every((action) => action == -1)}
-                >
-                  Submit Actions {shipActions?.value}
+                <Button onClick={handleSubmit} disabled={!shipActions || shipActions.every((action) => action == -1)}>
+                  Submit Actions {shipActions}
                 </Button>
               </ActionsContainer>
             </OverviewContainer>

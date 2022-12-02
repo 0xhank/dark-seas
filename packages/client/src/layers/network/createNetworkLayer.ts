@@ -22,7 +22,7 @@ import { SystemTypes } from "../../../../contracts/types/SystemTypes";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { GameConfig, getNetworkConfig } from "./config";
 import { Coord } from "@latticexyz/utils";
-import { Action } from "../../constants";
+import { Action, Phase } from "../../constants";
 import { defineWindComponent } from "./components/WindComponent";
 import { defineMoveCardComponent } from "./components/MoveCardComponent";
 import { GodID } from "@latticexyz/network";
@@ -99,6 +99,22 @@ export async function createNetworkLayer(config: GameConfig) {
     return playerEntity;
   }
 
+  function getCurrentGamePhase(): Phase | undefined {
+    const gamePhase = getGamePhaseAt(network.clock.currentTime / 1000);
+    return gamePhase;
+  }
+
+  function getGamePhaseAt(timeInSeconds: number): Phase | undefined {
+    const gameConfig = getGameConfig();
+    if (!gameConfig) return undefined;
+    const timeElapsed = timeInSeconds - parseInt(gameConfig.startTime);
+    const turnLength = gameConfig.movePhaseLength + gameConfig.actionPhaseLength;
+
+    const secondsUntilNextTurn = turnLength - (timeElapsed % turnLength);
+
+    return secondsUntilNextTurn > gameConfig.actionPhaseLength ? Phase.Move : Phase.Action;
+  }
+
   // --- ACTION SYSTEM --------------------------------------------------------------
   const actions = createActionSystem(world, txReduced$);
 
@@ -136,7 +152,7 @@ export async function createNetworkLayer(config: GameConfig) {
     startSync,
     network,
     actions,
-    utils: { getGameConfig, getPlayerEntity },
+    utils: { getGameConfig, getPlayerEntity, getCurrentGamePhase, getGamePhaseAt },
     api: { spawnShip, move, submitActions, spawnPlayer },
     dev: setupDevSystems(world, encoders as any, systems),
   };

@@ -24,8 +24,8 @@ export function registerMoveSelection() {
     {
       rowStart: 8,
       rowEnd: 10,
-      colStart: 4,
-      colEnd: 10,
+      colStart: 1,
+      colEnd: 13,
     },
     // requirement
     (layers) => {
@@ -96,10 +96,9 @@ export function registerMoveSelection() {
       const selection = getComponentValue(Selection, GodEntityIndex)?.value;
       const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
 
-      console.log("selection:", selection);
-      console.log("selectedship:", selectedShip);
-
       if (selection == undefined || selection == SelectionType.None || !selectedShip) return null;
+
+      const selectedActions = getComponentValue(SelectedActions, selectedShip)?.value || [-1, -1, -1];
 
       const wind = getComponentValueStrict(Wind, GodEntityIndex);
 
@@ -153,7 +152,11 @@ export function registerMoveSelection() {
                   >
                     <img
                       src={imageUrl}
-                      style={{ height: "80%", objectFit: "scale-down", transform: `rotate(${rotation + 90}deg)` }}
+                      style={{
+                        height: "80%",
+                        objectFit: "scale-down",
+                        transform: `rotate(${rotation + 90}deg)`,
+                      }}
                     />
                     <p>
                       {moveCard.distance}M / {Math.round((moveCard.direction + rotation) % 360)}º
@@ -161,18 +164,9 @@ export function registerMoveSelection() {
                   </Button>
                 );
               })}
-            <Button
-              onClick={() => {
-                removeComponent(SelectedMove, selectedShip);
-              }}
-            >
-              Clear
-            </Button>
           </>
         );
       } else {
-        const selectedActions = getComponentValue(SelectedActions, selectedShip)?.value || [-1, -1, -1];
-
         const selectedAction = selectedActions[selection];
 
         console.log("actions:", Object.values(Action));
@@ -195,47 +189,58 @@ export function registerMoveSelection() {
                     setComponent(SelectedActions, selectedShip, { value: newArray });
                   }}
                 >
-                  <img src={ActionImg[action]} style={{ height: "80%", objectFit: "scale-down" }} />
+                  <img
+                    src={ActionImg[action]}
+                    style={{
+                      height: "80%",
+                      objectFit: "scale-down",
+                      filter: "invert(19%) sepia(89%) saturate(1106%) hue-rotate(7deg) brightness(93%) contrast(102%)",
+                    }}
+                  />
                   <p>{ActionNames[action]}</p>
                 </Button>
               );
             })}
-            <Button
-              onClick={() => {
-                let newArray = selectedActions;
-                newArray[selection] = -1;
-                setComponent(SelectedActions, selectedShip, { value: newArray });
-              }}
-            >
-              Clear
-            </Button>
           </>
         );
       }
 
       return (
-        <Container style={{ width: "auto", marginTop: "6px" }}>
-          <CloseButton
-            onClick={() => {
-              removeComponent(Selection, GodEntityIndex);
-            }}
-          >
-            Close
-          </CloseButton>
-          <MoveButtons>{content}</MoveButtons>
+        <Container>
+          <InternalContainer style={{ width: "auto" }}>
+            <MoveButtons>{content}</MoveButtons>
+            <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
+              <Button
+                onClick={() => {
+                  removeComponent(Selection, GodEntityIndex);
+                }}
+              >
+                Close
+              </Button>
+              <Button
+                onClick={() => {
+                  if (selection == SelectionType.Move) return removeComponent(SelectedMove, selectedShip);
+                  let newArray = selectedActions;
+                  newArray[selection] = -1;
+                  setComponent(SelectedActions, selectedShip, { value: newArray });
+                }}
+              >
+                Clear Selection
+              </Button>
+            </div>
+          </InternalContainer>
         </Container>
       );
     }
   );
 }
 
-const MoveButtons = styled(InternalContainer)`
-  flex: 4;
+const MoveButtons = styled.div`
   display: flex;
-  justify-content: "flex-start";
   gap: 8px;
   font-size: 16px;
   font-weight: 700;
+  width: auto;
 `;
 
 const CloseButton = styled.button`
