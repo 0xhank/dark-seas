@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { registerUIComponent } from "../engine";
 import {
   EntityID,
@@ -12,12 +12,15 @@ import {
 } from "@latticexyz/recs";
 import { map, merge } from "rxjs";
 import { GodID } from "@latticexyz/network";
-import { Arrows, SelectionType } from "../../phaser/constants";
+import { Arrows, SelectionType, ShipAttributeTypes } from "../../phaser/constants";
 import { Container, Button, ConfirmButton, InternalContainer, colors } from "../styles/global";
 import { getFinalMoveCard } from "../../../utils/directions";
-import { MoveCard } from "../../../constants";
+import { MoveCard, SailPositions } from "../../../constants";
 import styled from "styled-components";
 import { Coord } from "@latticexyz/utils";
+import HullHealth from "./OverviewComponents/HullHealth";
+import ShipAttribute from "./OverviewComponents/ShipAttribute";
+import ShipDamage from "./OverviewComponents/ShipDamage";
 
 export function registerYourShips() {
   registerUIComponent(
@@ -35,8 +38,22 @@ export function registerYourShips() {
       const {
         network: {
           world,
-          components: { Rotation, MoveCard, Wind, SailPosition, Position, Ship, Player },
-          api: { move },
+          components: {
+            Rotation,
+            MoveCard,
+            SailPosition,
+            Position,
+            Wind,
+            Player,
+            Health,
+            CrewCount,
+            DamagedSail,
+            Firepower,
+            Leak,
+            OnFire,
+            Ship,
+          },
+          api: { move, submitActions },
           network: { connectedAddress },
           utils: { getPlayerEntity },
         },
@@ -50,7 +67,6 @@ export function registerYourShips() {
       } = layers;
 
       return merge(
-        // of(0),
         MoveCard.update$,
         SelectedMove.update$,
         SelectedShip.update$,
@@ -58,7 +74,14 @@ export function registerYourShips() {
         SailPosition.update$,
         Position.update$,
         Selection.update$,
-        Player.update$
+        Player.update$,
+        Health.update$,
+        CrewCount.update$,
+        DamagedSail.update$,
+        Firepower.update$,
+        Leak.update$,
+        OnFire.update$,
+        Ship.update$
       ).pipe(
         map(() => {
           return {
@@ -72,6 +95,9 @@ export function registerYourShips() {
             Player,
             Wind,
             Ship,
+            Health,
+            CrewCount,
+            Firepower,
             world,
             camera,
             positions,
@@ -89,14 +115,17 @@ export function registerYourShips() {
         SelectedMove,
         SelectedShip,
         Rotation,
-        SailPosition,
         Selection,
         camera,
         positions,
         Position,
         Wind,
         Ship,
+        Health,
         Player,
+        CrewCount,
+        Firepower,
+        SailPosition,
         world,
         connectedAddress,
         getPlayerEntity,
@@ -112,6 +141,8 @@ export function registerYourShips() {
       const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
 
       const yourShips = [...getEntitiesWithValue(Ship, { value: true })];
+
+      const selectedMoves = [...getComponentEntities(SelectedMove)];
 
       const handleSubmit = () => {
         const shipsAndMoves: { ships: EntityID[]; moves: EntityID[] } = yourShips.reduce(
@@ -140,12 +171,15 @@ export function registerYourShips() {
 
       return (
         <Container style={{ justifyContent: "flex-end" }}>
-          <InternalContainer style={{ height: "auto", maxHeight: "100%", gap: "24px" }}>
+          <InternalContainer style={{ gap: "24px" }}>
             <MoveButtons>
               {yourShips.map((ship) => {
                 const sailPosition = getComponentValueStrict(SailPosition, ship).value;
                 const rotation = getComponentValueStrict(Rotation, ship).value;
                 const position = getComponentValueStrict(Position, ship);
+                const health = getComponentValueStrict(Health, ship).value;
+                const crewCount = getComponentValueStrict(CrewCount, ship).value;
+                const firepower = getComponentValueStrict(Firepower, ship).value;
                 const moveCardEntity = getComponentValue(SelectedMove, ship);
                 const isSelected = selectedShip == ship;
 
@@ -222,14 +256,48 @@ export function registerYourShips() {
                     isSelected={isSelected}
                     key={`move-selection-${ship}`}
                   >
-                    <span style={{ flex: 1, fontSize: "20px" }}>HMS {ship}</span>
-                    <img
-                      src="/img/ds-ship.png"
-                      style={{
-                        objectFit: "scale-down",
-                        transform: `rotate(${rotation - 90}deg)`,
-                      }}
-                    />
+                    <div style={{ display: "flex", borderRadius: "6px", width: "100%", height: "100%" }}>
+                      <div
+                        style={{
+                          flex: 1,
+                          display: "flex",
+                          flexDirection: "column",
+                          height: "100%",
+                          position: "relative",
+                        }}
+                      >
+                        <span style={{ fontSize: "20px", lineHeight: "28px" }}>HMS {ship}</span>
+                        <span style={{ lineHeight: "16px", fontSize: "14px" }}>
+                          ({position.x}, {position.y})
+                        </span>
+                        <img
+                          src="/img/ds-ship.png"
+                          style={{
+                            objectFit: "scale-down",
+                            position: "absolute",
+                            bottom: 30,
+                            margin: "auto",
+                            left: "50%",
+                            transform: `rotate(${rotation - 90}deg) translate(50%, 0)`,
+                          }}
+                        />
+                      </div>
+                      <div style={{ flex: 3, display: "flex", flexDirection: "column" }}>
+                        <HullHealth health={health} />
+                        <div style={{ display: "flex", width: "100%" }}>
+                          <ShipAttribute attributeType={ShipAttributeTypes.Firepower} attribute={crewCount} />
+                          <ShipAttribute attributeType={ShipAttributeTypes.Crew} attribute={firepower} />
+                          <ShipAttribute
+                            attributeType={ShipAttributeTypes.Sails}
+                            attribute={SailPositions[sailPosition]}
+                          />
+                        </div>
+                        <div style={{ display: "flex" }}>
+                          <ShipDamage message="sails damaged" />
+                        </div>
+                      </div>
+                    </div>
+
                     <SelectButton />
                   </Button>
                 );
@@ -237,16 +305,20 @@ export function registerYourShips() {
             </MoveButtons>
             <ConfirmButtons>
               <Button
+                disabled={selectedMoves.length == 0}
                 noGoldBorder
                 onClick={() => {
-                  const entities = [...getComponentEntities(SelectedMove)];
-                  entities.map((entity) => removeComponent(SelectedMove, entity));
+                  selectedMoves.map((entity) => removeComponent(SelectedMove, entity));
                 }}
                 style={{ flex: 2, fontSize: "24px", lineHeight: "30px" }}
               >
                 Clear Moves
               </Button>
-              <ConfirmButton style={{ flex: 3, fontSize: "24px", lineHeight: "30px" }} onClick={handleSubmit}>
+              <ConfirmButton
+                disabled={selectedMoves.length == 0}
+                style={{ flex: 3, fontSize: "24px", lineHeight: "30px" }}
+                onClick={handleSubmit}
+              >
                 Submit Moves
               </ConfirmButton>
             </ConfirmButtons>
@@ -258,7 +330,7 @@ export function registerYourShips() {
 }
 
 const MoveButtons = styled.div`
-  flex: 4;
+  flex: 5;
   display: flex;
   justify-content: "flex-start";
   gap: 8px;
@@ -270,6 +342,7 @@ const ConfirmButtons = styled.div`
   flex: 1;
   display: flex;
   justify-content: flex-end;
+  flex-direction: column-reverse;
   gap: 5px;
 `;
 
@@ -290,5 +363,5 @@ const SelectShip = styled.div<{ isSelected?: boolean }>`
   background: ${colors.glass};
   width: 95%;
   border: 1px solid ${colors.gold};
-  height: 40px;
+  height: 60px;
 `;

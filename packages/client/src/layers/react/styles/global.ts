@@ -14,6 +14,8 @@ const darkerGray = "hsl(0,0%,40%)";
 const blue = "hsl(203,93.8%,44.3%)";
 const glass = "hsla(0, 0%, 100%, 0.5)";
 const thickGlass = "hsla(0, 0%, 100%, 0.75)";
+const thinGlass = "hsla(0, 0%, 100%, 0.25)";
+const red = "hsl(0, 100%, 50%)";
 
 const blueGradient =
   "linear-gradient(45deg, hsla(203, 93%, 33%, 1) 0%, hsla(203, 97%, 37%, 1) 51%, hsla(203, 100%, 53%, 1) 100%)";
@@ -32,7 +34,9 @@ export const colors = {
   darkGold,
   glass,
   thickGlass,
+  thinGlass,
   blueGradient,
+  red,
 };
 
 export const Container = styled.div`

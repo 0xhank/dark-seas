@@ -54,7 +54,7 @@ const LeftSide = styled.div`
 `;
 
 const RightSide = styled.div`
-  background: ${colors.gold};
+  background: ${colors.thickGlass};
   border-radius: 0 12px 12px 0;
   padding: 6px;
   display: flex;
