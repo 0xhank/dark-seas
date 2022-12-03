@@ -82,7 +82,7 @@ contract MoveSystem is System {
       Coord memory position = positionComponent.getValue(entity);
       uint32 rotation = rotationComponent.getValue(entity);
 
-      moveCard.distance = LibMove.getMoveDistanceWithWind(moveCard.distance, rotation, wind);
+      moveCard = LibMove.getMoveWithWind(moveCard, rotation, wind);
 
       moveCard = LibMove.getMoveWithSails(moveCard, sailPositionComponent.getValue(entity));
 

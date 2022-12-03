@@ -65,7 +65,7 @@ contract MoveSystemTest is MudTest {
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
     uint32 playerRotation = rotationComponent.getValue(shipEntityId);
-    assertCoordEq(Coord({ x: startingPosition.x + 21, y: startingPosition.y + 21 }), currPosition);
+    assertCoordEq(Coord({ x: startingPosition.x + 17, y: startingPosition.y + 17 }), currPosition);
     assertEq(playerRotation, startingRotation);
 
     currPosition = positionComponent.getValue(shipEntity2Id);
@@ -177,7 +177,13 @@ contract MoveSystemTest is MudTest {
     setup();
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
-    uint32 startingRotation = 45;
+    uint32 startingRotation = 0;
+    console.log("wind direction:", wind.direction);
+    console.log("wind speed:", wind.speed);
+
+    console.log("wind boost:");
+    console.logInt(LibMove.windBoost(wind, startingRotation));
+
     uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
 
     uint256 moveHardRightId = uint256(keccak256("ds.prototype.moveEntity2"));
@@ -194,7 +200,7 @@ contract MoveSystemTest is MudTest {
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
     uint32 playerRotation = rotationComponent.getValue(shipEntityId);
-    assertCoordEq(Coord({ x: startingPosition.x, y: startingPosition.y + 29 }), currPosition);
+    assertCoordEq(Coord({ x: startingPosition.x + 14, y: startingPosition.y + 14 }), currPosition);
     assertEq(playerRotation, (startingRotation + 90) % 360);
   }
 
@@ -202,7 +208,7 @@ contract MoveSystemTest is MudTest {
     setup();
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
-    uint32 startingRotation = 108;
+    uint32 startingRotation = 333;
     uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity3"));
@@ -219,36 +225,44 @@ contract MoveSystemTest is MudTest {
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
     uint32 playerRotation = rotationComponent.getValue(shipEntityId);
-    assertCoordEq(Coord({ x: startingPosition.x - 7, y: startingPosition.y + 7 }), currPosition);
+    assertCoordEq(Coord({ x: startingPosition.x + 20, y: startingPosition.y }), currPosition);
     assertEq(playerRotation, (startingRotation + 45) % 360);
   }
 
   function testGetWindBoost() public prank(deployer) {
     setup();
 
-    assertEq(LibMove.getWindBoost(wind, 90), -10);
-    assertEq(LibMove.getWindBoost(wind, 112), 10);
-    assertEq(LibMove.getWindBoost(wind, 171), 0);
-    assertEq(LibMove.getWindBoost(wind, 211), -10);
-    assertEq(LibMove.getWindBoost(wind, 331), 0);
-    assertEq(LibMove.getWindBoost(wind, 11), 10);
-    assertEq(LibMove.getWindBoost(wind, 70), -10);
+    Wind memory customWind = Wind({ direction: 0, speed: 10 });
+    assertEq(LibMove.windBoost(customWind, 90), 0);
+    assertEq(LibMove.windBoost(customWind, 112), 0);
+    assertEq(LibMove.windBoost(customWind, 171), -10);
+    assertEq(LibMove.windBoost(customWind, 211), -10);
+    assertEq(LibMove.windBoost(customWind, 331), 10);
+    assertEq(LibMove.windBoost(customWind, 11), 10);
+    assertEq(LibMove.windBoost(customWind, 70), 10);
   }
 
-  function testGetMoveDistanceWithWind() public prank(deployer) {
+  function testGetMoveWithWind() public prank(deployer) {
     setup();
 
-    uint32 moveDistance = LibMove.getMoveDistanceWithWind(20, 90, wind);
-    assertEq(moveDistance, 10);
+    MoveCard memory moveCard = MoveCard({ distance: 20, rotation: 20, direction: 20 });
 
-    moveDistance = LibMove.getMoveDistanceWithWind(5, 90, wind);
-    assertEq(moveDistance, 0);
+    Wind memory wind = Wind({ speed: 10, direction: 0 });
 
-    moveDistance = LibMove.getMoveDistanceWithWind(10, 130, wind);
-    assertEq(moveDistance, 20);
+    MoveCard memory newMoveCard = LibMove.getMoveWithWind(moveCard, 90, wind);
+    assertEq(moveCard.distance, newMoveCard.distance, "no wind effect distance failed");
+    assertEq(moveCard.rotation, newMoveCard.rotation, "no wind effect rotation failed");
+    assertEq(moveCard.direction, newMoveCard.direction, "no wind effect angle failed");
 
-    moveDistance = LibMove.getMoveDistanceWithWind(10, 190, wind);
-    assertEq(moveDistance, 10);
+    newMoveCard = LibMove.getMoveWithWind(moveCard, 0, wind);
+    assertApproxEqAbs(newMoveCard.distance, (moveCard.distance * 125) / 100, 1, "wind boost distance failed");
+    assertApproxEqAbs(newMoveCard.rotation, (moveCard.rotation * 125) / 100, 1, "wind boost rotation failed");
+    assertApproxEqAbs(newMoveCard.direction, (moveCard.direction * 125) / 100, 1, "wind boost angle failed");
+
+    newMoveCard = LibMove.getMoveWithWind(moveCard, 180, wind);
+    assertApproxEqAbs(newMoveCard.distance, (moveCard.distance * 75) / 100, 1, "wind debuff distance failed");
+    assertApproxEqAbs(newMoveCard.rotation, (moveCard.rotation * 75) / 100, 1, "wind debuff rotation failed");
+    assertApproxEqAbs(newMoveCard.direction, (moveCard.direction * 75) / 100, 1, "wind debuff angle failed");
   }
 
   function testGetMoveWithOpenSails() public prank(deployer) {
@@ -264,9 +278,9 @@ contract MoveSystemTest is MudTest {
 
     sailPosition = 2;
     newMoveCard = LibMove.getMoveWithSails(moveCard, sailPosition);
-    assertApproxEqAbs(moveCard.distance, (newMoveCard.distance * 100) / 75, 1, "battle sails distance failed");
-    assertApproxEqAbs(moveCard.rotation, (newMoveCard.rotation * 100) / 75, 1, "battle sails rotation failed");
-    assertApproxEqAbs(moveCard.direction, (newMoveCard.direction * 100) / 75, 1, "battle sails angle failed");
+    assertApproxEqAbs(moveCard.distance, (newMoveCard.distance * 100) / 70, 1, "battle sails distance failed");
+    assertApproxEqAbs(moveCard.rotation, (newMoveCard.rotation * 100) / 70, 1, "battle sails rotation failed");
+    assertApproxEqAbs(moveCard.direction, (newMoveCard.direction * 100) / 70, 1, "battle sails angle failed");
 
     moveCard.rotation = 270;
     moveCard.direction = 315;
@@ -274,9 +288,9 @@ contract MoveSystemTest is MudTest {
     sailPosition = 1;
 
     newMoveCard = LibMove.getMoveWithSails(moveCard, sailPosition);
-    assertEq(newMoveCard.distance, 20, "closed sails distance failed");
-    assertEq(newMoveCard.rotation, 324, "closed sails rotation failed");
-    assertEq(newMoveCard.direction, 342, "closed sails angle failed");
+    assertEq(newMoveCard.distance, (moveCard.distance * 40) / 100, "closed sails distance failed");
+    assertEq(newMoveCard.rotation, 360 - ((360 - moveCard.rotation) * 40) / 100, "closed sails rotation failed");
+    assertEq(newMoveCard.direction, 360 - ((360 - moveCard.direction) * 40) / 100, "closed sails angle failed");
   }
 
   function testMoveWithBattleSails() public prank(deployer) {
@@ -316,7 +330,7 @@ contract MoveSystemTest is MudTest {
 
     Coord memory currPosition = positionComponent.getValue(shipEntityId);
 
-    assertCoordEq(currPosition, Coord({ x: 15, y: 0 }));
+    assertCoordEq(currPosition, Coord({ x: 14, y: 0 }));
   }
 
   function testMoveWithClosedSails() public prank(deployer) {
