@@ -153,6 +153,26 @@ contract MoveSystemTest is MudTest {
     moveSystem.executeTyped(shipEntities, moveEntities);
   }
 
+  function testRevertOutOfBounds() public {
+    setup();
+    uint32 worldRadius = GameConfigComponent(getAddressById(components, GameConfigComponentID))
+      .getValue(GodID)
+      .worldRadius;
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(Coord(int32(worldRadius), 0), 0);
+    uint256 moveStraightId = uint256(keccak256("ds.prototype.moveEntity1"));
+
+    delete shipEntities;
+    delete moveEntities;
+    shipEntities.push(shipEntityId);
+    moveEntities.push(moveStraightId);
+
+    uint256 newTurn = gameConfig.movePhaseLength + gameConfig.actionPhaseLength + 2;
+    vm.warp(newTurn);
+
+    vm.expectRevert(bytes("MoveSystem: move out of bounds"));
+    moveSystem.executeTyped(shipEntities, moveEntities);
+  }
+
   function testMoveHardRight() public prank(deployer) {
     setup();
 

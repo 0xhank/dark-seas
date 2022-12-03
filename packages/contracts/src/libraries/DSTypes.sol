@@ -42,4 +42,5 @@ struct GameConfig {
   // Number of seconds
   uint32 movePhaseLength;
   uint32 actionPhaseLength;
+  uint32 worldRadius;
 }

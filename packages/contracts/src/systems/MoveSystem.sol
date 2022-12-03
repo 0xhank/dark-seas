@@ -88,6 +88,7 @@ contract MoveSystem is System {
 
       position = LibVector.getPositionByVector(position, rotation, moveCard.distance, moveCard.direction);
 
+      require(LibVector.inWorldRadius(components, position), "MoveSystem: move out of bounds");
       rotation = (rotation + moveCard.rotation) % 360;
 
       positionComponent.set(entity, position);
