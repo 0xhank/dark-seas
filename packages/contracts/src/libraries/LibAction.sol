@@ -12,6 +12,7 @@ import { DamagedMastComponent, ID as DamagedMastComponentID } from "../component
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
+import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 
 import { console } from "forge-std/console.sol";
 
@@ -24,11 +25,21 @@ library LibAction {
   function applyDamage(IUint256Component components, uint256 entity) public {
     LeakComponent leakComponent = LeakComponent(getAddressById(components, LeakComponentID));
     CrewCountComponent crewCountComponent = CrewCountComponent(getAddressById(components, CrewCountComponentID));
+    DamagedMastComponent damagedMastComponent = DamagedMastComponent(
+      getAddressById(components, DamagedMastComponentID)
+    );
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
 
     if (leakComponent.has(entity)) {
       uint32 crewCount = crewCountComponent.getValue(entity);
       if (crewCount <= 1) crewCountComponent.set(entity, 0);
       else crewCountComponent.set(entity, crewCount - 1);
+    }
+
+    if (damagedMastComponent.has(entity)) {
+      uint32 health = healthComponent.getValue(entity);
+      if (health <= 1) healthComponent.set(entity, 0);
+      else healthComponent.set(entity, health - 1);
     }
   }
 

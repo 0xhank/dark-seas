@@ -12,7 +12,7 @@ import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpaw
 import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/ComponentDevSystem.sol";
 import { OnFireComponent, ID as OnFireComponentID } from "../../components/OnFireComponent.sol";
 import { LeakComponent, ID as LeakComponentID } from "../../components/LeakComponent.sol";
-import { DamagedSailComponent, ID as DamagedSailComponentID } from "../../components/DamagedSailComponent.sol";
+import { DamagedMastComponent, ID as DamagedMastComponentID } from "../../components/DamagedMastComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../../components/SailPositionComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 import { Action, Coord, GameConfig, GodID } from "../../libraries/DSTypes.sol";
@@ -108,29 +108,29 @@ contract RepairActionTest is MudTest {
     assertEq(sailPositionComponent.getValue(entityID), 1);
   }
 
-  function testRepairSail() public prank(deployer) {
+  function testRepairMast() public prank(deployer) {
     setup();
-    DamagedSailComponent damagedSailComponent = DamagedSailComponent(
-      getAddressById(components, DamagedSailComponentID)
+    DamagedMastComponent damagedMastComponent = DamagedMastComponent(
+      getAddressById(components, DamagedMastComponentID)
     );
     uint256 entityID = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
-    componentDevSystem.executeTyped(DamagedSailComponentID, entityID, abi.encode(true));
+    componentDevSystem.executeTyped(DamagedMastComponentID, entityID, abi.encode(1));
 
-    assertTrue(damagedSailComponent.has(entityID));
+    assertTrue(damagedMastComponent.has(entityID));
 
     delete shipEntities;
     delete actions;
     delete allActions;
 
     shipEntities.push(entityID);
-    actions.push(Action.RepairSail);
+    actions.push(Action.RepairMast);
     allActions.push(actions);
 
     uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
     vm.warp(newTurn);
 
     actionSystem.executeTyped(shipEntities, allActions);
-    assertFalse(damagedSailComponent.has(entityID));
+    assertFalse(damagedMastComponent.has(entityID));
   }
 
   /**

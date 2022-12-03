@@ -116,6 +116,33 @@ contract RepairActionTest is MudTest {
 
   function testDamagedMastEffect() public prank(deployer) {
     setup();
+    uint256 entityID = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
+
+    DamagedMastComponent damagedMastComponent = DamagedMastComponent(
+      getAddressById(components, DamagedMastComponentID)
+    );
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+
+    componentDevSystem.executeTyped(DamagedMastComponentID, entityID, abi.encode(2));
+
+    assertTrue(damagedMastComponent.has(entityID));
+
+    uint32 health = healthComponent.getValue(entityID);
+
+    delete shipEntities;
+    delete actions;
+    delete allActions;
+
+    shipEntities.push(entityID);
+    actions.push(Action.RepairMast);
+    allActions.push(actions);
+
+    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
+    vm.warp(newTurn);
+
+    actionSystem.executeTyped(shipEntities, allActions);
+    assertTrue(damagedMastComponent.has(entityID));
+    assertEq(healthComponent.getValue(entityID), health - 1);
   }
 
   function testDamagedSailEffect() public prank(deployer) {
