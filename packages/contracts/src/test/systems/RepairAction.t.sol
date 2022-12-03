@@ -28,6 +28,9 @@ contract RepairActionTest is MudTest {
   ShipSpawnSystem shipSpawnSystem;
   ComponentDevSystem componentDevSystem;
 
+  uint256[] shipEntities = new uint256[](0);
+  uint256[] moveEntities = new uint256[](0);
+  Action[][] allActions = new Action[][](0);
   Action[] actions = new Action[](0);
 
   function testExtinguishFire() public prank(deployer) {
@@ -39,12 +42,19 @@ contract RepairActionTest is MudTest {
     componentDevSystem.executeTyped(OnFireComponentID, entityID, abi.encode(true));
 
     assertTrue(onFireComponent.has(entityID));
-    actions.push(Action.ExtinguishFire);
 
     uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
     vm.warp(newTurn);
 
-    actionSystem.executeTyped(entityID, actions);
+    delete shipEntities;
+    delete actions;
+    delete allActions;
+
+    shipEntities.push(entityID);
+    actions.push(Action.ExtinguishFire);
+    allActions.push(actions);
+    actionSystem.executeTyped(shipEntities, allActions);
+
     assertFalse(onFireComponent.has(entityID));
   }
 
@@ -58,13 +68,18 @@ contract RepairActionTest is MudTest {
 
     assertTrue(leakComponent.has(entityID));
 
+    delete shipEntities;
     delete actions;
+    delete allActions;
+
+    shipEntities.push(entityID);
     actions.push(Action.RepairLeak);
+    allActions.push(actions);
 
     uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
     vm.warp(newTurn);
 
-    actionSystem.executeTyped(entityID, actions);
+    actionSystem.executeTyped(shipEntities, allActions);
     assertFalse(leakComponent.has(entityID));
   }
 
@@ -77,13 +92,19 @@ contract RepairActionTest is MudTest {
 
     assertEq(sailPositionComponent.getValue(entityID), 0);
 
+    delete shipEntities;
     delete actions;
+    delete allActions;
+
+    shipEntities.push(entityID);
     actions.push(Action.RepairMast);
+    allActions.push(actions);
 
     uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
     vm.warp(newTurn);
 
-    actionSystem.executeTyped(entityID, actions);
+    actionSystem.executeTyped(shipEntities, allActions);
+
     assertEq(sailPositionComponent.getValue(entityID), 1);
   }
 
@@ -97,13 +118,18 @@ contract RepairActionTest is MudTest {
 
     assertTrue(damagedSailComponent.has(entityID));
 
+    delete shipEntities;
     delete actions;
+    delete allActions;
+
+    shipEntities.push(entityID);
     actions.push(Action.RepairSail);
+    allActions.push(actions);
 
     uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
     vm.warp(newTurn);
 
-    actionSystem.executeTyped(entityID, actions);
+    actionSystem.executeTyped(shipEntities, allActions);
     assertFalse(damagedSailComponent.has(entityID));
   }
 

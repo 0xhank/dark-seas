@@ -41,13 +41,13 @@ library LibSpawn {
     IUint256Component components,
     uint256 playerEntity
   ) public {
-    int32 x = 10;
+    int32 x = -10;
     int32 y = 0;
     uint32 rotation = 260;
     for (uint256 i = 0; i < 3; i++) {
       uint256 entity = world.getUniqueEntityId();
       spawnShip(components, entity, playerEntity, Coord(x, y), rotation);
-      x -= 10;
+      x += 10;
       rotation += 10;
     }
 

@@ -137,9 +137,9 @@ export async function createNetworkLayer(config: GameConfig) {
     });
   }
 
-  function submitActions(ship: EntityID, actions: Action[]) {
+  function submitActions(ships: EntityID[], actions: Action[][]) {
     console.log("submitting actions");
-    systems["ds.system.Action"].executeTyped(ship, actions);
+    systems["ds.system.Action"].executeTyped(ships, actions);
   }
 
   // --- CONTEXT --------------------------------------------------------------------

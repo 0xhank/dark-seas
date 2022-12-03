@@ -33,9 +33,10 @@ contract MoveSystemTest is MudTest {
   ActionSystem actionSystem;
   GameConfig gameConfig;
 
-  Action[] actions = new Action[](0);
   uint256[] shipEntities = new uint256[](0);
   uint256[] moveEntities = new uint256[](0);
+  Action[][] allActions = new Action[][](0);
+  Action[] actions = new Action[](0);
 
   function testMove() public prank(deployer) {
     setup();
@@ -213,12 +214,18 @@ contract MoveSystemTest is MudTest {
     uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
 
     vm.warp(gameConfig.movePhaseLength + 1);
-    actions.push(Action.LowerSail);
 
     uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
     vm.warp(newTurn);
 
-    actionSystem.executeTyped(shipEntityId, actions);
+    delete shipEntities;
+    delete actions;
+    delete allActions;
+
+    shipEntities.push(shipEntityId);
+    actions.push(Action.LowerSail);
+    allActions.push(actions);
+    actionSystem.executeTyped(shipEntities, allActions);
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
 
@@ -249,10 +256,15 @@ contract MoveSystemTest is MudTest {
     uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
     vm.warp(newTurn);
 
+    delete shipEntities;
     delete actions;
+    delete allActions;
+
+    shipEntities.push(shipEntityId);
     actions.push(Action.LowerSail);
     actions.push(Action.LowerSail);
-    actionSystem.executeTyped(shipEntityId, actions);
+    allActions.push(actions);
+    actionSystem.executeTyped(shipEntities, allActions);
 
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
 

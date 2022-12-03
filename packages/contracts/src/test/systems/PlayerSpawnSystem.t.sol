@@ -73,29 +73,29 @@ contract PlayerSpawnTest is MudTest {
       uint256 entity = entities[i];
 
       Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(entity);
-      assertApproxEqAbs(position.x, 0, 10);
-      assertEq(0, position.y);
+      assertApproxEqAbs(position.x, 0, 10, "incorrect x");
+      assertEq(0, position.y, "incorrect y");
 
       uint256 testVar = RotationComponent(getAddressById(components, RotationComponentID)).getValue(entity);
-      assertApproxEqAbs(testVar, 10, 10);
+      assertApproxEqAbs(testVar, 270, 10, "incorrect rotation");
 
       testVar = LengthComponent(getAddressById(components, LengthComponentID)).getValue(entity);
-      assertEq(testVar, 10);
+      assertEq(testVar, 10, "incorrect length");
 
       testVar = RangeComponent(getAddressById(components, RangeComponentID)).getValue(entity);
-      assertEq(testVar, 50);
+      assertEq(testVar, 50, "incorrect range");
 
       testVar = SailPositionComponent(getAddressById(components, SailPositionComponentID)).getValue(entity);
-      assertEq(testVar, 3);
+      assertEq(testVar, 3, "incorrect sail position");
 
       testVar = CrewCountComponent(getAddressById(components, CrewCountComponentID)).getValue(entity);
-      assertEq(testVar, 8);
+      assertEq(testVar, 8, "incorrect crew count");
 
       testVar = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(entity);
-      assertEq(testVar, 50);
+      assertEq(testVar, 50, "incorrect firepower");
 
       testVar = OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(entity);
-      assertEq(testVar, playerEntity);
+      assertEq(testVar, playerEntity, "incorrect owner");
     }
   }
 

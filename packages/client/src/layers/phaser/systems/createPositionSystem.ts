@@ -73,7 +73,7 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
                   const start = target.angle % 360;
                   const end = (rotation - 90) % 360;
 
-                  console.log(`start angle: ${start}, end angle: ${end}`);
+                  // console.log(`start angle: ${start}, end angle: ${end}`);
 
                   let diff = end - start;
 
@@ -105,9 +105,9 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
         gameObject.setPosition(x, y);
 
         gameObject.setInteractive();
-        console.log("updated position");
+        // console.log("updated position");
         gameObject.on("pointerdown", () => {
-          console.log("you just clicked on entity", update.entity);
+          // console.log("you just clicked on entity", update.entity);
           const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
           setComponent(SelectedShip, GodEntityIndex, { value: update.entity });
