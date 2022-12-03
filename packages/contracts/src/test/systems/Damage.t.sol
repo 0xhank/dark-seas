@@ -7,6 +7,7 @@ pragma solidity >=0.8.0;
 import { ShipComponent, ID as ShipComponentID } from "../../components/ShipComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../../components/SailPositionComponent.sol";
 // Systems
+import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
 import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.sol";
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
 import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/ComponentDevSystem.sol";
@@ -17,6 +18,8 @@ import { SailPositionComponent, ID as SailPositionComponentID } from "../../comp
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 import { CrewCountComponent, ID as CrewCountComponentID } from "../../components/CrewCountComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
+import { PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
+import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
 
 import { Action, Coord, GameConfig, GodID } from "../../libraries/DSTypes.sol";
 
@@ -117,6 +120,32 @@ contract RepairActionTest is MudTest {
 
   function testDamagedSailEffect() public prank(deployer) {
     setup();
+
+    SailPositionComponent sailPositionComponent = SailPositionComponent(
+      getAddressById(components, SailPositionComponentID)
+    );
+    MoveSystem moveSystem = MoveSystem(system(MoveSystemID));
+    PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
+    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
+
+    uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
+
+    uint256 entityID = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
+
+    Coord memory position = positionComponent.getValue(entityID);
+    uint32 rotation = rotationComponent.getValue(entityID);
+    componentDevSystem.executeTyped(SailPositionComponentID, entityID, abi.encode(0));
+
+    delete shipEntities;
+    moveEntities.push(moveStraightEntityId);
+    shipEntities.push(entityID);
+    uint256 newTurn = 2 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength) + 2;
+    vm.warp(newTurn);
+
+    moveSystem.executeTyped(shipEntities, moveEntities);
+
+    assertCoordEq(positionComponent.getValue(entityID), position);
+    assertEq(rotationComponent.getValue(entityID), rotation);
   }
 
   /**

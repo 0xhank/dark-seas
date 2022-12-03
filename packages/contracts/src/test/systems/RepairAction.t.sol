@@ -83,7 +83,7 @@ contract RepairActionTest is MudTest {
     assertFalse(leakComponent.has(entityID));
   }
 
-  function testRepairMast() public prank(deployer) {
+  function testRepairSail() public prank(deployer) {
     setup();
 
     uint256 entityID = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
@@ -97,7 +97,7 @@ contract RepairActionTest is MudTest {
     delete allActions;
 
     shipEntities.push(entityID);
-    actions.push(Action.RepairMast);
+    actions.push(Action.RepairSail);
     allActions.push(actions);
 
     uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
