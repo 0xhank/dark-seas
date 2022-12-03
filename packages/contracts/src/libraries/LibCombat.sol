@@ -22,7 +22,7 @@ import { FirepowerComponent, ID as FirepowerComponentID } from "../components/Fi
 import { LeakComponent, ID as LeakComponentID } from "../components/LeakComponent.sol";
 import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
-import { DamagedSailComponent, ID as DamagedSailComponentID } from "../components/DamagedSailComponent.sol";
+import { DamagedMastComponent, ID as DamagedMastComponentID } from "../components/DamagedMastComponent.sol";
 import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 
 import "./LibVector.sol";
@@ -124,13 +124,13 @@ library LibCombat {
     if (dead) return;
 
     if (getSpecialChance(baseHitChance, r, 0)) {
-      OnFireComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity);
+      OnFireComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity, 2);
     }
     if (getSpecialChance(baseHitChance, r, 3)) {
       LeakComponent(getAddressById(components, LeakComponentID));
     }
     if (getSpecialChance(baseHitChance, r, 1)) {
-      DamagedSailComponent(getAddressById(components, DamagedSailComponentID)).set(defenderEntity);
+      DamagedMastComponent(getAddressById(components, DamagedMastComponentID)).set(defenderEntity, 2);
     }
     if (getSpecialChance(baseHitChance, r, 2)) {
       SailPositionComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity, 0);

@@ -17,6 +17,8 @@ import { WindComponent, ID as WindComponentID } from "../components/WindComponen
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
+import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
+import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 
 import { Wind, GodID, MoveCard, Phase } from "../libraries/DSTypes.sol";
 import "../libraries/LibVector.sol";
@@ -42,7 +44,6 @@ contract MoveSystem is System {
 
     uint32 currentTurn = LibTurn.getCurrentTurn(components);
     require(lastMoveComponent.getValue(playerEntity) < currentTurn, "MoveSystem: already moved this turn");
-    lastMoveComponent.set(playerEntity, currentTurn);
 
     MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
     PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
@@ -56,8 +57,15 @@ contract MoveSystem is System {
       uint256 moveCardEntity = moveCardEntities[i];
       uint256 entity = entities[i];
 
-      console.log("move card entity:", moveCardEntity);
-      console.log("expected:", uint256(keccak256("ds.prototype.moveEntity1")));
+      require(
+        HealthComponent(getAddressById(components, HealthComponentID)).getValue(entity) > 0,
+        "MoveSystem: ship is sunk"
+      );
+
+      require(
+        CrewCountComponent(getAddressById(components, CrewCountComponentID)).getValue(entity) > 0,
+        "MoveSystem: ship has no crew"
+      );
 
       require(
         OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(entity) == playerEntity,
@@ -84,6 +92,7 @@ contract MoveSystem is System {
 
       positionComponent.set(entity, position);
       rotationComponent.set(entity, rotation);
+      lastMoveComponent.set(playerEntity, currentTurn);
     }
   }
 

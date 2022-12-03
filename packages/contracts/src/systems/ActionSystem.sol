@@ -80,6 +80,9 @@ contract ActionSystem is System {
           revert("ActionSystem: invalid action");
         }
       }
+
+      // todo: apply damage to all ships every turn instead of only if they act
+      LibAction.applyDamage(components, shipEntity);
     }
   }
 

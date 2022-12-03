@@ -154,12 +154,14 @@ contract AttackActionTest is MudTest {
     assertEq(newHealth, origHealth);
   }
 
-  function testCombatPrecise() public prank(deployer) {
+  function testCombatPrecise() public {
     setup();
 
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
 
     uint256 attackerId = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
+
+    vm.prank(deployer);
     uint256 defenderId = shipSpawnSystem.executeTyped(Coord({ x: 9, y: 25 }), 0);
 
     uint32 origHealth = healthComponent.getValue(defenderId);
@@ -174,7 +176,11 @@ contract AttackActionTest is MudTest {
     shipEntities.push(attackerId);
     actions.push(Action.FireRight);
     allActions.push(actions);
+
+    uint256 gas = gasleft();
     actionSystem.executeTyped(shipEntities, allActions);
+
+    console.log("gas:", gas - gasleft());
 
     uint32 newHealth = healthComponent.getValue(defenderId);
 

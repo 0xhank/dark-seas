@@ -9,6 +9,9 @@ import { RotationComponent, ID as RotationComponentID } from "../../components/R
 import { WindComponent, ID as WindComponentID } from "../../components/WindComponent.sol";
 import { MoveCardComponent, ID as MoveCardComponentID } from "../../components/MoveCardComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
+import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/ComponentDevSystem.sol";
+import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
+import { CrewCountComponent, ID as CrewCountComponentID } from "../../components/CrewCountComponent.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
@@ -69,6 +72,56 @@ contract MoveSystemTest is MudTest {
     playerRotation = rotationComponent.getValue(shipEntity2Id);
     assertCoordEq(Coord({ x: startingPosition.x + 20, y: startingPosition.y }), currPosition);
     assertEq(playerRotation, 0);
+  }
+
+  function testRevertShipDed() public {
+    setup();
+
+    ComponentDevSystem componentDevSystem = ComponentDevSystem(system(ComponentDevSystemID));
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+
+    Coord memory startingPosition = Coord({ x: 0, y: 0 });
+    uint32 startingRotation = 45;
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
+    uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
+
+    uint256 newTurn = gameConfig.movePhaseLength + gameConfig.actionPhaseLength + 2;
+    vm.warp(newTurn);
+
+    delete shipEntities;
+    delete moveEntities;
+
+    shipEntities.push(shipEntityId);
+    moveEntities.push(moveStraightEntityId);
+    componentDevSystem.executeTyped(HealthComponentID, shipEntityId, abi.encode(0));
+
+    vm.expectRevert(bytes("MoveSystem: ship is sunk"));
+    moveSystem.executeTyped(shipEntities, moveEntities);
+  }
+
+  function testRevertCruDed() public {
+    setup();
+
+    ComponentDevSystem componentDevSystem = ComponentDevSystem(system(ComponentDevSystemID));
+    CrewCountComponent crewCountComponent = CrewCountComponent(getAddressById(components, CrewCountComponentID));
+
+    Coord memory startingPosition = Coord({ x: 0, y: 0 });
+    uint32 startingRotation = 45;
+    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
+    uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
+
+    uint256 newTurn = gameConfig.movePhaseLength + gameConfig.actionPhaseLength + 2;
+    vm.warp(newTurn);
+
+    delete shipEntities;
+    delete moveEntities;
+
+    shipEntities.push(shipEntityId);
+    moveEntities.push(moveStraightEntityId);
+    componentDevSystem.executeTyped(CrewCountComponentID, shipEntityId, abi.encode(0));
+
+    vm.expectRevert(bytes("MoveSystem: ship has no crew"));
+    moveSystem.executeTyped(shipEntities, moveEntities);
   }
 
   function testRevertNotPlayer() public {
