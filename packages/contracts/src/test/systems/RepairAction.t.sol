@@ -39,7 +39,7 @@ contract RepairActionTest is MudTest {
 
     uint256 entityID = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
 
-    componentDevSystem.executeTyped(OnFireComponentID, entityID, abi.encode(true));
+    componentDevSystem.executeTyped(OnFireComponentID, entityID, abi.encode(1));
 
     assertTrue(onFireComponent.has(entityID));
 

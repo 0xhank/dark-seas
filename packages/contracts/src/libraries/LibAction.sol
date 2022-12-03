@@ -37,6 +37,7 @@ library LibAction {
     uint256 entity,
     Side side
   ) public {
+    if (OnFireComponent(getAddressById(components, OnFireComponentID)).has(entity)) return;
     OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
 
     Coord[4] memory firingRange = LibCombat.getFiringArea(components, entity, side);
@@ -86,8 +87,9 @@ library LibAction {
     OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
 
     if (!onFireComponent.has(entity)) return;
-
-    onFireComponent.remove(entity);
+    uint32 fireAmount = onFireComponent.getValue(entity);
+    if (fireAmount <= 1) onFireComponent.remove(entity);
+    else onFireComponent.set(entity, fireAmount - 1);
   }
 
   function repairLeak(IUint256Component components, uint256 entity) public {

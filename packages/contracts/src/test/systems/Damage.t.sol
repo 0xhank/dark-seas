@@ -36,6 +36,52 @@ contract RepairActionTest is MudTest {
   Action[][] allActions = new Action[][](0);
   Action[] actions = new Action[](0);
 
+  function testFireEffect() public prank(deployer) {
+    setup();
+    OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    uint256 attackerId = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
+    uint256 defenderId = shipSpawnSystem.executeTyped(Coord({ x: 9, y: 25 }), 0);
+    uint32 origHealth = healthComponent.getValue(defenderId);
+
+    componentDevSystem.executeTyped(OnFireComponentID, attackerId, abi.encode(2));
+    assertEq(onFireComponent.getValue(attackerId), 2);
+
+    delete shipEntities;
+    delete actions;
+    delete allActions;
+
+    shipEntities.push(attackerId);
+    actions.push(Action.ExtinguishFire);
+    allActions.push(actions);
+
+    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
+    vm.warp(newTurn);
+
+    actionSystem.executeTyped(shipEntities, allActions);
+    assertTrue(onFireComponent.has(attackerId));
+    assertEq(onFireComponent.getValue(attackerId), 1);
+
+    newTurn = gameConfig.movePhaseLength * 10;
+    vm.warp(newTurn);
+
+    delete shipEntities;
+    delete actions;
+    delete allActions;
+
+    shipEntities.push(attackerId);
+    actions.push(Action.FireRight);
+    allActions.push(actions);
+
+    uint256 gas = gasleft();
+    actionSystem.executeTyped(shipEntities, allActions);
+
+    console.log("gas:", gas - gasleft());
+
+    uint32 newHealth = healthComponent.getValue(defenderId);
+    assertEq(newHealth, origHealth);
+  }
+
   function testLeakEffect() public prank(deployer) {
     setup();
     LeakComponent leakComponent = LeakComponent(getAddressById(components, LeakComponentID));

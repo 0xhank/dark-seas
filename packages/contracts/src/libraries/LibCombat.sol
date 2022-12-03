@@ -124,7 +124,7 @@ library LibCombat {
     if (dead) return;
 
     if (getSpecialChance(baseHitChance, r, 0)) {
-      OnFireComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity);
+      OnFireComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity, 2);
     }
     if (getSpecialChance(baseHitChance, r, 3)) {
       LeakComponent(getAddressById(components, LeakComponentID));
