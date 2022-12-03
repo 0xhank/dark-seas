@@ -13,7 +13,7 @@ import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpaw
 import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/ComponentDevSystem.sol";
 import { OnFireComponent, ID as OnFireComponentID } from "../../components/OnFireComponent.sol";
 import { LeakComponent, ID as LeakComponentID } from "../../components/LeakComponent.sol";
-import { DamagedSailComponent, ID as DamagedSailComponentID } from "../../components/DamagedSailComponent.sol";
+import { DamagedMastComponent, ID as DamagedMastComponentID } from "../../components/DamagedMastComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../../components/SailPositionComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 import { CrewCountComponent, ID as CrewCountComponentID } from "../../components/CrewCountComponent.sol";

@@ -8,7 +8,7 @@ import { Coord, Wind, Side, MoveCard } from "../libraries/DSTypes.sol";
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
 import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireComponent.sol";
 import { LeakComponent, ID as LeakComponentID } from "../components/LeakComponent.sol";
-import { DamagedSailComponent, ID as DamagedSailComponentID } from "../components/DamagedSailComponent.sol";
+import { DamagedMastComponent, ID as DamagedMastComponentID } from "../components/DamagedMastComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
@@ -101,6 +101,17 @@ library LibAction {
   }
 
   function repairMast(IUint256Component components, uint256 entity) public {
+    DamagedMastComponent damagedMastComponent = DamagedMastComponent(
+      getAddressById(components, DamagedMastComponentID)
+    );
+
+    if (!damagedMastComponent.has(entity)) return;
+    uint32 mastDamage = damagedMastComponent.getValue(entity);
+    if (mastDamage <= 1) damagedMastComponent.remove(entity);
+    else damagedMastComponent.set(entity, mastDamage - 1);
+  }
+
+  function repairSail(IUint256Component components, uint256 entity) public {
     SailPositionComponent sailPositionComponent = SailPositionComponent(
       getAddressById(components, SailPositionComponentID)
     );
@@ -109,15 +120,5 @@ library LibAction {
     if (sailPositionComponent.getValue(entity) != 0) return;
 
     sailPositionComponent.set(entity, 1);
-  }
-
-  function repairSail(IUint256Component components, uint256 entity) public {
-    DamagedSailComponent damagedSailComponent = DamagedSailComponent(
-      getAddressById(components, DamagedSailComponentID)
-    );
-
-    if (!damagedSailComponent.has(entity)) return;
-
-    damagedSailComponent.remove(entity);
   }
 }

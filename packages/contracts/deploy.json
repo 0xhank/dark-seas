@@ -12,7 +12,7 @@
     "OnFireComponent",
     "LeakComponent",
     "CrewCountComponent",
-    "DamagedSailComponent",
+    "DamagedMastComponent",
     "FirepowerComponent",
     "GameConfigComponent",
     "LastMoveComponent",
@@ -48,7 +48,7 @@
         "HealthComponent",
         "LeakComponent",
         "OnFireComponent",
-        "DamagedSailComponent",
+        "DamagedMastComponent",
         "CrewCountComponent",
         "SailPositionComponent",
         "LastActionComponent"
