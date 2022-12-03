@@ -11,6 +11,7 @@ import { LeakComponent, ID as LeakComponentID } from "../components/LeakComponen
 import { DamagedSailComponent, ID as DamagedSailComponentID } from "../components/DamagedSailComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
+import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 
 import { console } from "forge-std/console.sol";
 
@@ -20,6 +21,17 @@ import "./LibUtils.sol";
 import "./LibVector.sol";
 
 library LibAction {
+  function applyDamage(IUint256Component components, uint256 entity) public {
+    LeakComponent leakComponent = LeakComponent(getAddressById(components, LeakComponentID));
+    CrewCountComponent crewCountComponent = CrewCountComponent(getAddressById(components, CrewCountComponentID));
+
+    if (leakComponent.has(entity)) {
+      uint32 crewCount = crewCountComponent.getValue(entity);
+      if (crewCount <= 1) crewCountComponent.set(entity, 0);
+      else crewCountComponent.set(entity, crewCount - 1);
+    }
+  }
+
   function attack(
     IUint256Component components,
     uint256 entity,

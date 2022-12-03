@@ -44,7 +44,6 @@ contract MoveSystem is System {
 
     uint32 currentTurn = LibTurn.getCurrentTurn(components);
     require(lastMoveComponent.getValue(playerEntity) < currentTurn, "MoveSystem: already moved this turn");
-    lastMoveComponent.set(playerEntity, currentTurn);
 
     MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
     PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
@@ -93,6 +92,7 @@ contract MoveSystem is System {
 
       positionComponent.set(entity, position);
       rotationComponent.set(entity, rotation);
+      lastMoveComponent.set(playerEntity, currentTurn);
     }
   }
 
