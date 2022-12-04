@@ -29,7 +29,7 @@ export default function ShipAttribute({
           }}
         />
       </LeftSide>
-      <RightSide style={{ fontSize: `${attributeString.length > 2 ? "14px" : "20px"}` }}>{attribute}</RightSide>
+      <RightSide style={{ fontSize: `${attributeString.length > 2 ? "1rem" : "1.25rem"}` }}>{attribute}</RightSide>
     </AttributeContainer>
   );
 }
@@ -60,7 +60,7 @@ const RightSide = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 24px;
+  font-size: 1.5rem;
   color: ${colors.darkBrown};
   line-height: 30px;
 `;

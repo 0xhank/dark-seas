@@ -6,7 +6,7 @@ export default function HullHealth({ health }: { health: number }) {
   const maxHealth = 12;
   return (
     <HealthContainer>
-      <span style={{ textTransform: "uppercase", fontWeight: 600, fontSize: "18px" }}>hull</span>
+      <span style={{ textTransform: "uppercase", fontWeight: 600, fontSize: "1rem" }}>hull</span>
       <span style={{ display: "flex", gap: "6px", width: "100%", height: "100%" }}>
         {Array(maxHealth)
           .fill(0)

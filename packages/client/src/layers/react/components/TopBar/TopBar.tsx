@@ -58,7 +58,7 @@ export function registerTopBar() {
           <Compass direction={dir} speed={speed} />
           <div
             style={{
-              marginLeft: "360px",
+              marginLeft: "290px",
               display: "flex",
               width: "100%",
               flexDirection: "column",
@@ -66,7 +66,7 @@ export function registerTopBar() {
               textAlign: "left",
             }}
           >
-            <span style={{ fontWeight: "bolder", fontSize: "24px", lineHeight: "40px" }}>Captain {name}'s Log</span>
+            <span style={{ fontWeight: "bolder", fontSize: "1.5rem", lineHeight: "2rem" }}>Captain {name}'s Log</span>
             <span>{date.toLocaleDateString("en-UK", options as any)}</span>
           </div>
         </Container>

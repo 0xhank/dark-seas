@@ -124,7 +124,7 @@ export const Row = styled.div`
 export const Input = styled.input`
   border-radius: 6px;
   padding: 7px;
-  font-size: 1.5em;
+  font-size: 1rem;
   background: ${thickGlass};
   border: 1px solid ${gold};
   color: ${darkBrown};

@@ -31,7 +31,7 @@ const JoinGameContainer = ({ layers }: { layers: Layers }) => {
         borderRadius: "6px",
       }}
     >
-      <h1 style={{ fontSize: "2.5em", margin: "auto" }}>Name Your Captain</h1>
+      <h1 style={{ fontSize: "2.5rem", margin: "auto" }}>Name Your Captain</h1>
 
       <div
         style={{
@@ -57,7 +57,7 @@ const JoinGameContainer = ({ layers }: { layers: Layers }) => {
             isSelected
             disabled={findSpawnButtonDisabled}
             style={{
-              fontSize: "1.5em",
+              fontSize: "1.5rem",
               flex: 1,
             }}
             onClick={() => {

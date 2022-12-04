@@ -32,5 +32,5 @@ const AmountLeft = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 16px;
+  font-size: 1rem;
 `;

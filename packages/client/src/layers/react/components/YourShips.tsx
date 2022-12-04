@@ -368,8 +368,8 @@ export function registerYourShips() {
                           minWidth: "80px",
                         }}
                       >
-                        <span style={{ fontSize: "20px", lineHeight: "28px" }}>HMS {ship}</span>
-                        <span style={{ lineHeight: "16px", fontSize: "14px" }}>
+                        <span style={{ fontSize: "1.5rem", lineHeight: "1.5rem" }}>HMS {ship}</span>
+                        <span style={{ lineHeight: "1.5rem", fontSize: "1rem" }}>
                           ({position.x}, {position.y})
                         </span>
                         <BoxImage>
@@ -399,7 +399,6 @@ export function registerYourShips() {
                           />
                         </div>
                         <div style={{ display: "flex" }}>
-                          <ShipDamage message="mast broken" amountLeft={2} />
                           {damagedMast && <ShipDamage message="mast broken" amountLeft={damagedMast} />}
                           {onFire && <ShipDamage message="on fire" amountLeft={onFire} />}
                           {leak && <ShipDamage message="leaking" />}
@@ -442,13 +441,13 @@ export function registerYourShips() {
                 onClick={() => {
                   selectedMoves.map((entity) => removeComponent(SelectedMove, entity));
                 }}
-                style={{ flex: 2, fontSize: "24px", lineHeight: "30px" }}
+                style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}
               >
                 Clear
               </Button>
               <ConfirmButton
                 disabled={disabled}
-                style={{ flex: 3, fontSize: "24px", lineHeight: "30px" }}
+                style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }}
                 onClick={handleSubmit}
               >
                 Submit
@@ -465,7 +464,7 @@ const MoveButtons = styled.div`
   flex: 5;
   display: flex;
   gap: 8px;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 700;
 `;
 

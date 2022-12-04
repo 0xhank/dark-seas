@@ -153,9 +153,9 @@ export function registerShipOverview() {
                   minWidth: "80px",
                 }}
               >
-                <span style={{ fontSize: "20px", lineHeight: "28px" }}>HMS {selectedShip}</span>
-                {ownerName && <span style={{ lineHeight: "16px", fontSize: "14px" }}>Cpt. {ownerName}</span>}
-                <span style={{ lineHeight: "16px", fontSize: "14px" }}>
+                <span style={{ fontSize: "1.5rem", lineHeight: "2rem" }}>HMS {selectedShip}</span>
+                {ownerName && <span style={{ lineHeight: "1rem", fontSize: "1.5rem" }}>Cpt. {ownerName}</span>}
+                <span style={{ lineHeight: "1.5rem", fontSize: "1rem" }}>
                   ({position.x}, {position.y})
                 </span>
                 <BoxImage>
@@ -196,45 +196,3 @@ export function registerShipOverview() {
     }
   );
 }
-
-const borderThickness = 42;
-
-const ActionsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 6px;
-  line-height: 20px;
-`;
-
-const ActionButtons = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  justify-content: space-between;
-  gap: 6px;
-  line-height: 20px;
-`;
-
-const OverviewContainer = styled(Container)`
-  border-radius: 20px;
-  background: ${colors.blue};
-  width: calc(100% - ${borderThickness}px);
-  height: calc(100% - ${borderThickness}px);
-  justify-content: space-between;
-`;
-
-const BorderContainer = styled(Container)`
-  background: ${colors.gold};
-  border-radius: 20px;
-`;
-
-const ShipName = styled.div`
-  position: absolute;
-  top: 4;
-  left: ${borderThickness};
-  font-weight: 800;
-  color: ${colors.darkBrown};
-  line-height: 20px;
-  font-size: 22px;
-`;

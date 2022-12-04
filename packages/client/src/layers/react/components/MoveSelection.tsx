@@ -238,7 +238,7 @@ export function registerMoveSelection() {
 const MoveButtons = styled.div`
   display: flex;
   gap: 8px;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 700;
   width: auto;
 `;
@@ -252,7 +252,7 @@ const CloseButton = styled.button`
   border-radius: 50%;
   border: 0;
   background: hsla(0, 0%, 100%, 75%);
-  font-size: 10px;
+  font-size: 0.75rem;
   pointer-events: all;
   z-index: 1000;
   cursor: pointer;
