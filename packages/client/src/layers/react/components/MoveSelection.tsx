@@ -12,9 +12,10 @@ import { concat, map, merge, of } from "rxjs";
 import { GodID } from "@latticexyz/network";
 import { Arrows, SelectionType } from "../../phaser/constants";
 import { Container, Button, ConfirmButton, InternalContainer } from "../styles/global";
-import { getFinalMoveCard, getMoveDistanceWithWind, getMoveWithSails, getWindBoost } from "../../../utils/directions";
+import { getFinalMoveCard, getFinalPosition } from "../../../utils/directions";
 import { Action, ActionImg, ActionNames, MoveCard, Phase } from "../../../constants";
 import styled from "styled-components";
+import { inRange } from "../../../utils/distance";
 
 export function registerMoveSelection() {
   registerUIComponent(
@@ -34,7 +35,7 @@ export function registerMoveSelection() {
           world,
           components: { Rotation, MoveCard, Wind, SailPosition, Position, Player },
           network: { connectedAddress, clock },
-          utils: { getPlayerEntity, getCurrentGamePhase },
+          utils: { getPlayerEntity, getCurrentGamePhase, getGameConfig },
         },
         phaser: {
           components: { SelectedShip, SelectedMove, Selection, SelectedActions },
@@ -70,6 +71,7 @@ export function registerMoveSelection() {
             connectedAddress,
             getPlayerEntity,
             getCurrentGamePhase,
+            getGameConfig,
           };
         })
       );
@@ -83,16 +85,19 @@ export function registerMoveSelection() {
       SailPosition,
       Selection,
       SelectedActions,
+      Position,
       Wind,
       Player,
       connectedAddress,
       world,
       getPlayerEntity,
       getCurrentGamePhase,
+      getGameConfig,
     }) => {
       const currentGamePhase: Phase | undefined = getCurrentGamePhase();
+      const gameConfig = getGameConfig();
 
-      if (currentGamePhase == undefined) return null;
+      if (currentGamePhase == undefined || !gameConfig) return null;
 
       const playerEntity = getPlayerEntity(connectedAddress.get());
       if (!playerEntity || !getComponentValue(Player, playerEntity)) return null;
@@ -126,7 +131,7 @@ export function registerMoveSelection() {
                 let moveCard = getComponentValueStrict(MoveCard, entity) as MoveCard;
 
                 moveCard = getFinalMoveCard(moveCard, rotation, sailPosition, wind);
-
+                const position = getComponentValueStrict(Position, selectedShip);
                 const isSelected = selectedMove && selectedMove.value == entity;
 
                 const imageUrl =
@@ -148,6 +153,13 @@ export function registerMoveSelection() {
 
                 return (
                   <Button
+                    disabled={
+                      !inRange(
+                        getFinalPosition(moveCard, position, rotation, sailPosition, wind).finalPosition,
+                        { x: 0, y: 0 },
+                        gameConfig.worldRadius
+                      )
+                    }
                     isSelected={isSelected}
                     key={`move-selection-${entity}`}
                     onClick={() => {

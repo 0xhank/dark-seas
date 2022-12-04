@@ -59,7 +59,7 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
     const circleWidth = length * positions.posWidth * 1.5;
     const circleHeight = circleWidth / SHIP_RATIO;
 
-    const windBoost = getWindBoost(wind.speed, wind.direction, rotation);
+    const windBoost = getWindBoost(wind, rotation);
 
     const color =
       currentGamePhase == Phase.Move ? (windBoost > 0 ? 0xa3ffa9 : windBoost < 0 ? 0xffa3a3 : 0xffffff) : 0xffffff;

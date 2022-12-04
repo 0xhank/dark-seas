@@ -29,59 +29,58 @@ export function getSurroundingCoords(coord: Coord, distance = 1): Coord[] {
   return surroundingCoords;
 }
 
-export function getWindBoost(windSpeed: number, windDirection: number, rotation: number): number {
-  const rotationDiff: number = Math.abs(windDirection - rotation);
-  if (rotationDiff < 21 || rotationDiff > 339 || (rotationDiff > 120 && rotationDiff <= 240)) return -windSpeed;
-  if (rotationDiff < 80 || rotationDiff > 280) return windSpeed;
+export function getWindBoost(wind: Wind, rotation: number): number {
+  const rotationDiff: number = Math.abs(wind.direction - rotation);
+  if (rotationDiff > 120 && rotationDiff <= 240) return -wind.speed;
+  if (rotationDiff < 80 || rotationDiff > 280) return wind.speed;
   return 0;
 }
 
-export function getMoveDistanceWithWind(wind: Wind, distance: number, rotation: number): number {
-  const moveDistance = getWindBoost(wind.speed, wind.direction, rotation) + distance;
-  return moveDistance > 0 ? moveDistance : 0;
+export function getMoveWithWind(moveCard: MoveCard, rotation: number, wind: Wind): MoveCard {
+  // if 0, +-0% if 10, +- 25% if 20 , +-50%
+  const windBoost = (getWindBoost(wind, rotation) * 100) / 40;
+  return getMoveWithBuff(moveCard, windBoost + 100);
 }
 
 export function getMoveWithSails(moveCard: MoveCard, sailPosition: number): MoveCard {
   if (sailPosition == 3) {
-    return moveCard;
+    return getMoveWithBuff(moveCard, 100);
   }
 
   if (sailPosition == 2) {
-    moveCard.distance = (moveCard.distance * 75) / 100;
-    if (moveCard.rotation > 180) {
-      moveCard.rotation = 360 - ((360 - moveCard.rotation) * 75) / 100;
-    } else {
-      moveCard.rotation = (moveCard.rotation * 75) / 100;
-    }
-    if (moveCard.direction > 180) {
-      moveCard.direction = 360 - ((360 - moveCard.direction) * 75) / 100;
-    } else {
-      moveCard.direction = (moveCard.direction * 75) / 100;
-    }
-    return moveCard;
+    return getMoveWithBuff(moveCard, 70);
   }
 
   if (sailPosition == 1) {
-    moveCard.distance = (moveCard.distance * 40) / 100;
-    if (moveCard.rotation > 180) {
-      moveCard.rotation = 360 - ((360 - moveCard.rotation) * 40) / 100;
-    } else {
-      moveCard.rotation = (moveCard.rotation * 40) / 100;
-    }
-    if (moveCard.direction > 180) {
-      moveCard.direction = 360 - ((360 - moveCard.direction) * 40) / 100;
-    } else {
-      moveCard.direction = (moveCard.direction * 40) / 100;
-    }
-    return moveCard;
+    return getMoveWithBuff(moveCard, 40);
   }
 
   return { distance: 0, rotation: 0, direction: 0 };
 }
 
 export function getFinalMoveCard(moveCard: MoveCard, rotation: number, sailPosition: number, wind: Wind): MoveCard {
-  moveCard = { ...moveCard, distance: getMoveDistanceWithWind(wind, moveCard.distance, rotation) };
+  moveCard = getMoveWithWind(moveCard, rotation, wind);
   moveCard = getMoveWithSails(moveCard, sailPosition);
+  return moveCard;
+}
+
+export function getMoveWithBuff(moveCard: MoveCard, buff: number): MoveCard {
+  if (buff == 100) return moveCard;
+  if (buff == 0) return { distance: 0, rotation: 0, direction: 0 };
+
+  moveCard.distance = (moveCard.distance * buff) / 100;
+
+  if (moveCard.rotation > 180) {
+    moveCard.rotation = 360 - ((360 - moveCard.rotation) * buff) / 100;
+  } else {
+    moveCard.rotation = (moveCard.rotation * buff) / 100;
+  }
+
+  if (moveCard.direction > 180) {
+    moveCard.direction = 360 - ((360 - moveCard.direction) * buff) / 100;
+  } else {
+    moveCard.direction = (moveCard.direction * buff) / 100;
+  }
   return moveCard;
 }
 
@@ -92,7 +91,7 @@ export function getFinalPosition(
   sailPosition: number,
   wind: Wind
 ): { finalPosition: Coord; finalRotation: number } {
-  moveCard = { ...moveCard, distance: getMoveDistanceWithWind(wind, moveCard.distance, rotation) };
+  moveCard = getMoveWithWind(moveCard, rotation, wind);
 
   moveCard = getMoveWithSails(moveCard, sailPosition);
 
