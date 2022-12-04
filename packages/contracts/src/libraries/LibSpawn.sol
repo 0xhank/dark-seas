@@ -76,8 +76,8 @@ library LibSpawn {
     for (uint256 i = 0; i < 3; i++) {
       uint256 entity = world.getUniqueEntityId();
       spawnShip(components, entity, playerEntity, startingLocation, rotation);
-      startingLocation.x += 10;
-      rotation += 10;
+      startingLocation.x += 30;
+      rotation += 30;
     }
 
     LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 0);

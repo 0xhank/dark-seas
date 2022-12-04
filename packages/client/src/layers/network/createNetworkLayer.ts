@@ -41,7 +41,12 @@ export async function createNetworkLayer(config: GameConfig) {
   const components = {
     GameConfig: defineComponent(
       world,
-      { startTime: Type.String, movePhaseLength: Type.Number, actionPhaseLength: Type.Number },
+      {
+        startTime: Type.String,
+        movePhaseLength: Type.Number,
+        actionPhaseLength: Type.Number,
+        worldRadius: Type.Number,
+      },
       { id: "GameConfig", metadata: { contractId: "ds.component.GameConfig" } }
     ),
     LoadingState: defineLoadingStateComponent(world),
@@ -58,9 +63,9 @@ export async function createNetworkLayer(config: GameConfig) {
       metadata: { contractId: "ds.component.SailPosition" },
     }),
     CrewCount: defineNumberComponent(world, { id: "CrewCount", metadata: { contractId: "ds.component.CrewCount" } }),
-    DamagedSail: defineBoolComponent(world, {
-      id: "DamagedSail",
-      metadata: { contractId: "ds.component.DamagedSail" },
+    DamagedMast: defineNumberComponent(world, {
+      id: "DamagedMast",
+      metadata: { contractId: "ds.component.DamagedMast" },
     }),
     Leak: defineBoolComponent(world, { id: "Leak", metadata: { contractId: "ds.component.Leak" } }),
     OnFire: defineNumberComponent(world, { id: "OnFire", metadata: { contractId: "ds.component.OnFire" } }),
@@ -121,7 +126,7 @@ export async function createNetworkLayer(config: GameConfig) {
   // --- API ------------------------------------------------------------------------
 
   function spawnPlayer(name: string) {
-    systems["ds.system.PlayerSpawn"].executeTyped(name);
+    systems["ds.system.PlayerSpawn"].executeTyped(name, Date.now());
   }
 
   function spawnShip(location: Coord, rotation: number) {

@@ -23,7 +23,7 @@ contract GameConfigComponent is Component {
     keys[2] = "actionPhaseLength";
     values[2] = LibTypes.SchemaValue.UINT32;
 
-    keys[3] = "worldworldRadius";
+    keys[3] = "worldRadius";
     values[3] = LibTypes.SchemaValue.UINT32;
   }
 

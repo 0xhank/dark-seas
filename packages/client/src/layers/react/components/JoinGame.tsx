@@ -31,7 +31,7 @@ const JoinGameContainer = ({ layers }: { layers: Layers }) => {
         borderRadius: "6px",
       }}
     >
-      <h1 style={{ fontSize: "2.5em", margin: "auto" }}>Create Your Fleet</h1>
+      <h1 style={{ fontSize: "2.5em", margin: "auto" }}>Name Your Captain</h1>
 
       <div
         style={{

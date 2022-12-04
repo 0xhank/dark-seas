@@ -49,7 +49,7 @@ export function registerYourShips() {
             Player,
             Health,
             CrewCount,
-            DamagedSail,
+            DamagedMast,
             Firepower,
             Leak,
             OnFire,
@@ -81,7 +81,7 @@ export function registerYourShips() {
         Player.update$,
         Health.update$,
         CrewCount.update$,
-        DamagedSail.update$,
+        DamagedMast.update$,
         Firepower.update$,
         Leak.update$,
         OnFire.update$,
@@ -106,7 +106,7 @@ export function registerYourShips() {
             Firepower,
             Leak,
             OnFire,
-            DamagedSail,
+            DamagedMast,
             SelectedActions,
             OwnedBy,
             world,
@@ -139,7 +139,7 @@ export function registerYourShips() {
         CrewCount,
         Firepower,
         SailPosition,
-        DamagedSail,
+        DamagedMast,
         OwnedBy,
         OnFire,
         Leak,
@@ -278,7 +278,7 @@ export function registerYourShips() {
                 const firepower = getComponentValueStrict(Firepower, ship).value;
                 const onFire = getComponentValue(OnFire, ship)?.value;
                 const leak = getComponentValue(Leak, ship)?.value;
-                const damagedSail = getComponentValue(DamagedSail, ship)?.value;
+                const damagedMast = getComponentValue(DamagedMast, ship)?.value;
                 const moveCardEntity = getComponentValue(SelectedMove, ship);
                 const isSelected = selectedShip == ship;
                 const shipActions = getComponentValue(SelectedActions, ship)?.value;
@@ -399,10 +399,10 @@ export function registerYourShips() {
                           />
                         </div>
                         <div style={{ display: "flex" }}>
-                          {damagedSail && <ShipDamage message="sails torn" />}
+                          {damagedMast && <ShipDamage message="mast broken" />}
                           {onFire && <ShipDamage message="on fire" />}
                           {leak && <ShipDamage message="leaking" />}
-                          {sailPosition == 0 && <ShipDamage message="mast broken" />}
+                          {sailPosition == 0 && <ShipDamage message="sails torn" />}
                         </div>
                       </div>
                     </div>
