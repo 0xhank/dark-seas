@@ -11,17 +11,18 @@ import {
   removeComponent,
   UpdateType,
 } from "@latticexyz/recs";
-import { Phase, Side } from "../../../constants";
+import { Phase, Side, Sprites } from "../../../constants";
 import { getFinalPosition } from "../../../utils/directions";
+import { getShipSprite } from "../../../utils/ships";
 import { getFiringArea } from "../../../utils/trig";
 import { NetworkLayer } from "../../network";
-import { SHIP_RATIO, Sprites } from "../constants";
+import { SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
 
 export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLayer) {
   const {
     world,
-    components: { Wind, Position, Range, Length, Rotation, SailPosition, MoveCard },
+    components: { Wind, Position, Range, Length, Rotation, SailPosition, MoveCard, Health },
     utils: { getCurrentGamePhase },
   } = network;
 
@@ -42,7 +43,7 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
     objectPool.remove(`projection-${entity}`);
   });
 
-  defineSystem(world, [Has(SelectedMove)], ({ entity, type }) => {
+  defineSystem(world, [Has(SelectedMove), Has(Health)], ({ entity, type }) => {
     const currentGamePhase: Phase | undefined = getCurrentGamePhase();
 
     if (currentGamePhase == undefined || currentGamePhase == Phase.Action) return;
@@ -67,7 +68,7 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
     const rotation = getComponentValueStrict(Rotation, shipEntityId).value;
     const wind = getComponentValueStrict(Wind, GodEntityIndex);
     const sailPosition = getComponentValueStrict(SailPosition, shipEntityId).value;
-
+    const health = getComponentValueStrict(Health, shipEntityId).value;
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, sailPosition, wind);
 
     const pixelPosition = tileCoordToPixelCoord(finalPosition, positions.posWidth, positions.posHeight);
@@ -98,7 +99,9 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
 
     polygonRegistry.set("rangeGroup", rangeGroup);
 
-    const sprite = config.sprites[Sprites.ShipBlack];
+    const spriteAsset: Sprites = getShipSprite(GodEntityIndex, GodEntityIndex, health);
+    const sprite = config.sprites[spriteAsset];
+
     const { x, y } = tileCoordToPixelCoord(finalPosition, positions.posWidth, positions.posHeight);
 
     object.setComponent({

@@ -73,7 +73,6 @@ export function registerTurnTimer() {
       const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value;
       const rotation = selectedShip ? getComponentValueStrict(Rotation, selectedShip as EntityIndex).value : undefined;
       const windBoost = rotation ? getWindBoost(wind.speed, wind.direction, rotation) : 0;
-      console.log("windboost:", windBoost);
       return (
         <OuterContainer>
           <InternalContainer>
@@ -109,7 +108,7 @@ const InternalContainer = styled.div`
   align-items: center;
   background: ${colors.glass};
   border-radius: 6px;
-  height: ;
+  height: 30px;
 `;
 
 const Text = styled.div`

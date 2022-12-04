@@ -22,6 +22,7 @@ const blueGradient =
 
 export const colors = {
   gold,
+  lightGold,
   lightBrown,
   darkBrown,
   white,
@@ -100,14 +101,14 @@ export const ConfirmButton = styled(Button)`
   }
 `;
 
-export const InternalContainer = styled.div`
+export const InternalContainer = styled.div<{ isSelected?: boolean; noGoldBorder?: boolean }>`
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: row;
   padding: 12px;
   border-radius: 6px;
-  background: ${glass};
+  background: ${({ isSelected }) => `${isSelected ? gold : glass}`};
   justify-content: space-between;
   color: ${darkBrown};
 `;

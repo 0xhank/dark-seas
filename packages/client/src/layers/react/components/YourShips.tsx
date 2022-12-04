@@ -164,7 +164,7 @@ export function registerYourShips() {
 
       const wind = getComponentValueStrict(Wind, GodEntityIndex);
       const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
-      const selection = getComponentValue(Selection, GodEntityIndex)?.value;
+      const selection = getComponentValue(Selection, GodEntityIndex)?.value || -1;
 
       const yourShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
 
@@ -218,57 +218,9 @@ export function registerYourShips() {
         setComponent(SelectedShip, GodEntityIndex, { value: ship });
       };
 
-      const ActionButton = ({
-        ship,
-        selectionType,
-        actionIndex,
-        shipActions,
-      }: {
-        ship: EntityIndex;
-        selectionType: SelectionType;
-        actionIndex: number;
-        shipActions: number[] | undefined;
-      }) => {
-        const action = shipActions && shipActions[actionIndex] ? shipActions[actionIndex] : undefined;
-
-        console;
-        return (
-          <Button
-            isSelected={selectionType == selection && selectedShip == ship}
-            onClick={() => {
-              setComponent(Selection, GodEntityIndex, { value: selectionType });
-              setComponent(SelectedShip, GodEntityIndex, { value: ship });
-              console.log("ship clicked:", ship);
-              console.log("selection clicked:", selectionType);
-              console.log("action index:", actionIndex);
-              console.log("ship actions:", shipActions);
-            }}
-            key={`action-button-${ship}-${selectionType}`}
-          >
-            {action && action !== -1 ? (
-              <>
-                <img
-                  src={ActionImg[action]}
-                  style={{
-                    height: "80%",
-                    objectFit: "scale-down",
-                    filter: "invert(19%) sepia(89%) saturate(1106%) hue-rotate(7deg) brightness(93%) contrast(102%)",
-                  }}
-                />
-                <p>{ActionNames[action]}</p>
-              </>
-            ) : (
-              <p>
-                Choose Action {selectionType} {action}
-              </p>
-            )}
-          </Button>
-        );
-      };
-
       return (
         <Container style={{ justifyContent: "flex-end" }}>
-          <InternalContainer style={{ gap: "24px" }}>
+          <InternalContainer style={{ gap: "24px", height: "auto" }}>
             <MoveButtons>
               {yourShips.map((ship) => {
                 const sailPosition = getComponentValueStrict(SailPosition, ship).value;
@@ -343,20 +295,62 @@ export function registerYourShips() {
                   );
                 };
 
+                const ActionButton = ({
+                  selectionType,
+                  actionIndex,
+                }: {
+                  selectionType: SelectionType;
+                  actionIndex: number;
+                }) => {
+                  const action = shipActions && shipActions[actionIndex] ? shipActions[actionIndex] : undefined;
+                  console.log(
+                    "ship",
+                    ship,
+                    "action",
+                    SelectionType[selectionType],
+                    "is seelcted",
+                    SelectionType[selectionType] == SelectionType[selection] && isSelected
+                  );
+                  return (
+                    <SelectShip
+                      isSelected={SelectionType[selectionType] == SelectionType[selection] && isSelected}
+                      onClick={() => {
+                        setComponent(Selection, GodEntityIndex, { value: selectionType });
+                        setComponent(SelectedShip, GodEntityIndex, { value: ship });
+                        console.log("selection type:", SelectionType[selectionType]);
+                        console.log("selection:", SelectionType[selection]);
+                      }}
+                      key={`action-button-${ship}-${selectionType}`}
+                      style={{ flex: 1, width: "100%" }}
+                    >
+                      {action && action !== -1 ? (
+                        <>
+                          <img
+                            src={ActionImg[action]}
+                            style={{
+                              height: "35px",
+                              width: "35px",
+                              objectFit: "scale-down",
+                              filter:
+                                "invert(19%) sepia(89%) saturate(1106%) hue-rotate(7deg) brightness(93%) contrast(102%)",
+                            }}
+                          />
+                          <p style={{ lineHeight: "1rem" }}>{ActionNames[action]}</p>
+                        </>
+                      ) : (
+                        <p style={{ fontSize: "1rem", lineHeight: "1rem" }}>Choose Action</p>
+                      )}
+                    </SelectShip>
+                  );
+                };
+
                 return (
-                  <InternalContainer
+                  <YourShipContainer
                     onClick={() => selectShip(ship, position)}
-                    style={{
-                      position: "relative",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      minWidth: "150px",
-                      flex: "1",
-                    }}
+                    isSelected={isSelected}
                     key={`move-selection-${ship}`}
                   >
-                    <div style={{ display: "flex", borderRadius: "6px", width: "100%", height: "100%" }}>
+                    <div style={{ display: "flex", borderRadius: "6px", width: "100%" }}>
                       <div
                         style={{
                           flex: 2,
@@ -410,27 +404,12 @@ export function registerYourShips() {
                       <SelectMoveButton />
                     ) : (
                       <ActionButtons>
-                        <ActionButton
-                          ship={ship}
-                          selectionType={SelectionType.Action1}
-                          actionIndex={0}
-                          shipActions={shipActions}
-                        />
-                        <ActionButton
-                          ship={ship}
-                          selectionType={SelectionType.Action2}
-                          actionIndex={1}
-                          shipActions={shipActions}
-                        />
-                        <ActionButton
-                          ship={ship}
-                          selectionType={SelectionType.Action3}
-                          actionIndex={2}
-                          shipActions={shipActions}
-                        />
+                        <ActionButton selectionType={SelectionType.Action1} actionIndex={0} />
+                        <ActionButton selectionType={SelectionType.Action2} actionIndex={1} />
+                        <ActionButton selectionType={SelectionType.Action3} actionIndex={2} />
                       </ActionButtons>
                     )}
-                  </InternalContainer>
+                  </YourShipContainer>
                 );
               })}
             </MoveButtons>
@@ -460,6 +439,19 @@ export function registerYourShips() {
   );
 }
 
+const YourShipContainer = styled(InternalContainer)`
+  position: relative;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 150px;
+  flex: 1;
+  height: auto;
+  cursor: pointer;
+
+  :hover {
+    background: ${({ isSelected }) => `${isSelected ? colors.lightGold : colors.thickGlass}`};
+  }
+`;
 const MoveButtons = styled.div`
   flex: 5;
   display: flex;
@@ -485,12 +477,12 @@ const SelectShip = styled.div<{ isSelected?: boolean }>`
   color: ${colors.darkBrown};
 
   :hover {
-    background: ${({ isSelected }) => `${isSelected ? colors.thickGlass : colors.gold}`};
+    background: ${({ isSelected }) => `${isSelected ? colors.white : colors.thickGlass}`};
   }
 
   padding: 3;
   line-height: 30px;
-  background: ${colors.glass};
+  background: ${({ isSelected }) => `${isSelected ? colors.thickGlass : colors.glass}`};
   width: 95%;
   border: 1px solid ${colors.gold};
   height: 60px;
