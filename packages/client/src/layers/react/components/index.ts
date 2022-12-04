@@ -16,7 +16,7 @@ export function registerUIComponents() {
   registerActionQueue();
   registerMoveSelection();
   registerTopBar();
-  // registerShipOverview();
+  registerShipOverview();
   registerYourShips();
   registerTurnTimer();
   registerJoinGame();

@@ -140,3 +140,14 @@ export const Input = styled.input`
     color: ${darkGray};
   }
 `;
+
+export const BoxImage = styled.div`
+  position: relative;
+  max-width: 100%;
+
+  :before {
+    content: "";
+    display: block;
+    padding-top: 100%;
+  }
+`;

@@ -15,7 +15,7 @@ import {
 import { map, merge } from "rxjs";
 import { GodID } from "@latticexyz/network";
 import { Arrows, SelectionType, ShipAttributeTypes } from "../../phaser/constants";
-import { Container, Button, ConfirmButton, InternalContainer, colors } from "../styles/global";
+import { Container, Button, ConfirmButton, InternalContainer, colors, BoxImage } from "../styles/global";
 import { getFinalMoveCard } from "../../../utils/directions";
 import { Action, ActionImg, ActionNames, MoveCard, Phase, SailPositions } from "../../../constants";
 import styled from "styled-components";
@@ -504,15 +504,4 @@ const ActionButtons = styled.div`
   justify-content: space-between;
   gap: 6px;
   line-height: 20px;
-`;
-
-const BoxImage = styled.div`
-  position: relative;
-  max-width: 100%;
-
-  :before {
-    content: "";
-    display: block;
-    padding-top: 100%;
-  }
 `;

@@ -1,16 +1,15 @@
 import React from "react";
 import { registerUIComponent } from "../engine";
-import { EntityIndex, getComponentValue, getComponentValueStrict, setComponent } from "@latticexyz/recs";
+import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { map, merge, of } from "rxjs";
 import { GodID } from "@latticexyz/network";
-import { Button, colors, Container } from "../styles/global";
-import { Action, ActionImg, ActionNames, SailPositions } from "../../../constants";
-import Sails from "./OverviewComponents/Sails";
-import AttackButton from "./OverviewComponents/AttackButton";
+import { BoxImage, Button, colors, Container, InternalContainer } from "../styles/global";
+import { SailPositions } from "../../../constants";
 import styled from "styled-components";
 import HullHealth from "./OverviewComponents/HullHealth";
 import ShipAttribute from "./OverviewComponents/ShipAttribute";
-import { SelectionType, ShipAttributeTypes } from "../../phaser/constants";
+import { ShipAttributeTypes } from "../../phaser/constants";
+import ShipDamage from "./OverviewComponents/ShipDamage";
 
 export function registerShipOverview() {
   registerUIComponent(
@@ -19,7 +18,7 @@ export function registerShipOverview() {
     // grid location
     {
       rowStart: 1,
-      rowEnd: 10,
+      rowEnd: 3,
       colStart: 10,
       colEnd: 13,
     },
@@ -28,149 +27,169 @@ export function registerShipOverview() {
       const {
         network: {
           world,
-          api: { submitActions },
           utils: { getPlayerEntity },
           network: { connectedAddress },
-          components: { Health, SailPosition, CrewCount, DamagedSail, Firepower, Leak, OnFire, Player },
+          components: {
+            Health,
+            SailPosition,
+            CrewCount,
+            DamagedMast,
+            Firepower,
+            Leak,
+            OnFire,
+            Player,
+            Rotation,
+            Position,
+            Ship,
+            OwnedBy,
+            Name,
+          },
         },
         phaser: {
-          components: { SelectedShip, Selection, SelectedActions },
+          components: { SelectedShip },
+          scenes: {
+            Main: { camera },
+          },
+          positions,
         },
       } = layers;
 
       return merge(
         of(0),
+        Rotation.update$,
+        Position.update$,
+        Ship.update$,
+        OwnedBy.update$,
         Health.update$,
         SelectedShip.update$,
         SailPosition.update$,
         CrewCount.update$,
-        DamagedSail.update$,
+        DamagedMast.update$,
         Firepower.update$,
         Leak.update$,
         OnFire.update$,
-        Selection.update$,
-        SelectedActions.update$,
         Player.update$
       ).pipe(
         map(() => {
           return {
             world,
             SelectedShip,
+            Position,
+            Rotation,
+            OwnedBy,
             Health,
             SailPosition,
             CrewCount,
-            DamagedSail,
+            DamagedMast,
             Firepower,
             Leak,
+            Ship,
             OnFire,
-            Selection,
-            SelectedActions,
+            Name,
             Player,
             connectedAddress,
-            submitActions,
+            camera,
+            positions,
             getPlayerEntity,
           };
         })
       );
     },
-    ({
-      world,
-      SelectedShip,
-      Health,
-      SailPosition,
-      CrewCount,
-      DamagedSail,
-      Firepower,
-      Leak,
-      OnFire,
-      Player,
-      Selection,
-      SelectedActions,
-      connectedAddress,
-      submitActions,
-      getPlayerEntity,
-    }) => {
+    (props) => {
+      const {
+        SelectedShip,
+        Rotation,
+        Name,
+        Position,
+        Health,
+        Player,
+        CrewCount,
+        Firepower,
+        SailPosition,
+        DamagedMast,
+        OwnedBy,
+        OnFire,
+        Leak,
+        world,
+        connectedAddress,
+        getPlayerEntity,
+      } = props;
+
       const playerEntity = getPlayerEntity(connectedAddress.get());
       if (!playerEntity || !getComponentValue(Player, playerEntity)) return null;
 
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
-      const shipEntity = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
-      if (!shipEntity) {
-        return <></>;
-      }
+      const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
+      if (!selectedShip) return null;
 
-      const health = getComponentValueStrict(Health, shipEntity).value;
-      const firepower = getComponentValueStrict(Firepower, shipEntity).value;
-      const leak = getComponentValue(Leak, shipEntity);
-      const onFire = getComponentValue(OnFire, shipEntity);
-      const damagedSail = getComponentValue(DamagedSail, shipEntity);
-      const crewCount = getComponentValueStrict(CrewCount, shipEntity).value;
-      const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value as SailPositions;
-      const selection = getComponentValue(Selection, GodEntityIndex)?.value;
+      const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, selectedShip).value);
+      if (!ownerEntity || playerEntity == ownerEntity) return null;
 
-      const shipActions = getComponentValue(SelectedActions, shipEntity)?.value;
-
-      const ActionButton = ({ index }: { index: SelectionType }) => {
-        const action = shipActions && shipActions[index] ? shipActions[index] : undefined;
-        return (
-          <Button
-            isSelected={index == selection}
-            onClick={() => {
-              setComponent(Selection, GodEntityIndex, { value: index });
-            }}
-            key={`action-button-${index}`}
-          >
-            {action && action !== -1 ? (
-              <>
-                <img
-                  src={ActionImg[action]}
-                  style={{
-                    height: "80%",
-                    objectFit: "scale-down",
-                    filter: "invert(19%) sepia(89%) saturate(1106%) hue-rotate(7deg) brightness(93%) contrast(102%)",
-                  }}
-                />
-                <p>{ActionNames[action]}</p>
-              </>
-            ) : (
-              <p>Choose Action {index}</p>
-            )}
-          </Button>
-        );
-      };
-
-      const handleSubmit = () => {
-        if (!shipActions) return;
-        const actionEntities = shipActions.filter((element) => element >= 0);
-        submitActions(world.entities[shipEntity], actionEntities);
-      };
+      const sailPosition = getComponentValueStrict(SailPosition, selectedShip).value;
+      const rotation = getComponentValueStrict(Rotation, selectedShip).value;
+      const position = getComponentValueStrict(Position, selectedShip);
+      const health = getComponentValueStrict(Health, selectedShip).value;
+      const crewCount = getComponentValueStrict(CrewCount, selectedShip).value;
+      const firepower = getComponentValueStrict(Firepower, selectedShip).value;
+      const onFire = getComponentValue(OnFire, selectedShip)?.value;
+      const leak = getComponentValue(Leak, selectedShip)?.value;
+      const damagedMast = getComponentValue(DamagedMast, selectedShip)?.value;
+      const ownerName = getComponentValue(Name, ownerEntity)?.value;
 
       return (
-        <Container style={{ paddingBottom: "0" }}>
-          <BorderContainer>
-            <ShipName style={{}}>{shipEntity.toString().slice(0, 7)}</ShipName>
-            <OverviewContainer>
-              <div style={{ width: "100%" }}>
+        <Container style={{ justifyContent: "flex-end" }}>
+          <InternalContainer style={{ gap: "24px" }}>
+            <div style={{ display: "flex", borderRadius: "6px", width: "100%", height: "100%" }}>
+              <div
+                style={{
+                  flex: 2,
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100%",
+                  position: "relative",
+                  maxWidth: "120px",
+                  minWidth: "80px",
+                }}
+              >
+                <span style={{ fontSize: "20px", lineHeight: "28px" }}>HMS {selectedShip}</span>
+                {ownerName && <span style={{ lineHeight: "16px", fontSize: "14px" }}>Cpt. {ownerName}</span>}
+                <span style={{ lineHeight: "16px", fontSize: "14px" }}>
+                  ({position.x}, {position.y})
+                </span>
+                <BoxImage>
+                  <img
+                    src="/img/ds-ship.png"
+                    style={{
+                      objectFit: "scale-down",
+                      left: "50%",
+                      position: "absolute",
+                      top: "50%",
+                      margin: "auto",
+                      transform: `rotate(${rotation - 90}deg) translate(-50%,-50%)`,
+                      transformOrigin: `top left`,
+                      maxWidth: "50px",
+                    }}
+                  />
+                </BoxImage>
+              </div>
+              <div style={{ flex: 3, display: "flex", flexDirection: "column" }}>
                 <HullHealth health={health} />
-                <div style={{ display: "flex", justifyContent: "space-around" }}>
-                  <ShipAttribute attributeType={ShipAttributeTypes.Firepower} attribute={crewCount} />
-                  <ShipAttribute attributeType={ShipAttributeTypes.Crew} attribute={firepower} />
+                <div style={{ display: "flex", width: "100%" }}>
+                  <ShipAttribute attributeType={ShipAttributeTypes.Crew} attribute={crewCount} />
+                  <ShipAttribute attributeType={ShipAttributeTypes.Firepower} attribute={firepower} />
                   <ShipAttribute attributeType={ShipAttributeTypes.Sails} attribute={SailPositions[sailPosition]} />
                 </div>
+                <div style={{ display: "flex" }}>
+                  <ShipDamage message="mast broken" amountLeft={2} />
+                  {damagedMast && <ShipDamage message="mast broken" amountLeft={damagedMast} />}
+                  {onFire && <ShipDamage message="on fire" amountLeft={onFire} />}
+                  {leak && <ShipDamage message="leaking" />}
+                  {sailPosition == 0 && <ShipDamage message="sails torn" />}
+                </div>
               </div>
-              <ActionsContainer>
-                <ActionButtons>
-                  <ActionButton index={SelectionType.Action1} />
-                  <ActionButton index={SelectionType.Action2} />
-                  <ActionButton index={SelectionType.Action3} />
-                </ActionButtons>
-                <Button onClick={handleSubmit} disabled={!shipActions || shipActions.every((action) => action == -1)}>
-                  Submit Actions {shipActions}
-                </Button>
-              </ActionsContainer>
-            </OverviewContainer>
-          </BorderContainer>
+            </div>
+          </InternalContainer>
         </Container>
       );
     }
