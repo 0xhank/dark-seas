@@ -5,9 +5,10 @@ import {
   defineMapConfig,
   defineCameraConfig,
 } from "@latticexyz/phaserx";
-import { Sprites, Assets, Maps, Scenes, TILE_HEIGHT, TILE_WIDTH } from "./constants";
+import { Assets, Maps, Scenes, TILE_HEIGHT, TILE_WIDTH } from "./constants";
 import dsTileset from "./assets/tilesets/ds-tilesheet.png";
 import { DSTileset } from "./assets/tilesets/dsTilesheet";
+import { Sprites } from "../../constants";
 const ANIMATION_INTERVAL = 200;
 
 export const phaserConfig = {

@@ -49,7 +49,9 @@ const JoinGameContainer = ({ layers }: { layers: Layers }) => {
             type={"text"}
             placeholder="Name..."
             value={playerName}
-            onChange={(e) => setPlayerName(e.target.value)}
+            onChange={(e) => {
+              if (e.target.value.length < 15) setPlayerName(e.target.value);
+            }}
           ></Input>
           <Button
             isSelected

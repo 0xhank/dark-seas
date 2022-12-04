@@ -17,12 +17,13 @@ import { GodID } from "@latticexyz/network";
 import { Arrows, SelectionType, ShipAttributeTypes } from "../../phaser/constants";
 import { Container, Button, ConfirmButton, InternalContainer, colors, BoxImage } from "../styles/global";
 import { getFinalMoveCard } from "../../../utils/directions";
-import { Action, ActionImg, ActionNames, MoveCard, Phase, SailPositions } from "../../../constants";
+import { Action, ActionImg, ActionNames, MoveCard, Phase, SailPositions, ShipImages } from "../../../constants";
 import styled from "styled-components";
 import { Coord } from "@latticexyz/utils";
 import HullHealth from "./OverviewComponents/HullHealth";
 import ShipAttribute from "./OverviewComponents/ShipAttribute";
 import ShipDamage from "./OverviewComponents/ShipDamage";
+import { getShipSprite } from "../../../utils/ships";
 
 export function registerYourShips() {
   registerUIComponent(
@@ -343,17 +344,16 @@ export function registerYourShips() {
                 };
 
                 return (
-                  <Button
-                    noGoldBorder
+                  <InternalContainer
                     onClick={() => selectShip(ship, position)}
                     style={{
                       position: "relative",
                       display: "flex",
+                      flexDirection: "column",
                       justifyContent: "space-between",
                       minWidth: "150px",
                       flex: "1",
                     }}
-                    isSelected={isSelected}
                     key={`move-selection-${ship}`}
                   >
                     <div style={{ display: "flex", borderRadius: "6px", width: "100%", height: "100%" }}>
@@ -374,7 +374,7 @@ export function registerYourShips() {
                         </span>
                         <BoxImage>
                           <img
-                            src="/img/ds-ship.png"
+                            src={ShipImages[getShipSprite(GodEntityIndex, GodEntityIndex, health)]}
                             style={{
                               objectFit: "scale-down",
                               left: "50%",
@@ -431,7 +431,7 @@ export function registerYourShips() {
                         />
                       </ActionButtons>
                     )}
-                  </Button>
+                  </InternalContainer>
                 );
               })}
             </MoveButtons>

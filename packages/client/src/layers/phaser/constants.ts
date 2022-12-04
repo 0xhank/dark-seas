@@ -1,3 +1,5 @@
+import { Sprites } from "../../constants";
+
 export const TILE_WIDTH = 64;
 export const TILE_HEIGHT = 64;
 
@@ -38,45 +40,6 @@ export enum Arrows {
   SoftLeft = "/img/arrows/soft-left.png",
   SoftRight = "/img/arrows/soft-right.png",
   UTurn = "/img/arrows/uturn.png",
-}
-
-export enum Sprites {
-  Cannon,
-  Cannonball,
-  Explosion1,
-  Explosion2,
-  Explosion3,
-  Fire1,
-  Fire2,
-  ShipBlack,
-  ShipBlackDead,
-  ShipBlackMajor,
-  ShipBlackMinor,
-
-  ShipWhite,
-  ShipWhiteDead,
-  ShipWhiteMajor,
-  ShipWhiteMinor,
-
-  ShipYellow,
-  ShipYellowDead,
-  ShipYellowMajor,
-  ShipYellowMinor,
-
-  ShipGreen,
-  ShipGreenDead,
-  ShipGreenMajor,
-  ShipGreenMinor,
-
-  ShipRed,
-  ShipRedDead,
-  ShipRedMajor,
-  ShipRedMinor,
-
-  ShipBlue,
-  ShipBlueDead,
-  ShipBlueMajor,
-  ShipBlueMinor,
 }
 
 export enum ShipAttributeTypes {

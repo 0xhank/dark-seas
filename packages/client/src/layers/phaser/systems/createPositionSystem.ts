@@ -12,14 +12,17 @@ import {
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
+import { getPlayerEntity } from "@latticexyz/std-client";
 import { NetworkLayer } from "../../network";
-import { SHIP_RATIO, Sprites } from "../constants";
+import { SHIP_RATIO } from "../constants";
+import { getShipSprite } from "../../../utils/ships";
 import { PhaserLayer } from "../types";
+import { Sprites } from "../../../constants";
 
 export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer) {
   const {
     world,
-    components: { Position, Length, Rotation, OwnedBy },
+    components: { Position, Length, Rotation, OwnedBy, Health },
     utils: { getPlayerEntity },
     network: { connectedAddress },
   } = network;
@@ -37,8 +40,9 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
     objectPool.remove(update.entity);
   });
 
-  defineEnterSystem(world, [Has(Position), Has(OwnedBy)], (update) => {
+  defineEnterSystem(world, [Has(Position), Has(OwnedBy), Has(Health)], (update) => {
     const position = getComponentValueStrict(Position, update.entity);
+    const health = getComponentValueStrict(Health, update.entity);
     const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, update.entity).value);
     const playerEntity = getPlayerEntity(connectedAddress.get());
 
@@ -48,11 +52,15 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
     camera.phaserCamera.zoomTo(1, 20, "Linear");
   });
 
-  defineSystem(world, [Has(Position), Has(Rotation), Has(Length)], (update) => {
+  defineSystem(world, [Has(Position), Has(Rotation), Has(Length), Has(Health), Has(OwnedBy)], (update) => {
     const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
     const rangeGroup = polygonRegistry.get(`rangeGroup-${update.entity}`);
     const activeGroup = polygonRegistry.get(`activeGroup-${update.entity}`);
+    const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, update.entity).value);
+    const playerEntity = getPlayerEntity(connectedAddress.get());
+
+    if (!playerEntity || !ownerEntity) return null;
 
     if (rangeGroup) rangeGroup.clear(true, true);
     if (activeGroup) activeGroup.clear(true, true);
@@ -65,10 +73,13 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
     const length = getComponentValueStrict(Length, update.entity).value;
     const rotation = getComponentValueStrict(Rotation, update.entity).value;
     const position = getComponentValueStrict(Position, update.entity);
+    const health = getComponentValueStrict(Health, update.entity).value;
 
     const object = objectPool.get(update.entity, "Sprite");
 
-    const sprite = config.sprites[Sprites.ShipBlack];
+    const spriteAsset: Sprites = getShipSprite(playerEntity, ownerEntity, health);
+    const sprite = config.sprites[spriteAsset];
+    // const sprite = config.sprites[Sprites.ShipBlack];
 
     const { x, y } = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
 
