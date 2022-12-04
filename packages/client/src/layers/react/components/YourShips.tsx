@@ -399,8 +399,9 @@ export function registerYourShips() {
                           />
                         </div>
                         <div style={{ display: "flex" }}>
-                          {damagedMast && <ShipDamage message="mast broken" />}
-                          {onFire && <ShipDamage message="on fire" />}
+                          <ShipDamage message="mast broken" amountLeft={2} />
+                          {damagedMast && <ShipDamage message="mast broken" amountLeft={damagedMast} />}
+                          {onFire && <ShipDamage message="on fire" amountLeft={onFire} />}
                           {leak && <ShipDamage message="leaking" />}
                           {sailPosition == 0 && <ShipDamage message="sails torn" />}
                         </div>
