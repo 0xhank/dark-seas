@@ -15,12 +15,13 @@ const WarningContainer = styled(Container)`
   background: ${colors.red};
   color: ${colors.white};
   flex-direction: row;
-  padding: 6px;
-  border-radius: 20px;
+  padding: 2px;
+  border-radius: 10px;
   gap: 0;
   width: auto;
   text-transform: uppercase;
   gap: 10px;
+  font-size: 0.7rem;
 `;
 
 const AmountLeft = styled.div`

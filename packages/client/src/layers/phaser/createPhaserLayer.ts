@@ -1,4 +1,4 @@
-import { defineComponent, namespaceWorld, Type } from "@latticexyz/recs";
+import { defineComponent, EntityIndex, namespaceWorld, Type } from "@latticexyz/recs";
 import { createPhaserEngine } from "@latticexyz/phaserx";
 import { phaserConfig } from "./config";
 import { NetworkLayer } from "../network";
@@ -8,10 +8,12 @@ import {
   createArrowSystem,
   createActiveSystem,
   createHealthSystem,
+  createStatUpdateSystem,
 } from "./systems";
 import { defineBoolComponent, defineNumberComponent } from "@latticexyz/std-client";
 import { POS_HEIGHT, POS_WIDTH } from "./constants";
 import { createProjectionSystem } from "./systems/createProjectionSystem";
+import { createRadiusSystem } from "./systems/createRadiusSystem";
 
 /**
  * The Phaser layer is responsible for rendering game objects to the screen.
@@ -52,6 +54,8 @@ export async function createPhaserLayer(network: NetworkLayer) {
   createActiveSystem(network, context);
   createHealthSystem(network, context);
   createProjectionSystem(network, context);
+  createRadiusSystem(network, context);
+  createStatUpdateSystem(network, context);
 
   return context;
 }
