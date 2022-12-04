@@ -48,7 +48,7 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
 
     if (!ownerEntity || !playerEntity || ownerEntity !== playerEntity) return;
 
-    camera.phaserCamera.pan(position.x * positions.posWidth, position.y * positions.posHeight, 20, "Linear");
+    camera.phaserCamera.pan(position.x * positions.posWidth, position.y * positions.posHeight + 400, 20, "Linear");
     camera.phaserCamera.zoomTo(1, 20, "Linear");
   });
 

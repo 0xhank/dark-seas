@@ -190,8 +190,11 @@ export function registerMoveSelection() {
             {Object.keys(Action).map((a) => {
               const action = Number(a);
               if (isNaN(action)) return null;
+              const usedAlready = !!selectedActions.find((a) => a == action);
+
               return (
                 <Button
+                  disabled={usedAlready}
                   isSelected={selectedAction == action}
                   key={`selectedAction-${action}`}
                   onClick={() => {
@@ -233,7 +236,7 @@ export function registerMoveSelection() {
                 onClick={() => {
                   if (selection == SelectionType.Move) return removeComponent(SelectedMove, selectedShip);
                   let newArray = selectedActions;
-                  newArray[selection] = -1;
+                  newArray[selection - 1] = -1;
                   setComponent(SelectedActions, selectedShip, { value: newArray });
                 }}
               >

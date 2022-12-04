@@ -213,7 +213,7 @@ export function registerYourShips() {
       };
 
       const selectShip = (ship: EntityIndex, position: Coord) => {
-        camera.phaserCamera.pan(position.x * positions.posWidth, position.y * positions.posHeight, 200, "Linear");
+        camera.phaserCamera.pan(position.x * positions.posWidth, position.y * positions.posHeight + 400, 200, "Linear");
         camera.phaserCamera.zoomTo(1, 200, "Linear");
         setComponent(SelectedShip, GodEntityIndex, { value: ship });
       };
@@ -242,6 +242,7 @@ export function registerYourShips() {
                       <SelectShip
                         isSelected={isSelected}
                         onClick={() => {
+                          if (health == 0) return;
                           selectShip(ship, position);
                           setComponent(Selection, GodEntityIndex, { value: SelectionType.Move });
                         }}
@@ -275,7 +276,6 @@ export function registerYourShips() {
                     <SelectShip
                       isSelected={isSelected}
                       onClick={() => {
-                        console.log("movecard: ", moveCard);
                         selectShip(ship, position);
                       }}
                     >
@@ -303,22 +303,14 @@ export function registerYourShips() {
                   actionIndex: number;
                 }) => {
                   const action = shipActions && shipActions[actionIndex] ? shipActions[actionIndex] : undefined;
-                  console.log(
-                    "ship",
-                    ship,
-                    "action",
-                    SelectionType[selectionType],
-                    "is seelcted",
-                    SelectionType[selectionType] == SelectionType[selection] && isSelected
-                  );
+
                   return (
                     <SelectShip
                       isSelected={SelectionType[selectionType] == SelectionType[selection] && isSelected}
                       onClick={() => {
+                        if (health == 0) return;
                         setComponent(Selection, GodEntityIndex, { value: selectionType });
                         setComponent(SelectedShip, GodEntityIndex, { value: ship });
-                        console.log("selection type:", SelectionType[selectionType]);
-                        console.log("selection:", SelectionType[selection]);
                       }}
                       key={`action-button-${ship}-${selectionType}`}
                       style={{ flex: 1, width: "100%" }}
@@ -346,7 +338,7 @@ export function registerYourShips() {
 
                 return (
                   <YourShipContainer
-                    onClick={() => selectShip(ship, position)}
+                    onClick={() => health !== 0 && selectShip(ship, position)}
                     isSelected={isSelected}
                     key={`move-selection-${ship}`}
                   >
@@ -418,7 +410,10 @@ export function registerYourShips() {
                 disabled={disabled}
                 noGoldBorder
                 onClick={() => {
-                  selectedMoves.map((entity) => removeComponent(SelectedMove, entity));
+                  yourShips.map((entity) => {
+                    removeComponent(SelectedMove, entity);
+                    removeComponent(SelectedActions, entity);
+                  });
                 }}
                 style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}
               >
