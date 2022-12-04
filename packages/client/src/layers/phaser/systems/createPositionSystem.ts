@@ -1,6 +1,7 @@
 import { GodID } from "@latticexyz/network";
 import { tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
 import {
+  defineEnterSystem,
   defineExitSystem,
   defineSystem,
   EntityIndex,
@@ -18,12 +19,14 @@ import { PhaserLayer } from "../types";
 export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer) {
   const {
     world,
-    components: { Position, Length, Rotation },
+    components: { Position, Length, Rotation, OwnedBy },
+    utils: { getPlayerEntity },
+    network: { connectedAddress },
   } = network;
 
   const {
     scenes: {
-      Main: { objectPool, config },
+      Main: { objectPool, config, camera },
     },
     components: { SelectedShip, SelectedMove },
     polygonRegistry,
@@ -32,6 +35,17 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
 
   defineExitSystem(world, [Has(Position), Has(Rotation)], (update) => {
     objectPool.remove(update.entity);
+  });
+
+  defineEnterSystem(world, [Has(Position), Has(OwnedBy)], (update) => {
+    const position = getComponentValueStrict(Position, update.entity);
+    const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, update.entity).value);
+    const playerEntity = getPlayerEntity(connectedAddress.get());
+
+    if (!ownerEntity || !playerEntity || ownerEntity !== playerEntity) return;
+
+    camera.phaserCamera.pan(position.x * positions.posWidth, position.y * positions.posHeight, 20, "Linear");
+    camera.phaserCamera.zoomTo(1, 20, "Linear");
   });
 
   defineSystem(world, [Has(Position), Has(Rotation), Has(Length)], (update) => {
