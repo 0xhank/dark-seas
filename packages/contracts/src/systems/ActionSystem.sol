@@ -47,6 +47,8 @@ contract ActionSystem is System {
       Action[] memory shipActions = actions[i];
       uint256 shipEntity = entities[i];
 
+      require(shipActions.length <= 3, "ActionSystem: too many actions");
+
       require(
         OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(shipEntity) ==
           addressToEntity(msg.sender),
@@ -60,6 +62,13 @@ contract ActionSystem is System {
 
       for (uint256 j = 0; j < shipActions.length; j++) {
         Action action = shipActions[i];
+
+        if (j == 1) {
+          require(shipActions[0] != action, "ActionSystem: action already used");
+        } else if (j == 2) {
+          require(shipActions[0] != action && shipActions[1] != action, "ActionSystem: action already used");
+        }
+
         if (action == Action.FireRight) {
           LibAction.attack(components, shipEntity, Side.Right);
         } else if (action == Action.FireLeft) {

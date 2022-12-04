@@ -22,7 +22,7 @@ contract InitSystem is System {
 
     gameConfigComponent.set(
       GodID,
-      GameConfig({ startTime: block.timestamp, movePhaseLength: 45, actionPhaseLength: 75 })
+      GameConfig({ startTime: block.timestamp, movePhaseLength: 45, actionPhaseLength: 75, worldRadius: 500 })
     );
 
     // Initialize Prototypes

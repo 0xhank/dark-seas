@@ -23,8 +23,10 @@ import { CrewCountComponent, ID as CrewCountComponentID } from "../components/Cr
 import { FirepowerComponent, ID as FirepowerComponentID } from "../components/FirepowerComponent.sol";
 import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
+import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 import { Coord } from "../libraries/DSTypes.sol";
+import "../libraries/LibCombat.sol";
 
 library LibSpawn {
   function createPlayerEntity(IUint256Component components, address playerAddress) internal returns (uint256) {
@@ -36,18 +38,45 @@ library LibSpawn {
     return playerEntity;
   }
 
+  function getRandomLocation(IUint256Component components, uint256 r) public view returns (Coord memory) {
+    uint256 worldRadius = GameConfigComponent(getAddressById(components, GameConfigComponentID))
+      .getValue(GodID)
+      .worldRadius;
+
+    int32 x = int32(int256(LibCombat.getByteUInt(r, 14, 0) % worldRadius));
+    int32 y = int32(int256(LibCombat.getByteUInt(r, 14, 14) % worldRadius));
+
+    uint256 isXPositive = LibCombat.getByteUInt(r, 1, 29);
+    uint256 isYPositive = LibCombat.getByteUInt(r, 1, 30);
+
+    x = isXPositive == 1 ? x : -x;
+    y = isYPositive == 1 ? y : -x;
+
+    return (Coord(x, y));
+  }
+
+  function pointKindaTowardsTheCenter(Coord memory a) public pure returns (uint32) {
+    if (a.x >= 0 && a.y >= 0) return 235;
+    if (a.x < 0 && a.y >= 0) return 315;
+    if (a.x < 0 && a.y < 0) return 45;
+    if (a.x < 0 && a.y >= 0) return 135;
+
+    return 135;
+  }
+
   function spawn(
     IWorld world,
     IUint256Component components,
-    uint256 playerEntity
+    uint256 playerEntity,
+    uint256 nonce
   ) public {
-    int32 x = -10;
-    int32 y = 0;
-    uint32 rotation = 260;
+    Coord memory startingLocation = getRandomLocation(components, LibCombat.randomness(playerEntity, nonce));
+
+    uint32 rotation = pointKindaTowardsTheCenter(startingLocation);
     for (uint256 i = 0; i < 3; i++) {
       uint256 entity = world.getUniqueEntityId();
-      spawnShip(components, entity, playerEntity, Coord(x, y), rotation);
-      x += 10;
+      spawnShip(components, entity, playerEntity, startingLocation, rotation);
+      startingLocation.x += 10;
       rotation += 10;
     }
 

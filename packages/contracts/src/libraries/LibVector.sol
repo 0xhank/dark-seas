@@ -4,13 +4,16 @@ pragma solidity >=0.8.0;
 import { getAddressById, getSystemAddressById } from "solecs/utils.sol";
 import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 
-import { Coord } from "../components/PositionComponent.sol";
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
-import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
+import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
+import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 import { ABDKMath64x64 as Math } from "./ABDKMath64x64.sol";
 
+import { console } from "forge-std/console.sol";
+
+import { Coord, GameConfig, GodID } from "../libraries/DSTypes.sol";
 import "trig/src/Trigonometry.sol";
 
 library LibVector {
@@ -93,5 +96,14 @@ library LibVector {
   function distance(Coord memory a, Coord memory b) public pure returns (uint256) {
     int128 distanceSquared = (a.x - b.x)**2 + (a.y - b.y)**2;
     return Math.toUInt(Math.sqrt(Math.fromInt(distanceSquared)));
+  }
+
+  function inWorldRadius(IUint256Component components, Coord memory position) public view returns (bool) {
+    uint32 worldRadius = GameConfigComponent(getAddressById(components, GameConfigComponentID))
+      .getValue(GodID)
+      .worldRadius;
+
+    bool inRange = inRange(position, Coord(0, 0), worldRadius);
+    return inRange;
   }
 }

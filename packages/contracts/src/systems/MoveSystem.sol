@@ -82,12 +82,13 @@ contract MoveSystem is System {
       Coord memory position = positionComponent.getValue(entity);
       uint32 rotation = rotationComponent.getValue(entity);
 
-      moveCard.distance = LibMove.getMoveDistanceWithWind(moveCard.distance, rotation, wind);
+      moveCard = LibMove.getMoveWithWind(moveCard, rotation, wind);
 
       moveCard = LibMove.getMoveWithSails(moveCard, sailPositionComponent.getValue(entity));
 
       position = LibVector.getPositionByVector(position, rotation, moveCard.distance, moveCard.direction);
 
+      require(LibVector.inWorldRadius(components, position), "MoveSystem: move out of bounds");
       rotation = (rotation + moveCard.rotation) % 360;
 
       positionComponent.set(entity, position);

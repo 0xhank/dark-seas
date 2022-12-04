@@ -29,6 +29,7 @@ import { PlayerSpawnSystem, ID as PlayerSpawnSystemID } from "../../systems/Play
 import "../../libraries/LibVector.sol";
 import "../../libraries/LibCombat.sol";
 import "../../libraries/LibUtils.sol";
+import "../../libraries/LibSpawn.sol";
 
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
@@ -40,10 +41,10 @@ contract PlayerSpawnTest is MudTest {
   function testRevertWhenCalledTwice() public prank(deployer) {
     setup();
 
-    playerSpawnSystem.executeTyped("Jamaican me crazy");
+    playerSpawnSystem.executeTyped("Jamaican me crazy", 1);
 
     vm.expectRevert(bytes("PlayerSpawnSystem: player has already spawned"));
-    playerSpawnSystem.executeTyped("Jamaican me crazy");
+    playerSpawnSystem.executeTyped("Jamaican me crazy", 1);
   }
 
   function testName() public prank(deployer) {
@@ -51,7 +52,7 @@ contract PlayerSpawnTest is MudTest {
 
     NameComponent nameComponent = NameComponent(getAddressById(components, NameComponentID));
 
-    playerSpawnSystem.executeTyped("Jamaican me crazy");
+    playerSpawnSystem.executeTyped("Jamaican me crazy", 1);
     uint256 playerEntity = addressToEntity(deployer);
     assertTrue(nameComponent.has(playerEntity));
     string memory playerName = nameComponent.getValue(playerEntity);
@@ -61,7 +62,7 @@ contract PlayerSpawnTest is MudTest {
   function testSpawn() public prank(deployer) {
     setup();
 
-    playerSpawnSystem.executeTyped("Jamaican me crazy");
+    playerSpawnSystem.executeTyped("Jamaican me crazy", 1);
 
     (uint256[] memory entities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
@@ -69,15 +70,22 @@ contract PlayerSpawnTest is MudTest {
 
     uint256 playerEntity = addressToEntity(deployer);
 
+    Coord memory startingLocation = LibSpawn.getRandomLocation(
+      components,
+      LibCombat.randomness(addressToEntity(deployer), 1)
+    );
     for (uint256 i = 0; i < entities.length; i++) {
       uint256 entity = entities[i];
 
       Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(entity);
-      assertApproxEqAbs(position.x, 0, 10, "incorrect x");
-      assertEq(0, position.y, "incorrect y");
+      uint32 rotation = LibSpawn.pointKindaTowardsTheCenter(position);
+      console.logInt(position.x);
+      console.logInt(position.y);
+      assertApproxEqAbs(position.x, startingLocation.x + 10, 10, "incorrect x");
+      assertEq(position.y, startingLocation.y, "incorrect y");
 
       uint256 testVar = RotationComponent(getAddressById(components, RotationComponentID)).getValue(entity);
-      assertApproxEqAbs(testVar, 270, 10, "incorrect rotation");
+      assertApproxEqAbs(testVar, rotation + 10, 10, "incorrect rotation");
 
       testVar = LengthComponent(getAddressById(components, LengthComponentID)).getValue(entity);
       assertEq(testVar, 10, "incorrect length");
