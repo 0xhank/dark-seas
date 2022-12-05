@@ -355,7 +355,7 @@ export function registerYourShips() {
                         }}
                       >
                         <span style={{ fontSize: "1.5rem", lineHeight: "1.5rem" }}>HMS {ship}</span>
-                        <span style={{ lineHeight: "1.5rem", fontSize: "1rem" }}>
+                        <span style={{ lineHeight: "2rem", fontSize: "1rem" }}>
                           ({position.x}, {position.y})
                         </span>
                         <BoxImage>
