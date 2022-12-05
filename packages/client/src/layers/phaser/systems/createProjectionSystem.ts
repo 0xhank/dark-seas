@@ -94,6 +94,9 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
     rightFiringRange.setDisplayOrigin(0);
     leftFiringRange.setDisplayOrigin(0);
 
+    rightFiringRange.setZ(1000);
+    leftFiringRange.setZ(1000);
+
     rangeGroup.add(rightFiringRange, true);
     rangeGroup.add(leftFiringRange, true);
 
@@ -116,6 +119,7 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
         gameObject.setDisplaySize(shipWidth, shipLength);
         gameObject.setPosition(x, y);
         gameObject.setAlpha(0.3);
+        gameObject.setZ(1001);
       },
     });
   });
