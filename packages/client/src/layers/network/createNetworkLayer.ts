@@ -120,6 +120,20 @@ export async function createNetworkLayer(config: GameConfig) {
     return secondsUntilNextTurn > gameConfig.actionPhaseLength ? Phase.Move : Phase.Action;
   }
 
+  function getCurrentGameTurn(): number | undefined {
+    const gamePhase = getGameTurnAt(network.clock.currentTime / 1000);
+    return gamePhase;
+  }
+
+  function getGameTurnAt(timeInSeconds: number): number | undefined {
+    const gameConfig = getGameConfig();
+    if (!gameConfig) return undefined;
+    const timeElapsed = timeInSeconds - parseInt(gameConfig.startTime);
+    const turnLength = gameConfig.movePhaseLength + gameConfig.actionPhaseLength;
+
+    return Math.floor(timeElapsed / turnLength);
+  }
+
   // --- ACTION SYSTEM --------------------------------------------------------------
   const actions = createActionSystem(world, txReduced$);
 
@@ -157,7 +171,7 @@ export async function createNetworkLayer(config: GameConfig) {
     startSync,
     network,
     actions,
-    utils: { getGameConfig, getPlayerEntity, getCurrentGamePhase, getGamePhaseAt },
+    utils: { getGameConfig, getPlayerEntity, getCurrentGamePhase, getGamePhaseAt, getCurrentGameTurn },
     api: { spawnShip, move, submitActions, spawnPlayer },
     dev: setupDevSystems(world, encoders as Promise<any>, systems),
   };

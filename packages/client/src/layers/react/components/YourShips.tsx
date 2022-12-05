@@ -56,10 +56,12 @@ export function registerYourShips() {
             OnFire,
             Ship,
             OwnedBy,
+            LastMove,
+            LastAction,
           },
           api: { move, submitActions },
           network: { connectedAddress, clock },
-          utils: { getPlayerEntity, getCurrentGamePhase },
+          utils: { getPlayerEntity, getCurrentGamePhase, getCurrentGameTurn },
         },
         phaser: {
           components: { SelectedShip, SelectedMove, Selection, SelectedActions },
@@ -88,7 +90,9 @@ export function registerYourShips() {
         OnFire.update$,
         Ship.update$,
         SelectedActions.update$,
-        OwnedBy.update$
+        OwnedBy.update$,
+        LastMove.update$,
+        LastAction.update$
       ).pipe(
         map(() => {
           return {
@@ -110,6 +114,8 @@ export function registerYourShips() {
             DamagedMast,
             SelectedActions,
             OwnedBy,
+            LastMove,
+            LastAction,
             world,
             camera,
             positions,
@@ -118,6 +124,7 @@ export function registerYourShips() {
             getPlayerEntity,
             getCurrentGamePhase,
             submitActions,
+            getCurrentGameTurn,
           };
         })
       );
@@ -145,20 +152,29 @@ export function registerYourShips() {
         OnFire,
         Leak,
         SelectedActions,
+        LastMove,
+        LastAction,
         world,
         connectedAddress,
         getPlayerEntity,
         getCurrentGamePhase,
         move,
         submitActions,
+        getCurrentGameTurn,
       } = props;
 
       const currentGamePhase: Phase | undefined = getCurrentGamePhase();
+      const currentTurn = getCurrentGameTurn();
 
-      if (currentGamePhase == undefined) return null;
+      console.log("current turn:", currentTurn);
+
+      if (currentGamePhase == undefined || currentTurn == undefined) return null;
 
       const playerEntity = getPlayerEntity(connectedAddress.get());
       if (!playerEntity || !getComponentValue(Player, playerEntity)) return null;
+
+      const lastMove = getComponentValue(LastMove, playerEntity)?.value;
+      const lastAction = getComponentValue(LastAction, playerEntity)?.value;
 
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
@@ -421,7 +437,9 @@ export function registerYourShips() {
                 Clear
               </Button>
               <ConfirmButton
-                disabled={disabled}
+                disabled={
+                  disabled || (currentGamePhase == Phase.Move ? currentTurn == lastMove : currentTurn == lastAction)
+                }
                 style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }}
                 onClick={handleSubmit}
               >

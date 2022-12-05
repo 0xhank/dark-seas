@@ -80,8 +80,8 @@ library LibSpawn {
       rotation += 30;
     }
 
-    LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 0);
-    LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 0);
+    LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 1);
+    LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 1);
   }
 
   function playerIdExists(IUint256Component components, uint256 playerEntityId) internal view returns (bool) {
