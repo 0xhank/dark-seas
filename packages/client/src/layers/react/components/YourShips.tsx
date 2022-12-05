@@ -59,7 +59,7 @@ export function registerYourShips() {
             LastMove,
             LastAction,
           },
-          api: { move, submitActions },
+          api: { revealMove, submitActions, commitMove },
           network: { connectedAddress, clock },
           utils: { getPlayerEntity, getCurrentGamePhase, getCurrentGameTurn },
         },
@@ -120,11 +120,12 @@ export function registerYourShips() {
             camera,
             positions,
             connectedAddress,
-            move,
+            revealMove,
             getPlayerEntity,
             getCurrentGamePhase,
             submitActions,
             getCurrentGameTurn,
+            commitMove,
           };
         })
       );
@@ -158,15 +159,14 @@ export function registerYourShips() {
         connectedAddress,
         getPlayerEntity,
         getCurrentGamePhase,
-        move,
+        revealMove,
         submitActions,
         getCurrentGameTurn,
+        commitMove,
       } = props;
 
       const currentGamePhase: Phase | undefined = getCurrentGamePhase();
       const currentTurn = getCurrentGameTurn();
-
-      console.log("current turn:", currentTurn);
 
       if (currentGamePhase == undefined || currentTurn == undefined) return null;
 
@@ -190,27 +190,12 @@ export function registerYourShips() {
       );
 
       const disabled =
-        currentGamePhase == Phase.Move
+        currentGamePhase == Phase.Commit
           ? selectedMoves.length == 0
           : selectedActions.length == 0 || selectedActions?.every((arr) => arr?.every((elem) => elem == -1));
 
       const handleSubmit = () => {
-        if (currentGamePhase == Phase.Move) {
-          const shipsAndMoves = yourShips.reduce(
-            (prev: { ships: EntityID[]; moves: EntityID[] }, curr: EntityIndex) => {
-              const shipMove = getComponentValue(SelectedMove, curr)?.value;
-              if (!shipMove) return prev;
-              return {
-                ships: [...prev.ships, world.entities[curr]],
-                moves: [...prev.moves, world.entities[shipMove]],
-              };
-            },
-            { ships: [], moves: [] }
-          );
-
-          if (shipsAndMoves.ships.length == 0) return;
-          move(shipsAndMoves.ships, shipsAndMoves.moves);
-        } else {
+        if (currentGamePhase == Phase.Action) {
           const shipsAndActions = yourShips.reduce(
             (prev: { ships: EntityID[]; actions: Action[][] }, curr: EntityIndex) => {
               const actions = getComponentValue(SelectedActions, curr)?.value;
@@ -225,6 +210,26 @@ export function registerYourShips() {
           );
           if (shipsAndActions.ships.length == 0) return;
           submitActions(shipsAndActions.ships, shipsAndActions.actions);
+        } else {
+          const shipsAndMoves = yourShips.reduce(
+            (prev: { ships: EntityID[]; moves: EntityID[] }, curr: EntityIndex) => {
+              const shipMove = getComponentValue(SelectedMove, curr)?.value;
+              if (!shipMove) return prev;
+              return {
+                ships: [...prev.ships, world.entities[curr]],
+                moves: [...prev.moves, world.entities[shipMove]],
+              };
+            },
+            { ships: [], moves: [] }
+          );
+
+          if (shipsAndMoves.ships.length == 0) return;
+          currentGamePhase == Phase.Commit
+            ? commitMove(
+                shipsAndMoves.ships.map((ship) => Number(ship)),
+                shipsAndMoves.moves.map((move) => Number(move))
+              )
+            : revealMove(shipsAndMoves.ships, shipsAndMoves.moves);
         }
       };
 
@@ -409,15 +414,15 @@ export function registerYourShips() {
                         </div>
                       </div>
                     </div>
-                    {currentGamePhase == Phase.Move ? (
+                    {currentGamePhase == Phase.Commit ? (
                       <SelectMoveButton />
-                    ) : (
+                    ) : currentGamePhase == Phase.Action ? (
                       <ActionButtons>
                         <ActionButton selectionType={SelectionType.Action1} actionIndex={0} />
                         <ActionButton selectionType={SelectionType.Action2} actionIndex={1} />
                         <ActionButton selectionType={SelectionType.Action3} actionIndex={2} />
                       </ActionButtons>
-                    )}
+                    ) : null}
                   </YourShipContainer>
                 );
               })}
@@ -437,13 +442,17 @@ export function registerYourShips() {
                 Clear
               </Button>
               <ConfirmButton
-                disabled={
-                  disabled || (currentGamePhase == Phase.Move ? currentTurn == lastMove : currentTurn == lastAction)
-                }
+                // disabled={
+                //   disabled || (currentGamePhase == Phase.Commit ? currentTurn == lastMove : currentTurn == lastAction)
+                // }
                 style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }}
                 onClick={handleSubmit}
               >
-                Submit
+                {currentGamePhase == Phase.Commit
+                  ? "Commit Moves"
+                  : currentGamePhase == Phase.Action
+                  ? "Submit Actions"
+                  : "Reveal Moves"}
               </ConfirmButton>
             </ConfirmButtons>
           </InternalContainer>

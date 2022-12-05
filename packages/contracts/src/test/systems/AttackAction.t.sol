@@ -52,7 +52,10 @@ contract AttackActionTest is MudTest {
 
     vm.prank(deployer);
     shipSpawnSystem.executeTyped(Coord(0, 0), 0);
-    uint256 newTurn = 2 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength) + 2 + gameConfig.movePhaseLength;
+    uint256 newTurn = 2 *
+      (gameConfig.revealPhaseLength + gameConfig.actionPhaseLength) +
+      2 +
+      gameConfig.commitPhaseLength;
 
     vm.warp(newTurn);
 
@@ -84,7 +87,7 @@ contract AttackActionTest is MudTest {
     uint32 orig2Health = healthComponent.getValue(defender2Id);
     uint32 attackerHealth = healthComponent.getValue(attackerId);
 
-    blocktimestamp = blocktimestamp + gameConfig.movePhaseLength * 10;
+    blocktimestamp = blocktimestamp + gameConfig.commitPhaseLength * 10;
     vm.warp(blocktimestamp);
 
     delete shipEntities;
@@ -123,20 +126,20 @@ contract AttackActionTest is MudTest {
     console.log("start time: ", gameConfig.startTime);
     console.log("timestamp: ", block.timestamp);
 
-    uint256 warp = 2 + (10 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength));
+    uint256 warp = 2 + (10 * (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength));
     console.log("warp:", warp);
     vm.warp(warp);
 
-    moveSystem.executeTyped(shipEntities, moveEntities);
+    moveSystem.executeTyped(shipEntities, moveEntities, 69);
 
     uint256 defenderId = shipSpawnSystem.executeTyped(startingPosition, 0);
 
     uint32 origHealth = healthComponent.getValue(defenderId);
     uint32 attackerHealth = healthComponent.getValue(attackerId);
 
-    warp = gameConfig.movePhaseLength + 1 + (15 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength));
+    warp = gameConfig.commitPhaseLength + 1 + (15 * (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength));
     console.log(warp);
-    vm.warp(gameConfig.movePhaseLength + 1 + (15 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength)));
+    vm.warp(gameConfig.commitPhaseLength + 1 + (15 * (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength)));
 
     delete shipEntities;
     delete actions;
@@ -166,7 +169,7 @@ contract AttackActionTest is MudTest {
 
     uint32 origHealth = healthComponent.getValue(defenderId);
 
-    blocktimestamp = blocktimestamp + gameConfig.movePhaseLength * 10;
+    blocktimestamp = blocktimestamp + gameConfig.commitPhaseLength * 10;
     vm.warp(blocktimestamp);
 
     delete shipEntities;

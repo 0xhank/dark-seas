@@ -20,7 +20,7 @@ library LibTurn {
     require(atTime >= gameConfig.startTime, "invalid atTime");
 
     uint256 secondsSinceAction = atTime - gameConfig.startTime;
-    uint256 turnLength = gameConfig.movePhaseLength + gameConfig.actionPhaseLength;
+    uint256 turnLength = gameConfig.commitPhaseLength + gameConfig.actionPhaseLength + gameConfig.revealPhaseLength;
     return uint32(secondsSinceAction / turnLength);
   }
 
@@ -35,10 +35,12 @@ library LibTurn {
     require(atTime >= gameConfig.startTime, "invalid atTime");
 
     uint256 secondsSinceAction = atTime - gameConfig.startTime;
-    uint256 turnLength = gameConfig.movePhaseLength + gameConfig.actionPhaseLength;
+    uint256 turnLength = gameConfig.commitPhaseLength + gameConfig.actionPhaseLength + gameConfig.commitPhaseLength;
     uint256 secondsIntoTurn = secondsSinceAction % turnLength;
 
-    return secondsIntoTurn < gameConfig.movePhaseLength ? Phase.Move : Phase.Action;
+    if (secondsIntoTurn < gameConfig.commitPhaseLength) return Phase.Commit;
+    else if (secondsIntoTurn < gameConfig.commitPhaseLength + gameConfig.revealPhaseLength) return Phase.Reveal;
+    else return Phase.Action;
   }
 
   function getCurrentTurnAndPhase(IUint256Component components) internal view returns (uint32, Phase) {
@@ -46,17 +48,8 @@ library LibTurn {
   }
 
   function getTurnAndPhaseAt(IUint256Component components, uint256 atTime) internal view returns (uint32, Phase) {
-    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
-      GodID
-    );
-    require(atTime >= gameConfig.startTime, "invalid atTime");
-
-    uint256 secondsSinceAction = atTime - gameConfig.startTime;
-    console.log("secondsSinceAction:", secondsSinceAction);
-    uint256 turnLength = gameConfig.movePhaseLength + gameConfig.actionPhaseLength;
-    uint256 secondsIntoTurn = secondsSinceAction % turnLength;
-    uint256 turn = secondsSinceAction / turnLength;
-    Phase phase = secondsIntoTurn < gameConfig.movePhaseLength ? Phase.Move : Phase.Action;
-    return (uint32(turn), phase);
+    uint32 turn = getCurrentTurn(components);
+    Phase phase = getCurrentPhase(components);
+    return (turn, phase);
   }
 }

@@ -26,7 +26,7 @@ contract LibTurnTest is MudTest {
   function testGetCurrentPhase() public prank(deployer) {
     Phase phase = LibTurn.getCurrentPhase(components);
 
-    assertTrue(phase == Phase.Move);
+    assertTrue(phase == Phase.Commit);
 
     vm.warp(76);
 
@@ -39,7 +39,7 @@ contract LibTurnTest is MudTest {
     (uint32 turn, Phase phase) = LibTurn.getCurrentTurnAndPhase(components);
 
     assertEq(turn, 0);
-    assertTrue(phase == Phase.Move);
+    assertTrue(phase == Phase.Commit);
 
     vm.warp(196);
 

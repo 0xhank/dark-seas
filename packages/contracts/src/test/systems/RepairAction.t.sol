@@ -43,7 +43,7 @@ contract RepairActionTest is MudTest {
 
     assertTrue(onFireComponent.has(entityID));
 
-    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
+    uint256 newTurn = 1 + gameConfig.commitPhaseLength + (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength);
     vm.warp(newTurn);
 
     delete shipEntities;
@@ -76,7 +76,7 @@ contract RepairActionTest is MudTest {
     actions.push(Action.RepairLeak);
     allActions.push(actions);
 
-    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
+    uint256 newTurn = 1 + gameConfig.commitPhaseLength + (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength);
     vm.warp(newTurn);
 
     actionSystem.executeTyped(shipEntities, allActions);
@@ -100,7 +100,7 @@ contract RepairActionTest is MudTest {
     actions.push(Action.RepairSail);
     allActions.push(actions);
 
-    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
+    uint256 newTurn = 1 + gameConfig.commitPhaseLength + (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength);
     vm.warp(newTurn);
 
     actionSystem.executeTyped(shipEntities, allActions);
@@ -126,7 +126,7 @@ contract RepairActionTest is MudTest {
     actions.push(Action.RepairMast);
     allActions.push(actions);
 
-    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
+    uint256 newTurn = 1 + gameConfig.commitPhaseLength + (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength);
     vm.warp(newTurn);
 
     actionSystem.executeTyped(shipEntities, allActions);

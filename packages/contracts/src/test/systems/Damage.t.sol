@@ -58,14 +58,14 @@ contract RepairActionTest is MudTest {
     actions.push(Action.ExtinguishFire);
     allActions.push(actions);
 
-    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
+    uint256 newTurn = 1 + gameConfig.commitPhaseLength + (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength);
     vm.warp(newTurn);
 
     actionSystem.executeTyped(shipEntities, allActions);
     assertTrue(onFireComponent.has(attackerId));
     assertEq(onFireComponent.getValue(attackerId), 1);
 
-    newTurn = gameConfig.movePhaseLength * 10;
+    newTurn = gameConfig.commitPhaseLength * 10;
     vm.warp(newTurn);
 
     delete shipEntities;
@@ -106,7 +106,7 @@ contract RepairActionTest is MudTest {
     actions.push(Action.ExtinguishFire);
     allActions.push(actions);
 
-    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
+    uint256 newTurn = 1 + gameConfig.commitPhaseLength + (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength);
     vm.warp(newTurn);
 
     actionSystem.executeTyped(shipEntities, allActions);
@@ -137,7 +137,7 @@ contract RepairActionTest is MudTest {
     actions.push(Action.RepairMast);
     allActions.push(actions);
 
-    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
+    uint256 newTurn = 1 + gameConfig.commitPhaseLength + (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength);
     vm.warp(newTurn);
 
     actionSystem.executeTyped(shipEntities, allActions);
@@ -166,10 +166,10 @@ contract RepairActionTest is MudTest {
     delete shipEntities;
     moveEntities.push(moveStraightEntityId);
     shipEntities.push(entityID);
-    uint256 newTurn = 2 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength) + 2;
+    uint256 newTurn = 2 * (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength) + 2;
     vm.warp(newTurn);
 
-    moveSystem.executeTyped(shipEntities, moveEntities);
+    moveSystem.executeTyped(shipEntities, moveEntities, 69);
 
     assertCoordEq(positionComponent.getValue(entityID), position);
     assertEq(rotationComponent.getValue(entityID), rotation);

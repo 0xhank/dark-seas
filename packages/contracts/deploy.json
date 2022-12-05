@@ -19,7 +19,8 @@
     "LastActionComponent",
     "OwnedByComponent",
     "NameComponent",
-    "PlayerComponent"
+    "PlayerComponent",
+    "CommitmentComponent"
   ],
   "systems": [
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
@@ -73,6 +74,7 @@
         "PlayerComponent",
         "NameComponent"
       ]
-    }
+    },
+    { "name": "CommitSystem", "writeAccess": ["CommitmentComponent"] }
   ]
 }

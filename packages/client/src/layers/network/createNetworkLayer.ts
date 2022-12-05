@@ -26,6 +26,7 @@ import { Action, Phase } from "../../constants";
 import { defineWindComponent } from "./components/WindComponent";
 import { defineMoveCardComponent } from "./components/MoveCardComponent";
 import { GodID } from "@latticexyz/network";
+import { solidityKeccak256 } from "ethers/lib/utils";
 
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -43,7 +44,8 @@ export async function createNetworkLayer(config: GameConfig) {
       world,
       {
         startTime: Type.String,
-        movePhaseLength: Type.Number,
+        commitPhaseLength: Type.Number,
+        revealPhaseLength: Type.Number,
         actionPhaseLength: Type.Number,
         worldRadius: Type.Number,
       },
@@ -79,6 +81,7 @@ export async function createNetworkLayer(config: GameConfig) {
     ),
     Player: defineBoolComponent(world, { id: "Player", metadata: { contractId: "ds.component.Player" } }),
     Name: defineStringComponent(world, { id: "Name", metadata: { contractId: "ds.component.Name" } }),
+    Commitment: defineStringComponent(world, { id: "Commitment", metadata: { contractId: "ds.component.Commitment" } }),
   };
 
   // --- SETUP ----------------------------------------------------------------------
@@ -113,11 +116,13 @@ export async function createNetworkLayer(config: GameConfig) {
     const gameConfig = getGameConfig();
     if (!gameConfig) return undefined;
     const timeElapsed = timeInSeconds - parseInt(gameConfig.startTime);
-    const turnLength = gameConfig.movePhaseLength + gameConfig.actionPhaseLength;
+    const turnLength = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
 
     const secondsUntilNextTurn = turnLength - (timeElapsed % turnLength);
 
-    return secondsUntilNextTurn > gameConfig.actionPhaseLength ? Phase.Move : Phase.Action;
+    if (secondsUntilNextTurn < gameConfig.actionPhaseLength) return Phase.Action;
+    if (secondsUntilNextTurn < gameConfig.actionPhaseLength + gameConfig.revealPhaseLength) return Phase.Reveal;
+    return Phase.Commit;
   }
 
   function getCurrentGameTurn(): number | undefined {
@@ -129,7 +134,7 @@ export async function createNetworkLayer(config: GameConfig) {
     const gameConfig = getGameConfig();
     if (!gameConfig) return undefined;
     const timeElapsed = timeInSeconds - parseInt(gameConfig.startTime);
-    const turnLength = gameConfig.movePhaseLength + gameConfig.actionPhaseLength;
+    const turnLength = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
 
     return Math.floor(timeElapsed / turnLength);
   }
@@ -139,6 +144,11 @@ export async function createNetworkLayer(config: GameConfig) {
 
   // --- API ------------------------------------------------------------------------
 
+  function commitMove(ships: number[], moves: number[]) {
+    const commitment = solidityKeccak256(["uint256[]", "uint256[]", "uint256"], [ships, moves, 69]);
+    console.log("commitment:", commitment);
+    systems["ds.system.Commit"].executeTyped(commitment);
+  }
   function spawnPlayer(name: string, location: Coord) {
     systems["ds.system.PlayerSpawn"].executeTyped(name, location);
   }
@@ -149,9 +159,9 @@ export async function createNetworkLayer(config: GameConfig) {
     systems["ds.system.ShipSpawn"].executeTyped(location, rotation);
   }
 
-  function move(ships: EntityID[], moves: EntityID[]) {
-    console.log("moving ship");
-    systems["ds.system.Move"].executeTyped(ships, moves, {
+  function revealMove(ships: EntityID[], moves: EntityID[]) {
+    console.log("revealing moves");
+    systems["ds.system.Move"].executeTyped(ships, moves, 69, {
       gasLimit: 30_000_000,
     });
   }
@@ -171,8 +181,8 @@ export async function createNetworkLayer(config: GameConfig) {
     startSync,
     network,
     actions,
-    utils: { getGameConfig, getPlayerEntity, getCurrentGamePhase, getGamePhaseAt, getCurrentGameTurn },
-    api: { spawnShip, move, submitActions, spawnPlayer },
+    utils: { getGameConfig, getPlayerEntity, getCurrentGamePhase, getGamePhaseAt, getCurrentGameTurn, commitMove },
+    api: { spawnShip, revealMove, submitActions, spawnPlayer, commitMove },
     dev: setupDevSystems(world, encoders as Promise<any>, systems),
   };
 

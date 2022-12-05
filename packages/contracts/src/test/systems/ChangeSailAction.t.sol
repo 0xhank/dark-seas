@@ -41,7 +41,7 @@ contract ChangeSailActionTest is MudTest {
     actions.push(Action.LowerSail);
     allActions.push(actions);
 
-    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
+    uint256 newTurn = 1 + gameConfig.commitPhaseLength + (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength);
     vm.warp(newTurn);
 
     actionSystem.executeTyped(shipEntities, allActions);
@@ -57,7 +57,7 @@ contract ChangeSailActionTest is MudTest {
     uint32 startingRotation = 45;
     uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
 
-    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
+    uint256 newTurn = 1 + gameConfig.commitPhaseLength + (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength);
     vm.warp(newTurn);
 
     delete shipEntities;
@@ -82,7 +82,7 @@ contract ChangeSailActionTest is MudTest {
     actions.push(Action.LowerSail);
     allActions.push(actions);
 
-    newTurn = 1 + gameConfig.movePhaseLength + (2 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength));
+    newTurn = 1 + gameConfig.commitPhaseLength + (2 * (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength));
     vm.warp(newTurn);
 
     actionSystem.executeTyped(shipEntities, allActions);
@@ -101,7 +101,7 @@ contract ChangeSailActionTest is MudTest {
 
     gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID);
 
-    uint256 phaseTime = gameConfig.movePhaseLength;
+    uint256 phaseTime = gameConfig.commitPhaseLength;
     vm.warp(phaseTime + 1);
 
     entityId = addressToEntity(deployer);

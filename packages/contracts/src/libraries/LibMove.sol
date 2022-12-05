@@ -8,8 +8,20 @@ import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponen
 import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
-
+// Components
+import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
+import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
+import { MoveCardComponent, ID as MoveCardComponentID } from "../components/MoveCardComponent.sol";
+import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
+import { WindComponent, ID as WindComponentID } from "../components/WindComponent.sol";
+import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
+import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
+import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
+import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
+import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
+import { CommitmentComponent, ID as CommitmentComponentID } from "../components/CommitmentComponent.sol";
 import { MoveCard, Wind, Coord } from "./DSTypes.sol";
+import "../libraries/LibVector.sol";
 
 import { console } from "forge-std/console.sol";
 
@@ -68,5 +80,58 @@ library LibMove {
       moveCard.direction = (moveCard.direction * buff) / 100;
     }
     return moveCard;
+  }
+
+  function moveShip(
+    IUint256Component components,
+    uint256 entity,
+    uint256 playerEntity,
+    uint256 moveCardEntity,
+    Wind memory wind
+  ) public {
+    MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
+    PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
+    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
+    LastMoveComponent lastMoveComponent = LastMoveComponent(getAddressById(components, LastMoveComponentID));
+
+    require(
+      HealthComponent(getAddressById(components, HealthComponentID)).getValue(entity) > 0,
+      "MoveSystem: ship is sunk"
+    );
+
+    require(
+      CrewCountComponent(getAddressById(components, CrewCountComponentID)).getValue(entity) > 0,
+      "MoveSystem: ship has no crew"
+    );
+
+    require(
+      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(entity) == playerEntity,
+      "MoveSystem: you don't own this ship"
+    );
+    require(moveCardComponent.has(moveCardEntity), "MoveSystem: invalid move card entity id");
+    require(
+      ShipComponent(getAddressById(components, ShipComponentID)).has(entity),
+      "MoveSystem: invalid ship entity id"
+    );
+
+    MoveCard memory moveCard = moveCardComponent.getValue(moveCardEntity);
+
+    Coord memory position = positionComponent.getValue(entity);
+    uint32 rotation = rotationComponent.getValue(entity);
+
+    moveCard = getMoveWithWind(moveCard, rotation, wind);
+
+    moveCard = getMoveWithSails(
+      moveCard,
+      SailPositionComponent(getAddressById(components, SailPositionComponentID)).getValue(entity)
+    );
+
+    position = LibVector.getPositionByVector(position, rotation, moveCard.distance, moveCard.direction);
+
+    require(LibVector.inWorldRadius(components, position), "MoveSystem: move out of bounds");
+    rotation = (rotation + moveCard.rotation) % 360;
+
+    positionComponent.set(entity, position);
+    rotationComponent.set(entity, rotation);
   }
 }
