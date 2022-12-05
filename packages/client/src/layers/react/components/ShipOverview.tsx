@@ -4,13 +4,13 @@ import { EntityIndex, getComponentValue, getComponentValueStrict } from "@lattic
 import { map, merge, of } from "rxjs";
 import { GodID } from "@latticexyz/network";
 import { BoxImage, Button, colors, Container, InternalContainer } from "../styles/global";
-import { SailPositions, ShipImages } from "../../../constants";
+import { SailPositions } from "../../../constants";
 import styled from "styled-components";
 import HullHealth from "./OverviewComponents/HullHealth";
 import ShipAttribute from "./OverviewComponents/ShipAttribute";
 import { ShipAttributeTypes } from "../../phaser/constants";
 import ShipDamage from "./OverviewComponents/ShipDamage";
-import { getShipSprite } from "../../../utils/ships";
+import { getShipSprite, ShipImages } from "../../../utils/ships";
 
 export function registerShipOverview() {
   registerUIComponent(

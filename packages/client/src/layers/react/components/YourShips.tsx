@@ -17,13 +17,13 @@ import { GodID } from "@latticexyz/network";
 import { Arrows, SelectionType, ShipAttributeTypes } from "../../phaser/constants";
 import { Container, Button, ConfirmButton, InternalContainer, colors, BoxImage } from "../styles/global";
 import { getFinalMoveCard } from "../../../utils/directions";
-import { Action, ActionImg, ActionNames, MoveCard, Phase, SailPositions, ShipImages } from "../../../constants";
+import { Action, ActionImg, ActionNames, MoveCard, Phase, SailPositions } from "../../../constants";
 import styled from "styled-components";
 import { Coord } from "@latticexyz/utils";
 import HullHealth from "./OverviewComponents/HullHealth";
 import ShipAttribute from "./OverviewComponents/ShipAttribute";
 import ShipDamage from "./OverviewComponents/ShipDamage";
-import { getShipSprite } from "../../../utils/ships";
+import { getShipSprite, ShipImages } from "../../../utils/ships";
 
 export function registerYourShips() {
   registerUIComponent(

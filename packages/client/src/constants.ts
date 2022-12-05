@@ -116,35 +116,3 @@ export enum Sprites {
   ShipBlueMajor,
   ShipBlueMinor,
 }
-
-export const ShipImages: Record<number, string> = {
-  [Sprites.ShipWhite]: "/img/ships/shipWhite.png",
-  [Sprites.ShipWhiteDead]: "/img/ships/shipWhiteDead.png",
-  [Sprites.ShipWhiteMajor]: "/img/ships/shipWhiteMajor.png",
-  [Sprites.ShipBlackMinor]: "/img/ships/shipWhiteMinor.png",
-
-  [Sprites.ShipGreen]: "/img/ships/shipGreen.png",
-  [Sprites.ShipGreenDead]: "/img/ships/shipGreenDead.png",
-  [Sprites.ShipGreenMajor]: "/img/ships/shipGreenMajor.png",
-  [Sprites.ShipGreenMinor]: "/img/ships/shipGreenMinor.png",
-
-  [Sprites.ShipBlack]: "/img/ships/shipBlack.png",
-  [Sprites.ShipBlackDead]: "/img/ships/shipBlackDead.png",
-  [Sprites.ShipBlackMajor]: "/img/ships/shipBlackMajor.png",
-  [Sprites.ShipBlackMinor]: "/img/ships/shipBlackMinor.png",
-
-  [Sprites.ShipBlue]: "/img/ships/shipBlue.png",
-  [Sprites.ShipBlueDead]: "/img/ships/shipBlueDead.png",
-  [Sprites.ShipBlueMajor]: "/img/ships/shipBlueMajor.png",
-  [Sprites.ShipBlueMinor]: "/img/ships/shipBlueMinor.png",
-
-  [Sprites.ShipYellow]: "/img/ships/shipYellow.png",
-  [Sprites.ShipYellowDead]: "/img/ships/shipYellowDead.png",
-  [Sprites.ShipYellowMajor]: "/img/ships/shipYellowMajor.png",
-  [Sprites.ShipYellowMinor]: "/img/ships/shipYellowMinor.png",
-
-  [Sprites.ShipRed]: "/img/ships/shipRed.png",
-  [Sprites.ShipRedDead]: "/img/ships/shipRedDead.png",
-  [Sprites.ShipRedMajor]: "/img/ships/shipRedMajor.png",
-  [Sprites.ShipGreenMinor]: "/img/ships/shipRedMinor.png",
-};
