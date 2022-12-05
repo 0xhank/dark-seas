@@ -213,8 +213,9 @@ export function registerYourShips() {
       };
 
       const selectShip = (ship: EntityIndex, position: Coord) => {
-        camera.phaserCamera.pan(position.x * positions.posWidth, position.y * positions.posHeight + 400, 200, "Linear");
-        camera.phaserCamera.zoomTo(1, 200, "Linear");
+        camera.setZoom(1);
+        camera.centerOn(position.x * positions.posWidth, position.y * positions.posHeight + 400);
+
         setComponent(SelectedShip, GodEntityIndex, { value: ship });
       };
 
