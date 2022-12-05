@@ -183,19 +183,19 @@ export function registerMoveSelection() {
           </>
         );
       } else {
-        const selectedAction = selectedActions[selection];
-
+        const selectedAction = selectedActions[selection - 1];
         content = (
           <>
             {Object.keys(Action).map((a) => {
               const action = Number(a);
               if (isNaN(action)) return null;
-              const usedAlready = !!selectedActions.find((a) => a == action);
+              const selected = selectedAction == action;
+              const usedAlready = selectedActions.find((a) => a == action) != undefined;
 
               return (
                 <Button
-                  disabled={usedAlready}
-                  isSelected={selectedAction == action}
+                  disabled={usedAlready && !selected}
+                  isSelected={selected}
                   key={`selectedAction-${action}`}
                   onClick={() => {
                     // console.log("action: ", action);
