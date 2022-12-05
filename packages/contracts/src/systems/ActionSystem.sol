@@ -61,7 +61,7 @@ contract ActionSystem is System {
       );
 
       for (uint256 j = 0; j < shipActions.length; j++) {
-        Action action = shipActions[i];
+        Action action = shipActions[j];
 
         if (j == 1) {
           require(shipActions[0] != action, "ActionSystem: action already used");
