@@ -139,8 +139,8 @@ export async function createNetworkLayer(config: GameConfig) {
 
   // --- API ------------------------------------------------------------------------
 
-  function spawnPlayer(name: string) {
-    systems["ds.system.PlayerSpawn"].executeTyped(name, Date.now());
+  function spawnPlayer(name: string, location: Coord) {
+    systems["ds.system.PlayerSpawn"].executeTyped(name, location);
   }
 
   function spawnShip(location: Coord, rotation: number) {

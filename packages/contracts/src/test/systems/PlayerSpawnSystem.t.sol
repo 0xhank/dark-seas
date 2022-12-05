@@ -41,10 +41,10 @@ contract PlayerSpawnTest is MudTest {
   function testRevertWhenCalledTwice() public prank(deployer) {
     setup();
 
-    playerSpawnSystem.executeTyped("Jamaican me crazy", 1);
+    playerSpawnSystem.executeTyped("Jamaican me crazy", Coord(1, 1));
 
     vm.expectRevert(bytes("PlayerSpawnSystem: player has already spawned"));
-    playerSpawnSystem.executeTyped("Jamaican me crazy", 1);
+    playerSpawnSystem.executeTyped("Jamaican me crazy", Coord(1, 1));
   }
 
   function testName() public prank(deployer) {
@@ -52,7 +52,7 @@ contract PlayerSpawnTest is MudTest {
 
     NameComponent nameComponent = NameComponent(getAddressById(components, NameComponentID));
 
-    playerSpawnSystem.executeTyped("Jamaican me crazy", 1);
+    playerSpawnSystem.executeTyped("Jamaican me crazy", Coord(1, 1));
     uint256 playerEntity = addressToEntity(deployer);
     assertTrue(nameComponent.has(playerEntity));
     string memory playerName = nameComponent.getValue(playerEntity);
@@ -62,7 +62,7 @@ contract PlayerSpawnTest is MudTest {
   function testSpawn() public prank(deployer) {
     setup();
 
-    playerSpawnSystem.executeTyped("Jamaican me crazy", 1);
+    playerSpawnSystem.executeTyped("Jamaican me crazy", Coord(1, 1));
 
     (uint256[] memory entities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
@@ -70,10 +70,7 @@ contract PlayerSpawnTest is MudTest {
 
     uint256 playerEntity = addressToEntity(deployer);
 
-    Coord memory startingLocation = LibSpawn.getRandomLocation(
-      components,
-      LibCombat.randomness(addressToEntity(deployer), 1)
-    );
+    Coord memory startingLocation = Coord(1, 1);
     for (uint256 i = 0; i < entities.length; i++) {
       uint256 entity = entities[i];
 
