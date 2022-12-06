@@ -18,6 +18,7 @@ import { GameConfigComponent, ID as GameConfigComponentID } from "../../componen
 import { Action, Coord, GameConfig, GodID } from "../../libraries/DSTypes.sol";
 
 // Internal
+import "../../libraries/LibTurn.sol";
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
 
@@ -43,8 +44,7 @@ contract RepairActionTest is MudTest {
 
     assertTrue(onFireComponent.has(entityID));
 
-    uint256 newTurn = 1 + gameConfig.commitPhaseLength + (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength);
-    vm.warp(newTurn);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
     delete shipEntities;
     delete actions;
@@ -77,7 +77,7 @@ contract RepairActionTest is MudTest {
     allActions.push(actions);
 
     uint256 newTurn = 1 + gameConfig.commitPhaseLength + (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength);
-    vm.warp(newTurn);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
     actionSystem.executeTyped(shipEntities, allActions);
     assertFalse(leakComponent.has(entityID));
@@ -100,8 +100,7 @@ contract RepairActionTest is MudTest {
     actions.push(Action.RepairSail);
     allActions.push(actions);
 
-    uint256 newTurn = 1 + gameConfig.commitPhaseLength + (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength);
-    vm.warp(newTurn);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
     actionSystem.executeTyped(shipEntities, allActions);
 
@@ -126,8 +125,7 @@ contract RepairActionTest is MudTest {
     actions.push(Action.RepairMast);
     allActions.push(actions);
 
-    uint256 newTurn = 1 + gameConfig.commitPhaseLength + (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength);
-    vm.warp(newTurn);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
     actionSystem.executeTyped(shipEntities, allActions);
     assertFalse(damagedMastComponent.has(entityID));
