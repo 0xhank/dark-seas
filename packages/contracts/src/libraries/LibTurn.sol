@@ -59,4 +59,24 @@ library LibTurn {
     );
     return gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
   }
+
+  function getTurnAndPhaseTime(
+    IUint256Component components,
+    uint32 turn,
+    Phase phase
+  ) public returns (uint256) {
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+
+    uint256 startOffset = gameConfig.startTime;
+
+    uint32 phaseOffset = 0;
+    if (phase == Phase.Reveal) phaseOffset = gameConfig.commitPhaseLength;
+    else if (phase == Phase.Action) phaseOffset = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength;
+
+    uint32 turnOffset = LibTurn.turnLength(components) * turn;
+
+    return startOffset + phaseOffset + turnOffset;
+  }
 }

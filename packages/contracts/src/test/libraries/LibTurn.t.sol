@@ -18,13 +18,12 @@ contract LibTurnTest is MudTest {
 
     assertEq(turn, 0);
 
-    vm.warp(turnLength + gameConfig.startTime);
-
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Commit));
     turn = LibTurn.getCurrentTurn(components);
 
     assertEq(LibTurn.getCurrentTurn(components), 1);
 
-    vm.warp((turnLength * 2) + gameConfig.startTime);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Commit));
 
     assertEq(LibTurn.getCurrentTurn(components), 2);
   }
@@ -36,13 +35,13 @@ contract LibTurnTest is MudTest {
 
     assertTrue(phase == Phase.Commit);
 
-    vm.warp(gameConfig.commitPhaseLength + gameConfig.startTime);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Reveal));
 
     phase = LibTurn.getCurrentPhase(components);
 
     assertTrue(phase == Phase.Reveal);
 
-    vm.warp(gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.startTime);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
     phase = LibTurn.getCurrentPhase(components);
 
@@ -60,13 +59,13 @@ contract LibTurnTest is MudTest {
     assertTrue(phase == Phase.Commit);
 
     // turn length: 70, start time: 1, commit phase: 30 -> 101
-    vm.warp(turnLength + gameConfig.startTime + gameConfig.commitPhaseLength);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Reveal));
 
     (turn, phase) = LibTurn.getCurrentTurnAndPhase(components);
     assertEq(turn, 1, "incorrect turn");
     assertTrue(phase == Phase.Reveal, "incorrect phase");
 
-    vm.warp((turnLength * 2) + gameConfig.startTime + gameConfig.commitPhaseLength + gameConfig.revealPhaseLength);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
 
     (turn, phase) = LibTurn.getCurrentTurnAndPhase(components);
     assertEq(turn, 2, "incorrect turn");

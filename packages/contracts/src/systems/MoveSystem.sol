@@ -47,7 +47,7 @@ contract MoveSystem is System {
     require(LibSpawn.playerIdExists(components, playerEntity), "MoveSystem: player does not exist");
 
     LastMoveComponent lastMoveComponent = LastMoveComponent(getAddressById(components, LastMoveComponentID));
-    require(LibTurn.getCurrentPhase(components) == Phase.Commit, "MoveSystem: incorrect turn phase");
+    require(LibTurn.getCurrentPhase(components) == Phase.Reveal, "MoveSystem: incorrect turn phase");
 
     uint32 currentTurn = LibTurn.getCurrentTurn(components);
     require(lastMoveComponent.getValue(playerEntity) < currentTurn, "MoveSystem: already moved this turn");

@@ -15,9 +15,11 @@ import { GameConfigComponent, ID as GameConfigComponentID } from "../../componen
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
 import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
 import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.sol";
+import { CommitSystem, ID as CommitSystemID } from "../../systems/CommitSystem.sol";
 // Internal
 import "../../libraries/LibVector.sol";
 import "../../libraries/LibCombat.sol";
+import "../../libraries/LibTurn.sol";
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
 import { Side, Coord, Action, GameConfig, GodID } from "../../libraries/DSTypes.sol";
@@ -29,6 +31,8 @@ contract AttackActionTest is MudTest {
   GameConfig gameConfig;
   ActionSystem actionSystem;
   ShipSpawnSystem shipSpawnSystem;
+  CommitSystem commitSystem;
+  MoveSystem moveSystem;
 
   uint256 blocktimestamp = 1;
 
@@ -52,12 +56,8 @@ contract AttackActionTest is MudTest {
 
     vm.prank(deployer);
     shipSpawnSystem.executeTyped(Coord(0, 0), 0);
-    uint256 newTurn = 2 *
-      (gameConfig.revealPhaseLength + gameConfig.actionPhaseLength) +
-      2 +
-      gameConfig.commitPhaseLength;
 
-    vm.warp(newTurn);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
 
     vm.prank(deployer);
 
@@ -87,8 +87,7 @@ contract AttackActionTest is MudTest {
     uint32 orig2Health = healthComponent.getValue(defender2Id);
     uint32 attackerHealth = healthComponent.getValue(attackerId);
 
-    blocktimestamp = blocktimestamp + gameConfig.commitPhaseLength * 10;
-    vm.warp(blocktimestamp);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
 
     delete shipEntities;
     delete actions;
@@ -113,7 +112,6 @@ contract AttackActionTest is MudTest {
   function testCombatAfterMove() public prank(deployer) {
     setup();
     HealthComponent healthComponent = HealthComponent(component(HealthComponentID));
-    MoveSystem moveSystem = MoveSystem(system(MoveSystemID));
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint256 attackerId = shipSpawnSystem.executeTyped(startingPosition, 0);
@@ -123,23 +121,14 @@ contract AttackActionTest is MudTest {
     shipEntities.push(attackerId);
     moveEntities.push(moveStraightEntityId);
 
-    console.log("start time: ", gameConfig.startTime);
-    console.log("timestamp: ", block.timestamp);
-
-    uint256 warp = 2 + (10 * (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength));
-    console.log("warp:", warp);
-    vm.warp(warp);
-
-    moveSystem.executeTyped(shipEntities, moveEntities, 69);
+    commitAndExecuteMove(2, shipEntities, moveEntities);
 
     uint256 defenderId = shipSpawnSystem.executeTyped(startingPosition, 0);
 
     uint32 origHealth = healthComponent.getValue(defenderId);
     uint32 attackerHealth = healthComponent.getValue(attackerId);
 
-    warp = gameConfig.commitPhaseLength + 1 + (15 * (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength));
-    console.log(warp);
-    vm.warp(gameConfig.commitPhaseLength + 1 + (15 * (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength)));
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
 
     delete shipEntities;
     delete actions;
@@ -169,8 +158,7 @@ contract AttackActionTest is MudTest {
 
     uint32 origHealth = healthComponent.getValue(defenderId);
 
-    blocktimestamp = blocktimestamp + gameConfig.commitPhaseLength * 10;
-    vm.warp(blocktimestamp);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
     delete shipEntities;
     delete actions;
@@ -199,6 +187,8 @@ contract AttackActionTest is MudTest {
   function setup() internal {
     shipSpawnSystem = ShipSpawnSystem(system(ShipSpawnSystemID));
     actionSystem = ActionSystem(system(ActionSystemID));
+    commitSystem = CommitSystem(system(CommitSystemID));
+    moveSystem = MoveSystem(system(MoveSystemID));
     entityId = addressToEntity(deployer);
 
     gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID);
@@ -228,5 +218,18 @@ contract AttackActionTest is MudTest {
         LibCombat.getBaseHitChance(distance, firepower),
         LibCombat.randomness(attackerId, defenderId)
       );
+  }
+
+  function commitAndExecuteMove(
+    uint32 turn,
+    uint256[] memory shipEntities,
+    uint256[] memory moveEntities
+  ) internal {
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Commit));
+    uint256 commitment = uint256(keccak256(abi.encode(shipEntities, moveEntities, 69)));
+    commitSystem.executeTyped(commitment);
+
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Reveal));
+    moveSystem.executeTyped(shipEntities, moveEntities, 69);
   }
 }
