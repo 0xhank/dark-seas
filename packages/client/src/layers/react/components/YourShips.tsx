@@ -225,10 +225,7 @@ export function registerYourShips() {
 
           if (shipsAndMoves.ships.length == 0) return;
           currentGamePhase == Phase.Commit
-            ? commitMove(
-                shipsAndMoves.ships.map((ship) => Number(ship)),
-                shipsAndMoves.moves.map((move) => Number(move))
-              )
+            ? commitMove(shipsAndMoves.ships, shipsAndMoves.moves)
             : revealMove(shipsAndMoves.ships, shipsAndMoves.moves);
         }
       };

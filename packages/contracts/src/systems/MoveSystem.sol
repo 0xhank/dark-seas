@@ -33,14 +33,18 @@ contract MoveSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
+    (uint256[] memory entities, uint256[] memory moveCardEntities, uint256 salt) = abi.decode(
+      arguments,
+      (uint256[], uint256[], uint256)
+    );
+
     uint256 playerEntity = addressToEntity(msg.sender);
+
     require(
       uint256(keccak256(arguments)) ==
         CommitmentComponent(getAddressById(components, CommitmentComponentID)).getValue(playerEntity),
       "MoveSystem: commitment doesn't match move"
     );
-
-    (uint256[] memory entities, uint256[] memory moveCardEntities) = abi.decode(arguments, (uint256[], uint256[]));
 
     require(entities.length == moveCardEntities.length, "MoveSystem: array length mismatch");
 

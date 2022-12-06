@@ -26,7 +26,7 @@ import { Action, Phase } from "../../constants";
 import { defineWindComponent } from "./components/WindComponent";
 import { defineMoveCardComponent } from "./components/MoveCardComponent";
 import { GodID } from "@latticexyz/network";
-import { solidityKeccak256 } from "ethers/lib/utils";
+import { keccak256, defaultAbiCoder as abi } from "ethers/lib/utils";
 
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -144,26 +144,21 @@ export async function createNetworkLayer(config: GameConfig) {
 
   // --- API ------------------------------------------------------------------------
 
-  function commitMove(ships: number[], moves: number[]) {
-    const commitment = solidityKeccak256(["uint256[]", "uint256[]", "uint256"], [ships, moves, 69]);
-    console.log("commitment:", commitment);
+  function commitMove(ships: EntityID[], moves: EntityID[]) {
+    const commitment = keccak256(abi.encode(["uint256[]", "uint256[]", "uint256"], [ships, moves, 0]));
     systems["ds.system.Commit"].executeTyped(commitment);
   }
+
   function spawnPlayer(name: string, location: Coord) {
     systems["ds.system.PlayerSpawn"].executeTyped(name, location);
   }
 
   function spawnShip(location: Coord, rotation: number) {
-    console.log("spawning ship at", location, `with rotation ${rotation}`);
-
     systems["ds.system.ShipSpawn"].executeTyped(location, rotation);
   }
 
   function revealMove(ships: EntityID[], moves: EntityID[]) {
-    console.log("revealing moves");
-    systems["ds.system.Move"].executeTyped(ships, moves, 69, {
-      gasLimit: 30_000_000,
-    });
+    systems["ds.system.Move"].executeTyped(ships, moves, 0);
   }
 
   function submitActions(ships: EntityID[], actions: Action[][]) {

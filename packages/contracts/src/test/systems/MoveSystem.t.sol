@@ -56,6 +56,8 @@ contract MoveSystemTest is MudTest {
     uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
     uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
 
+    delete shipEntities;
+    delete moveEntities;
     console.log("move straight entity id", moveStraightEntityId);
     shipEntities.push(shipEntityId);
     moveEntities.push(moveStraightEntityId);
