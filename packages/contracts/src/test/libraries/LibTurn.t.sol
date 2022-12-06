@@ -5,30 +5,44 @@ pragma solidity >=0.8.0;
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 
 import "../MudTest.t.sol";
-import { GameConfig, Phase } from "../../libraries/DSTypes.sol";
+import { GameConfig, Phase, GodID } from "../../libraries/DSTypes.sol";
 import "../../libraries/LibTurn.sol";
 
 contract LibTurnTest is MudTest {
-  GameConfigComponent gameConfigComponent;
+  GameConfig gameConfig;
 
   function testGetCurrentTurn() public prank(deployer) {
+    setup();
     uint32 turn = LibTurn.getCurrentTurn(components);
+    uint32 turnLength = LibTurn.turnLength(components);
 
     assertEq(turn, 0);
 
-    vm.warp(121);
+    vm.warp(turnLength + gameConfig.startTime);
 
     turn = LibTurn.getCurrentTurn(components);
 
-    assertEq(turn, 1);
+    assertEq(LibTurn.getCurrentTurn(components), 1);
+
+    vm.warp((turnLength * 2) + gameConfig.startTime);
+
+    assertEq(LibTurn.getCurrentTurn(components), 2);
   }
 
   function testGetCurrentPhase() public prank(deployer) {
+    setup();
+
     Phase phase = LibTurn.getCurrentPhase(components);
 
     assertTrue(phase == Phase.Commit);
 
-    vm.warp(76);
+    vm.warp(gameConfig.commitPhaseLength + gameConfig.startTime);
+
+    phase = LibTurn.getCurrentPhase(components);
+
+    assertTrue(phase == Phase.Reveal);
+
+    vm.warp(gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.startTime);
 
     phase = LibTurn.getCurrentPhase(components);
 
@@ -36,20 +50,30 @@ contract LibTurnTest is MudTest {
   }
 
   function testGetCurrentTurnAndPhase() public prank(deployer) {
+    setup();
+
     (uint32 turn, Phase phase) = LibTurn.getCurrentTurnAndPhase(components);
+
+    uint32 turnLength = LibTurn.turnLength(components);
 
     assertEq(turn, 0);
     assertTrue(phase == Phase.Commit);
 
-    vm.warp(196);
+    // turn length: 70, start time: 1, commit phase: 30 -> 101
+    vm.warp(turnLength + gameConfig.startTime + gameConfig.commitPhaseLength);
 
     (turn, phase) = LibTurn.getCurrentTurnAndPhase(components);
+    assertEq(turn, 1, "incorrect turn");
+    assertTrue(phase == Phase.Reveal, "incorrect phase");
 
-    assertEq(turn, 1);
-    assertTrue(phase == Phase.Action);
+    vm.warp((turnLength * 2) + gameConfig.startTime + gameConfig.commitPhaseLength + gameConfig.revealPhaseLength);
+
+    (turn, phase) = LibTurn.getCurrentTurnAndPhase(components);
+    assertEq(turn, 2, "incorrect turn");
+    assertTrue(phase == Phase.Action, "incorrect phase");
   }
 
   function setup() private {
-    gameConfigComponent = GameConfigComponent(getAddressById(components, GameConfigComponentID));
+    gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID);
   }
 }

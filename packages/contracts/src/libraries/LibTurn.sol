@@ -34,12 +34,12 @@ library LibTurn {
     );
     require(atTime >= gameConfig.startTime, "invalid atTime");
 
-    uint256 secondsSinceAction = atTime - gameConfig.startTime;
-    uint256 turnLength = gameConfig.commitPhaseLength + gameConfig.actionPhaseLength + gameConfig.commitPhaseLength;
-    uint256 secondsIntoTurn = secondsSinceAction % turnLength;
+    uint256 gameLength = atTime - gameConfig.startTime;
+    uint256 turnLength = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
+    uint256 secondsIntoTurn = gameLength % turnLength;
 
     if (secondsIntoTurn < gameConfig.commitPhaseLength) return Phase.Commit;
-    else if (secondsIntoTurn < gameConfig.commitPhaseLength + gameConfig.revealPhaseLength) return Phase.Reveal;
+    else if (secondsIntoTurn < (gameConfig.commitPhaseLength + gameConfig.revealPhaseLength)) return Phase.Reveal;
     else return Phase.Action;
   }
 
@@ -51,5 +51,12 @@ library LibTurn {
     uint32 turn = getCurrentTurn(components);
     Phase phase = getCurrentPhase(components);
     return (turn, phase);
+  }
+
+  function turnLength(IUint256Component components) internal view returns (uint32) {
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+    return gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
   }
 }
