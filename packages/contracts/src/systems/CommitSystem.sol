@@ -18,11 +18,11 @@ contract CommitSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
-    uint256 commitment = abi.decode(arguments, (uint256));
-
     uint256 playerEntity = addressToEntity(msg.sender);
-    // require(LibTurn.getCurrentPhase(components) == Phase.Commit, "CommitSystem: incorrect turn phase");
+    require(LibSpawn.playerIdExists(components, playerEntity), "MoveSystem: player does not exist");
+    require(LibTurn.getCurrentPhase(components) == Phase.Commit, "CommitSystem: incorrect turn phase");
 
+    uint256 commitment = abi.decode(arguments, (uint256));
     CommitmentComponent(getAddressById(components, CommitmentComponentID)).set(playerEntity, commitment);
   }
 
