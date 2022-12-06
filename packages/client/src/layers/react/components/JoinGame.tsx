@@ -17,8 +17,8 @@ const JoinGameContainer = ({ layers }: { layers: Layers }) => {
   } = layers;
 
   const [playerName, setPlayerName] = useState("");
-  const [x, setX] = useState<number>();
-  const [y, setY] = useState<number>();
+  const [x, setX] = useState("");
+  const [y, setY] = useState("");
 
   const findSpawnButtonDisabled = playerName.length === 0 || x == undefined || y == undefined;
 
@@ -63,7 +63,7 @@ const JoinGameContainer = ({ layers }: { layers: Layers }) => {
             value={x}
             onChange={(e) => {
               if (isNaN(Number(e.target.value))) return;
-              if (e.target.value.length < 15) setX(Number(e.target.value));
+              if (e.target.value.length < 15) setX(e.target.value);
             }}
           ></Input>
           <Input
@@ -73,7 +73,7 @@ const JoinGameContainer = ({ layers }: { layers: Layers }) => {
             value={y}
             onChange={(e) => {
               if (isNaN(Number(e.target.value))) return;
-              if (e.target.value.length < 15) setY(Number(e.target.value));
+              if (e.target.value.length < 15) setY(e.target.value);
             }}
           ></Input>
         </div>
@@ -86,7 +86,7 @@ const JoinGameContainer = ({ layers }: { layers: Layers }) => {
           }}
           onClick={() => {
             if (x == undefined || y == undefined) return;
-            spawnPlayer(playerName, { x, y });
+            spawnPlayer(playerName, { x: Number(x), y: Number(y) });
           }}
         >
           Register
