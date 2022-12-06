@@ -56,10 +56,12 @@ export function registerYourShips() {
             OnFire,
             Ship,
             OwnedBy,
+            LastMove,
+            LastAction,
           },
-          api: { move, submitActions },
+          api: { revealMove, submitActions, commitMove },
           network: { connectedAddress, clock },
-          utils: { getPlayerEntity, getCurrentGamePhase },
+          utils: { getPlayerEntity, getCurrentGamePhase, getCurrentGameTurn },
         },
         phaser: {
           components: { SelectedShip, SelectedMove, Selection, SelectedActions },
@@ -88,7 +90,9 @@ export function registerYourShips() {
         OnFire.update$,
         Ship.update$,
         SelectedActions.update$,
-        OwnedBy.update$
+        OwnedBy.update$,
+        LastMove.update$,
+        LastAction.update$
       ).pipe(
         map(() => {
           return {
@@ -110,14 +114,18 @@ export function registerYourShips() {
             DamagedMast,
             SelectedActions,
             OwnedBy,
+            LastMove,
+            LastAction,
             world,
             camera,
             positions,
             connectedAddress,
-            move,
+            revealMove,
             getPlayerEntity,
             getCurrentGamePhase,
             submitActions,
+            getCurrentGameTurn,
+            commitMove,
           };
         })
       );
@@ -145,20 +153,28 @@ export function registerYourShips() {
         OnFire,
         Leak,
         SelectedActions,
+        LastMove,
+        LastAction,
         world,
         connectedAddress,
         getPlayerEntity,
         getCurrentGamePhase,
-        move,
+        revealMove,
         submitActions,
+        getCurrentGameTurn,
+        commitMove,
       } = props;
 
       const currentGamePhase: Phase | undefined = getCurrentGamePhase();
+      const currentTurn = getCurrentGameTurn();
 
-      if (currentGamePhase == undefined) return null;
+      if (currentGamePhase == undefined || currentTurn == undefined) return null;
 
       const playerEntity = getPlayerEntity(connectedAddress.get());
       if (!playerEntity || !getComponentValue(Player, playerEntity)) return null;
+
+      const lastMove = getComponentValue(LastMove, playerEntity)?.value;
+      const lastAction = getComponentValue(LastAction, playerEntity)?.value;
 
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
@@ -174,27 +190,12 @@ export function registerYourShips() {
       );
 
       const disabled =
-        currentGamePhase == Phase.Move
+        currentGamePhase == Phase.Commit
           ? selectedMoves.length == 0
           : selectedActions.length == 0 || selectedActions?.every((arr) => arr?.every((elem) => elem == -1));
 
       const handleSubmit = () => {
-        if (currentGamePhase == Phase.Move) {
-          const shipsAndMoves = yourShips.reduce(
-            (prev: { ships: EntityID[]; moves: EntityID[] }, curr: EntityIndex) => {
-              const shipMove = getComponentValue(SelectedMove, curr)?.value;
-              if (!shipMove) return prev;
-              return {
-                ships: [...prev.ships, world.entities[curr]],
-                moves: [...prev.moves, world.entities[shipMove]],
-              };
-            },
-            { ships: [], moves: [] }
-          );
-
-          if (shipsAndMoves.ships.length == 0) return;
-          move(shipsAndMoves.ships, shipsAndMoves.moves);
-        } else {
+        if (currentGamePhase == Phase.Action) {
           const shipsAndActions = yourShips.reduce(
             (prev: { ships: EntityID[]; actions: Action[][] }, curr: EntityIndex) => {
               const actions = getComponentValue(SelectedActions, curr)?.value;
@@ -209,12 +210,30 @@ export function registerYourShips() {
           );
           if (shipsAndActions.ships.length == 0) return;
           submitActions(shipsAndActions.ships, shipsAndActions.actions);
+        } else {
+          const shipsAndMoves = yourShips.reduce(
+            (prev: { ships: EntityID[]; moves: EntityID[] }, curr: EntityIndex) => {
+              const shipMove = getComponentValue(SelectedMove, curr)?.value;
+              if (!shipMove) return prev;
+              return {
+                ships: [...prev.ships, world.entities[curr]],
+                moves: [...prev.moves, world.entities[shipMove]],
+              };
+            },
+            { ships: [], moves: [] }
+          );
+
+          if (shipsAndMoves.ships.length == 0) return;
+          currentGamePhase == Phase.Commit
+            ? commitMove(shipsAndMoves.ships, shipsAndMoves.moves)
+            : revealMove(shipsAndMoves.ships, shipsAndMoves.moves);
         }
       };
 
       const selectShip = (ship: EntityIndex, position: Coord) => {
-        camera.phaserCamera.pan(position.x * positions.posWidth, position.y * positions.posHeight + 400, 200, "Linear");
-        camera.phaserCamera.zoomTo(1, 200, "Linear");
+        camera.setZoom(1);
+        camera.centerOn(position.x * positions.posWidth, position.y * positions.posHeight + 400);
+
         setComponent(SelectedShip, GodEntityIndex, { value: ship });
       };
 
@@ -392,15 +411,15 @@ export function registerYourShips() {
                         </div>
                       </div>
                     </div>
-                    {currentGamePhase == Phase.Move ? (
+                    {currentGamePhase == Phase.Commit ? (
                       <SelectMoveButton />
-                    ) : (
+                    ) : currentGamePhase == Phase.Action ? (
                       <ActionButtons>
                         <ActionButton selectionType={SelectionType.Action1} actionIndex={0} />
                         <ActionButton selectionType={SelectionType.Action2} actionIndex={1} />
                         <ActionButton selectionType={SelectionType.Action3} actionIndex={2} />
                       </ActionButtons>
-                    )}
+                    ) : null}
                   </YourShipContainer>
                 );
               })}
@@ -420,11 +439,17 @@ export function registerYourShips() {
                 Clear
               </Button>
               <ConfirmButton
-                disabled={disabled}
+                // disabled={
+                //   disabled || (currentGamePhase == Phase.Commit ? currentTurn == lastMove : currentTurn == lastAction)
+                // }
                 style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }}
                 onClick={handleSubmit}
               >
-                Submit
+                {currentGamePhase == Phase.Commit
+                  ? "Commit Moves"
+                  : currentGamePhase == Phase.Action
+                  ? "Submit Actions"
+                  : "Reveal Moves"}
               </ConfirmButton>
             </ConfirmButtons>
           </InternalContainer>

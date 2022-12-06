@@ -23,7 +23,7 @@ export function registerTurnTimer() {
         world,
         network: { clock, connectedAddress },
         components: { Wind, Rotation },
-        utils: { getGameConfig },
+        utils: { getGameConfig, getCurrentGamePhase },
       } = layers.network;
 
       const {
@@ -35,19 +35,31 @@ export function registerTurnTimer() {
           const gameConfig = getGameConfig();
           if (!gameConfig) return;
 
-          const timeElapsed = Math.floor(clock.currentTime / 1000) - parseInt(gameConfig.startTime);
-          const turnLength = gameConfig.movePhaseLength + gameConfig.actionPhaseLength;
+          const gameLength = Math.floor(clock.currentTime / 1000) - parseInt(gameConfig.startTime);
+          const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;
+          const secondsIntoTurn = gameLength % turnLength;
 
-          const secondsUntilNextTurn = turnLength - (timeElapsed % turnLength);
+          const phase = getCurrentGamePhase();
+          if (phase == undefined) return;
 
-          const phase = secondsUntilNextTurn > gameConfig.actionPhaseLength ? Phase.Move : Phase.Action;
+          const phaseStart =
+            phase == Phase.Commit
+              ? 0
+              : phase == Phase.Reveal
+              ? gameConfig.commitPhaseLength
+              : gameConfig.commitPhaseLength + gameConfig.revealPhaseLength;
 
-          const secondsUntilNextPhase =
-            secondsUntilNextTurn > gameConfig.actionPhaseLength
-              ? secondsUntilNextTurn - gameConfig.actionPhaseLength
-              : secondsUntilNextTurn;
+          const phaseEnd =
+            phase == Phase.Commit
+              ? gameConfig.commitPhaseLength
+              : phase == Phase.Reveal
+              ? gameConfig.commitPhaseLength + gameConfig.revealPhaseLength
+              : turnLength;
 
-          const phaseLength = phase == Phase.Move ? gameConfig.movePhaseLength : gameConfig.actionPhaseLength;
+          const secondsUntilNextPhase = phaseEnd - secondsIntoTurn;
+
+          const phaseLength = phaseEnd - phaseStart;
+
           const address = connectedAddress.get();
           if (!address) return;
 
@@ -61,6 +73,7 @@ export function registerTurnTimer() {
             SelectedShip,
             Rotation,
             world,
+            getCurrentGamePhase,
           };
         })
       );

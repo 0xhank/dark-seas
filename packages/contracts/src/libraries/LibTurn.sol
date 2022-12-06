@@ -20,7 +20,7 @@ library LibTurn {
     require(atTime >= gameConfig.startTime, "invalid atTime");
 
     uint256 secondsSinceAction = atTime - gameConfig.startTime;
-    uint256 turnLength = gameConfig.movePhaseLength + gameConfig.actionPhaseLength;
+    uint256 turnLength = gameConfig.commitPhaseLength + gameConfig.actionPhaseLength + gameConfig.revealPhaseLength;
     return uint32(secondsSinceAction / turnLength);
   }
 
@@ -34,11 +34,13 @@ library LibTurn {
     );
     require(atTime >= gameConfig.startTime, "invalid atTime");
 
-    uint256 secondsSinceAction = atTime - gameConfig.startTime;
-    uint256 turnLength = gameConfig.movePhaseLength + gameConfig.actionPhaseLength;
-    uint256 secondsIntoTurn = secondsSinceAction % turnLength;
+    uint256 gameLength = atTime - gameConfig.startTime;
+    uint256 turnLength = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
+    uint256 secondsIntoTurn = gameLength % turnLength;
 
-    return secondsIntoTurn < gameConfig.movePhaseLength ? Phase.Move : Phase.Action;
+    if (secondsIntoTurn < gameConfig.commitPhaseLength) return Phase.Commit;
+    else if (secondsIntoTurn < (gameConfig.commitPhaseLength + gameConfig.revealPhaseLength)) return Phase.Reveal;
+    else return Phase.Action;
   }
 
   function getCurrentTurnAndPhase(IUint256Component components) internal view returns (uint32, Phase) {
@@ -46,17 +48,35 @@ library LibTurn {
   }
 
   function getTurnAndPhaseAt(IUint256Component components, uint256 atTime) internal view returns (uint32, Phase) {
+    uint32 turn = getCurrentTurn(components);
+    Phase phase = getCurrentPhase(components);
+    return (turn, phase);
+  }
+
+  function turnLength(IUint256Component components) internal view returns (uint32) {
     GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
       GodID
     );
-    require(atTime >= gameConfig.startTime, "invalid atTime");
+    return gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
+  }
 
-    uint256 secondsSinceAction = atTime - gameConfig.startTime;
-    console.log("secondsSinceAction:", secondsSinceAction);
-    uint256 turnLength = gameConfig.movePhaseLength + gameConfig.actionPhaseLength;
-    uint256 secondsIntoTurn = secondsSinceAction % turnLength;
-    uint256 turn = secondsSinceAction / turnLength;
-    Phase phase = secondsIntoTurn < gameConfig.movePhaseLength ? Phase.Move : Phase.Action;
-    return (uint32(turn), phase);
+  function getTurnAndPhaseTime(
+    IUint256Component components,
+    uint32 turn,
+    Phase phase
+  ) public returns (uint256) {
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+
+    uint256 startOffset = gameConfig.startTime;
+
+    uint32 phaseOffset = 0;
+    if (phase == Phase.Reveal) phaseOffset = gameConfig.commitPhaseLength;
+    else if (phase == Phase.Action) phaseOffset = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength;
+
+    uint32 turnOffset = LibTurn.turnLength(components) * turn;
+
+    return startOffset + phaseOffset + turnOffset;
   }
 }

@@ -68,9 +68,9 @@ library LibSpawn {
     IWorld world,
     IUint256Component components,
     uint256 playerEntity,
-    uint256 nonce
+    Coord memory startingLocation
   ) public {
-    Coord memory startingLocation = getRandomLocation(components, LibCombat.randomness(playerEntity, nonce));
+    // Coord memory startingLocation = getRandomLocation(components, LibCombat.randomness(playerEntity, nonce));
 
     uint32 rotation = pointKindaTowardsTheCenter(startingLocation);
     for (uint256 i = 0; i < 3; i++) {
@@ -80,8 +80,8 @@ library LibSpawn {
       rotation += 30;
     }
 
-    LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 0);
-    LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 0);
+    LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 1);
+    LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 1);
   }
 
   function playerIdExists(IUint256Component components, uint256 playerEntityId) internal view returns (bool) {

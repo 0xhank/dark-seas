@@ -62,7 +62,7 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
     const windBoost = getWindBoost(wind, rotation);
 
     const color =
-      currentGamePhase == Phase.Move ? (windBoost > 0 ? 0xa3ffa9 : windBoost < 0 ? 0xffa3a3 : 0xffffff) : 0xffffff;
+      currentGamePhase == Phase.Commit ? (windBoost > 0 ? 0xa3ffa9 : windBoost < 0 ? 0xffa3a3 : 0xffffff) : 0xffffff;
     const circle = phaserScene.add.ellipse(pixelPosition.x, pixelPosition.y, circleWidth, circleHeight, color, 0.5);
 
     circle.setAngle(rotation % 360);

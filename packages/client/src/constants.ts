@@ -17,12 +17,14 @@ export enum Side {
 }
 
 export enum Phase {
-  Move,
+  Commit,
+  Reveal,
   Action,
 }
 
 export const PhaseNames: Record<number, string> = {
-  [Phase.Move]: "Move",
+  [Phase.Commit]: "Commit",
+  [Phase.Reveal]: "Reveal",
   [Phase.Action]: "Action",
 };
 

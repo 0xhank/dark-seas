@@ -115,7 +115,7 @@ export function registerMoveSelection() {
 
       let content: JSX.Element = <></>;
 
-      if (currentGamePhase == Phase.Move) {
+      if (currentGamePhase == Phase.Commit) {
         const selectedMove = getComponentValue(SelectedMove, selectedShip as EntityIndex);
 
         const moveEntities = [...getComponentEntities(MoveCard)];

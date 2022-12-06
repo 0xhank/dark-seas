@@ -23,16 +23,16 @@ contract PlayerSpawnSystem is System {
   function execute(bytes memory arguments) public returns (bytes memory) {
     require(!LibSpawn.playerAddrExists(components, msg.sender), "PlayerSpawnSystem: player has already spawned");
 
-    (string memory name, uint256 nonce) = abi.decode(arguments, (string, uint256));
+    (string memory name, Coord memory location) = abi.decode(arguments, (string, Coord));
     require(bytes(name).length > 0, "PlayerSpawnSystem: name is blank");
 
     uint256 playerEntity = LibSpawn.createPlayerEntity(components, msg.sender);
     NameComponent(getAddressById(components, NameComponentID)).set(playerEntity, name);
 
-    LibSpawn.spawn(world, components, playerEntity, nonce);
+    LibSpawn.spawn(world, components, playerEntity, location);
   }
 
-  function executeTyped(string calldata name, uint256 nonce) public returns (bytes memory) {
-    return execute(abi.encode(name, nonce));
+  function executeTyped(string calldata name, Coord calldata location) public returns (bytes memory) {
+    return execute(abi.encode(name, location));
   }
 }

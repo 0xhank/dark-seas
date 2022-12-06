@@ -17,8 +17,10 @@ const JoinGameContainer = ({ layers }: { layers: Layers }) => {
   } = layers;
 
   const [playerName, setPlayerName] = useState("");
+  const [x, setX] = useState<number>();
+  const [y, setY] = useState<number>();
 
-  const findSpawnButtonDisabled = playerName.length === 0;
+  const findSpawnButtonDisabled = playerName.length === 0 || x == undefined || y == undefined;
 
   return (
     <div
@@ -41,32 +43,54 @@ const JoinGameContainer = ({ layers }: { layers: Layers }) => {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-around",
+          gap: "12px",
         }}
       >
-        <Row>
+        <Input
+          style={{ flex: 2, textAlign: "center" }}
+          type={"text"}
+          placeholder="Name..."
+          value={playerName}
+          onChange={(e) => {
+            if (e.target.value.length < 15) setPlayerName(e.target.value);
+          }}
+        ></Input>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <Input
+            style={{ flex: 2, textAlign: "center" }}
+            type={"number"}
+            placeholder="X..."
+            value={x}
+            onChange={(e) => {
+              if (isNaN(Number(e.target.value))) return;
+              if (e.target.value.length < 15) setX(Number(e.target.value));
+            }}
+          ></Input>
           <Input
             style={{ flex: 2, textAlign: "center" }}
             type={"text"}
-            placeholder="Name..."
-            value={playerName}
+            placeholder="Y..."
+            value={y}
             onChange={(e) => {
-              if (e.target.value.length < 15) setPlayerName(e.target.value);
+              if (isNaN(Number(e.target.value))) return;
+              if (e.target.value.length < 15) setY(Number(e.target.value));
             }}
           ></Input>
-          <Button
-            isSelected
-            disabled={findSpawnButtonDisabled}
-            style={{
-              fontSize: "1.5rem",
-              flex: 1,
-            }}
-            onClick={() => {
-              spawnPlayer(playerName);
-            }}
-          >
-            Register
-          </Button>
-        </Row>
+        </div>
+        <Button
+          isSelected
+          disabled={findSpawnButtonDisabled}
+          style={{
+            fontSize: "1.5rem",
+            flex: 1,
+          }}
+          onClick={() => {
+            if (x == undefined || y == undefined) return;
+            spawnPlayer(playerName, { x, y });
+          }}
+        >
+          Register
+        </Button>
       </div>
     </div>
   );

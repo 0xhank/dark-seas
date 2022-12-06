@@ -9,7 +9,7 @@ export function registerComponentBrowser() {
       colStart: 10,
       colEnd: 13,
       rowStart: 1,
-      rowEnd: 13,
+      rowEnd: 10,
     },
     (layers) => of({ layers }),
     ({ layers }) => {

@@ -48,8 +48,10 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
 
     if (!ownerEntity || !playerEntity || ownerEntity !== playerEntity) return;
 
-    camera.phaserCamera.pan(position.x * positions.posWidth, position.y * positions.posHeight + 400, 20, "Linear");
-    camera.phaserCamera.zoomTo(1, 20, "Linear");
+    camera.centerOn(position.x * positions.posWidth, position.y * positions.posHeight + 400);
+    console.log(camera.phaserCamera);
+    // requestAnimationFrame(() => camera.$.next(camera.phaserCamera.worldView));
+    // camera.phaserCamera.zoomTo(1, 20, "Linear);
   });
 
   defineSystem(world, [Has(Position), Has(Rotation), Has(Length), Has(Health), Has(OwnedBy)], (update) => {

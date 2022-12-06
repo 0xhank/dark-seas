@@ -4,30 +4,29 @@ pragma solidity >=0.8.0;
 // External
 
 // Components
-import { ShipComponent, ID as ShipComponentID } from "../../components/ShipComponent.sol";
+import { OnFireComponent, ID as OnFireComponentID } from "../../components/OnFireComponent.sol";
+import { LeakComponent, ID as LeakComponentID } from "../../components/LeakComponent.sol";
+import { DamagedMastComponent, ID as DamagedMastComponentID } from "../../components/DamagedMastComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../../components/SailPositionComponent.sol";
+import { CrewCountComponent, ID as CrewCountComponentID } from "../../components/CrewCountComponent.sol";
+import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
+import { PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
+import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
 // Systems
 import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
 import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.sol";
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
 import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/ComponentDevSystem.sol";
-import { OnFireComponent, ID as OnFireComponentID } from "../../components/OnFireComponent.sol";
-import { LeakComponent, ID as LeakComponentID } from "../../components/LeakComponent.sol";
-import { DamagedMastComponent, ID as DamagedMastComponentID } from "../../components/DamagedMastComponent.sol";
-import { SailPositionComponent, ID as SailPositionComponentID } from "../../components/SailPositionComponent.sol";
-import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
-import { CrewCountComponent, ID as CrewCountComponentID } from "../../components/CrewCountComponent.sol";
-import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
-import { PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
-import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
+import { CommitSystem, ID as CommitSystemID } from "../../systems/CommitSystem.sol";
 
 import { Action, Coord, GameConfig, GodID } from "../../libraries/DSTypes.sol";
+import "../../libraries/LibTurn.sol";
 
 // Internal
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
 
-contract RepairActionTest is MudTest {
+contract DamageTest is MudTest {
   SailPositionComponent sailPositionComponent;
   GameConfig gameConfig;
   ActionSystem actionSystem;
@@ -58,15 +57,13 @@ contract RepairActionTest is MudTest {
     actions.push(Action.ExtinguishFire);
     allActions.push(actions);
 
-    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
-    vm.warp(newTurn);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
     actionSystem.executeTyped(shipEntities, allActions);
     assertTrue(onFireComponent.has(attackerId));
     assertEq(onFireComponent.getValue(attackerId), 1);
 
-    newTurn = gameConfig.movePhaseLength * 10;
-    vm.warp(newTurn);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
 
     delete shipEntities;
     delete actions;
@@ -106,8 +103,7 @@ contract RepairActionTest is MudTest {
     actions.push(Action.ExtinguishFire);
     allActions.push(actions);
 
-    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
-    vm.warp(newTurn);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
     actionSystem.executeTyped(shipEntities, allActions);
     assertTrue(leakComponent.has(entityID));
@@ -137,8 +133,7 @@ contract RepairActionTest is MudTest {
     actions.push(Action.RepairMast);
     allActions.push(actions);
 
-    uint256 newTurn = 1 + gameConfig.movePhaseLength + (gameConfig.movePhaseLength + gameConfig.actionPhaseLength);
-    vm.warp(newTurn);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
     actionSystem.executeTyped(shipEntities, allActions);
     assertTrue(damagedMastComponent.has(entityID));
@@ -166,10 +161,13 @@ contract RepairActionTest is MudTest {
     delete shipEntities;
     moveEntities.push(moveStraightEntityId);
     shipEntities.push(entityID);
-    uint256 newTurn = 2 * (gameConfig.movePhaseLength + gameConfig.actionPhaseLength) + 2;
-    vm.warp(newTurn);
 
-    moveSystem.executeTyped(shipEntities, moveEntities);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Commit));
+    uint256 commitment = uint256(keccak256(abi.encode(shipEntities, moveEntities, 69)));
+    CommitSystem(system(CommitSystemID)).executeTyped(commitment);
+
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Reveal));
+    moveSystem.executeTyped(shipEntities, moveEntities, 69);
 
     assertCoordEq(positionComponent.getValue(entityID), position);
     assertEq(rotationComponent.getValue(entityID), rotation);
@@ -183,9 +181,6 @@ contract RepairActionTest is MudTest {
     actionSystem = ActionSystem(system(ActionSystemID));
     shipSpawnSystem = ShipSpawnSystem(system(ShipSpawnSystemID));
     componentDevSystem = ComponentDevSystem(system(ComponentDevSystemID));
-
-    gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID);
-
     sailPositionComponent = SailPositionComponent(getAddressById(components, SailPositionComponentID));
   }
 }

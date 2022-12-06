@@ -32,7 +32,8 @@ enum Side {
 }
 
 enum Phase {
-  Move,
+  Commit,
+  Reveal,
   Action
 }
 
@@ -40,7 +41,8 @@ struct GameConfig {
   // Block timestamp when the game started
   uint256 startTime;
   // Number of seconds
-  uint32 movePhaseLength;
+  uint32 commitPhaseLength;
+  uint32 revealPhaseLength;
   uint32 actionPhaseLength;
   uint32 worldRadius;
 }
