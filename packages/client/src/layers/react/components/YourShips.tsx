@@ -56,7 +56,7 @@ export function registerYourShips() {
           },
           api: { revealMove, submitActions, commitMove },
           network: { connectedAddress, clock },
-          utils: { getPlayerEntity, getCurrentGamePhase, getCurrentGameTurn },
+          utils: { getPlayerEntity, getPhase, getTurn },
         },
         phaser: {
           components: { SelectedShip, SelectedMove, Selection, SelectedActions, CommittedMoves },
@@ -120,9 +120,9 @@ export function registerYourShips() {
             connectedAddress,
             revealMove,
             getPlayerEntity,
-            getCurrentGamePhase,
+            getPhase,
             submitActions,
-            getCurrentGameTurn,
+            getTurn,
             commitMove,
           };
         })
@@ -146,15 +146,15 @@ export function registerYourShips() {
         world,
         connectedAddress,
         getPlayerEntity,
-        getCurrentGamePhase,
+        getPhase,
         revealMove,
         submitActions,
-        getCurrentGameTurn,
+        getTurn,
         commitMove,
       } = props;
 
-      const phase: Phase | undefined = getCurrentGamePhase();
-      const currentTurn = getCurrentGameTurn();
+      const phase: Phase | undefined = getPhase();
+      const currentTurn = getTurn();
 
       if (phase == undefined || currentTurn == undefined) return null;
 

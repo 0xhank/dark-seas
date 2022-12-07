@@ -19,7 +19,7 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
   const {
     world,
     components: { Position, Length, Rotation, Wind, Range },
-    utils: { getCurrentGamePhase },
+    utils: { getPhase },
   } = network;
 
   const {
@@ -32,9 +32,9 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
   } = phaser;
 
   defineSystem(world, [Has(SelectedShip), Has(Wind)], ({ type }) => {
-    const currentGamePhase: Phase | undefined = getCurrentGamePhase();
+    const phase: Phase | undefined = getPhase();
 
-    if (currentGamePhase == undefined) return;
+    if (phase == undefined) return;
 
     const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
@@ -61,14 +61,13 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
 
     const windBoost = getWindBoost(wind, rotation);
 
-    const color =
-      currentGamePhase == Phase.Commit ? (windBoost > 0 ? 0xa3ffa9 : windBoost < 0 ? 0xffa3a3 : 0xffffff) : 0xffffff;
+    const color = phase == Phase.Commit ? (windBoost > 0 ? 0xa3ffa9 : windBoost < 0 ? 0xffa3a3 : 0xffffff) : 0xffffff;
     const circle = phaserScene.add.ellipse(pixelPosition.x, pixelPosition.y, circleWidth, circleHeight, color, 0.5);
 
     circle.setAngle(rotation % 360);
     circle.setOrigin(0.85, 0.5);
 
-    if (currentGamePhase == Phase.Action) {
+    if (phase == Phase.Action) {
       const position = getComponentValueStrict(Position, shipEntityId);
       const range = getComponentValueStrict(Range, shipEntityId).value;
       const length = getComponentValueStrict(Length, shipEntityId).value;

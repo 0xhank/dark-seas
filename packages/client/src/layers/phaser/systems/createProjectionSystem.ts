@@ -23,7 +23,7 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
   const {
     world,
     components: { Wind, Position, Range, Length, Rotation, SailPosition, MoveCard, Health },
-    utils: { getCurrentGamePhase },
+    utils: { getPhase },
   } = network;
 
   const {
@@ -44,9 +44,9 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
   });
 
   defineSystem(world, [Has(SelectedMove), Has(Health)], ({ entity, type }) => {
-    const currentGamePhase: Phase | undefined = getCurrentGamePhase();
+    const phase: Phase | undefined = getPhase();
 
-    if (currentGamePhase == undefined || currentGamePhase == Phase.Action) return;
+    if (phase == undefined || phase == Phase.Action) return;
 
     if (type == UpdateType.Exit) return;
     const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);

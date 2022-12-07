@@ -3,7 +3,6 @@ import { registerUIComponent } from "../engine";
 import { map, merge } from "rxjs";
 import { colors, Container } from "../styles/global";
 import { Phase, PhaseNames } from "../../../constants";
-import { autoAction } from "mobx/dist/internal";
 import styled from "styled-components";
 import {
   EntityIndex,
@@ -31,7 +30,7 @@ export function registerTurnTimer() {
         world,
         network: { clock, connectedAddress },
         components: { Wind, Rotation, OwnedBy },
-        utils: { getGameConfig, getCurrentGamePhase, getPlayerEntity },
+        utils: { getGameConfig, getPhase },
       } = layers.network;
 
       const {
@@ -51,7 +50,7 @@ export function registerTurnTimer() {
           const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;
           const secondsIntoTurn = gameLength % turnLength;
 
-          const phase = getCurrentGamePhase();
+          const phase = getPhase();
           if (phase == undefined) return;
 
           const phaseStart =

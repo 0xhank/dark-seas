@@ -35,7 +35,7 @@ export function registerMoveSelection() {
           world,
           components: { Rotation, MoveCard, Wind, SailPosition, Position, Player },
           network: { clock },
-          utils: { getPlayerEntity, getCurrentGamePhase, getGameConfig },
+          utils: { getPlayerEntity, getPhase, getGameConfig },
         },
         phaser: {
           components: { SelectedShip, SelectedMove, Selection, SelectedActions },
@@ -69,7 +69,7 @@ export function registerMoveSelection() {
             Wind,
             world,
             getPlayerEntity,
-            getCurrentGamePhase,
+            getPhase,
             getGameConfig,
           };
         })
@@ -89,13 +89,13 @@ export function registerMoveSelection() {
       Player,
       world,
       getPlayerEntity,
-      getCurrentGamePhase,
+      getPhase,
       getGameConfig,
     }) => {
-      const currentGamePhase: Phase | undefined = getCurrentGamePhase();
+      const phase: Phase | undefined = getPhase();
       const gameConfig = getGameConfig();
 
-      if (currentGamePhase == undefined || !gameConfig) return null;
+      if (phase == undefined || !gameConfig) return null;
 
       const playerEntity = getPlayerEntity();
       if (!playerEntity || !getComponentValue(Player, playerEntity)) return null;
@@ -113,7 +113,7 @@ export function registerMoveSelection() {
 
       let content: JSX.Element = <></>;
 
-      if (currentGamePhase == Phase.Commit) {
+      if (phase == Phase.Commit) {
         const selectedMove = getComponentValue(SelectedMove, selectedShip as EntityIndex);
 
         const moveEntities = [...getComponentEntities(MoveCard)];

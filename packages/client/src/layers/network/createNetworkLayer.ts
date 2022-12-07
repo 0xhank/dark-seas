@@ -107,7 +107,7 @@ export async function createNetworkLayer(config: GameConfig) {
     return playerEntity;
   }
 
-  function getCurrentGamePhase(): Phase | undefined {
+  function getPhase(): Phase | undefined {
     const gamePhase = getGamePhaseAt(network.clock.currentTime / 1000);
     return gamePhase;
   }
@@ -125,7 +125,7 @@ export async function createNetworkLayer(config: GameConfig) {
     return Phase.Commit;
   }
 
-  function getCurrentGameTurn(): number | undefined {
+  function getTurn(): number | undefined {
     const gamePhase = getGameTurnAt(network.clock.currentTime / 1000);
     return gamePhase;
   }
@@ -181,7 +181,7 @@ export async function createNetworkLayer(config: GameConfig) {
     startSync,
     network,
     actions,
-    utils: { getGameConfig, getPlayerEntity, getCurrentGamePhase, getGamePhaseAt, getCurrentGameTurn, commitMove },
+    utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn, commitMove },
     api: { spawnShip, revealMove, submitActions, spawnPlayer, commitMove },
     dev: setupDevSystems(world, encoders as Promise<any>, systems),
   };
