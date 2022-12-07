@@ -1,18 +1,10 @@
 import React from "react";
 import { registerUIComponent } from "../engine";
 import { map, merge } from "rxjs";
-import { colors, Container } from "../styles/global";
+import { colors } from "../styles/global";
 import { Phase, PhaseNames } from "../../../constants";
 import styled from "styled-components";
-import {
-  EntityIndex,
-  getComponentValue,
-  getComponentValueStrict,
-  Has,
-  HasValue,
-  removeComponent,
-  runQuery,
-} from "@latticexyz/recs";
+import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { GodID } from "@latticexyz/network";
 import { getWindBoost } from "../../../utils/directions";
 
@@ -29,17 +21,11 @@ export function registerTurnTimer() {
       const {
         world,
         network: { clock, connectedAddress },
-        components: { Wind, Rotation, OwnedBy },
+        components: { Wind, Rotation },
         utils: { getGameConfig, getPhase },
       } = layers.network;
 
-      const {
-        components: { SelectedShip, Selection, SelectedMove, SelectedActions },
-        scenes: {
-          Main: { objectPool },
-        },
-        polygonRegistry,
-      } = layers.phaser;
+      const { SelectedShip } = layers.phaser.components;
 
       return merge(clock.time$, Wind.update$, SelectedShip.update$).pipe(
         map(() => {
@@ -65,72 +51,27 @@ export function registerTurnTimer() {
               ? gameConfig.commitPhaseLength
               : phase == Phase.Reveal
               ? gameConfig.commitPhaseLength + gameConfig.revealPhaseLength
-              : turnLength;
+              : turnLength - 1;
 
           const secondsUntilNextPhase = phaseEnd - secondsIntoTurn;
 
           const phaseLength = phaseEnd - phaseStart;
 
-          const address = connectedAddress.get();
-          if (!address) return;
-
           return {
-            layers,
             phaseLength,
             secondsUntilNextPhase,
-            address,
             phase,
             Wind,
+            world,
             SelectedShip,
             Rotation,
-            OwnedBy,
-            Selection,
-            SelectedMove,
-            SelectedActions,
-            world,
-            polygonRegistry,
-            objectPool,
-            getCurrentGamePhase,
-            getPlayerEntity,
           };
         })
       );
     },
-    ({
-      phaseLength,
-      secondsUntilNextPhase,
-      phase,
-      Wind,
-      world,
-      SelectedShip,
-      SelectedMove,
-      SelectedActions,
-      Rotation,
-      Selection,
-      OwnedBy,
-      polygonRegistry,
-      objectPool,
-      getPlayerEntity,
-    }) => {
+    ({ phaseLength, secondsUntilNextPhase, phase, Wind, world, SelectedShip, Rotation }) => {
       if (!phaseLength) return null;
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
-      const playerEntity = getPlayerEntity();
-      if (!playerEntity) return null;
-
-      if (secondsUntilNextPhase == 0) {
-        removeComponent(Selection, GodEntityIndex);
-
-        if (phase !== Phase.Commit) {
-          const yourShips = [...runQuery([HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
-          yourShips.map((ship) => {
-            polygonRegistry.get(`rangeGroup-${ship}`)?.clear(true, true);
-            polygonRegistry.get(`activeGroup-${ship}`)?.clear(true, true);
-            objectPool.remove(`projection-${ship}`);
-            removeComponent(SelectedMove, ship);
-            removeComponent(SelectedActions, ship);
-          });
-        }
-      }
 
       const wind = getComponentValueStrict(Wind, GodEntityIndex);
       const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value;
@@ -140,7 +81,7 @@ export function registerTurnTimer() {
         <OuterContainer>
           <InternalContainer>
             <Text>
-              {secondsUntilNextPhase} seconds left in {PhaseNames[phase]} Phase
+              {secondsUntilNextPhase + 1} seconds left in {PhaseNames[phase]} Phase
             </Text>
             <ProgressBar phaseLength={phaseLength} secondsUntilNextPhase={secondsUntilNextPhase} />
           </InternalContainer>
@@ -190,6 +131,6 @@ const ProgressBar = styled.div<{ phaseLength: number; secondsUntilNextPhase: num
   transition: width 1s linear;
   background-color: ${colors.gold};
   width: ${({ phaseLength, secondsUntilNextPhase }) =>
-    `calc(100% * ${(phaseLength - secondsUntilNextPhase) / (phaseLength - 1)})`};
+    `calc(100% * ${(phaseLength - secondsUntilNextPhase) / phaseLength})`};
   border-radius: 6px;
 `;
