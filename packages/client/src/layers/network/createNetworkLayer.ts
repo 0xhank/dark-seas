@@ -98,9 +98,9 @@ export async function createNetworkLayer(config: GameConfig) {
     return getComponentValue(components.GameConfig, godEntityIndex);
   };
 
-  function getPlayerEntity(address: string | undefined): EntityIndex | undefined {
+  function getPlayerEntity(address?: string): EntityIndex | undefined {
+    if (!address) address = network.connectedAddress.get();
     if (!address) return;
-
     const playerEntity = world.entityToIndex.get(address as EntityID);
     if (playerEntity == null || !hasComponent(components.Player, playerEntity)) return;
 
@@ -144,8 +144,9 @@ export async function createNetworkLayer(config: GameConfig) {
 
   // --- API ------------------------------------------------------------------------
 
-  function commitMove(ships: EntityID[], moves: EntityID[]) {
-    const commitment = keccak256(abi.encode(["uint256[]", "uint256[]", "uint256"], [ships, moves, 0]));
+  function commitMove(encoding: string) {
+    const commitment = keccak256(encoding);
+    console.log("committing move");
     systems["ds.system.Commit"].executeTyped(commitment);
   }
 
@@ -157,8 +158,9 @@ export async function createNetworkLayer(config: GameConfig) {
     systems["ds.system.ShipSpawn"].executeTyped(location, rotation);
   }
 
-  function revealMove(ships: EntityID[], moves: EntityID[]) {
-    systems["ds.system.Move"].executeTyped(ships, moves, 0);
+  function revealMove(encoding: string) {
+    const decodedMove = abi.decode(["uint256[]", "uint256[]", "uint256"], encoding);
+    systems["ds.system.Move"].executeTyped(decodedMove[0], decodedMove[1], decodedMove[2]);
   }
 
   function submitActions(ships: EntityID[], actions: Action[][]) {

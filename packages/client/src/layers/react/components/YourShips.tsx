@@ -10,6 +10,7 @@ import {
   HasValue,
   removeComponent,
   runQuery,
+  setComponent,
 } from "@latticexyz/recs";
 import { map, merge } from "rxjs";
 import { GodID } from "@latticexyz/network";
@@ -17,6 +18,7 @@ import { Container, Button, ConfirmButton, InternalContainer, colors, BoxImage }
 import { Action, Phase } from "../../../constants";
 import styled from "styled-components";
 import { YourShip } from "./YourShips/ShipData";
+import { keccak256, defaultAbiCoder as abi } from "ethers/lib/utils";
 
 export function registerYourShips() {
   registerUIComponent(
@@ -57,7 +59,7 @@ export function registerYourShips() {
           utils: { getPlayerEntity, getCurrentGamePhase, getCurrentGameTurn },
         },
         phaser: {
-          components: { SelectedShip, SelectedMove, Selection, SelectedActions },
+          components: { SelectedShip, SelectedMove, Selection, SelectedActions, CommittedMoves },
           scenes: {
             Main: { camera },
           },
@@ -85,7 +87,8 @@ export function registerYourShips() {
         SelectedActions.update$,
         OwnedBy.update$,
         LastMove.update$,
-        LastAction.update$
+        LastAction.update$,
+        CommittedMoves.update$
       ).pipe(
         map(() => {
           return {
@@ -110,6 +113,7 @@ export function registerYourShips() {
             OwnedBy,
             LastMove,
             LastAction,
+            CommittedMoves,
             world,
             camera,
             positions,
@@ -138,6 +142,7 @@ export function registerYourShips() {
         SelectedActions,
         LastMove,
         LastAction,
+        CommittedMoves,
         world,
         connectedAddress,
         getPlayerEntity,
@@ -170,6 +175,14 @@ export function registerYourShips() {
       const selection = getComponentValue(Selection, GodEntityIndex)?.value || -1;
 
       const yourShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
+
+      if (lastAction == currentTurn) {
+        yourShips.map((ship) => removeComponent(SelectedActions, ship));
+      }
+
+      if (lastMove == currentTurn) {
+        yourShips.map((ship) => removeComponent(SelectedMove, ship));
+      }
 
       const selectedMoves = [...getComponentEntities(SelectedMove)];
       const selectedActions = [...getComponentEntities(SelectedActions)].map(
@@ -211,10 +224,55 @@ export function registerYourShips() {
           );
 
           if (shipsAndMoves.ships.length == 0) return;
-          phase == Phase.Commit
-            ? commitMove(shipsAndMoves.ships, shipsAndMoves.moves)
-            : revealMove(shipsAndMoves.ships, shipsAndMoves.moves);
+          if (phase == Phase.Commit) {
+            const encodedMove = abi.encode(
+              ["uint256[]", "uint256[]", "uint256"],
+              [shipsAndMoves.ships, shipsAndMoves.moves, 0]
+            );
+            commitMove(encodedMove);
+            setComponent(CommittedMoves, GodEntityIndex, { value: encodedMove });
+          } else {
+            const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
+            if (!encoding) return;
+            revealMove(encoding);
+          }
         }
+      };
+
+      const ConfirmButtons = () => {
+        if (
+          phase == Phase.Reveal ||
+          (phase == Phase.Commit && lastMove != currentTurn) ||
+          (phase == Phase.Action && lastAction != currentTurn)
+        )
+          return (
+            <ConfirmButtonsContainer>
+              <Button
+                disabled={disabled}
+                noGoldBorder
+                onClick={() => {
+                  yourShips.map((entity) => {
+                    removeComponent(SelectedMove, entity);
+                    removeComponent(SelectedActions, entity);
+                  });
+                }}
+                style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}
+              >
+                Clear
+              </Button>
+              <ConfirmButton style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmit}>
+                {phase == Phase.Commit ? "Commit Moves" : phase == Phase.Action ? "Submit Actions" : "Reveal Moves"}
+              </ConfirmButton>
+            </ConfirmButtonsContainer>
+          );
+
+        return (
+          <ConfirmButtonsContainer
+            style={{ background: "hsla(120, 100%, 50%, .5", justifyContent: "center", color: colors.white }}
+          >
+            {phase == Phase.Commit ? "Commitments Confirmed" : "Actions Confirmed"}
+          </ConfirmButtonsContainer>
+        );
       };
 
       return (
@@ -233,33 +291,7 @@ export function registerYourShips() {
                 />
               ))}
             </MoveButtons>
-            {(phase == Phase.Commit && lastMove != currentTurn) ||
-            (phase == Phase.Action && lastAction != currentTurn) ? (
-              <ConfirmButtons>
-                <Button
-                  disabled={disabled}
-                  noGoldBorder
-                  onClick={() => {
-                    yourShips.map((entity) => {
-                      removeComponent(SelectedMove, entity);
-                      removeComponent(SelectedActions, entity);
-                    });
-                  }}
-                  style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}
-                >
-                  Clear
-                </Button>
-                <ConfirmButton style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmit}>
-                  {phase == Phase.Commit ? "Commit Moves" : phase == Phase.Action ? "Submit Actions" : "Reveal Moves"}
-                </ConfirmButton>
-              </ConfirmButtons>
-            ) : (
-              <ConfirmButtons
-                style={{ background: "hsla(120, 100%, 50%, .5", justifyContent: "center", color: colors.white }}
-              >
-                {phase == Phase.Commit ? "Commitments Confirmed" : "Actions Confirmed"}
-              </ConfirmButtons>
-            )}
+            <ConfirmButtons />
           </InternalContainer>
         </Container>
       );
@@ -275,16 +307,10 @@ const MoveButtons = styled.div`
   font-weight: 700;
 `;
 
-const ConfirmButtons = styled.div`
+const ConfirmButtonsContainer = styled.div`
   flex: 1;
   display: flex;
   justify-content: flex-end;
   flex-direction: column-reverse;
   gap: 5px;
-`;
-
-const ConfirmedContainer = styled.div`
-  width: 100%;
-  height: 100%;
-  color: green;
 `;
