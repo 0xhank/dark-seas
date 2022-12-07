@@ -12,7 +12,7 @@ import { concat, map, merge, of } from "rxjs";
 import { GodID } from "@latticexyz/network";
 import { Arrows, SelectionType } from "../../phaser/constants";
 import { Container, Button, ConfirmButton, InternalContainer } from "../styles/global";
-import { getFinalMoveCard, getFinalPosition } from "../../../utils/directions";
+import { arrowImg, getFinalMoveCard, getFinalPosition } from "../../../utils/directions";
 import { Action, ActionImg, ActionNames, MoveCard, Phase } from "../../../constants";
 import styled from "styled-components";
 import { inRange } from "../../../utils/distance";
@@ -132,22 +132,7 @@ export function registerMoveSelection() {
                 const position = getComponentValueStrict(Position, selectedShip);
                 const isSelected = selectedMove && selectedMove.value == entity;
 
-                const imageUrl =
-                  moveCard.rotation == 360 || moveCard.rotation == 0
-                    ? Arrows.Straight
-                    : moveCard.rotation > 270
-                    ? Arrows.SoftLeft
-                    : moveCard.rotation == 270
-                    ? Arrows.Left
-                    : moveCard.rotation > 180
-                    ? Arrows.HardLeft
-                    : moveCard.rotation == 180
-                    ? Arrows.UTurn
-                    : moveCard.rotation > 90
-                    ? Arrows.HardRight
-                    : moveCard.rotation == 90
-                    ? Arrows.Right
-                    : Arrows.SoftRight;
+                const imageUrl = arrowImg(moveCard.rotation);
 
                 return (
                   <Button

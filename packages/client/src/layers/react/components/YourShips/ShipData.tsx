@@ -85,7 +85,7 @@ export const YourShip = ({
             setComponent(Selection, GodEntityIndex, { value: SelectionType.Move });
           }}
         >
-          Select Move
+          Stage Move
         </SelectShip>
       );
 
@@ -119,8 +119,7 @@ export const YourShip = ({
   };
 
   const ActionButton = ({ selectionType, actionIndex }: { selectionType: SelectionType; actionIndex: number }) => {
-    const action = shipActions && shipActions[actionIndex] ? shipActions[actionIndex] : undefined;
-
+    const action = shipActions ? shipActions[actionIndex] : undefined;
     return (
       <SelectShip
         isSelected={SelectionType[selectionType] == SelectionType[selection] && isSelected}
@@ -132,7 +131,7 @@ export const YourShip = ({
         key={`action-button-${ship}-${selectionType}`}
         style={{ flex: 1, width: "100%" }}
       >
-        {action && action !== -1 ? (
+        {action !== undefined && action !== -1 ? (
           <>
             <img
               src={ActionImg[action]}
@@ -146,7 +145,7 @@ export const YourShip = ({
             <p style={{ lineHeight: "1rem" }}>{ActionNames[action]}</p>
           </>
         ) : (
-          <p style={{ fontSize: "1rem", lineHeight: "1rem" }}>Choose Action</p>
+          <p style={{ fontSize: "1rem", lineHeight: "1rem" }}>Stage Action</p>
         )}
       </SelectShip>
     );

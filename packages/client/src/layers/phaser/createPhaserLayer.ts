@@ -30,7 +30,7 @@ export async function createPhaserLayer(network: NetworkLayer) {
     SelectedShip: defineNumberComponent(world, { id: "SelectedShip" }),
     Selection: defineNumberComponent(world, { id: "Selection" }),
     SelectedActions: defineComponent(world, { value: Type.NumberArray }, { id: "Actions" }),
-    CommittedMoves: defineStringComponent(world, { id: "Actions" }),
+    CommittedMoves: defineStringComponent(world, { id: "Committed Moves" }),
   };
 
   // --- PHASER ENGINE SETUP --------------------------------------------------------
