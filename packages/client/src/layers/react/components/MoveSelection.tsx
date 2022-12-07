@@ -35,7 +35,7 @@ export function registerMoveSelection() {
           world,
           components: { Rotation, MoveCard, Wind, SailPosition, Position, Player },
           network: { clock },
-          utils: { getPlayerEntity, getPhase, getGameConfig },
+          utils: { getPlayerEntity, getPhase, getGameConfig, checkActionPossible },
         },
         phaser: {
           components: { SelectedShip, SelectedMove, Selection, SelectedActions },
@@ -71,6 +71,7 @@ export function registerMoveSelection() {
             getPlayerEntity,
             getPhase,
             getGameConfig,
+            checkActionPossible,
           };
         })
       );
@@ -91,6 +92,7 @@ export function registerMoveSelection() {
       getPlayerEntity,
       getPhase,
       getGameConfig,
+      checkActionPossible,
     }) => {
       const phase: Phase | undefined = getPhase();
       const gameConfig = getGameConfig();
@@ -172,6 +174,7 @@ export function registerMoveSelection() {
             {Object.keys(Action).map((a) => {
               const action = Number(a);
               if (isNaN(action)) return null;
+              if (!checkActionPossible(action as Action, selectedShip)) return null;
               const selected = selectedAction == action;
               const usedAlready = selectedActions.find((a) => a == action) != undefined;
 
@@ -181,7 +184,6 @@ export function registerMoveSelection() {
                   isSelected={selected}
                   key={`selectedAction-${action}`}
                   onClick={() => {
-                    // console.log("action: ", action);
                     const newArray = selectedActions;
                     selectedActions[selection - 1] = action;
                     setComponent(SelectedActions, selectedShip, { value: newArray });
