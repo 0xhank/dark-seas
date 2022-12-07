@@ -236,11 +236,26 @@ export function registerYourShips() {
       };
 
       const ConfirmButtons = () => {
-        if (
-          phase == Phase.Reveal ||
-          (phase == Phase.Commit && lastMove != currentTurn) ||
-          (phase == Phase.Action && lastAction != currentTurn)
-        )
+        if (phase == Phase.Reveal) {
+          const committedMoves = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
+          const bgColor = lastMove == currentTurn ? colors.confirmed : !committedMoves ? colors.glass : colors.waiting;
+          <ConfirmButtonsContainer
+            style={{
+              background: bgColor,
+              justifyContent: "center",
+              color: colors.white,
+              borderRadius: "6px",
+            }}
+          >
+            {lastMove == currentTurn
+              ? "Move execution successful!"
+              : !committedMoves
+              ? "No moves to execute"
+              : "Executing moves..."}
+          </ConfirmButtonsContainer>;
+        }
+
+        if ((phase == Phase.Commit && lastMove != currentTurn) || (phase == Phase.Action && lastAction != currentTurn))
           return (
             <ConfirmButtonsContainer>
               <Button
@@ -266,7 +281,7 @@ export function registerYourShips() {
           <ConfirmButtonsContainer
             style={{ background: "hsla(120, 100%, 50%, .5", justifyContent: "center", color: colors.white }}
           >
-            {phase == Phase.Commit ? "Commitments Confirmed" : "Actions Confirmed"}
+            {phase == Phase.Commit ? "Move Commitment Successful" : "Actions Successful"}
           </ConfirmButtonsContainer>
         );
       };

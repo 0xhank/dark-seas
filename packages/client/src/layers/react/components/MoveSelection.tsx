@@ -125,46 +125,44 @@ export function registerMoveSelection() {
 
         content = (
           <>
-            {moveEntities
-              .sort((a, b) => a - b)
-              .map((entity) => {
-                let moveCard = getComponentValueStrict(MoveCard, entity) as MoveCard;
+            {moveEntities.map((entity) => {
+              let moveCard = getComponentValueStrict(MoveCard, entity) as MoveCard;
 
-                moveCard = getFinalMoveCard(moveCard, rotation, sailPosition, wind);
-                const position = getComponentValueStrict(Position, selectedShip);
-                const isSelected = selectedMove && selectedMove.value == entity;
+              moveCard = getFinalMoveCard(moveCard, rotation, sailPosition, wind);
+              const position = getComponentValueStrict(Position, selectedShip);
+              const isSelected = selectedMove && selectedMove.value == entity;
 
-                const imageUrl = arrowImg(moveCard.rotation);
+              const imageUrl = arrowImg(moveCard.rotation);
 
-                return (
-                  <Button
-                    disabled={
-                      !inRange(
-                        getFinalPosition(moveCard, position, rotation, sailPosition, wind).finalPosition,
-                        { x: 0, y: 0 },
-                        gameConfig.worldRadius
-                      )
-                    }
-                    isSelected={isSelected}
-                    key={`move-selection-${entity}`}
-                    onClick={() => {
-                      setComponent(SelectedMove, selectedShip, { value: entity });
+              return (
+                <Button
+                  disabled={
+                    !inRange(
+                      getFinalPosition(moveCard, position, rotation, sailPosition, wind).finalPosition,
+                      { x: 0, y: 0 },
+                      gameConfig.worldRadius
+                    )
+                  }
+                  isSelected={isSelected}
+                  key={`move-selection-${entity}`}
+                  onClick={() => {
+                    setComponent(SelectedMove, selectedShip, { value: entity });
+                  }}
+                >
+                  <img
+                    src={imageUrl}
+                    style={{
+                      height: "80%",
+                      objectFit: "scale-down",
+                      transform: `rotate(${rotation + 90}deg)`,
                     }}
-                  >
-                    <img
-                      src={imageUrl}
-                      style={{
-                        height: "80%",
-                        objectFit: "scale-down",
-                        transform: `rotate(${rotation + 90}deg)`,
-                      }}
-                    />
-                    <p style={{ lineHeight: "16px" }}>
-                      {moveCard.distance}M / {Math.round((moveCard.direction + rotation) % 360)}º
-                    </p>
-                  </Button>
-                );
-              })}
+                  />
+                  <p style={{ lineHeight: "16px" }}>
+                    {moveCard.distance}M / {Math.round((moveCard.direction + rotation) % 360)}º
+                  </p>
+                </Button>
+              );
+            })}
           </>
         );
       } else {

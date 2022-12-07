@@ -126,7 +126,6 @@ export const YourShip = ({
         onClick={() => {
           if (health == 0) return;
           setComponent(Selection, GodEntityIndex, { value: selectionType });
-          setComponent(SelectedShip, GodEntityIndex, { value: ship });
         }}
         key={`action-button-${ship}-${selectionType}`}
         style={{ flex: 1, width: "100%" }}

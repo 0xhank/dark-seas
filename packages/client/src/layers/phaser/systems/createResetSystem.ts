@@ -25,12 +25,12 @@ export function createResetSystem(network: NetworkLayer, phaser: PhaserLayer) {
     const phase = getPhase();
     const gameConfig = getGameConfig();
 
-    if (phase == undefined) return;
+    if (phase == undefined || gameConfig == undefined) return;
 
     const secondsUntilPhase = secondsUntilNextPhase(currentTime);
     const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
-    if (phase == Phase.Reveal && secondsUntilPhase == gameConfig?.revealPhaseLength) {
+    if (phase == Phase.Reveal && secondsUntilPhase == gameConfig?.revealPhaseLength - 1) {
       const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
       if (encoding) {
         revealMove(encoding);
