@@ -37,7 +37,7 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
 
   defineExitSystem(world, [Has(SelectedMove)], ({ entity }) => {
     removeComponent(SelectedMove, entity);
-    const rangeGroup = polygonRegistry.get("rangeGroup");
+    const rangeGroup = polygonRegistry.get(`rangeGroup-${entity}`);
     if (rangeGroup) rangeGroup.clear(true, true);
 
     objectPool.remove(`projection-${entity}`);
@@ -54,7 +54,7 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
     const shipEntityId = getComponentValueStrict(SelectedShip, GodEntityIndex).value as EntityIndex;
     const moveCardEntity = getComponentValue(SelectedMove, entity);
 
-    let rangeGroup = polygonRegistry.get("rangeGroup");
+    let rangeGroup = polygonRegistry.get(`rangeGroup-${entity}`);
     const object = objectPool.get(`projection-${entity}`, "Sprite");
 
     if (rangeGroup) rangeGroup.clear(true, true);
@@ -100,7 +100,7 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
     rangeGroup.add(rightFiringRange, true);
     rangeGroup.add(leftFiringRange, true);
 
-    polygonRegistry.set("rangeGroup", rangeGroup);
+    polygonRegistry.set(`rangeGroup-${entity}`, rangeGroup);
 
     const spriteAsset: Sprites = getShipSprite(GodEntityIndex, GodEntityIndex, health);
     const sprite = config.sprites[spriteAsset];

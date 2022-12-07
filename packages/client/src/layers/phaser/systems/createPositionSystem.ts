@@ -58,9 +58,9 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
     const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
     const rangeGroup = polygonRegistry.get(`rangeGroup-${update.entity}`);
-    const activeGroup = polygonRegistry.get(`activeGroup-${update.entity}`);
+    const activeGroup = polygonRegistry.get(`activeGroup`);
     const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, update.entity).value);
-    const playerEntity = getPlayerEntity(connectedAddress.get());
+    const playerEntity = getPlayerEntity();
 
     if (!playerEntity || !ownerEntity) return null;
 

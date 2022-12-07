@@ -164,10 +164,6 @@ export function registerYourShips() {
       const lastMove = getComponentValue(LastMove, playerEntity)?.value;
       const lastAction = getComponentValue(LastAction, playerEntity)?.value;
 
-      console.log("current turn:", currentTurn);
-      console.log("last move:", lastMove);
-      console.log("current action:", lastAction);
-
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
       const wind = getComponentValueStrict(Wind, GodEntityIndex);

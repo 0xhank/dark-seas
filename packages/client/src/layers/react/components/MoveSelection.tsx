@@ -34,7 +34,7 @@ export function registerMoveSelection() {
         network: {
           world,
           components: { Rotation, MoveCard, Wind, SailPosition, Position, Player },
-          network: { connectedAddress, clock },
+          network: { clock },
           utils: { getPlayerEntity, getCurrentGamePhase, getGameConfig },
         },
         phaser: {
@@ -68,7 +68,6 @@ export function registerMoveSelection() {
             Player,
             Wind,
             world,
-            connectedAddress,
             getPlayerEntity,
             getCurrentGamePhase,
             getGameConfig,
@@ -88,7 +87,6 @@ export function registerMoveSelection() {
       Position,
       Wind,
       Player,
-      connectedAddress,
       world,
       getPlayerEntity,
       getCurrentGamePhase,
@@ -99,7 +97,7 @@ export function registerMoveSelection() {
 
       if (currentGamePhase == undefined || !gameConfig) return null;
 
-      const playerEntity = getPlayerEntity(connectedAddress.get());
+      const playerEntity = getPlayerEntity();
       if (!playerEntity || !getComponentValue(Player, playerEntity)) return null;
 
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);

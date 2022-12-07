@@ -5,7 +5,15 @@ import { colors, Container } from "../styles/global";
 import { Phase, PhaseNames } from "../../../constants";
 import { autoAction } from "mobx/dist/internal";
 import styled from "styled-components";
-import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
+import {
+  EntityIndex,
+  getComponentValue,
+  getComponentValueStrict,
+  Has,
+  HasValue,
+  removeComponent,
+  runQuery,
+} from "@latticexyz/recs";
 import { GodID } from "@latticexyz/network";
 import { getWindBoost } from "../../../utils/directions";
 
@@ -22,12 +30,16 @@ export function registerTurnTimer() {
       const {
         world,
         network: { clock, connectedAddress },
-        components: { Wind, Rotation },
-        utils: { getGameConfig, getCurrentGamePhase },
+        components: { Wind, Rotation, OwnedBy },
+        utils: { getGameConfig, getCurrentGamePhase, getPlayerEntity },
       } = layers.network;
 
       const {
-        components: { SelectedShip },
+        components: { SelectedShip, Selection, SelectedMove, SelectedActions },
+        scenes: {
+          Main: { objectPool },
+        },
+        polygonRegistry,
       } = layers.phaser;
 
       return merge(clock.time$, Wind.update$, SelectedShip.update$).pipe(
@@ -72,15 +84,54 @@ export function registerTurnTimer() {
             Wind,
             SelectedShip,
             Rotation,
+            OwnedBy,
+            Selection,
+            SelectedMove,
+            SelectedActions,
             world,
+            polygonRegistry,
+            objectPool,
             getCurrentGamePhase,
+            getPlayerEntity,
           };
         })
       );
     },
-    ({ phaseLength, secondsUntilNextPhase, phase, Wind, world, SelectedShip, Rotation }) => {
+    ({
+      phaseLength,
+      secondsUntilNextPhase,
+      phase,
+      Wind,
+      world,
+      SelectedShip,
+      SelectedMove,
+      SelectedActions,
+      Rotation,
+      Selection,
+      OwnedBy,
+      polygonRegistry,
+      objectPool,
+      getPlayerEntity,
+    }) => {
       if (!phaseLength) return null;
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
+      const playerEntity = getPlayerEntity();
+      if (!playerEntity) return null;
+
+      if (secondsUntilNextPhase == 0) {
+        removeComponent(Selection, GodEntityIndex);
+
+        if (phase !== Phase.Commit) {
+          const yourShips = [...runQuery([HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
+          yourShips.map((ship) => {
+            polygonRegistry.get(`rangeGroup-${ship}`)?.clear(true, true);
+            polygonRegistry.get(`activeGroup-${ship}`)?.clear(true, true);
+            objectPool.remove(`projection-${ship}`);
+            removeComponent(SelectedMove, ship);
+            removeComponent(SelectedActions, ship);
+          });
+        }
+      }
 
       const wind = getComponentValueStrict(Wind, GodEntityIndex);
       const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value;
