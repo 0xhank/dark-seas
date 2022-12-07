@@ -151,14 +151,17 @@ export async function createNetworkLayer(config: GameConfig) {
   }
 
   function spawnPlayer(name: string, location: Coord) {
+    console.log("spawning player");
     systems["ds.system.PlayerSpawn"].executeTyped(name, location);
   }
 
   function spawnShip(location: Coord, rotation: number) {
+    console.log("spawning ship");
     systems["ds.system.ShipSpawn"].executeTyped(location, rotation);
   }
 
   function revealMove(encoding: string) {
+    console.log("revealing move");
     const decodedMove = abi.decode(["uint256[]", "uint256[]", "uint256"], encoding);
     systems["ds.system.Move"].executeTyped(decodedMove[0], decodedMove[1], decodedMove[2]);
   }
