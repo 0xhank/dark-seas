@@ -28,7 +28,7 @@ export function createRadiusSystem(network: NetworkLayer, phaser: PhaserLayer) {
     const radius = phaserScene.add.circle(0, 0, worldRadius * positions.posHeight);
 
     radius.setStrokeStyle(50, 0xffffff);
-    radius.setDepth(RenderDepth.Foreground1);
+    radius.setDepth(RenderDepth.Background1);
 
     // radius.setDisplayOrigin(0, 0);
 

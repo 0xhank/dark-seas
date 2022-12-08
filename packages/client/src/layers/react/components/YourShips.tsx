@@ -172,14 +172,6 @@ export function registerYourShips() {
 
       const yourShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
 
-      if (lastAction == currentTurn) {
-        yourShips.map((ship) => removeComponent(SelectedActions, ship));
-      }
-
-      if (lastMove == currentTurn) {
-        yourShips.map((ship) => removeComponent(SelectedMove, ship));
-      }
-
       const selectedMoves = [...getComponentEntities(SelectedMove)];
       const selectedActions = [...getComponentEntities(SelectedActions)].map(
         (entity) => getComponentValue(SelectedActions, entity)?.value
@@ -226,7 +218,7 @@ export function registerYourShips() {
               [shipsAndMoves.ships, shipsAndMoves.moves, 0]
             );
             commitMove(encodedMove);
-            setComponent(CommittedMoves, GodEntityIndex, { value: encodedMove });
+            // setComponent(CommittedMoves, GodEntityIndex, { value: encodedMove });
           } else {
             const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
             if (!encoding) return;
@@ -236,26 +228,28 @@ export function registerYourShips() {
       };
 
       const ConfirmButtons = () => {
+        const committedMoves = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
         if (phase == Phase.Reveal) {
-          const committedMoves = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
           const bgColor = lastMove == currentTurn ? colors.confirmed : !committedMoves ? colors.glass : colors.waiting;
-          <ConfirmButtonsContainer
-            style={{
-              background: bgColor,
-              justifyContent: "center",
-              color: colors.white,
-              borderRadius: "6px",
-            }}
-          >
-            {lastMove == currentTurn
-              ? "Move execution successful!"
-              : !committedMoves
-              ? "No moves to execute"
-              : "Executing moves..."}
-          </ConfirmButtonsContainer>;
-        }
-
-        if ((phase == Phase.Commit && lastMove != currentTurn) || (phase == Phase.Action && lastAction != currentTurn))
+          return (
+            <ConfirmButtonsContainer
+              style={{
+                background: bgColor,
+                justifyContent: "center",
+                color: colors.white,
+                borderRadius: "6px",
+              }}
+            >
+              {lastMove == currentTurn
+                ? "Move execution successful!"
+                : !committedMoves
+                ? "No moves to execute"
+                : "Executing moves..."}
+            </ConfirmButtonsContainer>
+          );
+        } else if (phase == Phase.Commit || (phase == Phase.Action && lastAction != currentTurn)) {
+          const content =
+            phase == Phase.Commit ? (committedMoves ? "Commit Updated Moves" : "Commit Moves") : "Submit Actions";
           return (
             <ConfirmButtonsContainer>
               <Button
@@ -263,27 +257,33 @@ export function registerYourShips() {
                 noGoldBorder
                 onClick={() => {
                   yourShips.map((entity) => {
-                    removeComponent(SelectedMove, entity);
-                    removeComponent(SelectedActions, entity);
+                    phase == Phase.Commit
+                      ? removeComponent(SelectedMove, entity)
+                      : removeComponent(SelectedActions, entity);
                   });
                 }}
                 style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}
               >
                 Clear
               </Button>
-              <ConfirmButton style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmit}>
-                {phase == Phase.Commit ? "Commit Moves" : phase == Phase.Action ? "Submit Actions" : "Reveal Moves"}
+              <ConfirmButton
+                disabled={disabled}
+                style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }}
+                onClick={handleSubmit}
+              >
+                {content}
               </ConfirmButton>
             </ConfirmButtonsContainer>
           );
-
-        return (
-          <ConfirmButtonsContainer
-            style={{ background: "hsla(120, 100%, 50%, .5", justifyContent: "center", color: colors.white }}
-          >
-            {phase == Phase.Commit ? "Move Commitment Successful" : "Actions Successful"}
-          </ConfirmButtonsContainer>
-        );
+        } else {
+          return (
+            <ConfirmButtonsContainer
+              style={{ background: "hsla(120, 100%, 50%, .5", justifyContent: "center", color: colors.white }}
+            >
+              Actions Successful
+            </ConfirmButtonsContainer>
+          );
+        }
       };
 
       return (

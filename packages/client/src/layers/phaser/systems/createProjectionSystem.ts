@@ -94,8 +94,8 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
     rightFiringRange.setDisplayOrigin(0);
     leftFiringRange.setDisplayOrigin(0);
 
-    rightFiringRange.setDepth(RenderDepth.Foreground1);
-    leftFiringRange.setDepth(RenderDepth.Foreground1);
+    rightFiringRange.setDepth(RenderDepth.Foreground5);
+    leftFiringRange.setDepth(RenderDepth.Foreground5);
 
     rangeGroup.add(rightFiringRange, true);
     rangeGroup.add(leftFiringRange, true);
@@ -119,7 +119,7 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
         gameObject.setDisplaySize(shipWidth, shipLength);
         gameObject.setPosition(x, y);
         gameObject.setAlpha(0.3);
-        gameObject.setDepth(RenderDepth.Foreground1);
+        gameObject.setDepth(RenderDepth.Foreground5);
       },
     });
   });

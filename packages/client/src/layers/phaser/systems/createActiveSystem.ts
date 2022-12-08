@@ -66,7 +66,7 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
 
     circle.setAngle(rotation % 360);
     circle.setOrigin(0.85, 0.5);
-    circle.setDepth(RenderDepth.Foreground1);
+    circle.setDepth(RenderDepth.Foreground5);
 
     if (phase == Phase.Action) {
       const position = getComponentValueStrict(Position, shipEntityId);
@@ -97,8 +97,8 @@ export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
 
       rightFiringRange.setDisplayOrigin(0);
       leftFiringRange.setDisplayOrigin(0);
-      rightFiringRange.setDepth(RenderDepth.Foreground2);
-      leftFiringRange.setDepth(RenderDepth.Foreground2);
+      rightFiringRange.setDepth(RenderDepth.Foreground4);
+      leftFiringRange.setDepth(RenderDepth.Foreground4);
 
       activeGroup.add(rightFiringRange, true);
       activeGroup.add(leftFiringRange, true);
