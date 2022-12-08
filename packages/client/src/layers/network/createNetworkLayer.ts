@@ -109,7 +109,7 @@ export async function createNetworkLayer(config: GameConfig) {
   }
 
   function getPhase(): Phase | undefined {
-    const gamePhase = getGamePhaseAt(network.clock.currentTime / 1000);
+    const gamePhase = getGamePhaseAt(Math.floor(network.clock.currentTime / 1000));
     return gamePhase;
   }
 
@@ -117,13 +117,13 @@ export async function createNetworkLayer(config: GameConfig) {
     const gameConfig = getGameConfig();
     if (!gameConfig) return undefined;
     const timeElapsed = timeInSeconds - parseInt(gameConfig.startTime);
-    const turnLength = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
+    const gameLength = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
 
-    const secondsUntilNextTurn = turnLength - (timeElapsed % turnLength);
+    const secondsIntoTurn = timeElapsed % gameLength;
 
-    if (secondsUntilNextTurn < gameConfig.actionPhaseLength) return Phase.Action;
-    if (secondsUntilNextTurn < gameConfig.actionPhaseLength + gameConfig.revealPhaseLength) return Phase.Reveal;
-    return Phase.Commit;
+    if (secondsIntoTurn < gameConfig.commitPhaseLength) return Phase.Commit;
+    if (secondsIntoTurn < gameConfig.commitPhaseLength + gameConfig.revealPhaseLength) return Phase.Reveal;
+    return Phase.Action;
   }
 
   function getTurn(): number | undefined {

@@ -30,38 +30,37 @@ export function createResetSystem(network: NetworkLayer, phaser: PhaserLayer) {
     const secondsUntilPhase = secondsUntilNextPhase(currentTime);
     const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
-    if (phase == Phase.Reveal && secondsUntilPhase == gameConfig?.revealPhaseLength - 1) {
-      const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
-      if (encoding) {
-        revealMove(encoding);
-      }
-    }
-
-    if (secondsUntilPhase !== 0) return;
     const playerEntity = getPlayerEntity();
     if (!playerEntity) return;
-
-    removeComponent(Selection, GodEntityIndex);
 
     const yourShips = [...runQuery([HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
 
     if (phase == Phase.Commit) {
+      if (secondsUntilPhase !== gameConfig.commitPhaseLength - 1) return;
+      removeComponent(Selection, GodEntityIndex);
+
       yourShips.map((ship) => {
         removeComponent(SelectedMove, ship);
       });
     }
 
-    if (phase == Phase.Action) {
-      yourShips.map((ship) => {
-        removeComponent(SelectedActions, ship);
-      });
+    if (phase == Phase.Reveal) {
+      if (secondsUntilPhase !== gameConfig.revealPhaseLength - 1) return;
+      removeComponent(Selection, GodEntityIndex);
+
+      const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
+      if (encoding) revealMove(encoding);
     }
 
-    if (phase == Phase.Reveal) {
+    if (phase == Phase.Action) {
+      if (secondsUntilPhase !== gameConfig.actionPhaseLength - 1) return;
+      removeComponent(Selection, GodEntityIndex);
+
       removeComponent(CommittedMoves, GodEntityIndex);
       yourShips.map((ship) => {
         objectPool.remove(`projection-${ship}`);
         polygonRegistry.get(`rangeGroup-${ship}`)?.clear(true, true);
+        removeComponent(SelectedActions, ship);
       });
     }
   });

@@ -46,16 +46,18 @@ export function registerTurnTimer() {
               ? gameConfig.commitPhaseLength
               : gameConfig.commitPhaseLength + gameConfig.revealPhaseLength;
 
-          const phaseEnd =
+          const phaseLength =
             phase == Phase.Commit
               ? gameConfig.commitPhaseLength
               : phase == Phase.Reveal
-              ? gameConfig.commitPhaseLength + gameConfig.revealPhaseLength
-              : turnLength - 1;
+              ? gameConfig.revealPhaseLength
+              : gameConfig.actionPhaseLength;
+
+          const phaseEnd = phaseStart + phaseLength - 1;
 
           const secondsUntilNextPhase = phaseEnd - secondsIntoTurn;
-
-          const phaseLength = phaseEnd - phaseStart;
+          console.log("phase", PhaseNames[phase], "end:", phaseEnd);
+          console.log("secondsUntilNextPhase", secondsUntilNextPhase);
 
           return {
             phaseLength,
