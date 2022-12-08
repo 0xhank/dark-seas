@@ -43,16 +43,12 @@ library LibSpawn {
       .getValue(GodID)
       .worldRadius;
 
-    int32 x = int32(int256(LibCombat.getByteUInt(r, 14, 0) % worldRadius));
-    int32 y = int32(int256(LibCombat.getByteUInt(r, 14, 14) % worldRadius));
+    uint32 distance = uint32(LibCombat.getByteUInt(r, 14, 0) % (worldRadius - 70));
+    uint32 rotation = uint32(LibCombat.getByteUInt(r, 14, 14) % 360);
 
-    uint256 isXPositive = LibCombat.getByteUInt(r, 1, 29);
-    uint256 isYPositive = LibCombat.getByteUInt(r, 1, 30);
+    Coord memory location = LibVector.getPositionByVector(Coord(0, 0), 0, distance, rotation);
 
-    x = isXPositive == 1 ? x : -x;
-    y = isYPositive == 1 ? y : -x;
-
-    return (Coord(x, y));
+    return location;
   }
 
   function pointKindaTowardsTheCenter(Coord memory a) public pure returns (uint32) {
