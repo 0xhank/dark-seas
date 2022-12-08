@@ -165,7 +165,8 @@ export async function createNetworkLayer(config: GameConfig) {
     systems["ds.system.Commit"].executeTyped(commitment);
   }
 
-  function spawnPlayer(name: string, location: Coord) {
+  function spawnPlayer(name: string) {
+    const location: Coord = { x: Math.round(Math.random() * 300000), y: Math.round(Math.random() * 300000) };
     console.log("spawning player");
     systems["ds.system.PlayerSpawn"].executeTyped(name, location);
   }

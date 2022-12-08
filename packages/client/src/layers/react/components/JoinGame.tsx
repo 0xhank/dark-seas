@@ -55,7 +55,7 @@ const JoinGameContainer = ({ layers }: { layers: Layers }) => {
             if (e.target.value.length < 15) setPlayerName(e.target.value);
           }}
         ></Input>
-        <div style={{ display: "flex", gap: "8px" }}>
+        {/* <div style={{ display: "flex", gap: "8px" }}>
           <Input
             style={{ flex: 2, textAlign: "center" }}
             type={"number"}
@@ -76,7 +76,7 @@ const JoinGameContainer = ({ layers }: { layers: Layers }) => {
               if (e.target.value.length < 15) setY(e.target.value);
             }}
           ></Input>
-        </div>
+        </div> */}
         <Button
           isSelected
           disabled={findSpawnButtonDisabled}
@@ -86,7 +86,7 @@ const JoinGameContainer = ({ layers }: { layers: Layers }) => {
           }}
           onClick={() => {
             if (x == undefined || y == undefined) return;
-            spawnPlayer(playerName, { x: Number(x), y: Number(y) });
+            spawnPlayer(playerName);
           }}
         >
           Register

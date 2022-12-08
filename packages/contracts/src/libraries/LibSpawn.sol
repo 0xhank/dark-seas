@@ -70,14 +70,14 @@ library LibSpawn {
     uint256 playerEntity,
     Coord memory startingLocation
   ) public {
-    // Coord memory startingLocation = getRandomLocation(components, LibCombat.randomness(playerEntity, nonce));
+    uint256 nonce = uint256(keccak256(abi.encode(startingLocation)));
+    startingLocation = getRandomLocation(components, LibCombat.randomness(playerEntity, nonce));
 
     uint32 rotation = pointKindaTowardsTheCenter(startingLocation);
     for (uint256 i = 0; i < 3; i++) {
       uint256 entity = world.getUniqueEntityId();
       spawnShip(components, entity, playerEntity, startingLocation, rotation);
-      startingLocation.x += 30;
-      rotation += 30;
+      startingLocation.x += 20;
     }
 
     LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 1);
