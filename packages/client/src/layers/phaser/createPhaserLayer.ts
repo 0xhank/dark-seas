@@ -5,7 +5,6 @@ import { NetworkLayer } from "../network";
 import {
   createPositionSystem,
   createInputSystem,
-  createArrowSystem,
   createActiveSystem,
   createHealthSystem,
   createStatUpdateSystem,
@@ -31,6 +30,7 @@ export async function createPhaserLayer(network: NetworkLayer) {
     Selection: defineNumberComponent(world, { id: "Selection" }),
     SelectedActions: defineComponent(world, { value: Type.NumberArray }, { id: "Actions" }),
     CommittedMoves: defineStringComponent(world, { id: "Committed Moves" }),
+    UpdateQueue: defineComponent(world, { value: Type.StringArray }, { id: "UpdateQueue" }),
   };
 
   // --- PHASER ENGINE SETUP --------------------------------------------------------
@@ -80,7 +80,6 @@ export async function createPhaserLayer(network: NetworkLayer) {
   // --- SYSTEMS --------------------------------------------------------------------
   createInputSystem(network, context);
   createPositionSystem(network, context);
-  createArrowSystem(network, context);
   createActiveSystem(network, context);
   createHealthSystem(network, context);
   createProjectionSystem(network, context);
