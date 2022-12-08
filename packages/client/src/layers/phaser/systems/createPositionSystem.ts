@@ -14,7 +14,7 @@ import {
 } from "@latticexyz/recs";
 import { getPlayerEntity } from "@latticexyz/std-client";
 import { NetworkLayer } from "../../network";
-import { SHIP_RATIO } from "../constants";
+import { RenderDepth, SHIP_RATIO } from "../constants";
 import { getShipSprite } from "../../../utils/ships";
 import { PhaserLayer } from "../types";
 import { Sprites } from "../../../constants";
@@ -130,6 +130,7 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
         gameObject.setOrigin(0.5, 0.92);
         gameObject.setDisplaySize(shipWidth, shipLength);
         gameObject.setPosition(x, y);
+        gameObject.setDepth(RenderDepth.Foreground3);
 
         gameObject.setInteractive();
         // console.log("updated position");

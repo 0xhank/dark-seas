@@ -56,8 +56,6 @@ export function registerTurnTimer() {
           const phaseEnd = phaseStart + phaseLength - 1;
 
           const secondsUntilNextPhase = phaseEnd - secondsIntoTurn;
-          console.log("phase", PhaseNames[phase], "end:", phaseEnd);
-          console.log("secondsUntilNextPhase", secondsUntilNextPhase);
 
           return {
             phaseLength,

@@ -16,7 +16,7 @@ import { getFinalPosition } from "../../../utils/directions";
 import { getShipSprite } from "../../../utils/ships";
 import { getFiringArea } from "../../../utils/trig";
 import { NetworkLayer } from "../../network";
-import { SHIP_RATIO } from "../constants";
+import { RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
 
 export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLayer) {
@@ -94,8 +94,8 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
     rightFiringRange.setDisplayOrigin(0);
     leftFiringRange.setDisplayOrigin(0);
 
-    rightFiringRange.setZ(1000);
-    leftFiringRange.setZ(1000);
+    rightFiringRange.setDepth(RenderDepth.Foreground1);
+    leftFiringRange.setDepth(RenderDepth.Foreground1);
 
     rangeGroup.add(rightFiringRange, true);
     rangeGroup.add(leftFiringRange, true);
@@ -119,7 +119,7 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
         gameObject.setDisplaySize(shipWidth, shipLength);
         gameObject.setPosition(x, y);
         gameObject.setAlpha(0.3);
-        gameObject.setZ(1001);
+        gameObject.setDepth(RenderDepth.Foreground1);
       },
     });
   });
