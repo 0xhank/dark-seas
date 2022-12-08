@@ -27,7 +27,7 @@ contract InitSystem is System {
         commitPhaseLength: 30,
         revealPhaseLength: 10,
         actionPhaseLength: 30,
-        worldRadius: 500
+        worldRadius: 400
       })
     );
 
