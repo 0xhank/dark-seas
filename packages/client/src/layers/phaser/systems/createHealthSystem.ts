@@ -58,6 +58,8 @@ export function createHealthSystem(network: NetworkLayer, phaser: PhaserLayer) {
   });
 
   defineUpdateSystem(world, [Has(SailPosition)], (update) => {
+    const sailPosition = getComponentValueStrict(SailPosition, update.entity).value;
+    if (sailPosition != 0) return;
     const updateQueue = getComponentValue(UpdateQueue, update.entity)?.value || new Array<string>();
 
     updateQueue.push("Sails broke!");

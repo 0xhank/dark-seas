@@ -158,7 +158,7 @@ export function registerMoveSelection() {
                     }}
                   />
                   <p style={{ lineHeight: "16px" }}>
-                    {moveCard.distance}M / {Math.round((moveCard.direction + rotation) % 360)}º
+                    {Math.round(moveCard.distance)}M / {Math.round((moveCard.direction + rotation) % 360)}º
                   </p>
                 </Button>
               );

@@ -80,12 +80,12 @@ export const YourShip = ({
         <SelectShip
           isSelected={isSelected}
           onClick={() => {
-            if (health == 0) return;
+            if (health == 0 || sailPosition == 0) return;
             selectShip(ship, position);
             setComponent(Selection, GodEntityIndex, { value: SelectionType.Move });
           }}
         >
-          Stage Move
+          {sailPosition == 0 ? "Cannot move with broken sail" : "Stage Move"}
         </SelectShip>
       );
 

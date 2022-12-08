@@ -141,7 +141,10 @@ export async function createNetworkLayer(config: GameConfig) {
   }
 
   function checkActionPossible(action: Action, ship: EntityIndex): boolean {
-    if (action == Action.ExtinguishFire && !getComponentValue(components.OnFire, ship)) return false;
+    const onFire = getComponentValue(components.OnFire, ship)?.value;
+    if (action == Action.ExtinguishFire && !onFire) return false;
+    if (action == Action.FireRight && onFire) return false;
+    if (action == Action.FireLeft && onFire) return false;
 
     if (action == Action.RepairLeak && !getComponentValue(components.Leak, ship)) return false;
     if (action == Action.RepairMast && !getComponentValue(components.DamagedMast, ship)) return false;

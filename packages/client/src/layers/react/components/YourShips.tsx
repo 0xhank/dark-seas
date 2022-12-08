@@ -218,7 +218,7 @@ export function registerYourShips() {
               [shipsAndMoves.ships, shipsAndMoves.moves, 0]
             );
             commitMove(encodedMove);
-            // setComponent(CommittedMoves, GodEntityIndex, { value: encodedMove });
+            setComponent(CommittedMoves, GodEntityIndex, { value: encodedMove });
           } else {
             const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
             if (!encoding) return;
