@@ -14,7 +14,7 @@ import {
 } from "@latticexyz/recs";
 import { getPlayerEntity } from "@latticexyz/std-client";
 import { NetworkLayer } from "../../network";
-import { SHIP_RATIO } from "../constants";
+import { RenderDepth, SHIP_RATIO } from "../constants";
 import { getShipSprite } from "../../../utils/ships";
 import { PhaserLayer } from "../types";
 import { Sprites } from "../../../constants";
@@ -58,9 +58,9 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
     const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
     const rangeGroup = polygonRegistry.get(`rangeGroup-${update.entity}`);
-    const activeGroup = polygonRegistry.get(`activeGroup-${update.entity}`);
+    const activeGroup = polygonRegistry.get(`activeGroup`);
     const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, update.entity).value);
-    const playerEntity = getPlayerEntity(connectedAddress.get());
+    const playerEntity = getPlayerEntity();
 
     if (!playerEntity || !ownerEntity) return null;
 
@@ -88,37 +88,35 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
     object.setComponent({
       id: Position.id,
       now: async (gameObject) => {
-        if (update.type !== UpdateType.Enter) {
-          await tween({
-            targets: gameObject,
-            duration: 250,
-            props: {
-              x,
-              y,
-              angle: {
-                getEnd: function (target, key, value) {
-                  const start = target.angle % 360;
-                  const end = (rotation - 90) % 360;
+        await tween({
+          targets: gameObject,
+          duration: 250,
+          props: {
+            x,
+            y,
+            angle: {
+              getEnd: function (target, key, value) {
+                const start = target.angle % 360;
+                const end = (rotation - 90) % 360;
 
-                  // console.log(`start angle: ${start}, end angle: ${end}`);
+                // console.log(`start angle: ${start}, end angle: ${end}`);
 
-                  let diff = end - start;
+                let diff = end - start;
 
-                  if (diff < -180) diff += 360;
-                  else if (diff > 180) diff -= 360;
+                if (diff < -180) diff += 360;
+                else if (diff > 180) diff -= 360;
 
-                  return start + diff;
-                },
+                return start + diff;
+              },
 
-                getStart: function (target, key, value) {
-                  return target.angle % 360;
-                },
+              getStart: function (target, key, value) {
+                return target.angle % 360;
               },
             },
+          },
 
-            ease: Phaser.Math.Easing.Linear,
-          });
-        }
+          ease: Phaser.Math.Easing.Linear,
+        });
       },
       once: async (gameObject: Phaser.GameObjects.Sprite) => {
         gameObject.setName(update.entity.toString());
@@ -130,6 +128,7 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
         gameObject.setOrigin(0.5, 0.92);
         gameObject.setDisplaySize(shipWidth, shipLength);
         gameObject.setPosition(x, y);
+        gameObject.setDepth(RenderDepth.Foreground3);
 
         gameObject.setInteractive();
         // console.log("updated position");

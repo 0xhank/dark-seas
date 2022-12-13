@@ -16,14 +16,14 @@ import { getFinalPosition } from "../../../utils/directions";
 import { getShipSprite } from "../../../utils/ships";
 import { getFiringArea } from "../../../utils/trig";
 import { NetworkLayer } from "../../network";
-import { SHIP_RATIO } from "../constants";
+import { RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
 
 export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLayer) {
   const {
     world,
     components: { Wind, Position, Range, Length, Rotation, SailPosition, MoveCard, Health },
-    utils: { getCurrentGamePhase },
+    utils: { getPhase },
   } = network;
 
   const {
@@ -37,16 +37,16 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
 
   defineExitSystem(world, [Has(SelectedMove)], ({ entity }) => {
     removeComponent(SelectedMove, entity);
-    const rangeGroup = polygonRegistry.get("rangeGroup");
+    const rangeGroup = polygonRegistry.get(`rangeGroup-${entity}`);
     if (rangeGroup) rangeGroup.clear(true, true);
 
     objectPool.remove(`projection-${entity}`);
   });
 
   defineSystem(world, [Has(SelectedMove), Has(Health)], ({ entity, type }) => {
-    const currentGamePhase: Phase | undefined = getCurrentGamePhase();
+    const phase: Phase | undefined = getPhase();
 
-    if (currentGamePhase == undefined || currentGamePhase == Phase.Action) return;
+    if (phase == undefined || phase == Phase.Action) return;
 
     if (type == UpdateType.Exit) return;
     const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
@@ -54,7 +54,7 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
     const shipEntityId = getComponentValueStrict(SelectedShip, GodEntityIndex).value as EntityIndex;
     const moveCardEntity = getComponentValue(SelectedMove, entity);
 
-    let rangeGroup = polygonRegistry.get("rangeGroup");
+    let rangeGroup = polygonRegistry.get(`rangeGroup-${entity}`);
     const object = objectPool.get(`projection-${entity}`, "Sprite");
 
     if (rangeGroup) rangeGroup.clear(true, true);
@@ -94,13 +94,13 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
     rightFiringRange.setDisplayOrigin(0);
     leftFiringRange.setDisplayOrigin(0);
 
-    rightFiringRange.setZ(1000);
-    leftFiringRange.setZ(1000);
+    rightFiringRange.setDepth(RenderDepth.Foreground5);
+    leftFiringRange.setDepth(RenderDepth.Foreground5);
 
     rangeGroup.add(rightFiringRange, true);
     rangeGroup.add(leftFiringRange, true);
 
-    polygonRegistry.set("rangeGroup", rangeGroup);
+    polygonRegistry.set(`rangeGroup-${entity}`, rangeGroup);
 
     const spriteAsset: Sprites = getShipSprite(GodEntityIndex, GodEntityIndex, health);
     const sprite = config.sprites[spriteAsset];
@@ -119,7 +119,7 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
         gameObject.setDisplaySize(shipWidth, shipLength);
         gameObject.setPosition(x, y);
         gameObject.setAlpha(0.3);
-        gameObject.setZ(1001);
+        gameObject.setDepth(RenderDepth.Foreground5);
       },
     });
   });

@@ -11,7 +11,7 @@ import { registerJoinGame } from "./JoinGame";
 
 export function registerUIComponents() {
   registerLoadingState();
-  registerComponentBrowser();
+  // registerComponentBrowser();
   // registerShipSpawnButton();
   registerActionQueue();
   registerMoveSelection();

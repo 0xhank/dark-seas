@@ -1,7 +1,6 @@
-import { GodID } from "@latticexyz/network";
 import { defineEnterSystem, Has } from "@latticexyz/recs";
 import { NetworkLayer } from "../../network";
-import { TILE_HEIGHT } from "../constants";
+import { RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
 
 export function createRadiusSystem(network: NetworkLayer, phaser: PhaserLayer) {
@@ -26,10 +25,10 @@ export function createRadiusSystem(network: NetworkLayer, phaser: PhaserLayer) {
     let radiusGroup = polygonRegistry.get("radiusGroup");
     if (!radiusGroup) radiusGroup = phaserScene.add.group();
 
-    const radius = phaserScene.add.circle(0, 0, worldRadius * TILE_HEIGHT);
+    const radius = phaserScene.add.circle(0, 0, worldRadius * positions.posHeight);
 
-    radius.setStrokeStyle(100, 0xffffff);
-    radius.setZ(1000);
+    radius.setStrokeStyle(50, 0xffffff);
+    radius.setDepth(RenderDepth.Background1);
 
     // radius.setDisplayOrigin(0, 0);
 

@@ -12,7 +12,7 @@ import { concat, map, merge, of } from "rxjs";
 import { GodID } from "@latticexyz/network";
 import { Arrows, SelectionType } from "../../phaser/constants";
 import { Container, Button, ConfirmButton, InternalContainer } from "../styles/global";
-import { getFinalMoveCard, getFinalPosition } from "../../../utils/directions";
+import { arrowImg, getFinalMoveCard, getFinalPosition } from "../../../utils/directions";
 import { Action, ActionImg, ActionNames, MoveCard, Phase } from "../../../constants";
 import styled from "styled-components";
 import { inRange } from "../../../utils/distance";
@@ -34,8 +34,8 @@ export function registerMoveSelection() {
         network: {
           world,
           components: { Rotation, MoveCard, Wind, SailPosition, Position, Player },
-          network: { connectedAddress, clock },
-          utils: { getPlayerEntity, getCurrentGamePhase, getGameConfig },
+          network: { clock },
+          utils: { getPlayerEntity, getPhase, getGameConfig, checkActionPossible },
         },
         phaser: {
           components: { SelectedShip, SelectedMove, Selection, SelectedActions },
@@ -68,10 +68,10 @@ export function registerMoveSelection() {
             Player,
             Wind,
             world,
-            connectedAddress,
             getPlayerEntity,
-            getCurrentGamePhase,
+            getPhase,
             getGameConfig,
+            checkActionPossible,
           };
         })
       );
@@ -88,18 +88,18 @@ export function registerMoveSelection() {
       Position,
       Wind,
       Player,
-      connectedAddress,
       world,
       getPlayerEntity,
-      getCurrentGamePhase,
+      getPhase,
       getGameConfig,
+      checkActionPossible,
     }) => {
-      const currentGamePhase: Phase | undefined = getCurrentGamePhase();
+      const phase: Phase | undefined = getPhase();
       const gameConfig = getGameConfig();
 
-      if (currentGamePhase == undefined || !gameConfig) return null;
+      if (phase == undefined || !gameConfig) return null;
 
-      const playerEntity = getPlayerEntity(connectedAddress.get());
+      const playerEntity = getPlayerEntity();
       if (!playerEntity || !getComponentValue(Player, playerEntity)) return null;
 
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
@@ -115,7 +115,7 @@ export function registerMoveSelection() {
 
       let content: JSX.Element = <></>;
 
-      if (currentGamePhase == Phase.Commit) {
+      if (phase == Phase.Commit) {
         const selectedMove = getComponentValue(SelectedMove, selectedShip as EntityIndex);
 
         const moveEntities = [...getComponentEntities(MoveCard)];
@@ -125,61 +125,44 @@ export function registerMoveSelection() {
 
         content = (
           <>
-            {moveEntities
-              .sort((a, b) => a - b)
-              .map((entity) => {
-                let moveCard = getComponentValueStrict(MoveCard, entity) as MoveCard;
+            {moveEntities.map((entity) => {
+              let moveCard = getComponentValueStrict(MoveCard, entity) as MoveCard;
 
-                moveCard = getFinalMoveCard(moveCard, rotation, sailPosition, wind);
-                const position = getComponentValueStrict(Position, selectedShip);
-                const isSelected = selectedMove && selectedMove.value == entity;
+              moveCard = getFinalMoveCard(moveCard, rotation, sailPosition, wind);
+              const position = getComponentValueStrict(Position, selectedShip);
+              const isSelected = selectedMove && selectedMove.value == entity;
 
-                const imageUrl =
-                  moveCard.rotation == 360 || moveCard.rotation == 0
-                    ? Arrows.Straight
-                    : moveCard.rotation > 270
-                    ? Arrows.SoftLeft
-                    : moveCard.rotation == 270
-                    ? Arrows.Left
-                    : moveCard.rotation > 180
-                    ? Arrows.HardLeft
-                    : moveCard.rotation == 180
-                    ? Arrows.UTurn
-                    : moveCard.rotation > 90
-                    ? Arrows.HardRight
-                    : moveCard.rotation == 90
-                    ? Arrows.Right
-                    : Arrows.SoftRight;
+              const imageUrl = arrowImg(moveCard.rotation);
 
-                return (
-                  <Button
-                    disabled={
-                      !inRange(
-                        getFinalPosition(moveCard, position, rotation, sailPosition, wind).finalPosition,
-                        { x: 0, y: 0 },
-                        gameConfig.worldRadius
-                      )
-                    }
-                    isSelected={isSelected}
-                    key={`move-selection-${entity}`}
-                    onClick={() => {
-                      setComponent(SelectedMove, selectedShip, { value: entity });
+              return (
+                <Button
+                  disabled={
+                    !inRange(
+                      getFinalPosition(moveCard, position, rotation, sailPosition, wind).finalPosition,
+                      { x: 0, y: 0 },
+                      gameConfig.worldRadius
+                    )
+                  }
+                  isSelected={isSelected}
+                  key={`move-selection-${entity}`}
+                  onClick={() => {
+                    setComponent(SelectedMove, selectedShip, { value: entity });
+                  }}
+                >
+                  <img
+                    src={imageUrl}
+                    style={{
+                      height: "80%",
+                      objectFit: "scale-down",
+                      transform: `rotate(${rotation + 90}deg)`,
                     }}
-                  >
-                    <img
-                      src={imageUrl}
-                      style={{
-                        height: "80%",
-                        objectFit: "scale-down",
-                        transform: `rotate(${rotation + 90}deg)`,
-                      }}
-                    />
-                    <p style={{ lineHeight: "16px" }}>
-                      {moveCard.distance}M / {Math.round((moveCard.direction + rotation) % 360)}º
-                    </p>
-                  </Button>
-                );
-              })}
+                  />
+                  <p style={{ lineHeight: "16px" }}>
+                    {Math.round(moveCard.distance)}M / {Math.round((moveCard.direction + rotation) % 360)}º
+                  </p>
+                </Button>
+              );
+            })}
           </>
         );
       } else {
@@ -189,6 +172,7 @@ export function registerMoveSelection() {
             {Object.keys(Action).map((a) => {
               const action = Number(a);
               if (isNaN(action)) return null;
+              if (!checkActionPossible(action as Action, selectedShip)) return null;
               const selected = selectedAction == action;
               const usedAlready = selectedActions.find((a) => a == action) != undefined;
 
@@ -198,7 +182,6 @@ export function registerMoveSelection() {
                   isSelected={selected}
                   key={`selectedAction-${action}`}
                   onClick={() => {
-                    // console.log("action: ", action);
                     const newArray = selectedActions;
                     selectedActions[selection - 1] = action;
                     setComponent(SelectedActions, selectedShip, { value: newArray });

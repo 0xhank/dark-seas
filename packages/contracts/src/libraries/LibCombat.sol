@@ -44,41 +44,47 @@ library LibCombat {
     _byteUInt = (_b & mask) >> shift;
   }
 
-  // 50 * e^(-.03 * distance) * (firepower / 100), multiplied by 100 for precision
-  function getBaseHitChance(uint256 distance, uint256 firepower) public pure returns (uint256 ret) {
-    int128 _scaleInv = Math.exp(Math.divu(distance * 3, 100));
+  // 80 * e^(-.008 * distance) * (firepower / 100), multiplied by 100 for precision
+  function getBaseHitChance(uint256 distance, uint256 firepower) public view returns (uint256 ret) {
+    int128 _scaleInv = Math.exp(Math.divu(distance * 8, 1000));
     int128 firepowerDebuff = Math.divu(firepower, 100);
-    int128 beforeDebuff = Math.div(Math.fromUInt(5000), _scaleInv);
+    int128 beforeDebuff = Math.div(Math.fromUInt(8000), _scaleInv);
     ret = Math.toUInt(Math.mul(beforeDebuff, firepowerDebuff));
   }
 
+  // chance of 3 damage is base chance, 2 damage is 1.7x, 1 damage is 3.5x
   function getHullDamage(uint256 baseHitChance, uint256 randomSeed) public pure returns (uint32) {
     // use first 14 bits for hull damage (log_2(10000) = ~13.2)
-    uint256 odds = getByteUInt(randomSeed, 14, 0) % 10000;
+    uint256 odds = (getByteUInt(randomSeed, 14, 0) * 10000) / 16384;
     if (odds <= baseHitChance) return 3;
-    if (odds <= (baseHitChance * 270) / 100) return 2;
-    if (odds <= (baseHitChance * 550) / 100) return 1;
+    if (odds <= (baseHitChance * 170) / 100) return 2;
+    if (odds <= (baseHitChance * 350) / 100) return 1;
     return 0;
   }
 
   function getCrewDamage(uint256 baseHitChance, uint256 randomSeed) public pure returns (uint32) {
     // use second 14 bits for hull damage (log_2(10000) = ~13.2)
-    uint256 odds = getByteUInt(randomSeed, 14, 14) % 10000;
-
+    // we have to divide by 2 ** 14, instead modulating 10000, or else the likelihood of 0 to 6384 is doubled
+    uint256 odds = (getByteUInt(randomSeed, 14, 14) * 10000) / 16384;
     if (odds <= (baseHitChance * 50) / 100) return 3;
     if (odds <= baseHitChance) return 2;
-    if (odds <= (baseHitChance * 250) / 100) return 1;
+    if (odds <= (baseHitChance * 200) / 100) return 1;
     return 0;
   }
 
   function getSpecialChance(
     uint256 baseHitChance,
+    uint256 damage,
     uint256 randomSeed,
     uint256 shift
-  ) public pure returns (bool) {
+  ) public view returns (bool) {
     // pre-shifted to account for hull and crew damage
-    uint256 odds = getByteUInt(randomSeed, 14, (shift + 2) * 14) % 10000;
+    uint256 odds = ((getByteUInt(randomSeed, 14, (shift + 2) * 14)) * 10000) / 16384;
+    odds = (odds * (((damage - 1) * 10) + 100)) / 100;
+    console.log("odds:", odds);
+
     uint256 outcome = ((baseHitChance**2) * 5) / 10000;
+    console.log("outcome:", outcome);
     return (odds <= outcome);
   }
 
@@ -123,16 +129,18 @@ library LibCombat {
     dead = damageUint32(components, CrewCountComponentID, getCrewDamage(baseHitChance, r), defenderEntity);
     if (dead) return;
 
-    if (getSpecialChance(baseHitChance, r, 0)) {
+    if (hullDamage == 0) return;
+
+    if (getSpecialChance(baseHitChance, hullDamage, r, 0)) {
       OnFireComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity, 2);
     }
-    if (getSpecialChance(baseHitChance, r, 3)) {
+    if (getSpecialChance(baseHitChance, hullDamage, r, 3)) {
       LeakComponent(getAddressById(components, LeakComponentID));
     }
-    if (getSpecialChance(baseHitChance, r, 1)) {
+    if (getSpecialChance(baseHitChance, hullDamage, r, 1)) {
       DamagedMastComponent(getAddressById(components, DamagedMastComponentID)).set(defenderEntity, 2);
     }
-    if (getSpecialChance(baseHitChance, r, 2)) {
+    if (getSpecialChance(baseHitChance, hullDamage, r, 2)) {
       SailPositionComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity, 0);
     }
   }
@@ -146,6 +154,7 @@ library LibCombat {
     Uint32Component component = Uint32Component(getAddressById(components, componentID));
     uint32 value = component.getValue(entity);
 
+    console.log("value:", value);
     if (value <= damage) {
       component.set(entity, 0);
       return true;
@@ -156,6 +165,6 @@ library LibCombat {
   }
 
   function randomness(uint256 r1, uint256 r2) public view returns (uint256 r) {
-    r = uint256(keccak256(abi.encodePacked(r1, r2, block.timestamp, r1)));
+    r = uint256(keccak256(abi.encodePacked(r1, r2, block.timestamp, block.number)));
   }
 }

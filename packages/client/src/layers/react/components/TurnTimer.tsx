@@ -1,9 +1,8 @@
 import React from "react";
 import { registerUIComponent } from "../engine";
 import { map, merge } from "rxjs";
-import { colors, Container } from "../styles/global";
+import { colors } from "../styles/global";
 import { Phase, PhaseNames } from "../../../constants";
-import { autoAction } from "mobx/dist/internal";
 import styled from "styled-components";
 import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { GodID } from "@latticexyz/network";
@@ -23,12 +22,10 @@ export function registerTurnTimer() {
         world,
         network: { clock, connectedAddress },
         components: { Wind, Rotation },
-        utils: { getGameConfig, getCurrentGamePhase },
+        utils: { getGameConfig, getPhase },
       } = layers.network;
 
-      const {
-        components: { SelectedShip },
-      } = layers.phaser;
+      const { SelectedShip } = layers.phaser.components;
 
       return merge(clock.time$, Wind.update$, SelectedShip.update$).pipe(
         map(() => {
@@ -39,7 +36,7 @@ export function registerTurnTimer() {
           const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;
           const secondsIntoTurn = gameLength % turnLength;
 
-          const phase = getCurrentGamePhase();
+          const phase = getPhase();
           if (phase == undefined) return;
 
           const phaseStart =
@@ -49,31 +46,25 @@ export function registerTurnTimer() {
               ? gameConfig.commitPhaseLength
               : gameConfig.commitPhaseLength + gameConfig.revealPhaseLength;
 
-          const phaseEnd =
+          const phaseLength =
             phase == Phase.Commit
               ? gameConfig.commitPhaseLength
               : phase == Phase.Reveal
-              ? gameConfig.commitPhaseLength + gameConfig.revealPhaseLength
-              : turnLength;
+              ? gameConfig.revealPhaseLength
+              : gameConfig.actionPhaseLength;
+
+          const phaseEnd = phaseStart + phaseLength - 1;
 
           const secondsUntilNextPhase = phaseEnd - secondsIntoTurn;
 
-          const phaseLength = phaseEnd - phaseStart;
-
-          const address = connectedAddress.get();
-          if (!address) return;
-
           return {
-            layers,
             phaseLength,
             secondsUntilNextPhase,
-            address,
             phase,
             Wind,
+            world,
             SelectedShip,
             Rotation,
-            world,
-            getCurrentGamePhase,
           };
         })
       );
@@ -90,7 +81,7 @@ export function registerTurnTimer() {
         <OuterContainer>
           <InternalContainer>
             <Text>
-              {secondsUntilNextPhase} seconds left in {PhaseNames[phase]} Phase
+              {secondsUntilNextPhase + 1} seconds left in {PhaseNames[phase]} Phase
             </Text>
             <ProgressBar phaseLength={phaseLength} secondsUntilNextPhase={secondsUntilNextPhase} />
           </InternalContainer>
@@ -140,6 +131,6 @@ const ProgressBar = styled.div<{ phaseLength: number; secondsUntilNextPhase: num
   transition: width 1s linear;
   background-color: ${colors.gold};
   width: ${({ phaseLength, secondsUntilNextPhase }) =>
-    `calc(100% * ${(phaseLength - secondsUntilNextPhase) / (phaseLength - 1)})`};
+    `calc(100% * ${(phaseLength - secondsUntilNextPhase) / phaseLength})`};
   border-radius: 6px;
 `;

@@ -48,6 +48,26 @@ export enum ShipAttributeTypes {
   Sails,
 }
 
+export enum RenderDepth {
+  UI1 = 500,
+  UI2 = 490,
+  UI3 = 480,
+  UI4 = 470,
+  UI5 = 460,
+
+  Foreground1 = 400,
+  Foreground2 = 390,
+  Foreground3 = 380,
+  Foreground4 = 370,
+  Foreground5 = 360,
+
+  Background1 = 20,
+  Background2 = 10,
+  Background3 = 0, // tilemap sits here
+  Background4 = -10,
+  Background5 = -20,
+}
+
 export enum Animations {}
 
 export const UnitTypeSprites: Record<number, Sprites> = {};

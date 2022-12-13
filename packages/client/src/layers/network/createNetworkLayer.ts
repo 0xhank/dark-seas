@@ -4,6 +4,7 @@ import {
   EntityID,
   EntityIndex,
   getComponentValue,
+  getComponentValueStrict,
   hasComponent,
   Type,
 } from "@latticexyz/recs";
@@ -98,17 +99,17 @@ export async function createNetworkLayer(config: GameConfig) {
     return getComponentValue(components.GameConfig, godEntityIndex);
   };
 
-  function getPlayerEntity(address: string | undefined): EntityIndex | undefined {
+  function getPlayerEntity(address?: string): EntityIndex | undefined {
+    if (!address) address = network.connectedAddress.get();
     if (!address) return;
-
     const playerEntity = world.entityToIndex.get(address as EntityID);
     if (playerEntity == null || !hasComponent(components.Player, playerEntity)) return;
 
     return playerEntity;
   }
 
-  function getCurrentGamePhase(): Phase | undefined {
-    const gamePhase = getGamePhaseAt(network.clock.currentTime / 1000);
+  function getPhase(): Phase | undefined {
+    const gamePhase = getGamePhaseAt(Math.floor(network.clock.currentTime / 1000));
     return gamePhase;
   }
 
@@ -116,16 +117,16 @@ export async function createNetworkLayer(config: GameConfig) {
     const gameConfig = getGameConfig();
     if (!gameConfig) return undefined;
     const timeElapsed = timeInSeconds - parseInt(gameConfig.startTime);
-    const turnLength = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
+    const gameLength = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
 
-    const secondsUntilNextTurn = turnLength - (timeElapsed % turnLength);
+    const secondsIntoTurn = timeElapsed % gameLength;
 
-    if (secondsUntilNextTurn < gameConfig.actionPhaseLength) return Phase.Action;
-    if (secondsUntilNextTurn < gameConfig.actionPhaseLength + gameConfig.revealPhaseLength) return Phase.Reveal;
-    return Phase.Commit;
+    if (secondsIntoTurn < gameConfig.commitPhaseLength) return Phase.Commit;
+    if (secondsIntoTurn < gameConfig.commitPhaseLength + gameConfig.revealPhaseLength) return Phase.Reveal;
+    return Phase.Action;
   }
 
-  function getCurrentGameTurn(): number | undefined {
+  function getTurn(): number | undefined {
     const gamePhase = getGameTurnAt(network.clock.currentTime / 1000);
     return gamePhase;
   }
@@ -139,26 +140,49 @@ export async function createNetworkLayer(config: GameConfig) {
     return Math.floor(timeElapsed / turnLength);
   }
 
+  function checkActionPossible(action: Action, ship: EntityIndex): boolean {
+    const onFire = getComponentValue(components.OnFire, ship)?.value;
+    if (action == Action.ExtinguishFire && !onFire) return false;
+    if (action == Action.FireRight && onFire) return false;
+    if (action == Action.FireLeft && onFire) return false;
+
+    if (action == Action.RepairLeak && !getComponentValue(components.Leak, ship)) return false;
+    if (action == Action.RepairMast && !getComponentValue(components.DamagedMast, ship)) return false;
+
+    const sailPosition = getComponentValueStrict(components.SailPosition, ship).value;
+    if (action == Action.LowerSail && sailPosition <= 1) return false;
+    if (action == Action.RaiseSail && sailPosition >= 3) return false;
+    if (action == Action.RepairSail && sailPosition > 0) return false;
+
+    return true;
+  }
+
   // --- ACTION SYSTEM --------------------------------------------------------------
   const actions = createActionSystem(world, txReduced$);
 
   // --- API ------------------------------------------------------------------------
 
-  function commitMove(ships: EntityID[], moves: EntityID[]) {
-    const commitment = keccak256(abi.encode(["uint256[]", "uint256[]", "uint256"], [ships, moves, 0]));
+  function commitMove(encoding: string) {
+    const commitment = keccak256(encoding);
+    console.log("committing move");
     systems["ds.system.Commit"].executeTyped(commitment);
   }
 
-  function spawnPlayer(name: string, location: Coord) {
+  function spawnPlayer(name: string) {
+    const location: Coord = { x: Math.round(Math.random() * 300000), y: Math.round(Math.random() * 300000) };
+    console.log("spawning player");
     systems["ds.system.PlayerSpawn"].executeTyped(name, location);
   }
 
   function spawnShip(location: Coord, rotation: number) {
+    console.log("spawning ship");
     systems["ds.system.ShipSpawn"].executeTyped(location, rotation);
   }
 
-  function revealMove(ships: EntityID[], moves: EntityID[]) {
-    systems["ds.system.Move"].executeTyped(ships, moves, 0);
+  function revealMove(encoding: string) {
+    console.log("revealing move");
+    const decodedMove = abi.decode(["uint256[]", "uint256[]", "uint256"], encoding);
+    systems["ds.system.Move"].executeTyped(decodedMove[0], decodedMove[1], decodedMove[2]);
   }
 
   function submitActions(ships: EntityID[], actions: Action[][]) {
@@ -176,7 +200,7 @@ export async function createNetworkLayer(config: GameConfig) {
     startSync,
     network,
     actions,
-    utils: { getGameConfig, getPlayerEntity, getCurrentGamePhase, getGamePhaseAt, getCurrentGameTurn, commitMove },
+    utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn, checkActionPossible },
     api: { spawnShip, revealMove, submitActions, spawnPlayer, commitMove },
     dev: setupDevSystems(world, encoders as Promise<any>, systems),
   };

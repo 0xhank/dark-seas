@@ -1,41 +1,68 @@
-import { GodID } from "@latticexyz/network";
-import { tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
 import {
-  defineComponentSystem,
-  defineSystem,
+  defineEnterSystem,
   defineUpdateSystem,
-  EntityIndex,
   getComponentValue,
   getComponentValueStrict,
   Has,
   setComponent,
-  UpdateType,
 } from "@latticexyz/recs";
-import { deg2rad } from "../../../utils/trig";
 import { NetworkLayer } from "../../network";
-import { Sprites } from "../constants";
 import { PhaserLayer } from "../types";
-
-const shipWidth = 2;
 
 export function createHealthSystem(network: NetworkLayer, phaser: PhaserLayer) {
   const {
     world,
-    components: { Health },
+    components: { Health, OnFire, Leak, DamagedMast, SailPosition, CrewCount },
   } = network;
 
-  const { objectPool } = phaser.scenes.Main;
+  const {
+    scenes: {
+      Main: { objectPool },
+    },
+    components: { UpdateQueue },
+  } = phaser;
 
   defineUpdateSystem(world, [Has(Health)], (update) => {
-    const object = objectPool.get(update.entity, "Sprite");
+    const updateQueue = getComponentValue(UpdateQueue, update.entity)?.value || new Array<string>();
 
-    object.setComponent({
-      id: "flash-red",
-      now: (sprite) => {
-        sprite.setTint(0xff0000);
+    updateQueue.push("Lost health!");
+    setComponent(UpdateQueue, update.entity, { value: updateQueue });
+  });
 
-        setTimeout(() => sprite.clearTint());
-      },
-    });
+  defineUpdateSystem(world, [Has(CrewCount)], (update) => {
+    const updateQueue = getComponentValue(UpdateQueue, update.entity)?.value || new Array<string>();
+
+    updateQueue.push("Lost crew!");
+    setComponent(UpdateQueue, update.entity, { value: updateQueue });
+  });
+
+  defineEnterSystem(world, [Has(OnFire)], (update) => {
+    const updateQueue = getComponentValue(UpdateQueue, update.entity)?.value || new Array<string>();
+
+    updateQueue.push("On fire!");
+    setComponent(UpdateQueue, update.entity, { value: updateQueue });
+  });
+
+  defineEnterSystem(world, [Has(Leak)], (update) => {
+    const updateQueue = getComponentValue(UpdateQueue, update.entity)?.value || new Array<string>();
+
+    updateQueue.push("Sprung a leak!");
+    setComponent(UpdateQueue, update.entity, { value: updateQueue });
+  });
+
+  defineEnterSystem(world, [Has(DamagedMast)], (update) => {
+    const updateQueue = getComponentValue(UpdateQueue, update.entity)?.value || new Array<string>();
+
+    updateQueue.push("Mast is damaged!");
+    setComponent(UpdateQueue, update.entity, { value: updateQueue });
+  });
+
+  defineUpdateSystem(world, [Has(SailPosition)], (update) => {
+    const sailPosition = getComponentValueStrict(SailPosition, update.entity).value;
+    if (sailPosition != 0) return;
+    const updateQueue = getComponentValue(UpdateQueue, update.entity)?.value || new Array<string>();
+
+    updateQueue.push("Sails broke!");
+    setComponent(UpdateQueue, update.entity, { value: updateQueue });
   });
 }

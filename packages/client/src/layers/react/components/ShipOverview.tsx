@@ -19,7 +19,7 @@ export function registerShipOverview() {
     // grid location
     {
       rowStart: 1,
-      rowEnd: 3,
+      rowEnd: 4,
       colStart: 10,
       colEnd: 13,
     },
@@ -149,12 +149,12 @@ export function registerShipOverview() {
                   flexDirection: "column",
                   height: "100%",
                   position: "relative",
-                  maxWidth: "120px",
+                  maxWidth: "140px",
                   minWidth: "80px",
                 }}
               >
-                <span style={{ fontSize: "1.5rem", lineHeight: "2rem" }}>HMS {selectedShip}</span>
-                {ownerName && <span style={{ lineHeight: "1rem", fontSize: "1.5rem" }}>Cpt. {ownerName}</span>}
+                <span style={{ fontSize: "1.5rem", lineHeight: "2.5rem" }}>HMS {selectedShip}</span>
+                {ownerName && <span style={{ lineHeight: "1.5rem", fontSize: "1rem" }}>{ownerName}</span>}
                 <span style={{ lineHeight: "1.5rem", fontSize: "1rem" }}>
                   ({position.x}, {position.y})
                 </span>
@@ -182,7 +182,6 @@ export function registerShipOverview() {
                   <ShipAttribute attributeType={ShipAttributeTypes.Sails} attribute={SailPositions[sailPosition]} />
                 </div>
                 <div style={{ display: "flex" }}>
-                  <ShipDamage message="mast broken" amountLeft={2} />
                   {damagedMast && <ShipDamage message="mast broken" amountLeft={damagedMast} />}
                   {onFire && <ShipDamage message="on fire" amountLeft={onFire} />}
                   {leak && <ShipDamage message="leaking" />}
