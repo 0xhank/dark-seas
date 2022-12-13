@@ -88,37 +88,35 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
     object.setComponent({
       id: Position.id,
       now: async (gameObject) => {
-        if (update.type !== UpdateType.Enter) {
-          await tween({
-            targets: gameObject,
-            duration: 250,
-            props: {
-              x,
-              y,
-              angle: {
-                getEnd: function (target, key, value) {
-                  const start = target.angle % 360;
-                  const end = (rotation - 90) % 360;
+        await tween({
+          targets: gameObject,
+          duration: 250,
+          props: {
+            x,
+            y,
+            angle: {
+              getEnd: function (target, key, value) {
+                const start = target.angle % 360;
+                const end = (rotation - 90) % 360;
 
-                  // console.log(`start angle: ${start}, end angle: ${end}`);
+                // console.log(`start angle: ${start}, end angle: ${end}`);
 
-                  let diff = end - start;
+                let diff = end - start;
 
-                  if (diff < -180) diff += 360;
-                  else if (diff > 180) diff -= 360;
+                if (diff < -180) diff += 360;
+                else if (diff > 180) diff -= 360;
 
-                  return start + diff;
-                },
+                return start + diff;
+              },
 
-                getStart: function (target, key, value) {
-                  return target.angle % 360;
-                },
+              getStart: function (target, key, value) {
+                return target.angle % 360;
               },
             },
+          },
 
-            ease: Phaser.Math.Easing.Linear,
-          });
-        }
+          ease: Phaser.Math.Easing.Linear,
+        });
       },
       once: async (gameObject: Phaser.GameObjects.Sprite) => {
         gameObject.setName(update.entity.toString());
