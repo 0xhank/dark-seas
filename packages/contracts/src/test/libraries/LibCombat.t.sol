@@ -2,7 +2,6 @@
 pragma solidity >=0.8.0;
 
 // External
-import { addressToEntity } from "solecs/utils.sol";
 import "../MudTest.t.sol";
 
 // Libraries

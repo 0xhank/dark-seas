@@ -55,26 +55,26 @@ library LibVector {
    * @notice  retrieves locations of both bow (front) and stern (back) of ship
    * @dev     bow is always the position and stern is calculated using getPositionByVector based on ship's rotation and length
    * @param   components  world components
-   * @param   shipEntityId  ship's entity id
+   * @param   shipEntity  ship's entity id
    * @return  Coord  ship bow
    * @return  Coord  ship stern
    */
-  function getShipBowAndSternLocation(IUint256Component components, uint256 shipEntityId)
+  function getShipBowAndSternLocation(IUint256Component components, uint256 shipEntity)
     public
     view
     returns (Coord memory, Coord memory)
   {
     ShipComponent shipComponent = ShipComponent(getAddressById(components, ShipComponentID));
-    require(shipComponent.has(shipEntityId), "LibVector: not a ship");
+    require(shipComponent.has(shipEntity), "LibVector: not a ship");
 
     PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
     LengthComponent lengthComponent = LengthComponent(getAddressById(components, LengthComponentID));
     RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
 
-    uint32 length = lengthComponent.getValue(shipEntityId);
-    uint32 rotation = rotationComponent.getValue(shipEntityId);
+    uint32 length = lengthComponent.getValue(shipEntity);
+    uint32 rotation = rotationComponent.getValue(shipEntity);
 
-    Coord memory shipPosition = positionComponent.getValue(shipEntityId);
+    Coord memory shipPosition = positionComponent.getValue(shipEntity);
     Coord memory sternPosition = getSternLocation(shipPosition, rotation, length);
 
     return (shipPosition, sternPosition);

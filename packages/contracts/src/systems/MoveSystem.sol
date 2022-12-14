@@ -32,7 +32,7 @@ contract MoveSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
-    (uint256[] memory entities, uint256[] memory moveCardEntities, uint256 salt) = abi.decode(
+    (uint256[] memory shipEntities, uint256[] memory moveCardEntities, uint256 salt) = abi.decode(
       arguments,
       (uint256[], uint256[], uint256)
     );
@@ -45,7 +45,7 @@ contract MoveSystem is System {
       "MoveSystem: commitment doesn't match move"
     );
 
-    require(entities.length == moveCardEntities.length, "MoveSystem: array length mismatch");
+    require(shipEntities.length == moveCardEntities.length, "MoveSystem: array length mismatch");
 
     require(LibUtils.playerIdExists(components, playerEntity), "MoveSystem: player does not exist");
 
@@ -62,9 +62,9 @@ contract MoveSystem is System {
     Wind memory wind = WindComponent(getAddressById(components, WindComponentID)).getValue(GodID);
 
     // iterate through each ship entity
-    for (uint256 i = 0; i < entities.length; i++) {
+    for (uint256 i = 0; i < shipEntities.length; i++) {
       uint256 moveCardEntity = moveCardEntities[i];
-      uint256 entity = entities[i];
+      uint256 entity = shipEntities[i];
 
       LibMove.moveShip(components, entity, playerEntity, moveCardEntity, wind);
     }
@@ -73,10 +73,10 @@ contract MoveSystem is System {
   }
 
   function executeTyped(
-    uint256[] calldata entities,
+    uint256[] calldata shipEntities,
     uint256[] calldata moveCardEntities,
     uint256 salt
   ) public returns (bytes memory) {
-    return execute(abi.encode(entities, moveCardEntities, salt));
+    return execute(abi.encode(shipEntities, moveCardEntities, salt));
   }
 }

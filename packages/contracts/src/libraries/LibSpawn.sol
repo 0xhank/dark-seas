@@ -109,27 +109,27 @@ library LibSpawn {
    * @notice  spawns a basic ship type
    * @dev todo: move this to shipPrototype and create a couple options for ships
    * @param   components  creates a ship
-   * @param   entity  entity id of ship
+   * @param   shipEntity  entity id of ship
    * @param   playerEntity  entity id of ship's owner
    * @param   location  starting location of ship
    * @param   rotation  starting rotation of ship
    */
   function spawnShip(
     IUint256Component components,
-    uint256 entity,
+    uint256 shipEntity,
     uint256 playerEntity,
     Coord memory location,
     uint32 rotation
   ) internal {
-    PositionComponent(getAddressById(components, PositionComponentID)).set(entity, location);
-    RotationComponent(getAddressById(components, RotationComponentID)).set(entity, rotation);
-    LengthComponent(getAddressById(components, LengthComponentID)).set(entity, 10);
-    RangeComponent(getAddressById(components, RangeComponentID)).set(entity, 80);
-    HealthComponent(getAddressById(components, HealthComponentID)).set(entity, 10);
-    ShipComponent(getAddressById(components, ShipComponentID)).set(entity);
-    SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(entity, 3);
-    CrewCountComponent(getAddressById(components, CrewCountComponentID)).set(entity, 8);
-    FirepowerComponent(getAddressById(components, FirepowerComponentID)).set(entity, 50);
-    OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(entity, playerEntity);
+    PositionComponent(getAddressById(components, PositionComponentID)).set(shipEntity, location);
+    RotationComponent(getAddressById(components, RotationComponentID)).set(shipEntity, rotation);
+    LengthComponent(getAddressById(components, LengthComponentID)).set(shipEntity, 10);
+    RangeComponent(getAddressById(components, RangeComponentID)).set(shipEntity, 80);
+    HealthComponent(getAddressById(components, HealthComponentID)).set(shipEntity, 10);
+    ShipComponent(getAddressById(components, ShipComponentID)).set(shipEntity);
+    SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 3);
+    CrewCountComponent(getAddressById(components, CrewCountComponentID)).set(shipEntity, 8);
+    FirepowerComponent(getAddressById(components, FirepowerComponentID)).set(shipEntity, 50);
+    OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(shipEntity, playerEntity);
   }
 }

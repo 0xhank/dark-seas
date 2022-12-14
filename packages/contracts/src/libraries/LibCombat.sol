@@ -101,19 +101,19 @@ library LibCombat {
   /**
    * @notice  calculates the location of four points comprising a trapezoidal firing area
    * @param   components  world components
-   * @param   entity  attacking
+   * @param   shipEntity  attacking ship entity
    * @param   side  of attack
    * @return  Coord[4]  points comprising firing area
    */
   function getFiringArea(
     IUint256Component components,
-    uint256 entity,
+    uint256 shipEntity,
     Side side
   ) public view returns (Coord[4] memory) {
-    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(entity);
-    Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(entity);
-    uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(entity);
-    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(entity);
+    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(shipEntity);
+    Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(shipEntity);
+    uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
+    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
     uint32 topRange = side == Side.Right ? 80 : 280;
     uint32 bottomRange = side == Side.Right ? 100 : 260;
     Coord memory sternLocation = LibVector.getSternLocation(position, rotation, length);
@@ -179,24 +179,24 @@ library LibCombat {
    * @param   components  world components
    * @param   componentID  type of component to update
    * @param   damage  amount of damage applied
-   * @param   entity  to apply damage to
+   * @param   shipEntity  to apply damage to
    * @return  bool  if the damage killed the boat
    */
   function damageUint32(
     IUint256Component components,
     uint256 componentID,
     uint32 damage,
-    uint256 entity
+    uint256 shipEntity
   ) public returns (bool) {
     Uint32Component component = Uint32Component(getAddressById(components, componentID));
-    uint32 value = component.getValue(entity);
+    uint32 value = component.getValue(shipEntity);
 
     if (value <= damage) {
-      component.set(entity, 0);
+      component.set(shipEntity, 0);
       return true;
     }
 
-    component.set(entity, value - damage);
+    component.set(shipEntity, value - damage);
     return false;
   }
 }

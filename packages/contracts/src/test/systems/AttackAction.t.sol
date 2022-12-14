@@ -43,8 +43,7 @@ contract AttackActionTest is MudTest {
   function testRevertNotOwner() public {
     setup();
 
-    uint256 shipEntityId = shipSpawnSystem.executeTyped(Coord(0, 0), 0);
-    uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
+    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord(0, 0), 0);
 
     vm.prank(deployer);
     shipSpawnSystem.executeTyped(Coord(0, 0), 0);
@@ -53,7 +52,7 @@ contract AttackActionTest is MudTest {
 
     vm.prank(deployer);
 
-    shipEntities.push(shipEntityId);
+    shipEntities.push(shipEntity);
     allActions.push(actions);
 
     vm.expectRevert(bytes("ActionSystem: you don't own this ship"));
@@ -106,19 +105,19 @@ contract AttackActionTest is MudTest {
     HealthComponent healthComponent = HealthComponent(component(HealthComponentID));
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
-    uint256 attackerId = shipSpawnSystem.executeTyped(startingPosition, 0);
+    uint256 attackerEntity = shipSpawnSystem.executeTyped(startingPosition, 0);
 
-    uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
+    uint256 moveStraightEntity = uint256(keccak256("ds.prototype.moveEntity1"));
 
-    shipEntities.push(attackerId);
-    moveEntities.push(moveStraightEntityId);
+    shipEntities.push(attackerEntity);
+    moveEntities.push(moveStraightEntity);
 
     commitAndExecuteMove(2, shipEntities, moveEntities);
 
-    uint256 defenderId = shipSpawnSystem.executeTyped(startingPosition, 0);
+    uint256 defenderEntity = shipSpawnSystem.executeTyped(startingPosition, 0);
 
-    uint32 origHealth = healthComponent.getValue(defenderId);
-    uint32 attackerHealth = healthComponent.getValue(attackerId);
+    uint32 origHealth = healthComponent.getValue(defenderEntity);
+    uint32 attackerHealth = healthComponent.getValue(attackerEntity);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
 
@@ -126,15 +125,15 @@ contract AttackActionTest is MudTest {
     delete actions;
     delete allActions;
 
-    shipEntities.push(attackerId);
+    shipEntities.push(attackerEntity);
     actions.push(Action.FireRight);
     allActions.push(actions);
     actionSystem.executeTyped(shipEntities, allActions);
 
-    uint32 newHealth = healthComponent.getValue(attackerId);
+    uint32 newHealth = healthComponent.getValue(attackerEntity);
     assertEq(newHealth, attackerHealth);
 
-    newHealth = healthComponent.getValue(defenderId);
+    newHealth = healthComponent.getValue(defenderEntity);
     assertEq(newHealth, origHealth);
   }
 
@@ -143,12 +142,12 @@ contract AttackActionTest is MudTest {
 
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
 
-    uint256 attackerId = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
+    uint256 attackerEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
 
     vm.prank(deployer);
-    uint256 defenderId = shipSpawnSystem.executeTyped(Coord({ x: 9, y: 25 }), 0);
+    uint256 defenderEntity = shipSpawnSystem.executeTyped(Coord({ x: 9, y: 25 }), 0);
 
-    uint32 origHealth = healthComponent.getValue(defenderId);
+    uint32 origHealth = healthComponent.getValue(defenderEntity);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
@@ -156,7 +155,7 @@ contract AttackActionTest is MudTest {
     delete actions;
     delete allActions;
 
-    shipEntities.push(attackerId);
+    shipEntities.push(attackerEntity);
     actions.push(Action.FireRight);
     allActions.push(actions);
 
@@ -165,9 +164,9 @@ contract AttackActionTest is MudTest {
 
     console.log("gas:", gas - gasleft());
 
-    uint32 newHealth = healthComponent.getValue(defenderId);
+    uint32 newHealth = healthComponent.getValue(defenderEntity);
 
-    uint32 ehd = expectedHealthDecrease(attackerId, defenderId, Side.Right);
+    uint32 ehd = expectedHealthDecrease(attackerEntity, defenderEntity, Side.Right);
     console.log("expected health decrease:", ehd);
     assertEq(newHealth, origHealth - ehd);
   }
@@ -184,16 +183,16 @@ contract AttackActionTest is MudTest {
   }
 
   function expectedHealthDecrease(
-    uint256 attackerId,
-    uint256 defenderId,
+    uint256 attackerEntity,
+    uint256 defenderEntity,
     Side side
   ) public view returns (uint32) {
-    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(attackerId);
+    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(attackerEntity);
     Coord memory attackerPosition = PositionComponent(getAddressById(components, PositionComponentID)).getValue(
-      attackerId
+      attackerEntity
     );
-    (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, defenderId);
-    Coord[4] memory firingRange = LibCombat.getFiringArea(components, attackerId, side);
+    (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, defenderEntity);
+    Coord[4] memory firingRange = LibCombat.getFiringArea(components, attackerEntity, side);
 
     uint256 distance;
     if (LibVector.withinPolygon(firingRange, aft)) {
@@ -204,7 +203,7 @@ contract AttackActionTest is MudTest {
     return
       LibCombat.getHullDamage(
         LibCombat.getBaseHitChance(distance, firepower),
-        LibUtils.randomness(attackerId, defenderId)
+        LibUtils.randomness(attackerEntity, defenderEntity)
       );
   }
 

@@ -106,14 +106,14 @@ library LibMove {
   /**
    * @notice  moves a ship
    * @param   components  world components
-   * @param   entity  to move
+   * @param   shipEntity  to move
    * @param   playerEntity  owner of ship
    * @param   moveCardEntity  move to apply
    * @param   wind  direction and intensity of wind
    */
   function moveShip(
     IUint256Component components,
-    uint256 entity,
+    uint256 shipEntity,
     uint256 playerEntity,
     uint256 moveCardEntity,
     Wind memory wind
@@ -124,36 +124,36 @@ library LibMove {
     LastMoveComponent lastMoveComponent = LastMoveComponent(getAddressById(components, LastMoveComponentID));
 
     require(
-      HealthComponent(getAddressById(components, HealthComponentID)).getValue(entity) > 0,
+      HealthComponent(getAddressById(components, HealthComponentID)).getValue(shipEntity) > 0,
       "MoveSystem: ship is sunk"
     );
 
     require(
-      CrewCountComponent(getAddressById(components, CrewCountComponentID)).getValue(entity) > 0,
+      CrewCountComponent(getAddressById(components, CrewCountComponentID)).getValue(shipEntity) > 0,
       "MoveSystem: ship has no crew"
     );
 
     require(
-      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(entity) == playerEntity,
+      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(shipEntity) == playerEntity,
       "MoveSystem: you don't own this ship"
     );
     require(moveCardComponent.has(moveCardEntity), "MoveSystem: invalid move card entity id");
     require(
-      ShipComponent(getAddressById(components, ShipComponentID)).has(entity),
+      ShipComponent(getAddressById(components, ShipComponentID)).has(shipEntity),
       "MoveSystem: invalid ship entity id"
     );
 
     // calculate move card with wind and sail modifiers
     MoveCard memory moveCard = moveCardComponent.getValue(moveCardEntity);
 
-    Coord memory position = positionComponent.getValue(entity);
-    uint32 rotation = rotationComponent.getValue(entity);
+    Coord memory position = positionComponent.getValue(shipEntity);
+    uint32 rotation = rotationComponent.getValue(shipEntity);
 
     moveCard = getMoveWithWind(moveCard, rotation, wind);
 
     moveCard = getMoveWithSails(
       moveCard,
-      SailPositionComponent(getAddressById(components, SailPositionComponentID)).getValue(entity)
+      SailPositionComponent(getAddressById(components, SailPositionComponentID)).getValue(shipEntity)
     );
 
     position = LibVector.getPositionByVector(position, rotation, moveCard.distance, moveCard.direction);
@@ -161,7 +161,7 @@ library LibMove {
     require(LibVector.inWorldRadius(components, position), "MoveSystem: move out of bounds");
     rotation = (rotation + moveCard.rotation) % 360;
 
-    positionComponent.set(entity, position);
-    rotationComponent.set(entity, rotation);
+    positionComponent.set(shipEntity, position);
+    rotationComponent.set(shipEntity, rotation);
   }
 }

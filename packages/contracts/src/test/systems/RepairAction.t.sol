@@ -34,11 +34,11 @@ contract RepairActionTest is MudTest {
     setup();
     OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
 
-    uint256 entityID = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
+    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
 
-    componentDevSystem.executeTyped(OnFireComponentID, entityID, abi.encode(1));
+    componentDevSystem.executeTyped(OnFireComponentID, shipEntity, abi.encode(1));
 
-    assertTrue(onFireComponent.has(entityID));
+    assertTrue(onFireComponent.has(shipEntity));
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
@@ -46,12 +46,12 @@ contract RepairActionTest is MudTest {
     delete actions;
     delete allActions;
 
-    shipEntities.push(entityID);
+    shipEntities.push(shipEntity);
     actions.push(Action.ExtinguishFire);
     allActions.push(actions);
     actionSystem.executeTyped(shipEntities, allActions);
 
-    assertFalse(onFireComponent.has(entityID));
+    assertFalse(onFireComponent.has(shipEntity));
   }
 
   function testRepairLeak() public prank(deployer) {
@@ -60,17 +60,17 @@ contract RepairActionTest is MudTest {
     GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
       GodID
     );
-    uint256 entityID = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
+    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
 
-    componentDevSystem.executeTyped(LeakComponentID, entityID, abi.encode(true));
+    componentDevSystem.executeTyped(LeakComponentID, shipEntity, abi.encode(true));
 
-    assertTrue(leakComponent.has(entityID));
+    assertTrue(leakComponent.has(shipEntity));
 
     delete shipEntities;
     delete actions;
     delete allActions;
 
-    shipEntities.push(entityID);
+    shipEntities.push(shipEntity);
     actions.push(Action.RepairLeak);
     allActions.push(actions);
 
@@ -78,23 +78,23 @@ contract RepairActionTest is MudTest {
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
     actionSystem.executeTyped(shipEntities, allActions);
-    assertFalse(leakComponent.has(entityID));
+    assertFalse(leakComponent.has(shipEntity));
   }
 
   function testRepairSail() public prank(deployer) {
     setup();
 
-    uint256 entityID = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
+    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
 
-    componentDevSystem.executeTyped(SailPositionComponentID, entityID, abi.encode(0));
+    componentDevSystem.executeTyped(SailPositionComponentID, shipEntity, abi.encode(0));
 
-    assertEq(sailPositionComponent.getValue(entityID), 0);
+    assertEq(sailPositionComponent.getValue(shipEntity), 0);
 
     delete shipEntities;
     delete actions;
     delete allActions;
 
-    shipEntities.push(entityID);
+    shipEntities.push(shipEntity);
     actions.push(Action.RepairSail);
     allActions.push(actions);
 
@@ -102,7 +102,7 @@ contract RepairActionTest is MudTest {
 
     actionSystem.executeTyped(shipEntities, allActions);
 
-    assertEq(sailPositionComponent.getValue(entityID), 1);
+    assertEq(sailPositionComponent.getValue(shipEntity), 1);
   }
 
   function testRepairMast() public prank(deployer) {
@@ -110,23 +110,23 @@ contract RepairActionTest is MudTest {
     DamagedMastComponent damagedMastComponent = DamagedMastComponent(
       getAddressById(components, DamagedMastComponentID)
     );
-    uint256 entityID = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
-    componentDevSystem.executeTyped(DamagedMastComponentID, entityID, abi.encode(1));
+    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
+    componentDevSystem.executeTyped(DamagedMastComponentID, shipEntity, abi.encode(1));
 
-    assertTrue(damagedMastComponent.has(entityID));
+    assertTrue(damagedMastComponent.has(shipEntity));
 
     delete shipEntities;
     delete actions;
     delete allActions;
 
-    shipEntities.push(entityID);
+    shipEntities.push(shipEntity);
     actions.push(Action.RepairMast);
     allActions.push(actions);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
     actionSystem.executeTyped(shipEntities, allActions);
-    assertFalse(damagedMastComponent.has(entityID));
+    assertFalse(damagedMastComponent.has(shipEntity));
   }
 
   /**

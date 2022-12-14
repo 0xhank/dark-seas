@@ -30,9 +30,9 @@ contract ChangeSailActionTest is MudTest {
     setup();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
-    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
+    uint256 shipEntity = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
 
-    shipEntities.push(shipEntityId);
+    shipEntities.push(shipEntity);
     actions.push(Action.LowerSail);
     allActions.push(actions);
 
@@ -40,7 +40,7 @@ contract ChangeSailActionTest is MudTest {
 
     actionSystem.executeTyped(shipEntities, allActions);
 
-    uint32 newSailPosition = sailPositionComponent.getValue(shipEntityId);
+    uint32 newSailPosition = sailPositionComponent.getValue(shipEntity);
 
     assertEq(newSailPosition, 2);
   }
@@ -49,20 +49,20 @@ contract ChangeSailActionTest is MudTest {
     setup();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
-    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
+    uint256 shipEntity = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
     delete shipEntities;
     delete actions;
     delete allActions;
 
-    shipEntities.push(shipEntityId);
+    shipEntities.push(shipEntity);
     actions.push(Action.RaiseSail);
     allActions.push(actions);
 
     actionSystem.executeTyped(shipEntities, allActions);
 
-    uint32 newSailPosition = sailPositionComponent.getValue(shipEntityId);
+    uint32 newSailPosition = sailPositionComponent.getValue(shipEntity);
 
     assertEq(newSailPosition, 3);
 
@@ -80,7 +80,7 @@ contract ChangeSailActionTest is MudTest {
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 4, Phase.Action));
     actionSystem.executeTyped(shipEntities, allActions);
 
-    newSailPosition = sailPositionComponent.getValue(shipEntityId);
+    newSailPosition = sailPositionComponent.getValue(shipEntity);
     assertEq(newSailPosition, 1);
   }
 

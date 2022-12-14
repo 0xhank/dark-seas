@@ -63,12 +63,12 @@ library LibUtils {
   /**
    * @notice  checks if a player with this id exists
    * @param   components  world components
-   * @param   playerEntityId  player's entity Id
+   * @param   playerEntity  player's entity Id
    * @return  bool  does player with this Id exist?
    */
-  function playerIdExists(IUint256Component components, uint256 playerEntityId) internal view returns (bool) {
+  function playerIdExists(IUint256Component components, uint256 playerEntity) internal view returns (bool) {
     PlayerComponent playerComponent = PlayerComponent(getAddressById(components, PlayerComponentID));
-    return playerComponent.has(playerEntityId);
+    return playerComponent.has(playerEntity);
   }
 
   /**
