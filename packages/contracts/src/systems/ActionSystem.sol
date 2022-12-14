@@ -46,57 +46,7 @@ contract ActionSystem is System {
 
     // iterate through each ship
     for (uint256 i = 0; i < entities.length; i++) {
-      Action[] memory shipActions = actions[i];
-      uint256 shipEntity = entities[i];
-
-      require(shipActions.length <= 3, "ActionSystem: too many actions");
-
-      require(
-        OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(shipEntity) ==
-          addressToEntity(msg.sender),
-        "ActionSystem: you don't own this ship"
-      );
-
-      require(
-        ShipComponent(getAddressById(components, ShipComponentID)).has(shipEntity),
-        "ActionSystem: Entity must be a ship"
-      );
-
-      // iterate through each action of each ship
-      for (uint256 j = 0; j < shipActions.length; j++) {
-        Action action = shipActions[j];
-
-        // ensure action hasn't already been made
-        if (j == 1) {
-          require(shipActions[0] != action, "ActionSystem: action already used");
-        } else if (j == 2) {
-          require(shipActions[0] != action && shipActions[1] != action, "ActionSystem: action already used");
-        }
-
-        // execute action
-        if (action == Action.FireRight) {
-          LibAction.attack(components, shipEntity, Side.Right);
-        } else if (action == Action.FireLeft) {
-          LibAction.attack(components, shipEntity, Side.Left);
-        } else if (action == Action.RaiseSail) {
-          LibAction.raiseSail(components, shipEntity);
-        } else if (action == Action.LowerSail) {
-          LibAction.lowerSail(components, shipEntity);
-        } else if (action == Action.ExtinguishFire) {
-          LibAction.extinguishFire(components, shipEntity);
-        } else if (action == Action.RepairLeak) {
-          LibAction.repairLeak(components, shipEntity);
-        } else if (action == Action.RepairMast) {
-          LibAction.repairMast(components, shipEntity);
-        } else if (action == Action.RepairSail) {
-          LibAction.repairSail(components, shipEntity);
-        } else {
-          revert("ActionSystem: invalid action");
-        }
-      }
-
-      // todo: apply damage to all ships every turn instead of only if they act
-      LibAction.applySpecialDamage(components, shipEntity);
+      LibAction.executeShipActions(components, entities[i], actions[i]);
     }
   }
 

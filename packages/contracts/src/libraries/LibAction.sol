@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { getAddressById } from "solecs/utils.sol";
 import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 
-import { Coord, Wind, Side, MoveCard } from "../libraries/DSTypes.sol";
+import { Coord, Wind, Side, MoveCard, Action } from "../libraries/DSTypes.sol";
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
 import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireComponent.sol";
 import { LeakComponent, ID as LeakComponentID } from "../components/LeakComponent.sol";
@@ -22,6 +22,61 @@ import "./LibUtils.sol";
 import "./LibVector.sol";
 
 library LibAction {
+  function executeShipActions(
+    IUint256Component components,
+    uint256 shipEntity,
+    Action[] memory shipActions
+  ) public {
+    require(shipActions.length <= 3, "ActionSystem: too many actions");
+
+    require(
+      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(shipEntity) ==
+        addressToEntity(msg.sender),
+      "ActionSystem: you don't own this ship"
+    );
+
+    require(
+      ShipComponent(getAddressById(components, ShipComponentID)).has(shipEntity),
+      "ActionSystem: Entity must be a ship"
+    );
+
+    // iterate through each action of each ship
+    for (uint256 j = 0; j < shipActions.length; j++) {
+      Action action = shipActions[j];
+
+      // ensure action hasn't already been made
+      if (j == 1) {
+        require(shipActions[0] != action, "ActionSystem: action already used");
+      } else if (j == 2) {
+        require(shipActions[0] != action && shipActions[1] != action, "ActionSystem: action already used");
+      }
+
+      // execute action
+      if (action == Action.FireRight) {
+        attack(components, shipEntity, Side.Right);
+      } else if (action == Action.FireLeft) {
+        attack(components, shipEntity, Side.Left);
+      } else if (action == Action.RaiseSail) {
+        raiseSail(components, shipEntity);
+      } else if (action == Action.LowerSail) {
+        lowerSail(components, shipEntity);
+      } else if (action == Action.ExtinguishFire) {
+        extinguishFire(components, shipEntity);
+      } else if (action == Action.RepairLeak) {
+        repairLeak(components, shipEntity);
+      } else if (action == Action.RepairMast) {
+        repairMast(components, shipEntity);
+      } else if (action == Action.RepairSail) {
+        repairSail(components, shipEntity);
+      } else {
+        revert("ActionSystem: invalid action");
+      }
+    }
+
+    // todo: apply damage to all ships every turn instead of only if they act
+    applySpecialDamage(components, shipEntity);
+  }
+
   /**
    * @notice  applies leak and damaged mast effects
    * @param   components  world components
