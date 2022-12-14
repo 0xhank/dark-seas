@@ -14,6 +14,7 @@ import { PlayerComponent, ID as PlayerComponentID } from "../components/PlayerCo
 uint256 constant ID = uint256(keccak256("ds.system.ShipSpawn"));
 import "../libraries/LibTurn.sol";
 import "../libraries/LibSpawn.sol";
+import "../libraries/LibUtils.sol";
 
 // NOTE: this contract is only used for testing and must be removed from deploy.json in prod
 contract ShipSpawnSystem is System {
@@ -25,7 +26,7 @@ contract ShipSpawnSystem is System {
     uint256 entity = world.getUniqueEntityId();
     uint256 playerEntity = addressToEntity(msg.sender);
 
-    if (!LibSpawn.playerIdExists(components, entity)) LibSpawn.createPlayerEntity(components, msg.sender);
+    if (!LibUtils.playerIdExists(components, entity)) LibSpawn.createPlayerEntity(components, msg.sender);
     LibSpawn.spawnShip(components, entity, playerEntity, location, rotation);
     uint32 turn = LibTurn.getCurrentTurn(components);
 

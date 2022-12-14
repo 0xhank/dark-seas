@@ -20,6 +20,7 @@ import { CommitSystem, ID as CommitSystemID } from "../../systems/CommitSystem.s
 import "../../libraries/LibVector.sol";
 import "../../libraries/LibCombat.sol";
 import "../../libraries/LibTurn.sol";
+import "../../libraries/LibUtils.sol";
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
 import { Side, Coord, Action, GameConfig, GodID } from "../../libraries/DSTypes.sol";
@@ -216,7 +217,7 @@ contract AttackActionTest is MudTest {
     return
       LibCombat.getHullDamage(
         LibCombat.getBaseHitChance(distance, firepower),
-        LibCombat.randomness(attackerId, defenderId)
+        LibUtils.randomness(attackerId, defenderId)
       );
   }
 

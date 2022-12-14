@@ -6,6 +6,7 @@ import "../../libraries/LibVector.sol";
 import "../MudTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
 import "../../libraries/LibCombat.sol";
+import "../../libraries/LibUtils.sol";
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
 
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
@@ -28,15 +29,15 @@ contract LibCombatTest is MudTest {
   }
 
   function testGetByteUInt() public prank(deployer) {
-    uint256 randomness = LibCombat.randomness(69, 420);
+    uint256 randomness = LibUtils.randomness(69, 420);
 
-    uint256 byteUInt = LibCombat.getByteUInt(randomness, 0, 14);
+    uint256 byteUInt = LibUtils.getByteUInt(randomness, 0, 14);
     console.log("byte (0, 1):", byteUInt);
 
-    byteUInt = LibCombat.getByteUInt(randomness, 15, 5);
+    byteUInt = LibUtils.getByteUInt(randomness, 15, 5);
     console.log("byte (5, 15):", byteUInt);
 
-    byteUInt = LibCombat.getByteUInt(randomness, 40, 20);
+    byteUInt = LibUtils.getByteUInt(randomness, 40, 20);
     console.log("byte (40, 20):", byteUInt);
   }
 

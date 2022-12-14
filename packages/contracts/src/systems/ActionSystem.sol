@@ -18,6 +18,7 @@ import { Coord, Action, Phase } from "../libraries/DSTypes.sol";
 import "../libraries/LibAction.sol";
 import "../libraries/LibTurn.sol";
 import "../libraries/LibSpawn.sol";
+import "../libraries/LibUtils.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Action"));
 
@@ -31,7 +32,7 @@ contract ActionSystem is System {
 
     uint256 playerEntity = addressToEntity(msg.sender);
 
-    require(LibSpawn.playerIdExists(components, playerEntity), "ActionSystem: player does not exist");
+    require(LibUtils.playerIdExists(components, playerEntity), "ActionSystem: player does not exist");
 
     LastActionComponent lastActionComponent = LastActionComponent(getAddressById(components, LastActionComponentID));
     require(LibTurn.getCurrentPhase(components) == Phase.Action, "ActionSystem: incorrect turn phase");
@@ -95,7 +96,7 @@ contract ActionSystem is System {
       }
 
       // todo: apply damage to all ships every turn instead of only if they act
-      LibAction.applyDamage(components, shipEntity);
+      LibAction.applySpecialDamage(components, shipEntity);
     }
   }
 

@@ -26,24 +26,9 @@ import { DamagedMastComponent, ID as DamagedMastComponentID } from "../component
 import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 
 import "./LibVector.sol";
+import "./LibUtils.sol";
 
 library LibCombat {
-  /**
-   * @notice  masks a bit string based on length and shift
-   * @param   _b  bit string to mask
-   * @param   length  length in bits of return bit string
-   * @param   shift  starting location of mask
-   * @return  _byteUInt masked bit string
-   */
-  function getByteUInt(
-    uint256 _b,
-    uint256 length,
-    uint256 shift
-  ) public pure returns (uint256 _byteUInt) {
-    uint256 mask = ((1 << length) - 1) << shift;
-    _byteUInt = (_b & mask) >> shift;
-  }
-
   /**
    * @notice overview: increases damage as your firepower increases OR distance decreases
           equation: 80 * e^(-.008 * distance) * (firepower / 100), multiplied by 100 for precision
@@ -67,7 +52,7 @@ library LibCombat {
    */
   function getHullDamage(uint256 baseHitChance, uint256 randomSeed) public pure returns (uint32) {
     // use first 14 bits for hull damage (log_2(10000) = ~13.2)
-    uint256 odds = (getByteUInt(randomSeed, 14, 0) * 10000) / 16384;
+    uint256 odds = (LibUtils.getByteUInt(randomSeed, 14, 0) * 10000) / 16384;
     if (odds <= baseHitChance) return 3;
     if (odds <= (baseHitChance * 170) / 100) return 2;
     if (odds <= (baseHitChance * 350) / 100) return 1;
@@ -84,7 +69,7 @@ library LibCombat {
   function getCrewDamage(uint256 baseHitChance, uint256 randomSeed) public pure returns (uint32) {
     // use second 14 bits for hull damage and then normalize result to 10
     // divide by 2 ** 14,
-    uint256 odds = (getByteUInt(randomSeed, 14, 14) * 10000) / 16384;
+    uint256 odds = (LibUtils.getByteUInt(randomSeed, 14, 14) * 10000) / 16384;
     if (odds <= (baseHitChance * 50) / 100) return 3;
     if (odds <= baseHitChance) return 2;
     if (odds <= (baseHitChance * 200) / 100) return 1;
@@ -107,7 +92,7 @@ library LibCombat {
     uint256 shift
   ) public view returns (bool) {
     // pre-shifted to account for hull and crew damage
-    uint256 odds = ((getByteUInt(randomSeed, 14, (shift + 2) * 14)) * 10000) / 16384;
+    uint256 odds = ((LibUtils.getByteUInt(randomSeed, 14, (shift + 2) * 14)) * 10000) / 16384;
     odds = (odds * (((damage - 1) * 10) + 100)) / 100;
 
     uint256 outcome = ((baseHitChance**2) * 5) / 10000;
@@ -160,7 +145,7 @@ library LibCombat {
     uint256 baseHitChance = getBaseHitChance(distance, firepower);
 
     // todo: make randomness more robust
-    uint256 r = randomness(attackerEntity, defenderEntity);
+    uint256 r = LibUtils.randomness(attackerEntity, defenderEntity);
 
     // perform hull and crew damage
     uint32 hullDamage = getHullDamage(baseHitChance, r);
@@ -215,16 +200,5 @@ library LibCombat {
 
     component.set(entity, value - damage);
     return false;
-  }
-
-  /**
-   * @notice simple rng calculation
-   * @dev     complexity needs to be increased in prod
-   * @param   r1  first source of randomness
-   * @param   r2  second source of randomness
-   * @return  r  random value
-   */
-  function randomness(uint256 r1, uint256 r2) public view returns (uint256 r) {
-    r = uint256(keccak256(abi.encodePacked(r1, r2, block.timestamp, block.number)));
   }
 }

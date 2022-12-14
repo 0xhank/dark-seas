@@ -27,6 +27,7 @@ import { GameConfigComponent, ID as GameConfigComponentID } from "../components/
 
 import { Coord } from "../libraries/DSTypes.sol";
 import "../libraries/LibCombat.sol";
+import "../libraries/LibUtils.sol";
 
 library LibSpawn {
   /**
@@ -37,7 +38,7 @@ library LibSpawn {
    */
   function createPlayerEntity(IUint256Component components, address playerAddress) internal returns (uint256) {
     uint256 playerEntity = addressToEntity(playerAddress);
-    uint32 playerId = uint32(getExistingPlayers(components).length + 1);
+    uint32 playerId = uint32(LibUtils.getExistingPlayers(components).length + 1);
 
     PlayerComponent(getAddressById(components, PlayerComponentID)).set(playerEntity, playerId);
 
@@ -55,8 +56,8 @@ library LibSpawn {
       .getValue(GodID)
       .worldRadius;
 
-    uint32 distance = uint32(LibCombat.getByteUInt(r, 14, 0) % (worldRadius - 70));
-    uint32 rotation = uint32(LibCombat.getByteUInt(r, 14, 14) % 360);
+    uint32 distance = uint32(LibUtils.getByteUInt(r, 14, 0) % (worldRadius - 70));
+    uint32 rotation = uint32(LibUtils.getByteUInt(r, 14, 14) % 360);
 
     Coord memory location = LibVector.getPositionByVector(Coord(0, 0), 0, distance, rotation);
 
@@ -91,7 +92,7 @@ library LibSpawn {
     Coord memory startingLocation
   ) public {
     uint256 nonce = uint256(keccak256(abi.encode(startingLocation)));
-    startingLocation = getRandomLocation(components, LibCombat.randomness(playerEntity, nonce));
+    startingLocation = getRandomLocation(components, LibUtils.randomness(playerEntity, nonce));
 
     uint32 rotation = pointKindaTowardsTheCenter(startingLocation);
     for (uint256 i = 0; i < 3; i++) {
@@ -102,44 +103,6 @@ library LibSpawn {
 
     LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 0);
     LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 0);
-  }
-
-  /**
-   * @notice  checks if a player with this id exists
-   * @param   components  world components
-   * @param   playerEntityId  player's entity Id
-   * @return  bool  does player with this Id exist?
-   */
-  function playerIdExists(IUint256Component components, uint256 playerEntityId) internal view returns (bool) {
-    PlayerComponent playerComponent = PlayerComponent(getAddressById(components, PlayerComponentID));
-    return playerComponent.has(playerEntityId);
-  }
-
-  /**
-   * @notice  checks if player with this address exists
-   * @param   components  world components
-   * @param   playerAddress  player's address
-   * @return  bool  does player with this address exist?
-   */
-  function playerAddrExists(IUint256Component components, address playerAddress) internal view returns (bool) {
-    PlayerComponent playerComponent = PlayerComponent(getAddressById(components, PlayerComponentID));
-    return playerComponent.has(addressToEntity(playerAddress));
-  }
-
-  /**
-   * @notice  get all existing players
-   * @param   components  world components
-   * @return  uint256[]  all existing players
-   */
-  function getExistingPlayers(IUint256Component components) internal view returns (uint256[] memory) {
-    QueryFragment[] memory fragments = new QueryFragment[](1);
-    fragments[0] = QueryFragment(
-      QueryType.Has,
-      PlayerComponent(getAddressById(components, PlayerComponentID)),
-      new bytes(0)
-    );
-
-    return LibQuery.query(fragments);
   }
 
   /**

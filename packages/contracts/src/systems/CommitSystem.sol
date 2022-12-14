@@ -11,6 +11,7 @@ import { CommitmentComponent, ID as CommitmentComponentID } from "../components/
 import "../libraries/LibAction.sol";
 import "../libraries/LibTurn.sol";
 import "../libraries/LibSpawn.sol";
+import "../libraries/LibUtils.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Commit"));
 
@@ -19,7 +20,7 @@ contract CommitSystem is System {
 
   function execute(bytes memory arguments) public returns (bytes memory) {
     uint256 playerEntity = addressToEntity(msg.sender);
-    require(LibSpawn.playerIdExists(components, playerEntity), "MoveSystem: player does not exist");
+    require(LibUtils.playerIdExists(components, playerEntity), "MoveSystem: player does not exist");
     require(LibTurn.getCurrentPhase(components) == Phase.Commit, "CommitSystem: incorrect turn phase");
 
     uint256 commitment = abi.decode(arguments, (uint256));

@@ -27,7 +27,7 @@ library LibAction {
    * @param   components  world components
    * @param   entity  entity to apply damage to
    */
-  function applyDamage(IUint256Component components, uint256 entity) public {
+  function applySpecialDamage(IUint256Component components, uint256 entity) public {
     LeakComponent leakComponent = LeakComponent(getAddressById(components, LeakComponentID));
     CrewCountComponent crewCountComponent = CrewCountComponent(getAddressById(components, CrewCountComponentID));
     DamagedMastComponent damagedMastComponent = DamagedMastComponent(

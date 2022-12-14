@@ -18,30 +18,6 @@ import { Side, Coord } from "../../libraries/DSTypes.sol";
 contract LibVectorTest is MudTest {
   ShipSpawnSystem shipSpawnSystem;
 
-  function testInRange() public prank(deployer) {
-    setup();
-
-    Coord memory startingPosition = Coord({ x: 0, y: 0 });
-    Coord memory endPosition = Coord({ x: 10, y: 0 });
-
-    uint32 range = 9;
-    bool inRange = LibVector.inRange(startingPosition, endPosition, range);
-    assertTrue(!inRange, "9 within range");
-
-    range = 11;
-    inRange = LibVector.inRange(startingPosition, endPosition, range);
-    assertTrue(inRange, "11 out of range");
-
-    endPosition = Coord({ x: 3, y: 6 });
-    range = 6;
-    inRange = LibVector.inRange(startingPosition, endPosition, range);
-    assertTrue(!inRange, "6 within range");
-
-    range = 7;
-    inRange = LibVector.inRange(startingPosition, endPosition, range);
-    assertTrue(inRange, "7 out of range");
-  }
-
   function testGetSternLocation() public prank(deployer) {
     setup();
 

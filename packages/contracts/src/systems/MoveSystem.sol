@@ -26,6 +26,7 @@ import "../libraries/LibVector.sol";
 import "../libraries/LibMove.sol";
 import "../libraries/LibTurn.sol";
 import "../libraries/LibSpawn.sol";
+import "../libraries/LibUtils.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Move"));
 
@@ -48,7 +49,7 @@ contract MoveSystem is System {
 
     require(entities.length == moveCardEntities.length, "MoveSystem: array length mismatch");
 
-    require(LibSpawn.playerIdExists(components, playerEntity), "MoveSystem: player does not exist");
+    require(LibUtils.playerIdExists(components, playerEntity), "MoveSystem: player does not exist");
 
     LastMoveComponent lastMoveComponent = LastMoveComponent(getAddressById(components, LastMoveComponentID));
     require(LibTurn.getCurrentPhase(components) == Phase.Reveal, "MoveSystem: incorrect turn phase");

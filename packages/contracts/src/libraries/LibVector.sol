@@ -115,23 +115,6 @@ library LibVector {
   }
 
   /**
-   * @notice  checks if distance between two points is within some range
-   * @param   a  origin
-   * @param   b  destination
-   * @param   range  point of comparison
-   * @return  bool  is the distance between a and b less than range?
-   */
-  function inRange(
-    Coord memory a,
-    Coord memory b,
-    uint32 range
-  ) public pure returns (bool) {
-    int32 distanceSquared = (a.x - b.x)**2 + (a.y - b.y)**2;
-
-    return range**2 >= uint32(distanceSquared);
-  }
-
-  /**
    * @notice  calculates distance between two points
    * @param   a  origin
    * @param   b  destination
@@ -153,7 +136,8 @@ library LibVector {
       .getValue(GodID)
       .worldRadius;
 
-    bool inRange = inRange(position, Coord(0, 0), worldRadius);
-    return inRange;
+    int32 distanceSquared = (position.x)**2 + (position.y)**2;
+
+    return worldRadius**2 >= uint32(distanceSquared);
   }
 }
