@@ -1,5 +1,5 @@
 import { EntityIndex } from "@latticexyz/recs";
-import { Sprites } from "../constants";
+import { Sprites } from "../types";
 
 export function getShipSprite(playerEntity: EntityIndex, ownerEntity: EntityIndex, health: number): Sprites {
   // return config.sprites[Sprites.ShipWhite];

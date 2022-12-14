@@ -8,7 +8,7 @@ import {
 import { Assets, Maps, Scenes, TILE_HEIGHT, TILE_WIDTH } from "./constants";
 import dsTileset from "./assets/tilesets/ds-tilesheet.png";
 import { DSTileset } from "./assets/tilesets/dsTilesheet";
-import { Sprites } from "../../constants";
+import { Sprites } from "../../types";
 const ANIMATION_INTERVAL = 200;
 
 export const phaserConfig = {
@@ -178,7 +178,7 @@ export const phaserConfig = {
     mode: Phaser.Scale.NONE,
   }),
   cameraConfig: defineCameraConfig({
-    phaserSelector: "phaser-game",
+    // phaserSelector: "phaser-game",
     pinchSpeed: 1,
     wheelSpeed: 1,
     maxZoom: 4,

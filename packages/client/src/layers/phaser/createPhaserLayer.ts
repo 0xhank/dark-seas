@@ -14,7 +14,7 @@ import { POS_HEIGHT, POS_WIDTH } from "./constants";
 import { createProjectionSystem } from "./systems/createProjectionSystem";
 import { createRadiusSystem } from "./systems/createRadiusSystem";
 import { createResetSystem } from "./systems/createResetSystem";
-import { Phase } from "../../constants";
+import { Phase } from "../../types";
 
 /**
  * The Phaser layer is responsible for rendering game objects to the screen.

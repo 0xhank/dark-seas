@@ -4,7 +4,7 @@ import { EntityIndex, getComponentValue, getComponentValueStrict } from "@lattic
 import { map, merge, of } from "rxjs";
 import { GodID } from "@latticexyz/network";
 import { BoxImage, Button, colors, Container, InternalContainer } from "../styles/global";
-import { SailPositions } from "../../../constants";
+import { SailPositions } from "../../../types";
 import styled from "styled-components";
 import HullHealth from "./OverviewComponents/HullHealth";
 import ShipAttribute from "./OverviewComponents/ShipAttribute";

@@ -17,7 +17,7 @@ import { NetworkLayer } from "../../network";
 import { RenderDepth, SHIP_RATIO } from "../constants";
 import { getShipSprite } from "../../../utils/ships";
 import { PhaserLayer } from "../types";
-import { Sprites } from "../../../constants";
+import { Sprites } from "../../../types";
 
 export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer) {
   const {
@@ -80,6 +80,7 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
     const object = objectPool.get(update.entity, "Sprite");
 
     const spriteAsset: Sprites = getShipSprite(playerEntity, ownerEntity, health);
+    // @ts-expect-error doesnt recognize a sprite as a number
     const sprite = config.sprites[spriteAsset];
     // const sprite = config.sprites[Sprites.ShipBlack];
 

@@ -8,7 +8,7 @@ import {
   Has,
   UpdateType,
 } from "@latticexyz/recs";
-import { Phase, Side } from "../../../constants";
+import { Phase, Side } from "../../../types";
 import { getWindBoost } from "../../../utils/directions";
 import { getFiringArea } from "../../../utils/trig";
 import { NetworkLayer } from "../../network";

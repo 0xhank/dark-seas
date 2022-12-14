@@ -5,7 +5,7 @@ import { GodID } from "@latticexyz/network";
 import { Coord } from "@latticexyz/utils";
 import { SelectionType, ShipAttributeTypes } from "../../../phaser/constants";
 import { arrowImg, getFinalMoveCard } from "../../../../utils/directions";
-import { ActionImg, ActionNames, MoveCard, Phase, SailPositions, Wind } from "../../../../constants";
+import { ActionImg, ActionNames, MoveCard, Phase, SailPositions, Wind } from "../../../../types";
 import styled from "styled-components";
 import ShipDamage from "../OverviewComponents/ShipDamage";
 import ShipAttribute from "../OverviewComponents/ShipAttribute";

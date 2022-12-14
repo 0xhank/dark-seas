@@ -2,7 +2,7 @@ import React from "react";
 import { registerUIComponent } from "../engine";
 import { map, merge } from "rxjs";
 import { colors } from "../styles/global";
-import { Phase, PhaseNames } from "../../../constants";
+import { Phase, PhaseNames } from "../../../types";
 import styled from "styled-components";
 import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { GodID } from "@latticexyz/network";

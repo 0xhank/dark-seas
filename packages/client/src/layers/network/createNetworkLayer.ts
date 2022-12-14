@@ -23,11 +23,11 @@ import { SystemTypes } from "../../../../contracts/types/SystemTypes";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { GameConfig, getNetworkConfig } from "./config";
 import { Coord } from "@latticexyz/utils";
-import { Action, Phase } from "../../constants";
 import { defineWindComponent } from "./components/WindComponent";
 import { defineMoveCardComponent } from "./components/MoveCardComponent";
 import { GodID } from "@latticexyz/network";
 import { keccak256, defaultAbiCoder as abi } from "ethers/lib/utils";
+import { Action, Phase } from "../../types";
 
 /**
  * The Network layer is the lowest layer in the client architecture.

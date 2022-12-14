@@ -1,6 +1,6 @@
 import { GodID } from "@latticexyz/network";
 import { defineRxSystem, EntityIndex, getComponentValue, HasValue, removeComponent, runQuery } from "@latticexyz/recs";
-import { Phase } from "../../../constants";
+import { Phase } from "../../../types";
 import { NetworkLayer } from "../../network";
 import { PhaserLayer } from "../types";
 

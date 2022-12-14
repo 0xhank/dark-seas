@@ -1,4 +1,4 @@
-import { MoveCard, SailPositions, Wind } from "../constants";
+import { MoveCard, SailPositions, Wind } from "../types";
 import { Coord, random } from "@latticexyz/utils";
 import { getPositionByVector } from "./trig";
 import { Arrows } from "../layers/phaser/constants";

@@ -13,7 +13,7 @@ import { GodID } from "@latticexyz/network";
 import { Arrows, SelectionType } from "../../phaser/constants";
 import { Container, Button, ConfirmButton, InternalContainer } from "../styles/global";
 import { arrowImg, getFinalMoveCard, getFinalPosition } from "../../../utils/directions";
-import { Action, ActionImg, ActionNames, MoveCard, Phase } from "../../../constants";
+import { Action, ActionImg, ActionNames, MoveCard, Phase } from "../../../types";
 import styled from "styled-components";
 import { inRange } from "../../../utils/distance";
 

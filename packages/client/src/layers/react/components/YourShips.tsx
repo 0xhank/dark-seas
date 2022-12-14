@@ -15,7 +15,7 @@ import {
 import { map, merge } from "rxjs";
 import { GodID } from "@latticexyz/network";
 import { Container, Button, ConfirmButton, InternalContainer, colors, BoxImage } from "../styles/global";
-import { Action, Phase } from "../../../constants";
+import { Action, Phase } from "../../../types";
 import styled from "styled-components";
 import { YourShip } from "./YourShips/ShipData";
 import { keccak256, defaultAbiCoder as abi } from "ethers/lib/utils";

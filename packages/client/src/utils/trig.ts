@@ -1,5 +1,5 @@
 import { Coord } from "@latticexyz/utils";
-import { Line, Side } from "../constants";
+import { Side } from "../types";
 
 export const deg2rad = (degrees: number) => degrees * (Math.PI / 180);
 
