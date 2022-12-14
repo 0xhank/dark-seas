@@ -26,6 +26,7 @@ contract PlayerSpawnSystem is System {
     (string memory name, Coord memory location) = abi.decode(arguments, (string, Coord));
     require(bytes(name).length > 0, "PlayerSpawnSystem: name is blank");
 
+    // create entity for player and name it
     uint256 playerEntity = LibSpawn.createPlayerEntity(components, msg.sender);
     NameComponent(getAddressById(components, NameComponentID)).set(playerEntity, name);
 

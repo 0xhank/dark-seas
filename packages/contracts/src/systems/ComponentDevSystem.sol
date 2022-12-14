@@ -8,12 +8,9 @@ import { getAddressById } from "solecs/utils.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.ComponentDev"));
 
+// NOTE: this contract is only used for testing and must be removed from deploy.json in prod
 contract ComponentDevSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
-
-  function requirement(bytes memory) public view returns (bytes memory) {
-    // NOTE: Make sure to not include this system in a production deployment, as anyone can change all component values
-  }
 
   function execute(bytes memory arguments) public returns (bytes memory) {
     (uint256 componentId, uint256 entity, bytes memory value) = abi.decode(arguments, (uint256, uint256, bytes));

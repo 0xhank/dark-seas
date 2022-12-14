@@ -22,6 +22,11 @@ import "./LibUtils.sol";
 import "./LibVector.sol";
 
 library LibAction {
+  /**
+   * @notice  applies leak and damaged mast effects
+   * @param   components  world components
+   * @param   entity  entity to apply damage to
+   */
   function applyDamage(IUint256Component components, uint256 entity) public {
     LeakComponent leakComponent = LeakComponent(getAddressById(components, LeakComponentID));
     CrewCountComponent crewCountComponent = CrewCountComponent(getAddressById(components, CrewCountComponentID));
@@ -30,12 +35,14 @@ library LibAction {
     );
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
 
+    // if ship is leaking, reduce crew count by 1
     if (leakComponent.has(entity)) {
       uint32 crewCount = crewCountComponent.getValue(entity);
       if (crewCount <= 1) crewCountComponent.set(entity, 0);
       else crewCountComponent.set(entity, crewCount - 1);
     }
 
+    // if ship has a damaged mast, reduce hull health by 1
     if (damagedMastComponent.has(entity)) {
       uint32 health = healthComponent.getValue(entity);
       if (health <= 1) healthComponent.set(entity, 0);
@@ -43,6 +50,13 @@ library LibAction {
     }
   }
 
+  /**
+   * @notice  attacks all enemies on given side of ship
+   * @dev     todo: i plan to change this to reqiure inclusion of both an attacker and defender, saving gas and improving ux
+   * @param   components  world components
+   * @param   entity  entity performing an attack
+   * @param   side  side of ship to attack on
+   */
   function attack(
     IUint256Component components,
     uint256 entity,
@@ -51,11 +65,15 @@ library LibAction {
     if (OnFireComponent(getAddressById(components, OnFireComponentID)).has(entity)) return;
     OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
 
+    // get firing area of ship
     Coord[4] memory firingRange = LibCombat.getFiringArea(components, entity, side);
 
     (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
     uint256 owner = ownedByComponent.getValue(entity);
+
+    // iterate through each ship, checking if it can be fired on
+    // 1. is not the current ship, 2. is not owned by attacker, 3. is within firing range
     for (uint256 i = 0; i < shipEntities.length; i++) {
       if (shipEntities[i] == entity) continue;
       if (owner == ownedByComponent.getValue(shipEntities[i])) continue;
@@ -70,6 +88,11 @@ library LibAction {
     }
   }
 
+  /**
+   * @notice  raises sail if less than full sail
+   * @param   components  world components
+   * @param   entity  entity of which to raise sail
+   */
   function raiseSail(IUint256Component components, uint256 entity) public {
     SailPositionComponent sailPositionComponent = SailPositionComponent(
       getAddressById(components, SailPositionComponentID)
@@ -82,6 +105,11 @@ library LibAction {
     sailPositionComponent.set(entity, currentSailPosition + 1);
   }
 
+  /**
+   * @notice  lowers sail if sail higher than closed
+   * @param   components  world components
+   * @param   entity  entity of which to lower sail
+   */
   function lowerSail(IUint256Component components, uint256 entity) public {
     SailPositionComponent sailPositionComponent = SailPositionComponent(
       getAddressById(components, SailPositionComponentID)
@@ -94,15 +122,27 @@ library LibAction {
     sailPositionComponent.set(entity, currentSailPosition - 1);
   }
 
+  /**
+   * @notice  extinguishes fire on ship
+   * @param   components  world components
+   * @param   entity  ship to extinguish
+   */
   function extinguishFire(IUint256Component components, uint256 entity) public {
     OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
 
     if (!onFireComponent.has(entity)) return;
     uint32 fireAmount = onFireComponent.getValue(entity);
+
+    // it takes two actions to remove a fire from a ship
     if (fireAmount <= 1) onFireComponent.remove(entity);
     else onFireComponent.set(entity, fireAmount - 1);
   }
 
+  /**
+   * @notice  repairs leak on ship
+   * @param   components  world components
+   * @param   entity  ship to repair
+   */
   function repairLeak(IUint256Component components, uint256 entity) public {
     LeakComponent leakComponent = LeakComponent(getAddressById(components, LeakComponentID));
 
@@ -111,6 +151,11 @@ library LibAction {
     leakComponent.remove(entity);
   }
 
+  /**
+   * @notice  repairs mast on ship
+   * @param   components  world components
+   * @param   entity  ship to repair
+   */
   function repairMast(IUint256Component components, uint256 entity) public {
     DamagedMastComponent damagedMastComponent = DamagedMastComponent(
       getAddressById(components, DamagedMastComponentID)
@@ -118,10 +163,18 @@ library LibAction {
 
     if (!damagedMastComponent.has(entity)) return;
     uint32 mastDamage = damagedMastComponent.getValue(entity);
+
+    // it takes two actions to repair a ship's mast from a ship
+
     if (mastDamage <= 1) damagedMastComponent.remove(entity);
     else damagedMastComponent.set(entity, mastDamage - 1);
   }
 
+  /**
+   * @notice  repairs sail on a ship
+   * @param   components  world components
+   * @param   entity  ship to repair
+   */
   function repairSail(IUint256Component components, uint256 entity) public {
     SailPositionComponent sailPositionComponent = SailPositionComponent(
       getAddressById(components, SailPositionComponentID)
@@ -130,6 +183,7 @@ library LibAction {
     if (!sailPositionComponent.has(entity)) return;
     if (sailPositionComponent.getValue(entity) != 0) return;
 
+    // sets the sail position back to 1
     sailPositionComponent.set(entity, 1);
   }
 }

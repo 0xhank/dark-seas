@@ -52,6 +52,6 @@ contract InitSystem is System {
 
     moveCardComponent.set(moveEntity5, MoveCard({ direction: 333, distance: 25, rotation: 315 }));
 
-    windComponent.set(GodID, Wind(10, 90));
+    windComponent.set(GodID, Wind(5, 35));
   }
 }

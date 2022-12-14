@@ -43,6 +43,7 @@ contract ActionSystem is System {
     );
     lastActionComponent.set(playerEntity, currentTurn);
 
+    // iterate through each ship
     for (uint256 i = 0; i < entities.length; i++) {
       Action[] memory shipActions = actions[i];
       uint256 shipEntity = entities[i];
@@ -60,15 +61,18 @@ contract ActionSystem is System {
         "ActionSystem: Entity must be a ship"
       );
 
+      // iterate through each action of each ship
       for (uint256 j = 0; j < shipActions.length; j++) {
         Action action = shipActions[j];
 
+        // ensure action hasn't already been made
         if (j == 1) {
           require(shipActions[0] != action, "ActionSystem: action already used");
         } else if (j == 2) {
           require(shipActions[0] != action && shipActions[1] != action, "ActionSystem: action already used");
         }
 
+        // execute action
         if (action == Action.FireRight) {
           LibAction.attack(components, shipEntity, Side.Right);
         } else if (action == Action.FireLeft) {

@@ -62,6 +62,7 @@ contract MoveSystem is System {
 
     Wind memory wind = WindComponent(getAddressById(components, WindComponentID)).getValue(GodID);
 
+    // iterate through each ship entity
     for (uint256 i = 0; i < entities.length; i++) {
       uint256 moveCardEntity = moveCardEntities[i];
       uint256 entity = entities[i];

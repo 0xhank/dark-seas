@@ -29,6 +29,12 @@ import { Coord } from "../libraries/DSTypes.sol";
 import "../libraries/LibCombat.sol";
 
 library LibSpawn {
+  /**
+   * @notice  create and return an entityId corresponding to a player's address
+   * @param   components  world components
+   * @param   playerAddress  player address
+   * @return  uint256  player entity Id
+   */
   function createPlayerEntity(IUint256Component components, address playerAddress) internal returns (uint256) {
     uint256 playerEntity = addressToEntity(playerAddress);
     uint32 playerId = uint32(getExistingPlayers(components).length + 1);
@@ -38,6 +44,12 @@ library LibSpawn {
     return playerEntity;
   }
 
+  /**
+   * @notice  generates a random location using random seed
+   * @param   components  world components
+   * @param   r  random seed
+   * @return  Coord  randomly generated location
+   */
   function getRandomLocation(IUint256Component components, uint256 r) public view returns (Coord memory) {
     uint256 worldRadius = GameConfigComponent(getAddressById(components, GameConfigComponentID))
       .getValue(GodID)
@@ -51,6 +63,11 @@ library LibSpawn {
     return location;
   }
 
+  /**
+   * @notice  points ships kinda towards the center of the map based on their location
+   * @param   a  coordinate of ship
+   * @return  uint32  direction to face
+   */
   function pointKindaTowardsTheCenter(Coord memory a) public pure returns (uint32) {
     if (a.x >= 0 && a.y >= 0) return 235;
     if (a.x < 0 && a.y >= 0) return 315;
@@ -60,6 +77,13 @@ library LibSpawn {
     return 135;
   }
 
+  /**
+   * @notice  spawns three ships for player next to each other
+   * @param   world  world in question
+   * @param   components  world components
+   * @param   playerEntity  player's entity id
+   * @param   startingLocation location at which to spawn (currently used as source of randomness hehe)
+   */
   function spawn(
     IWorld world,
     IUint256Component components,
@@ -80,16 +104,33 @@ library LibSpawn {
     LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 0);
   }
 
+  /**
+   * @notice  checks if a player with this id exists
+   * @param   components  world components
+   * @param   playerEntityId  player's entity Id
+   * @return  bool  does player with this Id exist?
+   */
   function playerIdExists(IUint256Component components, uint256 playerEntityId) internal view returns (bool) {
     PlayerComponent playerComponent = PlayerComponent(getAddressById(components, PlayerComponentID));
     return playerComponent.has(playerEntityId);
   }
 
+  /**
+   * @notice  checks if player with this address exists
+   * @param   components  world components
+   * @param   playerAddress  player's address
+   * @return  bool  does player with this address exist?
+   */
   function playerAddrExists(IUint256Component components, address playerAddress) internal view returns (bool) {
     PlayerComponent playerComponent = PlayerComponent(getAddressById(components, PlayerComponentID));
     return playerComponent.has(addressToEntity(playerAddress));
   }
 
+  /**
+   * @notice  get all existing players
+   * @param   components  world components
+   * @return  uint256[]  all existing players
+   */
   function getExistingPlayers(IUint256Component components) internal view returns (uint256[] memory) {
     QueryFragment[] memory fragments = new QueryFragment[](1);
     fragments[0] = QueryFragment(
@@ -101,6 +142,15 @@ library LibSpawn {
     return LibQuery.query(fragments);
   }
 
+  /**
+   * @notice  spawns a basic ship type
+   * @dev todo: move this to shipPrototype and create a couple options for ships
+   * @param   components  creates a ship
+   * @param   entity  entity id of ship
+   * @param   playerEntity  entity id of ship's owner
+   * @param   location  starting location of ship
+   * @param   rotation  starting rotation of ship
+   */
   function spawnShip(
     IUint256Component components,
     uint256 entity,

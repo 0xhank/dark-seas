@@ -28,6 +28,12 @@ import { console } from "forge-std/console.sol";
 import "trig/src/Trigonometry.sol";
 
 library LibMove {
+  /**
+   * @notice  calculates boost from wind
+   * @param   wind  current wind direction and intensity
+   * @param   rotation  of selected ship
+   * @return  int32  effect of wind
+   */
   function windBoost(Wind memory wind, uint32 rotation) public pure returns (int32) {
     uint32 rotationDiff = wind.direction > rotation ? wind.direction - rotation : rotation - wind.direction;
     int32 windSpeed = int32(wind.speed);
@@ -36,16 +42,29 @@ library LibMove {
     return 0;
   }
 
+  /**
+   * @notice  calculates modified move card based on wind
+   * @dev  if boost is 0, +-0% else if 10, +- 25% else if 20 , +-50%
+   * @param   moveCard  original move card
+   * @param   rotation  of selected ship
+   * @param   wind  current wind direction and intensity
+   * @return  MoveCard  updated move card
+   */
   function getMoveWithWind(
     MoveCard memory moveCard,
     uint32 rotation,
     Wind memory wind
   ) public pure returns (MoveCard memory) {
-    // if 0, +-0% if 10, +- 25% if 20 , +-50%
     int32 windBoost = (windBoost(wind, rotation) * 100) / 40;
     return getMoveWithBuff(moveCard, uint32(windBoost + 100));
   }
 
+  /**
+   * @notice  calculates modified move card based on sail position
+   * @param   moveCard  original move card
+   * @param   sailPosition ship's current sail position
+   * @return  MoveCard  updated move card
+   */
   function getMoveWithSails(MoveCard memory moveCard, uint32 sailPosition) public pure returns (MoveCard memory) {
     if (sailPosition == 3) {
       return getMoveWithBuff(moveCard, 100);
@@ -62,6 +81,12 @@ library LibMove {
     return MoveCard(0, 0, 0);
   }
 
+  /**
+   * @notice  calculates updated move data based on card
+   * @param   moveCard  original card
+   * @param   buff  update to apply
+   * @return  MoveCard  updated move card
+   */
   function getMoveWithBuff(MoveCard memory moveCard, uint32 buff) public pure returns (MoveCard memory) {
     if (buff == 100) return moveCard;
     if (buff == 0) return MoveCard(0, 0, 0);
@@ -82,6 +107,14 @@ library LibMove {
     return moveCard;
   }
 
+  /**
+   * @notice  moves a ship
+   * @param   components  world components
+   * @param   entity  to move
+   * @param   playerEntity  owner of ship
+   * @param   moveCardEntity  move to apply
+   * @param   wind  direction and intensity of wind
+   */
   function moveShip(
     IUint256Component components,
     uint256 entity,
@@ -114,6 +147,7 @@ library LibMove {
       "MoveSystem: invalid ship entity id"
     );
 
+    // calculate move card with wind and sail modifiers
     MoveCard memory moveCard = moveCardComponent.getValue(moveCardEntity);
 
     Coord memory position = positionComponent.getValue(entity);

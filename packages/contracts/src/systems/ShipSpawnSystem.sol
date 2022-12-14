@@ -15,6 +15,7 @@ uint256 constant ID = uint256(keccak256("ds.system.ShipSpawn"));
 import "../libraries/LibTurn.sol";
 import "../libraries/LibSpawn.sol";
 
+// NOTE: this contract is only used for testing and must be removed from deploy.json in prod
 contract ShipSpawnSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
