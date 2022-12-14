@@ -12,14 +12,9 @@ import { Side, Coord } from "../../libraries/DSTypes.sol";
 
 // Libraries
 import "../../libraries/LibVector.sol";
-import "../../libraries/LibCombat.sol";
 
 contract LibVectorTest is MudTest {
-  ShipSpawnSystem shipSpawnSystem;
-
   function testGetSternLocation() public prank(deployer) {
-    setup();
-
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 rotation = 45;
     uint32 length = 50;
@@ -31,11 +26,9 @@ contract LibVectorTest is MudTest {
   }
 
   function testGetShipBowAndSternLocation() public prank(deployer) {
-    setup();
-
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
-    uint256 shipEntity = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
+    uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, startingRotation);
 
     (Coord memory bow, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntity);
 
@@ -44,28 +37,7 @@ contract LibVectorTest is MudTest {
     assertCoordEq(stern, expectedStern);
   }
 
-  function testFiringArea() public prank(deployer) {
-    setup();
-
-    Coord memory startingPosition = Coord({ x: 0, y: 0 });
-
-    uint256 shipEntity = shipSpawnSystem.executeTyped(startingPosition, 0);
-
-    Coord[4] memory firingArea = LibCombat.getFiringArea(components, shipEntity, Side.Right);
-
-    Coord memory stern = Coord({ x: -9, y: 0 });
-    Coord memory bottomCorner = Coord({ x: 8, y: 49 });
-    Coord memory topCorner = Coord({ x: -17, y: 49 });
-
-    assertCoordEq(startingPosition, firingArea[0]);
-    assertCoordEq(stern, firingArea[1]);
-    assertCoordEq(topCorner, firingArea[2]);
-    assertCoordEq(bottomCorner, firingArea[3]);
-  }
-
   function testInsidePolygon() public prank(deployer) {
-    setup();
-
     Coord[4] memory polygon = [
       Coord({ x: 0, y: 0 }),
       Coord({ x: 0, y: 10 }),
@@ -152,9 +124,5 @@ contract LibVectorTest is MudTest {
     uint256 initialGas = gasleft();
     LibVector.distance(a, b);
     console.log("sqrt gas used:", initialGas - gasleft());
-  }
-
-  function setup() internal {
-    shipSpawnSystem = ShipSpawnSystem(system(ShipSpawnSystemID));
   }
 }

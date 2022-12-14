@@ -4,6 +4,14 @@ pragma solidity >=0.8.0;
 // External
 import "../MudTest.t.sol";
 
+// Systems
+import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
+
+// Components
+import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
+import { LengthComponent, ID as LengthComponentID } from "../../components/LengthComponent.sol";
+import { RangeComponent, ID as RangeComponentID } from "../../components/RangeComponent.sol";
+
 // Libraries
 import "../../libraries/LibCombat.sol";
 import "../../libraries/LibUtils.sol";
@@ -75,5 +83,26 @@ contract LibCombatTest is MudTest {
 
     assertTrue(LibCombat.getSpecialChance(baseHitChance, 1, tru, 1), "special 1 failed");
     assertTrue(!LibCombat.getSpecialChance(baseHitChance, 1, fals, 1), "special 1 failed");
+  }
+
+  function testFiringArea() public prank(deployer) {
+    Coord memory startingPosition = Coord({ x: 0, y: 0 });
+
+    uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, 0);
+
+    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
+    uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
+    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(shipEntity);
+
+    Coord[4] memory firingArea = LibCombat.getFiringArea(components, shipEntity, Side.Right);
+
+    Coord memory stern = LibVector.getSternLocation(startingPosition, rotation, length);
+    Coord memory bottomCorner = LibVector.getPositionByVector(stern, rotation, range, 100);
+    Coord memory topCorner = LibVector.getPositionByVector(startingPosition, rotation, range, 80);
+
+    assertCoordEq(startingPosition, firingArea[0]);
+    assertCoordEq(stern, firingArea[1]);
+    assertCoordEq(bottomCorner, firingArea[2]);
+    assertCoordEq(topCorner, firingArea[3]);
   }
 }
