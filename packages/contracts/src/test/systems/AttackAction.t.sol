@@ -2,40 +2,31 @@
 pragma solidity >=0.8.0;
 
 // External
-
-// Components
-import { PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
-import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
-import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
-import { RangeComponent, ID as RangeComponentID } from "../../components/RangeComponent.sol";
-import { FirepowerComponent, ID as FirepowerComponentID } from "../../components/FirepowerComponent.sol";
-import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
+import "../MudTest.t.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
 import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
 import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.sol";
 import { CommitSystem, ID as CommitSystemID } from "../../systems/CommitSystem.sol";
-// Internal
+
+// Components
+import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
+import { FirepowerComponent, ID as FirepowerComponentID } from "../../components/FirepowerComponent.sol";
+
+// Libraries
 import "../../libraries/LibVector.sol";
 import "../../libraries/LibCombat.sol";
 import "../../libraries/LibTurn.sol";
 import "../../libraries/LibUtils.sol";
-import "../MudTest.t.sol";
-import { addressToEntity } from "solecs/utils.sol";
-import { Side, Coord, Action, GameConfig, GodID } from "../../libraries/DSTypes.sol";
+
+import { Side, Coord, Action } from "../../libraries/DSTypes.sol";
 
 contract AttackActionTest is MudTest {
-  uint256 entityId;
-  PositionComponent positionComponent;
-  RotationComponent rotationComponent;
-  GameConfig gameConfig;
   ActionSystem actionSystem;
   ShipSpawnSystem shipSpawnSystem;
   CommitSystem commitSystem;
   MoveSystem moveSystem;
-
-  uint256 blocktimestamp = 1;
 
   uint256[] shipEntities = new uint256[](0);
   uint256[] moveEntities = new uint256[](0);
@@ -190,12 +181,6 @@ contract AttackActionTest is MudTest {
     actionSystem = ActionSystem(system(ActionSystemID));
     commitSystem = CommitSystem(system(CommitSystemID));
     moveSystem = MoveSystem(system(MoveSystemID));
-    entityId = addressToEntity(deployer);
-
-    gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID);
-
-    positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
-    rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
   }
 
   function expectedHealthDecrease(
@@ -204,7 +189,9 @@ contract AttackActionTest is MudTest {
     Side side
   ) public view returns (uint32) {
     uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(attackerId);
-    Coord memory attackerPosition = positionComponent.getValue(attackerId);
+    Coord memory attackerPosition = PositionComponent(getAddressById(components, PositionComponentID)).getValue(
+      attackerId
+    );
     (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, defenderId);
     Coord[4] memory firingRange = LibCombat.getFiringArea(components, attackerId, side);
 

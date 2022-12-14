@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
 
+// External
 import { getAddressById } from "solecs/utils.sol";
 import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 
-import { Coord, Wind, Side, MoveCard, Action } from "../libraries/DSTypes.sol";
+// Components
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
 import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireComponent.sol";
 import { LeakComponent, ID as LeakComponentID } from "../components/LeakComponent.sol";
@@ -14,9 +15,10 @@ import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedB
 import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 
-import { console } from "forge-std/console.sol";
+// Types
+import { Coord, Side, Action } from "../libraries/DSTypes.sol";
 
-import "trig/src/Trigonometry.sol";
+// Libraries
 import "./LibCombat.sol";
 import "./LibUtils.sol";
 import "./LibVector.sol";

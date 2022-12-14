@@ -1,19 +1,18 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
 
-// Components
-import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
+// External
+import "../MudTest.t.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
-import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
 
-// Internal
+// Types
+import { Side, Coord } from "../../libraries/DSTypes.sol";
+
+// Libraries
 import "../../libraries/LibVector.sol";
 import "../../libraries/LibCombat.sol";
-import "../MudTest.t.sol";
-import { addressToEntity } from "solecs/utils.sol";
-import { Side, Coord } from "../../libraries/DSTypes.sol";
 
 contract LibVectorTest is MudTest {
   ShipSpawnSystem shipSpawnSystem;

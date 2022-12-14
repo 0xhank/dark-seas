@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import { World, WorldQueryFragment } from "solecs/World.sol";
+
+// External
 import { QueryFragment, QueryType, LibQuery } from "solecs/LibQuery.sol";
 import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 import { getAddressById, addressToEntity } from "solecs/utils.sol";
 import { IComponent } from "solecs/interfaces/IComponent.sol";
-import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
-import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
+
+// Components
 import { PlayerComponent, ID as PlayerComponentID } from "../components/PlayerComponent.sol";
 
 library LibUtils {

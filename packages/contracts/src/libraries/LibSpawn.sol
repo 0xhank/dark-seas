@@ -1,18 +1,16 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
 
-import { QueryFragment, QueryType } from "solecs/interfaces/Query.sol";
-import { LibQuery } from "solecs/LibQuery.sol";
+// External
 import { IWorld } from "solecs/interfaces/IWorld.sol";
-
 import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 import { getAddressById, addressToEntity } from "solecs/utils.sol";
 
+// Components
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { PlayerComponent, ID as PlayerComponentID } from "../components/PlayerComponent.sol";
 import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
-
-import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
+import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
 import { RangeComponent, ID as RangeComponentID } from "../components/RangeComponent.sol";
@@ -21,13 +19,15 @@ import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponen
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 import { FirepowerComponent, ID as FirepowerComponentID } from "../components/FirepowerComponent.sol";
-import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
-import { Coord } from "../libraries/DSTypes.sol";
-import "../libraries/LibCombat.sol";
+// Types
+import { Coord, GodID } from "../libraries/DSTypes.sol";
+
+// Libraries
 import "../libraries/LibUtils.sol";
+import "../libraries/LibVector.sol";
 
 library LibSpawn {
   /**

@@ -4,20 +4,17 @@ pragma solidity >=0.8.0;
 // External
 import "solecs/System.sol";
 import { IWorld } from "solecs/interfaces/IWorld.sol";
-import { getAddressById, getSystemAddressById, addressToEntity } from "solecs/utils.sol";
+import { getAddressById, addressToEntity } from "solecs/utils.sol";
 
 // Components
-import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
-import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
-import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
-import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 
-import { Coord, Action, Phase } from "../libraries/DSTypes.sol";
+// Types
+import { Action, Phase } from "../libraries/DSTypes.sol";
 
+// Libraries
 import "../libraries/LibAction.sol";
 import "../libraries/LibTurn.sol";
-import "../libraries/LibSpawn.sol";
 import "../libraries/LibUtils.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Action"));

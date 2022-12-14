@@ -1,17 +1,13 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
 
-// Internal
-import "../../libraries/LibVector.sol";
-import "../MudTest.t.sol";
+// External
 import { addressToEntity } from "solecs/utils.sol";
+import "../MudTest.t.sol";
+
+// Libraries
 import "../../libraries/LibCombat.sol";
 import "../../libraries/LibUtils.sol";
-import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
-
-import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
-import { CrewCountComponent, ID as CrewCountComponentID } from "../../components/CrewCountComponent.sol";
-import { Coord } from "../../libraries/DSTypes.sol";
 
 contract LibCombatTest is MudTest {
   function testGetBaseHitChance() public prank(deployer) {

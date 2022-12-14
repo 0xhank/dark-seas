@@ -2,17 +2,8 @@
 pragma solidity >=0.8.0;
 
 // External
-
-// Components
-import { Coord, PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
-import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
-import { WindComponent, ID as WindComponentID } from "../../components/WindComponent.sol";
-import { MoveCardComponent, ID as MoveCardComponentID } from "../../components/MoveCardComponent.sol";
-import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
-import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/ComponentDevSystem.sol";
-import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
-import { CrewCountComponent, ID as CrewCountComponentID } from "../../components/CrewCountComponent.sol";
-import { CommitmentComponent, ID as CommitmentComponentID } from "../../components/CommitmentComponent.sol";
+import "../MudTest.t.sol";
+import { addressToEntity } from "solecs/utils.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
@@ -20,22 +11,31 @@ import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
 import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.sol";
 import { CommitSystem, ID as CommitSystemID } from "../../systems/CommitSystem.sol";
 
-// Internal
-import "../MudTest.t.sol";
-import { addressToEntity } from "solecs/utils.sol";
-import { Wind, GodID, MoveCard, Action } from "../../libraries/DSTypes.sol";
+// Components
+import { PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
+import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
+import { WindComponent, ID as WindComponentID } from "../../components/WindComponent.sol";
+import { MoveCardComponent, ID as MoveCardComponentID } from "../../components/MoveCardComponent.sol";
+import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
+import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/ComponentDevSystem.sol";
+import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
+import { CrewCountComponent, ID as CrewCountComponentID } from "../../components/CrewCountComponent.sol";
 
+// Types
+import { Wind, GodID, MoveCard, Action, Coord } from "../../libraries/DSTypes.sol";
+
+// Libraries
 import "../../libraries/LibMove.sol";
 import "../../libraries/LibTurn.sol";
 
 contract MoveSystemTest is MudTest {
-  uint256 entityId;
   Wind wind;
 
   PositionComponent positionComponent;
   RotationComponent rotationComponent;
   MoveCardComponent moveCardComponent;
   WindComponent windComponent;
+  SailPositionComponent sailPositionComponent;
 
   MoveSystem moveSystem;
   CommitSystem commitSystem;
@@ -226,10 +226,7 @@ contract MoveSystemTest is MudTest {
 
     moveCard = LibMove.getMoveWithWind(moveCard, rotation, wind);
 
-    moveCard = LibMove.getMoveWithSails(
-      moveCard,
-      SailPositionComponent(getAddressById(components, SailPositionComponentID)).getValue(shipEntityId)
-    );
+    moveCard = LibMove.getMoveWithSails(moveCard, sailPositionComponent.getValue(shipEntityId));
 
     Coord memory expectedPosition = LibVector.getPositionByVector(
       position,
@@ -266,10 +263,7 @@ contract MoveSystemTest is MudTest {
 
     moveCard = LibMove.getMoveWithWind(moveCard, rotation, wind);
 
-    moveCard = LibMove.getMoveWithSails(
-      moveCard,
-      SailPositionComponent(getAddressById(components, SailPositionComponentID)).getValue(shipEntityId)
-    );
+    moveCard = LibMove.getMoveWithSails(moveCard, sailPositionComponent.getValue(shipEntityId));
 
     Coord memory expectedPosition = LibVector.getPositionByVector(
       position,
@@ -306,10 +300,7 @@ contract MoveSystemTest is MudTest {
 
     moveCard = LibMove.getMoveWithWind(moveCard, rotation, wind);
 
-    moveCard = LibMove.getMoveWithSails(
-      moveCard,
-      SailPositionComponent(getAddressById(components, SailPositionComponentID)).getValue(shipEntityId)
-    );
+    moveCard = LibMove.getMoveWithSails(moveCard, sailPositionComponent.getValue(shipEntityId));
 
     Coord memory expectedPosition = LibVector.getPositionByVector(
       position,
@@ -420,10 +411,7 @@ contract MoveSystemTest is MudTest {
 
     moveCard = LibMove.getMoveWithWind(moveCard, rotation, wind);
 
-    moveCard = LibMove.getMoveWithSails(
-      moveCard,
-      SailPositionComponent(getAddressById(components, SailPositionComponentID)).getValue(shipEntityId)
-    );
+    moveCard = LibMove.getMoveWithSails(moveCard, sailPositionComponent.getValue(shipEntityId));
 
     Coord memory expectedPosition = LibVector.getPositionByVector(
       position,
@@ -474,10 +462,7 @@ contract MoveSystemTest is MudTest {
 
     moveCard = LibMove.getMoveWithWind(moveCard, rotation, wind);
 
-    moveCard = LibMove.getMoveWithSails(
-      moveCard,
-      SailPositionComponent(getAddressById(components, SailPositionComponentID)).getValue(shipEntityId)
-    );
+    moveCard = LibMove.getMoveWithSails(moveCard, sailPositionComponent.getValue(shipEntityId));
 
     Coord memory expectedPosition = LibVector.getPositionByVector(
       position,
@@ -500,10 +485,10 @@ contract MoveSystemTest is MudTest {
     moveSystem = MoveSystem(system(MoveSystemID));
     commitSystem = CommitSystem(system(CommitSystemID));
     actionSystem = ActionSystem(system(ActionSystemID));
-    entityId = addressToEntity(deployer);
     positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
     rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
     moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
+    sailPositionComponent = SailPositionComponent(getAddressById(components, SailPositionComponentID));
     wind = WindComponent(getAddressById(components, WindComponentID)).getValue(GodID);
   }
 

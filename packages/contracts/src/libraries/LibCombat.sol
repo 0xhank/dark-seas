@@ -1,18 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import { World, WorldQueryFragment } from "solecs/World.sol";
-import { QueryFragment, QueryType, LibQuery } from "solecs/LibQuery.sol";
+
+// External
 import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 import { getAddressById } from "solecs/utils.sol";
-import { IComponent } from "solecs/interfaces/IComponent.sol";
-import { ABDKMath64x64 as Math } from "./ABDKMath64x64.sol";
-
-import { console } from "forge-std/console.sol";
-import { Side, Coord } from "../libraries/DSTypes.sol";
-
 import "std-contracts/components/Uint32Component.sol";
-import "std-contracts/components/BoolComponent.sol";
 
+// Components
 import { RangeComponent, ID as RangeComponentID } from "../components/RangeComponent.sol";
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
@@ -25,8 +19,13 @@ import { SailPositionComponent, ID as SailPositionComponentID } from "../compone
 import { DamagedMastComponent, ID as DamagedMastComponentID } from "../components/DamagedMastComponent.sol";
 import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 
+// Types
+import { Side, Coord } from "../libraries/DSTypes.sol";
+
+// Libraries
 import "./LibVector.sol";
 import "./LibUtils.sol";
+import { ABDKMath64x64 as Math } from "./ABDKMath64x64.sol";
 
 library LibCombat {
   /**
@@ -169,7 +168,7 @@ library LibCombat {
       DamagedMastComponent(getAddressById(components, DamagedMastComponentID)).set(defenderEntity, 2);
     }
     if (getSpecialChance(baseHitChance, hullDamage, r, 2)) {
-      SailPositionComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity, 0);
+      SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(defenderEntity, 0);
     }
   }
 
@@ -192,7 +191,6 @@ library LibCombat {
     Uint32Component component = Uint32Component(getAddressById(components, componentID));
     uint32 value = component.getValue(entity);
 
-    console.log("value:", value);
     if (value <= damage) {
       component.set(entity, 0);
       return true;

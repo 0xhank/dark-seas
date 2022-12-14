@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
+
+// External
 import "solecs/System.sol";
+import { getAddressById } from "solecs/utils.sol";
 
-import { getAddressById, addressToEntity, getSystemAddressById } from "solecs/utils.sol";
+// Components
+import { NameComponent, ID as NameComponentID } from "../components/NameComponent.sol";
 
+// Types
+import { Coord } from "../libraries/DSTypes.sol";
+
+// Libraries
 import "../libraries/LibUtils.sol";
 import "../libraries/LibSpawn.sol";
-
-import { GameConfig, GodID, Coord } from "../libraries/DSTypes.sol";
-
-import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
-import { PlayerComponent, ID as PlayerComponentID } from "../components/PlayerComponent.sol";
-import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
-import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
-import { NameComponent, ID as NameComponentID } from "../components/NameComponent.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.PlayerSpawn"));
 

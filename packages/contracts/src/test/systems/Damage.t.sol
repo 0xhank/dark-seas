@@ -2,6 +2,14 @@
 pragma solidity >=0.8.0;
 
 // External
+import "../MudTest.t.sol";
+
+// Systems
+import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
+import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.sol";
+import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
+import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/ComponentDevSystem.sol";
+import { CommitSystem, ID as CommitSystemID } from "../../systems/CommitSystem.sol";
 
 // Components
 import { OnFireComponent, ID as OnFireComponentID } from "../../components/OnFireComponent.sol";
@@ -12,23 +20,15 @@ import { CrewCountComponent, ID as CrewCountComponentID } from "../../components
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
 import { PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
-// Systems
-import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
-import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.sol";
-import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
-import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/ComponentDevSystem.sol";
-import { CommitSystem, ID as CommitSystemID } from "../../systems/CommitSystem.sol";
 
-import { Action, Coord, GameConfig, GodID } from "../../libraries/DSTypes.sol";
+// Types
+import { Action, Coord } from "../../libraries/DSTypes.sol";
+
+// Libraries
 import "../../libraries/LibTurn.sol";
-
-// Internal
-import "../MudTest.t.sol";
-import { addressToEntity } from "solecs/utils.sol";
 
 contract DamageTest is MudTest {
   SailPositionComponent sailPositionComponent;
-  GameConfig gameConfig;
   ActionSystem actionSystem;
   ShipSpawnSystem shipSpawnSystem;
   ComponentDevSystem componentDevSystem;
@@ -146,7 +146,6 @@ contract DamageTest is MudTest {
     SailPositionComponent sailPositionComponent = SailPositionComponent(
       getAddressById(components, SailPositionComponentID)
     );
-    MoveSystem moveSystem = MoveSystem(system(MoveSystemID));
     PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
     RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
 
@@ -167,7 +166,7 @@ contract DamageTest is MudTest {
     CommitSystem(system(CommitSystemID)).executeTyped(commitment);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Reveal));
-    moveSystem.executeTyped(shipEntities, moveEntities, 69);
+    MoveSystem(system(MoveSystemID)).executeTyped(shipEntities, moveEntities, 69);
 
     assertCoordEq(positionComponent.getValue(entityID), position);
     assertEq(rotationComponent.getValue(entityID), rotation);

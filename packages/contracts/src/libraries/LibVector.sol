@@ -1,19 +1,22 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
 
-import { getAddressById, getSystemAddressById } from "solecs/utils.sol";
+// External
+import { getAddressById } from "solecs/utils.sol";
 import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 
+// Components
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
 import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
+
+// Types
+import { Coord, GodID } from "../libraries/DSTypes.sol";
+
+// Libraries
 import { ABDKMath64x64 as Math } from "./ABDKMath64x64.sol";
-
-import { console } from "forge-std/console.sol";
-
-import { Coord, GameConfig, GodID } from "../libraries/DSTypes.sol";
 import "trig/src/Trigonometry.sol";
 
 library LibVector {

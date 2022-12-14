@@ -2,30 +2,24 @@
 pragma solidity >=0.8.0;
 
 // External
+import "../MudTest.t.sol";
 
 // Components
-import { Coord } from "../../components/PositionComponent.sol";
-import { ShipComponent, ID as ShipComponentID } from "../../components/ShipComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../../components/SailPositionComponent.sol";
-import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
 import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.sol";
 
-import { Action, GameConfig, GodID } from "../../libraries/DSTypes.sol";
+import { Action, Coord } from "../../libraries/DSTypes.sol";
 
-// Internal
+// Libraries
 import "../../libraries/LibTurn.sol";
-import "../MudTest.t.sol";
-import { addressToEntity } from "solecs/utils.sol";
 
 contract ChangeSailActionTest is MudTest {
-  uint256 entityId;
   SailPositionComponent sailPositionComponent;
   ActionSystem actionSystem;
   ShipSpawnSystem shipSpawnSystem;
-  GameConfig gameConfig;
 
   uint256[] shipEntities = new uint256[](0);
   uint256[] moveEntities = new uint256[](0);
@@ -97,13 +91,6 @@ contract ChangeSailActionTest is MudTest {
   function setup() internal {
     actionSystem = ActionSystem(system(ActionSystemID));
     shipSpawnSystem = ShipSpawnSystem(system(ShipSpawnSystemID));
-
-    gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID);
-
-    uint256 phaseTime = gameConfig.commitPhaseLength;
-    vm.warp(phaseTime + 1);
-
-    entityId = addressToEntity(deployer);
     sailPositionComponent = SailPositionComponent(getAddressById(components, SailPositionComponentID));
   }
 }

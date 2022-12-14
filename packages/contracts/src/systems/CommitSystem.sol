@@ -4,13 +4,13 @@ pragma solidity >=0.8.0;
 // External
 import "solecs/System.sol";
 import { IWorld } from "solecs/interfaces/IWorld.sol";
-import { getAddressById, getSystemAddressById, addressToEntity } from "solecs/utils.sol";
+import { getAddressById, addressToEntity } from "solecs/utils.sol";
 
+// Components
 import { CommitmentComponent, ID as CommitmentComponentID } from "../components/CommitmentComponent.sol";
 
-import "../libraries/LibAction.sol";
+// Libraries
 import "../libraries/LibTurn.sol";
-import "../libraries/LibSpawn.sol";
 import "../libraries/LibUtils.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Commit"));
