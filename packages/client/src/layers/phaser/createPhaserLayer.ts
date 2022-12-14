@@ -9,7 +9,7 @@ import {
   createHealthSystem,
   createStatUpdateSystem,
 } from "./systems";
-import { defineNumberComponent, defineStringComponent, getGameConfig } from "@latticexyz/std-client";
+import { defineNumberComponent, defineStringComponent } from "@latticexyz/std-client";
 import { POS_HEIGHT, POS_WIDTH } from "./constants";
 import { createProjectionSystem } from "./systems/createProjectionSystem";
 import { createRadiusSystem } from "./systems/createRadiusSystem";

@@ -10,9 +10,7 @@ import {
   Has,
   removeComponent,
   setComponent,
-  UpdateType,
 } from "@latticexyz/recs";
-import { getPlayerEntity } from "@latticexyz/std-client";
 import { NetworkLayer } from "../../network";
 import { RenderDepth, SHIP_RATIO } from "../constants";
 import { getShipSprite } from "../../../utils/ships";
@@ -42,7 +40,6 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
 
   defineEnterSystem(world, [Has(Position), Has(OwnedBy), Has(Health)], (update) => {
     const position = getComponentValueStrict(Position, update.entity);
-    const health = getComponentValueStrict(Health, update.entity);
     const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, update.entity).value);
     const playerEntity = getPlayerEntity(connectedAddress.get());
 

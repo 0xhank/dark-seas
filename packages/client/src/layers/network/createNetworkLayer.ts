@@ -202,7 +202,7 @@ export async function createNetworkLayer(config: GameConfig) {
     actions,
     utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn, checkActionPossible },
     api: { spawnShip, revealMove, submitActions, spawnPlayer, commitMove },
-    dev: setupDevSystems(world, encoders as Promise<any>, systems),
+    dev: setupDevSystems(world, encoders, systems),
   };
 
   return context;
