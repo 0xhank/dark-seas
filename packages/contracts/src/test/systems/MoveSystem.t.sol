@@ -355,7 +355,7 @@ contract MoveSystemTest is MudTest {
 
   function testGetMoveWithOpenSails() public prank(deployer) {
     MoveCard memory moveCard = MoveCard({ distance: 50, rotation: 90, direction: 45 });
-    uint32 sailPosition = 3;
+    uint32 sailPosition = 2;
 
     MoveCard memory newMoveCard;
 
@@ -363,12 +363,6 @@ contract MoveSystemTest is MudTest {
     assertEq(moveCard.distance, newMoveCard.distance, "full sails distance failed");
     assertEq(moveCard.rotation, newMoveCard.rotation, "full sails rotation failed");
     assertEq(moveCard.direction, newMoveCard.direction, "full sails angle failed");
-
-    sailPosition = 2;
-    newMoveCard = LibMove.getMoveWithSails(moveCard, sailPosition);
-    assertApproxEqAbs(moveCard.distance, (newMoveCard.distance * 100) / 70, 1, "battle sails distance failed");
-    assertApproxEqAbs(moveCard.rotation, (newMoveCard.rotation * 100) / 70, 1, "battle sails rotation failed");
-    assertApproxEqAbs(moveCard.direction, (newMoveCard.direction * 100) / 70, 1, "battle sails angle failed");
 
     moveCard.rotation = 270;
     moveCard.direction = 315;
@@ -398,57 +392,6 @@ contract MoveSystemTest is MudTest {
     shipEntities.push(shipEntity);
     actions.push(Action.LowerSail);
     allActions.push(actions);
-    actionSystem.executeTyped(shipEntities, allActions);
-
-    delete shipEntities;
-    delete moveEntities;
-    shipEntities.push(shipEntity);
-    moveEntities.push(moveCardEntity);
-
-    commitAndExecuteMove(1, shipEntities, moveEntities);
-
-    MoveCard memory moveCard = moveCardComponent.getValue(moveCardEntity);
-
-    moveCard = LibMove.getMoveWithWind(moveCard, rotation, wind);
-
-    moveCard = LibMove.getMoveWithSails(moveCard, sailPositionComponent.getValue(shipEntity));
-
-    Coord memory expectedPosition = LibVector.getPositionByVector(
-      position,
-      rotation,
-      moveCard.distance,
-      moveCard.direction
-    );
-    uint32 expectedRotation = (rotation + moveCard.rotation) % 360;
-
-    position = positionComponent.getValue(shipEntity);
-    rotation = rotationComponent.getValue(shipEntity);
-  }
-
-  function testMoveWithClosedSails() public prank(deployer) {
-    setup();
-    Coord memory position = Coord({ x: 0, y: 0 });
-    uint32 rotation = 0;
-    uint256 shipEntity = shipSpawnSystem.executeTyped(position, rotation);
-    uint256 moveCardEntity = uint256(keccak256("ds.prototype.moveEntity2"));
-
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
-
-    delete shipEntities;
-    delete actions;
-    delete allActions;
-
-    shipEntities.push(shipEntity);
-    actions.push(Action.LowerSail);
-    actions.push(Action.RaiseSail);
-
-    allActions.push(actions);
-    actionSystem.executeTyped(shipEntities, allActions);
-
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
-    actionSystem.executeTyped(shipEntities, allActions);
-
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 3, Phase.Action));
     actionSystem.executeTyped(shipEntities, allActions);
 
     delete shipEntities;

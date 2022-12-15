@@ -42,7 +42,7 @@ contract ChangeSailActionTest is MudTest {
 
     uint32 newSailPosition = sailPositionComponent.getValue(shipEntity);
 
-    assertEq(newSailPosition, 2);
+    assertEq(newSailPosition, 1);
   }
 
   function testNoEffect() public prank(deployer) {
@@ -64,7 +64,7 @@ contract ChangeSailActionTest is MudTest {
 
     uint32 newSailPosition = sailPositionComponent.getValue(shipEntity);
 
-    assertEq(newSailPosition, 3);
+    assertEq(newSailPosition, 2);
 
     delete actions;
     delete allActions;
