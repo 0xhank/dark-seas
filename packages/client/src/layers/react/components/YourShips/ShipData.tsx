@@ -25,33 +25,15 @@ export const YourShip = ({
 }) => {
   const {
     network: {
-      components: {
-        SailPosition,
-        Rotation,
-        Position,
-        Health,
-        CrewCount,
-        Firepower,
-        OnFire,
-        Leak,
-        DamagedMast,
-        MoveCard,
-      },
+      components: { SailPosition, Rotation, Position, Health, MoveCard },
       world,
     },
     phaser: {
       components: { SelectedMove, SelectedActions, SelectedShip, Selection },
-      scenes: {
-        Main: { camera },
-      },
-      positions,
     },
   } = layers;
 
   const selectShip = (ship: EntityIndex, position: Coord) => {
-    camera.setZoom(1);
-    camera.centerOn(position.x * positions.posWidth, position.y * positions.posHeight + 400);
-
     setComponent(SelectedShip, GodEntityIndex, { value: ship });
   };
 
