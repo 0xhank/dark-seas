@@ -17,7 +17,7 @@ import { Action, ActionImg, ActionNames, MoveCard, Phase } from "../../../types"
 import styled from "styled-components";
 import { inRange } from "../../../utils/distance";
 
-export function registerMoveSelection() {
+export function registerOptionSelect() {
   registerUIComponent(
     // name
     "MoveSelection",

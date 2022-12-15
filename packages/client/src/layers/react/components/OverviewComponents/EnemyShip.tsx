@@ -1,18 +1,18 @@
 import React from "react";
-import { registerUIComponent } from "../engine";
+import { registerUIComponent } from "../../engine";
 import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { map, merge, of } from "rxjs";
 import { GodID } from "@latticexyz/network";
-import { BoxImage, Button, colors, Container, InternalContainer } from "../styles/global";
-import { SailPositions } from "../../../types";
+import { BoxImage, Button, colors, Container, InternalContainer } from "../../styles/global";
+import { SailPositions } from "../../../../types";
 import styled from "styled-components";
-import HullHealth from "./OverviewComponents/HullHealth";
-import ShipAttribute from "./OverviewComponents/ShipAttribute";
-import { ShipAttributeTypes } from "../../phaser/constants";
-import ShipDamage from "./OverviewComponents/ShipDamage";
-import { getShipSprite, ShipImages } from "../../../utils/ships";
+import HullHealth from "./HullHealth";
+import ShipAttribute from "./ShipAttribute";
+import { ShipAttributeTypes } from "../../../phaser/constants";
+import ShipDamage from "./ShipDamage";
+import { getShipSprite, ShipImages } from "../../../../utils/ships";
 
-export function registerShipOverview() {
+export function registerEnemyShip() {
   registerUIComponent(
     // name
     "ShipOverview",
