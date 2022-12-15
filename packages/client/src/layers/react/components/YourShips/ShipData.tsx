@@ -3,7 +3,6 @@ import { EntityIndex, getComponentValueStrict, setComponent } from "@latticexyz/
 import { Coord } from "@latticexyz/utils";
 import styled from "styled-components";
 import { Layers, Phase, Wind } from "../../../../types";
-import { SelectionType } from "../../../phaser/constants";
 import { colors, InternalContainer } from "../../styles/global";
 import { ActionSelection } from "../OverviewComponents/ActionSelection";
 import { MoveSelection } from "../OverviewComponents/MoveSelection";
@@ -13,13 +12,13 @@ export const YourShip = ({
   layers,
   ship,
   selectedShip,
+  wind,
   phase,
 }: {
   layers: Layers;
   ship: EntityIndex;
   selectedShip: EntityIndex | undefined;
   wind: Wind;
-  selection: SelectionType;
   phase: Phase;
 }) => {
   const {

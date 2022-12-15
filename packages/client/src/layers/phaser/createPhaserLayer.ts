@@ -27,7 +27,6 @@ export async function createPhaserLayer(network: NetworkLayer) {
   const components = {
     SelectedMove: defineNumberComponent(world, { id: "SelectedMove" }),
     SelectedShip: defineNumberComponent(world, { id: "SelectedShip" }),
-    Selection: defineNumberComponent(world, { id: "Selection" }),
     SelectedActions: defineComponent(world, { value: Type.NumberArray }, { id: "Actions" }),
     CommittedMoves: defineStringComponent(world, { id: "Committed Moves" }),
     UpdateQueue: defineComponent(world, { value: Type.StringArray }, { id: "UpdateQueue" }),

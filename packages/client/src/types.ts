@@ -8,8 +8,8 @@ export type DSWindow = Awaited<ReturnType<typeof boot>>;
 export type Layers = { network: NetworkLayer; phaser: PhaserLayer };
 
 export enum Action {
-  FireRight,
   FireLeft,
+  FireRight,
   RaiseSail,
   LowerSail,
   ExtinguishFire,

@@ -13,7 +13,7 @@ export function createResetSystem(network: NetworkLayer, phaser: PhaserLayer) {
   } = network;
 
   const {
-    components: { Selection, SelectedMove, SelectedActions, CommittedMoves },
+    components: { SelectedMove, SelectedActions, CommittedMoves },
     scenes: {
       Main: { objectPool },
     },
@@ -37,8 +37,6 @@ export function createResetSystem(network: NetworkLayer, phaser: PhaserLayer) {
 
     if (phase == Phase.Commit) {
       if (secondsUntilPhase !== gameConfig.commitPhaseLength - 1) return;
-      removeComponent(Selection, GodEntityIndex);
-
       yourShips.map((ship) => {
         removeComponent(SelectedMove, ship);
       });
@@ -46,16 +44,12 @@ export function createResetSystem(network: NetworkLayer, phaser: PhaserLayer) {
 
     if (phase == Phase.Reveal) {
       if (secondsUntilPhase !== gameConfig.revealPhaseLength - 1) return;
-      removeComponent(Selection, GodEntityIndex);
-
       const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
       if (encoding) revealMove(encoding);
     }
 
     if (phase == Phase.Action) {
       if (secondsUntilPhase !== gameConfig.actionPhaseLength - 1) return;
-      removeComponent(Selection, GodEntityIndex);
-
       removeComponent(CommittedMoves, GodEntityIndex);
       yourShips.map((ship) => {
         objectPool.remove(`projection-${ship}`);
