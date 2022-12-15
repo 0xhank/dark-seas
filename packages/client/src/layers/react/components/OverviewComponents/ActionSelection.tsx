@@ -11,7 +11,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
     components: { SelectedActions },
   } = layers.phaser;
 
-  const selectedActions = getComponentValue(SelectedActions, ship)?.value || [-1, -1, -1];
+  const selectedActions = getComponentValue(SelectedActions, ship)?.value || [-1, -1];
 
   return (
     <>
@@ -23,10 +23,19 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
 
         return (
           <Button
-            disabled={usedAlready}
+            isSelected={usedAlready}
             key={`selectedAction-${action}`}
             onClick={() => {
               const newArray = selectedActions;
+              const index = newArray.indexOf(action);
+              if (index == -1) {
+                if (newArray[0] == -1) newArray[0] = action;
+                else if (newArray[1] == -1) newArray[1] = action;
+                else return;
+              } else {
+                newArray[index] = -1;
+              }
+
               setComponent(SelectedActions, ship, { value: newArray });
             }}
           >

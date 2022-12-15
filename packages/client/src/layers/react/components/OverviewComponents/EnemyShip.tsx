@@ -41,10 +41,6 @@ export function registerEnemyShip() {
         },
         phaser: {
           components: { SelectedShip },
-          scenes: {
-            Main: { camera },
-          },
-          positions,
         },
       } = layers;
 

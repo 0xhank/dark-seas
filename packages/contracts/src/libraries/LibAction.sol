@@ -29,7 +29,7 @@ library LibAction {
     uint256 shipEntity,
     Action[] memory shipActions
   ) public {
-    require(shipActions.length <= 3, "ActionSystem: too many actions");
+    require(shipActions.length <= 2, "ActionSystem: too many actions");
 
     require(
       OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(shipEntity) ==
@@ -49,8 +49,6 @@ library LibAction {
       // ensure action hasn't already been made
       if (j == 1) {
         require(shipActions[0] != action, "ActionSystem: action already used");
-      } else if (j == 2) {
-        require(shipActions[0] != action && shipActions[1] != action, "ActionSystem: action already used");
       }
 
       // execute action
