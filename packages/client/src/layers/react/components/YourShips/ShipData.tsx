@@ -2,14 +2,11 @@ import { GodID } from "@latticexyz/network";
 import { EntityIndex, getComponentValue, getComponentValueStrict, setComponent } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
 import styled from "styled-components";
-import { ActionImg, ActionNames, Layers, MoveCard, Phase, SailPositions, Wind } from "../../../../types";
+import { ActionImg, ActionNames, Layers, MoveCard, Phase, Wind } from "../../../../types";
 import { arrowImg, getFinalMoveCard } from "../../../../utils/directions";
-import { getShipSprite, ShipImages } from "../../../../utils/ships";
-import { SelectionType, ShipAttributeTypes } from "../../../phaser/constants";
-import { BoxImage, colors, InternalContainer } from "../../styles/global";
-import HullHealth from "../OverviewComponents/HullHealth";
-import ShipAttribute from "../OverviewComponents/ShipAttribute";
-import ShipDamage from "../OverviewComponents/ShipDamage";
+import { SelectionType } from "../../../phaser/constants";
+import { colors, InternalContainer } from "../../styles/global";
+import { ShipCard } from "./ShipCard";
 
 export const YourShip = ({
   layers,
@@ -64,17 +61,12 @@ export const YourShip = ({
   const rotation = getComponentValueStrict(Rotation, ship).value;
   const position = getComponentValueStrict(Position, ship);
   const health = getComponentValueStrict(Health, ship).value;
-  const crewCount = getComponentValueStrict(CrewCount, ship).value;
-  const firepower = getComponentValueStrict(Firepower, ship).value;
-  const onFire = getComponentValue(OnFire, ship)?.value;
-  const leak = getComponentValue(Leak, ship)?.value;
-  const damagedMast = getComponentValue(DamagedMast, ship)?.value;
   const moveCardEntity = getComponentValue(SelectedMove, ship);
   const isSelected = selectedShip == ship;
   const shipActions = getComponentValue(SelectedActions, ship)?.value;
 
   const SelectMoveButton = () => {
-    if (!moveCardEntity)
+    if (!moveCardEntity) {
       return (
         <SelectShip
           isSelected={isSelected}
@@ -87,6 +79,7 @@ export const YourShip = ({
           {sailPosition == 0 ? "Cannot move with broken sail" : "Stage Move"}
         </SelectShip>
       );
+    }
 
     let moveCard = getComponentValueStrict(MoveCard, moveCardEntity.value as EntityIndex) as MoveCard;
 
@@ -155,53 +148,7 @@ export const YourShip = ({
       isSelected={isSelected}
       key={`move-selection-${ship}`}
     >
-      <div style={{ display: "flex", borderRadius: "6px", width: "100%" }}>
-        <div
-          style={{
-            flex: 2,
-            display: "flex",
-            flexDirection: "column",
-            height: "100%",
-            position: "relative",
-            maxWidth: "120px",
-            minWidth: "80px",
-          }}
-        >
-          <span style={{ fontSize: "1.5rem", lineHeight: "1.5rem" }}>HMS {ship}</span>
-          <span style={{ lineHeight: "2rem", fontSize: "1rem" }}>
-            ({position.x}, {position.y})
-          </span>
-          <BoxImage>
-            <img
-              src={ShipImages[getShipSprite(GodEntityIndex, GodEntityIndex, health)]}
-              style={{
-                objectFit: "scale-down",
-                left: "50%",
-                position: "absolute",
-                top: "50%",
-                margin: "auto",
-                transform: `rotate(${rotation - 90}deg) translate(-50%,-50%)`,
-                transformOrigin: `top left`,
-                maxWidth: "50px",
-              }}
-            />
-          </BoxImage>
-        </div>
-        <div style={{ flex: 3, display: "flex", flexDirection: "column" }}>
-          <HullHealth health={health} />
-          <div style={{ display: "flex", width: "100%" }}>
-            <ShipAttribute attributeType={ShipAttributeTypes.Crew} attribute={crewCount} />
-            <ShipAttribute attributeType={ShipAttributeTypes.Firepower} attribute={firepower} />
-            <ShipAttribute attributeType={ShipAttributeTypes.Sails} attribute={SailPositions[sailPosition]} />
-          </div>
-          <div style={{ display: "flex" }}>
-            {damagedMast && <ShipDamage message="mast broken" amountLeft={damagedMast} />}
-            {onFire && <ShipDamage message="on fire" amountLeft={onFire} />}
-            {leak && <ShipDamage message="leaking" />}
-            {sailPosition == 0 && <ShipDamage message="sails torn" />}
-          </div>
-        </div>
-      </div>
+      <ShipCard layers={layers} ship={ship} />
       {phase == Phase.Commit ? (
         <SelectMoveButton />
       ) : phase == Phase.Action ? (
