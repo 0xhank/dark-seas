@@ -1,7 +1,6 @@
-import React from "react";
 import { Browser } from "@latticexyz/ecs-browser";
-import { registerUIComponent } from "../engine";
 import { of } from "rxjs";
+import { registerUIComponent } from "../engine";
 export function registerComponentBrowser() {
   registerUIComponent(
     "ComponentBrowser",
@@ -9,7 +8,7 @@ export function registerComponentBrowser() {
       colStart: 10,
       colEnd: 13,
       rowStart: 1,
-      rowEnd: 13,
+      rowEnd: 10,
     },
     (layers) => of({ layers }),
     ({ layers }) => {

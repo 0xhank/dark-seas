@@ -1,40 +1,107 @@
-import { Direction, Directions } from "../constants";
-import { WorldCoord } from "../types";
-import { random } from "@latticexyz/utils";
+import { MoveCard, Wind } from "../types";
+import { Coord } from "@latticexyz/utils";
+import { getPositionByVector } from "./trig";
+import { Arrows } from "../layers/phaser/constants";
 
-/**
- * @param coord Initial coordinate
- * @param translation Relative translation of the initial coordinate
- * @returns New coordinate after translating
- */
-export function translate(coord: WorldCoord, translation: WorldCoord): WorldCoord {
-  return { x: coord.x + translation.x, y: coord.y + translation.y };
+export function getWindBoost(wind: Wind, rotation: number): number {
+  const rotationDiff: number = Math.abs(wind.direction - rotation);
+  if (rotationDiff > 120 && rotationDiff <= 240) return -wind.speed;
+  if (rotationDiff < 80 || rotationDiff > 280) return wind.speed;
+  return 0;
 }
 
-/**
- * @param coord Initial coordinate
- * @param direction Direction to move to
- * @returns New coordiante after moving in the specified direction
- */
-export function translateDirection(coord: WorldCoord, direction: Direction): WorldCoord {
-  return translate(coord, Directions[direction]);
+export function getMoveWithWind(moveCard: MoveCard, rotation: number, wind: Wind): MoveCard {
+  // if 0, +-0% if 10, +- 25% if 20 , +-50%
+  const windBoost = (getWindBoost(wind, rotation) * 100) / 40;
+  return getMoveWithBuff(moveCard, windBoost + 100);
 }
 
-/**
- * @returns Random direction (Top, Right, Bottom or Left)
- */
-export function randomDirection(): Direction {
-  return random(3, 0);
-}
-
-export function getSurroundingCoords(coord: WorldCoord, distance = 1): WorldCoord[] {
-  const surroundingCoords: WorldCoord[] = [];
-
-  for (let x = -1 * distance; x <= distance; x++) {
-    for (let y = -1 * distance; y <= distance; y++) {
-      if (!(x === 0 && y === 0)) surroundingCoords.push(translate(coord, { x, y }));
-    }
+export function getMoveWithSails(moveCard: MoveCard, sailPosition: number): MoveCard {
+  if (sailPosition == 3) {
+    return getMoveWithBuff(moveCard, 100);
   }
 
-  return surroundingCoords;
+  if (sailPosition == 2) {
+    return getMoveWithBuff(moveCard, 70);
+  }
+
+  if (sailPosition == 1) {
+    return getMoveWithBuff(moveCard, 40);
+  }
+
+  return { distance: 0, rotation: 0, direction: 0 };
+}
+
+export function getFinalMoveCard(moveCard: MoveCard, rotation: number, sailPosition: number, wind: Wind): MoveCard {
+  moveCard = getMoveWithWind(moveCard, rotation, wind);
+  moveCard = getMoveWithSails(moveCard, sailPosition);
+  return moveCard;
+}
+
+export function getMoveWithBuff(moveCard: MoveCard, buff: number): MoveCard {
+  if (buff == 100) return moveCard;
+  if (buff == 0) return { distance: 0, rotation: 0, direction: 0 };
+
+  moveCard.distance = (moveCard.distance * buff) / 100;
+
+  if (moveCard.rotation > 180) {
+    moveCard.rotation = 360 - ((360 - moveCard.rotation) * buff) / 100;
+  } else {
+    moveCard.rotation = (moveCard.rotation * buff) / 100;
+  }
+
+  if (moveCard.direction > 180) {
+    moveCard.direction = 360 - ((360 - moveCard.direction) * buff) / 100;
+  } else {
+    moveCard.direction = (moveCard.direction * buff) / 100;
+  }
+  return moveCard;
+}
+
+export function getFinalPosition(
+  moveCard: MoveCard,
+  position: Coord,
+  rotation: number,
+  sailPosition: number,
+  wind: Wind
+): { finalPosition: Coord; finalRotation: number } {
+  moveCard = getMoveWithWind(moveCard, rotation, wind);
+
+  moveCard = getMoveWithSails(moveCard, sailPosition);
+
+  const finalPosition = getPositionByVector(position, rotation, moveCard.distance, moveCard.direction);
+  const finalRotation = rotation + (moveCard.rotation % 360);
+
+  return { finalPosition, finalRotation };
+}
+
+export function rotationToDirectionName(rotation: number): string {
+  rotation = rotation % 360;
+  let ret = "";
+  if (rotation > 215 && rotation < 315) ret += "N";
+  if (rotation > 45 && rotation < 135) ret += "S";
+  if ((rotation > 259 && rotation < 281) || (rotation > 79 && rotation < 101)) return ret;
+
+  if (rotation > 248 && rotation < 292) return (ret += "NE");
+  if (rotation > 68 && rotation < 112) return (ret += "SE");
+
+  return ret;
+}
+
+export function arrowImg(rotation: number) {
+  return rotation == 360 || rotation == 0
+    ? Arrows.Straight
+    : rotation > 270
+    ? Arrows.SoftLeft
+    : rotation == 270
+    ? Arrows.Left
+    : rotation > 180
+    ? Arrows.HardLeft
+    : rotation == 180
+    ? Arrows.UTurn
+    : rotation > 90
+    ? Arrows.HardRight
+    : rotation == 90
+    ? Arrows.Right
+    : Arrows.SoftRight;
 }

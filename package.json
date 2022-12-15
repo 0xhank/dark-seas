@@ -1,10 +1,10 @@
 {
-  "name": "mudbasics",
-  "version": "0.0.0",
-  "description": "A simple mud reference implementation",
+  "name": "dark-seas",
+  "version": "0.0.1",
+  "description": "Multiplayer naval combat browser game",
   "repository": {
     "type": "git",
-    "url": "https://github.com/latticexyz/mudbasics.git"
+    "url": "https://github.com/0xhank/dark-seas.git"
   },
   "private": true,
   "workspaces": {
@@ -43,6 +43,7 @@
     "start": "run-pty % yarn start:contracts % yarn start:client",
     "start:client": "wait-on tcp:8545 && yarn workspace client run start",
     "start:contracts": "yarn workspace contracts run start",
+    "test": "yarn workspace contracts run test",
     "link:mud": "for i in node_modules/@latticexyz/*; do yarn link @latticexyz/$(basename $i); done",
     "unlink:mud": "for i in node_modules/@latticexyz/*; do yarn unlink @latticexyz/$(basename $i); done && yarn install --force"
   },

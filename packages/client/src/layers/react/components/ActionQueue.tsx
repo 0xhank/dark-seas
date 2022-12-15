@@ -1,8 +1,7 @@
-import React from "react";
-import { registerUIComponent } from "../engine";
 import { getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
+import { ActionState, ActionStateString } from "@latticexyz/std-client";
 import { map } from "rxjs";
-import { ActionStateString, ActionState } from "@latticexyz/std-client";
+import { registerUIComponent } from "../engine";
 
 export function registerActionQueue() {
   registerUIComponent(

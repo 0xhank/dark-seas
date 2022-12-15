@@ -31,4 +31,5 @@ export const getNetworkConfig: (networkConfig: GameConfig) => SetupContractConfi
   initialBlockNumber: config.initialBlockNumber,
   worldAddress: config.worldAddress,
   devMode: config.devMode,
+  encoders: true,
 });

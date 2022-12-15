@@ -1,4 +1,61 @@
 {
-  "components": ["ExampleComponent"],
-  "systems": [{ "name": "ComponentDevSystem", "writeAccess": ["*"] }]
+  "components": [
+    "PositionComponent",
+    "RotationComponent",
+    "MoveCardComponent",
+    "LengthComponent",
+    "RangeComponent",
+    "HealthComponent",
+    "ShipComponent",
+    "SailPositionComponent",
+    "WindComponent",
+    "OnFireComponent",
+    "LeakComponent",
+    "CrewCountComponent",
+    "DamagedMastComponent",
+    "FirepowerComponent",
+    "GameConfigComponent",
+    "LastMoveComponent",
+    "LastActionComponent",
+    "OwnedByComponent",
+    "NameComponent",
+    "PlayerComponent",
+    "CommitmentComponent"
+  ],
+  "systems": [
+    { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
+    { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent", "LastMoveComponent"] },
+    {
+      "name": "ActionSystem",
+      "writeAccess": [
+        "HealthComponent",
+        "LeakComponent",
+        "OnFireComponent",
+        "DamagedMastComponent",
+        "CrewCountComponent",
+        "SailPositionComponent",
+        "LastActionComponent"
+      ]
+    },
+    {
+      "name": "PlayerSpawnSystem",
+      "writeAccess": [
+        "PositionComponent",
+        "RotationComponent",
+        "LengthComponent",
+        "RangeComponent",
+        "HealthComponent",
+        "ShipComponent",
+        "SailPositionComponent",
+        "CrewCountComponent",
+        "FirepowerComponent",
+        "LastMoveComponent",
+        "LastActionComponent",
+        "OwnedByComponent",
+        "PlayerComponent",
+        "NameComponent"
+      ]
+    },
+    { "name": "CommitSystem", "writeAccess": ["CommitmentComponent"] }
+  ]
 }
