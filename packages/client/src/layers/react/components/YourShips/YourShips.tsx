@@ -1,5 +1,4 @@
-import React from "react";
-import { registerUIComponent } from "../../engine";
+import { GodID } from "@latticexyz/network";
 import {
   EntityID,
   EntityIndex,
@@ -12,13 +11,13 @@ import {
   runQuery,
   setComponent,
 } from "@latticexyz/recs";
+import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { map, merge } from "rxjs";
-import { GodID } from "@latticexyz/network";
-import { Container, Button, ConfirmButton, InternalContainer, colors, BoxImage } from "../../styles/global";
-import { Action, Phase } from "../../../../types";
 import styled from "styled-components";
+import { Action, Phase } from "../../../../types";
+import { registerUIComponent } from "../../engine";
+import { Button, colors, ConfirmButton, Container, InternalContainer } from "../../styles/global";
 import { YourShip } from "./ShipData";
-import { keccak256, defaultAbiCoder as abi } from "ethers/lib/utils";
 
 export function registerYourShips() {
   registerUIComponent(

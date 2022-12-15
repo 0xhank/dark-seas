@@ -1,16 +1,15 @@
-import { EntityIndex, getComponentValue, getComponentValueStrict, setComponent } from "@latticexyz/recs";
-import { Layers } from "../../../../types";
-import { BoxImage, colors, InternalContainer } from "../../styles/global";
 import { GodID } from "@latticexyz/network";
+import { EntityIndex, getComponentValue, getComponentValueStrict, setComponent } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
-import { SelectionType, ShipAttributeTypes } from "../../../phaser/constants";
-import { arrowImg, getFinalMoveCard } from "../../../../utils/directions";
-import { ActionImg, ActionNames, MoveCard, Phase, SailPositions, Wind } from "../../../../types";
 import styled from "styled-components";
-import ShipDamage from "../OverviewComponents/ShipDamage";
-import ShipAttribute from "../OverviewComponents/ShipAttribute";
-import HullHealth from "../OverviewComponents/HullHealth";
+import { ActionImg, ActionNames, Layers, MoveCard, Phase, SailPositions, Wind } from "../../../../types";
+import { arrowImg, getFinalMoveCard } from "../../../../utils/directions";
 import { getShipSprite, ShipImages } from "../../../../utils/ships";
+import { SelectionType, ShipAttributeTypes } from "../../../phaser/constants";
+import { BoxImage, colors, InternalContainer } from "../../styles/global";
+import HullHealth from "../OverviewComponents/HullHealth";
+import ShipAttribute from "../OverviewComponents/ShipAttribute";
+import ShipDamage from "../OverviewComponents/ShipDamage";
 
 export const YourShip = ({
   layers,

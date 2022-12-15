@@ -1,7 +1,6 @@
-import React from "react";
 import { Browser } from "@latticexyz/ecs-browser";
-import { registerUIComponent } from "../engine";
 import { of } from "rxjs";
+import { registerUIComponent } from "../engine";
 export function registerComponentBrowser() {
   registerUIComponent(
     "ComponentBrowser",

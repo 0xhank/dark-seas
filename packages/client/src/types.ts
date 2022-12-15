@@ -1,7 +1,7 @@
+import { Coord } from "@latticexyz/utils";
 import { boot } from "./boot";
 import { NetworkLayer } from "./layers/network";
 import { PhaserLayer } from "./layers/phaser";
-import { Coord } from "@latticexyz/utils";
 
 export type DSWindow = Awaited<ReturnType<typeof boot>>;
 

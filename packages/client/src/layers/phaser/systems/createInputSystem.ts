@@ -1,6 +1,4 @@
-import { GodID } from "@latticexyz/network";
-import { GameObjectClasses, pixelCoordToTileCoord } from "@latticexyz/phaserx";
-import { EntityIndex, getEntitiesWithValue, removeComponent, setComponent } from "@latticexyz/recs";
+import { pixelCoordToTileCoord } from "@latticexyz/phaserx";
 import { NetworkLayer } from "../../network";
 import { PhaserLayer } from "../types";
 

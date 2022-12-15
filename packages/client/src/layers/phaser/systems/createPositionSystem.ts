@@ -11,11 +11,11 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
+import { Sprites } from "../../../types";
+import { getShipSprite } from "../../../utils/ships";
 import { NetworkLayer } from "../../network";
 import { RenderDepth, SHIP_RATIO } from "../constants";
-import { getShipSprite } from "../../../utils/ships";
 import { PhaserLayer } from "../types";
-import { Sprites } from "../../../types";
 
 export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer) {
   const {

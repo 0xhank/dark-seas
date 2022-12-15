@@ -6,7 +6,6 @@ import {
   EntityIndex,
   getComponentValue,
   getComponentValueStrict,
-  getEntitiesWithValue,
   Has,
   removeComponent,
   UpdateType,
