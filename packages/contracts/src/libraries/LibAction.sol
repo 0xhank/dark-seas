@@ -157,7 +157,7 @@ library LibAction {
 
     uint32 currentSailPosition = sailPositionComponent.getValue(shipEntity);
 
-    if (!(currentSailPosition > 0 && currentSailPosition < 3)) return;
+    if (currentSailPosition != 1) return;
 
     sailPositionComponent.set(shipEntity, currentSailPosition + 1);
   }
@@ -174,7 +174,7 @@ library LibAction {
 
     uint32 currentSailPosition = sailPositionComponent.getValue(shipEntity);
 
-    if (!(currentSailPosition > 1 && currentSailPosition <= 4)) return;
+    if (currentSailPosition != 2) return;
 
     sailPositionComponent.set(shipEntity, currentSailPosition - 1);
   }

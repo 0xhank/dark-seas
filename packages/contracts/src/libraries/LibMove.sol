@@ -62,16 +62,12 @@ library LibMove {
    * @return  MoveCard  updated move card
    */
   function getMoveWithSails(MoveCard memory moveCard, uint32 sailPosition) public pure returns (MoveCard memory) {
-    if (sailPosition == 3) {
+    if (sailPosition == 2) {
       return getMoveWithBuff(moveCard, 100);
     }
 
-    if (sailPosition == 2) {
-      return getMoveWithBuff(moveCard, 70);
-    }
-
     if (sailPosition == 1) {
-      return getMoveWithBuff(moveCard, 40);
+      return getMoveWithBuff(moveCard, 33);
     }
 
     return MoveCard(0, 0, 0);

@@ -1,5 +1,4 @@
-import React from "react";
-import { registerUIComponent } from "../engine";
+import { GodID } from "@latticexyz/network";
 import {
   EntityIndex,
   getComponentEntities,
@@ -8,14 +7,14 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
-import { concat, map, merge, of } from "rxjs";
-import { GodID } from "@latticexyz/network";
-import { Arrows, SelectionType } from "../../phaser/constants";
-import { Container, Button, ConfirmButton, InternalContainer } from "../styles/global";
-import { arrowImg, getFinalMoveCard, getFinalPosition } from "../../../utils/directions";
-import { Action, ActionImg, ActionNames, MoveCard, Phase } from "../../../constants";
+import { map, merge } from "rxjs";
 import styled from "styled-components";
+import { Action, ActionImg, ActionNames, MoveCard, Phase } from "../../../types";
+import { arrowImg, getFinalMoveCard, getFinalPosition } from "../../../utils/directions";
 import { inRange } from "../../../utils/distance";
+import { SelectionType } from "../../phaser/constants";
+import { registerUIComponent } from "../engine";
+import { Button, Container, InternalContainer } from "../styles/global";
 
 export function registerMoveSelection() {
   registerUIComponent(
