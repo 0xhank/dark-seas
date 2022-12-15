@@ -150,8 +150,8 @@ export async function createNetworkLayer(config: GameConfig) {
     if (action == Action.RepairMast && !getComponentValue(components.DamagedMast, ship)) return false;
 
     const sailPosition = getComponentValueStrict(components.SailPosition, ship).value;
-    if (action == Action.LowerSail && sailPosition <= 1) return false;
-    if (action == Action.RaiseSail && sailPosition >= 3) return false;
+    if (action == Action.LowerSail && sailPosition != 2) return false;
+    if (action == Action.RaiseSail && sailPosition != 1) return false;
     if (action == Action.RepairSail && sailPosition > 0) return false;
 
     return true;
