@@ -38,23 +38,23 @@ contract InitSystem is System {
     // Initialize Prototypes
     uint256 moveEntity1 = uint256(keccak256("ds.prototype.moveEntity1"));
 
-    moveCardComponent.set(moveEntity1, MoveCard({ direction: 0, distance: 25, rotation: 0 }));
+    moveCardComponent.set(moveEntity1, MoveCard({ direction: 0, distance: 50, rotation: 0 }));
 
     uint256 moveEntity2 = uint256(keccak256("ds.prototype.moveEntity2"));
 
-    moveCardComponent.set(moveEntity2, MoveCard({ direction: 45, distance: 25, rotation: 90 }));
+    moveCardComponent.set(moveEntity2, MoveCard({ direction: 45, distance: 50, rotation: 90 }));
 
     uint256 moveEntity3 = uint256(keccak256("ds.prototype.moveEntity3"));
 
-    moveCardComponent.set(moveEntity3, MoveCard({ direction: 27, distance: 25, rotation: 45 }));
+    moveCardComponent.set(moveEntity3, MoveCard({ direction: 27, distance: 50, rotation: 45 }));
 
     uint256 moveEntity4 = uint256(keccak256("ds.prototype.moveEntity4"));
 
-    moveCardComponent.set(moveEntity4, MoveCard({ direction: 315, distance: 25, rotation: 270 }));
+    moveCardComponent.set(moveEntity4, MoveCard({ direction: 315, distance: 50, rotation: 270 }));
 
     uint256 moveEntity5 = uint256(keccak256("ds.prototype.moveEntity5"));
 
-    moveCardComponent.set(moveEntity5, MoveCard({ direction: 333, distance: 25, rotation: 315 }));
+    moveCardComponent.set(moveEntity5, MoveCard({ direction: 333, distance: 50, rotation: 315 }));
 
     windComponent.set(GodID, Wind(5, 35));
   }
