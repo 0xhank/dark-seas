@@ -2,10 +2,15 @@
 pragma solidity >=0.8.0;
 
 // External
+import "../MudTest.t.sol";
+
+// Components
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 
-import "../MudTest.t.sol";
+// Types
 import { GameConfig, Phase, GodID } from "../../libraries/DSTypes.sol";
+
+// Libraries
 import "../../libraries/LibTurn.sol";
 
 contract LibTurnTest is MudTest {

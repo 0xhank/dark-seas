@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { EntityID, EntityIndex, getComponentValue, Has, hasComponent, HasValue, Not, runQuery } from "@latticexyz/recs";
-import { map, merge } from "rxjs";
+import { EntityID, hasComponent } from "@latticexyz/recs";
 import { computedToStream } from "@latticexyz/utils";
+import { useState } from "react";
+import { map, merge } from "rxjs";
 import { Layers } from "../../../types";
-import { Button, colors, Input, Row } from "../styles/global";
 import { registerUIComponent } from "../engine";
+import { Button, colors, Input } from "../styles/global";
 
 const JoinGameContainer = ({ layers }: { layers: Layers }) => {
   const {

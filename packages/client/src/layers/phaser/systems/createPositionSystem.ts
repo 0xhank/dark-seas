@@ -10,14 +10,12 @@ import {
   Has,
   removeComponent,
   setComponent,
-  UpdateType,
 } from "@latticexyz/recs";
-import { getPlayerEntity } from "@latticexyz/std-client";
+import { Sprites } from "../../../types";
+import { getShipSprite } from "../../../utils/ships";
 import { NetworkLayer } from "../../network";
 import { RenderDepth, SHIP_RATIO } from "../constants";
-import { getShipSprite } from "../../../utils/ships";
 import { PhaserLayer } from "../types";
-import { Sprites } from "../../../constants";
 
 export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer) {
   const {
@@ -42,7 +40,6 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
 
   defineEnterSystem(world, [Has(Position), Has(OwnedBy), Has(Health)], (update) => {
     const position = getComponentValueStrict(Position, update.entity);
-    const health = getComponentValueStrict(Health, update.entity);
     const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, update.entity).value);
     const playerEntity = getPlayerEntity(connectedAddress.get());
 
@@ -80,6 +77,7 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
     const object = objectPool.get(update.entity, "Sprite");
 
     const spriteAsset: Sprites = getShipSprite(playerEntity, ownerEntity, health);
+    // @ts-expect-error doesnt recognize a sprite as a number
     const sprite = config.sprites[spriteAsset];
     // const sprite = config.sprites[Sprites.ShipBlack];
 

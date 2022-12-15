@@ -6,12 +6,11 @@ import {
   EntityIndex,
   getComponentValue,
   getComponentValueStrict,
-  getEntitiesWithValue,
   Has,
   removeComponent,
   UpdateType,
 } from "@latticexyz/recs";
-import { Phase, Side, Sprites } from "../../../constants";
+import { Phase, Side, Sprites } from "../../../types";
 import { getFinalPosition } from "../../../utils/directions";
 import { getShipSprite } from "../../../utils/ships";
 import { getFiringArea } from "../../../utils/trig";
@@ -103,6 +102,7 @@ export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLaye
     polygonRegistry.set(`rangeGroup-${entity}`, rangeGroup);
 
     const spriteAsset: Sprites = getShipSprite(GodEntityIndex, GodEntityIndex, health);
+    // @ts-expect-error doesnt recognize a sprite as a number
     const sprite = config.sprites[spriteAsset];
 
     const { x, y } = tileCoordToPixelCoord(finalPosition, positions.posWidth, positions.posHeight);

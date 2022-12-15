@@ -1,6 +1,5 @@
-import { GodID } from "@latticexyz/network";
-import { tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
-import { defineSystem, defineUpdateSystem, getComponentValueStrict, Has, Type, UpdateType } from "@latticexyz/recs";
+import { tileCoordToPixelCoord } from "@latticexyz/phaserx";
+import { defineSystem, getComponentValueStrict, Has } from "@latticexyz/recs";
 import { NetworkLayer } from "../../network";
 import { RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
 
-import { console } from "forge-std/console.sol";
-
 // External
 import "solecs/System.sol";
 import { IWorld } from "solecs/interfaces/IWorld.sol";
@@ -26,6 +24,7 @@ import "../libraries/LibVector.sol";
 import "../libraries/LibMove.sol";
 import "../libraries/LibTurn.sol";
 import "../libraries/LibSpawn.sol";
+import "../libraries/LibUtils.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Move"));
 
@@ -33,7 +32,7 @@ contract MoveSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
-    (uint256[] memory entities, uint256[] memory moveCardEntities, uint256 salt) = abi.decode(
+    (uint256[] memory shipEntities, uint256[] memory moveCardEntities, uint256 salt) = abi.decode(
       arguments,
       (uint256[], uint256[], uint256)
     );
@@ -46,9 +45,9 @@ contract MoveSystem is System {
       "MoveSystem: commitment doesn't match move"
     );
 
-    require(entities.length == moveCardEntities.length, "MoveSystem: array length mismatch");
+    require(shipEntities.length == moveCardEntities.length, "MoveSystem: array length mismatch");
 
-    require(LibSpawn.playerIdExists(components, playerEntity), "MoveSystem: player does not exist");
+    require(LibUtils.playerIdExists(components, playerEntity), "MoveSystem: player does not exist");
 
     LastMoveComponent lastMoveComponent = LastMoveComponent(getAddressById(components, LastMoveComponentID));
     require(LibTurn.getCurrentPhase(components) == Phase.Reveal, "MoveSystem: incorrect turn phase");
@@ -62,9 +61,10 @@ contract MoveSystem is System {
 
     Wind memory wind = WindComponent(getAddressById(components, WindComponentID)).getValue(GodID);
 
-    for (uint256 i = 0; i < entities.length; i++) {
+    // iterate through each ship entity
+    for (uint256 i = 0; i < shipEntities.length; i++) {
       uint256 moveCardEntity = moveCardEntities[i];
-      uint256 entity = entities[i];
+      uint256 entity = shipEntities[i];
 
       LibMove.moveShip(components, entity, playerEntity, moveCardEntity, wind);
     }
@@ -73,10 +73,10 @@ contract MoveSystem is System {
   }
 
   function executeTyped(
-    uint256[] calldata entities,
+    uint256[] calldata shipEntities,
     uint256[] calldata moveCardEntities,
     uint256 salt
   ) public returns (bytes memory) {
-    return execute(abi.encode(entities, moveCardEntities, salt));
+    return execute(abi.encode(shipEntities, moveCardEntities, salt));
   }
 }

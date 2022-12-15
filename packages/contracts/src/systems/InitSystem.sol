@@ -1,12 +1,16 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
-import "solecs/System.sol";
-import { getAddressById, getSystemAddressById } from "solecs/utils.sol";
 
+// External
+import "solecs/System.sol";
+import { getAddressById } from "solecs/utils.sol";
+
+// Components
 import { MoveCardComponent, ID as MoveCardComponentID } from "../components/MoveCardComponent.sol";
 import { WindComponent, ID as WindComponentID } from "../components/WindComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
+// Types
 import { Wind, GodID, MoveCard, GameConfig } from "../libraries/DSTypes.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Init"));
@@ -52,6 +56,6 @@ contract InitSystem is System {
 
     moveCardComponent.set(moveEntity5, MoveCard({ direction: 333, distance: 25, rotation: 315 }));
 
-    windComponent.set(GodID, Wind(10, 90));
+    windComponent.set(GodID, Wind(5, 35));
   }
 }

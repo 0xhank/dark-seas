@@ -2,39 +2,31 @@
 pragma solidity >=0.8.0;
 
 // External
-
-// Components
-import { PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
-import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
-import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
-import { RangeComponent, ID as RangeComponentID } from "../../components/RangeComponent.sol";
-import { FirepowerComponent, ID as FirepowerComponentID } from "../../components/FirepowerComponent.sol";
-import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
+import "../MudTest.t.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
 import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
 import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.sol";
 import { CommitSystem, ID as CommitSystemID } from "../../systems/CommitSystem.sol";
-// Internal
+
+// Components
+import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
+import { FirepowerComponent, ID as FirepowerComponentID } from "../../components/FirepowerComponent.sol";
+
+// Libraries
 import "../../libraries/LibVector.sol";
 import "../../libraries/LibCombat.sol";
 import "../../libraries/LibTurn.sol";
-import "../MudTest.t.sol";
-import { addressToEntity } from "solecs/utils.sol";
-import { Side, Coord, Action, GameConfig, GodID } from "../../libraries/DSTypes.sol";
+import "../../libraries/LibUtils.sol";
+
+import { Side, Coord, Action } from "../../libraries/DSTypes.sol";
 
 contract AttackActionTest is MudTest {
-  uint256 entityId;
-  PositionComponent positionComponent;
-  RotationComponent rotationComponent;
-  GameConfig gameConfig;
   ActionSystem actionSystem;
   ShipSpawnSystem shipSpawnSystem;
   CommitSystem commitSystem;
   MoveSystem moveSystem;
-
-  uint256 blocktimestamp = 1;
 
   uint256[] shipEntities = new uint256[](0);
   uint256[] moveEntities = new uint256[](0);
@@ -51,8 +43,7 @@ contract AttackActionTest is MudTest {
   function testRevertNotOwner() public {
     setup();
 
-    uint256 shipEntityId = shipSpawnSystem.executeTyped(Coord(0, 0), 0);
-    uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
+    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord(0, 0), 0);
 
     vm.prank(deployer);
     shipSpawnSystem.executeTyped(Coord(0, 0), 0);
@@ -61,7 +52,7 @@ contract AttackActionTest is MudTest {
 
     vm.prank(deployer);
 
-    shipEntities.push(shipEntityId);
+    shipEntities.push(shipEntity);
     allActions.push(actions);
 
     vm.expectRevert(bytes("ActionSystem: you don't own this ship"));
@@ -114,19 +105,19 @@ contract AttackActionTest is MudTest {
     HealthComponent healthComponent = HealthComponent(component(HealthComponentID));
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
-    uint256 attackerId = shipSpawnSystem.executeTyped(startingPosition, 0);
+    uint256 attackerEntity = shipSpawnSystem.executeTyped(startingPosition, 0);
 
-    uint256 moveStraightEntityId = uint256(keccak256("ds.prototype.moveEntity1"));
+    uint256 moveStraightEntity = uint256(keccak256("ds.prototype.moveEntity1"));
 
-    shipEntities.push(attackerId);
-    moveEntities.push(moveStraightEntityId);
+    shipEntities.push(attackerEntity);
+    moveEntities.push(moveStraightEntity);
 
     commitAndExecuteMove(2, shipEntities, moveEntities);
 
-    uint256 defenderId = shipSpawnSystem.executeTyped(startingPosition, 0);
+    uint256 defenderEntity = shipSpawnSystem.executeTyped(startingPosition, 0);
 
-    uint32 origHealth = healthComponent.getValue(defenderId);
-    uint32 attackerHealth = healthComponent.getValue(attackerId);
+    uint32 origHealth = healthComponent.getValue(defenderEntity);
+    uint32 attackerHealth = healthComponent.getValue(attackerEntity);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
 
@@ -134,15 +125,15 @@ contract AttackActionTest is MudTest {
     delete actions;
     delete allActions;
 
-    shipEntities.push(attackerId);
+    shipEntities.push(attackerEntity);
     actions.push(Action.FireRight);
     allActions.push(actions);
     actionSystem.executeTyped(shipEntities, allActions);
 
-    uint32 newHealth = healthComponent.getValue(attackerId);
+    uint32 newHealth = healthComponent.getValue(attackerEntity);
     assertEq(newHealth, attackerHealth);
 
-    newHealth = healthComponent.getValue(defenderId);
+    newHealth = healthComponent.getValue(defenderEntity);
     assertEq(newHealth, origHealth);
   }
 
@@ -151,12 +142,12 @@ contract AttackActionTest is MudTest {
 
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
 
-    uint256 attackerId = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
+    uint256 attackerEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
 
     vm.prank(deployer);
-    uint256 defenderId = shipSpawnSystem.executeTyped(Coord({ x: 9, y: 25 }), 0);
+    uint256 defenderEntity = shipSpawnSystem.executeTyped(Coord({ x: 9, y: 25 }), 0);
 
-    uint32 origHealth = healthComponent.getValue(defenderId);
+    uint32 origHealth = healthComponent.getValue(defenderEntity);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
@@ -164,7 +155,7 @@ contract AttackActionTest is MudTest {
     delete actions;
     delete allActions;
 
-    shipEntities.push(attackerId);
+    shipEntities.push(attackerEntity);
     actions.push(Action.FireRight);
     allActions.push(actions);
 
@@ -173,9 +164,9 @@ contract AttackActionTest is MudTest {
 
     console.log("gas:", gas - gasleft());
 
-    uint32 newHealth = healthComponent.getValue(defenderId);
+    uint32 newHealth = healthComponent.getValue(defenderEntity);
 
-    uint32 ehd = expectedHealthDecrease(attackerId, defenderId, Side.Right);
+    uint32 ehd = expectedHealthDecrease(attackerEntity, defenderEntity, Side.Right);
     console.log("expected health decrease:", ehd);
     assertEq(newHealth, origHealth - ehd);
   }
@@ -189,23 +180,19 @@ contract AttackActionTest is MudTest {
     actionSystem = ActionSystem(system(ActionSystemID));
     commitSystem = CommitSystem(system(CommitSystemID));
     moveSystem = MoveSystem(system(MoveSystemID));
-    entityId = addressToEntity(deployer);
-
-    gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID);
-
-    positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
-    rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
   }
 
   function expectedHealthDecrease(
-    uint256 attackerId,
-    uint256 defenderId,
+    uint256 attackerEntity,
+    uint256 defenderEntity,
     Side side
   ) public view returns (uint32) {
-    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(attackerId);
-    Coord memory attackerPosition = positionComponent.getValue(attackerId);
-    (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, defenderId);
-    Coord[4] memory firingRange = LibCombat.getFiringArea(components, attackerId, side);
+    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(attackerEntity);
+    Coord memory attackerPosition = PositionComponent(getAddressById(components, PositionComponentID)).getValue(
+      attackerEntity
+    );
+    (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, defenderEntity);
+    Coord[4] memory firingRange = LibCombat.getFiringArea(components, attackerEntity, side);
 
     uint256 distance;
     if (LibVector.withinPolygon(firingRange, aft)) {
@@ -216,7 +203,7 @@ contract AttackActionTest is MudTest {
     return
       LibCombat.getHullDamage(
         LibCombat.getBaseHitChance(distance, firepower),
-        LibCombat.randomness(attackerId, defenderId)
+        LibUtils.randomness(attackerEntity, defenderEntity)
       );
   }
 

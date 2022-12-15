@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
 
-import { console } from "forge-std/console.sol";
-
+// External
 import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 import { getAddressById } from "solecs/utils.sol";
+
+// Components
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
+
+// Types
 import { GodID, GameConfig, Phase } from "../libraries/DSTypes.sol";
 
 library LibTurn {

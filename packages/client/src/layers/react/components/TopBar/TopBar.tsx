@@ -1,9 +1,8 @@
-import React, { useState } from "react";
-import { registerUIComponent } from "../../engine";
-import { EntityIndex, getComponentValue } from "@latticexyz/recs";
-import { map, merge, of } from "rxjs";
 import { GodID } from "@latticexyz/network";
-import styled from "styled-components";
+import { EntityIndex, getComponentValue } from "@latticexyz/recs";
+import { useState } from "react";
+import { map, merge, of } from "rxjs";
+import { registerUIComponent } from "../../engine";
 import { Container } from "../../styles/global";
 import { Compass } from "./Compass";
 

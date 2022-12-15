@@ -1,50 +1,20 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
 
-// Components
-import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
+// External
+import "../MudTest.t.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
-import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
 
-// Internal
-import "../../libraries/LibVector.sol";
-import "../../libraries/LibCombat.sol";
-import "../MudTest.t.sol";
-import { addressToEntity } from "solecs/utils.sol";
+// Types
 import { Side, Coord } from "../../libraries/DSTypes.sol";
 
+// Libraries
+import "../../libraries/LibVector.sol";
+
 contract LibVectorTest is MudTest {
-  ShipSpawnSystem shipSpawnSystem;
-
-  function testInRange() public prank(deployer) {
-    setup();
-
-    Coord memory startingPosition = Coord({ x: 0, y: 0 });
-    Coord memory endPosition = Coord({ x: 10, y: 0 });
-
-    uint32 range = 9;
-    bool inRange = LibVector.inRange(startingPosition, endPosition, range);
-    assertTrue(!inRange, "9 within range");
-
-    range = 11;
-    inRange = LibVector.inRange(startingPosition, endPosition, range);
-    assertTrue(inRange, "11 out of range");
-
-    endPosition = Coord({ x: 3, y: 6 });
-    range = 6;
-    inRange = LibVector.inRange(startingPosition, endPosition, range);
-    assertTrue(!inRange, "6 within range");
-
-    range = 7;
-    inRange = LibVector.inRange(startingPosition, endPosition, range);
-    assertTrue(inRange, "7 out of range");
-  }
-
   function testGetSternLocation() public prank(deployer) {
-    setup();
-
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 rotation = 45;
     uint32 length = 50;
@@ -56,41 +26,18 @@ contract LibVectorTest is MudTest {
   }
 
   function testGetShipBowAndSternLocation() public prank(deployer) {
-    setup();
-
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
-    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
+    uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, startingRotation);
 
-    (Coord memory bow, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntityId);
+    (Coord memory bow, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntity);
 
     assertCoordEq(startingPosition, bow);
     Coord memory expectedStern = Coord({ x: -7, y: -7 });
     assertCoordEq(stern, expectedStern);
   }
 
-  function testFiringArea() public prank(deployer) {
-    setup();
-
-    Coord memory startingPosition = Coord({ x: 0, y: 0 });
-
-    uint256 shipEntityId = shipSpawnSystem.executeTyped(startingPosition, 0);
-
-    Coord[4] memory firingArea = LibCombat.getFiringArea(components, shipEntityId, Side.Right);
-
-    Coord memory stern = Coord({ x: -9, y: 0 });
-    Coord memory bottomCorner = Coord({ x: 8, y: 49 });
-    Coord memory topCorner = Coord({ x: -17, y: 49 });
-
-    assertCoordEq(startingPosition, firingArea[0]);
-    assertCoordEq(stern, firingArea[1]);
-    assertCoordEq(topCorner, firingArea[2]);
-    assertCoordEq(bottomCorner, firingArea[3]);
-  }
-
   function testInsidePolygon() public prank(deployer) {
-    setup();
-
     Coord[4] memory polygon = [
       Coord({ x: 0, y: 0 }),
       Coord({ x: 0, y: 10 }),
@@ -177,9 +124,5 @@ contract LibVectorTest is MudTest {
     uint256 initialGas = gasleft();
     LibVector.distance(a, b);
     console.log("sqrt gas used:", initialGas - gasleft());
-  }
-
-  function setup() internal {
-    shipSpawnSystem = ShipSpawnSystem(system(ShipSpawnSystemID));
   }
 }

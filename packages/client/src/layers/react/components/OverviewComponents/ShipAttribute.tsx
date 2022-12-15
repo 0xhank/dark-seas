@@ -1,7 +1,6 @@
 import styled from "styled-components";
-import { colors, Container } from "../../styles/global";
-
 import { ShipAttributeTypes } from "../../../phaser/constants";
+import { colors, Container } from "../../styles/global";
 
 export default function ShipAttribute({
   attributeType,

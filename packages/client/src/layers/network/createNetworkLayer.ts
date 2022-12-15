@@ -8,26 +8,26 @@ import {
   hasComponent,
   Type,
 } from "@latticexyz/recs";
-import { setupDevSystems } from "./setup";
 import {
   createActionSystem,
-  setupMUDNetwork,
+  defineBoolComponent,
   defineCoordComponent,
   defineNumberComponent,
-  defineBoolComponent,
   defineStringComponent,
+  setupMUDNetwork,
 } from "@latticexyz/std-client";
 import { defineLoadingStateComponent } from "./components";
+import { setupDevSystems } from "./setup";
 
-import { SystemTypes } from "../../../../contracts/types/SystemTypes";
-import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
-import { GameConfig, getNetworkConfig } from "./config";
-import { Coord } from "@latticexyz/utils";
-import { Action, Phase } from "../../constants";
-import { defineWindComponent } from "./components/WindComponent";
-import { defineMoveCardComponent } from "./components/MoveCardComponent";
 import { GodID } from "@latticexyz/network";
-import { keccak256, defaultAbiCoder as abi } from "ethers/lib/utils";
+import { Coord } from "@latticexyz/utils";
+import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
+import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
+import { SystemTypes } from "../../../../contracts/types/SystemTypes";
+import { Action, Phase } from "../../types";
+import { defineMoveCardComponent } from "./components/MoveCardComponent";
+import { defineWindComponent } from "./components/WindComponent";
+import { GameConfig, getNetworkConfig } from "./config";
 
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -202,7 +202,7 @@ export async function createNetworkLayer(config: GameConfig) {
     actions,
     utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn, checkActionPossible },
     api: { spawnShip, revealMove, submitActions, spawnPlayer, commitMove },
-    dev: setupDevSystems(world, encoders as Promise<any>, systems),
+    dev: setupDevSystems(world, encoders, systems),
   };
 
   return context;

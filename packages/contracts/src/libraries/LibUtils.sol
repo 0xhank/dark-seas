@@ -1,69 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import { World, WorldQueryFragment } from "solecs/World.sol";
+
+// External
 import { QueryFragment, QueryType, LibQuery } from "solecs/LibQuery.sol";
 import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
-import { getAddressById } from "solecs/utils.sol";
+import { getAddressById, addressToEntity } from "solecs/utils.sol";
 import { IComponent } from "solecs/interfaces/IComponent.sol";
-import { PositionComponent, ID as PositionComponentID, Coord } from "../components/PositionComponent.sol";
-import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
+
+// Components
+import { PlayerComponent, ID as PlayerComponentID } from "../components/PlayerComponent.sol";
 
 library LibUtils {
-  function toHex(bytes memory data) internal pure returns (bytes memory res) {
-    res = new bytes(data.length * 2);
-    bytes memory alphabet = "0123456789abcdef";
-    for (uint256 i = 0; i < data.length; i++) {
-      res[i * 2 + 0] = alphabet[uint256(uint8(data[i])) >> 4];
-      res[i * 2 + 1] = alphabet[uint256(uint8(data[i])) & 15];
-    }
-  }
-
-  function arrayContains(uint256[] memory arr, uint256 value) internal pure returns (bool) {
-    for (uint256 i; i < arr.length; i++) {
-      if (arr[i] == value) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  function safeDelegateCall(address addr, bytes memory callData) internal returns (bytes memory) {
-    (bool success, bytes memory returnData) = addr.delegatecall(callData);
-    // if the function call reverted
-    if (success == false) {
-      // if there is a return reason string
-      if (returnData.length > 0) {
-        // bubble up any reason for revert
-        assembly {
-          let returnDataSize := mload(returnData)
-          revert(add(32, returnData), returnDataSize)
-        }
-      } else {
-        revert("DelegateCall reverted");
-      }
-    }
-    return returnData;
-  }
-
-  function distanceBetween(
-    IUint256Component components,
-    uint256 e1,
-    uint256 e2
-  ) internal view returns (int32) {
-    PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
-
-    require(positionComponent.has(e1), "no position");
-    require(positionComponent.has(e2), "no position");
-
-    return manhattan(positionComponent.getValue(e1), positionComponent.getValue(e2));
-  }
-
-  function manhattan(Coord memory a, Coord memory b) internal pure returns (int32) {
-    int32 dx = a.x > b.x ? a.x - b.x : b.x - a.x;
-    int32 dy = a.y > b.y ? a.y - b.y : b.y - a.y;
-    return dx + dy;
-  }
-
   /**
    * @notice  retrieves an entity with a given component
    * @param   components   holds all components in the world
@@ -86,61 +33,68 @@ library LibUtils {
     return (entities, true);
   }
 
-  // Using componentComponent
-  function getEntityAt(IUint256Component components, Coord memory position)
-    internal
-    view
-    returns (uint256, bool found)
-  {
+  /**
+   * @notice  masks a bit string based on length and shift
+   * @param   _b  bit string to mask
+   * @param   length  length in bits of return bit string
+   * @param   shift  starting location of mask
+   * @return  _byteUInt masked bit string
+   */
+  function getByteUInt(
+    uint256 _b,
+    uint256 length,
+    uint256 shift
+  ) public pure returns (uint256 _byteUInt) {
+    uint256 mask = ((1 << length) - 1) << shift;
+    _byteUInt = (_b & mask) >> shift;
+  }
+
+  /**
+   * @notice simple rng calculation
+   * @dev     complexity needs to be increased in prod
+   * @param   r1  first source of randomness
+   * @param   r2  second source of randomness
+   * @return  r  random value
+   */
+  function randomness(uint256 r1, uint256 r2) public view returns (uint256 r) {
+    r = uint256(keccak256(abi.encodePacked(r1, r2, block.timestamp, block.number)));
+  }
+
+  /**
+   * @notice  checks if a player with this id exists
+   * @param   components  world components
+   * @param   playerEntity  player's entity Id
+   * @return  bool  does player with this Id exist?
+   */
+  function playerIdExists(IUint256Component components, uint256 playerEntity) internal view returns (bool) {
+    PlayerComponent playerComponent = PlayerComponent(getAddressById(components, PlayerComponentID));
+    return playerComponent.has(playerEntity);
+  }
+
+  /**
+   * @notice  checks if player with this address exists
+   * @param   components  world components
+   * @param   playerAddress  player's address
+   * @return  bool  does player with this address exist?
+   */
+  function playerAddrExists(IUint256Component components, address playerAddress) internal view returns (bool) {
+    PlayerComponent playerComponent = PlayerComponent(getAddressById(components, PlayerComponentID));
+    return playerComponent.has(addressToEntity(playerAddress));
+  }
+
+  /**
+   * @notice  get all existing players
+   * @param   components  world components
+   * @return  uint256[]  all existing players
+   */
+  function getExistingPlayers(IUint256Component components) internal view returns (uint256[] memory) {
     QueryFragment[] memory fragments = new QueryFragment[](1);
     fragments[0] = QueryFragment(
-      QueryType.HasValue,
-      IComponent(getAddressById(components, PositionComponentID)),
-      abi.encode(position)
+      QueryType.Has,
+      PlayerComponent(getAddressById(components, PlayerComponentID)),
+      new bytes(0)
     );
-    uint256[] memory entities = LibQuery.query(fragments);
-    if (entities.length == 0) return (0, false);
-    return (entities[0], true);
-  }
 
-  // Using world
-  function getEntityAt(World world, Coord memory position) internal view returns (uint256, bool found) {
-    WorldQueryFragment[] memory fragments = new WorldQueryFragment[](1);
-    fragments[0] = WorldQueryFragment(QueryType.HasValue, PositionComponentID, abi.encode(position));
-    uint256[] memory entities = world.query(fragments);
-    if (entities.length == 0) return (0, false);
-    return (entities[0], true);
-  }
-
-  // Using componentComponent
-  function getEntityWithAt(
-    IUint256Component components,
-    uint256 componentID,
-    Coord memory position
-  ) internal view returns (uint256 entity, bool found) {
-    QueryFragment[] memory fragments = new QueryFragment[](2);
-    fragments[0] = QueryFragment(
-      QueryType.HasValue,
-      IComponent(getAddressById(components, PositionComponentID)),
-      abi.encode(position)
-    );
-    fragments[1] = QueryFragment(QueryType.Has, IComponent(getAddressById(components, componentID)), new bytes(0));
-    uint256[] memory entities = LibQuery.query(fragments);
-    if (entities.length == 0) return (0, false);
-    return (entities[0], true);
-  }
-
-  // Using world
-  function getEntityWithAt(
-    World world,
-    uint256 componentID,
-    Coord memory position
-  ) internal view returns (uint256 entity, bool found) {
-    WorldQueryFragment[] memory fragments = new WorldQueryFragment[](2);
-    fragments[0] = WorldQueryFragment(QueryType.HasValue, PositionComponentID, abi.encode(position));
-    fragments[1] = WorldQueryFragment(QueryType.Has, componentID, new bytes(0));
-    uint256[] memory entities = world.query(fragments);
-    if (entities.length == 0) return (0, false);
-    return (entities[0], true);
+    return LibQuery.query(fragments);
   }
 }

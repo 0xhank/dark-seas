@@ -1,4 +1,3 @@
-import { EntityID } from "@latticexyz/recs";
 import styled from "styled-components";
 import { colors, Container } from "../../styles/global";
 

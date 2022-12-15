@@ -1,14 +1,7 @@
 import { GodID } from "@latticexyz/network";
 import { tileCoordToPixelCoord } from "@latticexyz/phaserx";
-import {
-  defineSystem,
-  EntityIndex,
-  getComponentValueStrict,
-  getEntitiesWithValue,
-  Has,
-  UpdateType,
-} from "@latticexyz/recs";
-import { Phase, Side } from "../../../constants";
+import { defineSystem, EntityIndex, getComponentValueStrict, Has, UpdateType } from "@latticexyz/recs";
+import { Phase, Side } from "../../../types";
 import { getWindBoost } from "../../../utils/directions";
 import { getFiringArea } from "../../../utils/trig";
 import { NetworkLayer } from "../../network";

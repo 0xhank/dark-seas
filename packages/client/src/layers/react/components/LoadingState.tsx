@@ -1,8 +1,7 @@
-import React from "react";
-import { BootScreen, registerUIComponent } from "../engine";
-import { concat, map } from "rxjs";
-import { getComponentValue } from "@latticexyz/recs";
 import { GodID, SyncState } from "@latticexyz/network";
+import { getComponentValue } from "@latticexyz/recs";
+import { concat, map } from "rxjs";
+import { BootScreen, registerUIComponent } from "../engine";
 
 export function registerLoadingState() {
   registerUIComponent(

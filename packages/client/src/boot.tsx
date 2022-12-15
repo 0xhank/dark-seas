@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getComponentValue, removeComponent, setComponent } from "@latticexyz/recs";
-import React from "react";
+import { Wallet } from "ethers";
 import ReactDOM from "react-dom/client";
-import { Time } from "./utils/time";
 import { createNetworkLayer as createNetworkLayerImport } from "./layers/network";
 import { createPhaserLayer as createPhaserLayerImport } from "./layers/phaser";
-import { Layers } from "./types";
-import { Engine as EngineImport } from "./layers/react/engine/Engine";
 import { registerUIComponents as registerUIComponentsImport } from "./layers/react/components";
-import { Wallet } from "ethers";
+import { Engine as EngineImport } from "./layers/react/engine/Engine";
+import { Layers } from "./types";
+import { Time } from "./utils/time";
 
 // Assign variables that can be overridden by HMR
 let createNetworkLayer = createNetworkLayerImport;

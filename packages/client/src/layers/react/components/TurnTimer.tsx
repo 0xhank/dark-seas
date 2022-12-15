@@ -1,12 +1,11 @@
-import React from "react";
-import { registerUIComponent } from "../engine";
-import { map, merge } from "rxjs";
-import { colors } from "../styles/global";
-import { Phase, PhaseNames } from "../../../constants";
-import styled from "styled-components";
-import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { GodID } from "@latticexyz/network";
+import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
+import { map, merge } from "rxjs";
+import styled from "styled-components";
+import { Phase, PhaseNames } from "../../../types";
 import { getWindBoost } from "../../../utils/directions";
+import { registerUIComponent } from "../engine";
+import { colors } from "../styles/global";
 
 export function registerTurnTimer() {
   registerUIComponent(

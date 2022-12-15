@@ -1,20 +1,20 @@
-import { defineComponent, namespaceWorld, Type } from "@latticexyz/recs";
 import { createPhaserEngine } from "@latticexyz/phaserx";
-import { phaserConfig } from "./config";
+import { defineComponent, namespaceWorld, Type } from "@latticexyz/recs";
+import { defineNumberComponent, defineStringComponent } from "@latticexyz/std-client";
+import { Phase } from "../../types";
 import { NetworkLayer } from "../network";
+import { phaserConfig } from "./config";
+import { POS_HEIGHT, POS_WIDTH } from "./constants";
 import {
-  createPositionSystem,
-  createInputSystem,
   createActiveSystem,
   createHealthSystem,
+  createInputSystem,
+  createPositionSystem,
   createStatUpdateSystem,
 } from "./systems";
-import { defineNumberComponent, defineStringComponent, getGameConfig } from "@latticexyz/std-client";
-import { POS_HEIGHT, POS_WIDTH } from "./constants";
 import { createProjectionSystem } from "./systems/createProjectionSystem";
 import { createRadiusSystem } from "./systems/createRadiusSystem";
 import { createResetSystem } from "./systems/createResetSystem";
-import { Phase } from "../../constants";
 
 /**
  * The Phaser layer is responsible for rendering game objects to the screen.
