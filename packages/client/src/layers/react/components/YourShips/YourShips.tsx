@@ -58,7 +58,7 @@ export function registerYourShips() {
           utils: { getPlayerEntity, getPhase, getTurn },
         },
         phaser: {
-          components: { SelectedShip, SelectedMove, Selection, SelectedActions, CommittedMoves },
+          components: { SelectedShip, SelectedMove, SelectedActions, CommittedMoves },
           scenes: {
             Main: { camera },
           },
@@ -74,7 +74,6 @@ export function registerYourShips() {
         Rotation.update$,
         SailPosition.update$,
         Position.update$,
-        Selection.update$,
         Player.update$,
         Health.update$,
         CrewCount.update$,
@@ -98,7 +97,6 @@ export function registerYourShips() {
             Rotation,
             SelectedShip,
             SailPosition,
-            Selection,
             Player,
             Wind,
             Ship,
@@ -133,7 +131,6 @@ export function registerYourShips() {
         layers,
         SelectedMove,
         SelectedShip,
-        Selection,
         Wind,
         Ship,
         Player,
@@ -167,7 +164,6 @@ export function registerYourShips() {
 
       const wind = getComponentValueStrict(Wind, GodEntityIndex);
       const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
-      const selection = getComponentValue(Selection, GodEntityIndex)?.value || -1;
 
       const yourShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
 
@@ -248,7 +244,11 @@ export function registerYourShips() {
           );
         } else if (phase == Phase.Commit || (phase == Phase.Action && lastAction != currentTurn)) {
           const content =
-            phase == Phase.Commit ? (committedMoves ? "Commit Updated Moves" : "Commit Moves") : "Submit Actions";
+            phase == Phase.Commit
+              ? committedMoves
+                ? "Update Prepared Moves"
+                : "Confirm Prepared Moves"
+              : "Submit Actions";
           return (
             <ConfirmButtonsContainer>
               <Button
@@ -296,7 +296,6 @@ export function registerYourShips() {
                   ship={ship}
                   selectedShip={selectedShip}
                   wind={wind}
-                  selection={selection}
                   phase={phase}
                 />
               ))}

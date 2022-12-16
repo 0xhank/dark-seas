@@ -31,11 +31,14 @@ export function registerTurnTimer() {
           const gameConfig = getGameConfig();
           if (!gameConfig) return;
 
-          const gameLength = Math.floor(clock.currentTime / 1000) - parseInt(gameConfig.startTime);
+          // add 5 seconds to give time to auto submit at end of phase
+
+          const fiveSecondsAgo = Math.floor(clock.currentTime / 1000) + 5;
+          const gameLength = fiveSecondsAgo - parseInt(gameConfig.startTime);
           const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;
           const secondsIntoTurn = gameLength % turnLength;
 
-          const phase = getPhase();
+          const phase = getPhase(5);
           if (phase == undefined) return;
 
           const phaseStart =
@@ -79,8 +82,8 @@ export function registerTurnTimer() {
       return (
         <OuterContainer>
           <InternalContainer>
-            <Text>
-              {secondsUntilNextPhase + 1} seconds left in {PhaseNames[phase]} Phase
+            <Text secondsUntilNextPhase={secondsUntilNextPhase}>
+              {secondsUntilNextPhase + 1} seconds left in {PhaseNames[phase]} phase
             </Text>
             <ProgressBar phaseLength={phaseLength} secondsUntilNextPhase={secondsUntilNextPhase} />
           </InternalContainer>
@@ -114,9 +117,9 @@ const InternalContainer = styled.div`
   height: 30px;
 `;
 
-const Text = styled.div`
+const Text = styled.div<{ secondsUntilNextPhase: number }>`
   width: 100%;
-  color: ${colors.darkBrown};
+  color: ${({ secondsUntilNextPhase }) => (secondsUntilNextPhase < 5 ? colors.white : colors.darkBrown)};
   line-height: 24px;
   text-align: center;
   z-index: 100;
@@ -128,7 +131,7 @@ const ProgressBar = styled.div<{ phaseLength: number; secondsUntilNextPhase: num
   left: 0;
   height: 30px;
   transition: width 1s linear;
-  background-color: ${colors.gold};
+  background-color: ${({ secondsUntilNextPhase }) => (secondsUntilNextPhase < 5 ? colors.red : colors.gold)};
   width: ${({ phaseLength, secondsUntilNextPhase }) =>
     `calc(100% * ${(phaseLength - secondsUntilNextPhase) / phaseLength})`};
   border-radius: 6px;
