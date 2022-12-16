@@ -1,11 +1,12 @@
 import { Coord } from "@latticexyz/utils";
 import { boot } from "./boot";
+import { BackendLayer } from "./layers/backend";
 import { NetworkLayer } from "./layers/network";
 import { PhaserLayer } from "./layers/phaser";
 
 export type DSWindow = Awaited<ReturnType<typeof boot>>;
 
-export type Layers = { network: NetworkLayer; phaser: PhaserLayer };
+export type Layers = { network: NetworkLayer; backend: BackendLayer; phaser: PhaserLayer };
 
 export enum Action {
   FireLeft,

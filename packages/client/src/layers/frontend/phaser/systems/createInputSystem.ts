@@ -1,18 +1,15 @@
 import { pixelCoordToTileCoord } from "@latticexyz/phaserx";
-import { NetworkLayer } from "../../network";
 import { PhaserLayer } from "../types";
 
-export function createInputSystem(network: NetworkLayer, phaser: PhaserLayer) {
+export function createInputSystem(phaser: PhaserLayer) {
   const {
     world,
-    components: { SelectedShip },
     scenes: {
       Main: {
         input,
         maps: {
           Main: { tileWidth, tileHeight },
         },
-        objectPool,
       },
     },
   } = phaser;
