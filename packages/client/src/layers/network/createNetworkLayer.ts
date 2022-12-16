@@ -109,8 +109,8 @@ export async function createNetworkLayer(config: GameConfig) {
     return playerEntity;
   }
 
-  function getPhase(): Phase | undefined {
-    const gamePhase = getGamePhaseAt(Math.floor(network.clock.currentTime / 1000));
+  function getPhase(delay = 0): Phase | undefined {
+    const gamePhase = getGamePhaseAt(Math.floor(network.clock.currentTime / 1000) + delay);
     return gamePhase;
   }
 

@@ -31,11 +31,14 @@ export function registerTurnTimer() {
           const gameConfig = getGameConfig();
           if (!gameConfig) return;
 
-          const gameLength = Math.floor(clock.currentTime / 1000) - parseInt(gameConfig.startTime);
+          // add 5 seconds to give time to auto submit at end of phase
+
+          const fiveSecondsAgo = Math.floor(clock.currentTime / 1000) + 5;
+          const gameLength = fiveSecondsAgo - parseInt(gameConfig.startTime);
           const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;
           const secondsIntoTurn = gameLength % turnLength;
 
-          const phase = getPhase();
+          const phase = getPhase(5);
           if (phase == undefined) return;
 
           const phaseStart =
