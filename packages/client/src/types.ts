@@ -30,8 +30,8 @@ export enum Phase {
 }
 
 export const PhaseNames: Record<number, string> = {
-  [Phase.Commit]: "Commit",
-  [Phase.Reveal]: "Reveal",
+  [Phase.Commit]: "Move Preparation",
+  [Phase.Reveal]: "Move Execution",
   [Phase.Action]: "Action",
 };
 

@@ -244,7 +244,11 @@ export function registerYourShips() {
           );
         } else if (phase == Phase.Commit || (phase == Phase.Action && lastAction != currentTurn)) {
           const content =
-            phase == Phase.Commit ? (committedMoves ? "Commit Updated Moves" : "Commit Moves") : "Submit Actions";
+            phase == Phase.Commit
+              ? committedMoves
+                ? "Update Prepared Moves"
+                : "Confirm Prepared Moves"
+              : "Submit Actions";
           return (
             <ConfirmButtonsContainer>
               <Button

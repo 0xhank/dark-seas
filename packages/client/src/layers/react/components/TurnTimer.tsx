@@ -80,7 +80,7 @@ export function registerTurnTimer() {
         <OuterContainer>
           <InternalContainer>
             <Text secondsUntilNextPhase={secondsUntilNextPhase}>
-              {secondsUntilNextPhase + 1} seconds left in {PhaseNames[phase]} Phase
+              {secondsUntilNextPhase + 1} seconds left in {PhaseNames[phase]} phase
             </Text>
             <ProgressBar phaseLength={phaseLength} secondsUntilNextPhase={secondsUntilNextPhase} />
           </InternalContainer>
