@@ -79,7 +79,7 @@ export function registerTurnTimer() {
       return (
         <OuterContainer>
           <InternalContainer>
-            <Text>
+            <Text secondsUntilNextPhase={secondsUntilNextPhase}>
               {secondsUntilNextPhase + 1} seconds left in {PhaseNames[phase]} Phase
             </Text>
             <ProgressBar phaseLength={phaseLength} secondsUntilNextPhase={secondsUntilNextPhase} />
@@ -114,9 +114,9 @@ const InternalContainer = styled.div`
   height: 30px;
 `;
 
-const Text = styled.div`
+const Text = styled.div<{ secondsUntilNextPhase: number }>`
   width: 100%;
-  color: ${colors.darkBrown};
+  color: ${({ secondsUntilNextPhase }) => (secondsUntilNextPhase < 5 ? colors.white : colors.darkBrown)};
   line-height: 24px;
   text-align: center;
   z-index: 100;
@@ -128,7 +128,7 @@ const ProgressBar = styled.div<{ phaseLength: number; secondsUntilNextPhase: num
   left: 0;
   height: 30px;
   transition: width 1s linear;
-  background-color: ${colors.gold};
+  background-color: ${({ secondsUntilNextPhase }) => (secondsUntilNextPhase < 5 ? colors.red : colors.gold)};
   width: ${({ phaseLength, secondsUntilNextPhase }) =>
     `calc(100% * ${(phaseLength - secondsUntilNextPhase) / phaseLength})`};
   border-radius: 6px;

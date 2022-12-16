@@ -28,6 +28,7 @@ import { Action, Phase } from "../../types";
 import { defineMoveCardComponent } from "./components/MoveCardComponent";
 import { defineWindComponent } from "./components/WindComponent";
 import { GameConfig, getNetworkConfig } from "./config";
+import { GAS_LIMIT } from "./constants";
 
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -165,29 +166,39 @@ export async function createNetworkLayer(config: GameConfig) {
   function commitMove(encoding: string) {
     const commitment = keccak256(encoding);
     console.log("committing move");
-    systems["ds.system.Commit"].executeTyped(commitment);
+    systems["ds.system.Commit"].executeTyped(commitment, {
+      gasLimit: GAS_LIMIT,
+    });
   }
 
   function spawnPlayer(name: string) {
     const location: Coord = { x: Math.round(Math.random() * 300000), y: Math.round(Math.random() * 300000) };
     console.log("spawning player");
-    systems["ds.system.PlayerSpawn"].executeTyped(name, location);
+    systems["ds.system.PlayerSpawn"].executeTyped(name, location, {
+      gasLimit: GAS_LIMIT,
+    });
   }
 
   function spawnShip(location: Coord, rotation: number) {
     console.log("spawning ship");
-    systems["ds.system.ShipSpawn"].executeTyped(location, rotation);
+    systems["ds.system.ShipSpawn"].executeTyped(location, rotation, {
+      gasLimit: GAS_LIMIT,
+    });
   }
 
   function revealMove(encoding: string) {
     console.log("revealing move");
     const decodedMove = abi.decode(["uint256[]", "uint256[]", "uint256"], encoding);
-    systems["ds.system.Move"].executeTyped(decodedMove[0], decodedMove[1], decodedMove[2]);
+    systems["ds.system.Move"].executeTyped(decodedMove[0], decodedMove[1], decodedMove[2], {
+      gasLimit: GAS_LIMIT,
+    });
   }
 
   function submitActions(ships: EntityID[], actions: Action[][]) {
     console.log("submitting actions");
-    systems["ds.system.Action"].executeTyped(ships, actions);
+    systems["ds.system.Action"].executeTyped(ships, actions, {
+      gasLimit: GAS_LIMIT,
+    });
   }
 
   // --- CONTEXT --------------------------------------------------------------------
