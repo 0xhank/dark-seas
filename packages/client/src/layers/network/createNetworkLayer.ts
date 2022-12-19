@@ -4,7 +4,6 @@ import {
   EntityID,
   EntityIndex,
   getComponentValue,
-  getComponentValueStrict,
   hasComponent,
   Type,
 } from "@latticexyz/recs";
@@ -110,7 +109,8 @@ export async function createNetworkLayer(config: GameConfig) {
   }
 
   function getPhase(delay = 0): Phase | undefined {
-    const gamePhase = getGamePhaseAt(Math.floor(network.clock.currentTime / 1000) + delay);
+    const time = Math.floor(network.clock.currentTime / 1000) + delay;
+    const gamePhase = getGamePhaseAt(time);
     return gamePhase;
   }
 
@@ -127,9 +127,10 @@ export async function createNetworkLayer(config: GameConfig) {
     return Phase.Action;
   }
 
-  function getTurn(): number | undefined {
-    const gamePhase = getGameTurnAt(network.clock.currentTime / 1000);
-    return gamePhase;
+  function getTurn(delay = 0): number | undefined {
+    const time = Math.floor(network.clock.currentTime / 1000) + delay;
+    const gameTurn = getGameTurnAt(time);
+    return gameTurn;
   }
 
   function getGameTurnAt(timeInSeconds: number): number | undefined {
@@ -140,24 +141,6 @@ export async function createNetworkLayer(config: GameConfig) {
 
     return Math.floor(timeElapsed / turnLength);
   }
-
-  function checkActionPossible(action: Action, ship: EntityIndex): boolean {
-    const onFire = getComponentValue(components.OnFire, ship)?.value;
-    if (action == Action.ExtinguishFire && !onFire) return false;
-    if (action == Action.FireRight && onFire) return false;
-    if (action == Action.FireLeft && onFire) return false;
-
-    if (action == Action.RepairLeak && !getComponentValue(components.Leak, ship)) return false;
-    if (action == Action.RepairMast && !getComponentValue(components.DamagedMast, ship)) return false;
-
-    const sailPosition = getComponentValueStrict(components.SailPosition, ship).value;
-    if (action == Action.LowerSail && sailPosition != 2) return false;
-    if (action == Action.RaiseSail && sailPosition != 1) return false;
-    if (action == Action.RepairSail && sailPosition > 0) return false;
-
-    return true;
-  }
-
   // --- ACTION SYSTEM --------------------------------------------------------------
   const actions = createActionSystem(world, txReduced$);
 
@@ -211,7 +194,7 @@ export async function createNetworkLayer(config: GameConfig) {
     startSync,
     network,
     actions,
-    utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn, checkActionPossible },
+    utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn },
     api: { spawnShip, revealMove, submitActions, spawnPlayer, commitMove },
     dev: setupDevSystems(world, encoders, systems),
   };
