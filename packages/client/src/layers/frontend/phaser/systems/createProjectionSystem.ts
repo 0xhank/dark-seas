@@ -104,7 +104,7 @@ export function createProjectionSystem(phaser: PhaserLayer) {
 
     polygonRegistry.set(`rangeGroup-${entity}`, rangeGroup);
 
-    const spriteAsset: Sprites = getShipSprite(GodEntityIndex, GodEntityIndex, health);
+    const spriteAsset: Sprites = getShipSprite(GodEntityIndex, health, true);
     // @ts-expect-error doesnt recognize a sprite as a number
     const sprite = config.sprites[spriteAsset];
 

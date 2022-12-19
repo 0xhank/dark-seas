@@ -1,16 +1,16 @@
 import { EntityIndex } from "@latticexyz/recs";
 import { Sprites } from "../types";
 
-export function getShipSprite(playerEntity: EntityIndex, ownerEntity: EntityIndex, health: number): Sprites {
+export function getShipSprite(ownerEntity: EntityIndex, health: number, mine: boolean): Sprites {
   // return config.sprites[Sprites.ShipWhite];
-  if (playerEntity == ownerEntity) {
+  if (mine) {
     if (health > 7) return Sprites.ShipWhite;
     else if (health > 4) return Sprites.ShipWhiteMinor;
     else if (health > 0) return Sprites.ShipWhiteMajor;
     else return Sprites.ShipWhiteDead;
   }
 
-  const color = getShipColor(playerEntity);
+  const color = getShipColor(ownerEntity);
 
   if (color == ShipColors.Red) {
     if (health > 7) return Sprites.ShipRed;

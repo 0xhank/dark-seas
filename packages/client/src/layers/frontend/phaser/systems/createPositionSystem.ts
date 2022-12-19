@@ -78,7 +78,7 @@ export function createPositionSystem(phaser: PhaserLayer) {
 
     const object = objectPool.get(update.entity, "Sprite");
 
-    const spriteAsset: Sprites = getShipSprite(playerEntity, ownerEntity, health);
+    const spriteAsset: Sprites = getShipSprite(playerEntity, health, playerEntity == ownerEntity);
     // @ts-expect-error doesnt recognize a sprite as a number
     const sprite = config.sprites[spriteAsset];
     // const sprite = config.sprites[Sprites.ShipBlack];
@@ -119,7 +119,6 @@ export function createPositionSystem(phaser: PhaserLayer) {
         });
       },
       once: async (gameObject: Phaser.GameObjects.Sprite) => {
-        gameObject.setName(update.entity.toString());
         gameObject.setTexture(sprite.assetKey, sprite.frame);
 
         gameObject.setAngle((rotation - 90) % 360);
