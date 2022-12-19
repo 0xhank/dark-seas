@@ -6,10 +6,11 @@ import {
   getComponentValueStrict,
   setComponent,
 } from "@latticexyz/recs";
-import { Layers, MoveCard } from "../../../../types";
-import { arrowImg, getFinalMoveCard, getFinalPosition } from "../../../../utils/directions";
-import { inRange } from "../../../../utils/distance";
+import { Layers, MoveCard } from "../../../../../types";
+import { getFinalMoveCard, getFinalPosition } from "../../../../../utils/directions";
+import { inRange } from "../../../../../utils/distance";
 import { Button } from "../../styles/global";
+import { arrowImg } from "../../types";
 
 export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
   const {
@@ -20,7 +21,7 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
 
   const {
     components: { SelectedMove },
-  } = layers.phaser;
+  } = layers.backend;
 
   const worldRadius = getGameConfig()?.worldRadius;
   if (!worldRadius) return null;

@@ -2,7 +2,7 @@ import { GodID } from "@latticexyz/network";
 import { EntityIndex, getComponentValueStrict, setComponent } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
 import styled from "styled-components";
-import { Layers, Phase, Wind } from "../../../../types";
+import { Layers, Phase } from "../../../../../types";
 import { colors, InternalContainer } from "../../styles/global";
 import { ActionSelection } from "../OverviewComponents/ActionSelection";
 import { MoveSelection } from "../OverviewComponents/MoveSelection";
@@ -12,13 +12,11 @@ export const YourShip = ({
   layers,
   ship,
   selectedShip,
-  wind,
   phase,
 }: {
   layers: Layers;
   ship: EntityIndex;
   selectedShip: EntityIndex | undefined;
-  wind: Wind;
   phase: Phase;
 }) => {
   const {
@@ -26,7 +24,7 @@ export const YourShip = ({
       components: { Position, Health },
       world,
     },
-    phaser: {
+    backend: {
       components: { SelectedShip },
     },
   } = layers;

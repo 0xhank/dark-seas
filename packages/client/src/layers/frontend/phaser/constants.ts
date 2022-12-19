@@ -1,4 +1,4 @@
-import { Sprites } from "../../types";
+import { Sprites } from "../../../types";
 
 export const TILE_WIDTH = 64;
 export const TILE_HEIGHT = 64;
@@ -21,23 +21,6 @@ export enum Maps {
 export enum Assets {
   DSTileset = "DSTileset",
   MainAtlas = "MainAtlas",
-}
-
-export enum Arrows {
-  Straight = "/img/arrows/straight.png",
-  HardLeft = "/img/arrows/hard-left.png",
-  HardRight = "/img/arrows/hard-right.png",
-  Left = "/img/arrows/left.png",
-  Right = "/img/arrows/right.png",
-  SoftLeft = "/img/arrows/soft-left.png",
-  SoftRight = "/img/arrows/soft-right.png",
-  UTurn = "/img/arrows/uturn.png",
-}
-
-export enum ShipAttributeTypes {
-  Firepower,
-  Crew,
-  Sails,
 }
 
 export enum RenderDepth {

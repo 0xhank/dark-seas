@@ -2,8 +2,8 @@ import { GodID } from "@latticexyz/network";
 import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { map, merge } from "rxjs";
 import styled from "styled-components";
-import { Phase, PhaseNames } from "../../../types";
-import { getWindBoost } from "../../../utils/directions";
+import { Phase, PhaseNames } from "../../../../types";
+import { getWindBoost } from "../../../../utils/directions";
 import { registerUIComponent } from "../engine";
 import { colors } from "../styles/global";
 
@@ -24,7 +24,7 @@ export function registerTurnTimer() {
         utils: { getGameConfig, getPhase },
       } = layers.network;
 
-      const { SelectedShip } = layers.phaser.components;
+      const { SelectedShip } = layers.backend.components;
 
       return merge(clock.time$, Wind.update$, SelectedShip.update$).pipe(
         map(() => {

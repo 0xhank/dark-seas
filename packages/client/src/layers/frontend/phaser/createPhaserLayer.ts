@@ -38,6 +38,10 @@ export async function createPhaserLayer(backend: BackendLayer) {
   const context = {
     world,
     components,
+    parentLayers: {
+      ...backend.parentLayers,
+      backend,
+    },
     backend,
     game,
     scenes,
@@ -47,13 +51,13 @@ export async function createPhaserLayer(backend: BackendLayer) {
 
   // --- SYSTEMS --------------------------------------------------------------------
   createInputSystem(context);
-  createPositionSystem(backend, context);
-  createActiveSystem(backend, context);
-  createHealthSystem(backend, context);
-  createProjectionSystem(backend, context);
-  createRadiusSystem(backend, context);
-  createStatUpdateSystem(backend, context);
-  createResetSystem(backend, context);
+  createPositionSystem(context);
+  createActiveSystem(context);
+  createHealthSystem(context);
+  createProjectionSystem(context);
+  createRadiusSystem(context);
+  createStatUpdateSystem(context);
+  createResetSystem(context);
 
   return context;
 }

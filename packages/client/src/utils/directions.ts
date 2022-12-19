@@ -1,5 +1,4 @@
 import { Coord } from "@latticexyz/utils";
-import { Arrows } from "../layers/phaser/constants";
 import { MoveCard, Wind } from "../types";
 import { getPositionByVector } from "./trig";
 
@@ -75,22 +74,4 @@ export function rotationToDirectionName(rotation: number): string {
   if (rotation > 68 && rotation < 112) return (ret += "SE");
 
   return ret;
-}
-
-export function arrowImg(rotation: number) {
-  return rotation == 360 || rotation == 0
-    ? Arrows.Straight
-    : rotation > 270
-    ? Arrows.SoftLeft
-    : rotation == 270
-    ? Arrows.Left
-    : rotation > 180
-    ? Arrows.HardLeft
-    : rotation == 180
-    ? Arrows.UTurn
-    : rotation > 90
-    ? Arrows.HardRight
-    : rotation == 90
-    ? Arrows.Right
-    : Arrows.SoftRight;
 }

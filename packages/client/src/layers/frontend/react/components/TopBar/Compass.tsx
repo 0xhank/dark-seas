@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Wind } from "../../../../types";
+import { Wind } from "../../../../../types";
 import { colors } from "../../styles/global";
 
 export function Compass({ speed, direction }: Wind) {

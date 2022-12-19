@@ -1,11 +1,11 @@
 import { GodID } from "@latticexyz/network";
 import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { map, merge, of } from "rxjs";
-import { SailPositions } from "../../../types";
-import { getShipSprite, ShipImages } from "../../../utils/ships";
-import { ShipAttributeTypes } from "../../phaser/constants";
+import { SailPositions } from "../../../../types";
+import { getShipSprite, ShipImages } from "../../../../utils/ships";
 import { registerUIComponent } from "../engine";
 import { BoxImage, Container, InternalContainer } from "../styles/global";
+import { ShipAttributeTypes } from "../types";
 import HullHealth from "./OverviewComponents/HullHealth";
 import ShipAttribute from "./OverviewComponents/ShipAttribute";
 import ShipDamage from "./OverviewComponents/ShipDamage";
@@ -44,8 +44,10 @@ export function registerShipOverview() {
             Name,
           },
         },
-        phaser: {
+        backend: {
           components: { SelectedShip },
+        },
+        phaser: {
           scenes: {
             Main: { camera },
           },

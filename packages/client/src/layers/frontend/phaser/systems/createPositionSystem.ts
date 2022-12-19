@@ -11,25 +11,27 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
-import { Sprites } from "../../../types";
-import { getShipSprite } from "../../../utils/ships";
-import { NetworkLayer } from "../../network";
+import { Sprites } from "../../../../types";
+import { getShipSprite } from "../../../../utils/ships";
 import { RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
 
-export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer) {
+export function createPositionSystem(phaser: PhaserLayer) {
   const {
     world,
-    components: { Position, Length, Rotation, OwnedBy, Health },
-    utils: { getPlayerEntity },
-    network: { connectedAddress },
-  } = network;
-
-  const {
     scenes: {
       Main: { objectPool, config, camera },
     },
-    components: { SelectedShip, SelectedMove },
+    parentLayers: {
+      network: {
+        components: { Position, Length, Rotation, OwnedBy, Health },
+        utils: { getPlayerEntity },
+        network: { connectedAddress },
+      },
+      backend: {
+        components: { SelectedShip, SelectedMove },
+      },
+    },
     polygonRegistry,
     positions,
   } = phaser;

@@ -76,7 +76,8 @@ export async function createBackendLayer(network: NetworkLayer) {
   // --- CONTEXT --------------------------------------------------------------------
   const context = {
     world,
-    utils: { checkActionPossible },
+    parentLayers: { network },
+    utils: { checkActionPossible, secondsUntilNextPhase },
     components,
   };
 

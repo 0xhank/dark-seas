@@ -1,28 +1,30 @@
 import { GodID } from "@latticexyz/network";
 import { tileCoordToPixelCoord } from "@latticexyz/phaserx";
 import { defineSystem, EntityIndex, getComponentValueStrict, Has, UpdateType } from "@latticexyz/recs";
-import { Phase, Side } from "../../../types";
-import { getWindBoost } from "../../../utils/directions";
-import { getFiringArea } from "../../../utils/trig";
-import { NetworkLayer } from "../../network";
+import { Phase, Side } from "../../../../types";
+import { getWindBoost } from "../../../../utils/directions";
+import { getFiringArea } from "../../../../utils/trig";
 import { RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
 
-export function createActiveSystem(network: NetworkLayer, phaser: PhaserLayer) {
+export function createActiveSystem(layer: PhaserLayer) {
   const {
     world,
-    components: { Position, Length, Rotation, Wind, Range },
-    utils: { getPhase },
-  } = network;
-
-  const {
+    parentLayers: {
+      network: {
+        components: { Position, Length, Rotation, Wind, Range },
+        utils: { getPhase },
+      },
+      backend: {
+        components: { SelectedShip },
+      },
+    },
+    polygonRegistry,
+    positions,
     scenes: {
       Main: { phaserScene },
     },
-    components: { SelectedShip },
-    polygonRegistry,
-    positions,
-  } = phaser;
+  } = layer;
 
   defineSystem(world, [Has(SelectedShip), Has(Wind)], ({ type }) => {
     const phase: Phase | undefined = getPhase();

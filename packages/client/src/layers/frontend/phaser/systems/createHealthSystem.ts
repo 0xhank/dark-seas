@@ -6,21 +6,21 @@ import {
   Has,
   setComponent,
 } from "@latticexyz/recs";
-import { NetworkLayer } from "../../network";
 import { PhaserLayer } from "../types";
 
-export function createHealthSystem(network: NetworkLayer, phaser: PhaserLayer) {
+export function createHealthSystem(layer: PhaserLayer) {
   const {
     world,
-    components: { Health, OnFire, Leak, DamagedMast, SailPosition, CrewCount },
-  } = network;
-
-  const {
     scenes: {
       Main: { objectPool },
     },
+    parentLayers: {
+      network: {
+        components: { Health, OnFire, Leak, DamagedMast, SailPosition, CrewCount },
+      },
+    },
     components: { UpdateQueue },
-  } = phaser;
+  } = layer;
 
   defineUpdateSystem(world, [Has(Health)], (update) => {
     const updateQueue = getComponentValue(UpdateQueue, update.entity)?.value || new Array<string>();

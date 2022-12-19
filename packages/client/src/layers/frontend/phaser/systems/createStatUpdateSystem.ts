@@ -1,17 +1,16 @@
 import { tileCoordToPixelCoord } from "@latticexyz/phaserx";
 import { defineSystem, getComponentValueStrict, Has } from "@latticexyz/recs";
-import { NetworkLayer } from "../../network";
 import { RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
 
-export function createStatUpdateSystem(network: NetworkLayer, phaser: PhaserLayer) {
+export function createStatUpdateSystem(phaser: PhaserLayer) {
   const {
     world,
-    components: { Position },
-    utils: { getGameConfig },
-  } = network;
-
-  const {
+    parentLayers: {
+      network: {
+        components: { Position },
+      },
+    },
     components: { UpdateQueue },
     polygonRegistry,
 

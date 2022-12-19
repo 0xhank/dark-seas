@@ -1,36 +1,34 @@
 import { GodID } from "@latticexyz/network";
 import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
-import { Layers, SailPositions } from "../../../../types";
-import { getShipSprite, ShipImages } from "../../../../utils/ships";
-import { ShipAttributeTypes } from "../../../phaser/constants";
+import { Layers, SailPositions } from "../../../../../types";
+import { getShipSprite, ShipImages } from "../../../../../utils/ships";
 import { BoxImage } from "../../styles/global";
+import { ShipAttributeTypes } from "../../types";
 import HullHealth from "../OverviewComponents/HullHealth";
 import ShipAttribute from "../OverviewComponents/ShipAttribute";
 import ShipDamage from "../OverviewComponents/ShipDamage";
 
 export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
   const {
-    world,
-    utils: { getPlayerEntity },
-    network: { connectedAddress },
-    components: {
-      Health,
-      SailPosition,
-      CrewCount,
-      DamagedMast,
-      Firepower,
-      Leak,
-      OnFire,
-      Rotation,
-      Position,
-      OwnedBy,
-      Name,
+    network: {
+      world,
+      utils: { getPlayerEntity },
+      network: { connectedAddress },
+      components: {
+        Health,
+        SailPosition,
+        CrewCount,
+        DamagedMast,
+        Firepower,
+        Leak,
+        OnFire,
+        Rotation,
+        Position,
+        OwnedBy,
+        Name,
+      },
     },
-  } = layers.network;
-
-  const {
-    components: { SelectedShip },
-  } = layers.phaser;
+  } = layers;
 
   const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 

@@ -14,7 +14,7 @@ import {
 import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { map, merge } from "rxjs";
 import styled from "styled-components";
-import { Action, Phase } from "../../../../types";
+import { Action, Phase } from "../../../../../types";
 import { registerUIComponent } from "../../engine";
 import { Button, colors, ConfirmButton, Container, InternalContainer } from "../../styles/global";
 import { YourShip } from "./ShipData";
@@ -57,12 +57,8 @@ export function registerYourShips() {
           network: { connectedAddress, clock },
           utils: { getPlayerEntity, getPhase, getTurn },
         },
-        phaser: {
+        backend: {
           components: { SelectedShip, SelectedMove, SelectedActions, CommittedMoves },
-          scenes: {
-            Main: { camera },
-          },
-          positions,
         },
       } = layers;
 
@@ -112,8 +108,6 @@ export function registerYourShips() {
             LastAction,
             CommittedMoves,
             world,
-            camera,
-            positions,
             connectedAddress,
             revealMove,
             getPlayerEntity,
@@ -290,14 +284,7 @@ export function registerYourShips() {
           <InternalContainer style={{ gap: "24px", height: "auto" }}>
             <MoveButtons>
               {yourShips.map((ship) => (
-                <YourShip
-                  key={`ship-${ship}`}
-                  layers={layers}
-                  ship={ship}
-                  selectedShip={selectedShip}
-                  wind={wind}
-                  phase={phase}
-                />
+                <YourShip key={`ship-${ship}`} layers={layers} ship={ship} selectedShip={selectedShip} phase={phase} />
               ))}
             </MoveButtons>
             <ConfirmButtons />

@@ -36,10 +36,9 @@ export function registerEnemyShip() {
             Position,
             Ship,
             OwnedBy,
-            Name,
           },
         },
-        phaser: {
+        backend: {
           components: { SelectedShip },
         },
       } = layers;

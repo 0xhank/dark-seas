@@ -2,7 +2,7 @@ import { EntityID, hasComponent } from "@latticexyz/recs";
 import { computedToStream } from "@latticexyz/utils";
 import { useState } from "react";
 import { map, merge } from "rxjs";
-import { Layers } from "../../../types";
+import { Layers } from "../../../../types";
 import { registerUIComponent } from "../engine";
 import { Button, colors, Input } from "../styles/global";
 

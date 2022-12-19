@@ -10,28 +10,31 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import { defaultAbiCoder as abi } from "ethers/lib/utils";
-import { Action, Phase } from "../../../types";
-import { NetworkLayer } from "../../network";
+import { Action, Phase } from "../../../../types";
 import { PhaserLayer } from "../types";
 
-export function createResetSystem(network: NetworkLayer, phaser: PhaserLayer) {
+export function createResetSystem(phaser: PhaserLayer) {
   const {
-    components: { OwnedBy },
-    utils: { getPlayerEntity, getPhase, getGameConfig },
-    api: { revealMove, commitMove, submitActions },
     world,
-  } = network;
-
-  const {
-    components: { SelectedMove, SelectedActions, CommittedMoves },
+    parentLayers: {
+      network: {
+        components: { OwnedBy },
+        utils: { getPlayerEntity, getPhase, getGameConfig },
+        api: { revealMove, commitMove, submitActions },
+        network: { clock },
+      },
+      backend: {
+        components: { SelectedMove, SelectedActions, CommittedMoves },
+        utils: { secondsUntilNextPhase },
+      },
+    },
     scenes: {
       Main: { objectPool },
     },
     polygonRegistry,
-    utils: { secondsUntilNextPhase },
   } = phaser;
 
-  defineRxSystem(world, network.network.clock.time$, (currentTime) => {
+  defineRxSystem(world, clock.time$, (currentTime) => {
     const phase = getPhase();
     const gameConfig = getGameConfig();
 

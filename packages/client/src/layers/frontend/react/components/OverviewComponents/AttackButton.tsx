@@ -1,5 +1,5 @@
 import { EntityID } from "@latticexyz/recs";
-import { Side } from "../../../../constants";
+import { Side } from "../../../../../types";
 import { Button } from "../../styles/global";
 
 export default function AttackButton({

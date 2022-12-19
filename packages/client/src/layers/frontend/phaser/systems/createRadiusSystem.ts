@@ -1,16 +1,16 @@
 import { defineEnterSystem, Has } from "@latticexyz/recs";
-import { NetworkLayer } from "../../network";
 import { RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
 
-export function createRadiusSystem(network: NetworkLayer, phaser: PhaserLayer) {
+export function createRadiusSystem(phaser: PhaserLayer) {
   const {
     world,
-    components: { GameConfig },
-    utils: { getGameConfig },
-  } = network;
-
-  const {
+    parentLayers: {
+      network: {
+        components: { GameConfig },
+        utils: { getGameConfig },
+      },
+    },
     polygonRegistry,
     scenes: {
       Main: { phaserScene },

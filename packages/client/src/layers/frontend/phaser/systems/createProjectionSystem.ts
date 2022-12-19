@@ -10,26 +10,28 @@ import {
   removeComponent,
   UpdateType,
 } from "@latticexyz/recs";
-import { Phase, Side, Sprites } from "../../../types";
-import { getFinalPosition } from "../../../utils/directions";
-import { getShipSprite } from "../../../utils/ships";
-import { getFiringArea } from "../../../utils/trig";
-import { NetworkLayer } from "../../network";
+import { Phase, Side, Sprites } from "../../../../types";
+import { getFinalPosition } from "../../../../utils/directions";
+import { getShipSprite } from "../../../../utils/ships";
+import { getFiringArea } from "../../../../utils/trig";
 import { RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
 
-export function createProjectionSystem(network: NetworkLayer, phaser: PhaserLayer) {
+export function createProjectionSystem(phaser: PhaserLayer) {
   const {
     world,
-    components: { Wind, Position, Range, Length, Rotation, SailPosition, MoveCard, Health },
-    utils: { getPhase },
-  } = network;
-
-  const {
+    parentLayers: {
+      network: {
+        components: { Wind, Position, Range, Length, Rotation, SailPosition, MoveCard, Health },
+        utils: { getPhase },
+      },
+      backend: {
+        components: { SelectedShip, SelectedMove },
+      },
+    },
     scenes: {
       Main: { objectPool, phaserScene, config },
     },
-    components: { SelectedShip, SelectedMove },
     polygonRegistry,
     positions,
   } = phaser;

@@ -1,6 +1,6 @@
-import { observable, action } from "mobx";
+import { action, observable } from "mobx";
 import { Observable } from "rxjs";
-import { Layers } from "../../../types";
+import { Layers } from "../../../../types";
 import { GridConfiguration, UIComponent } from "./types";
 
 export const EngineStore = observable({

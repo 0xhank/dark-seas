@@ -1,5 +1,5 @@
 import { EntityID } from "@latticexyz/recs";
-import { SailPositionNames, SailPositions } from "../../../../constants";
+import { SailPositions } from "../../../../../types";
 import { Button } from "../../styles/global";
 
 export default function Sails({
@@ -26,7 +26,7 @@ export default function Sails({
             RAISE SAILS
           </Button>
           <Button
-            disabled={sailPosition == SailPositions.Closed}
+            disabled={sailPosition == SailPositions.Battle}
             onClick={() => changeSail(shipEntity, sailPosition - 1)}
           >
             LOWER SAILS

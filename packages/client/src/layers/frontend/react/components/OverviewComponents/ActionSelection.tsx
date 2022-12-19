@@ -1,15 +1,14 @@
 import { EntityIndex, getComponentValue, setComponent } from "@latticexyz/recs";
-import { Action, ActionImg, ActionNames, Layers } from "../../../../types";
+import { Action, ActionImg, ActionNames, Layers } from "../../../../../types";
 import { Button } from "../../styles/global";
 
 export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
   const {
-    utils: { checkActionPossible },
-  } = layers.network;
-
-  const {
-    components: { SelectedActions },
-  } = layers.phaser;
+    backend: {
+      components: { SelectedActions },
+      utils: { checkActionPossible },
+    },
+  } = layers;
 
   const selectedActions = getComponentValue(SelectedActions, ship)?.value || [-1, -1];
 
