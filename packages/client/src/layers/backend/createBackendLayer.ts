@@ -32,13 +32,13 @@ export async function createBackendLayer(network: NetworkLayer) {
   } = network;
 
   // --- UTILITIES ------------------------------------------------------------------
-  function secondsUntilNextPhase(time: number) {
+  function secondsUntilNextPhase(time: number, delay = 0) {
     const gameConfig = getGameConfig();
-    const phase = getPhase();
+    const phase = getPhase(delay);
 
     if (!gameConfig || phase == undefined) return;
 
-    const gameLength = Math.floor(time / 1000) - parseInt(gameConfig.startTime);
+    const gameLength = Math.floor((time + delay) / 1000) - parseInt(gameConfig.startTime);
     const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;
     const secondsIntoTurn = gameLength % turnLength;
 

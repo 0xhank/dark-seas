@@ -14,6 +14,7 @@ import { Phase, Side, Sprites } from "../../../../types";
 import { getFinalPosition } from "../../../../utils/directions";
 import { getShipSprite } from "../../../../utils/ships";
 import { getFiringArea } from "../../../../utils/trig";
+import { DELAY } from "../../constants";
 import { RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
 
@@ -45,7 +46,7 @@ export function createProjectionSystem(phaser: PhaserLayer) {
   });
 
   defineSystem(world, [Has(SelectedMove), Has(Health)], ({ entity, type }) => {
-    const phase: Phase | undefined = getPhase();
+    const phase: Phase | undefined = getPhase(DELAY);
 
     if (phase == undefined || phase == Phase.Action) return;
 

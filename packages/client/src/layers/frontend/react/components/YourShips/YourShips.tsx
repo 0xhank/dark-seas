@@ -15,6 +15,7 @@ import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { map, merge } from "rxjs";
 import styled from "styled-components";
 import { Action, Phase } from "../../../../../types";
+import { DELAY } from "../../../constants";
 import { registerUIComponent } from "../../engine";
 import { Button, colors, ConfirmButton, Container, InternalContainer } from "../../styles/global";
 import { YourShip } from "./ShipData";
@@ -143,7 +144,7 @@ export function registerYourShips() {
         commitMove,
       } = props;
 
-      const phase: Phase | undefined = getPhase(5);
+      const phase: Phase | undefined = getPhase(DELAY);
       const currentTurn = getTurn();
 
       if (phase == undefined || currentTurn == undefined) return null;
