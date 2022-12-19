@@ -32,6 +32,18 @@ export async function createPhaserLayer(backend: BackendLayer) {
 
   const polygonRegistry = new Map<string, Phaser.GameObjects.Group>();
 
+  // --- API ------------------------------------------------------------------------
+  function createMapInteractionApi() {
+    let enabled = true;
+
+    return {
+      disableMapInteraction: () => (enabled = false),
+      enableMapInteraction: () => (enabled = true),
+      mapInteractionEnabled: () => {
+        return enabled;
+      },
+    };
+  }
   // --- UTILS ----------------------------------------------------------------------
 
   // --- LAYER CONTEXT --------------------------------------------------------------
@@ -41,6 +53,9 @@ export async function createPhaserLayer(backend: BackendLayer) {
     parentLayers: {
       ...backend.parentLayers,
       backend,
+    },
+    api: {
+      mapInteraction: createMapInteractionApi(),
     },
     backend,
     game,
