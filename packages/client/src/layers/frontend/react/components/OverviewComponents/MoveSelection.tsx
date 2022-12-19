@@ -68,7 +68,7 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
               style={{
                 height: "80%",
                 objectFit: "scale-down",
-                transform: `rotate(${rotation + 90}deg)`,
+                // transform: `rotate(${rotation + 90}deg)`,
               }}
             />
             <p style={{ lineHeight: "16px" }}>{Math.round(moveCard.distance)}M</p>
