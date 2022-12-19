@@ -77,8 +77,10 @@ const YourShipContainer = styled(InternalContainer)`
   flex: 1;
   height: auto;
   cursor: pointer;
+  box-shadow: ${({ isSelected }) => `inset 0px 0px 0px ${isSelected ? "5px" : "0px"} ${colors.gold}`};
+  background: ${({ isSelected }) => `${isSelected ? colors.thickGlass : colors.glass}`};
 
   :hover {
-    background: ${({ isSelected }) => `${isSelected ? colors.lightGold : colors.thickGlass}`};
+    background: ${colors.thickGlass};
   }
 `;

@@ -143,7 +143,7 @@ export function registerYourShips() {
         commitMove,
       } = props;
 
-      const phase: Phase | undefined = getPhase();
+      const phase: Phase | undefined = getPhase(5);
       const currentTurn = getTurn();
 
       if (phase == undefined || currentTurn == undefined) return null;
@@ -279,15 +279,38 @@ export function registerYourShips() {
         }
       };
 
+      const helpMessage =
+        phase == Phase.Commit
+          ? "Submit one move per ship"
+          : phase == Phase.Action
+          ? "Select up to two actions per ship"
+          : "Execute selected moves";
       return (
         <Container style={{ justifyContent: "flex-end" }}>
-          <InternalContainer style={{ gap: "24px", height: "auto" }}>
-            <MoveButtons>
-              {yourShips.map((ship) => (
-                <YourShip key={`ship-${ship}`} layers={layers} ship={ship} selectedShip={selectedShip} phase={phase} />
-              ))}
-            </MoveButtons>
-            <ConfirmButtons />
+          <InternalContainer style={{ flexDirection: "column", justifyContent: "space-between", gap: "12px" }}>
+            <div
+              style={{
+                fontSize: "1.25rem",
+                lineHeight: "2.5rem",
+                textAlign: "left",
+              }}
+            >
+              {helpMessage}
+            </div>
+            <InternalContainer style={{ gap: "24px", padding: "0", background: "transparent" }}>
+              <MoveButtons>
+                {yourShips.map((ship) => (
+                  <YourShip
+                    key={`ship-${ship}`}
+                    layers={layers}
+                    ship={ship}
+                    selectedShip={selectedShip}
+                    phase={phase}
+                  />
+                ))}
+              </MoveButtons>
+              <ConfirmButtons />
+            </InternalContainer>
           </InternalContainer>
         </Container>
       );

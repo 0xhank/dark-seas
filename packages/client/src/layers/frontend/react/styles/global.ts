@@ -70,10 +70,10 @@ export const Button = styled.button<{ isSelected?: boolean; noGoldBorder?: boole
   border-radius: 6px;
   border-color: ${gold};
   pointer-events: all;
-  color: ${darkBrown};
+  color: ${({ isSelected }) => `${isSelected ? white : darkBrown}`};
 
   :hover {
-    background: ${({ isSelected }) => `${isSelected ? lightGold : thickGlass}`};
+    background: ${({ isSelected }) => `${isSelected ? lightGold : white}`};
   }
 
   :disabled {
@@ -81,9 +81,15 @@ export const Button = styled.button<{ isSelected?: boolean; noGoldBorder?: boole
     color: ${lighterGray};
     border-color: ${darkGray};
     cursor: not-allowed;
-    hover: {
+    :hover {
       background: ${lightGray};
     }
+  }
+`;
+
+export const OptionButton = styled(Button)`
+  :hover {
+    background: ${({ isSelected }) => `${isSelected ? red : white}`};
   }
 `;
 
@@ -112,7 +118,7 @@ export const InternalContainer = styled.div<{ isSelected?: boolean; noGoldBorder
   flex-direction: row;
   padding: 12px;
   border-radius: 6px;
-  background: ${({ isSelected }) => `${isSelected ? gold : glass}`};
+  background: ${glass};
   justify-content: space-between;
   color: ${darkBrown};
 `;
