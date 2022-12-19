@@ -12,7 +12,7 @@ export default function HullHealth({ health }: { health: number }) {
           .map((val, idx) => {
             return (
               <div
-                style={{ height: "100%", flex: 1, background: idx <= health ? colors.lightBrown : "transparent" }}
+                style={{ height: "100%", flex: 1, background: idx + 1 <= health ? colors.lightBrown : "transparent" }}
                 key={`hull-health-${idx}`}
               />
             );

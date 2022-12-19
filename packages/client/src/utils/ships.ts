@@ -7,7 +7,6 @@ export function getShipSprite(ownerEntity: EntityIndex, health: number, mine: bo
     if (health > 7) return Sprites.ShipWhite;
     else if (health > 4) return Sprites.ShipWhiteMinor;
     else if (health > 0) return Sprites.ShipWhiteMajor;
-    else return Sprites.ShipWhiteDead;
   }
 
   const color = getShipColor(ownerEntity);

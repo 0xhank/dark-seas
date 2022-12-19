@@ -21,7 +21,7 @@ export const YourShip = ({
 }) => {
   const {
     network: {
-      components: { Position, Health },
+      components: { Position, Health, CrewCount },
       world,
     },
     backend: {
@@ -37,22 +37,27 @@ export const YourShip = ({
 
   const position = getComponentValueStrict(Position, ship);
   const health = getComponentValueStrict(Health, ship).value;
+  const crewCount = getComponentValueStrict(CrewCount, ship).value;
   const isSelected = selectedShip == ship;
 
+  let selectionContent = null;
+  if (crewCount == 0) {
+    selectionContent = <SpecialText>This ship has no crew!</SpecialText>;
+  } else if (health == 0) {
+    selectionContent = <SpecialText>This ship is sunk!</SpecialText>;
+  } else if (phase == Phase.Commit) {
+    selectionContent = <MoveSelection ship={ship} layers={layers} />;
+  } else if (phase == Phase.Action) {
+    selectionContent = <ActionSelection ship={ship} layers={layers} />;
+  }
   return (
     <YourShipContainer
-      onClick={() => health !== 0 && selectShip(ship, position)}
+      onClick={() => health !== 0 && crewCount !== 0 && selectShip(ship, position)}
       isSelected={isSelected}
       key={`move-selection-${ship}`}
     >
       <ShipCard layers={layers} ship={ship} />
-      <MoveButtons>
-        {phase == Phase.Commit ? (
-          <MoveSelection ship={ship} layers={layers} />
-        ) : phase == Phase.Action ? (
-          <ActionSelection ship={ship} layers={layers} />
-        ) : null}
-      </MoveButtons>
+      <MoveButtons>{selectionContent}</MoveButtons>
     </YourShipContainer>
   );
 };
@@ -81,4 +86,8 @@ const YourShipContainer = styled(InternalContainer)`
   :hover {
     background: ${colors.thickGlass};
   }
+`;
+
+const SpecialText = styled.span`
+  font-size: 2rem;
 `;
