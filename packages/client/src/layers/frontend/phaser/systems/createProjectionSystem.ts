@@ -111,7 +111,7 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const { x, y } = tileCoordToPixelCoord(finalPosition, positions.posWidth, positions.posHeight);
 
     object.setComponent({
-      id: Position.id,
+      id: `projection-${entity}`,
       once: async (gameObject: Phaser.GameObjects.Sprite) => {
         gameObject.setTexture(sprite.assetKey, sprite.frame);
 

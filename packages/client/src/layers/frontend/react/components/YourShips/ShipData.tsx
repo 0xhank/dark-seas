@@ -27,9 +27,17 @@ export const YourShip = ({
     backend: {
       components: { SelectedShip },
     },
+    phaser: {
+      scenes: {
+        Main: { camera },
+      },
+      positions,
+    },
   } = layers;
 
   const selectShip = (ship: EntityIndex, position: Coord) => {
+    camera.centerOn(position.x * positions.posWidth, position.y * positions.posHeight + 400);
+
     setComponent(SelectedShip, GodEntityIndex, { value: ship });
   };
 
