@@ -4,12 +4,13 @@ import {
   getComponentEntities,
   getComponentValue,
   getComponentValueStrict,
+  removeComponent,
   setComponent,
 } from "@latticexyz/recs";
 import { Layers, MoveCard } from "../../../../../types";
 import { getFinalMoveCard, getFinalPosition } from "../../../../../utils/directions";
 import { inRange } from "../../../../../utils/distance";
-import { Button } from "../../styles/global";
+import { OptionButton } from "../../styles/global";
 import { arrowImg } from "../../types";
 
 export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
@@ -54,13 +55,14 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
           worldRadius
         );
         return (
-          <Button
+          <OptionButton
             disabled={disabled}
             isSelected={isSelected}
             key={`move-selection-${entity}`}
             onClick={(e) => {
               e.preventDefault();
-              setComponent(SelectedMove, ship, { value: entity });
+              if (isSelected) removeComponent(SelectedMove, ship);
+              else setComponent(SelectedMove, ship, { value: entity });
             }}
           >
             <img
@@ -68,11 +70,14 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
               style={{
                 height: "80%",
                 objectFit: "scale-down",
+                filter: isSelected
+                  ? "invert(100%)"
+                  : "invert(19%) sepia(89%) saturate(1106%) hue-rotate(7deg) brightness(93%) contrast(102%)",
                 // transform: `rotate(${rotation + 90}deg)`,
               }}
             />
             <p style={{ lineHeight: "16px" }}>{Math.round(moveCard.distance)}M</p>
-          </Button>
+          </OptionButton>
         );
       })}
     </>

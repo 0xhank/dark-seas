@@ -51,9 +51,7 @@ export const YourShip = ({
           <MoveSelection ship={ship} layers={layers} />
         ) : phase == Phase.Action ? (
           <ActionSelection ship={ship} layers={layers} />
-        ) : (
-          "Executing Move"
-        )}
+        ) : null}
       </MoveButtons>
     </YourShipContainer>
   );
