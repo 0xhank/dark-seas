@@ -6,9 +6,11 @@ import {
   namespaceWorld,
   Type,
 } from "@latticexyz/recs";
-import { defineNumberComponent, defineStringComponent } from "@latticexyz/std-client";
+import { createActionSystem, defineNumberComponent, defineStringComponent } from "@latticexyz/std-client";
+import { curry } from "lodash";
 
 import { Action, Phase } from "../../types";
+import { spawnPlayer } from "./api/spawnPlayer";
 import { NetworkLayer } from "../network";
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -27,8 +29,9 @@ export async function createBackendLayer(network: NetworkLayer) {
   // --- SETUP ----------------------------------------------------------------------
 
   const {
-    utils: { getGameConfig, getPhase },
-    components: { OnFire, Leak, DamagedMast, SailPosition },
+    utils: { getGameConfig, getPhase, getPlayerEntity },
+    components: { OnFire, Leak, DamagedMast, SailPosition, Ship, OwnedBy },
+    network: { connectedAddress },
   } = network;
 
   // --- UTILITIES ------------------------------------------------------------------
@@ -72,10 +75,14 @@ export async function createBackendLayer(network: NetworkLayer) {
   // --- SYSTEMS --------------------------------------------------------------
 
   // --- API ------------------------------------------------------------------------
-
+  const api = {
+    spawnPlayer: curry(spawnPlayer)(network, actions),
+  };
   // --- CONTEXT --------------------------------------------------------------------
   const context = {
     world,
+    actions,
+    api,
     parentLayers: { network },
     utils: { checkActionPossible, secondsUntilNextPhase },
     components,
