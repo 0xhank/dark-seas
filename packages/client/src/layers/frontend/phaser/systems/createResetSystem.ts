@@ -10,12 +10,11 @@ export function createResetSystem(phaser: PhaserLayer) {
     parentLayers: {
       network: {
         utils: { getPlayerEntity, getPhase, getGameConfig },
-        api: { submitActions },
         network: { clock },
       },
       backend: {
         components: { SelectedMove, SelectedActions, CommittedMoves },
-        api: { commitMove, revealMove },
+        api: { commitMove, revealMove, submitActions },
         utils: { secondsUntilNextPhase, getPlayerShipsWithMoves, getPlayerShipsWithActions, getPlayerShips },
       },
     },
@@ -82,10 +81,7 @@ export function createResetSystem(phaser: PhaserLayer) {
       if (timeToNextPhase == 1) {
         const shipsAndActions = getPlayerShipsWithActions();
         if (!shipsAndActions) return;
-        submitActions(
-          shipsAndActions.ships.map((ship) => world.entities[ship]),
-          shipsAndActions.actions
-        );
+        submitActions(shipsAndActions.ships, shipsAndActions.actions);
       }
     }
   });

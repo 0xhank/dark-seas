@@ -17,6 +17,7 @@ import { NetworkLayer } from "../network";
 import { commitMove } from "./api/commitMove";
 import { revealMove } from "./api/revealMove";
 import { spawnPlayer } from "./api/spawnPlayer";
+import { submitActions } from "./api/submitActions";
 /**
  * The Network layer is the lowest layer in the client architecture.
  * Its purpose is to synchronize the client components with the contract components.
@@ -103,7 +104,17 @@ export async function createBackendLayer(network: NetworkLayer) {
     if (ships.length == 0) return;
 
     const actions = ships.map((ship) => getComponentValueStrict(components.SelectedActions, ship).value);
-    return { ships, actions };
+    const finalShips = [];
+    const finalActions = [];
+
+    for (let i = 0; i < finalShips.length; i++) {
+      if (actions[i].every((elem) => elem == -1)) {
+        continue;
+      }
+      finalShips.push(ships[i]);
+      finalActions.push(actions[i]);
+    }
+    return { ships: finalShips, actions: finalActions };
   }
   // --- SYSTEMS --------------------------------------------------------------
   const actions = createActionSystem(world, network.txReduced$);
@@ -113,6 +124,7 @@ export async function createBackendLayer(network: NetworkLayer) {
     spawnPlayer: curry(spawnPlayer)(network, actions),
     commitMove: curry(commitMove)(network, actions, components.CommittedMoves),
     revealMove: curry(revealMove)(network, actions),
+    submitActions: curry(submitActions)(network, actions),
   };
   // --- CONTEXT --------------------------------------------------------------------
   const context = {

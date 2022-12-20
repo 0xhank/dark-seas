@@ -1,10 +1,8 @@
 import { GodID } from "@latticexyz/network";
 import {
-  EntityID,
   EntityIndex,
   getComponentEntities,
   getComponentValue,
-  getComponentValueStrict,
   Has,
   HasValue,
   removeComponent,
@@ -12,7 +10,7 @@ import {
 } from "@latticexyz/recs";
 import { map, merge } from "rxjs";
 import styled from "styled-components";
-import { Action, Phase } from "../../../../../types";
+import { Phase } from "../../../../../types";
 import { DELAY } from "../../../constants";
 import { registerUIComponent } from "../../engine";
 import { Button, colors, ConfirmButton, Container, InternalContainer } from "../../styles/global";
@@ -52,14 +50,13 @@ export function registerYourShips() {
             LastMove,
             LastAction,
           },
-          api: { submitActions },
           network: { connectedAddress, clock },
           utils: { getPlayerEntity, getPhase, getTurn },
         },
         backend: {
           components: { SelectedShip, SelectedMove, SelectedActions, CommittedMoves },
-          api: { commitMove, revealMove },
-          utils: { getPlayerShipsWithMoves },
+          api: { commitMove, revealMove, submitActions },
+          utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions },
         },
       } = layers;
 
@@ -117,6 +114,7 @@ export function registerYourShips() {
             getTurn,
             commitMove,
             getPlayerShipsWithMoves,
+            getPlayerShipsWithActions,
           };
         })
       );
@@ -144,6 +142,7 @@ export function registerYourShips() {
         getTurn,
         commitMove,
         getPlayerShipsWithMoves,
+        getPlayerShipsWithActions,
       } = props;
 
       const phase: Phase | undefined = getPhase(DELAY);
@@ -159,7 +158,6 @@ export function registerYourShips() {
 
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
-      const wind = getComponentValueStrict(Wind, GodEntityIndex);
       const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
 
       const yourShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
@@ -176,30 +174,17 @@ export function registerYourShips() {
 
       const handleSubmit = () => {
         if (phase == Phase.Action) {
-          const shipsAndActions = yourShips.reduce(
-            (prev: { ships: EntityID[]; actions: Action[][] }, curr: EntityIndex) => {
-              const actions = getComponentValue(SelectedActions, curr)?.value;
-              if (!actions) return prev;
-              const filteredActions = actions.filter((action) => action !== -1);
-              return {
-                ships: [...prev.ships, world.entities[curr]],
-                actions: [...prev.actions, filteredActions],
-              };
-            },
-            { ships: [], actions: [] }
-          );
-          if (shipsAndActions.ships.length == 0) return;
+          const shipsAndActions = getPlayerShipsWithActions();
+          if (!shipsAndActions) return;
           submitActions(shipsAndActions.ships, shipsAndActions.actions);
-        } else {
+        } else if (phase == Phase.Commit) {
           const shipsAndMoves = getPlayerShipsWithMoves();
           if (!shipsAndMoves) return;
-          if (phase == Phase.Commit) {
-            commitMove(shipsAndMoves.ships, shipsAndMoves.moves);
-          } else {
-            const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
-            if (!encoding) return;
-            revealMove(encoding);
-          }
+          commitMove(shipsAndMoves.ships, shipsAndMoves.moves);
+        } else {
+          const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
+          if (!encoding) return;
+          revealMove(encoding);
         }
       };
 
