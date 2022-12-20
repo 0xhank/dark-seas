@@ -4,6 +4,7 @@ import { defineSystem, EntityIndex, getComponentValueStrict, Has, UpdateType } f
 import { Phase, Side } from "../../../../types";
 import { getWindBoost } from "../../../../utils/directions";
 import { getFiringArea } from "../../../../utils/trig";
+import { DELAY } from "../../constants";
 import { RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
 
@@ -27,7 +28,7 @@ export function createActiveSystem(layer: PhaserLayer) {
   } = layer;
 
   defineSystem(world, [Has(SelectedShip), Has(Wind)], ({ type }) => {
-    const phase: Phase | undefined = getPhase();
+    const phase: Phase | undefined = getPhase(DELAY);
 
     if (phase == undefined) return;
 

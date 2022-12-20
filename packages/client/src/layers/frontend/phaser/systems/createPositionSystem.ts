@@ -10,6 +10,7 @@ import {
   Has,
   removeComponent,
   setComponent,
+  UpdateType,
 } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
 import { getShipSprite } from "../../../../utils/ships";
@@ -24,7 +25,7 @@ export function createPositionSystem(phaser: PhaserLayer) {
     },
     parentLayers: {
       network: {
-        components: { Position, Length, Rotation, OwnedBy, Health },
+        components: { Position, Length, Rotation, OwnedBy, Health, CrewCount },
         utils: { getPlayerEntity },
         network: { connectedAddress },
       },
@@ -36,11 +37,13 @@ export function createPositionSystem(phaser: PhaserLayer) {
     positions,
   } = phaser;
 
+  const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
+
   defineExitSystem(world, [Has(Position), Has(Rotation)], (update) => {
     objectPool.remove(update.entity);
   });
 
-  defineEnterSystem(world, [Has(Position), Has(OwnedBy), Has(Health)], (update) => {
+  defineEnterSystem(world, [Has(Position), Has(OwnedBy)], (update) => {
     const position = getComponentValueStrict(Position, update.entity);
     const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, update.entity).value);
     const playerEntity = getPlayerEntity(connectedAddress.get());
@@ -48,14 +51,67 @@ export function createPositionSystem(phaser: PhaserLayer) {
     if (!ownerEntity || !playerEntity || ownerEntity !== playerEntity) return;
 
     camera.centerOn(position.x * positions.posWidth, position.y * positions.posHeight + 400);
-    console.log(camera.phaserCamera);
-    // requestAnimationFrame(() => camera.$.next(camera.phaserCamera.worldView));
-    // camera.phaserCamera.zoomTo(1, 20, "Linear);
   });
 
-  defineSystem(world, [Has(Position), Has(Rotation), Has(Length), Has(Health), Has(OwnedBy)], (update) => {
-    const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
+  defineSystem(world, [Has(Health), Has(OwnedBy)], (update) => {
+    console.log("updating health");
+    const object = objectPool.get(update.entity, "Sprite");
+    const health = getComponentValueStrict(Health, update.entity).value;
+    const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, update.entity).value);
+    const playerEntity = getPlayerEntity();
+    if (!playerEntity || !ownerEntity) return null;
 
+    const spriteAsset: Sprites = getShipSprite(playerEntity, health, playerEntity == ownerEntity);
+    // @ts-expect-error doesnt recognize a sprite as a number
+    const sprite = config.sprites[spriteAsset];
+    object.setComponent({
+      id: `health-${update.entity}`,
+      once: (gameObject) => {
+        gameObject.setTexture(sprite.assetKey, sprite.frame);
+
+        if (health == 0) {
+          gameObject.setAlpha(0.5);
+          gameObject.disableInteractive();
+          gameObject.setDepth(RenderDepth.Foreground4);
+        } else {
+          gameObject.setAlpha(1);
+          // gameObject.setInteractive();
+          // gameObject.on("pointerdown", () => {
+          //   setComponent(SelectedShip, GodEntityIndex, { value: update.entity });
+          // });
+          gameObject.setDepth(RenderDepth.Foreground3);
+        }
+      },
+    });
+  });
+
+  defineSystem(world, [Has(CrewCount)], (update) => {
+    console.log("updating crew count");
+
+    const object = objectPool.get(update.entity, "Sprite");
+    const crewCount = getComponentValueStrict(CrewCount, update.entity).value;
+
+    object.setComponent({
+      id: `crew-count-${update.entity}`,
+
+      once: (gameObject) => {
+        if (crewCount == 0) {
+          gameObject.setAlpha(0.5);
+          gameObject.disableInteractive();
+          gameObject.setDepth(RenderDepth.Foreground4);
+        } else {
+          gameObject.setAlpha(1);
+          // gameObject.setInteractive();
+          // gameObject.on("pointerdown", () => {
+          //   setComponent(SelectedShip, GodEntityIndex, { value: update.entity });
+          // });
+          gameObject.setDepth(RenderDepth.Foreground3);
+        }
+      },
+    });
+  });
+
+  defineSystem(world, [Has(Position), Has(Rotation), Has(Length), Has(OwnedBy), Has(Health)], (update) => {
     const rangeGroup = polygonRegistry.get(`rangeGroup-${update.entity}`);
     const activeGroup = polygonRegistry.get(`activeGroup`);
     const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, update.entity).value);
@@ -78,7 +134,7 @@ export function createPositionSystem(phaser: PhaserLayer) {
 
     const object = objectPool.get(update.entity, "Sprite");
 
-    const spriteAsset: Sprites = getShipSprite(playerEntity, ownerEntity, health);
+    const spriteAsset: Sprites = getShipSprite(playerEntity, health, playerEntity == ownerEntity);
     // @ts-expect-error doesnt recognize a sprite as a number
     const sprite = config.sprites[spriteAsset];
     // const sprite = config.sprites[Sprites.ShipBlack];
@@ -86,8 +142,9 @@ export function createPositionSystem(phaser: PhaserLayer) {
     const { x, y } = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
 
     object.setComponent({
-      id: Position.id,
+      id: `position-${update.entity}`,
       now: async (gameObject) => {
+        if (update.type == UpdateType.Enter) return;
         await tween({
           targets: gameObject,
           duration: 250,
@@ -119,7 +176,6 @@ export function createPositionSystem(phaser: PhaserLayer) {
         });
       },
       once: async (gameObject: Phaser.GameObjects.Sprite) => {
-        gameObject.setName(update.entity.toString());
         gameObject.setTexture(sprite.assetKey, sprite.frame);
 
         gameObject.setAngle((rotation - 90) % 360);
@@ -129,15 +185,12 @@ export function createPositionSystem(phaser: PhaserLayer) {
         gameObject.setDisplaySize(shipWidth, shipLength);
         gameObject.setPosition(x, y);
         gameObject.setDepth(RenderDepth.Foreground3);
-
-        gameObject.setInteractive();
-        // console.log("updated position");
-        gameObject.on("pointerdown", () => {
-          // console.log("you just clicked on entity", update.entity);
-          const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
-
-          setComponent(SelectedShip, GodEntityIndex, { value: update.entity });
-        });
+        if (health != 0) {
+          gameObject.setInteractive();
+          gameObject.on("pointerdown", () => {
+            setComponent(SelectedShip, GodEntityIndex, { value: update.entity });
+          });
+        }
       },
     });
   });

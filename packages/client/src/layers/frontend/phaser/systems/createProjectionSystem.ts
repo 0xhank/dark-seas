@@ -14,6 +14,7 @@ import { Phase, Side, Sprites } from "../../../../types";
 import { getFinalPosition } from "../../../../utils/directions";
 import { getShipSprite } from "../../../../utils/ships";
 import { getFiringArea } from "../../../../utils/trig";
+import { DELAY } from "../../constants";
 import { RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
 
@@ -45,7 +46,7 @@ export function createProjectionSystem(phaser: PhaserLayer) {
   });
 
   defineSystem(world, [Has(SelectedMove), Has(Health)], ({ entity, type }) => {
-    const phase: Phase | undefined = getPhase();
+    const phase: Phase | undefined = getPhase(DELAY);
 
     if (phase == undefined || phase == Phase.Action) return;
 
@@ -103,14 +104,14 @@ export function createProjectionSystem(phaser: PhaserLayer) {
 
     polygonRegistry.set(`rangeGroup-${entity}`, rangeGroup);
 
-    const spriteAsset: Sprites = getShipSprite(GodEntityIndex, GodEntityIndex, health);
+    const spriteAsset: Sprites = getShipSprite(GodEntityIndex, health, true);
     // @ts-expect-error doesnt recognize a sprite as a number
     const sprite = config.sprites[spriteAsset];
 
     const { x, y } = tileCoordToPixelCoord(finalPosition, positions.posWidth, positions.posHeight);
 
     object.setComponent({
-      id: Position.id,
+      id: `projection-${entity}`,
       once: async (gameObject: Phaser.GameObjects.Sprite) => {
         gameObject.setTexture(sprite.assetKey, sprite.frame);
 

@@ -41,7 +41,6 @@ export function createResetSystem(phaser: PhaserLayer) {
     if (phase == undefined || gameConfig == undefined) return;
 
     const secondsUntilPhase = secondsUntilNextPhase(currentTime);
-    console.log("reset system: ", secondsUntilPhase, "seconds left");
 
     const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 

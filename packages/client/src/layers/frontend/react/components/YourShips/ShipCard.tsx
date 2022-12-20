@@ -34,7 +34,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
 
   const playerEntity = getPlayerEntity(connectedAddress.get());
   const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, ship).value);
-  if (!ownerEntity) return null;
+  if (!ownerEntity || !playerEntity) return null;
 
   const sailPosition = getComponentValueStrict(SailPosition, ship).value;
   const rotation = getComponentValueStrict(Rotation, ship).value;
@@ -64,7 +64,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
         {playerEntity !== ownerEntity && <span>{ownerName}</span>}
         <BoxImage>
           <img
-            src={ShipImages[getShipSprite(GodEntityIndex, GodEntityIndex, health)]}
+            src={ShipImages[getShipSprite(playerEntity, health, ownerEntity == playerEntity)]}
             style={{
               objectFit: "scale-down",
               left: "50%",

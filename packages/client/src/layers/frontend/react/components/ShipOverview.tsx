@@ -160,7 +160,7 @@ export function registerShipOverview() {
                 </span>
                 <BoxImage>
                   <img
-                    src={ShipImages[getShipSprite(playerEntity, ownerEntity, health)]}
+                    src={ShipImages[getShipSprite(ownerEntity, health, false)]}
                     style={{
                       objectFit: "scale-down",
                       left: "50%",

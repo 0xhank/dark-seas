@@ -4,6 +4,7 @@ import { map, merge } from "rxjs";
 import styled from "styled-components";
 import { Phase, PhaseNames } from "../../../../types";
 import { getWindBoost } from "../../../../utils/directions";
+import { DELAY } from "../../constants";
 import { registerUIComponent } from "../engine";
 import { colors } from "../styles/global";
 
@@ -33,12 +34,12 @@ export function registerTurnTimer() {
 
           // add 5 seconds to give time to auto submit at end of phase
 
-          const fiveSecondsAgo = Math.floor(clock.currentTime / 1000) + 5;
-          const gameLength = fiveSecondsAgo - parseInt(gameConfig.startTime);
+          const currentTime = Math.floor(clock.currentTime / 1000) + DELAY;
+          const gameLength = currentTime - parseInt(gameConfig.startTime);
           const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;
           const secondsIntoTurn = gameLength % turnLength;
 
-          const phase = getPhase(5);
+          const phase = getPhase(DELAY);
           if (phase == undefined) return;
 
           const phaseStart =

@@ -1,6 +1,6 @@
 import { EntityIndex, getComponentValue, setComponent } from "@latticexyz/recs";
 import { Action, ActionImg, ActionNames, Layers } from "../../../../../types";
-import { Button } from "../../styles/global";
+import { OptionButton } from "../../styles/global";
 
 export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
   const {
@@ -12,6 +12,11 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
 
   const selectedActions = getComponentValue(SelectedActions, ship)?.value || [-1, -1];
 
+  let disabled = false;
+  if (selectedActions.every((a) => a !== -1)) {
+    disabled = true;
+  }
+
   return (
     <>
       {Object.keys(Action).map((a) => {
@@ -21,8 +26,9 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
         const usedAlready = selectedActions.find((a) => a == action) != undefined;
 
         return (
-          <Button
+          <OptionButton
             isSelected={usedAlready}
+            disabled={disabled && !usedAlready}
             key={`selectedAction-${action}`}
             onClick={() => {
               const newArray = selectedActions;
@@ -43,11 +49,13 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
               style={{
                 height: "80%",
                 objectFit: "scale-down",
-                filter: "invert(19%) sepia(89%) saturate(1106%) hue-rotate(7deg) brightness(93%) contrast(102%)",
+                filter: usedAlready
+                  ? "invert(100%)"
+                  : "invert(19%) sepia(89%) saturate(1106%) hue-rotate(7deg) brightness(93%) contrast(102%)",
               }}
             />
             <p style={{ lineHeight: "16px" }}>{ActionNames[action]}</p>
-          </Button>
+          </OptionButton>
         );
       })}
     </>
