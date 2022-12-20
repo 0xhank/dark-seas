@@ -9,7 +9,8 @@ export function createResetSystem(phaser: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        utils: { getPlayerEntity, getPhase, getGameConfig },
+        components: { LastMove, LastAction },
+        utils: { getPlayerEntity, getPhase, getGameConfig, getTurn },
         network: { clock },
       },
       backend: {
@@ -26,6 +27,7 @@ export function createResetSystem(phaser: PhaserLayer) {
 
   defineRxSystem(world, clock.time$, (currentTime) => {
     const phase = getPhase(DELAY);
+    const turn = getTurn(DELAY);
     const gameConfig = getGameConfig();
 
     if (phase == undefined || !gameConfig) return;
@@ -51,6 +53,8 @@ export function createResetSystem(phaser: PhaserLayer) {
 
       // END OF PHASE
       if (timeToNextPhase == 1) {
+        const committedMoves = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
+        if (committedMoves) return;
         const shipsAndMoves = getPlayerShipsWithMoves();
         if (!shipsAndMoves) return;
 
@@ -62,6 +66,8 @@ export function createResetSystem(phaser: PhaserLayer) {
     if (phase == Phase.Reveal) {
       // AFTER DELAY
       if (timeToNextPhase == gameConfig.revealPhaseLength - DELAY) {
+        const lastMove = getComponentValue(LastMove, playerEntity)?.value;
+        if (lastMove == turn) return;
         const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
         if (encoding) revealMove(encoding);
       }
@@ -79,6 +85,8 @@ export function createResetSystem(phaser: PhaserLayer) {
       }
       // END OF PHASE
       if (timeToNextPhase == 1) {
+        const lastAction = getComponentValue(LastAction, playerEntity)?.value;
+        if (lastAction == turn) return;
         const shipsAndActions = getPlayerShipsWithActions();
         if (!shipsAndActions) return;
         submitActions(shipsAndActions.ships, shipsAndActions.actions);
