@@ -9,6 +9,7 @@ export function spawnPlayer(network: NetworkLayer, actions: ActionSystem, name: 
     world,
   } = network;
 
+  const prefix = "Spawn Player: ";
   const actionId = `spawn ${Math.random()}` as EntityID;
   actions.add({
     id: actionId,
@@ -16,7 +17,7 @@ export function spawnPlayer(network: NetworkLayer, actions: ActionSystem, name: 
     requirement: ({ Player }) => {
       const address = connectedAddress.get();
       if (!address) {
-        console.warn("No address connected");
+        console.warn(prefix, "No address connected");
         actions.cancel(actionId);
         return;
       }
@@ -24,7 +25,7 @@ export function spawnPlayer(network: NetworkLayer, actions: ActionSystem, name: 
       const playerEntity = world.entityToIndex.get(address as EntityID);
 
       if (playerEntity != null && hasComponent(Player, playerEntity)) {
-        console.warn("Player already spawned, canceling spawn.");
+        console.warn(prefix, "Player already spawned, canceling spawn.");
         actions.cancel(actionId);
         return null;
       }

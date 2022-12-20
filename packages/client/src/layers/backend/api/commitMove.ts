@@ -30,14 +30,15 @@ export function commitMove(
   const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
   // Entity must be owned by the player
-
+  const prefix = "Commit Move:";
   const actionId = `commitMove ${Date.now()}` as EntityID;
   actions.add({
     id: actionId,
     components: { OwnedBy, GameConfig, Wind, MoveCard, CommittedMoves },
     requirement: ({ OwnedBy, Wind, MoveCard }) => {
       if (ships.length !== moves.length) {
-        console.warn("ship and movecard mismatch");
+        console.warn(prefix, "ship and movecard mismatch");
+        actions.cancel(actionId);
         return null;
       }
 
@@ -53,12 +54,14 @@ export function commitMove(
         if (moveEntity == undefined) continue;
         const movingEntityOwner = getComponentValue(OwnedBy, shipEntity)?.value;
         if (movingEntityOwner == null) {
-          console.warn("Entity has no owner");
+          console.warn(prefix, "Entity has no owner");
+          actions.cancel(actionId);
           return null;
         }
 
         if (movingEntityOwner !== connectedAddress.get()) {
-          console.warn("Can only move entities you own", movingEntityOwner, connectedAddress.get());
+          console.warn(prefix, "Can only move entities you own", movingEntityOwner, connectedAddress.get());
+          actions.cancel(actionId);
           return null;
         }
         const moveCard = getComponentValueStrict(MoveCard, moveEntity);
@@ -73,18 +76,16 @@ export function commitMove(
             worldRadius
           )
         ) {
-          console.warn("move out of bounds");
+          console.warn(prefix, "move out of bounds");
+          actions.cancel(actionId);
           return null;
         }
       }
 
       const shipWorldEntities = ships.map((s) => world.entities[s]);
       const moveWorldEntities = moves.map((m) => world.entities[m]);
-      console.log("commitMove ships:", shipWorldEntities, "moves:", moveWorldEntities);
 
-      const encoding = abi.encode(["uint256[]", "uint256[]", "uint256"], [shipWorldEntities, moveWorldEntities, 0]);
-      console.log("encoding:", encoding);
-      return encoding;
+      return abi.encode(["uint256[]", "uint256[]", "uint256"], [shipWorldEntities, moveWorldEntities, 0]);
     },
     updates: () => [],
     execute: (encoding: string) => {
