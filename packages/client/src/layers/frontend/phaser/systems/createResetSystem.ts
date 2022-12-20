@@ -9,14 +9,13 @@ export function createResetSystem(phaser: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: { OwnedBy },
         utils: { getPlayerEntity, getPhase, getGameConfig },
-        api: { revealMove, submitActions },
+        api: { submitActions },
         network: { clock },
       },
       backend: {
         components: { SelectedMove, SelectedActions, CommittedMoves },
-        api: { commitMove },
+        api: { commitMove, revealMove },
         utils: { secondsUntilNextPhase, getPlayerShipsWithMoves, getPlayerShipsWithActions, getPlayerShips },
       },
     },

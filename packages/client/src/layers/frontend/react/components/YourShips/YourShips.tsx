@@ -52,13 +52,13 @@ export function registerYourShips() {
             LastMove,
             LastAction,
           },
-          api: { revealMove, submitActions },
+          api: { submitActions },
           network: { connectedAddress, clock },
           utils: { getPlayerEntity, getPhase, getTurn },
         },
         backend: {
           components: { SelectedShip, SelectedMove, SelectedActions, CommittedMoves },
-          api: { commitMove },
+          api: { commitMove, revealMove },
           utils: { getPlayerShipsWithMoves },
         },
       } = layers;

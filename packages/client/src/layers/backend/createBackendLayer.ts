@@ -15,6 +15,7 @@ import { curry } from "lodash";
 import { Action, Phase } from "../../types";
 import { NetworkLayer } from "../network";
 import { commitMove } from "./api/commitMove";
+import { revealMove } from "./api/revealMove";
 import { spawnPlayer } from "./api/spawnPlayer";
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -111,6 +112,7 @@ export async function createBackendLayer(network: NetworkLayer) {
   const api = {
     spawnPlayer: curry(spawnPlayer)(network, actions),
     commitMove: curry(commitMove)(network, actions, components.CommittedMoves),
+    revealMove: curry(revealMove)(network, actions),
   };
   // --- CONTEXT --------------------------------------------------------------------
   const context = {
