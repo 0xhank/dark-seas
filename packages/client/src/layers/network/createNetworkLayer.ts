@@ -20,7 +20,7 @@ import { setupDevSystems } from "./setup";
 
 import { GodID } from "@latticexyz/network";
 import { Coord } from "@latticexyz/utils";
-import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
+import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../../../contracts/types/SystemTypes";
 import { Action, Phase } from "../../types";
@@ -146,9 +146,7 @@ export async function createNetworkLayer(config: GameConfig) {
 
   // --- API ------------------------------------------------------------------------
 
-  function commitMove(encoding: string) {
-    const commitment = keccak256(encoding);
-    console.log("committing move");
+  function commitMove(commitment: string) {
     systems["ds.system.Commit"].executeTyped(commitment, {
       gasLimit: GAS_LIMIT,
     });

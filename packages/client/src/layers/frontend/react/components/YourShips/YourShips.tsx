@@ -9,9 +9,7 @@ import {
   HasValue,
   removeComponent,
   runQuery,
-  setComponent,
 } from "@latticexyz/recs";
-import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { map, merge } from "rxjs";
 import styled from "styled-components";
 import { Action, Phase } from "../../../../../types";
@@ -54,12 +52,14 @@ export function registerYourShips() {
             LastMove,
             LastAction,
           },
-          api: { revealMove, submitActions, commitMove },
+          api: { revealMove, submitActions },
           network: { connectedAddress, clock },
           utils: { getPlayerEntity, getPhase, getTurn },
         },
         backend: {
           components: { SelectedShip, SelectedMove, SelectedActions, CommittedMoves },
+          api: { commitMove },
+          utils: { getPlayerShipsWithMoves },
         },
       } = layers;
 
@@ -116,6 +116,7 @@ export function registerYourShips() {
             submitActions,
             getTurn,
             commitMove,
+            getPlayerShipsWithMoves,
           };
         })
       );
@@ -142,6 +143,7 @@ export function registerYourShips() {
         submitActions,
         getTurn,
         commitMove,
+        getPlayerShipsWithMoves,
       } = props;
 
       const phase: Phase | undefined = getPhase(DELAY);
@@ -189,26 +191,10 @@ export function registerYourShips() {
           if (shipsAndActions.ships.length == 0) return;
           submitActions(shipsAndActions.ships, shipsAndActions.actions);
         } else {
-          const shipsAndMoves = yourShips.reduce(
-            (prev: { ships: EntityID[]; moves: EntityID[] }, curr: EntityIndex) => {
-              const shipMove = getComponentValue(SelectedMove, curr)?.value;
-              if (!shipMove) return prev;
-              return {
-                ships: [...prev.ships, world.entities[curr]],
-                moves: [...prev.moves, world.entities[shipMove]],
-              };
-            },
-            { ships: [], moves: [] }
-          );
-
-          if (shipsAndMoves.ships.length == 0) return;
+          const shipsAndMoves = getPlayerShipsWithMoves();
+          if (!shipsAndMoves) return;
           if (phase == Phase.Commit) {
-            const encodedMove = abi.encode(
-              ["uint256[]", "uint256[]", "uint256"],
-              [shipsAndMoves.ships, shipsAndMoves.moves, 0]
-            );
-            commitMove(encodedMove);
-            setComponent(CommittedMoves, GodEntityIndex, { value: encodedMove });
+            commitMove(shipsAndMoves.ships, shipsAndMoves.moves);
           } else {
             const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
             if (!encoding) return;
