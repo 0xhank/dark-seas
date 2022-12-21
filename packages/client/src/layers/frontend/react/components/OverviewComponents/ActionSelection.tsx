@@ -1,6 +1,6 @@
 import { EntityIndex, getComponentValue, setComponent } from "@latticexyz/recs";
 import { Action, ActionImg, ActionNames, Layers } from "../../../../../types";
-import { OptionButton } from "../../styles/global";
+import { Img, OptionButton } from "../../styles/global";
 
 export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
   const {
@@ -34,9 +34,9 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
               const newArray = selectedActions;
               const index = newArray.indexOf(action);
               if (index == -1) {
-                if (newArray[0] == -1) newArray[0] = action;
-                else if (newArray[1] == -1) newArray[1] = action;
-                else return;
+                const unusedSlot = newArray.indexOf(-1);
+                if (unusedSlot == -1) return;
+                newArray[unusedSlot] = action;
               } else {
                 newArray[index] = -1;
               }
@@ -44,16 +44,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
               setComponent(SelectedActions, ship, { value: newArray });
             }}
           >
-            <img
-              src={ActionImg[action]}
-              style={{
-                height: "80%",
-                objectFit: "scale-down",
-                filter: usedAlready
-                  ? "invert(100%)"
-                  : "invert(19%) sepia(89%) saturate(1106%) hue-rotate(7deg) brightness(93%) contrast(102%)",
-              }}
-            />
+            <Img src={ActionImg[action]} />
             <p style={{ lineHeight: "16px" }}>{ActionNames[action]}</p>
           </OptionButton>
         );
