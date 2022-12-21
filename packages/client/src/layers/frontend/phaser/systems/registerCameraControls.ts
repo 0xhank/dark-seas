@@ -5,7 +5,7 @@ import { PhaserLayer } from "../types";
 export function registerCameraControls(layer: PhaserLayer) {
   const {
     scenes: {
-      Main: { input, camera },
+      Main: { input, camera, phaserScene },
     },
     api: {
       mapInteraction: { mapInteractionEnabled },
@@ -26,6 +26,35 @@ export function registerCameraControls(layer: PhaserLayer) {
         camera.phaserCamera.scrollY - (pointer.y - pointer.prevPosition.y) / camera.phaserCamera.zoom
       );
     });
+
+  phaserScene.input.on(
+    "wheel",
+    (pointer: Phaser.Input.Pointer, gameObjects: any, deltaX: any, deltaY: number, deltaZ: any) => {
+      const zoom = camera.phaserCamera.zoom;
+      const zoomScale = deltaY < 0 ? 1.08 : 0.92;
+      const newZoom = zoom * zoomScale; // deltaY>0 means we scrolled down
+      console.log("new zoom:", newZoom);
+      console.log("delta:", deltaY);
+      if (deltaY >= 0 && newZoom < 0.25) return;
+      if (deltaY <= 0 && newZoom > 2) return;
+
+      const mouseX = pointer.x;
+      const mouseY = pointer.y;
+
+      const viewWidth = camera.phaserCamera.width;
+      const viewHeight = camera.phaserCamera.height;
+
+      const pixelsDifferenceW = viewWidth / zoom - viewWidth / newZoom;
+      const sideRatioX = (mouseX - viewWidth / 2) / viewWidth;
+      const scrollX = camera.phaserCamera.x + pixelsDifferenceW * sideRatioX;
+
+      const pixelsDifferenceY = viewHeight / zoom - viewHeight / newZoom;
+      const sideRatioY = (mouseY - viewHeight / 2) / viewHeight;
+      const scrollY = camera.phaserCamera.y + pixelsDifferenceY * sideRatioY;
+      camera.setScroll(scrollX, scrollY);
+      camera.setZoom(newZoom);
+    }
+  );
 
   input.onKeyPress(
     (keys) => keys.has("F"),
