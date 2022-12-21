@@ -57,7 +57,7 @@ export function registerTopBar() {
           <Compass direction={dir} speed={speed} />
           <div
             style={{
-              marginLeft: "290px",
+              marginLeft: "250px",
               display: "flex",
               width: "100%",
               flexDirection: "column",

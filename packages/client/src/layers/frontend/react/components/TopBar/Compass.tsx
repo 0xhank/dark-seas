@@ -22,8 +22,8 @@ export function Compass({ speed, direction }: Wind) {
 }
 
 const CompassBody = styled.div`
-  width: 125px;
-  height: 125px;
+  width: 100px;
+  height: 100px;
   position: absolute;
   left: 20;
   top: 0;
@@ -51,10 +51,10 @@ const CompassWindRose = styled.div`
   }
 
   &:before {
-    top: -18px;
-    left: calc(50% - 11px);
-    width: 24px;
-    height: 24px;
+    top: -15px;
+    left: calc(50% - 8.5px);
+    width: 18px;
+    height: 18px;
     border-radius: 1000% 50% 0 50%;
     transform: rotate(45deg);
     box-shadow: 0 0 5px 3px rgba(0, 0, 0, 0.05);
@@ -76,6 +76,7 @@ const CompassWindRose = styled.div`
 const CompassMarkV = styled.div`
   width: 4px;
   height: 100%;
+  top: 3px;
   left: calc(50% - 2px);
   position: absolute;
   transform: rotate(90deg);
@@ -113,7 +114,7 @@ const CompassMarkV = styled.div`
 const CompassMarkH = styled.div`
   width: 4px;
   height: 100%;
-  left: calc(50% + 5px);
+  left: calc(50% + 7px);
   position: absolute;
 
   &:before,
@@ -137,7 +138,7 @@ const CompassMarkH = styled.div`
     left: -11px;
     font-weight: 400;
     top: 12%;
-    top: 5.5%;
+    top: 7.5%;
   }
 
   &:after {
