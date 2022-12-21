@@ -2,8 +2,8 @@ import { GodID } from "@latticexyz/network";
 import { EntityIndex, getComponentValue } from "@latticexyz/recs";
 import { useState } from "react";
 import { map, merge, of } from "rxjs";
+import styled from "styled-components";
 import { registerUIComponent } from "../../engine";
-import { Container } from "../../styles/global";
 import { Compass } from "./Compass";
 
 export function registerTopBar() {
@@ -53,23 +53,27 @@ export function registerTopBar() {
       const name = playerEntity ? getComponentValue(Name, playerEntity)?.value : undefined;
       if (!name) return null;
       return (
-        <Container>
+        <TopBarContainer>
           <Compass direction={dir} speed={speed} />
-          <div
-            style={{
-              marginLeft: "290px",
-              display: "flex",
-              width: "100%",
-              flexDirection: "column",
-              gap: "5px",
-              textAlign: "left",
-            }}
-          >
+          <div style={{ display: "flex", flexDirection: "column", textAlign: "left" }}>
             <span style={{ fontWeight: "bolder", fontSize: "1.5rem", lineHeight: "2rem" }}>Captain {name}'s Log</span>
             <span>{date.toLocaleDateString("en-UK", options as any)}</span>
           </div>
-        </Container>
+        </TopBarContainer>
       );
     }
   );
 }
+
+const TopBarContainer = styled.div`
+  position: absolute;
+  left: 20;
+  top: 20;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: fit-content;
+  // margin-top: auto;
+  // margin-bottom: auto;
+`;

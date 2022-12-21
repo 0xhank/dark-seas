@@ -180,7 +180,7 @@ export const phaserConfig = {
   cameraConfig: defineCameraConfig({
     // phaserSelector: "phaser-game",
     pinchSpeed: 0.5,
-    wheelSpeed: 0.5,
+    wheelSpeed: 0,
     maxZoom: 2,
     minZoom: 0.25,
   }),

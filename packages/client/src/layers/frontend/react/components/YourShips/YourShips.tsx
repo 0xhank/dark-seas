@@ -275,7 +275,9 @@ export function registerYourShips() {
           : "Execute selected moves";
       return (
         <Container style={{ justifyContent: "flex-end" }}>
-          <InternalContainer style={{ flexDirection: "column", justifyContent: "space-between", gap: "12px" }}>
+          <InternalContainer
+            style={{ height: "auto", flexDirection: "column", justifyContent: "space-between", gap: "12px" }}
+          >
             <Instructions> {helpMessage}</Instructions>
             <InternalContainer style={{ gap: "24px", padding: "0", background: "transparent" }}>
               <MoveButtons>
@@ -314,6 +316,7 @@ const MoveButtons = styled.div`
   gap: 8px;
   font-size: 1rem;
   font-weight: 700;
+  max-width: 90%;
 `;
 
 const ConfirmButtonsContainer = styled.div`
@@ -325,7 +328,7 @@ const ConfirmButtonsContainer = styled.div`
 `;
 
 const Instructions = styled.div`
-fontSize: "1.25rem",
-lineHeight: "2.5rem",
-textAlign: "left",
+  font-size: 1.25rem;
+  line-height: 1.25rem;
+  text-align: left;
 `;

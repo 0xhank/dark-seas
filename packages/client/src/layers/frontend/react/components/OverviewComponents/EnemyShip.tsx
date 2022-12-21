@@ -8,7 +8,7 @@ import { ShipCard } from "../YourShips/ShipCard";
 export function registerEnemyShip() {
   registerUIComponent(
     // name
-    "ShipOverview",
+    "EnemyShip",
     // grid location
     {
       rowStart: 1,
@@ -81,8 +81,8 @@ export function registerEnemyShip() {
       const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, ship).value);
       if (!ownerEntity || playerEntity == ownerEntity) return null;
       return (
-        <Container style={{ justifyContent: "flex-end" }}>
-          <InternalContainer style={{ gap: "24px" }}>
+        <Container style={{ justifyContent: "flex-start" }}>
+          <InternalContainer style={{ gap: "24px", height: "auto" }}>
             <ShipCard layers={layers} ship={ship} />
           </InternalContainer>
         </Container>
