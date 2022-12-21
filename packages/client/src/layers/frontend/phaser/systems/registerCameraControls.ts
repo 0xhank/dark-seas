@@ -51,7 +51,7 @@ export function registerCameraControls(layer: PhaserLayer) {
       const pixelsDifferenceY = viewHeight / zoom - viewHeight / newZoom;
       const sideRatioY = (mouseY - viewHeight / 2) / viewHeight;
       const scrollY = camera.phaserCamera.y + pixelsDifferenceY * sideRatioY;
-      camera.setScroll(scrollX, scrollY);
+      // camera.setScroll(scrollX, scrollY);
       camera.setZoom(newZoom);
     }
   );

@@ -117,7 +117,7 @@ export function createPositionSystem(phaser: PhaserLayer) {
     const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, update.entity).value);
     const playerEntity = getPlayerEntity();
 
-    if (!playerEntity || !ownerEntity) return null;
+    if (!ownerEntity) return null;
 
     if (rangeGroup) rangeGroup.clear(true, true);
     if (activeGroup) activeGroup.clear(true, true);
@@ -134,7 +134,7 @@ export function createPositionSystem(phaser: PhaserLayer) {
 
     const object = objectPool.get(update.entity, "Sprite");
 
-    const spriteAsset: Sprites = getShipSprite(playerEntity, health, playerEntity == ownerEntity);
+    const spriteAsset: Sprites = getShipSprite(ownerEntity, health, playerEntity == ownerEntity);
     // @ts-expect-error doesnt recognize a sprite as a number
     const sprite = config.sprites[spriteAsset];
     // const sprite = config.sprites[Sprites.ShipBlack];
