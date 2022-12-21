@@ -1,5 +1,6 @@
 import { GodID } from "@latticexyz/network";
 import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
+import styled from "styled-components";
 import { Layers, SailPositions } from "../../../../../types";
 import { getShipSprite, ShipImages } from "../../../../../utils/ships";
 import { BoxImage } from "../../styles/global";
@@ -49,17 +50,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
 
   return (
     <div style={{ display: "flex", borderRadius: "6px", width: "100%" }}>
-      <div
-        style={{
-          flex: 2,
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-          position: "relative",
-          maxWidth: "120px",
-          minWidth: "80px",
-        }}
-      >
+      <BoxContainer>
         <span style={{ fontSize: "1.5rem", lineHeight: "1.5rem" }}>HMS {ship}</span>
         {playerEntity !== ownerEntity && <span>{ownerName}</span>}
         <BoxImage>
@@ -77,10 +68,10 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
             }}
           />
         </BoxImage>
-      </div>
-      <div style={{ flex: 3, display: "flex", flexDirection: "column" }}>
+      </BoxContainer>
+      <div style={{ flex: 3, display: "flex", flexDirection: "column", minWidth: 0 }}>
         <HullHealth health={health} />
-        <div style={{ display: "flex", width: "100%" }}>
+        <div style={{ display: "flex", width: "100%", flexWrap: "wrap" }}>
           <ShipAttribute attributeType={ShipAttributeTypes.Crew} attribute={crewCount} />
           <ShipAttribute attributeType={ShipAttributeTypes.Firepower} attribute={firepower} />
           <ShipAttribute attributeType={ShipAttributeTypes.Sails} attribute={SailPositions[sailPosition]} />
@@ -95,3 +86,16 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
     </div>
   );
 };
+
+const BoxContainer = styled.div`
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  max-width: 12rem;
+  min-width: 8rem;
+
+  @media (max-width: 1500px) {
+    max-width: 10rem;
+  }
+`;

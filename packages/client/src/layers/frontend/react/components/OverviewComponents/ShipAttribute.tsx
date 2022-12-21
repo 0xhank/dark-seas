@@ -19,25 +19,26 @@ export default function ShipAttribute({
   return (
     <AttributeContainer>
       <LeftSide>
-        <img
-          src={source}
-          alt="Icon"
-          style={{
-            height: "30px",
-            filter: `invert(81%) sepia(24%) saturate(2269%) hue-rotate(344deg) brightness(104%) contrast(103%)`,
-          }}
-        />
+        <AttributeImg src={source} alt={`attribute-${attributeType}`} />
       </LeftSide>
       <RightSide style={{ fontSize: `${attributeString.length > 2 ? "1rem" : "1.25rem"}` }}>{attribute}</RightSide>
     </AttributeContainer>
   );
 }
 
+const AttributeImg = styled.img`
+  height: 2.5rem;
+  filter: invert(81%) sepia(24%) saturate(2269%) hue-rotate(344deg) brightness(104%) contrast(103%);
+
+  @media (max-width: 1500px) {
+    height: 1.5rem;
+  }
+`;
 const AttributeContainer = styled(Container)`
   height: auto;
   color: ${colors.darkBrown};
   flex-direction: row;
-  padding: 6px;
+  padding: 3px;
   border-radius: 6px;
   gap: 0;
   width: auto;
@@ -61,5 +62,9 @@ const RightSide = styled.div`
   align-items: center;
   font-size: 1.5rem;
   color: ${colors.darkBrown};
-  line-height: 30px;
+  line-height: 2.5rem;
+
+  @media (max-width: 1500px) {
+    line-height: 1.5rem;
+  }
 `;

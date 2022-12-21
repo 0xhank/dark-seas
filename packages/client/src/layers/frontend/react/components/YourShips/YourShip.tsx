@@ -77,14 +77,22 @@ const MoveButtons = styled.div`
   font-size: 1rem;
   font-weight: 700;
   width: auto;
-  height: 100px;
+  height: 8rem;
+
+  @media (max-width: 1310px) {
+    height: 6rem;
+  }
+
+  @media (max-width: 1000px) {
+    height: 4rem;
+  }
 `;
 
 const YourShipContainer = styled(InternalContainer)`
   position: relative;
   flex-direction: column;
   justify-content: space-between;
-  min-width: 150px;
+  min-width: 0;
   flex: 1;
   height: auto;
   cursor: pointer;

@@ -6,7 +6,7 @@ export default function HullHealth({ health }: { health: number }) {
   return (
     <HealthContainer>
       <span style={{ textTransform: "uppercase", fontWeight: 600, fontSize: "1rem" }}>hull</span>
-      <span style={{ display: "flex", gap: "6px", width: "100%", height: "100%" }}>
+      <HealthBars>
         {Array(maxHealth)
           .fill(0)
           .map((val, idx) => {
@@ -17,17 +17,29 @@ export default function HullHealth({ health }: { health: number }) {
               />
             );
           })}
-      </span>
+      </HealthBars>
     </HealthContainer>
   );
 }
 
+const HealthBars = styled.span`
+  display: flex;
+  gap: 5px;
+  width: 100%;
+  height: 100%;
+  @media (max-width: 1320px) {
+    gap: 3px;
+  }
+`;
 const HealthContainer = styled(Container)`
   background: ${colors.thickGlass};
-  height: 45px;
+  height: 4.5rem;
   width: 100%;
   color: ${colors.darkBrown};
   flex-direction: row;
   padding: 6px;
   border-radius: 6px;
+  @media (max-width: 1320px) {
+    height: 3rem;
+  }
 `;
