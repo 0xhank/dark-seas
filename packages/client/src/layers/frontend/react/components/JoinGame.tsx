@@ -1,4 +1,4 @@
-import { EntityID, hasComponent } from "@latticexyz/recs";
+import { EntityID, Has, hasComponent, runQuery } from "@latticexyz/recs";
 import { computedToStream } from "@latticexyz/utils";
 import { useState } from "react";
 import { map, merge } from "rxjs";
@@ -8,11 +8,10 @@ import { Button, colors, Input } from "../styles/global";
 
 const JoinGameContainer = ({ layers }: { layers: Layers }) => {
   const {
-    network: {
+    backend: {
       world,
-      components: { Player, Name },
       api: { spawnPlayer },
-      utils: { getGameConfig },
+      actions: { Action },
     },
   } = layers;
 
@@ -21,6 +20,7 @@ const JoinGameContainer = ({ layers }: { layers: Layers }) => {
   const [y, setY] = useState("");
 
   const findSpawnButtonDisabled = playerName.length === 0 || x == undefined || y == undefined;
+  const spawnAction = [...runQuery([Has(Action)])].find((i) => world.entities[i].includes("spawn"));
 
   return (
     <div
@@ -77,20 +77,32 @@ const JoinGameContainer = ({ layers }: { layers: Layers }) => {
             }}
           ></Input>
         </div> */}
-        <Button
-          isSelected
-          disabled={findSpawnButtonDisabled}
-          style={{
-            fontSize: "1.5rem",
-            flex: 1,
-          }}
-          onClick={() => {
-            if (x == undefined || y == undefined) return;
-            spawnPlayer(playerName);
-          }}
-        >
-          Register
-        </Button>
+        {!spawnAction ? (
+          <Button
+            isSelected
+            disabled={findSpawnButtonDisabled}
+            style={{
+              fontSize: "1.5rem",
+              flex: 1,
+            }}
+            onClick={() => {
+              if (x == undefined || y == undefined) return;
+              spawnPlayer(playerName);
+            }}
+          >
+            Register
+          </Button>
+        ) : (
+          <Button
+            disabled
+            style={{
+              fontSize: "1.5rem",
+              flex: 1,
+            }}
+          >
+            Spawning...
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -70,7 +70,8 @@ export const Button = styled.button<{ isSelected?: boolean; noGoldBorder?: boole
   border-radius: 6px;
   border-color: ${gold};
   pointer-events: all;
-  color: ${({ isSelected }) => `${isSelected ? white : darkBrown}`};
+  color: ${darkBrown};
+  // color: ${({ isSelected }) => `${isSelected ? white : darkBrown}`};
 
   :hover {
     background: ${({ isSelected }) => `${isSelected ? lightGold : white}`};
@@ -90,7 +91,17 @@ export const Button = styled.button<{ isSelected?: boolean; noGoldBorder?: boole
 export const OptionButton = styled(Button)`
   :hover {
     background: ${({ isSelected }) => `${isSelected ? red : white}`};
+    color: ${({ isSelected }) => `${isSelected ? white : darkBrown}`};
   }
+`;
+
+export const Img = styled.img<{ isSelected?: boolean }>`
+  height: 80%;
+  object-fit: scale-down;
+  filter: ${({ isSelected }) =>
+    isSelected
+      ? "invert(100%)"
+      : "invert(19%) sepia(89%) saturate(1106%) hue-rotate(7deg) brightness(93%) contrast(102%)"};
 `;
 
 export const ConfirmButton = styled(Button)`

@@ -27,7 +27,7 @@ export function createProjectionSystem(phaser: PhaserLayer) {
         utils: { getPhase },
       },
       backend: {
-        components: { SelectedShip, SelectedMove },
+        components: { SelectedMove },
       },
     },
     scenes: {
@@ -53,7 +53,6 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     if (type == UpdateType.Exit) return;
     const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
-    const shipEntityId = getComponentValueStrict(SelectedShip, GodEntityIndex).value as EntityIndex;
     const moveCardEntity = getComponentValue(SelectedMove, entity);
 
     let rangeGroup = polygonRegistry.get(`rangeGroup-${entity}`);
@@ -64,13 +63,13 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     if (!rangeGroup) rangeGroup = phaserScene.add.group();
 
     const moveCard = getComponentValueStrict(MoveCard, moveCardEntity.value as EntityIndex);
-    const position = getComponentValueStrict(Position, shipEntityId);
-    const range = getComponentValueStrict(Range, shipEntityId).value;
-    const length = getComponentValueStrict(Length, shipEntityId).value;
-    const rotation = getComponentValueStrict(Rotation, shipEntityId).value;
+    const position = getComponentValueStrict(Position, entity);
+    const range = getComponentValueStrict(Range, entity).value;
+    const length = getComponentValueStrict(Length, entity).value;
+    const rotation = getComponentValueStrict(Rotation, entity).value;
     const wind = getComponentValueStrict(Wind, GodEntityIndex);
-    const sailPosition = getComponentValueStrict(SailPosition, shipEntityId).value;
-    const health = getComponentValueStrict(Health, shipEntityId).value;
+    const sailPosition = getComponentValueStrict(SailPosition, entity).value;
+    const health = getComponentValueStrict(Health, entity).value;
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, sailPosition, wind);
 
     const pixelPosition = tileCoordToPixelCoord(finalPosition, positions.posWidth, positions.posHeight);

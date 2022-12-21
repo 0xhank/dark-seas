@@ -1,16 +1,7 @@
 import { GodID } from "@latticexyz/network";
-import {
-  defineRxSystem,
-  EntityID,
-  EntityIndex,
-  getComponentValue,
-  HasValue,
-  removeComponent,
-  runQuery,
-  setComponent,
-} from "@latticexyz/recs";
-import { defaultAbiCoder as abi } from "ethers/lib/utils";
-import { Action, Phase } from "../../../../types";
+import { defineRxSystem, EntityIndex, getComponentValue, removeComponent } from "@latticexyz/recs";
+import { Phase } from "../../../../types";
+import { DELAY } from "../../constants";
 import { PhaserLayer } from "../types";
 
 export function createResetSystem(phaser: PhaserLayer) {
@@ -18,14 +9,14 @@ export function createResetSystem(phaser: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: { OwnedBy },
-        utils: { getPlayerEntity, getPhase, getGameConfig },
-        api: { revealMove, commitMove, submitActions },
+        components: { LastMove, LastAction },
+        utils: { getPlayerEntity, getPhase, getGameConfig, getTurn },
         network: { clock },
       },
       backend: {
         components: { SelectedMove, SelectedActions, CommittedMoves },
-        utils: { secondsUntilNextPhase },
+        api: { commitMove, revealMove, submitActions },
+        utils: { secondsUntilNextPhase, getPlayerShipsWithMoves, getPlayerShipsWithActions, getPlayerShips },
       },
     },
     scenes: {
@@ -35,78 +26,71 @@ export function createResetSystem(phaser: PhaserLayer) {
   } = phaser;
 
   defineRxSystem(world, clock.time$, (currentTime) => {
-    const phase = getPhase();
+    const phase = getPhase(DELAY);
+    const turn = getTurn(DELAY);
     const gameConfig = getGameConfig();
 
-    if (phase == undefined || gameConfig == undefined) return;
+    if (phase == undefined || !gameConfig) return;
 
-    const secondsUntilPhase = secondsUntilNextPhase(currentTime);
+    const timeToNextPhase = secondsUntilNextPhase(currentTime, DELAY);
 
     const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
     const playerEntity = getPlayerEntity();
     if (!playerEntity) return;
 
-    const yourShips = [...runQuery([HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
-
+    // START OF PHASE: clear previous turn's actions
+    // END OF PHASE: submit moves
     if (phase == Phase.Commit) {
-      if (secondsUntilPhase == 5) {
-        const shipsAndMoves = yourShips.reduce(
-          (prev: { ships: EntityID[]; moves: EntityID[] }, curr: EntityIndex) => {
-            const shipMove = getComponentValue(SelectedMove, curr)?.value;
-            if (!shipMove) return prev;
-            return {
-              ships: [...prev.ships, world.entities[curr]],
-              moves: [...prev.moves, world.entities[shipMove]],
-            };
-          },
-          { ships: [], moves: [] }
-        );
-        if (shipsAndMoves.ships.length != 0) {
-          const encodedMove = abi.encode(
-            ["uint256[]", "uint256[]", "uint256"],
-            [shipsAndMoves.ships, shipsAndMoves.moves, 0]
-          );
-          commitMove(encodedMove);
-          setComponent(CommittedMoves, GodEntityIndex, { value: encodedMove });
-        }
+      // START OF PHASE
+      if (timeToNextPhase == gameConfig.commitPhaseLength) {
+        getPlayerShips()?.map((ship) => {
+          objectPool.remove(`projection-${ship}`);
+          polygonRegistry.get(`rangeGroup-${ship}`)?.clear(true, true);
+          removeComponent(SelectedActions, ship);
+        });
       }
-      if (secondsUntilPhase !== gameConfig.commitPhaseLength - 1) return;
-      yourShips.map((ship) => {
-        removeComponent(SelectedMove, ship);
-      });
+
+      // END OF PHASE
+      if (timeToNextPhase == 1) {
+        const committedMoves = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
+        if (committedMoves) return;
+        const shipsAndMoves = getPlayerShipsWithMoves();
+        if (!shipsAndMoves) return;
+
+        commitMove(shipsAndMoves.ships, shipsAndMoves.moves);
+      }
     }
 
+    // AFTER DELAY: reveal moves
     if (phase == Phase.Reveal) {
-      if (secondsUntilPhase !== gameConfig.revealPhaseLength - 5) return;
-      const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
-      if (encoding) revealMove(encoding);
+      // AFTER DELAY
+      if (timeToNextPhase == gameConfig.revealPhaseLength - DELAY) {
+        const lastMove = getComponentValue(LastMove, playerEntity)?.value;
+        if (lastMove == turn) return;
+        const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
+        if (encoding) revealMove(encoding);
+      }
     }
 
+    // START OF PHASE: clear move commitments
+    // END OF PHASE: submit actions
     if (phase == Phase.Action) {
-      if (secondsUntilPhase == 5) {
-        const shipsAndActions = yourShips.reduce(
-          (prev: { ships: EntityID[]; actions: Action[][] }, curr: EntityIndex) => {
-            const actions = getComponentValue(SelectedActions, curr)?.value;
-            if (!actions) return prev;
-            const filteredActions = actions.filter((action) => action !== -1);
-            return {
-              ships: [...prev.ships, world.entities[curr]],
-              actions: [...prev.actions, filteredActions],
-            };
-          },
-          { ships: [], actions: [] }
-        );
-        if (shipsAndActions.ships.length == 0) return;
+      // START OF PHASE
+      if (timeToNextPhase == gameConfig.actionPhaseLength) {
+        removeComponent(CommittedMoves, GodEntityIndex);
+        getPlayerShips()?.map((ship) => {
+          removeComponent(SelectedMove, ship);
+        });
+      }
+      // END OF PHASE
+      if (timeToNextPhase == 1) {
+        const lastAction = getComponentValue(LastAction, playerEntity)?.value;
+        if (lastAction == turn) return;
+        const shipsAndActions = getPlayerShipsWithActions();
+        if (!shipsAndActions) return;
         submitActions(shipsAndActions.ships, shipsAndActions.actions);
       }
-      if (secondsUntilPhase !== gameConfig.actionPhaseLength - 1) return;
-      removeComponent(CommittedMoves, GodEntityIndex);
-      yourShips.map((ship) => {
-        objectPool.remove(`projection-${ship}`);
-        polygonRegistry.get(`rangeGroup-${ship}`)?.clear(true, true);
-        removeComponent(SelectedActions, ship);
-      });
     }
   });
 }

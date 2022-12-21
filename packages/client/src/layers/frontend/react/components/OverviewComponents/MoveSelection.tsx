@@ -10,7 +10,7 @@ import {
 import { Layers, MoveCard } from "../../../../../types";
 import { getFinalMoveCard, getFinalPosition } from "../../../../../utils/directions";
 import { inRange } from "../../../../../utils/distance";
-import { OptionButton } from "../../styles/global";
+import { Img, OptionButton } from "../../styles/global";
 import { arrowImg } from "../../types";
 
 export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
@@ -65,17 +65,7 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
               else setComponent(SelectedMove, ship, { value: entity });
             }}
           >
-            <img
-              src={imageUrl}
-              style={{
-                height: "80%",
-                objectFit: "scale-down",
-                filter: isSelected
-                  ? "invert(100%)"
-                  : "invert(19%) sepia(89%) saturate(1106%) hue-rotate(7deg) brightness(93%) contrast(102%)",
-                // transform: `rotate(${rotation + 90}deg)`,
-              }}
-            />
+            <Img src={imageUrl} style={{ transform: `rotate(${rotation + 90}deg)` }} />
             <p style={{ lineHeight: "16px" }}>{Math.round(moveCard.distance)}M</p>
           </OptionButton>
         );

@@ -2,19 +2,20 @@ import { getComponentEntities, getComponentValueStrict } from "@latticexyz/recs"
 import { ActionState, ActionStateString } from "@latticexyz/std-client";
 import { map } from "rxjs";
 import { registerUIComponent } from "../engine";
+import { Container } from "../styles/global";
 
 export function registerActionQueue() {
   registerUIComponent(
     "ActionQueue",
     {
       rowStart: 4,
-      rowEnd: 12,
+      rowEnd: 8,
       colStart: 1,
       colEnd: 3,
     },
     (layers) => {
       const {
-        network: {
+        backend: {
           actions: { Action },
         },
       } = layers;
@@ -27,7 +28,7 @@ export function registerActionQueue() {
     },
     ({ Action }) => {
       return (
-        <div>
+        <Container>
           <p>Actions:</p>
           {[...getComponentEntities(Action)].map((e) => {
             const actionData = getComponentValueStrict(Action, e);
@@ -38,7 +39,7 @@ export function registerActionQueue() {
               </p>
             );
           })}
-        </div>
+        </Container>
       );
     }
   );

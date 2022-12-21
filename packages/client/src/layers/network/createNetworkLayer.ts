@@ -8,7 +8,6 @@ import {
   Type,
 } from "@latticexyz/recs";
 import {
-  createActionSystem,
   defineBoolComponent,
   defineCoordComponent,
   defineNumberComponent,
@@ -20,7 +19,7 @@ import { setupDevSystems } from "./setup";
 
 import { GodID } from "@latticexyz/network";
 import { Coord } from "@latticexyz/utils";
-import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
+import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../../../contracts/types/SystemTypes";
 import { Action, Phase } from "../../types";
@@ -141,14 +140,10 @@ export async function createNetworkLayer(config: GameConfig) {
 
     return Math.floor(timeElapsed / turnLength);
   }
-  // --- ACTION SYSTEM --------------------------------------------------------------
-  const actions = createActionSystem(world, txReduced$);
 
   // --- API ------------------------------------------------------------------------
 
-  function commitMove(encoding: string) {
-    const commitment = keccak256(encoding);
-    console.log("committing move");
+  function commitMove(commitment: string) {
     systems["ds.system.Commit"].executeTyped(commitment, {
       gasLimit: GAS_LIMIT,
     });
@@ -156,21 +151,12 @@ export async function createNetworkLayer(config: GameConfig) {
 
   function spawnPlayer(name: string) {
     const location: Coord = { x: Math.round(Math.random() * 300000), y: Math.round(Math.random() * 300000) };
-    console.log("spawning player");
     systems["ds.system.PlayerSpawn"].executeTyped(name, location, {
       gasLimit: GAS_LIMIT,
     });
   }
 
-  function spawnShip(location: Coord, rotation: number) {
-    console.log("spawning ship");
-    systems["ds.system.ShipSpawn"].executeTyped(location, rotation, {
-      gasLimit: GAS_LIMIT,
-    });
-  }
-
   function revealMove(encoding: string) {
-    console.log("revealing move");
     const decodedMove = abi.decode(["uint256[]", "uint256[]", "uint256"], encoding);
     systems["ds.system.Move"].executeTyped(decodedMove[0], decodedMove[1], decodedMove[2], {
       gasLimit: GAS_LIMIT,
@@ -178,7 +164,6 @@ export async function createNetworkLayer(config: GameConfig) {
   }
 
   function submitActions(ships: EntityID[], actions: Action[][]) {
-    console.log("submitting actions");
     systems["ds.system.Action"].executeTyped(ships, actions, {
       gasLimit: GAS_LIMIT,
     });
@@ -193,9 +178,8 @@ export async function createNetworkLayer(config: GameConfig) {
     txReduced$,
     startSync,
     network,
-    actions,
     utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn },
-    api: { spawnShip, revealMove, submitActions, spawnPlayer, commitMove },
+    api: { revealMove, submitActions, spawnPlayer, commitMove },
     dev: setupDevSystems(world, encoders, systems),
   };
 
