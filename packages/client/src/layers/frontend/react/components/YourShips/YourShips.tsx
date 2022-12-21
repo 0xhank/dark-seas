@@ -16,7 +16,7 @@ import { Phase } from "../../../../../types";
 import { DELAY } from "../../../constants";
 import { registerUIComponent } from "../../engine";
 import { Button, colors, ConfirmButton, Container, InternalContainer } from "../../styles/global";
-import { YourShip } from "./ShipData";
+import { YourShip } from "./YourShip";
 
 export function registerYourShips() {
   registerUIComponent(
@@ -276,15 +276,7 @@ export function registerYourShips() {
       return (
         <Container style={{ justifyContent: "flex-end" }}>
           <InternalContainer style={{ flexDirection: "column", justifyContent: "space-between", gap: "12px" }}>
-            <div
-              style={{
-                fontSize: "1.25rem",
-                lineHeight: "2.5rem",
-                textAlign: "left",
-              }}
-            >
-              {helpMessage}
-            </div>
+            <Instructions> {helpMessage}</Instructions>
             <InternalContainer style={{ gap: "24px", padding: "0", background: "transparent" }}>
               <MoveButtons>
                 {yourShips.map((ship) => (
@@ -330,4 +322,10 @@ const ConfirmButtonsContainer = styled.div`
   justify-content: center;
   flex-direction: column;
   gap: 5px;
+`;
+
+const Instructions = styled.div`
+fontSize: "1.25rem",
+lineHeight: "2.5rem",
+textAlign: "left",
 `;
