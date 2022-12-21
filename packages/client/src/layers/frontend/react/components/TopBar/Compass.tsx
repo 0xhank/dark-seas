@@ -24,12 +24,7 @@ export function Compass({ speed, direction }: Wind) {
 const CompassBody = styled.div`
   width: 100px;
   height: 100px;
-  position: absolute;
-  left: 20;
-  top: 0;
-  bottom: 0;
-  margin-top: auto;
-  margin-bottom: auto;
+  position: relative;
 `;
 
 const CompassWindRose = styled.div`
@@ -61,6 +56,7 @@ const CompassWindRose = styled.div`
   }
 
   &:after {
+    display: none;
     top: -16px;
     left: calc(50% - 16.5px);
     width: 35px;
