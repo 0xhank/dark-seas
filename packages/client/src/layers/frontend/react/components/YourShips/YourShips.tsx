@@ -218,7 +218,10 @@ export function registerYourShips() {
             <Button
               disabled={disabled}
               noGoldBorder
-              onClick={() => yourShips.map((entity) => removeComponent(SelectedMove, entity))}
+              onClick={() => {
+                yourShips.map((entity) => removeComponent(SelectedMove, entity));
+                removeComponent(SelectedShip, GodEntityIndex);
+              }}
               style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}
             >
               Clear
@@ -243,7 +246,10 @@ export function registerYourShips() {
               <Button
                 disabled={disabled}
                 noGoldBorder
-                onClick={() => yourShips.map((entity) => removeComponent(SelectedActions, entity))}
+                onClick={() => {
+                  yourShips.map((entity) => removeComponent(SelectedActions, entity));
+                  removeComponent(SelectedShip, GodEntityIndex);
+                }}
                 style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}
               >
                 Clear

@@ -21,7 +21,7 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
   } = layers.network;
 
   const {
-    components: { SelectedMove },
+    components: { SelectedMove, SelectedShip },
   } = layers.backend;
 
   const worldRadius = getGameConfig()?.worldRadius;
@@ -60,9 +60,13 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
             isSelected={isSelected}
             key={`move-selection-${entity}`}
             onClick={(e) => {
-              e.preventDefault();
+              e.stopPropagation();
               if (isSelected) removeComponent(SelectedMove, ship);
-              else setComponent(SelectedMove, ship, { value: entity });
+              else {
+                setComponent(SelectedShip, GodEntityIndex, { value: ship });
+
+                setComponent(SelectedMove, ship, { value: entity });
+              }
             }}
           >
             <Img src={imageUrl} style={{ transform: `rotate(${rotation + 90}deg)` }} />
