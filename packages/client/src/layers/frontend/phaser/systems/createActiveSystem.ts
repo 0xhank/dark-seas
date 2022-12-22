@@ -1,7 +1,14 @@
 import { GodID } from "@latticexyz/network";
 import { tileCoordToPixelCoord } from "@latticexyz/phaserx";
-import { defineSystem, EntityIndex, getComponentValueStrict, Has, UpdateType } from "@latticexyz/recs";
-import { Phase, Side } from "../../../../types";
+import {
+  defineSystem,
+  EntityIndex,
+  getComponentValue,
+  getComponentValueStrict,
+  Has,
+  UpdateType,
+} from "@latticexyz/recs";
+import { ActionToSide, Phase, Side } from "../../../../types";
 import { getWindBoost } from "../../../../utils/directions";
 import { getFiringArea } from "../../../../utils/trig";
 import { DELAY } from "../../constants";
@@ -17,7 +24,7 @@ export function createActiveSystem(layer: PhaserLayer) {
         utils: { getPhase },
       },
       backend: {
-        components: { SelectedShip },
+        components: { SelectedShip, SelectedActions },
       },
     },
     polygonRegistry,
@@ -65,6 +72,7 @@ export function createActiveSystem(layer: PhaserLayer) {
     circle.setDepth(RenderDepth.Foreground5);
 
     if (phase == Phase.Action) {
+      const selectedActions = getComponentValue(SelectedActions, shipEntityId)?.value;
       const position = getComponentValueStrict(Position, shipEntityId);
       const range = getComponentValueStrict(Range, shipEntityId).value;
       const length = getComponentValueStrict(Length, shipEntityId).value;
@@ -84,6 +92,9 @@ export function createActiveSystem(layer: PhaserLayer) {
         const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, 0xffffff, 0.1);
         firingPolygon.setDisplayOrigin(0);
         firingPolygon.setDepth(RenderDepth.Foreground5);
+        if (selectedActions?.includes(ActionToSide[side])) {
+          firingPolygon.setFillStyle(0xf33a6a, 0.2);
+        }
 
         return firingPolygon;
       });

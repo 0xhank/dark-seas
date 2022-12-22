@@ -32,6 +32,17 @@ export enum Phase {
   Action,
 }
 
+// this makes me sad
+// TODO: make this make me not sad
+export const ActionToSide: Record<number, number> = {
+  [Action.FireForward]: Side.Forward,
+  [Action.FireLeft]: Side.Left,
+  [Action.FireRight]: Side.Right,
+  [Side.Forward]: Action.FireForward,
+  [Side.Left]: Action.FireLeft,
+  [Side.Right]: Action.FireRight,
+};
+
 export const PhaseNames: Record<number, string> = {
   [Phase.Commit]: "Move Preparation",
   [Phase.Reveal]: "Move Execution",
