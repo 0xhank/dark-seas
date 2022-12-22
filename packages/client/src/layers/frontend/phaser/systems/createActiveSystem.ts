@@ -71,43 +71,24 @@ export function createActiveSystem(layer: PhaserLayer) {
       const rotation = getComponentValueStrict(Rotation, shipEntityId).value;
 
       const pixelPosition = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
-      const forwardSidePoints = getFiringArea(
-        pixelPosition,
-        range * positions.posHeight,
-        length * positions.posHeight,
-        rotation,
-        Side.Forward
-      );
 
-      const rightSidePoints = getFiringArea(
-        pixelPosition,
-        range * positions.posHeight,
-        length * positions.posHeight,
-        rotation,
-        Side.Right
-      );
-      const leftSidePoints = getFiringArea(
-        pixelPosition,
-        range * positions.posHeight,
-        length * positions.posHeight,
-        rotation,
-        Side.Left
-      );
-      const forwardFiringRange = phaserScene.add.polygon(undefined, undefined, forwardSidePoints, 0xffffff, 0.1);
-      const rightFiringRange = phaserScene.add.polygon(undefined, undefined, rightSidePoints, 0xffffff, 0.1);
-      const leftFiringRange = phaserScene.add.polygon(undefined, undefined, leftSidePoints, 0xffffff, 0.1);
+      const firingPolygons = [Side.Forward, Side.Left, Side.Right].map((side) => {
+        const firingArea = getFiringArea(
+          pixelPosition,
+          range * positions.posHeight,
+          length * positions.posHeight,
+          rotation,
+          side
+        );
 
-      forwardFiringRange.setDisplayOrigin(0);
-      rightFiringRange.setDisplayOrigin(0);
-      leftFiringRange.setDisplayOrigin(0);
+        const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, 0xffffff, 0.1);
+        firingPolygon.setDisplayOrigin(0);
+        firingPolygon.setDepth(RenderDepth.Foreground5);
 
-      forwardFiringRange.setDepth(RenderDepth.Foreground5);
-      rightFiringRange.setDepth(RenderDepth.Foreground5);
-      leftFiringRange.setDepth(RenderDepth.Foreground5);
+        return firingPolygon;
+      });
 
-      activeGroup.add(forwardFiringRange, true);
-      activeGroup.add(rightFiringRange, true);
-      activeGroup.add(leftFiringRange, true);
+      activeGroup.addMultiple(firingPolygons, true);
     }
 
     activeGroup.add(circle, true);
