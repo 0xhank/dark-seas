@@ -72,32 +72,23 @@ export function createActiveSystem(layer: PhaserLayer) {
 
       const pixelPosition = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
 
-      const rightSidePoints = getFiringArea(
-        pixelPosition,
-        range * positions.posHeight,
-        length * positions.posHeight,
-        rotation,
-        Side.Right
-      );
-      const leftSidePoints = getFiringArea(
-        pixelPosition,
-        range * positions.posHeight,
-        length * positions.posHeight,
-        rotation,
-        Side.Left
-      );
+      const firingPolygons = [Side.Forward, Side.Left, Side.Right].map((side) => {
+        const firingArea = getFiringArea(
+          pixelPosition,
+          range * positions.posHeight,
+          length * positions.posHeight,
+          rotation,
+          side
+        );
 
-      const rightFiringRange = phaserScene.add.polygon(undefined, undefined, rightSidePoints, 0xffffff, 0.3);
+        const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, 0xffffff, 0.1);
+        firingPolygon.setDisplayOrigin(0);
+        firingPolygon.setDepth(RenderDepth.Foreground5);
 
-      const leftFiringRange = phaserScene.add.polygon(undefined, undefined, leftSidePoints, 0xffffff, 0.3);
+        return firingPolygon;
+      });
 
-      rightFiringRange.setDisplayOrigin(0);
-      leftFiringRange.setDisplayOrigin(0);
-      rightFiringRange.setDepth(RenderDepth.Foreground4);
-      leftFiringRange.setDepth(RenderDepth.Foreground4);
-
-      activeGroup.add(rightFiringRange, true);
-      activeGroup.add(leftFiringRange, true);
+      activeGroup.addMultiple(firingPolygons, true);
     }
 
     activeGroup.add(circle, true);

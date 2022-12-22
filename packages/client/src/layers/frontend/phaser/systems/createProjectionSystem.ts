@@ -74,32 +74,23 @@ export function createProjectionSystem(phaser: PhaserLayer) {
 
     const pixelPosition = tileCoordToPixelCoord(finalPosition, positions.posWidth, positions.posHeight);
 
-    const rightSidePoints = getFiringArea(
-      pixelPosition,
-      range * positions.posHeight,
-      length * positions.posHeight,
-      finalRotation,
-      Side.Right
-    );
-    const leftSidePoints = getFiringArea(
-      pixelPosition,
-      range * positions.posHeight,
-      length * positions.posHeight,
-      finalRotation,
-      Side.Left
-    );
-    const rightFiringRange = phaserScene.add.polygon(undefined, undefined, rightSidePoints, 0xffffff, 0.3);
+    const firingPolygons = [Side.Forward, Side.Left, Side.Right].map((side) => {
+      const firingArea = getFiringArea(
+        pixelPosition,
+        range * positions.posHeight,
+        length * positions.posHeight,
+        finalRotation,
+        side
+      );
 
-    const leftFiringRange = phaserScene.add.polygon(undefined, undefined, leftSidePoints, 0xffffff, 0.3);
+      const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, 0xffffff, 0.1);
+      firingPolygon.setDisplayOrigin(0);
+      firingPolygon.setDepth(RenderDepth.Foreground5);
 
-    rightFiringRange.setDisplayOrigin(0);
-    leftFiringRange.setDisplayOrigin(0);
+      return firingPolygon;
+    });
 
-    rightFiringRange.setDepth(RenderDepth.Foreground5);
-    leftFiringRange.setDepth(RenderDepth.Foreground5);
-
-    rangeGroup.add(rightFiringRange, true);
-    rangeGroup.add(leftFiringRange, true);
+    rangeGroup.addMultiple(firingPolygons, true);
 
     polygonRegistry.set(`rangeGroup-${entity}`, rangeGroup);
 

@@ -171,6 +171,41 @@ contract AttackActionTest is MudTest {
     assertEq(newHealth, origHealth - ehd);
   }
 
+  function testCombatForward() public {
+    setup();
+
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+
+    uint256 attackerEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 0);
+
+    vm.prank(deployer);
+    uint256 defenderEntity = shipSpawnSystem.executeTyped(Coord({ x: 20, y: 0 }), 180);
+
+    uint32 origHealth = healthComponent.getValue(defenderEntity);
+
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
+
+    delete shipEntities;
+    delete actions;
+    delete allActions;
+
+    shipEntities.push(attackerEntity);
+    actions.push(Action.FireForward);
+    allActions.push(actions);
+
+    uint256 gas = gasleft();
+    actionSystem.executeTyped(shipEntities, allActions);
+
+    console.log("gas:", gas - gasleft());
+
+    uint32 newHealth = healthComponent.getValue(defenderEntity);
+
+    uint32 ehd = expectedHealthDecrease(attackerEntity, defenderEntity, Side.Forward);
+    console.log("expected health decrease:", ehd);
+    console.log("new health:", newHealth);
+    assertEq(newHealth, origHealth - ehd);
+  }
+
   /**
    * Helpers
    */
@@ -192,19 +227,29 @@ contract AttackActionTest is MudTest {
       attackerEntity
     );
     (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, defenderEntity);
-    Coord[4] memory firingRange = LibCombat.getFiringArea(components, attackerEntity, side);
 
     uint256 distance;
-    if (LibVector.withinPolygon(firingRange, aft)) {
-      distance = LibVector.distance(attackerPosition, aft);
-    } else {
-      distance = LibVector.distance(attackerPosition, stern);
+    uint256 randomness = LibUtils.randomness(attackerEntity, defenderEntity);
+    if (side == Side.Forward) {
+      Coord[3] memory firingRange = LibCombat.getFiringAreaForward(components, attackerEntity);
+
+      if (LibVector.withinPolygon3(firingRange, aft)) {
+        distance = LibVector.distance(attackerPosition, aft);
+        return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
+      } else if (LibVector.withinPolygon3(firingRange, stern)) {
+        distance = LibVector.distance(attackerPosition, stern);
+        return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
+      } else return 0;
     }
-    return
-      LibCombat.getHullDamage(
-        LibCombat.getBaseHitChance(distance, firepower),
-        LibUtils.randomness(attackerEntity, defenderEntity)
-      );
+    Coord[4] memory firingRange = LibCombat.getFiringAreaSide(components, attackerEntity, side);
+
+    if (LibVector.withinPolygon4(firingRange, aft)) {
+      distance = LibVector.distance(attackerPosition, aft);
+      return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
+    } else if (LibVector.withinPolygon4(firingRange, stern)) {
+      distance = LibVector.distance(attackerPosition, stern);
+      return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
+    } else return 0;
   }
 
   function commitAndExecuteMove(

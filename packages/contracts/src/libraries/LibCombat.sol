@@ -99,13 +99,36 @@ library LibCombat {
   }
 
   /**
-   * @notice  calculates the location of four points comprising a trapezoidal firing area
+   * @notice  calculates the location of three points comprising a triangular firing area
+   * @param   components  world components
+   * @param   shipEntity  attacking ship entity
+   * @return  Coord[3]  points comprising firing area
+   */
+  function getFiringAreaForward(IUint256Component components, uint256 shipEntity)
+    public
+    view
+    returns (Coord[3] memory)
+  {
+    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(shipEntity);
+    Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(shipEntity);
+    uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
+    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
+    uint32 topRange = 10;
+    uint32 bottomRange = 350;
+    Coord memory topCorner = LibVector.getPositionByVector(position, rotation, range, topRange);
+    Coord memory bottomCorner = LibVector.getPositionByVector(position, rotation, range, bottomRange);
+
+    return ([position, bottomCorner, topCorner]);
+  }
+
+  /**
+   * @notice  calculates the location of four points comprising a quadrilateral firing area
    * @param   components  world components
    * @param   shipEntity  attacking ship entity
    * @param   side  of attack
    * @return  Coord[4]  points comprising firing area
    */
-  function getFiringArea(
+  function getFiringAreaSide(
     IUint256Component components,
     uint256 shipEntity,
     Side side

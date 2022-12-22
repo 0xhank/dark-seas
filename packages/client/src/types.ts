@@ -1,14 +1,15 @@
 import { Coord } from "@latticexyz/utils";
 import { boot } from "./boot";
 import { BackendLayer } from "./layers/backend";
+import { PhaserLayer } from "./layers/frontend/phaser";
 import { NetworkLayer } from "./layers/network";
-import { PhaserLayer } from "./layers/phaser";
 
 export type DSWindow = Awaited<ReturnType<typeof boot>>;
 
 export type Layers = { network: NetworkLayer; backend: BackendLayer; phaser: PhaserLayer };
 
 export enum Action {
+  FireForward,
   FireLeft,
   FireRight,
   RaiseSail,
@@ -20,6 +21,7 @@ export enum Action {
 }
 
 export enum Side {
+  Forward,
   Right,
   Left,
 }
@@ -37,6 +39,7 @@ export const PhaseNames: Record<number, string> = {
 };
 
 export const ActionNames: Record<number, string> = {
+  [Action.FireForward]: "Fire Forward",
   [Action.FireRight]: "Fire Right",
   [Action.FireLeft]: "Fire Left",
   [Action.RaiseSail]: "Raise Sail",
@@ -48,6 +51,7 @@ export const ActionNames: Record<number, string> = {
 };
 
 export const ActionImg: Record<number, string> = {
+  [Action.FireForward]: "/icons/fire-forward.svg",
   [Action.FireRight]: "/icons/fire-right.svg",
   [Action.FireLeft]: "/icons/fire-left.svg",
   [Action.RaiseSail]: "/icons/sail.svg",

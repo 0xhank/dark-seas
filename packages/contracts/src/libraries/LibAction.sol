@@ -52,10 +52,12 @@ library LibAction {
       }
 
       // execute action
-      if (action == Action.FireRight) {
-        attack(components, shipEntity, Side.Right);
+      if (action == Action.FireForward) {
+        attackForward(components, shipEntity);
+      } else if (action == Action.FireRight) {
+        attackSide(components, shipEntity, Side.Right);
       } else if (action == Action.FireLeft) {
-        attack(components, shipEntity, Side.Left);
+        attackSide(components, shipEntity, Side.Left);
       } else if (action == Action.RaiseSail) {
         raiseSail(components, shipEntity);
       } else if (action == Action.LowerSail) {
@@ -82,7 +84,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  entity to apply damage to
    */
-  function applySpecialDamage(IUint256Component components, uint256 shipEntity) public {
+  function applySpecialDamage(IUint256Component components, uint256 shipEntity) private {
     LeakComponent leakComponent = LeakComponent(getAddressById(components, LeakComponentID));
     CrewCountComponent crewCountComponent = CrewCountComponent(getAddressById(components, CrewCountComponentID));
     DamagedMastComponent damagedMastComponent = DamagedMastComponent(
@@ -106,22 +108,17 @@ library LibAction {
   }
 
   /**
-   * @notice  attacks all enemies on given side of ship
-   * @dev     todo: i plan to change this to reqiure inclusion of both an attacker and defender, saving gas and improving ux
+   * @notice  attacks all enemies in forward arc of ship
+   * @dev     todo: how can i combine this with attackSide despite different number of vertices in range?
    * @param   components  world components
    * @param   shipEntity  entity performing an attack
-   * @param   side  side of ship to attack on
    */
-  function attack(
-    IUint256Component components,
-    uint256 shipEntity,
-    Side side
-  ) public {
+  function attackForward(IUint256Component components, uint256 shipEntity) private {
     if (OnFireComponent(getAddressById(components, OnFireComponentID)).has(shipEntity)) return;
     OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
 
     // get firing area of ship
-    Coord[4] memory firingRange = LibCombat.getFiringArea(components, shipEntity, side);
+    Coord[3] memory firingRange = LibCombat.getFiringAreaForward(components, shipEntity);
 
     (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
@@ -135,9 +132,47 @@ library LibAction {
 
       (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
 
-      if (LibVector.withinPolygon(firingRange, aft)) {
+      if (LibVector.withinPolygon3(firingRange, aft)) {
         LibCombat.damageEnemy(components, shipEntity, shipEntities[i], aft);
-      } else if (LibVector.withinPolygon(firingRange, stern)) {
+      } else if (LibVector.withinPolygon3(firingRange, stern)) {
+        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], stern);
+      }
+    }
+  }
+
+  /**
+   * @notice  attacks all enemies on given side of ship
+   * @dev     todo: i plan to change this to reqiure inclusion of both an attacker and defender, saving gas and improving ux
+   * @param   components  world components
+   * @param   shipEntity  entity performing an attack
+   * @param   side  side of ship to attack on
+   */
+  function attackSide(
+    IUint256Component components,
+    uint256 shipEntity,
+    Side side
+  ) private {
+    if (OnFireComponent(getAddressById(components, OnFireComponentID)).has(shipEntity)) return;
+    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
+
+    // get firing area of ship
+    Coord[4] memory firingRange = LibCombat.getFiringAreaSide(components, shipEntity, side);
+
+    (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
+
+    uint256 owner = ownedByComponent.getValue(shipEntity);
+
+    // iterate through each ship, checking if it can be fired on
+    // 1. is not the current ship, 2. is not owned by attacker, 3. is within firing range
+    for (uint256 i = 0; i < shipEntities.length; i++) {
+      if (shipEntities[i] == shipEntity) continue;
+      if (owner == ownedByComponent.getValue(shipEntities[i])) continue;
+
+      (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
+
+      if (LibVector.withinPolygon4(firingRange, aft)) {
+        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], aft);
+      } else if (LibVector.withinPolygon4(firingRange, stern)) {
         LibCombat.damageEnemy(components, shipEntity, shipEntities[i], stern);
       }
     }
@@ -148,7 +183,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  entity of which to raise sail
    */
-  function raiseSail(IUint256Component components, uint256 shipEntity) public {
+  function raiseSail(IUint256Component components, uint256 shipEntity) private {
     SailPositionComponent sailPositionComponent = SailPositionComponent(
       getAddressById(components, SailPositionComponentID)
     );
@@ -165,7 +200,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  entity of which to lower sail
    */
-  function lowerSail(IUint256Component components, uint256 shipEntity) public {
+  function lowerSail(IUint256Component components, uint256 shipEntity) private {
     SailPositionComponent sailPositionComponent = SailPositionComponent(
       getAddressById(components, SailPositionComponentID)
     );
@@ -182,7 +217,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  ship to extinguish
    */
-  function extinguishFire(IUint256Component components, uint256 shipEntity) public {
+  function extinguishFire(IUint256Component components, uint256 shipEntity) private {
     OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
 
     if (!onFireComponent.has(shipEntity)) return;
@@ -198,7 +233,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  ship to repair
    */
-  function repairLeak(IUint256Component components, uint256 shipEntity) public {
+  function repairLeak(IUint256Component components, uint256 shipEntity) private {
     LeakComponent leakComponent = LeakComponent(getAddressById(components, LeakComponentID));
 
     if (!leakComponent.has(shipEntity)) return;
@@ -211,7 +246,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  ship to repair
    */
-  function repairMast(IUint256Component components, uint256 shipEntity) public {
+  function repairMast(IUint256Component components, uint256 shipEntity) private {
     DamagedMastComponent damagedMastComponent = DamagedMastComponent(
       getAddressById(components, DamagedMastComponentID)
     );
@@ -230,7 +265,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  ship to repair
    */
-  function repairSail(IUint256Component components, uint256 shipEntity) public {
+  function repairSail(IUint256Component components, uint256 shipEntity) private {
     SailPositionComponent sailPositionComponent = SailPositionComponent(
       getAddressById(components, SailPositionComponentID)
     );
