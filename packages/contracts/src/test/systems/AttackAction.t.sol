@@ -195,16 +195,16 @@ contract AttackActionTest is MudTest {
     Coord[4] memory firingRange = LibCombat.getFiringArea(components, attackerEntity, side);
 
     uint256 distance;
-    if (LibVector.withinPolygon(firingRange, aft)) {
+    uint256 randomness = LibUtils.randomness(attackerEntity, defenderEntity);
+    Coord[4] memory firingRange = LibCombat.getFiringAreaSide(components, attackerEntity, side);
+
+    if (LibVector.withinPolygon4(firingRange, aft)) {
       distance = LibVector.distance(attackerPosition, aft);
-    } else {
+      return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
+    } else if (LibVector.withinPolygon4(firingRange, stern)) {
       distance = LibVector.distance(attackerPosition, stern);
-    }
-    return
-      LibCombat.getHullDamage(
-        LibCombat.getBaseHitChance(distance, firepower),
-        LibUtils.randomness(attackerEntity, defenderEntity)
-      );
+      return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
+    } else return 0;
   }
 
   function commitAndExecuteMove(

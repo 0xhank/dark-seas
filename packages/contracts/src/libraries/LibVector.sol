@@ -103,7 +103,7 @@ library LibVector {
    * @param   point  to check if within coords
    * @return  bool  is the point within the coords?
    */
-  function withinPolygon(Coord[4] memory coords, Coord memory point) public pure returns (bool) {
+  function withinPolygon4(Coord[4] memory coords, Coord memory point) public pure returns (bool) {
     int32 wn = 0;
     for (uint32 i = 0; i < 4; i++) {
       Coord memory point1 = coords[i];

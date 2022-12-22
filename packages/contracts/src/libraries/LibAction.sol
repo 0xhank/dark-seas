@@ -135,9 +135,9 @@ library LibAction {
 
       (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
 
-      if (LibVector.withinPolygon(firingRange, aft)) {
+      if (LibVector.withinPolygon4(firingRange, aft)) {
         LibCombat.damageEnemy(components, shipEntity, shipEntities[i], aft);
-      } else if (LibVector.withinPolygon(firingRange, stern)) {
+      } else if (LibVector.withinPolygon4(firingRange, stern)) {
         LibCombat.damageEnemy(components, shipEntity, shipEntities[i], stern);
       }
     }
