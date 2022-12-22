@@ -84,7 +84,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  entity to apply damage to
    */
-  function applySpecialDamage(IUint256Component components, uint256 shipEntity) public {
+  function applySpecialDamage(IUint256Component components, uint256 shipEntity) private {
     LeakComponent leakComponent = LeakComponent(getAddressById(components, LeakComponentID));
     CrewCountComponent crewCountComponent = CrewCountComponent(getAddressById(components, CrewCountComponentID));
     DamagedMastComponent damagedMastComponent = DamagedMastComponent(
@@ -151,7 +151,7 @@ library LibAction {
     IUint256Component components,
     uint256 shipEntity,
     Side side
-  ) public {
+  ) private {
     if (OnFireComponent(getAddressById(components, OnFireComponentID)).has(shipEntity)) return;
     OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
 
@@ -183,7 +183,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  entity of which to raise sail
    */
-  function raiseSail(IUint256Component components, uint256 shipEntity) public {
+  function raiseSail(IUint256Component components, uint256 shipEntity) private {
     SailPositionComponent sailPositionComponent = SailPositionComponent(
       getAddressById(components, SailPositionComponentID)
     );
@@ -200,7 +200,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  entity of which to lower sail
    */
-  function lowerSail(IUint256Component components, uint256 shipEntity) public {
+  function lowerSail(IUint256Component components, uint256 shipEntity) private {
     SailPositionComponent sailPositionComponent = SailPositionComponent(
       getAddressById(components, SailPositionComponentID)
     );
@@ -217,7 +217,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  ship to extinguish
    */
-  function extinguishFire(IUint256Component components, uint256 shipEntity) public {
+  function extinguishFire(IUint256Component components, uint256 shipEntity) private {
     OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
 
     if (!onFireComponent.has(shipEntity)) return;
@@ -233,7 +233,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  ship to repair
    */
-  function repairLeak(IUint256Component components, uint256 shipEntity) public {
+  function repairLeak(IUint256Component components, uint256 shipEntity) private {
     LeakComponent leakComponent = LeakComponent(getAddressById(components, LeakComponentID));
 
     if (!leakComponent.has(shipEntity)) return;
@@ -246,7 +246,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  ship to repair
    */
-  function repairMast(IUint256Component components, uint256 shipEntity) public {
+  function repairMast(IUint256Component components, uint256 shipEntity) private {
     DamagedMastComponent damagedMastComponent = DamagedMastComponent(
       getAddressById(components, DamagedMastComponentID)
     );
@@ -265,7 +265,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  ship to repair
    */
-  function repairSail(IUint256Component components, uint256 shipEntity) public {
+  function repairSail(IUint256Component components, uint256 shipEntity) private {
     SailPositionComponent sailPositionComponent = SailPositionComponent(
       getAddressById(components, SailPositionComponentID)
     );
