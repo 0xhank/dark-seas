@@ -21,6 +21,7 @@ export enum Action {
 }
 
 export enum Side {
+  Forward,
   Right,
   Left,
 }

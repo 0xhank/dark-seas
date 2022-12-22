@@ -22,12 +22,19 @@ export function getSternLocation(origin: Coord, rotation: number, length: number
 }
 
 export function getFiringArea(position: Coord, range: number, length: number, rotation: number, side: Side): Coord[] {
-  const topRange = side == Side.Right ? 80 : 280;
-  const bottomRange = side == Side.Right ? 100 : 260;
+  const topRange = side == Side.Right ? 80 : side == Side.Left ? 280 : 10;
+  const bottomRange = side == Side.Right ? 100 : side == Side.Left ? 260 : 350;
 
   const sternLocation = getSternLocation(position, rotation, length);
   const topCorner = getPositionByVector(position, rotation, range, topRange);
-  const bottomCorner = getPositionByVector(sternLocation, rotation, range, bottomRange);
+  const bottomCorner = getPositionByVector(
+    side == Side.Forward ? position : sternLocation,
+    rotation,
+    range,
+    bottomRange
+  );
+
+  if (side == Side.Forward) return [position, bottomCorner, topCorner];
 
   return [position, sternLocation, bottomCorner, topCorner];
 }

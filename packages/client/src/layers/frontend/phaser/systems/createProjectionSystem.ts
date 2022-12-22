@@ -74,6 +74,14 @@ export function createProjectionSystem(phaser: PhaserLayer) {
 
     const pixelPosition = tileCoordToPixelCoord(finalPosition, positions.posWidth, positions.posHeight);
 
+    const forwardSidePoints = getFiringArea(
+      pixelPosition,
+      range * positions.posHeight,
+      length * positions.posHeight,
+      finalRotation,
+      Side.Forward
+    );
+
     const rightSidePoints = getFiringArea(
       pixelPosition,
       range * positions.posHeight,
@@ -88,16 +96,19 @@ export function createProjectionSystem(phaser: PhaserLayer) {
       finalRotation,
       Side.Left
     );
-    const rightFiringRange = phaserScene.add.polygon(undefined, undefined, rightSidePoints, 0xffffff, 0.3);
+    const forwardFiringRange = phaserScene.add.polygon(undefined, undefined, forwardSidePoints, 0xffffff, 0.1);
+    const rightFiringRange = phaserScene.add.polygon(undefined, undefined, rightSidePoints, 0xffffff, 0.1);
+    const leftFiringRange = phaserScene.add.polygon(undefined, undefined, leftSidePoints, 0xffffff, 0.1);
 
-    const leftFiringRange = phaserScene.add.polygon(undefined, undefined, leftSidePoints, 0xffffff, 0.3);
-
+    forwardFiringRange.setDisplayOrigin(0);
     rightFiringRange.setDisplayOrigin(0);
     leftFiringRange.setDisplayOrigin(0);
 
+    forwardFiringRange.setDepth(RenderDepth.Foreground5);
     rightFiringRange.setDepth(RenderDepth.Foreground5);
     leftFiringRange.setDepth(RenderDepth.Foreground5);
 
+    rangeGroup.add(forwardFiringRange, true);
     rangeGroup.add(rightFiringRange, true);
     rangeGroup.add(leftFiringRange, true);
 
