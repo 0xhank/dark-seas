@@ -62,15 +62,16 @@ export function createResetSystem(phaser: PhaserLayer) {
       }
     }
 
-    // AFTER DELAY: reveal moves
+    // START OF PHASE: reveal moves
+    // note: contract-side this occurs during the commit phase
     if (phase == Phase.Reveal) {
-      // AFTER DELAY
-      if (timeToNextPhase == gameConfig.revealPhaseLength - DELAY) {
-        const lastMove = getComponentValue(LastMove, playerEntity)?.value;
-        if (lastMove == turn) return;
-        const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
-        if (encoding) revealMove(encoding);
-      }
+      // adding a two second delay so the last-second commitment can execute before this
+      if (timeToNextPhase !== gameConfig.revealPhaseLength - 2) return;
+
+      const lastMove = getComponentValue(LastMove, playerEntity)?.value;
+      if (lastMove == turn) return;
+      const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
+      if (encoding) revealMove(encoding);
     }
 
     // START OF PHASE: clear move commitments

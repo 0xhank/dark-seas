@@ -37,6 +37,11 @@ contract MoveSystem is System {
       (uint256[], uint256[], uint256)
     );
 
+    require(
+      LibTurn.getCurrentPhase(components) != Phase.Action,
+      "MoveSystem: cannot complete move during Action phase"
+    );
+
     uint256 playerEntity = addressToEntity(msg.sender);
 
     require(
@@ -50,7 +55,6 @@ contract MoveSystem is System {
     require(LibUtils.playerIdExists(components, playerEntity), "MoveSystem: player does not exist");
 
     LastMoveComponent lastMoveComponent = LastMoveComponent(getAddressById(components, LastMoveComponentID));
-    require(LibTurn.getCurrentPhase(components) == Phase.Reveal, "MoveSystem: incorrect turn phase");
 
     uint32 currentTurn = LibTurn.getCurrentTurn(components);
     require(lastMoveComponent.getValue(playerEntity) < currentTurn, "MoveSystem: already moved this turn");
