@@ -118,6 +118,28 @@ library LibVector {
   }
 
   /**
+   * @notice  checks if a point is within a quadrilateral
+   * @dev  uses the winding algorithm to calculate if point is within the polygon comprised of coords
+   *       https://visualgo.net/en/polygon
+   * @param   coords  locations of vertices of quadrilateral
+   * @param   point  to check if within coords
+   * @return  bool  is the point within the coords?
+   */
+  function withinPolygon3(Coord[3] memory coords, Coord memory point) public pure returns (bool) {
+    int32 wn = 0;
+    for (uint32 i = 0; i < 3; i++) {
+      Coord memory point1 = coords[i];
+      Coord memory point2 = i == 2 ? coords[0] : coords[i + 1];
+
+      int32 isLeft = ((point2.x - point1.x) * (point.y - point1.y)) - ((point.x - point1.x) * (point2.y - point1.y));
+      if (isLeft == 0) return false;
+      if (point1.y <= point.y && point2.y > point.y && isLeft > 0) wn++;
+      else if (point1.y > point.y && point2.y <= point.y && isLeft < 0) wn--;
+    }
+    return wn != 0;
+  }
+
+  /**
    * @notice  calculates distance between two points
    * @param   a  origin
    * @param   b  destination

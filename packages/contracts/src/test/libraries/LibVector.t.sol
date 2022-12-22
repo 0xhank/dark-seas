@@ -106,6 +106,22 @@ contract LibVectorTest is MudTest {
     assertTrue(!isOnLine);
   }
 
+  function testPointInsideForwardPath() public prank(deployer) {
+    Coord[3] memory coords = [Coord({ x: 0, y: 0 }), Coord({ x: 78, y: -13 }), Coord({ x: 78, y: 13 })];
+
+    Coord memory insideCoord = Coord({ x: 70, y: 0 });
+    Coord memory outsideCoord = Coord({ x: 79, y: 0 });
+    Coord memory onLineCoord = Coord({ x: 78, y: 0 });
+
+    bool isInside = LibVector.withinPolygon3(coords, insideCoord);
+    bool isOutside = LibVector.withinPolygon3(coords, outsideCoord);
+    bool isOnLine = LibVector.withinPolygon3(coords, onLineCoord);
+
+    assertTrue(isInside, "is inside failed");
+    assertTrue(!isOutside, "is outside failed");
+    assertTrue(!isOnLine, "is on line failed");
+  }
+
   function testSqrt() public prank(deployer) {
     Coord memory a = Coord(0, 0);
     Coord memory b = Coord(5, 0);

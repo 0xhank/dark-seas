@@ -16,6 +16,7 @@ struct MoveCard {
 }
 
 enum Action {
+  FireForward,
   FireRight,
   FireLeft,
   RaiseSail,
@@ -27,6 +28,7 @@ enum Action {
 }
 
 enum Side {
+  Forward,
   Right,
   Left
 }
