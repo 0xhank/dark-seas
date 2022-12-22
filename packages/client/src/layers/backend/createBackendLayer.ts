@@ -64,8 +64,7 @@ export async function createBackendLayer(network: NetworkLayer) {
   function checkActionPossible(action: Action, ship: EntityIndex): boolean {
     const onFire = getComponentValue(OnFire, ship)?.value;
     if (action == Action.ExtinguishFire && !onFire) return false;
-    if (action == Action.FireRight && onFire) return false;
-    if (action == Action.FireLeft && onFire) return false;
+    if ([Action.FireRight, Action.FireLeft, Action.FireForward].includes(action) && onFire) return false;
 
     if (action == Action.RepairLeak && !getComponentValue(Leak, ship)) return false;
     if (action == Action.RepairMast && !getComponentValue(DamagedMast, ship)) return false;
