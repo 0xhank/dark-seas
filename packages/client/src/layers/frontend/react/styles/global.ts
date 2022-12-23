@@ -122,7 +122,7 @@ export const ConfirmButton = styled(Button)`
   }
 `;
 
-export const InternalContainer = styled.div<{ isSelected?: boolean; noGoldBorder?: boolean }>`
+export const InternalContainer = styled.div`
   width: 100%;
   height: 100%;
   display: flex;

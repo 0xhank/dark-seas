@@ -29,6 +29,7 @@ export async function createBackendLayer(network: NetworkLayer) {
   const components = {
     SelectedMove: defineNumberComponent(world, { id: "SelectedMove" }),
     SelectedShip: defineNumberComponent(world, { id: "SelectedShip" }),
+    HoveredShip: defineNumberComponent(world, { id: "HoveredShip" }),
     SelectedActions: defineComponent(world, { value: Type.NumberArray }, { id: "Actions" }),
     CommittedMoves: defineStringComponent(world, { id: "CommittedMoves" }),
   };

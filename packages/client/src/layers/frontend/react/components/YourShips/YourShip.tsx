@@ -1,5 +1,11 @@
 import { GodID } from "@latticexyz/network";
-import { EntityIndex, getComponentValueStrict, setComponent } from "@latticexyz/recs";
+import {
+  EntityIndex,
+  getComponentValue,
+  getComponentValueStrict,
+  removeComponent,
+  setComponent,
+} from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
 import styled from "styled-components";
 import { Layers, Phase } from "../../../../../types";
@@ -25,7 +31,7 @@ export const YourShip = ({
       world,
     },
     backend: {
-      components: { SelectedShip },
+      components: { SelectedShip, HoveredShip },
     },
     phaser: {
       scenes: {
@@ -46,7 +52,9 @@ export const YourShip = ({
   const position = getComponentValueStrict(Position, ship);
   const health = getComponentValueStrict(Health, ship).value;
   const crewCount = getComponentValueStrict(CrewCount, ship).value;
+  const hoveredShip = getComponentValue(HoveredShip, GodEntityIndex)?.value;
   const isSelected = selectedShip == ship;
+  const isHovered = hoveredShip == ship;
 
   let selectionContent = null;
   if (crewCount == 0) {
@@ -61,7 +69,10 @@ export const YourShip = ({
   return (
     <YourShipContainer
       onClick={() => health !== 0 && crewCount !== 0 && selectShip(ship, position)}
+      onMouseEnter={() => setComponent(HoveredShip, GodEntityIndex, { value: ship })}
+      onMouseLeave={() => removeComponent(HoveredShip, GodEntityIndex)}
       isSelected={isSelected}
+      isHovered={isHovered}
       key={`move-selection-${ship}`}
     >
       <ShipCard layers={layers} ship={ship} />
@@ -88,7 +99,11 @@ const MoveButtons = styled.div`
   }
 `;
 
-const YourShipContainer = styled(InternalContainer)`
+const YourShipContainer = styled(InternalContainer)<{
+  isSelected?: boolean;
+  isHovered?: boolean;
+  noGoldBorder?: boolean;
+}>`
   position: relative;
   flex-direction: column;
   justify-content: space-between;
@@ -97,11 +112,7 @@ const YourShipContainer = styled(InternalContainer)`
   height: auto;
   cursor: pointer;
   box-shadow: ${({ isSelected }) => `inset 0px 0px 0px ${isSelected ? "5px" : "0px"} ${colors.gold}`};
-  background: ${({ isSelected }) => `${isSelected ? colors.thickGlass : colors.glass}`};
-
-  :hover {
-    background: ${colors.thickGlass};
-  }
+  background: ${({ isSelected, isHovered }) => `${isSelected || isHovered ? colors.thickGlass : colors.glass}`};
 `;
 
 const SpecialText = styled.span`

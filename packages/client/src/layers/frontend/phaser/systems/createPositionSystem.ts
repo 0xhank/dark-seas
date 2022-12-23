@@ -21,7 +21,7 @@ export function createPositionSystem(phaser: PhaserLayer) {
   const {
     world,
     scenes: {
-      Main: { objectPool, config, camera },
+      Main: { objectPool, config, camera, phaserScene },
     },
     parentLayers: {
       network: {
@@ -30,7 +30,7 @@ export function createPositionSystem(phaser: PhaserLayer) {
         network: { connectedAddress },
       },
       backend: {
-        components: { SelectedShip, SelectedMove },
+        components: { SelectedShip, SelectedMove, HoveredShip },
       },
     },
     polygonRegistry,
@@ -187,9 +187,9 @@ export function createPositionSystem(phaser: PhaserLayer) {
         gameObject.setDepth(RenderDepth.Foreground3);
         if (health != 0) {
           gameObject.setInteractive();
-          gameObject.on("pointerdown", () => {
-            setComponent(SelectedShip, GodEntityIndex, { value: update.entity });
-          });
+          gameObject.on("pointerdown", () => setComponent(SelectedShip, GodEntityIndex, { value: update.entity }));
+          gameObject.on("pointerover", () => setComponent(HoveredShip, GodEntityIndex, { value: update.entity }));
+          gameObject.on("pointerout", () => removeComponent(HoveredShip, GodEntityIndex));
         }
       },
     });
