@@ -16,10 +16,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
 
   const selectedActions = getComponentValue(SelectedActions, ship)?.value || [-1, -1];
 
-  let disabled = false;
-  if (selectedActions.every((a) => a !== -1)) {
-    disabled = true;
-  }
+  const disabled = selectedActions.every((a) => a !== -1);
 
   return (
     <>

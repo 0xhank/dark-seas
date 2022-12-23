@@ -20,19 +20,18 @@ import { ABDKMath64x64 as Math } from "./ABDKMath64x64.sol";
 import "trig/src/Trigonometry.sol";
 
 library LibVector {
-  //
   /**
    * @notice  calculates a final coord based on a move vector
    * @param   initialPosition  starting coordinate
    * @param   initialRotation  starting rotation
-   * @param   distance  distance to move
+   * @param   _distance  distance to move
    * @param   direction  direction to move
    * @return  Coord  final location
    */
   function getPositionByVector(
     Coord memory initialPosition,
     uint32 initialRotation,
-    uint32 distance,
+    uint32 _distance,
     uint32 direction
   ) internal pure returns (Coord memory) {
     uint32 angleDegs = (initialRotation + direction) % 360;
@@ -41,9 +40,9 @@ library LibVector {
 
     uint256 angleRadsConverted = angleRadsTimes10000 * 1e13 + Trigonometry.TWO_PI;
 
-    int256 newX = Trigonometry.cos(angleRadsConverted) * int32(distance);
+    int256 newX = Trigonometry.cos(angleRadsConverted) * int32(_distance);
 
-    int256 newY = Trigonometry.sin(angleRadsConverted) * int32(distance);
+    int256 newY = Trigonometry.sin(angleRadsConverted) * int32(_distance);
 
     int32 finalX = int32(newX / 1e18) + initialPosition.x;
     int32 finalY = int32(newY / 1e18) + initialPosition.y;
@@ -118,10 +117,10 @@ library LibVector {
   }
 
   /**
-   * @notice  checks if a point is within a quadrilateral
+   * @notice  checks if a point is within a triangle
    * @dev  uses the winding algorithm to calculate if point is within the polygon comprised of coords
    *       https://visualgo.net/en/polygon
-   * @param   coords  locations of vertices of quadrilateral
+   * @param   coords  locations of vertices of triangle
    * @param   point  to check if within coords
    * @return  bool  is the point within the coords?
    */

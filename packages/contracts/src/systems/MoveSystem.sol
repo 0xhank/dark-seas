@@ -32,7 +32,7 @@ contract MoveSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
-    (uint256[] memory shipEntities, uint256[] memory moveCardEntities, uint256 salt) = abi.decode(
+    (uint256[] memory shipEntities, uint256[] memory moveCardEntities, ) = abi.decode(
       arguments,
       (uint256[], uint256[], uint256)
     );
@@ -58,10 +58,6 @@ contract MoveSystem is System {
 
     uint32 currentTurn = LibTurn.getCurrentTurn(components);
     require(lastMoveComponent.getValue(playerEntity) < currentTurn, "MoveSystem: already moved this turn");
-
-    MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
-    PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
-    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
 
     Wind memory wind = WindComponent(getAddressById(components, WindComponentID)).getValue(GodID);
 

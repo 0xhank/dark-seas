@@ -26,6 +26,7 @@ export function registerLoadingState() {
       );
     },
 
+    // TODO: flash implies some check isnt being executed properly
     ({ LoadingState, world }) => {
       const GodEntityIndex = world.entityToIndex.get(GodID);
 

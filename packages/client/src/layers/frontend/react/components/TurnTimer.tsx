@@ -20,7 +20,7 @@ export function registerTurnTimer() {
     (layers) => {
       const {
         world,
-        network: { clock, connectedAddress },
+        network: { clock },
         components: { Wind, Rotation },
         utils: { getGameConfig, getPhase },
       } = layers.network;
@@ -33,7 +33,7 @@ export function registerTurnTimer() {
           if (!gameConfig) return;
 
           // add 5 seconds to give time to auto submit at end of phase
-
+          // TODO: just use the backend functionality instead of duplicating logic
           const currentTime = Math.floor(clock.currentTime / 1000) + DELAY;
           const gameLength = currentTime - parseInt(gameConfig.startTime);
           const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;

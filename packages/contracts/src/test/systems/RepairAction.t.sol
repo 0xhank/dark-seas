@@ -74,7 +74,6 @@ contract RepairActionTest is MudTest {
     actions.push(Action.RepairLeak);
     allActions.push(actions);
 
-    uint256 newTurn = 1 + gameConfig.commitPhaseLength + (gameConfig.commitPhaseLength + gameConfig.actionPhaseLength);
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
     actionSystem.executeTyped(shipEntities, allActions);

@@ -15,11 +15,11 @@ import { Wind, GodID, MoveCard, GameConfig } from "../libraries/DSTypes.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Init"));
 
+// @todo: make this admin only
 contract InitSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory) public returns (bytes memory) {
-    // require(LibECS.isAdmin(components, msg.sender), "admin only system");
     MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
     WindComponent windComponent = WindComponent(getAddressById(components, WindComponentID));
     GameConfigComponent gameConfigComponent = GameConfigComponent(getAddressById(components, GameConfigComponentID));

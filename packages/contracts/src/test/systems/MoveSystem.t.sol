@@ -98,7 +98,6 @@ contract MoveSystemTest is MudTest {
     setup();
 
     ComponentDevSystem componentDevSystem = ComponentDevSystem(system(ComponentDevSystemID));
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
@@ -126,7 +125,6 @@ contract MoveSystemTest is MudTest {
     setup();
 
     ComponentDevSystem componentDevSystem = ComponentDevSystem(system(ComponentDevSystemID));
-    CrewCountComponent crewCountComponent = CrewCountComponent(getAddressById(components, CrewCountComponentID));
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
@@ -335,19 +333,19 @@ contract MoveSystemTest is MudTest {
 
     MoveCard memory moveCard = MoveCard({ distance: 20, rotation: 20, direction: 20 });
 
-    Wind memory wind = Wind({ speed: 10, direction: 0 });
+    Wind memory _wind = Wind({ speed: 10, direction: 0 });
 
-    MoveCard memory newMoveCard = LibMove.getMoveWithWind(moveCard, 90, wind);
+    MoveCard memory newMoveCard = LibMove.getMoveWithWind(moveCard, 90, _wind);
     assertEq(moveCard.distance, newMoveCard.distance, "no wind effect distance failed");
     assertEq(moveCard.rotation, newMoveCard.rotation, "no wind effect rotation failed");
     assertEq(moveCard.direction, newMoveCard.direction, "no wind effect angle failed");
 
-    newMoveCard = LibMove.getMoveWithWind(moveCard, 0, wind);
+    newMoveCard = LibMove.getMoveWithWind(moveCard, 0, _wind);
     assertApproxEqAbs(newMoveCard.distance, (moveCard.distance * 125) / 100, 1, "wind boost distance failed");
     assertApproxEqAbs(newMoveCard.rotation, (moveCard.rotation * 125) / 100, 1, "wind boost rotation failed");
     assertApproxEqAbs(newMoveCard.direction, (moveCard.direction * 125) / 100, 1, "wind boost angle failed");
 
-    newMoveCard = LibMove.getMoveWithWind(moveCard, 180, wind);
+    newMoveCard = LibMove.getMoveWithWind(moveCard, 180, _wind);
     assertApproxEqAbs(newMoveCard.distance, (moveCard.distance * 75) / 100, 1, "wind debuff distance failed");
     assertApproxEqAbs(newMoveCard.rotation, (moveCard.rotation * 75) / 100, 1, "wind debuff rotation failed");
     assertApproxEqAbs(newMoveCard.direction, (moveCard.direction * 75) / 100, 1, "wind debuff angle failed");
@@ -417,6 +415,9 @@ contract MoveSystemTest is MudTest {
 
     position = positionComponent.getValue(shipEntity);
     rotation = rotationComponent.getValue(shipEntity);
+
+    assertCoordEq(position, expectedPosition);
+    assertEq(rotation, expectedRotation);
   }
 
   /**
@@ -437,14 +438,14 @@ contract MoveSystemTest is MudTest {
 
   function commitAndExecuteMove(
     uint32 turn,
-    uint256[] memory shipEntities,
-    uint256[] memory moveEntities
+    uint256[] memory _shipEntities,
+    uint256[] memory _moveEntities
   ) internal {
     vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Commit));
-    uint256 commitment = uint256(keccak256(abi.encode(shipEntities, moveEntities, 69)));
+    uint256 commitment = uint256(keccak256(abi.encode(_shipEntities, _moveEntities, 69)));
     commitSystem.executeTyped(commitment);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Reveal));
-    moveSystem.executeTyped(shipEntities, moveEntities, 69);
+    moveSystem.executeTyped(_shipEntities, _moveEntities, 69);
   }
 }

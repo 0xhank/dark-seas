@@ -21,7 +21,7 @@ export function createPositionSystem(phaser: PhaserLayer) {
   const {
     world,
     scenes: {
-      Main: { objectPool, config, camera, phaserScene },
+      Main: { objectPool, config, camera },
     },
     parentLayers: {
       network: {
@@ -54,7 +54,6 @@ export function createPositionSystem(phaser: PhaserLayer) {
   });
 
   defineSystem(world, [Has(Health), Has(OwnedBy)], (update) => {
-    console.log("updating health");
     const object = objectPool.get(update.entity, "Sprite");
     const health = getComponentValueStrict(Health, update.entity).value;
     const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, update.entity).value);
@@ -75,10 +74,6 @@ export function createPositionSystem(phaser: PhaserLayer) {
           gameObject.setDepth(RenderDepth.Foreground4);
         } else {
           gameObject.setAlpha(1);
-          // gameObject.setInteractive();
-          // gameObject.on("pointerdown", () => {
-          //   setComponent(SelectedShip, GodEntityIndex, { value: update.entity });
-          // });
           gameObject.setDepth(RenderDepth.Foreground3);
         }
       },
@@ -101,10 +96,6 @@ export function createPositionSystem(phaser: PhaserLayer) {
           gameObject.setDepth(RenderDepth.Foreground4);
         } else {
           gameObject.setAlpha(1);
-          // gameObject.setInteractive();
-          // gameObject.on("pointerdown", () => {
-          //   setComponent(SelectedShip, GodEntityIndex, { value: update.entity });
-          // });
           gameObject.setDepth(RenderDepth.Foreground3);
         }
       },
@@ -137,7 +128,6 @@ export function createPositionSystem(phaser: PhaserLayer) {
     const spriteAsset: Sprites = getShipSprite(ownerEntity, health, playerEntity == ownerEntity);
     // @ts-expect-error doesnt recognize a sprite as a number
     const sprite = config.sprites[spriteAsset];
-    // const sprite = config.sprites[Sprites.ShipBlack];
 
     const { x, y } = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
 
@@ -155,8 +145,6 @@ export function createPositionSystem(phaser: PhaserLayer) {
               getEnd: function (target, key, value) {
                 const start = target.angle % 360;
                 const end = (rotation - 90) % 360;
-
-                // console.log(`start angle: ${start}, end angle: ${end}`);
 
                 let diff = end - start;
 

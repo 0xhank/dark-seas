@@ -19,7 +19,7 @@ export function createActiveSystem(layer: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: { Position, Length, Rotation, Range, Wind },
+        components: { Position, Length, Rotation, Range },
         utils: { getPhase },
       },
       backend: {
