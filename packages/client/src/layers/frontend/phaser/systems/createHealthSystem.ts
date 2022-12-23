@@ -1,3 +1,4 @@
+import { tileCoordToPixelCoord } from "@latticexyz/phaserx";
 import {
   defineEnterSystem,
   defineUpdateSystem,
@@ -6,6 +7,7 @@ import {
   Has,
   setComponent,
 } from "@latticexyz/recs";
+import { Animations, RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
 
 export function createHealthSystem(layer: PhaserLayer) {
@@ -16,17 +18,36 @@ export function createHealthSystem(layer: PhaserLayer) {
     },
     parentLayers: {
       network: {
-        components: { Health, OnFire, Leak, DamagedMast, SailPosition, CrewCount },
+        components: { Health, OnFire, Leak, DamagedMast, SailPosition, CrewCount, Position },
       },
     },
     components: { UpdateQueue },
+    positions,
   } = layer;
 
   defineUpdateSystem(world, [Has(Health)], (update) => {
     const updateQueue = getComponentValue(UpdateQueue, update.entity)?.value || new Array<string>();
-
+    const position = getComponentValueStrict(Position, update.entity);
     updateQueue.push("Lost health!");
     setComponent(UpdateQueue, update.entity, { value: updateQueue });
+
+    const spriteId = `${update.entity}-explosion`;
+
+    const object = objectPool.get(spriteId, "Sprite");
+    const { x, y } = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
+
+    object.setComponent({
+      id: "explosion-entity",
+      once: async (sprite) => {
+        sprite.play(Animations.Explosion);
+        sprite.setOrigin(0.5, 0.92);
+        sprite.setPosition(x, y);
+        sprite.setDepth(RenderDepth.UI5);
+        sprite.on(`animationcomplete-${Animations.Explosion}`, () => {
+          objectPool.remove(spriteId);
+        });
+      },
+    });
   });
 
   defineUpdateSystem(world, [Has(CrewCount)], (update) => {

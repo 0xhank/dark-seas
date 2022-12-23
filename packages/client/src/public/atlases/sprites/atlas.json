@@ -147,7 +147,7 @@
           "sourceSize": { "w": 16, "h": 26 }
         },
         {
-          "filename": "explosion1.png",
+          "filename": "explosion/0.png",
           "frame": { "x": 40, "y": 284, "w": 74, "h": 75 },
           "rotated": false,
           "trimmed": false,
@@ -155,7 +155,7 @@
           "sourceSize": { "w": 74, "h": 75 }
         },
         {
-          "filename": "explosion2.png",
+          "filename": "explosion/1.png",
           "frame": { "x": 330, "y": 176, "w": 60, "h": 59 },
           "rotated": false,
           "trimmed": false,
@@ -163,7 +163,7 @@
           "sourceSize": { "w": 60, "h": 59 }
         },
         {
-          "filename": "explosion3.png",
+          "filename": "explosion/2.png",
           "frame": { "x": 78, "y": 36, "w": 42, "h": 41 },
           "rotated": false,
           "trimmed": false,

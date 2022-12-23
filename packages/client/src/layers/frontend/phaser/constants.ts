@@ -43,7 +43,9 @@ export enum RenderDepth {
   Background5 = -20,
 }
 
-export enum Animations {}
+export enum Animations {
+  Explosion = "Explosion",
+}
 
 export const UnitTypeSprites: Record<number, Sprites> = {};
 

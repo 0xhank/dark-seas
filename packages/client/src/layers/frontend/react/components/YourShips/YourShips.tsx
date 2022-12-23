@@ -56,7 +56,7 @@ export function registerYourShips() {
         },
         backend: {
           actions: { Action },
-          components: { SelectedShip, SelectedMove, SelectedActions, CommittedMoves },
+          components: { SelectedShip, SelectedMove, SelectedActions, CommittedMoves, HoveredShip },
           api: { commitMove, revealMove, submitActions },
           utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions },
         },
@@ -67,6 +67,7 @@ export function registerYourShips() {
         MoveCard.update$,
         SelectedMove.update$,
         SelectedShip.update$,
+        HoveredShip.update$,
         Rotation.update$,
         SailPosition.update$,
         Position.update$,
@@ -88,31 +89,21 @@ export function registerYourShips() {
         map(() => {
           return {
             layers,
-            Position,
             SelectedMove,
-            MoveCard,
-            Rotation,
             SelectedShip,
-            SailPosition,
-            Player,
             Ship,
-            Health,
-            CrewCount,
-            Firepower,
-            Leak,
-            OnFire,
-            DamagedMast,
-            SelectedActions,
+            Player,
             OwnedBy,
+            SelectedActions,
             LastMove,
             LastAction,
             CommittedMoves,
             Action,
             world,
             connectedAddress,
-            revealMove,
             getPlayerEntity,
             getPhase,
+            revealMove,
             submitActions,
             getTurn,
             commitMove,
@@ -187,18 +178,20 @@ export function registerYourShips() {
         commitMove(shipsAndMoves.ships, shipsAndMoves.moves);
       };
 
+      const handleSubmitExecute = () => {
+        const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
+        if (encoding) revealMove(encoding);
+      };
+
       const RevealButtons = () => {
         const committedMoves = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
 
-        const bgColor = lastMove == currentTurn ? colors.confirmed : !committedMoves ? colors.glass : colors.waiting;
+        if (lastMove == currentTurn) return <Success background={colors.confirmed}>Move execution successful!</Success>;
+        if (!committedMoves) return <Success background={colors.glass}>"No moves to execute"</Success>;
         return (
-          <Success background={bgColor}>
-            {lastMove == currentTurn
-              ? "Move execution successful!"
-              : !committedMoves
-              ? "No moves to execute"
-              : "Executing..."}
-          </Success>
+          <ConfirmButton style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmitExecute}>
+            Execute Moves
+          </ConfirmButton>
         );
       };
 
@@ -218,7 +211,10 @@ export function registerYourShips() {
             <Button
               disabled={disabled}
               noGoldBorder
-              onClick={() => yourShips.map((entity) => removeComponent(SelectedMove, entity))}
+              onClick={() => {
+                yourShips.map((entity) => removeComponent(SelectedMove, entity));
+                removeComponent(SelectedShip, GodEntityIndex);
+              }}
               style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}
             >
               Clear
@@ -243,7 +239,10 @@ export function registerYourShips() {
               <Button
                 disabled={disabled}
                 noGoldBorder
-                onClick={() => yourShips.map((entity) => removeComponent(SelectedActions, entity))}
+                onClick={() => {
+                  yourShips.map((entity) => removeComponent(SelectedActions, entity));
+                  removeComponent(SelectedShip, GodEntityIndex);
+                }}
                 style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}
               >
                 Clear

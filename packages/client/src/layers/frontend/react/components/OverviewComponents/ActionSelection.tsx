@@ -1,3 +1,4 @@
+import { GodID } from "@latticexyz/network";
 import { EntityIndex, getComponentValue, setComponent } from "@latticexyz/recs";
 import { Action, ActionImg, ActionNames, Layers } from "../../../../../types";
 import { Img, OptionButton } from "../../styles/global";
@@ -5,10 +6,13 @@ import { Img, OptionButton } from "../../styles/global";
 export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
   const {
     backend: {
-      components: { SelectedActions },
+      world,
+      components: { SelectedActions, SelectedShip },
       utils: { checkActionPossible },
     },
   } = layers;
+
+  const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
   const selectedActions = getComponentValue(SelectedActions, ship)?.value || [-1, -1];
 
@@ -30,7 +34,8 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
             isSelected={usedAlready}
             disabled={disabled && !usedAlready}
             key={`selectedAction-${action}`}
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               const newArray = selectedActions;
               const index = newArray.indexOf(action);
               if (index == -1) {
@@ -42,6 +47,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
               }
 
               setComponent(SelectedActions, ship, { value: newArray });
+              setComponent(SelectedShip, GodEntityIndex, { value: ship });
             }}
           >
             <Img src={ActionImg[action]} />

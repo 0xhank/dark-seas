@@ -65,8 +65,7 @@ export function createResetSystem(phaser: PhaserLayer) {
     // START OF PHASE: reveal moves
     // note: contract-side this occurs during the commit phase
     if (phase == Phase.Reveal) {
-      // adding a two second delay so the last-second commitment can execute before this
-      if (timeToNextPhase !== gameConfig.revealPhaseLength - 2) return;
+      if (timeToNextPhase !== gameConfig.revealPhaseLength) return;
 
       const lastMove = getComponentValue(LastMove, playerEntity)?.value;
       if (lastMove == turn) return;
