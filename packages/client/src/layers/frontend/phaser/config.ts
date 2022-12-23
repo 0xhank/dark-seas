@@ -8,7 +8,7 @@ import {
 import { Sprites } from "../../../types";
 import dsTileset from "./assets/tilesets/ds-tilesheet.png";
 import { DSTileset } from "./assets/tilesets/dsTilesheet";
-import { Assets, Maps, Scenes, TILE_HEIGHT, TILE_WIDTH } from "./constants";
+import { Animations, Assets, Maps, Scenes, TILE_HEIGHT, TILE_WIDTH } from "./constants";
 const ANIMATION_INTERVAL = 200;
 
 export const phaserConfig = {
@@ -51,19 +51,6 @@ export const phaserConfig = {
           assetKey: Assets.MainAtlas,
           frame: "cannonBall.png",
         },
-        [Sprites.Explosion1]: {
-          assetKey: Assets.MainAtlas,
-          frame: "explosion1.png",
-        },
-        [Sprites.Explosion2]: {
-          assetKey: Assets.MainAtlas,
-          frame: "explosion2.png",
-        },
-        [Sprites.Explosion3]: {
-          assetKey: Assets.MainAtlas,
-          frame: "explosion3.png",
-        },
-
         [Sprites.ShipGreen]: {
           assetKey: Assets.MainAtlas,
           frame: "shipGreen.png",
@@ -166,7 +153,18 @@ export const phaserConfig = {
           frame: "shipRedMinor.png",
         },
       },
-      animations: [],
+      animations: [
+        {
+          key: Animations.Explosion,
+          assetKey: Assets.MainAtlas,
+          startFrame: 0,
+          endFrame: 2,
+          frameRate: 4,
+          repeat: 3,
+          prefix: "explosion/",
+          suffix: ".png",
+        },
+      ],
       tilesets: {
         Default: { assetKey: Assets.DSTileset, tileWidth: TILE_WIDTH, tileHeight: TILE_HEIGHT },
       },
