@@ -23,8 +23,8 @@ library LibTurn {
     require(atTime >= gameConfig.startTime, "invalid atTime");
 
     uint256 secondsSinceAction = atTime - gameConfig.startTime;
-    uint256 turnLength = gameConfig.commitPhaseLength + gameConfig.actionPhaseLength + gameConfig.revealPhaseLength;
-    return uint32(secondsSinceAction / turnLength);
+    uint256 _turnLength = gameConfig.commitPhaseLength + gameConfig.actionPhaseLength + gameConfig.revealPhaseLength;
+    return uint32(secondsSinceAction / _turnLength);
   }
 
   function getCurrentPhase(IUint256Component components) internal view returns (Phase) {
@@ -38,8 +38,8 @@ library LibTurn {
     require(atTime >= gameConfig.startTime, "invalid atTime");
 
     uint256 gameLength = atTime - gameConfig.startTime;
-    uint256 turnLength = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
-    uint256 secondsIntoTurn = gameLength % turnLength;
+    uint256 _turnLength = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
+    uint256 secondsIntoTurn = gameLength % _turnLength;
 
     if (secondsIntoTurn < gameConfig.commitPhaseLength) return Phase.Commit;
     else if (secondsIntoTurn < (gameConfig.commitPhaseLength + gameConfig.revealPhaseLength)) return Phase.Reveal;
@@ -51,8 +51,8 @@ library LibTurn {
   }
 
   function getTurnAndPhaseAt(IUint256Component components, uint256 atTime) internal view returns (uint32, Phase) {
-    uint32 turn = getCurrentTurn(components);
-    Phase phase = getCurrentPhase(components);
+    uint32 turn = getTurnAt(components, atTime);
+    Phase phase = getPhaseAt(components, atTime);
     return (turn, phase);
   }
 
@@ -67,7 +67,7 @@ library LibTurn {
     IUint256Component components,
     uint32 turn,
     Phase phase
-  ) public returns (uint256) {
+  ) internal view returns (uint256) {
     GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
       GodID
     );
@@ -78,7 +78,7 @@ library LibTurn {
     if (phase == Phase.Reveal) phaseOffset = gameConfig.commitPhaseLength;
     else if (phase == Phase.Action) phaseOffset = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength;
 
-    uint32 turnOffset = LibTurn.turnLength(components) * turn;
+    uint32 turnOffset = turnLength(components) * turn;
 
     return startOffset + phaseOffset + turnOffset;
   }

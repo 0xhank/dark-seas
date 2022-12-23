@@ -35,7 +35,7 @@ library LibCombat {
    * @param   firepower  of attacker
    * @return  hitChance  based on above equation
    */
-  function getBaseHitChance(uint256 distance, uint256 firepower) public view returns (uint256 hitChance) {
+  function getBaseHitChance(uint256 distance, uint256 firepower) public pure returns (uint256 hitChance) {
     int128 _scaleInv = Math.exp(Math.divu(distance * 8, 1000));
     int128 firepowerDebuff = Math.divu(firepower, 100);
     int128 beforeDebuff = Math.div(Math.fromUInt(8000), _scaleInv);
@@ -89,7 +89,7 @@ library LibCombat {
     uint256 damage,
     uint256 randomSeed,
     uint256 shift
-  ) public view returns (bool) {
+  ) public pure returns (bool) {
     // pre-shifted to account for hull and crew damage
     uint256 odds = ((LibUtils.getByteUInt(randomSeed, 14, (shift + 2) * 14)) * 10000) / 16384;
     odds = (odds * (((damage - 1) * 10) + 100)) / 100;
@@ -99,13 +99,35 @@ library LibCombat {
   }
 
   /**
-   * @notice  calculates the location of four points comprising a trapezoidal firing area
+   * @notice  calculates the location of three points comprising a triangular firing area
+   * @param   components  world components
+   * @param   shipEntity  attacking ship entity
+   * @return  Coord[3]  points comprising firing area
+   */
+  function getFiringAreaForward(IUint256Component components, uint256 shipEntity)
+    public
+    view
+    returns (Coord[3] memory)
+  {
+    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(shipEntity);
+    Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(shipEntity);
+    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
+    uint32 topRange = 10;
+    uint32 bottomRange = 350;
+    Coord memory topCorner = LibVector.getPositionByVector(position, rotation, range, topRange);
+    Coord memory bottomCorner = LibVector.getPositionByVector(position, rotation, range, bottomRange);
+
+    return ([position, bottomCorner, topCorner]);
+  }
+
+  /**
+   * @notice  calculates the location of four points comprising a quadrilateral firing area
    * @param   components  world components
    * @param   shipEntity  attacking ship entity
    * @param   side  of attack
    * @return  Coord[4]  points comprising firing area
    */
-  function getFiringArea(
+  function getFiringAreaSide(
     IUint256Component components,
     uint256 shipEntity,
     Side side

@@ -4,12 +4,10 @@ import {
   EntityID,
   EntityIndex,
   getComponentValue,
-  getComponentValueStrict,
   hasComponent,
   Type,
 } from "@latticexyz/recs";
 import {
-  createActionSystem,
   defineBoolComponent,
   defineCoordComponent,
   defineNumberComponent,
@@ -21,13 +19,14 @@ import { setupDevSystems } from "./setup";
 
 import { GodID } from "@latticexyz/network";
 import { Coord } from "@latticexyz/utils";
-import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
+import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../../../contracts/types/SystemTypes";
 import { Action, Phase } from "../../types";
 import { defineMoveCardComponent } from "./components/MoveCardComponent";
 import { defineWindComponent } from "./components/WindComponent";
 import { GameConfig, getNetworkConfig } from "./config";
+import { GAS_LIMIT } from "./constants";
 
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -108,8 +107,9 @@ export async function createNetworkLayer(config: GameConfig) {
     return playerEntity;
   }
 
-  function getPhase(): Phase | undefined {
-    const gamePhase = getGamePhaseAt(Math.floor(network.clock.currentTime / 1000));
+  function getPhase(delay = 0): Phase | undefined {
+    const time = Math.floor(network.clock.currentTime / 1000) + delay;
+    const gamePhase = getGamePhaseAt(time);
     return gamePhase;
   }
 
@@ -126,9 +126,10 @@ export async function createNetworkLayer(config: GameConfig) {
     return Phase.Action;
   }
 
-  function getTurn(): number | undefined {
-    const gamePhase = getGameTurnAt(network.clock.currentTime / 1000);
-    return gamePhase;
+  function getTurn(delay = 0): number | undefined {
+    const time = Math.floor(network.clock.currentTime / 1000) + delay;
+    const gameTurn = getGameTurnAt(time);
+    return gameTurn;
   }
 
   function getGameTurnAt(timeInSeconds: number): number | undefined {
@@ -140,54 +141,32 @@ export async function createNetworkLayer(config: GameConfig) {
     return Math.floor(timeElapsed / turnLength);
   }
 
-  function checkActionPossible(action: Action, ship: EntityIndex): boolean {
-    const onFire = getComponentValue(components.OnFire, ship)?.value;
-    if (action == Action.ExtinguishFire && !onFire) return false;
-    if (action == Action.FireRight && onFire) return false;
-    if (action == Action.FireLeft && onFire) return false;
-
-    if (action == Action.RepairLeak && !getComponentValue(components.Leak, ship)) return false;
-    if (action == Action.RepairMast && !getComponentValue(components.DamagedMast, ship)) return false;
-
-    const sailPosition = getComponentValueStrict(components.SailPosition, ship).value;
-    if (action == Action.LowerSail && sailPosition <= 1) return false;
-    if (action == Action.RaiseSail && sailPosition >= 3) return false;
-    if (action == Action.RepairSail && sailPosition > 0) return false;
-
-    return true;
-  }
-
-  // --- ACTION SYSTEM --------------------------------------------------------------
-  const actions = createActionSystem(world, txReduced$);
-
   // --- API ------------------------------------------------------------------------
 
-  function commitMove(encoding: string) {
-    const commitment = keccak256(encoding);
-    console.log("committing move");
-    systems["ds.system.Commit"].executeTyped(commitment);
+  function commitMove(commitment: string) {
+    systems["ds.system.Commit"].executeTyped(commitment, {
+      gasLimit: GAS_LIMIT,
+    });
   }
 
   function spawnPlayer(name: string) {
     const location: Coord = { x: Math.round(Math.random() * 300000), y: Math.round(Math.random() * 300000) };
-    console.log("spawning player");
-    systems["ds.system.PlayerSpawn"].executeTyped(name, location);
-  }
-
-  function spawnShip(location: Coord, rotation: number) {
-    console.log("spawning ship");
-    systems["ds.system.ShipSpawn"].executeTyped(location, rotation);
+    systems["ds.system.PlayerSpawn"].executeTyped(name, location, {
+      gasLimit: GAS_LIMIT,
+    });
   }
 
   function revealMove(encoding: string) {
-    console.log("revealing move");
     const decodedMove = abi.decode(["uint256[]", "uint256[]", "uint256"], encoding);
-    systems["ds.system.Move"].executeTyped(decodedMove[0], decodedMove[1], decodedMove[2]);
+    systems["ds.system.Move"].executeTyped(decodedMove[0], decodedMove[1], decodedMove[2], {
+      gasLimit: GAS_LIMIT,
+    });
   }
 
   function submitActions(ships: EntityID[], actions: Action[][]) {
-    console.log("submitting actions");
-    systems["ds.system.Action"].executeTyped(ships, actions);
+    systems["ds.system.Action"].executeTyped(ships, actions, {
+      gasLimit: GAS_LIMIT,
+    });
   }
 
   // --- CONTEXT --------------------------------------------------------------------
@@ -199,9 +178,8 @@ export async function createNetworkLayer(config: GameConfig) {
     txReduced$,
     startSync,
     network,
-    actions,
-    utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn, checkActionPossible },
-    api: { spawnShip, revealMove, submitActions, spawnPlayer, commitMove },
+    utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn },
+    api: { revealMove, submitActions, spawnPlayer, commitMove },
     dev: setupDevSystems(world, encoders, systems),
   };
 

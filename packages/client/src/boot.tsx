@@ -2,15 +2,17 @@
 import { getComponentValue, removeComponent, setComponent } from "@latticexyz/recs";
 import { Wallet } from "ethers";
 import ReactDOM from "react-dom/client";
+import { createBackendLayer as createBackendLayerImport } from "./layers/backend";
+import { createPhaserLayer as createPhaserLayerImport } from "./layers/frontend/phaser";
+import { registerUIComponents as registerUIComponentsImport } from "./layers/frontend/react/components";
+import { Engine as EngineImport } from "./layers/frontend/react/engine/Engine";
 import { createNetworkLayer as createNetworkLayerImport } from "./layers/network";
-import { createPhaserLayer as createPhaserLayerImport } from "./layers/phaser";
-import { registerUIComponents as registerUIComponentsImport } from "./layers/react/components";
-import { Engine as EngineImport } from "./layers/react/engine/Engine";
 import { Layers } from "./types";
 import { Time } from "./utils/time";
 
 // Assign variables that can be overridden by HMR
 let createNetworkLayer = createNetworkLayerImport;
+let createBackendLayer = createBackendLayerImport;
 let createPhaserLayer = createPhaserLayerImport;
 let registerUIComponents = registerUIComponentsImport;
 let Engine = EngineImport;
@@ -61,7 +63,8 @@ async function bootGame() {
     if (!networkLayerConfig) throw new Error("Invalid config");
 
     if (!layers.network) layers.network = await createNetworkLayer(networkLayerConfig);
-    if (!layers.phaser) layers.phaser = await createPhaserLayer(layers.network);
+    if (!layers.backend) layers.backend = await createBackendLayer(layers.network);
+    if (!layers.phaser) layers.phaser = await createPhaserLayer(layers.backend);
 
     // Sync global time with phaser clock
     Time.time.setPacemaker((setTimestamp) => {

@@ -1,7 +1,6 @@
-import { MoveCard, Wind } from "../types";
 import { Coord } from "@latticexyz/utils";
+import { MoveCard, Wind } from "../types";
 import { getPositionByVector } from "./trig";
-import { Arrows } from "../layers/phaser/constants";
 
 export function getWindBoost(wind: Wind, rotation: number): number {
   const rotationDiff: number = Math.abs(wind.direction - rotation);
@@ -17,19 +16,8 @@ export function getMoveWithWind(moveCard: MoveCard, rotation: number, wind: Wind
 }
 
 export function getMoveWithSails(moveCard: MoveCard, sailPosition: number): MoveCard {
-  if (sailPosition == 3) {
-    return getMoveWithBuff(moveCard, 100);
-  }
-
-  if (sailPosition == 2) {
-    return getMoveWithBuff(moveCard, 70);
-  }
-
-  if (sailPosition == 1) {
-    return getMoveWithBuff(moveCard, 40);
-  }
-
-  return { distance: 0, rotation: 0, direction: 0 };
+  const buff = sailPosition == 2 ? 100 : sailPosition == 1 ? 33 : 0;
+  return getMoveWithBuff(moveCard, buff);
 }
 
 export function getFinalMoveCard(moveCard: MoveCard, rotation: number, sailPosition: number, wind: Wind): MoveCard {
@@ -86,22 +74,4 @@ export function rotationToDirectionName(rotation: number): string {
   if (rotation > 68 && rotation < 112) return (ret += "SE");
 
   return ret;
-}
-
-export function arrowImg(rotation: number) {
-  return rotation == 360 || rotation == 0
-    ? Arrows.Straight
-    : rotation > 270
-    ? Arrows.SoftLeft
-    : rotation == 270
-    ? Arrows.Left
-    : rotation > 180
-    ? Arrows.HardLeft
-    : rotation == 180
-    ? Arrows.UTurn
-    : rotation > 90
-    ? Arrows.HardRight
-    : rotation == 90
-    ? Arrows.Right
-    : Arrows.SoftRight;
 }

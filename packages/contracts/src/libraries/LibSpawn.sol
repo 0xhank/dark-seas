@@ -127,7 +127,7 @@ library LibSpawn {
     RangeComponent(getAddressById(components, RangeComponentID)).set(shipEntity, 80);
     HealthComponent(getAddressById(components, HealthComponentID)).set(shipEntity, 10);
     ShipComponent(getAddressById(components, ShipComponentID)).set(shipEntity);
-    SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 3);
+    SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
     CrewCountComponent(getAddressById(components, CrewCountComponentID)).set(shipEntity, 8);
     FirepowerComponent(getAddressById(components, FirepowerComponentID)).set(shipEntity, 50);
     OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(shipEntity, playerEntity);

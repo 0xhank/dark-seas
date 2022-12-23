@@ -19,7 +19,6 @@ contract LibTurnTest is MudTest {
   function testGetCurrentTurn() public prank(deployer) {
     setup();
     uint32 turn = LibTurn.getCurrentTurn(components);
-    uint32 turnLength = LibTurn.turnLength(components);
 
     assertEq(turn, 0);
 
@@ -57,8 +56,6 @@ contract LibTurnTest is MudTest {
     setup();
 
     (uint32 turn, Phase phase) = LibTurn.getCurrentTurnAndPhase(components);
-
-    uint32 turnLength = LibTurn.turnLength(components);
 
     assertEq(turn, 0);
     assertTrue(phase == Phase.Commit);

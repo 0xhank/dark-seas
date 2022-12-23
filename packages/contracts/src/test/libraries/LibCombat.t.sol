@@ -94,7 +94,7 @@ contract LibCombatTest is MudTest {
     uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
     uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(shipEntity);
 
-    Coord[4] memory firingArea = LibCombat.getFiringArea(components, shipEntity, Side.Right);
+    Coord[4] memory firingArea = LibCombat.getFiringAreaSide(components, shipEntity, Side.Right);
 
     Coord memory stern = LibVector.getSternLocation(startingPosition, rotation, length);
     Coord memory bottomCorner = LibVector.getPositionByVector(stern, rotation, range, 100);
@@ -104,5 +104,22 @@ contract LibCombatTest is MudTest {
     assertCoordEq(stern, firingArea[1]);
     assertCoordEq(bottomCorner, firingArea[2]);
     assertCoordEq(topCorner, firingArea[3]);
+  }
+
+  function testFiringAreaForward() public prank(deployer) {
+    Coord memory startingPosition = Coord({ x: 0, y: 0 });
+
+    uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, 0);
+
+    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
+    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(shipEntity);
+
+    Coord[3] memory firingArea = LibCombat.getFiringAreaForward(components, shipEntity);
+    Coord memory leftCorner = LibVector.getPositionByVector(startingPosition, rotation, range, 10);
+    Coord memory rightCorner = LibVector.getPositionByVector(startingPosition, rotation, range, 350);
+
+    assertCoordEq(startingPosition, firingArea[0]);
+    assertCoordEq(rightCorner, firingArea[1]);
+    assertCoordEq(leftCorner, firingArea[2]);
   }
 }

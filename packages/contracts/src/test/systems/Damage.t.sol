@@ -143,9 +143,6 @@ contract DamageTest is MudTest {
   function testDamagedSailEffect() public prank(deployer) {
     setup();
 
-    SailPositionComponent sailPositionComponent = SailPositionComponent(
-      getAddressById(components, SailPositionComponentID)
-    );
     PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
     RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
 

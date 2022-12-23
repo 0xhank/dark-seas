@@ -2,8 +2,14 @@
 
 Multiplayer naval battle simulation game on blockchain. Built with <a href = https://github.com/latticexyz/mud> MUD</a>.
 
+# Requirements
+
+1. Node >=v.16
+2. <a href = https://book.getfoundry.sh/getting-started/installation>Foundry</a>
+
 # Quickstart guide
 
+- Ensure requirements are met
 - Clone the repository
 - Run `yarn` to install dependencies and prepare workspaces
 - Run `yarn start` to spin up an anvil local blockchain, deploy smart contracts, and launch a locally hosted client server.
