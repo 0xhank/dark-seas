@@ -112,7 +112,6 @@ contract LibCombatTest is MudTest {
     uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, 0);
 
     uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
-    uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
     uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(shipEntity);
 
     Coord[3] memory firingArea = LibCombat.getFiringAreaForward(components, shipEntity);

@@ -26,6 +26,8 @@ export function createHealthSystem(layer: PhaserLayer) {
   } = layer;
 
   defineUpdateSystem(world, [Has(Health)], (update) => {
+    if (!update.value[0] || !update.value[1]) return;
+    if (Number(update.value[0].value) >= Number(update.value[1].value)) return;
     const updateQueue = getComponentValue(UpdateQueue, update.entity)?.value || new Array<string>();
     const position = getComponentValueStrict(Position, update.entity);
     updateQueue.push("Lost health!");

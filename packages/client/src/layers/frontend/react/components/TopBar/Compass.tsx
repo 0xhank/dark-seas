@@ -198,8 +198,3 @@ const CompassSpan = styled.span`
 
   text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.35);
 `;
-
-const Sup = styled.span`
-  line-height: 1rem;
-  font-size: 1rem;
-`;

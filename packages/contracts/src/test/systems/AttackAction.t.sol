@@ -231,22 +231,22 @@ contract AttackActionTest is MudTest {
     uint256 distance;
     uint256 randomness = LibUtils.randomness(attackerEntity, defenderEntity);
     if (side == Side.Forward) {
-      Coord[3] memory firingRange = LibCombat.getFiringAreaForward(components, attackerEntity);
+      Coord[3] memory firingRange3 = LibCombat.getFiringAreaForward(components, attackerEntity);
 
-      if (LibVector.withinPolygon3(firingRange, aft)) {
+      if (LibVector.withinPolygon3(firingRange3, aft)) {
         distance = LibVector.distance(attackerPosition, aft);
         return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
-      } else if (LibVector.withinPolygon3(firingRange, stern)) {
+      } else if (LibVector.withinPolygon3(firingRange3, stern)) {
         distance = LibVector.distance(attackerPosition, stern);
         return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
       } else return 0;
     }
-    Coord[4] memory firingRange = LibCombat.getFiringAreaSide(components, attackerEntity, side);
+    Coord[4] memory firingRange4 = LibCombat.getFiringAreaSide(components, attackerEntity, side);
 
-    if (LibVector.withinPolygon4(firingRange, aft)) {
+    if (LibVector.withinPolygon4(firingRange4, aft)) {
       distance = LibVector.distance(attackerPosition, aft);
       return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
-    } else if (LibVector.withinPolygon4(firingRange, stern)) {
+    } else if (LibVector.withinPolygon4(firingRange4, stern)) {
       distance = LibVector.distance(attackerPosition, stern);
       return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
     } else return 0;
@@ -254,14 +254,14 @@ contract AttackActionTest is MudTest {
 
   function commitAndExecuteMove(
     uint32 turn,
-    uint256[] memory shipEntities,
-    uint256[] memory moveEntities
+    uint256[] memory _shipEntities,
+    uint256[] memory _moveEntities
   ) internal {
     vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Commit));
-    uint256 commitment = uint256(keccak256(abi.encode(shipEntities, moveEntities, 69)));
+    uint256 commitment = uint256(keccak256(abi.encode(_shipEntities, _moveEntities, 69)));
     commitSystem.executeTyped(commitment);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Reveal));
-    moveSystem.executeTyped(shipEntities, moveEntities, 69);
+    moveSystem.executeTyped(_shipEntities, _moveEntities, 69);
   }
 }

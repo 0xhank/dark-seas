@@ -51,8 +51,8 @@ library LibMove {
     uint32 rotation,
     Wind memory wind
   ) public pure returns (MoveCard memory) {
-    int32 windBoost = (windBoost(wind, rotation) * 100) / 40;
-    return getMoveWithBuff(moveCard, uint32(windBoost + 100));
+    int32 _windBoost = (windBoost(wind, rotation) * 100) / 40;
+    return getMoveWithBuff(moveCard, uint32(_windBoost + 100));
   }
 
   /**
@@ -117,7 +117,6 @@ library LibMove {
     MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
     PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
     RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
-    LastMoveComponent lastMoveComponent = LastMoveComponent(getAddressById(components, LastMoveComponentID));
 
     require(
       HealthComponent(getAddressById(components, HealthComponentID)).getValue(shipEntity) > 0,

@@ -35,7 +35,7 @@ library LibCombat {
    * @param   firepower  of attacker
    * @return  hitChance  based on above equation
    */
-  function getBaseHitChance(uint256 distance, uint256 firepower) public view returns (uint256 hitChance) {
+  function getBaseHitChance(uint256 distance, uint256 firepower) public pure returns (uint256 hitChance) {
     int128 _scaleInv = Math.exp(Math.divu(distance * 8, 1000));
     int128 firepowerDebuff = Math.divu(firepower, 100);
     int128 beforeDebuff = Math.div(Math.fromUInt(8000), _scaleInv);
@@ -89,7 +89,7 @@ library LibCombat {
     uint256 damage,
     uint256 randomSeed,
     uint256 shift
-  ) public view returns (bool) {
+  ) public pure returns (bool) {
     // pre-shifted to account for hull and crew damage
     uint256 odds = ((LibUtils.getByteUInt(randomSeed, 14, (shift + 2) * 14)) * 10000) / 16384;
     odds = (odds * (((damage - 1) * 10) + 100)) / 100;
@@ -111,7 +111,6 @@ library LibCombat {
   {
     uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(shipEntity);
     Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(shipEntity);
-    uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
     uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
     uint32 topRange = 10;
     uint32 bottomRange = 350;

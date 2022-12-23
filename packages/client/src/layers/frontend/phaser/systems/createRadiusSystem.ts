@@ -29,9 +29,6 @@ export function createRadiusSystem(phaser: PhaserLayer) {
 
     radius.setStrokeStyle(50, 0xffffff);
     radius.setDepth(RenderDepth.Background1);
-
-    // radius.setDisplayOrigin(0, 0);
-
     radiusGroup.add(radius);
 
     polygonRegistry.set("radiusGroup", radiusGroup);

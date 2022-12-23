@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled, { keyframes } from "styled-components";
 import { colors } from "../../styles/global";
 
@@ -7,7 +7,7 @@ export const BootScreen: React.FC<{ initialOpacity?: number }> = ({ children, in
     <Container>
       <Img src="/img/ds-ship.png" style={{ transform: "rotate(270deg)" }}></Img>
       <div style={{ fontSize: "2rem" }}>Dark Seas</div>
-      <div>{children || <>&nbsp;</>}</div>
+      <div>{<>&nbsp;</>}</div>
     </Container>
   );
 };
