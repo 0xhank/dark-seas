@@ -64,7 +64,6 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
               if (isSelected) removeComponent(SelectedMove, ship);
               else {
                 setComponent(SelectedShip, GodEntityIndex, { value: ship });
-
                 setComponent(SelectedMove, ship, { value: entity });
               }
             }}

@@ -92,6 +92,8 @@ export function createActiveSystem(layer: PhaserLayer) {
         const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, 0xffffff, 0.1);
         firingPolygon.setDisplayOrigin(0);
         firingPolygon.setDepth(RenderDepth.Foreground5);
+
+        // TODO:  make this occur on action selection update, not selectedship update
         if (selectedActions?.includes(ActionToSide[side])) {
           firingPolygon.setFillStyle(0xf33a6a, 0.2);
         }

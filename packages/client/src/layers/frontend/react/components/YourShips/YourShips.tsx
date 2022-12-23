@@ -187,18 +187,20 @@ export function registerYourShips() {
         commitMove(shipsAndMoves.ships, shipsAndMoves.moves);
       };
 
+      const handleSubmitExecute = () => {
+        const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
+        if (encoding) revealMove(encoding);
+      };
+
       const RevealButtons = () => {
         const committedMoves = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
 
-        const bgColor = lastMove == currentTurn ? colors.confirmed : !committedMoves ? colors.glass : colors.waiting;
+        if (lastMove == currentTurn) return <Success background={colors.confirmed}>Move execution successful!</Success>;
+        if (!committedMoves) return <Success background={colors.glass}>"No moves to execute"</Success>;
         return (
-          <Success background={bgColor}>
-            {lastMove == currentTurn
-              ? "Move execution successful!"
-              : !committedMoves
-              ? "No moves to execute"
-              : "Executing..."}
-          </Success>
+          <ConfirmButton style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmitExecute}>
+            Execute Moves
+          </ConfirmButton>
         );
       };
 
