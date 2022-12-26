@@ -18,7 +18,7 @@ import { defineLoadingStateComponent } from "./components";
 import { setupDevSystems } from "./setup";
 
 import { GodID } from "@latticexyz/network";
-import { Coord } from "@latticexyz/utils";
+import { Coord, keccak256 } from "@latticexyz/utils";
 import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../../../contracts/types/SystemTypes";
@@ -169,6 +169,11 @@ export async function createNetworkLayer(config: GameConfig) {
     });
   }
 
+  function setOnFire(ship: EntityIndex) {
+    const componentId = keccak256("ds.component.OnFire");
+    systems["ds.system.ComponentDev"].executeTyped(componentId, world.entities[ship], abi.encode(["bool"], [true]));
+  }
+
   // --- CONTEXT --------------------------------------------------------------------
   const context = {
     world,
@@ -179,7 +184,7 @@ export async function createNetworkLayer(config: GameConfig) {
     startSync,
     network,
     utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn },
-    api: { revealMove, submitActions, spawnPlayer, commitMove },
+    api: { revealMove, submitActions, spawnPlayer, commitMove, setOnFire },
     dev: setupDevSystems(world, encoders, systems),
   };
 

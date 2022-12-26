@@ -171,7 +171,7 @@
           "sourceSize": { "w": 42, "h": 41 }
         },
         {
-          "filename": "fire1.png",
+          "filename": "fire/0.png",
           "frame": { "x": 0, "y": 36, "w": 18, "h": 39 },
           "rotated": false,
           "trimmed": false,
@@ -179,7 +179,7 @@
           "sourceSize": { "w": 18, "h": 39 }
         },
         {
-          "filename": "fire2.png",
+          "filename": "fire/1.png",
           "frame": { "x": 160, "y": 0, "w": 11, "h": 27 },
           "rotated": false,
           "trimmed": false,

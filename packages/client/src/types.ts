@@ -104,6 +104,7 @@ export type Wind = {
 export enum Sprites {
   Cannon,
   Cannonball,
+  DeadMan,
   Explosion1,
   Explosion2,
   Explosion3,
