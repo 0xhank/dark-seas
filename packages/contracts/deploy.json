@@ -20,7 +20,8 @@
     "OwnedByComponent",
     "NameComponent",
     "PlayerComponent",
-    "CommitmentComponent"
+    "CommitmentComponent",
+    "LoadedComponent"
   ],
   "systems": [
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
@@ -39,7 +40,8 @@
         "LastMoveComponent",
         "LastActionComponent",
         "OwnedByComponent",
-        "PlayerComponent"
+        "PlayerComponent",
+        "LoadedComponent"
       ]
     },
     { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent", "LastMoveComponent"] },
