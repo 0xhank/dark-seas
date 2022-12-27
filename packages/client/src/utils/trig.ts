@@ -38,3 +38,7 @@ export function getFiringArea(position: Coord, range: number, length: number, ro
 
   return [position, sternLocation, bottomCorner, topCorner];
 }
+
+export function midpoint(a: Coord, b: Coord): Coord {
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+}
