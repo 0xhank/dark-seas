@@ -256,8 +256,12 @@ export function registerYourShips() {
         let content: JSX.Element | null = null;
         const actionExecuting = !![...runQuery([Has(Action)])].find((entity) => {
           const state = getComponentValueStrict(Action, entity).state;
-          return [ActionState.Requested, ActionState.Executing, ActionState.WaitingForTxEvents].includes(state);
+          if (state == ActionState.Requested) return true;
+          if (state == ActionState.Executing) return true;
+          if (state == ActionState.WaitingForTxEvents) return true;
+          return false;
         });
+        console.log("actionExecuting:", actionExecuting);
         if (actionExecuting) content = <Success background={colors.waiting}>Executing...</Success>;
         else if (phase == Phase.Reveal) content = <RevealButtons />;
         else if (phase == Phase.Commit) content = <CommitButtons />;

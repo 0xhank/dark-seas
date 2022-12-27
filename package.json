@@ -37,6 +37,7 @@
     "prettier:check": "prettier --check 'src/**/*.ts'",
     "prettier": "prettier --write 'packages/**/*.ts'",
     "lint": "eslint . --ext .ts",
+    "deploy:prod": "yarn workspace contracts deploy:prod",
     "lerna:release": "lerna version --conventional-commits --yes",
     "lerna:publish": "lerna publish --no-private --force-publish",
     "foundryup": "curl -L https://foundry.paradigm.xyz | bash && exec \"$SHELL\" && foundryup",
