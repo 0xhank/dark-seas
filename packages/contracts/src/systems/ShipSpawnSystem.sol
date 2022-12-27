@@ -24,16 +24,15 @@ contract ShipSpawnSystem is System {
   function execute(bytes memory arguments) public returns (bytes memory) {
     (Coord memory location, uint32 rotation) = abi.decode(arguments, (Coord, uint32));
 
-    uint256 entity = world.getUniqueEntityId();
     uint256 playerEntity = addressToEntity(msg.sender);
 
-    if (!LibUtils.playerIdExists(components, entity)) LibSpawn.createPlayerEntity(components, msg.sender);
-    LibSpawn.spawnShip(components, entity, playerEntity, location, rotation);
+    if (!LibUtils.playerIdExists(components, playerEntity)) LibSpawn.createPlayerEntity(components, msg.sender);
+    uint256 shipEntity = LibSpawn.spawnShip(components, world, playerEntity, location, rotation);
 
     LastActionComponent(getAddressById(components, LastActionComponentID)).set(addressToEntity(msg.sender), 0);
     LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(addressToEntity(msg.sender), 0);
 
-    return abi.encode(entity);
+    return abi.encode(shipEntity);
   }
 
   function executeTyped(Coord memory location, uint32 rotation) public returns (uint256) {

@@ -96,8 +96,7 @@ library LibSpawn {
 
     uint32 rotation = pointKindaTowardsTheCenter(startingLocation);
     for (uint256 i = 0; i < 3; i++) {
-      uint256 entity = world.getUniqueEntityId();
-      spawnShip(components, entity, playerEntity, startingLocation, rotation);
+      spawnShip(components, world, playerEntity, startingLocation, rotation);
       startingLocation.x += 20;
     }
 
@@ -109,27 +108,46 @@ library LibSpawn {
    * @notice  spawns a basic ship type
    * @dev todo: move this to shipPrototype and create a couple options for ships
    * @param   components  creates a ship
-   * @param   shipEntity  entity id of ship
+   * @param   world  world
    * @param   playerEntity  entity id of ship's owner
    * @param   location  starting location of ship
    * @param   rotation  starting rotation of ship
    */
   function spawnShip(
     IUint256Component components,
-    uint256 shipEntity,
+    IWorld world,
     uint256 playerEntity,
     Coord memory location,
     uint32 rotation
-  ) internal {
+  ) internal returns (uint256 shipEntity) {
+    shipEntity = world.getUniqueEntityId();
+
     PositionComponent(getAddressById(components, PositionComponentID)).set(shipEntity, location);
     RotationComponent(getAddressById(components, RotationComponentID)).set(shipEntity, rotation);
     LengthComponent(getAddressById(components, LengthComponentID)).set(shipEntity, 10);
-    RangeComponent(getAddressById(components, RangeComponentID)).set(shipEntity, 80);
     HealthComponent(getAddressById(components, HealthComponentID)).set(shipEntity, 10);
     ShipComponent(getAddressById(components, ShipComponentID)).set(shipEntity);
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
     CrewCountComponent(getAddressById(components, CrewCountComponentID)).set(shipEntity, 8);
-    FirepowerComponent(getAddressById(components, FirepowerComponentID)).set(shipEntity, 50);
     OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(shipEntity, playerEntity);
+
+    spawnCannon(components, world, shipEntity, 90, 50, 80);
+    spawnCannon(components, world, shipEntity, 270, 50, 80);
+    spawnCannon(components, world, shipEntity, 0, 50, 80);
+  }
+
+  function spawnCannon(
+    IUint256Component components,
+    IWorld world,
+    uint256 shipEntity,
+    uint32 rotation,
+    uint32 firepower,
+    uint32 range
+  ) private returns (uint256 cannonEntity) {
+    cannonEntity = world.getUniqueEntityId();
+    OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(cannonEntity, shipEntity);
+    RotationComponent(getAddressById(components, RotationComponentID)).set(cannonEntity, rotation);
+    FirepowerComponent(getAddressById(components, FirepowerComponentID)).set(cannonEntity, firepower);
+    RangeComponent(getAddressById(components, RangeComponentID)).set(cannonEntity, range);
   }
 }
