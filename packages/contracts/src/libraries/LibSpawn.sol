@@ -20,6 +20,7 @@ import { SailPositionComponent, ID as SailPositionComponentID } from "../compone
 import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 import { FirepowerComponent, ID as FirepowerComponentID } from "../components/FirepowerComponent.sol";
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
+import { CannonComponent, ID as CannonComponentID } from "../components/CannonComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
@@ -145,6 +146,8 @@ library LibSpawn {
     uint32 range
   ) private returns (uint256 cannonEntity) {
     cannonEntity = world.getUniqueEntityId();
+
+    CannonComponent(getAddressById(components, CannonComponentID)).set(cannonEntity);
     OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(cannonEntity, shipEntity);
     RotationComponent(getAddressById(components, RotationComponentID)).set(cannonEntity, rotation);
     FirepowerComponent(getAddressById(components, FirepowerComponentID)).set(cannonEntity, firepower);

@@ -21,7 +21,8 @@
     "NameComponent",
     "PlayerComponent",
     "CommitmentComponent",
-    "LoadedComponent"
+    "LoadedComponent",
+    "CannonComponent"
   ],
   "systems": [
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
@@ -54,7 +55,8 @@
         "DamagedMastComponent",
         "CrewCountComponent",
         "SailPositionComponent",
-        "LastActionComponent"
+        "LastActionComponent",
+        "LoadedComponent"
       ]
     },
     { "name": "ComponentDevSystem", "writeAccess": ["*"] },
@@ -74,7 +76,8 @@
         "LastActionComponent",
         "OwnedByComponent",
         "PlayerComponent",
-        "NameComponent"
+        "NameComponent",
+        "CannonComponent"
       ]
     },
     { "name": "CommitSystem", "writeAccess": ["CommitmentComponent"] }
