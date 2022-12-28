@@ -14,6 +14,7 @@ import { SailPositionComponent, ID as SailPositionComponentID } from "../compone
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
+import { CannonComponent, ID as CannonComponentID } from "../components/CannonComponent.sol";
 
 // Types
 import { Coord, Side, Action, ActionType } from "../libraries/DSTypes.sol";
@@ -112,11 +113,16 @@ library LibAction {
     if (OnFireComponent(getAddressById(components, OnFireComponentID)).has(shipEntity)) return;
 
     require(
+      CannonComponent(getAddressById(components, CannonComponentID)).has(cannonEntity),
+      "attack: entity not a cannon"
+    );
+
+    require(
       OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(cannonEntity) == shipEntity,
       "attack: cannon not owned by ship"
     );
     uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
-    if (LibCombat.isBroadside(cannonRotation)) {
+    if (!LibCombat.isBroadside(cannonRotation)) {
       attackPivot(components, shipEntity, cannonEntity);
     } else {
       attackBroadside(components, shipEntity, cannonEntity);
@@ -136,7 +142,7 @@ library LibAction {
     uint256 cannonEntity
   ) public {
     OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
-
+    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
     // get firing area of ship
     Coord[3] memory firingRange = LibCombat.getFiringAreaPivot(components, shipEntity, cannonEntity);
 
@@ -151,11 +157,13 @@ library LibAction {
       if (owner == ownedByComponent.getValue(shipEntities[i])) continue;
 
       (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
-
+      uint256 distance;
       if (LibVector.withinPolygon3(firingRange, aft)) {
-        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], aft);
+        distance = LibVector.distance(firingRange[0], aft);
+        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
       } else if (LibVector.withinPolygon3(firingRange, stern)) {
-        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], stern);
+        distance = LibVector.distance(firingRange[0], stern);
+        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
       }
     }
   }
@@ -173,6 +181,7 @@ library LibAction {
     uint256 cannonEntity
   ) public {
     OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
+    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
 
     // get firing area of ship
     Coord[4] memory firingRange = LibCombat.getFiringAreaBroadside(components, shipEntity, cannonEntity);
@@ -189,10 +198,13 @@ library LibAction {
 
       (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
 
+      uint256 distance;
       if (LibVector.withinPolygon4(firingRange, aft)) {
-        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], aft);
+        distance = LibVector.distance(firingRange[0], aft);
+        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
       } else if (LibVector.withinPolygon4(firingRange, stern)) {
-        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], stern);
+        distance = LibVector.distance(firingRange[0], stern);
+        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
       }
     }
   }

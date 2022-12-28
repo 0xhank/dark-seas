@@ -182,17 +182,22 @@ library LibCombat {
    * @param   defenderEntity  defending entity
    * @param   defenderPosition  location of defender
    */
+  /**
+   * @notice  .
+   * @dev     .
+   * @param   components  .
+   * @param   attackerEntity  .
+   * @param   defenderEntity  .
+   * @param   distance  .
+   * @param   firepower  .
+   */
   function damageEnemy(
     IUint256Component components,
     uint256 attackerEntity,
     uint256 defenderEntity,
-    Coord memory defenderPosition
+    uint256 distance,
+    uint32 firepower
   ) public {
-    Coord memory attackerPosition = PositionComponent(getAddressById(components, PositionComponentID)).getValue(
-      attackerEntity
-    );
-    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(attackerEntity);
-    uint256 distance = LibVector.distance(attackerPosition, defenderPosition);
     uint256 baseHitChance = getBaseHitChance(distance, firepower);
 
     // todo: make randomness more robust
@@ -252,7 +257,7 @@ library LibCombat {
     return false;
   }
 
-  function isBroadside(uint256 rotation) public returns (bool) {
+  function isBroadside(uint256 rotation) public pure returns (bool) {
     return (rotation == 90 || rotation == 270);
   }
 }
