@@ -2,7 +2,7 @@
 ffi = false
 fuzz_runs = 256
 libs = ["../../node_modules", "../../../mud"]
-optimizer = true
+optimizer = false
 optimizer_runs = 1000000
 out = "out"
 src = "src"
