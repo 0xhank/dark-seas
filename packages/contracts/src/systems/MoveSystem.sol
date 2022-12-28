@@ -19,7 +19,7 @@ import { HealthComponent, ID as HealthComponentID } from "../components/HealthCo
 import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 import { CommitmentComponent, ID as CommitmentComponentID } from "../components/CommitmentComponent.sol";
 
-import { Wind, GodID, MoveCard, Phase } from "../libraries/DSTypes.sol";
+import { Wind, GodID, MoveCard, Phase, Move } from "../libraries/DSTypes.sol";
 import "../libraries/LibVector.sol";
 import "../libraries/LibMove.sol";
 import "../libraries/LibTurn.sol";
@@ -32,16 +32,6 @@ contract MoveSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
-    (uint256[] memory shipEntities, uint256[] memory moveCardEntities, ) = abi.decode(
-      arguments,
-      (uint256[], uint256[], uint256)
-    );
-
-    require(
-      LibTurn.getCurrentPhase(components) != Phase.Action,
-      "MoveSystem: cannot complete move during Action phase"
-    );
-
     uint256 playerEntity = addressToEntity(msg.sender);
 
     require(
@@ -50,7 +40,12 @@ contract MoveSystem is System {
       "MoveSystem: commitment doesn't match move"
     );
 
-    require(shipEntities.length == moveCardEntities.length, "MoveSystem: array length mismatch");
+    (Move[] memory moves, ) = abi.decode(arguments, (Move[], uint256));
+
+    require(
+      LibTurn.getCurrentPhase(components) != Phase.Action,
+      "MoveSystem: cannot complete move during Action phase"
+    );
 
     require(LibUtils.playerIdExists(components, playerEntity), "MoveSystem: player does not exist");
 
@@ -62,21 +57,17 @@ contract MoveSystem is System {
     Wind memory wind = WindComponent(getAddressById(components, WindComponentID)).getValue(GodID);
 
     // iterate through each ship entity
-    for (uint256 i = 0; i < shipEntities.length; i++) {
-      uint256 moveCardEntity = moveCardEntities[i];
-      uint256 entity = shipEntities[i];
-
-      LibMove.moveShip(components, entity, playerEntity, moveCardEntity, wind);
+    for (uint256 i = 0; i < moves.length; i++) {
+      for (uint256 j = 0; j < i; j++) {
+        require(moves[i].shipEntity != moves[j].shipEntity, "MoveSystem: ship already moved");
+      }
+      LibMove.moveShip(components, moves[i], playerEntity, wind);
     }
 
     lastMoveComponent.set(playerEntity, currentTurn);
   }
 
-  function executeTyped(
-    uint256[] calldata shipEntities,
-    uint256[] calldata moveCardEntities,
-    uint256 salt
-  ) public returns (bytes memory) {
-    return execute(abi.encode(shipEntities, moveCardEntities, salt));
+  function executeTyped(Move[] calldata moves, uint256 salt) public returns (bytes memory) {
+    return execute(abi.encode(moves, salt));
   }
 }
