@@ -27,8 +27,8 @@ library LibAction {
   function executeActions(IUint256Component components, Action memory action) public {
     // iterate through each action of each ship
     for (uint256 i = 0; i < 2; i++) {
-      ActionType actionType = action.actionType[i];
-      bytes memory metadata = action.metadata[i];
+      ActionType actionType = action.actionTypes[i];
+      uint256 specialEntity = action.specialEntities[i];
       if (actionType == ActionType.None) continue;
       require(
         OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(action.shipEntity) ==
@@ -43,12 +43,12 @@ library LibAction {
 
       // ensure action hasn't already been made
       if (i == 1) {
-        require(action.actionType[0] != actionType, "ActionSystem: action already used");
+        require(action.actionTypes[0] != actionType, "ActionSystem: action already used");
       }
       if (actionType == ActionType.Load) {
-        load(components, action.shipEntity, metadata);
+        load(components, action.shipEntity, specialEntity);
       } else if (actionType == ActionType.Fire) {
-        attack(components, action.shipEntity, metadata);
+        attack(components, action.shipEntity, specialEntity);
       } else if (actionType == ActionType.RaiseSail) {
         raiseSail(components, action.shipEntity);
       } else if (actionType == ActionType.LowerSail) {
@@ -101,15 +101,14 @@ library LibAction {
   function load(
     IUint256Component components,
     uint256 shipEntity,
-    bytes memory metadata
+    uint256 cannonEntity
   ) private {}
 
   function attack(
     IUint256Component components,
     uint256 shipEntity,
-    bytes memory metadata
+    uint256 cannonEntity
   ) public {
-    uint256 cannonEntity = abi.decode(metadata, (uint256));
     if (OnFireComponent(getAddressById(components, OnFireComponentID)).has(shipEntity)) return;
 
     require(
