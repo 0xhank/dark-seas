@@ -42,7 +42,8 @@
         "LastActionComponent",
         "OwnedByComponent",
         "PlayerComponent",
-        "LoadedComponent"
+        "LoadedComponent",
+        "CannonComponent"
       ]
     },
     { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent", "LastMoveComponent"] },

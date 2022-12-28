@@ -144,7 +144,7 @@ library LibSpawn {
     uint32 rotation,
     uint32 firepower,
     uint32 range
-  ) private returns (uint256 cannonEntity) {
+  ) internal returns (uint256 cannonEntity) {
     cannonEntity = world.getUniqueEntityId();
 
     CannonComponent(getAddressById(components, CannonComponentID)).set(cannonEntity);

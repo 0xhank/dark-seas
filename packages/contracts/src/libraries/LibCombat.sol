@@ -104,18 +104,29 @@ library LibCombat {
    * @param   shipEntity  attacking ship entity
    * @return  Coord[3]  points comprising firing area
    */
-  function getFiringAreaForward(IUint256Component components, uint256 shipEntity)
-    public
-    view
-    returns (Coord[3] memory)
-  {
-    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(shipEntity);
+  function getFiringAreaPivot(
+    IUint256Component components,
+    uint256 shipEntity,
+    uint256 cannonEntity
+  ) public view returns (Coord[3] memory) {
+    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
+
+    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(cannonEntity);
     Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(shipEntity);
-    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
-    uint32 topRange = 10;
-    uint32 bottomRange = 350;
-    Coord memory topCorner = LibVector.getPositionByVector(position, rotation, range, topRange);
-    Coord memory bottomCorner = LibVector.getPositionByVector(position, rotation, range, bottomRange);
+    uint32 shipRotation = rotationComponent.getValue(shipEntity);
+    uint32 cannonRotation = rotationComponent.getValue(cannonEntity);
+
+    if (cannonRotation >= 180) {
+      uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
+      position = LibVector.getSternLocation(position, shipRotation, length);
+    }
+    Coord memory topCorner = LibVector.getPositionByVector(position, shipRotation, range, cannonRotation + 10);
+    Coord memory bottomCorner = LibVector.getPositionByVector(
+      position,
+      shipRotation,
+      range,
+      (cannonRotation + 350) % 360
+    );
 
     return ([position, bottomCorner, topCorner]);
   }
@@ -127,22 +138,38 @@ library LibCombat {
    * @param   cannonRotation  rotation of cannon firing
    * @return  Coord[4]  points comprising firing area
    */
+  /**
+   * @notice  .
+   * @dev     .
+   * @param   components  .
+   * @param   shipEntity  .
+   * @param   cannonEntity  .
+   * @return  Coord[4]  .
+   */
   function getFiringAreaBroadside(
     IUint256Component components,
     uint256 shipEntity,
-    uint32 cannonRotation
+    uint256 cannonEntity
   ) public view returns (Coord[4] memory) {
-    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(shipEntity);
+    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
+
+    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(cannonEntity);
     Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(shipEntity);
     uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
-    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
+    uint32 shipRotation = rotationComponent.getValue(shipEntity);
+    uint32 cannonRotation = rotationComponent.getValue(cannonEntity);
 
-    Coord memory sternLocation = LibVector.getSternLocation(position, rotation, length);
-    Coord memory topCorner = LibVector.getPositionByVector(position, rotation, range, cannonRotation + 10);
-    Coord memory bottomCorner = LibVector.getPositionByVector(sternLocation, rotation, range, cannonRotation - 10);
+    Coord memory sternLocation = LibVector.getSternLocation(position, shipRotation, length);
+    Coord memory topCorner = LibVector.getPositionByVector(position, shipRotation, range, cannonRotation + 10);
+    Coord memory bottomCorner = LibVector.getPositionByVector(
+      sternLocation,
+      shipRotation,
+      range,
+      (cannonRotation + 350) % 360
+    );
 
     // if the stern is above the bow, switch the corners to ensure the quadrilateral doesn't cross in the middle
-    if (rotation > 180) {
+    if (shipRotation >= 180) {
       return [position, sternLocation, topCorner, bottomCorner];
     }
     return ([position, sternLocation, bottomCorner, topCorner]);

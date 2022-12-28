@@ -110,6 +110,7 @@ library LibAction {
     bytes memory metadata
   ) public {
     uint256 cannonEntity = abi.decode(metadata, (uint256));
+    if (OnFireComponent(getAddressById(components, OnFireComponentID)).has(shipEntity)) return;
 
     require(
       OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(cannonEntity) == shipEntity,
@@ -117,9 +118,9 @@ library LibAction {
     );
     uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
     if (LibCombat.isBroadside(cannonRotation)) {
-      attackRaking(components, shipEntity, cannonEntity, cannonRotation);
+      attackPivot(components, shipEntity, cannonEntity);
     } else {
-      attackBroadside(components, shipEntity, cannonEntity, cannonRotation);
+      attackBroadside(components, shipEntity, cannonEntity);
     }
   }
 
@@ -129,19 +130,16 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  entity performing an attack
    * @param   cannonEntity  .
-   * @param   cannonRotation  .
    */
-  function attackRaking(
+  function attackPivot(
     IUint256Component components,
     uint256 shipEntity,
-    uint256 cannonEntity,
-    uint32 cannonRotation
+    uint256 cannonEntity
   ) public {
-    if (OnFireComponent(getAddressById(components, OnFireComponentID)).has(shipEntity)) return;
     OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
 
     // get firing area of ship
-    Coord[3] memory firingRange = LibCombat.getFiringAreaForward(components, shipEntity);
+    Coord[3] memory firingRange = LibCombat.getFiringAreaPivot(components, shipEntity, cannonEntity);
 
     (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
@@ -169,19 +167,16 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  entity performing an attack
    * @param   cannonEntity  .
-   * @param   cannonRotation  .
    */
   function attackBroadside(
     IUint256Component components,
     uint256 shipEntity,
-    uint256 cannonEntity,
-    uint32 cannonRotation
+    uint256 cannonEntity
   ) public {
-    if (OnFireComponent(getAddressById(components, OnFireComponentID)).has(shipEntity)) return;
     OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
 
     // get firing area of ship
-    Coord[4] memory firingRange = LibCombat.getFiringAreaBroadside(components, shipEntity, cannonRotation);
+    Coord[4] memory firingRange = LibCombat.getFiringAreaBroadside(components, shipEntity, cannonEntity);
 
     (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
