@@ -16,7 +16,7 @@ import { CrewCountComponent, ID as CrewCountComponentID } from "../components/Cr
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 
 // Types
-import { Coord, Side, Action } from "../libraries/DSTypes.sol";
+import { Coord, Side, Action, ActionType } from "../libraries/DSTypes.sol";
 
 // Libraries
 import "./LibCombat.sol";
@@ -24,59 +24,50 @@ import "./LibUtils.sol";
 import "./LibVector.sol";
 
 library LibAction {
-  function executeShipActions(
-    IUint256Component components,
-    uint256 shipEntity,
-    Action[] memory shipActions
-  ) public {
-    require(shipActions.length <= 2, "ActionSystem: too many actions");
-
-    require(
-      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(shipEntity) ==
-        addressToEntity(msg.sender),
-      "ActionSystem: you don't own this ship"
-    );
-
-    require(
-      ShipComponent(getAddressById(components, ShipComponentID)).has(shipEntity),
-      "ActionSystem: Entity must be a ship"
-    );
-
+  function executeActions(IUint256Component components, Action memory action) public {
     // iterate through each action of each ship
-    for (uint256 j = 0; j < shipActions.length; j++) {
-      Action action = shipActions[j];
+    for (uint256 i = 0; i < 2; i++) {
+      ActionType actionType = action.actionType[i];
+      bytes memory metadata = action.metadata[i];
+      if (actionType == ActionType.None) continue;
+      require(
+        OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(action.shipEntity) ==
+          addressToEntity(msg.sender),
+        "ActionSystem: you don't own this ship"
+      );
+
+      require(
+        ShipComponent(getAddressById(components, ShipComponentID)).has(action.shipEntity),
+        "ActionSystem: Entity must be a ship"
+      );
 
       // ensure action hasn't already been made
-      if (j == 1) {
-        require(shipActions[0] != action, "ActionSystem: action already used");
+      if (i == 1) {
+        require(action.actionType[0] != actionType, "ActionSystem: action already used");
       }
-
-      // execute action
-      if (action == Action.FireForward) {
-        attackForward(components, shipEntity);
-      } else if (action == Action.FireRight) {
-        attackSide(components, shipEntity, Side.Right);
-      } else if (action == Action.FireLeft) {
-        attackSide(components, shipEntity, Side.Left);
-      } else if (action == Action.RaiseSail) {
-        raiseSail(components, shipEntity);
-      } else if (action == Action.LowerSail) {
-        lowerSail(components, shipEntity);
-      } else if (action == Action.ExtinguishFire) {
-        extinguishFire(components, shipEntity);
-      } else if (action == Action.RepairLeak) {
-        repairLeak(components, shipEntity);
-      } else if (action == Action.RepairMast) {
-        repairMast(components, shipEntity);
-      } else if (action == Action.RepairSail) {
-        repairSail(components, shipEntity);
+      if (actionType == ActionType.Load) {
+        load(components, action.shipEntity, metadata);
+      } else if (actionType == ActionType.Fire) {
+        attack(components, action.shipEntity, metadata);
+      } else if (actionType == ActionType.RaiseSail) {
+        raiseSail(components, action.shipEntity);
+      } else if (actionType == ActionType.LowerSail) {
+        lowerSail(components, action.shipEntity);
+      } else if (actionType == ActionType.ExtinguishFire) {
+        extinguishFire(components, action.shipEntity);
+      } else if (actionType == ActionType.RepairLeak) {
+        repairLeak(components, action.shipEntity);
+      } else if (actionType == ActionType.RepairMast) {
+        repairMast(components, action.shipEntity);
+      } else if (actionType == ActionType.RepairSail) {
+        repairSail(components, action.shipEntity);
       } else {
         revert("ActionSystem: invalid action");
       }
     }
 
     // todo: apply damage to all ships every turn instead of only if they act
-    applySpecialDamage(components, shipEntity);
+    applySpecialDamage(components, action.shipEntity);
   }
 
   /**
@@ -107,13 +98,45 @@ library LibAction {
     }
   }
 
+  function load(
+    IUint256Component components,
+    uint256 shipEntity,
+    bytes memory metadata
+  ) private {}
+
+  function attack(
+    IUint256Component components,
+    uint256 shipEntity,
+    bytes memory metadata
+  ) public {
+    uint256 cannonEntity = abi.decode(metadata, (uint256));
+
+    require(
+      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(cannonEntity) == shipEntity,
+      "attack: cannon not owned by ship"
+    );
+    uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
+    if (LibCombat.isBroadside(cannonRotation)) {
+      attackRaking(components, shipEntity, cannonEntity, cannonRotation);
+    } else {
+      attackBroadside(components, shipEntity, cannonEntity, cannonRotation);
+    }
+  }
+
   /**
    * @notice  attacks all enemies in forward arc of ship
    * @dev     todo: how can i combine this with attackSide despite different number of vertices in range?
    * @param   components  world components
    * @param   shipEntity  entity performing an attack
+   * @param   cannonEntity  .
+   * @param   cannonRotation  .
    */
-  function attackForward(IUint256Component components, uint256 shipEntity) private {
+  function attackRaking(
+    IUint256Component components,
+    uint256 shipEntity,
+    uint256 cannonEntity,
+    uint32 cannonRotation
+  ) public {
     if (OnFireComponent(getAddressById(components, OnFireComponentID)).has(shipEntity)) return;
     OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
 
@@ -145,18 +168,20 @@ library LibAction {
    * @dev     todo: i plan to change this to reqiure inclusion of both an attacker and defender, saving gas and improving ux
    * @param   components  world components
    * @param   shipEntity  entity performing an attack
-   * @param   side  side of ship to attack on
+   * @param   cannonEntity  .
+   * @param   cannonRotation  .
    */
-  function attackSide(
+  function attackBroadside(
     IUint256Component components,
     uint256 shipEntity,
-    Side side
-  ) private {
+    uint256 cannonEntity,
+    uint32 cannonRotation
+  ) public {
     if (OnFireComponent(getAddressById(components, OnFireComponentID)).has(shipEntity)) return;
     OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
 
     // get firing area of ship
-    Coord[4] memory firingRange = LibCombat.getFiringAreaSide(components, shipEntity, side);
+    Coord[4] memory firingRange = LibCombat.getFiringAreaBroadside(components, shipEntity, cannonRotation);
 
     (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 

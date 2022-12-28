@@ -15,10 +15,16 @@ struct MoveCard {
   uint32 rotation;
 }
 
-enum Action {
-  FireForward,
-  FireRight,
-  FireLeft,
+struct Action {
+  uint256 shipEntity;
+  bytes[2] metadata;
+  ActionType[2] actionType;
+}
+
+enum ActionType {
+  None,
+  Load,
+  Fire,
   RaiseSail,
   LowerSail,
   ExtinguishFire,

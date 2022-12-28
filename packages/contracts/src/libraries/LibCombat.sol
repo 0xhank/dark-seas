@@ -124,24 +124,27 @@ library LibCombat {
    * @notice  calculates the location of four points comprising a quadrilateral firing area
    * @param   components  world components
    * @param   shipEntity  attacking ship entity
-   * @param   side  of attack
+   * @param   cannonRotation  rotation of cannon firing
    * @return  Coord[4]  points comprising firing area
    */
-  function getFiringAreaSide(
+  function getFiringAreaBroadside(
     IUint256Component components,
     uint256 shipEntity,
-    Side side
+    uint32 cannonRotation
   ) public view returns (Coord[4] memory) {
     uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(shipEntity);
     Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(shipEntity);
     uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
     uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
-    uint32 topRange = side == Side.Right ? 80 : 280;
-    uint32 bottomRange = side == Side.Right ? 100 : 260;
-    Coord memory sternLocation = LibVector.getSternLocation(position, rotation, length);
-    Coord memory topCorner = LibVector.getPositionByVector(position, rotation, range, topRange);
-    Coord memory bottomCorner = LibVector.getPositionByVector(sternLocation, rotation, range, bottomRange);
 
+    Coord memory sternLocation = LibVector.getSternLocation(position, rotation, length);
+    Coord memory topCorner = LibVector.getPositionByVector(position, rotation, range, cannonRotation + 10);
+    Coord memory bottomCorner = LibVector.getPositionByVector(sternLocation, rotation, range, cannonRotation - 10);
+
+    // if the stern is above the bow, switch the corners to ensure the quadrilateral doesn't cross in the middle
+    if (rotation > 180) {
+      return [position, sternLocation, topCorner, bottomCorner];
+    }
     return ([position, sternLocation, bottomCorner, topCorner]);
   }
 
@@ -220,5 +223,9 @@ library LibCombat {
 
     component.set(shipEntity, value - damage);
     return false;
+  }
+
+  function isBroadside(uint256 rotation) public returns (bool) {
+    return (rotation == 90 || rotation == 270);
   }
 }
