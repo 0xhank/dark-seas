@@ -120,7 +120,7 @@ library LibCombat {
       uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
       position = LibVector.getSternLocation(position, shipRotation, length);
     }
-    Coord memory topCorner = LibVector.getPositionByVector(position, shipRotation, range, cannonRotation + 10);
+    Coord memory topCorner = LibVector.getPositionByVector(position, shipRotation, range, (cannonRotation + 10) % 360);
     Coord memory bottomCorner = LibVector.getPositionByVector(
       position,
       shipRotation,
@@ -159,20 +159,24 @@ library LibCombat {
     uint32 shipRotation = rotationComponent.getValue(shipEntity);
     uint32 cannonRotation = rotationComponent.getValue(cannonEntity);
 
-    Coord memory sternLocation = LibVector.getSternLocation(position, shipRotation, length);
-    Coord memory topCorner = LibVector.getPositionByVector(position, shipRotation, range, cannonRotation + 10);
-    Coord memory bottomCorner = LibVector.getPositionByVector(
-      sternLocation,
-      shipRotation,
-      range,
-      (cannonRotation + 350) % 360
-    );
+    uint32 topRange = (cannonRotation + 10) % 360;
+    uint32 bottomRange = (cannonRotation + 350) % 360;
+
+    Coord memory sternPosition = LibVector.getSternLocation(position, shipRotation, length);
+
+    Coord memory topCorner;
+    Coord memory bottomCorner;
 
     // if the stern is above the bow, switch the corners to ensure the quadrilateral doesn't cross in the middle
-    if (shipRotation >= 180) {
-      return [position, sternLocation, topCorner, bottomCorner];
+    if ((shipRotation + cannonRotation) % 360 < 180) {
+      topCorner = LibVector.getPositionByVector(position, shipRotation, range, topRange);
+      bottomCorner = LibVector.getPositionByVector(sternPosition, shipRotation, range, bottomRange);
+    } else {
+      topCorner = LibVector.getPositionByVector(position, shipRotation, range, bottomRange);
+      bottomCorner = LibVector.getPositionByVector(sternPosition, shipRotation, range, topRange);
     }
-    return ([position, sternLocation, bottomCorner, topCorner]);
+
+    return ([position, sternPosition, topCorner, bottomCorner]);
   }
 
   /**

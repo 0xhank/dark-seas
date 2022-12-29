@@ -88,12 +88,11 @@ contract LibCombatTest is MudTest {
     assertTrue(!LibCombat.getSpecialChance(baseHitChance, 1, fals, 1), "special 1 failed");
   }
 
-  function testFiringArea() public prank(deployer) {
+  function testFiringArea() public prank(address(0)) {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
     uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, 0);
-    (uint256[] memory cannonEntities, ) = LibUtils.getEntityWith(components, uint256(keccak256("ds.component.Cannon")));
-    uint256 cannonEntity = cannonEntities[0];
+    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 90, 50, 80);
 
     uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
     uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
@@ -113,16 +112,15 @@ contract LibCombatTest is MudTest {
 
     assertCoordEq(startingPosition, firingArea[0]);
     assertCoordEq(stern, firingArea[1]);
-    assertCoordEq(bottomCorner, firingArea[2]);
-    assertCoordEq(topCorner, firingArea[3]);
+    assertCoordEq(topCorner, firingArea[2]);
+    assertCoordEq(bottomCorner, firingArea[3]);
   }
 
-  function testFiringAreaUpsideDown() public prank(deployer) {
+  function testFiringAreaUpsideDown() public prank(address(0)) {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
     uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, 180);
-    (uint256[] memory cannonEntities, ) = LibUtils.getEntityWith(components, uint256(keccak256("ds.component.Cannon")));
-    uint256 cannonEntity = cannonEntities[0];
+    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 90, 50, 80);
 
     uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
     uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
@@ -132,13 +130,23 @@ contract LibCombatTest is MudTest {
     Coord[4] memory firingArea = LibCombat.getFiringAreaBroadside(components, shipEntity, cannonEntity);
 
     Coord memory stern = LibVector.getSternLocation(startingPosition, rotation, length);
-    Coord memory bottomCorner = LibVector.getPositionByVector(stern, rotation, range, cannonRotation - 10);
-    Coord memory topCorner = LibVector.getPositionByVector(startingPosition, rotation, range, cannonRotation + 10);
+    Coord memory topCorner = LibVector.getPositionByVector(
+      startingPosition,
+      rotation,
+      range,
+      (cannonRotation + 350) % 360
+    );
+    Coord memory bottomCorner = LibVector.getPositionByVector(stern, rotation, range, cannonRotation + 10);
 
     logCoord("startingPosition", startingPosition);
     logCoord("stern", stern);
     logCoord("topCorner", topCorner);
     logCoord("bottomCorner", bottomCorner);
+
+    logCoord("startingPosition", firingArea[0]);
+    logCoord("stern", firingArea[1]);
+    logCoord("topCorner", firingArea[2]);
+    logCoord("bottomCorner", firingArea[3]);
 
     assertCoordEq(startingPosition, firingArea[0]);
     assertCoordEq(stern, firingArea[1]);
