@@ -27,28 +27,28 @@ export function getFiringArea(
   shipRotation: number,
   cannonRotation: number
 ): Coord[] {
-  const topRange = (cannonRotation + 10) % 360;
-  const bottomRange = (cannonRotation - 10) % 360;
+  const rightRange = (cannonRotation + 10) % 360;
+  const leftRange = (cannonRotation - 10) % 360;
 
   const sternPosition = getSternLocation(position, shipRotation, length);
 
   if (isBroadside(cannonRotation)) {
-    let topCorner = getPositionByVector(position, shipRotation, range, topRange);
-    let bottomCorner = getPositionByVector(sternPosition, shipRotation, range, bottomRange);
+    let frontCorner = getPositionByVector(position, shipRotation, range, rightRange);
+    let backCorner = getPositionByVector(sternPosition, shipRotation, range, leftRange);
 
-    if ((shipRotation + cannonRotation) % 360 >= 180) {
-      topCorner = getPositionByVector(position, shipRotation, range, bottomRange);
-      bottomCorner = getPositionByVector(sternPosition, shipRotation, range, topRange);
+    if (cannonRotation < 180) {
+      frontCorner = getPositionByVector(position, shipRotation, range, leftRange);
+      backCorner = getPositionByVector(sternPosition, shipRotation, range, rightRange);
     }
-    return [position, sternPosition, topCorner, bottomCorner];
+    return [position, sternPosition, backCorner, frontCorner];
   }
 
   const origin = cannonRotation > 180 ? sternPosition : position;
 
   return [
     origin,
-    getPositionByVector(origin, shipRotation, range, bottomRange),
-    getPositionByVector(origin, shipRotation, range, topRange),
+    getPositionByVector(origin, shipRotation, range, leftRange),
+    getPositionByVector(origin, shipRotation, range, rightRange),
   ];
 }
 
@@ -56,6 +56,6 @@ export function midpoint(a: Coord, b: Coord): Coord {
   return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
 }
 
-function isBroadside(rotation: number) {
+export function isBroadside(rotation: number) {
   return rotation == 90 || rotation == 270;
 }

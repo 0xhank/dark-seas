@@ -44,7 +44,9 @@ library LibAction {
 
       // ensure action hasn't already been made
       if (i == 1) {
-        require(action.actionTypes[0] != actionType, "ActionSystem: action already used");
+        if (actionType == ActionType.Fire)
+          require(specialEntity != action.specialEntities[0], "ActionSystem: cannon already acted");
+        else require(action.actionTypes[0] != actionType, "ActionSystem: action already used");
       }
       if (actionType == ActionType.Load) {
         load(components, action.shipEntity, specialEntity);
