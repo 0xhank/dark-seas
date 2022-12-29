@@ -1,5 +1,6 @@
 import {
   defineComponent,
+  EntityID,
   EntityIndex,
   getComponentValue,
   getComponentValueStrict,
@@ -12,7 +13,7 @@ import {
 import { createActionSystem, defineNumberComponent, defineStringComponent } from "@latticexyz/std-client";
 import { curry } from "lodash";
 
-import { ActionType, Phase } from "../../types";
+import { Action, ActionType, Phase } from "../../types";
 import { NetworkLayer } from "../network";
 import { commitMove } from "./api/commitMove";
 import { revealMove } from "./api/revealMove";
@@ -30,7 +31,11 @@ export async function createBackendLayer(network: NetworkLayer) {
     SelectedMove: defineNumberComponent(world, { id: "SelectedMove" }),
     SelectedShip: defineNumberComponent(world, { id: "SelectedShip" }),
     HoveredShip: defineNumberComponent(world, { id: "HoveredShip" }),
-    SelectedActions: defineComponent(world, { value: Type.NumberArray }, { id: "Actions" }),
+    SelectedActions: defineComponent(
+      world,
+      { actionTypes: Type.NumberArray, specialEntities: Type.EntityArray },
+      { id: "Actions" }
+    ),
     CommittedMoves: defineStringComponent(world, { id: "CommittedMoves" }),
   };
   // --- SETUP ----------------------------------------------------------------------
@@ -64,6 +69,8 @@ export async function createBackendLayer(network: NetworkLayer) {
 
   function checkActionPossible(action: ActionType, ship: EntityIndex): boolean {
     const onFire = getComponentValue(OnFire, ship)?.value;
+
+    if (action == ActionType.None) return false;
     if (action == ActionType.ExtinguishFire && !onFire) return false;
     // if ([ActionType.FireRight, ActionType.FireLeft, ActionType.FireForward].includes(action) && onFire) return false;
 
@@ -103,18 +110,30 @@ export async function createBackendLayer(network: NetworkLayer) {
     ];
     if (ships.length == 0) return;
 
-    const actions = ships.map((ship) => getComponentValueStrict(components.SelectedActions, ship).value);
-    const finalShips = [];
-    const finalActions = [];
+    return ships.reduce((prevActions: Action[], ship: EntityIndex) => {
+      const actions = getComponentValueStrict(components.SelectedActions, ship);
+      const actionTypes = actions.actionTypes;
+      const specialEntities = actions.specialEntities;
+      const finalActions: [ActionType, ActionType] = [ActionType.None, ActionType.None];
+      const finalSpecials: [EntityID, EntityID] = ["0" as EntityID, "0" as EntityID];
+      if (actionTypes.length == 0) return prevActions;
+      if (actionTypes.every((actionType) => actionType == ActionType.None)) return prevActions;
 
-    for (let i = 0; i < finalShips.length; i++) {
-      if (actions[i].every((elem) => elem == -1)) {
-        continue;
-      }
-      finalShips.push(ships[i]);
-      finalActions.push(actions[i]);
-    }
-    return { ships: finalShips, actions: finalActions };
+      actionTypes.forEach((val, idx) => {
+        if (idx > 1) return;
+        finalActions[idx] = val;
+        finalSpecials[idx] = specialEntities[idx];
+      });
+
+      return [
+        ...prevActions,
+        {
+          shipEntity: world.entities[ship],
+          actionTypes: finalActions,
+          specialEntities: finalSpecials,
+        },
+      ];
+    }, []);
   }
   // --- SYSTEMS --------------------------------------------------------------
   const actions = createActionSystem(world, network.txReduced$);

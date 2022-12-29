@@ -12,7 +12,7 @@ import {
 import { ActionState } from "@latticexyz/std-client";
 import { map, merge } from "rxjs";
 import styled from "styled-components";
-import { Phase } from "../../../../../types";
+import { ActionType, Phase } from "../../../../../types";
 import { DELAY } from "../../../constants";
 import { registerUIComponent } from "../../engine";
 import { Button, colors, ConfirmButton, Container, InternalContainer } from "../../styles/global";
@@ -157,19 +157,20 @@ export function registerYourShips() {
       const yourShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
 
       const selectedMoves = [...getComponentEntities(SelectedMove)];
-      const selectedActions = [...getComponentEntities(SelectedActions)].map(
-        (entity) => getComponentValue(SelectedActions, entity)?.value
+      const selectedActions = [...getComponentEntities(SelectedActions)].map((entity) =>
+        getComponentValueStrict(SelectedActions, entity)
       );
 
       const disabled =
         phase == Phase.Commit
           ? selectedMoves.length == 0
-          : selectedActions.length == 0 || selectedActions?.every((arr) => arr?.every((elem) => elem == -1));
+          : selectedActions.length == 0 ||
+            selectedActions.every((arr) => arr.actionTypes.every((elem) => elem == ActionType.None));
 
       const handleSubmitActions = () => {
         const shipsAndActions = getPlayerShipsWithActions();
         if (!shipsAndActions) return;
-        submitActions(shipsAndActions.ships, shipsAndActions.actions);
+        submitActions(shipsAndActions);
       };
 
       const handleSubmitCommitment = () => {

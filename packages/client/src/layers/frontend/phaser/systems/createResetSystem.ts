@@ -88,8 +88,8 @@ export function createResetSystem(phaser: PhaserLayer) {
         const lastAction = getComponentValue(LastAction, playerEntity)?.value;
         if (lastAction == turn) return;
         const shipsAndActions = getPlayerShipsWithActions();
-        if (!shipsAndActions) return;
-        submitActions(shipsAndActions.ships, shipsAndActions.actions);
+
+        if (shipsAndActions) submitActions(shipsAndActions);
       }
     }
   });
