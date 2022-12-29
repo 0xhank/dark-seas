@@ -22,7 +22,7 @@ import { Coord, keccak256 } from "@latticexyz/utils";
 import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../../../contracts/types/SystemTypes";
-import { Action, Phase } from "../../types";
+import { ActionType, Phase } from "../../types";
 import { defineMoveCardComponent } from "./components/MoveCardComponent";
 import { defineWindComponent } from "./components/WindComponent";
 import { GameConfig, getNetworkConfig } from "./config";
@@ -158,15 +158,15 @@ export async function createNetworkLayer(config: GameConfig) {
 
   function revealMove(encoding: string) {
     const decodedMove = abi.decode(["uint256[]", "uint256[]", "uint256"], encoding);
-    systems["ds.system.Move"].executeTyped(decodedMove[0], decodedMove[1], decodedMove[2], {
-      gasLimit: GAS_LIMIT,
-    });
+    // systems["ds.system.Move"].executeTyped(decodedMove[0], decodedMove[1], decodedMove[2], {
+    //   gasLimit: GAS_LIMIT,
+    // });
   }
 
-  function submitActions(ships: EntityID[], actions: Action[][]) {
-    systems["ds.system.Action"].executeTyped(ships, actions, {
-      gasLimit: GAS_LIMIT,
-    });
+  function submitActions(ships: EntityID[], actions: ActionType[][]) {
+    // systems["ds.system.Action"].executeTyped(ships, actions, {
+    //   gasLimit: GAS_LIMIT,
+    // });
   }
 
   function setOnFire(ship: EntityIndex) {

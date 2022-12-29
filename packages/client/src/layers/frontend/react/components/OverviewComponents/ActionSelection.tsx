@@ -1,6 +1,6 @@
 import { GodID } from "@latticexyz/network";
 import { EntityIndex, getComponentValue, setComponent } from "@latticexyz/recs";
-import { Action, ActionImg, ActionNames, Layers } from "../../../../../types";
+import { ActionImg, ActionNames, ActionType, Layers } from "../../../../../types";
 import { Img, OptionButton } from "../../styles/global";
 
 export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
@@ -20,10 +20,10 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
 
   return (
     <>
-      {Object.keys(Action).map((a) => {
+      {Object.keys(ActionType).map((a) => {
         const action = Number(a);
         if (isNaN(action)) return null;
-        if (!checkActionPossible(action as Action, ship)) return null;
+        if (!checkActionPossible(action as ActionType, ship)) return null;
         const usedAlready = selectedActions.find((a) => a == action) != undefined;
 
         return (

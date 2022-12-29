@@ -12,7 +12,7 @@ import {
 import { createActionSystem, defineNumberComponent, defineStringComponent } from "@latticexyz/std-client";
 import { curry } from "lodash";
 
-import { Action, Phase } from "../../types";
+import { ActionType, Phase } from "../../types";
 import { NetworkLayer } from "../network";
 import { commitMove } from "./api/commitMove";
 import { revealMove } from "./api/revealMove";
@@ -62,18 +62,18 @@ export async function createBackendLayer(network: NetworkLayer) {
     return phaseEnd - secondsIntoTurn;
   }
 
-  function checkActionPossible(action: Action, ship: EntityIndex): boolean {
+  function checkActionPossible(action: ActionType, ship: EntityIndex): boolean {
     const onFire = getComponentValue(OnFire, ship)?.value;
-    if (action == Action.ExtinguishFire && !onFire) return false;
-    if ([Action.FireRight, Action.FireLeft, Action.FireForward].includes(action) && onFire) return false;
+    if (action == ActionType.ExtinguishFire && !onFire) return false;
+    // if ([ActionType.FireRight, ActionType.FireLeft, ActionType.FireForward].includes(action) && onFire) return false;
 
-    if (action == Action.RepairLeak && !getComponentValue(Leak, ship)) return false;
-    if (action == Action.RepairMast && !getComponentValue(DamagedMast, ship)) return false;
+    if (action == ActionType.RepairLeak && !getComponentValue(Leak, ship)) return false;
+    if (action == ActionType.RepairMast && !getComponentValue(DamagedMast, ship)) return false;
 
     const sailPosition = getComponentValueStrict(SailPosition, ship).value;
-    if (action == Action.LowerSail && sailPosition != 2) return false;
-    if (action == Action.RaiseSail && sailPosition != 1) return false;
-    if (action == Action.RepairSail && sailPosition > 0) return false;
+    if (action == ActionType.LowerSail && sailPosition != 2) return false;
+    if (action == ActionType.RaiseSail && sailPosition != 1) return false;
+    if (action == ActionType.RepairSail && sailPosition > 0) return false;
 
     return true;
   }

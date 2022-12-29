@@ -8,7 +8,7 @@ import {
   Has,
   UpdateType,
 } from "@latticexyz/recs";
-import { ActionToSide, Phase, Side } from "../../../../types";
+import { Phase, Side } from "../../../../types";
 import { getFiringArea } from "../../../../utils/trig";
 import { DELAY } from "../../constants";
 import { RenderDepth, SHIP_RATIO } from "../constants";
@@ -118,9 +118,9 @@ export function createActiveSystem(layer: PhaserLayer) {
         firingPolygon.setDepth(RenderDepth.Foreground5);
 
         // TODO:  make this occur on action selection update, not selectedship update
-        if (selectedActions?.includes(ActionToSide[side])) {
-          firingPolygon.setFillStyle(0xf33a6a, 0.2);
-        }
+        // if (selectedActions?.includes(ActionToSide[side])) {
+        //   firingPolygon.setFillStyle(0xf33a6a, 0.2);
+        // }
 
         return firingPolygon;
       });
