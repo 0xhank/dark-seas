@@ -11,13 +11,13 @@ export type Layers = { network: NetworkLayer; backend: BackendLayer; phaser: Pha
 
 export type Action = {
   shipEntity: EntityID;
-  actionTypes: ActionType[];
-  specialEntities: number[];
+  actionTypes: [ActionType, ActionType];
+  specialEntities: [EntityID, EntityID];
 };
 
 export type Move = {
-  moveCardEntity: EntityID;
   shipEntity: EntityID;
+  moveCardEntity: EntityID;
 };
 
 export enum ActionType {

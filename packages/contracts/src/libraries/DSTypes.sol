@@ -22,8 +22,8 @@ struct Action {
 }
 
 struct Move {
-  uint256 moveCardEntity;
   uint256 shipEntity;
+  uint256 moveCardEntity;
 }
 
 enum ActionType {
