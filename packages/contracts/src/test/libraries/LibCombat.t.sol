@@ -92,28 +92,31 @@ contract LibCombatTest is MudTest {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
     uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, 0);
-    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 90, 50, 80);
+    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 270, 50, 80);
 
     uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
     uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
     uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
     uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(cannonEntity);
 
+    uint32 rightRange = (cannonRotation + 10) % 360;
+    uint32 leftRange = (cannonRotation - 10) % 360;
+
     Coord[4] memory firingArea = LibCombat.getFiringAreaBroadside(components, shipEntity, cannonEntity);
 
     Coord memory stern = LibVector.getSternLocation(startingPosition, rotation, length);
-    Coord memory bottomCorner = LibVector.getPositionByVector(stern, rotation, range, cannonRotation - 10);
-    Coord memory topCorner = LibVector.getPositionByVector(startingPosition, rotation, range, cannonRotation + 10);
+    Coord memory backCorner = LibVector.getPositionByVector(stern, rotation, range, leftRange);
+    Coord memory frontCorner = LibVector.getPositionByVector(startingPosition, rotation, range, rightRange);
 
     logCoord("startingPosition", startingPosition);
     logCoord("stern", stern);
-    logCoord("bottomCorner", bottomCorner);
-    logCoord("topCorner", topCorner);
+    logCoord("backCorner", backCorner);
+    logCoord("frontCorner", frontCorner);
 
     assertCoordEq(startingPosition, firingArea[0]);
     assertCoordEq(stern, firingArea[1]);
-    assertCoordEq(topCorner, firingArea[2]);
-    assertCoordEq(bottomCorner, firingArea[3]);
+    assertCoordEq(backCorner, firingArea[2]);
+    assertCoordEq(frontCorner, firingArea[3]);
   }
 
   function testFiringAreaUpsideDown() public prank(address(0)) {
@@ -130,28 +133,28 @@ contract LibCombatTest is MudTest {
     Coord[4] memory firingArea = LibCombat.getFiringAreaBroadside(components, shipEntity, cannonEntity);
 
     Coord memory stern = LibVector.getSternLocation(startingPosition, rotation, length);
-    Coord memory topCorner = LibVector.getPositionByVector(
+    Coord memory frontCorner = LibVector.getPositionByVector(
       startingPosition,
       rotation,
       range,
       (cannonRotation + 350) % 360
     );
-    Coord memory bottomCorner = LibVector.getPositionByVector(stern, rotation, range, cannonRotation + 10);
+    Coord memory backCorner = LibVector.getPositionByVector(stern, rotation, range, cannonRotation + 10);
 
     logCoord("startingPosition", startingPosition);
     logCoord("stern", stern);
-    logCoord("topCorner", topCorner);
-    logCoord("bottomCorner", bottomCorner);
+    logCoord("frontCorner", frontCorner);
+    logCoord("backCorner", backCorner);
 
     logCoord("startingPosition", firingArea[0]);
     logCoord("stern", firingArea[1]);
-    logCoord("topCorner", firingArea[2]);
-    logCoord("bottomCorner", firingArea[3]);
+    logCoord("frontCorner", firingArea[2]);
+    logCoord("backCorner", firingArea[3]);
 
     assertCoordEq(startingPosition, firingArea[0]);
     assertCoordEq(stern, firingArea[1]);
-    assertCoordEq(topCorner, firingArea[2]);
-    assertCoordEq(bottomCorner, firingArea[3]);
+    assertCoordEq(backCorner, firingArea[2]);
+    assertCoordEq(frontCorner, firingArea[3]);
   }
 
   function testFiringAreaPivot() public prank(zero) {
@@ -172,21 +175,21 @@ contract LibCombatTest is MudTest {
     uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(cannonEntity);
 
     Coord[3] memory firingArea = LibCombat.getFiringAreaPivot(components, shipEntity, cannonEntity);
-    Coord memory topCorner = LibVector.getPositionByVector(
+    Coord memory frontCorner = LibVector.getPositionByVector(
       startingPosition,
       rotation,
       range,
       (cannonRotation + 350) % 360
     );
-    Coord memory bottomCorner = LibVector.getPositionByVector(startingPosition, rotation, range, cannonRotation + 10);
+    Coord memory backCorner = LibVector.getPositionByVector(startingPosition, rotation, range, cannonRotation + 10);
 
     logCoord("startingPosition", startingPosition);
-    logCoord("topCorner", topCorner);
-    logCoord("bottomCorner", bottomCorner);
+    logCoord("frontCorner", frontCorner);
+    logCoord("backCorner", backCorner);
 
     assertCoordEq(startingPosition, firingArea[0]);
-    assertCoordEq(topCorner, firingArea[1]);
-    assertCoordEq(bottomCorner, firingArea[2]);
+    assertCoordEq(frontCorner, firingArea[1]);
+    assertCoordEq(backCorner, firingArea[2]);
   }
 
   function testFiringAreaPivotBehind() public prank(zero) {
@@ -209,15 +212,15 @@ contract LibCombatTest is MudTest {
     Coord memory stern = LibVector.getSternLocation(startingPosition, rotation, length);
 
     Coord[3] memory firingArea = LibCombat.getFiringAreaPivot(components, shipEntity, cannonEntity);
-    Coord memory topCorner = LibVector.getPositionByVector(stern, rotation, range, (cannonRotation + 350) % 360);
-    Coord memory bottomCorner = LibVector.getPositionByVector(stern, rotation, range, cannonRotation + 10);
+    Coord memory frontCorner = LibVector.getPositionByVector(stern, rotation, range, (cannonRotation + 350) % 360);
+    Coord memory backCorner = LibVector.getPositionByVector(stern, rotation, range, cannonRotation + 10);
 
     logCoord("stern", stern);
-    logCoord("topCorner", topCorner);
-    logCoord("bottomCorner", bottomCorner);
+    logCoord("frontCorner", frontCorner);
+    logCoord("backCorner", backCorner);
 
     assertCoordEq(stern, firingArea[0]);
-    assertCoordEq(topCorner, firingArea[1]);
-    assertCoordEq(bottomCorner, firingArea[2]);
+    assertCoordEq(frontCorner, firingArea[1]);
+    assertCoordEq(backCorner, firingArea[2]);
   }
 }

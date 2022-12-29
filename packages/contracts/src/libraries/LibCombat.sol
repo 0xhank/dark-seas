@@ -120,15 +120,20 @@ library LibCombat {
       uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
       position = LibVector.getSternLocation(position, shipRotation, length);
     }
-    Coord memory topCorner = LibVector.getPositionByVector(position, shipRotation, range, (cannonRotation + 10) % 360);
-    Coord memory bottomCorner = LibVector.getPositionByVector(
+    Coord memory frontCorner = LibVector.getPositionByVector(
+      position,
+      shipRotation,
+      range,
+      (cannonRotation + 10) % 360
+    );
+    Coord memory backCorner = LibVector.getPositionByVector(
       position,
       shipRotation,
       range,
       (cannonRotation + 350) % 360
     );
 
-    return ([position, bottomCorner, topCorner]);
+    return ([position, backCorner, frontCorner]);
   }
 
   /**
@@ -159,24 +164,24 @@ library LibCombat {
     uint32 shipRotation = rotationComponent.getValue(shipEntity);
     uint32 cannonRotation = rotationComponent.getValue(cannonEntity);
 
-    uint32 topRange = (cannonRotation + 10) % 360;
-    uint32 bottomRange = (cannonRotation + 350) % 360;
+    uint32 rightRange = (cannonRotation + 10) % 360;
+    uint32 leftRange = (cannonRotation + 350) % 360;
 
     Coord memory sternPosition = LibVector.getSternLocation(position, shipRotation, length);
 
-    Coord memory topCorner;
-    Coord memory bottomCorner;
+    Coord memory frontCorner;
+    Coord memory backCorner;
 
     // if the stern is above the bow, switch the corners to ensure the quadrilateral doesn't cross in the middle
-    if ((shipRotation + cannonRotation) % 360 < 180) {
-      topCorner = LibVector.getPositionByVector(position, shipRotation, range, topRange);
-      bottomCorner = LibVector.getPositionByVector(sternPosition, shipRotation, range, bottomRange);
+    if (cannonRotation % 360 >= 180) {
+      frontCorner = LibVector.getPositionByVector(position, shipRotation, range, rightRange);
+      backCorner = LibVector.getPositionByVector(sternPosition, shipRotation, range, leftRange);
     } else {
-      topCorner = LibVector.getPositionByVector(position, shipRotation, range, bottomRange);
-      bottomCorner = LibVector.getPositionByVector(sternPosition, shipRotation, range, topRange);
+      frontCorner = LibVector.getPositionByVector(position, shipRotation, range, leftRange);
+      backCorner = LibVector.getPositionByVector(sternPosition, shipRotation, range, rightRange);
     }
 
-    return ([position, sternPosition, topCorner, bottomCorner]);
+    return ([position, sternPosition, backCorner, frontCorner]);
   }
 
   /**
