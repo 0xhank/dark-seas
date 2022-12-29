@@ -79,6 +79,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
       {Object.keys(ActionType).map((a) => {
         const action = Number(a);
         if (isNaN(action)) return null;
+        if (action == ActionType.Fire || action == ActionType.Load) return null;
         if (!checkActionPossible(action as ActionType, ship)) return null;
         const usedAlready = selectedActions.actionTypes.find((a) => a == action) != undefined;
 

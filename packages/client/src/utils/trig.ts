@@ -1,5 +1,4 @@
 import { Coord } from "@latticexyz/utils";
-import { Side } from "../types";
 
 export const deg2rad = (degrees: number) => degrees * (Math.PI / 180);
 
@@ -21,24 +20,42 @@ export function getSternLocation(origin: Coord, rotation: number, length: number
   return getPositionByVector(origin, rotation, length, 180);
 }
 
-export function getFiringArea(position: Coord, range: number, length: number, rotation: number, side: Side): Coord[] {
-  const topRange = side == Side.Right ? 80 : side == Side.Left ? 280 : 10;
-  const bottomRange = side == Side.Right ? 100 : side == Side.Left ? 260 : 350;
+export function getFiringArea(
+  position: Coord,
+  range: number,
+  length: number,
+  shipRotation: number,
+  cannonRotation: number
+): Coord[] {
+  const topRange = (cannonRotation + 10) % 360;
+  const bottomRange = (cannonRotation - 10) % 360;
 
-  const sternLocation = getSternLocation(position, rotation, length);
-  const topCorner = getPositionByVector(position, rotation, range, topRange);
-  const bottomCorner = getPositionByVector(
-    side == Side.Forward ? position : sternLocation,
-    rotation,
-    range,
-    bottomRange
-  );
+  const sternPosition = getSternLocation(position, shipRotation, length);
 
-  if (side == Side.Forward) return [position, bottomCorner, topCorner];
+  if (isBroadside(cannonRotation)) {
+    let topCorner = getPositionByVector(position, shipRotation, range, topRange);
+    let bottomCorner = getPositionByVector(sternPosition, shipRotation, range, bottomRange);
 
-  return [position, sternLocation, bottomCorner, topCorner];
+    if ((shipRotation + cannonRotation) % 360 >= 180) {
+      topCorner = getPositionByVector(position, shipRotation, range, bottomRange);
+      bottomCorner = getPositionByVector(sternPosition, shipRotation, range, topRange);
+    }
+    return [position, sternPosition, topCorner, bottomCorner];
+  }
+
+  const origin = cannonRotation > 180 ? sternPosition : position;
+
+  return [
+    origin,
+    getPositionByVector(origin, shipRotation, range, bottomRange),
+    getPositionByVector(origin, shipRotation, range, topRange),
+  ];
 }
 
 export function midpoint(a: Coord, b: Coord): Coord {
   return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+}
+
+function isBroadside(rotation: number) {
+  return rotation == 90 || rotation == 270;
 }

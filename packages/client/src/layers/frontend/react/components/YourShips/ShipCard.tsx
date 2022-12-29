@@ -42,7 +42,6 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
   const position = getComponentValueStrict(Position, ship);
   const health = getComponentValueStrict(Health, ship).value;
   const crewCount = getComponentValueStrict(CrewCount, ship).value;
-  const firepower = getComponentValueStrict(Firepower, ship).value;
   const onFire = getComponentValue(OnFire, ship)?.value;
   const leak = getComponentValue(Leak, ship)?.value;
   const damagedMast = getComponentValue(DamagedMast, ship)?.value;
@@ -73,7 +72,6 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
         <HullHealth health={health} />
         <div style={{ display: "flex", width: "100%", flexWrap: "wrap" }}>
           <ShipAttribute attributeType={ShipAttributeTypes.Crew} attribute={crewCount} />
-          <ShipAttribute attributeType={ShipAttributeTypes.Firepower} attribute={firepower} />
           <ShipAttribute attributeType={ShipAttributeTypes.Sails} attribute={SailPositions[sailPosition]} />
         </div>
         <div style={{ display: "flex" }}>

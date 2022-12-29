@@ -32,12 +32,6 @@ export enum ActionType {
   RepairSail,
 }
 
-export enum Side {
-  Forward,
-  Right,
-  Left,
-}
-
 export enum Phase {
   Commit,
   Reveal,
