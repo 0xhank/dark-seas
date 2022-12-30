@@ -42,7 +42,7 @@ export async function createBackendLayer(network: NetworkLayer) {
 
   const {
     utils: { getGameConfig, getPhase, getPlayerEntity },
-    components: { OnFire, Leak, DamagedMast, SailPosition, Ship, OwnedBy },
+    components: { OnFire, DamagedMast, SailPosition, Ship, OwnedBy },
     network: { connectedAddress },
   } = network;
 
@@ -72,9 +72,8 @@ export async function createBackendLayer(network: NetworkLayer) {
 
     if (action == ActionType.None) return false;
     if (action == ActionType.ExtinguishFire && !onFire) return false;
-    // if ([ActionType.FireRight, ActionType.FireLeft, ActionType.FireForward].includes(action) && onFire) return false;
+    if (action == ActionType.Fire && onFire) return false;
 
-    if (action == ActionType.RepairLeak && !getComponentValue(Leak, ship)) return false;
     if (action == ActionType.RepairMast && !getComponentValue(DamagedMast, ship)) return false;
 
     const sailPosition = getComponentValueStrict(SailPosition, ship).value;

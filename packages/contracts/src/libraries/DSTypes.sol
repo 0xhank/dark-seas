@@ -33,7 +33,6 @@ enum ActionType {
   RaiseSail,
   LowerSail,
   ExtinguishFire,
-  RepairLeak,
   RepairMast,
   RepairSail
 }

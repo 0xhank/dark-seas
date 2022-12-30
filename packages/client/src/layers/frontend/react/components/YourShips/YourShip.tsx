@@ -27,7 +27,7 @@ export const YourShip = ({
 }) => {
   const {
     network: {
-      components: { Position, Health, CrewCount },
+      components: { Position, Health },
       world,
     },
     backend: {
@@ -51,16 +51,13 @@ export const YourShip = ({
 
   const position = getComponentValueStrict(Position, ship);
   const health = getComponentValueStrict(Health, ship).value;
-  const crewCount = getComponentValueStrict(CrewCount, ship).value;
   const hoveredShip = getComponentValue(HoveredShip, GodEntityIndex)?.value;
   const isSelected = selectedShip == ship;
   const isHovered = hoveredShip == ship;
 
   let selectionContent = null;
 
-  if (crewCount == 0) {
-    selectionContent = <SpecialText>This ship has no crew!</SpecialText>;
-  } else if (health == 0) {
+  if (health == 0) {
     selectionContent = <SpecialText>This ship is sunk!</SpecialText>;
   } else if (phase == Phase.Commit) {
     selectionContent = <MoveSelection ship={ship} layers={layers} />;
@@ -69,7 +66,7 @@ export const YourShip = ({
   }
   return (
     <YourShipContainer
-      onClick={() => health !== 0 && crewCount !== 0 && selectShip(ship, position)}
+      onClick={() => health !== 0 && selectShip(ship, position)}
       onMouseEnter={() => setComponent(HoveredShip, GodEntityIndex, { value: ship })}
       onMouseLeave={() => removeComponent(HoveredShip, GodEntityIndex)}
       isSelected={isSelected}

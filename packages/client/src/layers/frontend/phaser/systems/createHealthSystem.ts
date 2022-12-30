@@ -1,4 +1,4 @@
-import { tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
+import { tileCoordToPixelCoord } from "@latticexyz/phaserx";
 import {
   defineEnterSystem,
   defineExitSystem,
@@ -8,8 +8,7 @@ import {
   Has,
   setComponent,
 } from "@latticexyz/recs";
-import { Sprites } from "../../../../types";
-import { getPositionByVector, getSternLocation, midpoint } from "../../../../utils/trig";
+import { getSternLocation, midpoint } from "../../../../utils/trig";
 import { Animations, RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
 
@@ -21,7 +20,7 @@ export function createHealthSystem(layer: PhaserLayer) {
     },
     parentLayers: {
       network: {
-        components: { Health, OnFire, Leak, DamagedMast, SailPosition, CrewCount, Position, Rotation, Length },
+        components: { Health, OnFire, DamagedMast, SailPosition, Position, Rotation, Length },
       },
     },
     components: { UpdateQueue },
@@ -58,59 +57,6 @@ export function createHealthSystem(layer: PhaserLayer) {
 
           setTimeout(() => sprite.setAlpha(1), delay * i);
           setTimeout(() => objectPool.remove(spriteId), 2000 + delay * i);
-        },
-      });
-    }
-  });
-
-  defineUpdateSystem(world, [Has(CrewCount)], (update) => {
-    if (!update.value[0] || !update.value[1]) return;
-    const crewLost = Number(update.value[1].value) - Number(update.value[0].value);
-
-    if (crewLost <= 0 || crewLost >= 4) return;
-    const position = getComponentValueStrict(Position, update.entity);
-    const rotation = getComponentValueStrict(Rotation, update.entity).value;
-    const delay = 100;
-    const duration = 2000;
-    const distance = 8;
-    for (let i = 0; i < crewLost; i++) {
-      const spriteId = `${update.entity}-death-${i}`;
-      const sprite = config.sprites[Sprites.DeadMan];
-
-      const object = objectPool.get(spriteId, "Sprite");
-      const { x, y } = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
-
-      object.setComponent({
-        id: `death-${i}`,
-        once: async (gameObject) => {
-          gameObject.setAlpha(0);
-          setTimeout(() => gameObject.setAlpha(1), delay * i);
-
-          gameObject.setTexture(sprite.assetKey, sprite.frame);
-          gameObject.setOrigin(0.5, 0.5);
-          gameObject.setPosition(x, y);
-          gameObject.setDepth(RenderDepth.UI5);
-          gameObject.setAngle(Math.random() * 360);
-          gameObject.setScale(2);
-          const direction = Math.random() * 360;
-          await tween({
-            delay: delay * i,
-            targets: gameObject,
-            duration,
-            props: getPositionByVector({ x, y }, rotation, distance * positions.posWidth, direction),
-            ease: Phaser.Math.Easing.Cubic.Out,
-          });
-
-          await tween({
-            targets: gameObject,
-            duration,
-            props: {
-              alpha: {
-                value: 0,
-              },
-            },
-            ease: Phaser.Math.Easing.Linear,
-          });
         },
       });
     }
@@ -157,13 +103,6 @@ export function createHealthSystem(layer: PhaserLayer) {
       const spriteId = `${update.entity}-fire-${i}`;
       objectPool.remove(spriteId);
     }
-  });
-
-  defineEnterSystem(world, [Has(Leak)], (update) => {
-    const updateQueue = getComponentValue(UpdateQueue, update.entity)?.value || new Array<string>();
-
-    updateQueue.push("Sprung a leak!");
-    setComponent(UpdateQueue, update.entity, { value: updateQueue });
   });
 
   defineEnterSystem(world, [Has(DamagedMast)], (update) => {

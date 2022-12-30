@@ -26,10 +26,8 @@ export function registerEnemyShip() {
           components: {
             Health,
             SailPosition,
-            CrewCount,
             DamagedMast,
             Firepower,
-            Leak,
             OnFire,
             Player,
             Rotation,
@@ -52,10 +50,8 @@ export function registerEnemyShip() {
         Health.update$,
         SelectedShip.update$,
         SailPosition.update$,
-        CrewCount.update$,
         DamagedMast.update$,
         Firepower.update$,
-        Leak.update$,
         OnFire.update$,
         Player.update$
       ).pipe(

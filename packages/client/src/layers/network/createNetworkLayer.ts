@@ -64,12 +64,10 @@ export async function createNetworkLayer(config: GameConfig) {
       id: "SailPosition",
       metadata: { contractId: "ds.component.SailPosition" },
     }),
-    CrewCount: defineNumberComponent(world, { id: "CrewCount", metadata: { contractId: "ds.component.CrewCount" } }),
     DamagedMast: defineNumberComponent(world, {
       id: "DamagedMast",
       metadata: { contractId: "ds.component.DamagedMast" },
     }),
-    Leak: defineBoolComponent(world, { id: "Leak", metadata: { contractId: "ds.component.Leak" } }),
     OnFire: defineNumberComponent(world, { id: "OnFire", metadata: { contractId: "ds.component.OnFire" } }),
     Firepower: defineNumberComponent(world, { id: "Firepower", metadata: { contractId: "ds.component.Firepower" } }),
     LastMove: defineNumberComponent(world, { id: "LastMove", metadata: { contractId: "ds.component.LastMove" } }),
