@@ -58,7 +58,7 @@ export const ActionNames: Record<number, string> = {
 
 export const ActionImg: Record<number, string> = {
   [ActionType.Fire]: "/icons/fire-forward.svg",
-  [ActionType.Load]: "/icons/fire-right.svg",
+  [ActionType.Load]: "/icons/load.svg",
   [ActionType.None]: "/icons/fire-left.svg",
   [ActionType.RaiseSail]: "/icons/sail.svg",
   [ActionType.LowerSail]: "/icons/anchor.svg",

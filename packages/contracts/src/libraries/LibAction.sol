@@ -15,6 +15,7 @@ import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedB
 import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { CannonComponent, ID as CannonComponentID } from "../components/CannonComponent.sol";
+import { LoadedComponent, ID as LoadedComponentID } from "../components/LoadedComponent.sol";
 
 // Types
 import { Coord, Side, Action, ActionType } from "../libraries/DSTypes.sol";
@@ -44,7 +45,7 @@ library LibAction {
 
       // ensure action hasn't already been made
       if (i == 1) {
-        if (actionType == ActionType.Fire)
+        if (actionType == ActionType.Fire || actionType == ActionType.Load)
           require(specialEntity != action.specialEntities[0], "ActionSystem: cannon already acted");
         else require(action.actionTypes[0] != actionType, "ActionSystem: action already used");
       }
@@ -105,7 +106,22 @@ library LibAction {
     IUint256Component components,
     uint256 shipEntity,
     uint256 cannonEntity
-  ) private {}
+  ) private {
+    require(
+      CannonComponent(getAddressById(components, CannonComponentID)).has(cannonEntity),
+      "load: entity not a cannon"
+    );
+
+    require(
+      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(cannonEntity) == shipEntity,
+      "load: cannon not owned by ship"
+    );
+
+    LoadedComponent loadedComponent = LoadedComponent(getAddressById(components, LoadedComponentID));
+
+    require(!loadedComponent.has(cannonEntity), "attack: cannon already loaded");
+    loadedComponent.set(cannonEntity);
+  }
 
   function attack(
     IUint256Component components,
@@ -123,12 +139,17 @@ library LibAction {
       OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(cannonEntity) == shipEntity,
       "attack: cannon not owned by ship"
     );
+
+    LoadedComponent loadedComponent = LoadedComponent(getAddressById(components, LoadedComponentID));
+
+    require(loadedComponent.has(cannonEntity), "attack: cannon not loaded");
     uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
     if (!LibCombat.isBroadside(cannonRotation)) {
       attackPivot(components, shipEntity, cannonEntity);
     } else {
       attackBroadside(components, shipEntity, cannonEntity);
     }
+    loadedComponent.remove(cannonEntity);
   }
 
   /**

@@ -12,7 +12,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
       utils: { checkActionPossible },
     },
     network: {
-      components: { OwnedBy, Cannon, Rotation },
+      components: { OwnedBy, Cannon, Rotation, Loaded },
     },
   } = layers;
 
@@ -28,8 +28,6 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
   const disabled = selectedActions.actionTypes.every((a) => a !== ActionType.None);
 
   const handleNewActionsCannon = (action: ActionType, cannonEntity: EntityID) => {
-    if (action != ActionType.Fire) return;
-
     const index = selectedActions.specialEntities.indexOf(cannonEntity);
 
     // couldn't find the cannon
@@ -70,15 +68,21 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
       {cannonEntities.map((cannonEntity) => {
         if (!checkActionPossible(ActionType.Fire, ship)) return null;
         const usedAlready = selectedActions.specialEntities.find((a) => a == world.entities[cannonEntity]) != undefined;
+
+        const loaded = getComponentValue(Loaded, cannonEntity)?.value;
         const cannonRotation = getComponentValue(Rotation, cannonEntity)?.value || 0;
         const broadside = isBroadside(cannonRotation);
+        const actionStr = loaded ? "Fire" : "Load";
         const typeStr = broadside ? "Broadside" : "Pivot";
-        const imgRotation = broadside ? 0 : cannonRotation;
-        const src = broadside
-          ? cannonRotation == 90
-            ? "/icons/fire-right.svg"
-            : "/icons/fire-left.svg"
-          : ActionImg[ActionType.Fire];
+        const imgRotation = !loaded || broadside ? 0 : cannonRotation;
+
+        let src = ActionImg[ActionType.Load];
+        if (loaded) {
+          src = ActionImg[ActionType.Fire];
+          if (broadside) {
+            src = cannonRotation == 90 ? "/icons/fire-right.svg" : "/icons/fire-left.svg";
+          }
+        }
 
         return (
           <OptionButton
@@ -87,11 +91,13 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
             key={`selectedCannon-${cannonEntity}`}
             onClick={(e) => {
               e.stopPropagation();
-              handleNewActionsCannon(ActionType.Fire, world.entities[cannonEntity]);
+              handleNewActionsCannon(loaded ? ActionType.Fire : ActionType.Load, world.entities[cannonEntity]);
             }}
           >
             <Img src={src} style={{ height: "70%", transform: `rotate(${imgRotation}deg)` }} />
-            <p style={{ lineHeight: "16px" }}>Fire {typeStr}</p>
+            <p style={{ lineHeight: "16px" }}>
+              {actionStr} {typeStr}
+            </p>
           </OptionButton>
         );
       })}
