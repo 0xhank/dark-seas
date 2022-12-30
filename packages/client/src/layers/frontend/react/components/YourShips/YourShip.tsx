@@ -90,14 +90,8 @@ const MoveButtons = styled.div`
   font-weight: 700;
   width: auto;
   height: 8rem;
-
-  @media (max-width: 1310px) {
-    height: 6rem;
-  }
-
-  @media (max-width: 1000px) {
-    height: 4rem;
-  }
+  overflow-x: unset;
+  overflow-y: hidden;
 `;
 
 const YourShipContainer = styled(InternalContainer)<{
