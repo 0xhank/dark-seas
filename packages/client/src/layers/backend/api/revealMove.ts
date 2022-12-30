@@ -1,7 +1,6 @@
-import { GodID } from "@latticexyz/network";
-import { EntityID, EntityIndex, getComponentValue } from "@latticexyz/recs";
+import { EntityID, getComponentValue } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
-import { keccak256 } from "ethers/lib/utils";
+import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
 import { NetworkLayer } from "../../network";
 
 export function revealMove(network: NetworkLayer, actions: ActionSystem, committedMoves: string) {
@@ -10,7 +9,6 @@ export function revealMove(network: NetworkLayer, actions: ActionSystem, committ
     utils: { getPlayerEntity },
     world,
   } = network;
-  const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
   // Entity must be owned by the player
   const prefix = "Reveal Move: ";
@@ -37,12 +35,16 @@ export function revealMove(network: NetworkLayer, actions: ActionSystem, committ
         console.warn(prefix, "commitment does not match stored committed moves");
         return null;
       }
-      return committedMoves;
+
+      const [moves, salt] = abi.decode(
+        ["tuple(uint256 shipEntity, uint256 moveCardEntity)[]", "uint256"],
+        committedMoves
+      );
+      return { moves, salt };
     },
     updates: () => [],
-    execute: (committedMoves: string) => {
-      console.log("revealing move");
-      network.api.revealMove(committedMoves);
+    execute: ({ moves, salt }) => {
+      network.api.revealMove(moves, salt);
     },
   });
 }

@@ -176,7 +176,7 @@ export function registerYourShips() {
       const handleSubmitCommitment = () => {
         const shipsAndMoves = getPlayerShipsWithMoves();
         if (!shipsAndMoves) return;
-        commitMove(shipsAndMoves.ships, shipsAndMoves.moves);
+        commitMove(shipsAndMoves);
       };
 
       const handleSubmitExecute = () => {
@@ -262,7 +262,6 @@ export function registerYourShips() {
           if (state == ActionState.WaitingForTxEvents) return true;
           return false;
         });
-        console.log("actionExecuting:", actionExecuting);
         if (actionExecuting) content = <Success background={colors.waiting}>Executing...</Success>;
         else if (phase == Phase.Reveal) content = <RevealButtons />;
         else if (phase == Phase.Commit) content = <CommitButtons />;

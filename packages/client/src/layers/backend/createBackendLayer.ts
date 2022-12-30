@@ -13,7 +13,7 @@ import {
 import { createActionSystem, defineNumberComponent, defineStringComponent } from "@latticexyz/std-client";
 import { curry } from "lodash";
 
-import { Action, ActionType, Phase } from "../../types";
+import { Action, ActionType, Move, Phase } from "../../types";
 import { NetworkLayer } from "../network";
 import { commitMove } from "./api/commitMove";
 import { revealMove } from "./api/revealMove";
@@ -93,13 +93,19 @@ export async function createBackendLayer(network: NetworkLayer) {
 
     return ships;
   }
-  function getPlayerShipsWithMoves(player?: EntityIndex) {
+  function getPlayerShipsWithMoves(player?: EntityIndex): Move[] | undefined {
     if (!player) player = getPlayerEntity(connectedAddress.get());
     if (!player) return;
     const ships = [...runQuery([HasValue(OwnedBy, { value: world.entities[player] }), Has(components.SelectedMove)])];
     if (ships.length == 0) return;
-    const moves = ships.map((ship) => getComponentValueStrict(components.SelectedMove, ship).value as EntityIndex);
-    return { ships, moves };
+    const moves = ships.map((ship) => {
+      const move = getComponentValueStrict(components.SelectedMove, ship).value as EntityIndex;
+      return {
+        shipEntity: world.entities[ship],
+        moveCardEntity: world.entities[move],
+      };
+    });
+    return moves;
   }
 
   function getPlayerShipsWithActions(player?: EntityIndex) {
