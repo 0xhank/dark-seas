@@ -8,7 +8,7 @@ import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 // Components
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
 import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireComponent.sol";
-import { DamagedMastComponent, ID as DamagedMastComponentID } from "../components/DamagedMastComponent.sol";
+import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../components/DamagedCannonsComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
@@ -57,7 +57,7 @@ library LibAction {
         lowerSail(components, action.shipEntity);
       } else if (actionType == ActionType.ExtinguishFire) {
         extinguishFire(components, action.shipEntity);
-      } else if (actionType == ActionType.RepairMast) {
+      } else if (actionType == ActionType.RepairCannons) {
         repairMast(components, action.shipEntity);
       } else if (actionType == ActionType.RepairSail) {
         repairSail(components, action.shipEntity);
@@ -273,17 +273,17 @@ library LibAction {
    * @param   shipEntity  ship to repair
    */
   function repairMast(IUint256Component components, uint256 shipEntity) private {
-    DamagedMastComponent damagedMastComponent = DamagedMastComponent(
-      getAddressById(components, DamagedMastComponentID)
+    DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
+      getAddressById(components, DamagedCannonsComponentID)
     );
 
-    if (!damagedMastComponent.has(shipEntity)) return;
-    uint32 mastDamage = damagedMastComponent.getValue(shipEntity);
+    if (!damagedCannonsComponent.has(shipEntity)) return;
+    uint32 mastDamage = damagedCannonsComponent.getValue(shipEntity);
 
     // it takes two actions to repair a ship's mast from a ship
 
-    if (mastDamage <= 1) damagedMastComponent.remove(shipEntity);
-    else damagedMastComponent.set(shipEntity, mastDamage - 1);
+    if (mastDamage <= 1) damagedCannonsComponent.remove(shipEntity);
+    else damagedCannonsComponent.set(shipEntity, mastDamage - 1);
   }
 
   /**

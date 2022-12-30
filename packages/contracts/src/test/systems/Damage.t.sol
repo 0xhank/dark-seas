@@ -13,7 +13,7 @@ import { CommitSystem, ID as CommitSystemID } from "../../systems/CommitSystem.s
 
 // Components
 import { OnFireComponent, ID as OnFireComponentID } from "../../components/OnFireComponent.sol";
-import { DamagedMastComponent, ID as DamagedMastComponentID } from "../../components/DamagedMastComponent.sol";
+import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../../components/DamagedCannonsComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../../components/SailPositionComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
 import { PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
@@ -34,30 +34,32 @@ contract DamageTest is MudTest {
   Action[] actions;
   Move[] moves;
 
-  // function testFireEffect() public prank(deployer) {
-  //   setup();
-  //   OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
-  //   HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
-  //   uint256 attackerEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
-  //   uint256 defenderEntity = shipSpawnSystem.executeTyped(Coord({ x: 9, y: 25 }), 0);
-  //   uint32 origHealth = healthComponent.getValue(defenderEntity);
+  function testDamagedCannonsEffect() public prank(deployer) {
+    setup();
+    DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
+      getAddressById(components, DamagedCannonsComponentID)
+    );
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    uint256 attackerEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
+    uint256 defenderEntity = shipSpawnSystem.executeTyped(Coord({ x: 9, y: 25 }), 0);
+    uint32 origHealth = healthComponent.getValue(defenderEntity);
 
-  //   componentDevSystem.executeTyped(OnFireComponentID, attackerEntity, abi.encode(2));
-  //   assertEq(onFireComponent.getValue(attackerEntity), 2);
+    componentDevSystem.executeTyped(DamagedCannonsComponentID, attackerEntity, abi.encode(2));
+    assertEq(damagedCannonsComponent.getValue(attackerEntity), 2);
 
-  //   Action memory action = Action({
-  //     shipEntity: attackerEntity,
-  //     actionTypes: [ActionType.ExtinguishFire, ActionType.None],
-  //     specialEntities: [uint256(0), uint256(0)]
-  //   });
-  //   actions.push(action);
+    Action memory action = Action({
+      shipEntity: attackerEntity,
+      actionTypes: [ActionType.RepairCannons, ActionType.None],
+      specialEntities: [uint256(0), uint256(0)]
+    });
+    actions.push(action);
 
-  //   vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
-  //   actionSystem.executeTyped(actions);
-  //   assertTrue(onFireComponent.has(attackerEntity));
-  //   assertEq(onFireComponent.getValue(attackerEntity), 1);
-  // }
+    actionSystem.executeTyped(actions);
+    assertTrue(damagedCannonsComponent.has(attackerEntity));
+    assertEq(damagedCannonsComponent.getValue(attackerEntity), 1);
+  }
 
   function testFireEffect() public prank(deployer) {
     setup();

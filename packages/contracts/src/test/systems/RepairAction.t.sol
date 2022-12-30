@@ -11,7 +11,7 @@ import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/Co
 
 // Components
 import { OnFireComponent, ID as OnFireComponentID } from "../../components/OnFireComponent.sol";
-import { DamagedMastComponent, ID as DamagedMastComponentID } from "../../components/DamagedMastComponent.sol";
+import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../../components/DamagedCannonsComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../../components/SailPositionComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 
@@ -77,20 +77,20 @@ contract RepairActionTest is MudTest {
     assertEq(sailPositionComponent.getValue(shipEntity), 1);
   }
 
-  function testRepairMast() public prank(deployer) {
+  function testRepairCannons() public prank(deployer) {
     setup();
-    DamagedMastComponent damagedMastComponent = DamagedMastComponent(
-      getAddressById(components, DamagedMastComponentID)
+    DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
+      getAddressById(components, DamagedCannonsComponentID)
     );
     uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
-    componentDevSystem.executeTyped(DamagedMastComponentID, shipEntity, abi.encode(1));
+    componentDevSystem.executeTyped(DamagedCannonsComponentID, shipEntity, abi.encode(1));
 
-    assertTrue(damagedMastComponent.has(shipEntity));
+    assertTrue(damagedCannonsComponent.has(shipEntity));
     delete actions;
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.RepairMast, ActionType.None],
+      actionTypes: [ActionType.RepairCannons, ActionType.None],
       specialEntities: [uint256(0), uint256(0)]
     });
     actions.push(action);
@@ -98,7 +98,7 @@ contract RepairActionTest is MudTest {
 
     actionSystem.executeTyped(actions);
 
-    assertFalse(damagedMastComponent.has(shipEntity));
+    assertFalse(damagedCannonsComponent.has(shipEntity));
   }
 
   /**

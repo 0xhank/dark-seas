@@ -15,7 +15,7 @@ import { HealthComponent, ID as HealthComponentID } from "../components/HealthCo
 import { FirepowerComponent, ID as FirepowerComponentID } from "../components/FirepowerComponent.sol";
 import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
-import { DamagedMastComponent, ID as DamagedMastComponentID } from "../components/DamagedMastComponent.sol";
+import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../components/DamagedCannonsComponent.sol";
 
 // Types
 import { Side, Coord } from "../libraries/DSTypes.sol";
@@ -223,7 +223,7 @@ library LibCombat {
       OnFireComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity, 2);
     }
     if (getSpecialChance(baseHitChance, hullDamage, r, 1)) {
-      DamagedMastComponent(getAddressById(components, DamagedMastComponentID)).set(defenderEntity, 2);
+      DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).set(defenderEntity, 2);
     }
     if (getSpecialChance(baseHitChance, hullDamage, r, 2)) {
       SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(defenderEntity, 0);
