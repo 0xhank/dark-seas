@@ -190,7 +190,7 @@ export function registerYourShips() {
         const committedMoves = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
 
         if (lastMove == currentTurn) return <Success background={colors.confirmed}>Move execution successful!</Success>;
-        if (!committedMoves) return <Success background={colors.glass}>"No moves to execute"</Success>;
+        if (!committedMoves) return <Success background={colors.glass}>No moves to execute</Success>;
         return (
           <ConfirmButton style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmitExecute}>
             Execute Moves
