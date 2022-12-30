@@ -92,6 +92,8 @@ library LibAction {
     uint256 shipEntity,
     uint256 cannonEntity
   ) private {
+    if (DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).has(shipEntity)) return;
+
     require(
       CannonComponent(getAddressById(components, CannonComponentID)).has(cannonEntity),
       "load: entity not a cannon"
@@ -113,7 +115,7 @@ library LibAction {
     uint256 shipEntity,
     uint256 cannonEntity
   ) public {
-    // if (OnFireComponent(getAddressById(components, OnFireComponentID)).has(shipEntity)) return;
+    if (DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).has(shipEntity)) return;
 
     require(
       CannonComponent(getAddressById(components, CannonComponentID)).has(cannonEntity),

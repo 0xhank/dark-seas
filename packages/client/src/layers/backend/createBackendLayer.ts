@@ -42,7 +42,7 @@ export async function createBackendLayer(network: NetworkLayer) {
 
   const {
     utils: { getGameConfig, getPhase, getPlayerEntity },
-    components: { OnFire, DamagedMast, SailPosition, Ship, OwnedBy },
+    components: { OnFire, DamagedCannons, SailPosition, Ship, OwnedBy },
     network: { connectedAddress },
   } = network;
 
@@ -68,13 +68,14 @@ export async function createBackendLayer(network: NetworkLayer) {
   }
 
   function checkActionPossible(action: ActionType, ship: EntityIndex): boolean {
-    const onFire = getComponentValue(OnFire, ship)?.value;
+    const damagedCannons = getComponentValue(DamagedCannons, ship)?.value;
 
     if (action == ActionType.None) return false;
-    if (action == ActionType.ExtinguishFire && !onFire) return false;
-    if (action == ActionType.Fire && onFire) return false;
+    if (action == ActionType.ExtinguishFire && !getComponentValue(OnFire, ship)?.value) return false;
+    if (action == ActionType.Fire && damagedCannons) return false;
+    if (action == ActionType.Load && damagedCannons) return false;
 
-    if (action == ActionType.RepairMast && !getComponentValue(DamagedMast, ship)) return false;
+    if (action == ActionType.RepairCannons && !getComponentValue(DamagedCannons, ship)) return false;
 
     const sailPosition = getComponentValueStrict(SailPosition, ship).value;
     if (action == ActionType.LowerSail && sailPosition != 2) return false;

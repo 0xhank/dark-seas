@@ -11,7 +11,7 @@
     "WindComponent",
     "OnFireComponent",
     "CrewCountComponent",
-    "DamagedMastComponent",
+    "DamagedCannonsComponent",
     "FirepowerComponent",
     "GameConfigComponent",
     "LastMoveComponent",
@@ -51,7 +51,7 @@
       "writeAccess": [
         "HealthComponent",
         "OnFireComponent",
-        "DamagedMastComponent",
+        "DamagedCannonsComponent",
         "CrewCountComponent",
         "SailPositionComponent",
         "LastActionComponent",

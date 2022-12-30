@@ -20,7 +20,7 @@ export function createHealthSystem(layer: PhaserLayer) {
     },
     parentLayers: {
       network: {
-        components: { Health, OnFire, DamagedMast, SailPosition, Position, Rotation, Length },
+        components: { Health, OnFire, DamagedCannons, SailPosition, Position, Rotation, Length },
       },
     },
     components: { UpdateQueue },
@@ -105,10 +105,10 @@ export function createHealthSystem(layer: PhaserLayer) {
     }
   });
 
-  defineEnterSystem(world, [Has(DamagedMast)], (update) => {
+  defineEnterSystem(world, [Has(DamagedCannons)], (update) => {
     const updateQueue = getComponentValue(UpdateQueue, update.entity)?.value || new Array<string>();
 
-    updateQueue.push("Mast is damaged!");
+    updateQueue.push("Cannons are damaged!");
     setComponent(UpdateQueue, update.entity, { value: updateQueue });
   });
 

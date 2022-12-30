@@ -14,7 +14,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
       world,
       utils: { getPlayerEntity },
       network: { connectedAddress },
-      components: { Health, SailPosition, DamagedMast, OnFire, Rotation, OwnedBy, Name },
+      components: { Health, SailPosition, DamagedCannons, OnFire, Rotation, OwnedBy, Name },
     },
   } = layers;
 
@@ -26,7 +26,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
   const rotation = getComponentValueStrict(Rotation, ship).value;
   const health = getComponentValueStrict(Health, ship).value;
   const onFire = getComponentValue(OnFire, ship)?.value;
-  const damagedMast = getComponentValue(DamagedMast, ship)?.value;
+  const damagedCannons = getComponentValue(DamagedCannons, ship)?.value;
   const ownerName = getComponentValue(Name, ownerEntity)?.value;
 
   return (
@@ -56,7 +56,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
           <ShipAttribute attributeType={ShipAttributeTypes.Sails} attribute={SailPositions[sailPosition]} />
         </div>
         <div style={{ display: "flex" }}>
-          {damagedMast && <ShipDamage message="mast broken" amountLeft={damagedMast} />}
+          {damagedCannons && <ShipDamage message="cannons broken" amountLeft={damagedCannons} />}
           {onFire && <ShipDamage message="on fire" amountLeft={onFire} />}
           {sailPosition == 0 && <ShipDamage message="sails torn" />}
         </div>

@@ -27,7 +27,7 @@ export enum ActionType {
   RaiseSail,
   LowerSail,
   ExtinguishFire,
-  RepairMast,
+  RepairCannons,
   RepairSail,
 }
 
@@ -50,18 +50,17 @@ export const ActionNames: Record<number, string> = {
   [ActionType.RaiseSail]: "Raise Sail",
   [ActionType.LowerSail]: "Lower Sail",
   [ActionType.ExtinguishFire]: "Extinguish Fire",
-  [ActionType.RepairMast]: "Repair Mast",
+  [ActionType.RepairCannons]: "Repair Cannons",
   [ActionType.RepairSail]: "Repair Sail",
 };
 
 export const ActionImg: Record<number, string> = {
   [ActionType.Fire]: "/icons/fire-forward.svg",
   [ActionType.Load]: "/icons/load.svg",
-  [ActionType.None]: "/icons/fire-left.svg",
   [ActionType.RaiseSail]: "/icons/sail.svg",
   [ActionType.LowerSail]: "/icons/anchor.svg",
   [ActionType.ExtinguishFire]: "/icons/extinguish.svg",
-  [ActionType.RepairMast]: "/icons/broken-mast.svg",
+  [ActionType.RepairCannons]: "/icons/damaged-cannons.svg",
   [ActionType.RepairSail]: "/icons/broken-sail.svg",
 };
 
