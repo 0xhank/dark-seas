@@ -7,6 +7,7 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
+import styled from "styled-components";
 import { Layers, MoveCard } from "../../../../../types";
 import { getFinalMoveCard, getFinalPosition } from "../../../../../utils/directions";
 import { inRange } from "../../../../../utils/distance";
@@ -38,6 +39,9 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
   const rotation = getComponentValueStrict(Rotation, ship).value;
   const sailPosition = getComponentValueStrict(SailPosition, ship).value;
 
+  if (sailPosition == 0) {
+    return <SpecialText>Cannot move with torn sails!</SpecialText>;
+  }
   return (
     <>
       {moveEntities.map((entity) => {
@@ -76,3 +80,7 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
     </>
   );
 };
+
+const SpecialText = styled.span`
+  font-size: 2rem;
+`;

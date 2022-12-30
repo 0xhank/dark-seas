@@ -11,6 +11,7 @@ import styled from "styled-components";
 import { Layers, Phase } from "../../../../../types";
 import { colors, InternalContainer } from "../../styles/global";
 import { ActionSelection } from "../OverviewComponents/ActionSelection";
+import { MoveSelection } from "../OverviewComponents/MoveSelection";
 import { ShipCard } from "./ShipCard";
 
 export const YourShip = ({
@@ -55,15 +56,15 @@ export const YourShip = ({
   const isHovered = hoveredShip == ship;
 
   let selectionContent = null;
-  selectionContent = <ActionSelection ship={ship} layers={layers} />;
+  selectionContent = <MoveSelection ship={ship} layers={layers} />;
 
-  // if (health == 0) {
-  //   selectionContent = <SpecialText>This ship is sunk!</SpecialText>;
-  // } else if (phase == Phase.Commit) {
-  //   selectionContent = <MoveSelection ship={ship} layers={layers} />;
-  // } else if (phase == Phase.Action) {
-  //   selectionContent = <ActionSelection ship={ship} layers={layers} />;
-  // }
+  if (health == 0) {
+    selectionContent = <SpecialText>This ship is sunk!</SpecialText>;
+  } else if (phase == Phase.Commit) {
+    selectionContent = <MoveSelection ship={ship} layers={layers} />;
+  } else if (phase == Phase.Action) {
+    selectionContent = <ActionSelection ship={ship} layers={layers} />;
+  }
   return (
     <YourShipContainer
       onClick={() => health !== 0 && selectShip(ship, position)}
