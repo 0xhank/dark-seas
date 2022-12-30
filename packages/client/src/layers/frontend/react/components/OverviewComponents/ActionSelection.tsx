@@ -1,14 +1,5 @@
 import { GodID } from "@latticexyz/network";
-import {
-  EntityID,
-  EntityIndex,
-  getComponentValue,
-  getComponentValueStrict,
-  Has,
-  HasValue,
-  runQuery,
-  setComponent,
-} from "@latticexyz/recs";
+import { EntityID, EntityIndex, getComponentValue, Has, HasValue, runQuery, setComponent } from "@latticexyz/recs";
 import { ActionImg, ActionNames, ActionType, Layers } from "../../../../../types";
 import { isBroadside } from "../../../../../utils/trig";
 import { Img, OptionButton } from "../../styles/global";
@@ -32,7 +23,6 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
     specialEntities: ["0" as EntityID, "0" as EntityID],
   };
 
-  const rotation = getComponentValueStrict(Rotation, ship).value;
   const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[ship] })])];
 
   const disabled = selectedActions.actionTypes.every((a) => a !== ActionType.None);
@@ -80,8 +70,16 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
       {cannonEntities.map((cannonEntity) => {
         if (!checkActionPossible(ActionType.Fire, ship)) return null;
         const usedAlready = selectedActions.specialEntities.find((a) => a == world.entities[cannonEntity]) != undefined;
-        const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
-        const type = isBroadside(cannonRotation) ? "Broadside" : "Pivot";
+        const cannonRotation = getComponentValue(Rotation, cannonEntity)?.value || 0;
+        const broadside = isBroadside(cannonRotation);
+        const typeStr = broadside ? "Broadside" : "Pivot";
+        const imgRotation = broadside ? 0 : cannonRotation;
+        const src = broadside
+          ? cannonRotation == 90
+            ? "/icons/fire-right.svg"
+            : "/icons/fire-left.svg"
+          : ActionImg[ActionType.Fire];
+
         return (
           <OptionButton
             isSelected={usedAlready}
@@ -92,11 +90,8 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
               handleNewActionsCannon(ActionType.Fire, world.entities[cannonEntity]);
             }}
           >
-            <Img
-              src={ActionImg[ActionType.Fire]}
-              style={{ transform: `rotate(${rotation + cannonRotation + 90}deg)` }}
-            />
-            <p style={{ lineHeight: "16px" }}>Fire {type}</p>
+            <Img src={src} style={{ height: "70%", transform: `rotate(${imgRotation}deg)` }} />
+            <p style={{ lineHeight: "16px" }}>Fire {typeStr}</p>
           </OptionButton>
         );
       })}
@@ -117,7 +112,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
               handleNewActionsSpecial(action);
             }}
           >
-            <Img src={ActionImg[action]} />
+            <Img style={{ height: "70%" }} src={ActionImg[action]} />
             <p style={{ lineHeight: "16px" }}>{ActionNames[action]}</p>
           </OptionButton>
         );
