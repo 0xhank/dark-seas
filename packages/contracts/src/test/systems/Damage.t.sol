@@ -34,19 +34,49 @@ contract DamageTest is MudTest {
   Action[] actions;
   Move[] moves;
 
+  // function testFireEffect() public prank(deployer) {
+  //   setup();
+  //   OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
+  //   HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+  //   uint256 attackerEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
+  //   uint256 defenderEntity = shipSpawnSystem.executeTyped(Coord({ x: 9, y: 25 }), 0);
+  //   uint32 origHealth = healthComponent.getValue(defenderEntity);
+
+  //   componentDevSystem.executeTyped(OnFireComponentID, attackerEntity, abi.encode(2));
+  //   assertEq(onFireComponent.getValue(attackerEntity), 2);
+
+  //   Action memory action = Action({
+  //     shipEntity: attackerEntity,
+  //     actionTypes: [ActionType.ExtinguishFire, ActionType.None],
+  //     specialEntities: [uint256(0), uint256(0)]
+  //   });
+  //   actions.push(action);
+
+  //   vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
+
+  //   actionSystem.executeTyped(actions);
+  //   assertTrue(onFireComponent.has(attackerEntity));
+  //   assertEq(onFireComponent.getValue(attackerEntity), 1);
+  // }
+
   function testFireEffect() public prank(deployer) {
     setup();
-    OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
-    uint256 attackerEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
-    uint256 defenderEntity = shipSpawnSystem.executeTyped(Coord({ x: 9, y: 25 }), 0);
-    uint32 origHealth = healthComponent.getValue(defenderEntity);
+    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
 
-    componentDevSystem.executeTyped(OnFireComponentID, attackerEntity, abi.encode(2));
-    assertEq(onFireComponent.getValue(attackerEntity), 2);
+    OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
+
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+
+    componentDevSystem.executeTyped(OnFireComponentID, shipEntity, abi.encode(2));
+
+    assertTrue(onFireComponent.getValue(shipEntity) == 2);
+
+    uint32 health = healthComponent.getValue(shipEntity);
+
+    delete actions;
 
     Action memory action = Action({
-      shipEntity: attackerEntity,
+      shipEntity: shipEntity,
       actionTypes: [ActionType.ExtinguishFire, ActionType.None],
       specialEntities: [uint256(0), uint256(0)]
     });
@@ -55,52 +85,7 @@ contract DamageTest is MudTest {
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
     actionSystem.executeTyped(actions);
-    assertTrue(onFireComponent.has(attackerEntity));
-    assertEq(onFireComponent.getValue(attackerEntity), 1);
-
-    // delete actions;
-
-    // shipEntities.push(attackerEntity);
-    // actions.push(Action.FireRight);
-    // allActions.push(actions);
-
-    // uint256 gas = gasleft();
-    // actionSystem.executeTyped(shipEntities, allActions);
-
-    // console.log("gas:", gas - gasleft());
-
-    // uint32 newHealth = healthComponent.getValue(defenderEntity);
-    // assertEq(newHealth, origHealth);
-  }
-
-  function testDamagedMastEffect() public prank(deployer) {
-    setup();
-    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
-
-    DamagedMastComponent damagedMastComponent = DamagedMastComponent(
-      getAddressById(components, DamagedMastComponentID)
-    );
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
-
-    componentDevSystem.executeTyped(DamagedMastComponentID, shipEntity, abi.encode(2));
-
-    assertTrue(damagedMastComponent.has(shipEntity));
-
-    uint32 health = healthComponent.getValue(shipEntity);
-
-    delete actions;
-
-    Action memory action = Action({
-      shipEntity: shipEntity,
-      actionTypes: [ActionType.RepairMast, ActionType.None],
-      specialEntities: [uint256(0), uint256(0)]
-    });
-    actions.push(action);
-
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
-
-    actionSystem.executeTyped(actions);
-    assertTrue(damagedMastComponent.has(shipEntity));
+    assertTrue(onFireComponent.has(shipEntity));
     assertEq(healthComponent.getValue(shipEntity), health - 1);
   }
 

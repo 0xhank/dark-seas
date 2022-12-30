@@ -76,13 +76,11 @@ library LibAction {
    * @param   shipEntity  entity to apply damage to
    */
   function applySpecialDamage(IUint256Component components, uint256 shipEntity) private {
-    DamagedMastComponent damagedMastComponent = DamagedMastComponent(
-      getAddressById(components, DamagedMastComponentID)
-    );
+    OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
 
     // if ship has a damaged mast, reduce hull health by 1
-    if (damagedMastComponent.has(shipEntity)) {
+    if (onFireComponent.has(shipEntity)) {
       uint32 health = healthComponent.getValue(shipEntity);
       if (health <= 1) healthComponent.set(shipEntity, 0);
       else healthComponent.set(shipEntity, health - 1);
@@ -115,7 +113,7 @@ library LibAction {
     uint256 shipEntity,
     uint256 cannonEntity
   ) public {
-    if (OnFireComponent(getAddressById(components, OnFireComponentID)).has(shipEntity)) return;
+    // if (OnFireComponent(getAddressById(components, OnFireComponentID)).has(shipEntity)) return;
 
     require(
       CannonComponent(getAddressById(components, CannonComponentID)).has(cannonEntity),
