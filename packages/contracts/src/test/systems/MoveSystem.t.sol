@@ -344,7 +344,7 @@ contract MoveSystemTest is MudTest {
     assertEq(newMoveCard.direction, 360 - ((360 - moveCard.direction) * 33) / 100, "closed sails angle failed");
   }
 
-  function testMoveWithBattleSails() public prank(deployer) {
+  function testMoveWithLoweredSails() public prank(deployer) {
     setup();
 
     Coord memory position = Coord({ x: 0, y: 0 });

@@ -72,14 +72,14 @@ export type Line = {
 
 export enum SailPositions {
   Broken,
-  Battle,
-  Open,
+  Lowered,
+  Full,
 }
 
 export const SailPositionNames: Record<number, string> = {
   [SailPositions.Broken]: "Broken",
-  [SailPositions.Battle]: "Battle",
-  [SailPositions.Open]: "Open",
+  [SailPositions.Lowered]: "Lowered",
+  [SailPositions.Full]: "Full",
 };
 
 export type MoveCard = {
