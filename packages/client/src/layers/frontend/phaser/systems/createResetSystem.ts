@@ -57,8 +57,7 @@ export function createResetSystem(phaser: PhaserLayer) {
         if (committedMoves) return;
         const shipsAndMoves = getPlayerShipsWithMoves();
         if (!shipsAndMoves) return;
-
-        commitMove(shipsAndMoves.ships, shipsAndMoves.moves);
+        commitMove(shipsAndMoves);
       }
     }
 
