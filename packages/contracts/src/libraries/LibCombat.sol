@@ -116,7 +116,7 @@ library LibCombat {
     uint32 shipRotation = rotationComponent.getValue(shipEntity);
     uint32 cannonRotation = rotationComponent.getValue(cannonEntity);
 
-    if (cannonRotation >= 180) {
+    if (cannonRotation >= 90 && cannonRotation < 270) {
       uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
       position = LibVector.getSternLocation(position, shipRotation, length);
     }

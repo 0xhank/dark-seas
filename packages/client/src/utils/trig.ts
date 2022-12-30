@@ -43,7 +43,7 @@ export function getFiringArea(
     return [position, sternPosition, backCorner, frontCorner];
   }
 
-  const origin = cannonRotation > 180 ? sternPosition : position;
+  const origin = cannonRotation >= 90 && cannonRotation < 270 ? sternPosition : position;
 
   return [
     origin,
