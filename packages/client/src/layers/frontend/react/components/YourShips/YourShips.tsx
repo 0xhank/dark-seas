@@ -50,6 +50,7 @@ export function registerYourShips() {
             OwnedBy,
             LastMove,
             LastAction,
+            Loaded,
           },
           network: { connectedAddress, clock },
           utils: { getPlayerEntity, getPhase, getTurn },
@@ -84,6 +85,7 @@ export function registerYourShips() {
         LastMove.update$,
         LastAction.update$,
         CommittedMoves.update$,
+        Loaded.update$,
         Action.update$
       ).pipe(
         map(() => {

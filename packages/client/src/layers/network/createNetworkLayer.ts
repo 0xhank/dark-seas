@@ -83,6 +83,7 @@ export async function createNetworkLayer(config: GameConfig) {
     Name: defineStringComponent(world, { id: "Name", metadata: { contractId: "ds.component.Name" } }),
     Commitment: defineStringComponent(world, { id: "Commitment", metadata: { contractId: "ds.component.Commitment" } }),
     Cannon: defineBoolComponent(world, { id: "Cannon", metadata: { contractId: "ds.component.Cannon" } }),
+    Loaded: defineBoolComponent(world, { id: "Loaded", metadata: { contractId: "ds.component.Loaded" } }),
   };
 
   // --- SETUP ----------------------------------------------------------------------
