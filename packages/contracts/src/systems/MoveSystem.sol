@@ -16,7 +16,6 @@ import { SailPositionComponent, ID as SailPositionComponentID } from "../compone
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
-import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 import { CommitmentComponent, ID as CommitmentComponentID } from "../components/CommitmentComponent.sol";
 
 import { Wind, GodID, MoveCard, Phase, Move } from "../libraries/DSTypes.sol";

@@ -13,10 +13,8 @@ import { CommitSystem, ID as CommitSystemID } from "../../systems/CommitSystem.s
 
 // Components
 import { OnFireComponent, ID as OnFireComponentID } from "../../components/OnFireComponent.sol";
-import { LeakComponent, ID as LeakComponentID } from "../../components/LeakComponent.sol";
 import { DamagedMastComponent, ID as DamagedMastComponentID } from "../../components/DamagedMastComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../../components/SailPositionComponent.sol";
-import { CrewCountComponent, ID as CrewCountComponentID } from "../../components/CrewCountComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
 import { PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
@@ -73,33 +71,6 @@ contract DamageTest is MudTest {
 
     // uint32 newHealth = healthComponent.getValue(defenderEntity);
     // assertEq(newHealth, origHealth);
-  }
-
-  function testLeakEffect() public prank(deployer) {
-    setup();
-    LeakComponent leakComponent = LeakComponent(getAddressById(components, LeakComponentID));
-    CrewCountComponent crewCountComponent = CrewCountComponent(getAddressById(components, CrewCountComponentID));
-
-    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
-
-    componentDevSystem.executeTyped(LeakComponentID, shipEntity, abi.encode(true));
-
-    assertTrue(leakComponent.has(shipEntity));
-
-    uint32 crewCount = crewCountComponent.getValue(shipEntity);
-
-    Action memory action = Action({
-      shipEntity: shipEntity,
-      actionTypes: [ActionType.None, ActionType.None],
-      specialEntities: [uint256(0), uint256(0)]
-    });
-    actions.push(action);
-
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
-
-    actionSystem.executeTyped(actions);
-    assertTrue(leakComponent.has(shipEntity));
-    assertEq(crewCountComponent.getValue(shipEntity), crewCount - 1);
   }
 
   function testDamagedMastEffect() public prank(deployer) {

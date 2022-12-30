@@ -13,11 +13,9 @@ import { RotationComponent, ID as RotationComponentID } from "../components/Rota
 import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { FirepowerComponent, ID as FirepowerComponentID } from "../components/FirepowerComponent.sol";
-import { LeakComponent, ID as LeakComponentID } from "../components/LeakComponent.sol";
 import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { DamagedMastComponent, ID as DamagedMastComponentID } from "../components/DamagedMastComponent.sol";
-import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 
 // Types
 import { Side, Coord } from "../libraries/DSTypes.sol";
@@ -218,17 +216,11 @@ library LibCombat {
     bool dead = damageUint32(components, HealthComponentID, hullDamage, defenderEntity);
     if (dead) return;
 
-    dead = damageUint32(components, CrewCountComponentID, getCrewDamage(baseHitChance, r), defenderEntity);
-    if (dead) return;
-
     if (hullDamage == 0) return;
 
     // perform special damage
     if (getSpecialChance(baseHitChance, hullDamage, r, 0)) {
       OnFireComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity, 2);
-    }
-    if (getSpecialChance(baseHitChance, hullDamage, r, 3)) {
-      LeakComponent(getAddressById(components, LeakComponentID));
     }
     if (getSpecialChance(baseHitChance, hullDamage, r, 1)) {
       DamagedMastComponent(getAddressById(components, DamagedMastComponentID)).set(defenderEntity, 2);

@@ -10,7 +10,6 @@
     "SailPositionComponent",
     "WindComponent",
     "OnFireComponent",
-    "LeakComponent",
     "CrewCountComponent",
     "DamagedMastComponent",
     "FirepowerComponent",
@@ -51,7 +50,6 @@
       "name": "ActionSystem",
       "writeAccess": [
         "HealthComponent",
-        "LeakComponent",
         "OnFireComponent",
         "DamagedMastComponent",
         "CrewCountComponent",
