@@ -61,6 +61,60 @@ contract AttackActionTest is MudTest {
     actionSystem.executeTyped(actions);
   }
 
+  function testRevertNotLoaded() public prank(address(0)) {
+    setup();
+    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord(0, 0), 0);
+    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 90, 50, 80);
+
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
+
+    Action memory action = Action({
+      shipEntity: shipEntity,
+      actionTypes: [ActionType.Fire, ActionType.None],
+      specialEntities: [cannonEntity, uint256(0)]
+    });
+    actions.push(action);
+    vm.expectRevert(bytes("attack: cannon not loaded"));
+    actionSystem.executeTyped(actions);
+  }
+
+  function testRevertSameCannon() public prank(address(0)) {
+    setup();
+    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord(0, 0), 0);
+    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 90, 50, 80);
+
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
+
+    Action memory action = Action({
+      shipEntity: shipEntity,
+      actionTypes: [ActionType.Load, ActionType.Fire],
+      specialEntities: [cannonEntity, cannonEntity]
+    });
+    actions.push(action);
+    vm.expectRevert(bytes("ActionSystem: cannon already acted"));
+    actionSystem.executeTyped(actions);
+  }
+
+  function testRevertUnloaded() public prank(address(0)) {
+    setup();
+    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord(0, 0), 0);
+    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 90, 50, 80);
+
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
+
+    loadAndFireCannon(shipEntity, cannonEntity, 2);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 4, Phase.Action));
+
+    Action memory action = Action({
+      shipEntity: shipEntity,
+      actionTypes: [ActionType.Fire, ActionType.None],
+      specialEntities: [cannonEntity, uint256(0)]
+    });
+    actions.push(action);
+    vm.expectRevert(bytes("attack: cannon not loaded"));
+    actionSystem.executeTyped(actions);
+  }
+
   function testAttackAction() public prank(address(0)) {
     setup();
 
@@ -81,16 +135,7 @@ contract AttackActionTest is MudTest {
     uint32 orig2Health = healthComponent.getValue(defender2Id);
     uint32 attackerHealth = healthComponent.getValue(attackerId);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
-
-    delete actions;
-    Action memory action = Action({
-      shipEntity: attackerId,
-      actionTypes: [ActionType.Fire, ActionType.None],
-      specialEntities: [cannonEntity, uint256(0)]
-    });
-    actions.push(action);
-    actionSystem.executeTyped(actions);
+    loadAndFireCannon(attackerId, cannonEntity, 2);
 
     uint32 newHealth = healthComponent.getValue(defenderId);
 
@@ -125,14 +170,7 @@ contract AttackActionTest is MudTest {
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
 
-    Action memory action = Action({
-      shipEntity: attackerEntity,
-      actionTypes: [ActionType.Fire, ActionType.None],
-      specialEntities: [cannonEntity, uint256(0)]
-    });
-    actions.push(action);
-
-    actionSystem.executeTyped(actions);
+    loadAndFireCannon(attackerEntity, cannonEntity, 2);
 
     uint32 newHealth = healthComponent.getValue(attackerEntity);
     assertEq(newHealth, attackerHealth);
@@ -158,20 +196,7 @@ contract AttackActionTest is MudTest {
 
     uint32 origHealth = healthComponent.getValue(defenderEntity);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
-
-    delete actions;
-
-    Action memory action = Action({
-      shipEntity: attackerEntity,
-      actionTypes: [ActionType.Fire, ActionType.None],
-      specialEntities: [cannonEntity, uint256(0)]
-    });
-    actions.push(action);
-    uint256 gas = gasleft();
-    actionSystem.executeTyped(actions);
-
-    console.log("gas:", gas - gasleft());
+    loadAndFireCannon(attackerEntity, cannonEntity, 1);
 
     uint32 newHealth = healthComponent.getValue(defenderEntity);
 
@@ -197,20 +222,7 @@ contract AttackActionTest is MudTest {
 
     uint32 origHealth = healthComponent.getValue(defenderEntity);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
-
-    delete actions;
-
-    Action memory action = Action({
-      shipEntity: attackerEntity,
-      actionTypes: [ActionType.Fire, ActionType.None],
-      specialEntities: [cannonEntity, uint256(0)]
-    });
-    actions.push(action);
-    uint256 gas = gasleft();
-    actionSystem.executeTyped(actions);
-
-    console.log("gas:", gas - gasleft());
+    loadAndFireCannon(attackerEntity, cannonEntity, 1);
 
     uint32 newHealth = healthComponent.getValue(defenderEntity);
 
@@ -273,5 +285,32 @@ contract AttackActionTest is MudTest {
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Reveal));
     moveSystem.executeTyped(moves, 69);
+  }
+
+  function loadAndFireCannon(
+    uint256 shipEntity,
+    uint256 cannonEntity,
+    uint32 turn
+  ) internal {
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Action));
+
+    Action memory action = Action({
+      shipEntity: shipEntity,
+      actionTypes: [ActionType.Load, ActionType.None],
+      specialEntities: [cannonEntity, uint256(0)]
+    });
+    actions.push(action);
+    actionSystem.executeTyped(actions);
+
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, turn + 1, Phase.Action));
+    delete actions;
+    action = Action({
+      shipEntity: shipEntity,
+      actionTypes: [ActionType.Fire, ActionType.None],
+      specialEntities: [cannonEntity, uint256(0)]
+    });
+    actions.push(action);
+    actionSystem.executeTyped(actions);
+    delete actions;
   }
 }
