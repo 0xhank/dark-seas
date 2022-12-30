@@ -15,8 +15,11 @@ import { RangeComponent, ID as RangeComponentID } from "../../components/RangeCo
 // Libraries
 import "../../libraries/LibCombat.sol";
 import "../../libraries/LibUtils.sol";
+import "../../libraries/LibSpawn.sol";
 
 contract LibCombatTest is MudTest {
+  address zero = address(0);
+
   function testGetBaseHitChance() public prank(deployer) {
     uint256 baseHitChance = LibCombat.getBaseHitChance(28, 50);
     assertApproxEqAbs(baseHitChance, 3200, 50, "baseHitChance: 28 and 50 failed");
@@ -85,41 +88,139 @@ contract LibCombatTest is MudTest {
     assertTrue(!LibCombat.getSpecialChance(baseHitChance, 1, fals, 1), "special 1 failed");
   }
 
-  function testFiringArea() public prank(deployer) {
+  function testFiringArea() public prank(address(0)) {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
     uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, 0);
+    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 270, 50, 80);
 
+    uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
     uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
     uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
-    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(shipEntity);
+    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(cannonEntity);
 
-    Coord[4] memory firingArea = LibCombat.getFiringAreaSide(components, shipEntity, Side.Right);
+    uint32 rightRange = (cannonRotation + 10) % 360;
+    uint32 leftRange = (cannonRotation - 10) % 360;
+
+    Coord[4] memory firingArea = LibCombat.getFiringAreaBroadside(components, shipEntity, cannonEntity);
 
     Coord memory stern = LibVector.getSternLocation(startingPosition, rotation, length);
-    Coord memory bottomCorner = LibVector.getPositionByVector(stern, rotation, range, 100);
-    Coord memory topCorner = LibVector.getPositionByVector(startingPosition, rotation, range, 80);
+    Coord memory backCorner = LibVector.getPositionByVector(stern, rotation, range, leftRange);
+    Coord memory frontCorner = LibVector.getPositionByVector(startingPosition, rotation, range, rightRange);
+
+    logCoord("startingPosition", startingPosition);
+    logCoord("stern", stern);
+    logCoord("backCorner", backCorner);
+    logCoord("frontCorner", frontCorner);
 
     assertCoordEq(startingPosition, firingArea[0]);
     assertCoordEq(stern, firingArea[1]);
-    assertCoordEq(bottomCorner, firingArea[2]);
-    assertCoordEq(topCorner, firingArea[3]);
+    assertCoordEq(backCorner, firingArea[2]);
+    assertCoordEq(frontCorner, firingArea[3]);
   }
 
-  function testFiringAreaForward() public prank(deployer) {
+  function testFiringAreaUpsideDown() public prank(address(0)) {
+    Coord memory startingPosition = Coord({ x: 0, y: 0 });
+
+    uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, 180);
+    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 90, 50, 80);
+
+    uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
+    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
+    uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
+    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(cannonEntity);
+
+    Coord[4] memory firingArea = LibCombat.getFiringAreaBroadside(components, shipEntity, cannonEntity);
+
+    Coord memory stern = LibVector.getSternLocation(startingPosition, rotation, length);
+    Coord memory frontCorner = LibVector.getPositionByVector(
+      startingPosition,
+      rotation,
+      range,
+      (cannonRotation + 350) % 360
+    );
+    Coord memory backCorner = LibVector.getPositionByVector(stern, rotation, range, cannonRotation + 10);
+
+    logCoord("startingPosition", startingPosition);
+    logCoord("stern", stern);
+    logCoord("frontCorner", frontCorner);
+    logCoord("backCorner", backCorner);
+
+    logCoord("startingPosition", firingArea[0]);
+    logCoord("stern", firingArea[1]);
+    logCoord("frontCorner", firingArea[2]);
+    logCoord("backCorner", firingArea[3]);
+
+    assertCoordEq(startingPosition, firingArea[0]);
+    assertCoordEq(stern, firingArea[1]);
+    assertCoordEq(backCorner, firingArea[2]);
+    assertCoordEq(frontCorner, firingArea[3]);
+  }
+
+  function testFiringAreaPivot() public prank(zero) {
+    // setUp();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
     uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, 0);
+    // vm.startPrank(deployer);
+    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
+    address owner = rotationComponent.owner();
+    console.log("owner:", owner);
+    console.log("deployer:", deployer);
+
+    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 0, 50, 80);
 
     uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
-    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(shipEntity);
+    uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
+    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(cannonEntity);
 
-    Coord[3] memory firingArea = LibCombat.getFiringAreaForward(components, shipEntity);
-    Coord memory leftCorner = LibVector.getPositionByVector(startingPosition, rotation, range, 10);
-    Coord memory rightCorner = LibVector.getPositionByVector(startingPosition, rotation, range, 350);
+    Coord[3] memory firingArea = LibCombat.getFiringAreaPivot(components, shipEntity, cannonEntity);
+    Coord memory frontCorner = LibVector.getPositionByVector(
+      startingPosition,
+      rotation,
+      range,
+      (cannonRotation + 350) % 360
+    );
+    Coord memory backCorner = LibVector.getPositionByVector(startingPosition, rotation, range, cannonRotation + 10);
+
+    logCoord("startingPosition", startingPosition);
+    logCoord("frontCorner", frontCorner);
+    logCoord("backCorner", backCorner);
 
     assertCoordEq(startingPosition, firingArea[0]);
-    assertCoordEq(rightCorner, firingArea[1]);
-    assertCoordEq(leftCorner, firingArea[2]);
+    assertCoordEq(frontCorner, firingArea[1]);
+    assertCoordEq(backCorner, firingArea[2]);
+  }
+
+  function testFiringAreaPivotBehind() public prank(zero) {
+    // setUp();
+    Coord memory startingPosition = Coord({ x: 0, y: 0 });
+
+    uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, 0);
+    // vm.startPrank(deployer);
+    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
+    address owner = rotationComponent.owner();
+    console.log("owner:", owner);
+    console.log("deployer:", deployer);
+
+    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 180, 50, 80);
+
+    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
+    uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
+    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(cannonEntity);
+    uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
+    Coord memory stern = LibVector.getSternLocation(startingPosition, rotation, length);
+
+    Coord[3] memory firingArea = LibCombat.getFiringAreaPivot(components, shipEntity, cannonEntity);
+    Coord memory frontCorner = LibVector.getPositionByVector(stern, rotation, range, (cannonRotation + 350) % 360);
+    Coord memory backCorner = LibVector.getPositionByVector(stern, rotation, range, cannonRotation + 10);
+
+    logCoord("stern", stern);
+    logCoord("frontCorner", frontCorner);
+    logCoord("backCorner", backCorner);
+
+    assertCoordEq(stern, firingArea[0]);
+    assertCoordEq(frontCorner, firingArea[1]);
+    assertCoordEq(backCorner, firingArea[2]);
   }
 }

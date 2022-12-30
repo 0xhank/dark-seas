@@ -44,15 +44,10 @@ export function createHealthSystem(layer: PhaserLayer) {
       const spriteId = `${update.entity}-explosion-${i}`;
 
       const object = objectPool.get(spriteId, "Sprite");
-      console.log("hit location:", hitLocations[i]);
       const { x, y } = tileCoordToPixelCoord(hitLocations[i], positions.posWidth, positions.posHeight);
 
       object.setComponent({
         id: `explosion-${i}`,
-        // now: async () => {
-        //   console.log("i:", i);
-        //   await new Promise((r) => setTimeout(() => {}, delay * i));
-        // },
         once: async (sprite) => {
           // sprite.setScale(Math.random() + 1);
           sprite.setOrigin(0.5, 0.5);

@@ -7,10 +7,12 @@ import {
   getComponentValue,
   getComponentValueStrict,
   Has,
+  HasValue,
   removeComponent,
+  runQuery,
   UpdateType,
 } from "@latticexyz/recs";
-import { Phase, Side, Sprites } from "../../../../types";
+import { Phase, Sprites } from "../../../../types";
 import { getFinalPosition } from "../../../../utils/directions";
 import { getShipSprite } from "../../../../utils/ships";
 import { getFiringArea } from "../../../../utils/trig";
@@ -23,7 +25,7 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: { Wind, Position, Range, Length, Rotation, SailPosition, MoveCard, Health },
+        components: { Wind, Position, Range, Length, Rotation, SailPosition, MoveCard, Health, Cannon, OwnedBy },
         utils: { getPhase },
       },
       backend: {
@@ -37,15 +39,15 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     positions,
   } = phaser;
 
-  defineExitSystem(world, [Has(SelectedMove)], ({ entity }) => {
-    removeComponent(SelectedMove, entity);
-    const rangeGroup = polygonRegistry.get(`rangeGroup-${entity}`);
+  defineExitSystem(world, [Has(SelectedMove)], ({ entity: shipEntity }) => {
+    removeComponent(SelectedMove, shipEntity);
+    const rangeGroup = polygonRegistry.get(`rangeGroup-${shipEntity}`);
     if (rangeGroup) rangeGroup.clear(true, true);
 
-    objectPool.remove(`projection-${entity}`);
+    objectPool.remove(`projection-${shipEntity}`);
   });
 
-  defineSystem(world, [Has(SelectedMove), Has(Health)], ({ entity, type }) => {
+  defineSystem(world, [Has(SelectedMove), Has(Health)], ({ entity: shipEntity, type }) => {
     const phase: Phase | undefined = getPhase(DELAY);
 
     if (phase == undefined || phase == Phase.Action) return;
@@ -53,34 +55,37 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     if (type == UpdateType.Exit) return;
     const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
-    const moveCardEntity = getComponentValue(SelectedMove, entity);
+    const moveCardEntity = getComponentValue(SelectedMove, shipEntity);
 
-    let rangeGroup = polygonRegistry.get(`rangeGroup-${entity}`);
-    const object = objectPool.get(`projection-${entity}`, "Sprite");
+    let rangeGroup = polygonRegistry.get(`rangeGroup-${shipEntity}`);
+    const object = objectPool.get(`projection-${shipEntity}`, "Sprite");
 
     if (rangeGroup) rangeGroup.clear(true, true);
     if (!moveCardEntity) return;
     if (!rangeGroup) rangeGroup = phaserScene.add.group();
 
     const moveCard = getComponentValueStrict(MoveCard, moveCardEntity.value as EntityIndex);
-    const position = getComponentValueStrict(Position, entity);
-    const range = getComponentValueStrict(Range, entity).value;
-    const length = getComponentValueStrict(Length, entity).value;
-    const rotation = getComponentValueStrict(Rotation, entity).value;
+    const position = getComponentValueStrict(Position, shipEntity);
+    const length = getComponentValueStrict(Length, shipEntity).value;
+    const rotation = getComponentValueStrict(Rotation, shipEntity).value;
     const wind = getComponentValueStrict(Wind, GodEntityIndex);
-    const sailPosition = getComponentValueStrict(SailPosition, entity).value;
-    const health = getComponentValueStrict(Health, entity).value;
+    const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
+    const health = getComponentValueStrict(Health, shipEntity).value;
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, sailPosition, wind);
+    const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
 
     const pixelPosition = tileCoordToPixelCoord(finalPosition, positions.posWidth, positions.posHeight);
 
-    const firingPolygons = [Side.Forward, Side.Left, Side.Right].map((side) => {
+    const firingPolygons = cannonEntities.map((cannonEntity) => {
+      const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
+      const range = getComponentValueStrict(Range, cannonEntity).value;
+
       const firingArea = getFiringArea(
         pixelPosition,
         range * positions.posHeight,
         length * positions.posHeight,
         finalRotation,
-        side
+        cannonRotation
       );
 
       const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, 0xffffff, 0.1);
@@ -92,7 +97,7 @@ export function createProjectionSystem(phaser: PhaserLayer) {
 
     rangeGroup.addMultiple(firingPolygons, true);
 
-    polygonRegistry.set(`rangeGroup-${entity}`, rangeGroup);
+    polygonRegistry.set(`rangeGroup-${shipEntity}`, rangeGroup);
 
     const spriteAsset: Sprites = getShipSprite(GodEntityIndex, health, true);
     // @ts-expect-error doesnt recognize a sprite as a number
@@ -101,7 +106,7 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const { x, y } = tileCoordToPixelCoord(finalPosition, positions.posWidth, positions.posHeight);
 
     object.setComponent({
-      id: `projection-${entity}`,
+      id: `projection-${shipEntity}`,
       once: async (gameObject: Phaser.GameObjects.Sprite) => {
         gameObject.setTexture(sprite.assetKey, sprite.frame);
 

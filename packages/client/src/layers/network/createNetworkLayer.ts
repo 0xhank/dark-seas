@@ -22,7 +22,7 @@ import { Coord, keccak256 } from "@latticexyz/utils";
 import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../../../contracts/types/SystemTypes";
-import { Action, Phase } from "../../types";
+import { Action, Move, Phase } from "../../types";
 import { defineMoveCardComponent } from "./components/MoveCardComponent";
 import { defineWindComponent } from "./components/WindComponent";
 import { GameConfig, getNetworkConfig } from "./config";
@@ -82,6 +82,7 @@ export async function createNetworkLayer(config: GameConfig) {
     Player: defineBoolComponent(world, { id: "Player", metadata: { contractId: "ds.component.Player" } }),
     Name: defineStringComponent(world, { id: "Name", metadata: { contractId: "ds.component.Name" } }),
     Commitment: defineStringComponent(world, { id: "Commitment", metadata: { contractId: "ds.component.Commitment" } }),
+    Cannon: defineBoolComponent(world, { id: "Cannon", metadata: { contractId: "ds.component.Cannon" } }),
   };
 
   // --- SETUP ----------------------------------------------------------------------
@@ -156,15 +157,15 @@ export async function createNetworkLayer(config: GameConfig) {
     });
   }
 
-  function revealMove(encoding: string) {
-    const decodedMove = abi.decode(["uint256[]", "uint256[]", "uint256"], encoding);
-    systems["ds.system.Move"].executeTyped(decodedMove[0], decodedMove[1], decodedMove[2], {
+  function revealMove(moves: Move[], salt: number) {
+    systems["ds.system.Move"].executeTyped(moves, salt, {
       gasLimit: GAS_LIMIT,
     });
   }
 
-  function submitActions(ships: EntityID[], actions: Action[][]) {
-    systems["ds.system.Action"].executeTyped(ships, actions, {
+  function submitActions(actions: Action[]) {
+    console.log("submitting actions:", actions);
+    systems["ds.system.Action"].executeTyped(actions, {
       gasLimit: GAS_LIMIT,
     });
   }

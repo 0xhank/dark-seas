@@ -58,4 +58,19 @@ contract MudTest is Test {
   function assertCoordNotEq(Coord memory a, Coord memory b) internal {
     assertTrue(a.x != b.x || a.y != b.y);
   }
+
+  function logCoord(string memory name, Coord memory coord) internal {
+    console.log(name);
+    console.log("x:");
+    console.logInt(coord.x);
+    console.log("y:");
+    console.logInt(coord.y);
+  }
+
+  function logCoord(Coord memory coord) internal {
+    console.log("x:");
+    console.logInt(coord.x);
+    console.log("y:");
+    console.logInt(coord.y);
+  }
 }

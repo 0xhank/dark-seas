@@ -12,7 +12,7 @@ import {
 import { ActionState } from "@latticexyz/std-client";
 import { map, merge } from "rxjs";
 import styled from "styled-components";
-import { Phase } from "../../../../../types";
+import { ActionType, Phase } from "../../../../../types";
 import { DELAY } from "../../../constants";
 import { registerUIComponent } from "../../engine";
 import { Button, colors, ConfirmButton, Container, InternalContainer } from "../../styles/global";
@@ -157,25 +157,26 @@ export function registerYourShips() {
       const yourShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
 
       const selectedMoves = [...getComponentEntities(SelectedMove)];
-      const selectedActions = [...getComponentEntities(SelectedActions)].map(
-        (entity) => getComponentValue(SelectedActions, entity)?.value
+      const selectedActions = [...getComponentEntities(SelectedActions)].map((entity) =>
+        getComponentValueStrict(SelectedActions, entity)
       );
 
       const disabled =
         phase == Phase.Commit
           ? selectedMoves.length == 0
-          : selectedActions.length == 0 || selectedActions?.every((arr) => arr?.every((elem) => elem == -1));
+          : selectedActions.length == 0 ||
+            selectedActions.every((arr) => arr.actionTypes.every((elem) => elem == ActionType.None));
 
       const handleSubmitActions = () => {
         const shipsAndActions = getPlayerShipsWithActions();
         if (!shipsAndActions) return;
-        submitActions(shipsAndActions.ships, shipsAndActions.actions);
+        submitActions(shipsAndActions);
       };
 
       const handleSubmitCommitment = () => {
         const shipsAndMoves = getPlayerShipsWithMoves();
         if (!shipsAndMoves) return;
-        commitMove(shipsAndMoves.ships, shipsAndMoves.moves);
+        commitMove(shipsAndMoves);
       };
 
       const handleSubmitExecute = () => {
@@ -256,7 +257,10 @@ export function registerYourShips() {
         let content: JSX.Element | null = null;
         const actionExecuting = !![...runQuery([Has(Action)])].find((entity) => {
           const state = getComponentValueStrict(Action, entity).state;
-          return [ActionState.Requested, ActionState.Executing, ActionState.WaitingForTxEvents].includes(state);
+          if (state == ActionState.Requested) return true;
+          if (state == ActionState.Executing) return true;
+          if (state == ActionState.WaitingForTxEvents) return true;
+          return false;
         });
         if (actionExecuting) content = <Success background={colors.waiting}>Executing...</Success>;
         else if (phase == Phase.Reveal) content = <RevealButtons />;

@@ -23,9 +23,7 @@ contract ActionSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
-    (uint256[] memory shipEntities, Action[][] memory actions) = abi.decode(arguments, (uint256[], Action[][]));
-
-    require(shipEntities.length == actions.length, "ActionSystem: array length mismatch");
+    Action[] memory actions = abi.decode(arguments, (Action[]));
 
     uint256 playerEntity = addressToEntity(msg.sender);
 
@@ -40,14 +38,16 @@ contract ActionSystem is System {
       "ActionSystem: already acted this turn"
     );
     lastActionComponent.set(playerEntity, currentTurn);
-
     // iterate through each ship
-    for (uint256 i = 0; i < shipEntities.length; i++) {
-      LibAction.executeShipActions(components, shipEntities[i], actions[i]);
+    for (uint256 i = 0; i < actions.length; i++) {
+      for (uint256 j = 0; j < i; j++) {
+        require(actions[i].shipEntity != actions[j].shipEntity, "ActionSystem: duplicated ships");
+      }
+      LibAction.executeActions(components, actions[i]);
     }
   }
 
-  function executeTyped(uint256[] calldata shipEntities, Action[][] calldata actions) public returns (bytes memory) {
-    return execute(abi.encode(shipEntities, actions));
+  function executeTyped(Action[] calldata actions) public returns (bytes memory) {
+    return execute(abi.encode(actions));
   }
 }

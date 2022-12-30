@@ -1,3 +1,4 @@
+import { EntityID } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
 import { boot } from "./boot";
 import { BackendLayer } from "./layers/backend";
@@ -8,10 +9,21 @@ export type DSWindow = Awaited<ReturnType<typeof boot>>;
 
 export type Layers = { network: NetworkLayer; backend: BackendLayer; phaser: PhaserLayer };
 
-export enum Action {
-  FireForward,
-  FireLeft,
-  FireRight,
+export type Action = {
+  shipEntity: EntityID;
+  actionTypes: [ActionType, ActionType];
+  specialEntities: [EntityID, EntityID];
+};
+
+export type Move = {
+  shipEntity: EntityID;
+  moveCardEntity: EntityID;
+};
+
+export enum ActionType {
+  None,
+  Load,
+  Fire,
   RaiseSail,
   LowerSail,
   ExtinguishFire,
@@ -20,28 +32,11 @@ export enum Action {
   RepairSail,
 }
 
-export enum Side {
-  Forward,
-  Right,
-  Left,
-}
-
 export enum Phase {
   Commit,
   Reveal,
   Action,
 }
-
-// this makes me sad
-// TODO: make this make me not sad
-export const ActionToSide: Record<number, number> = {
-  [Action.FireForward]: Side.Forward,
-  [Action.FireLeft]: Side.Left,
-  [Action.FireRight]: Side.Right,
-  [Side.Forward]: Action.FireForward,
-  [Side.Left]: Action.FireLeft,
-  [Side.Right]: Action.FireRight,
-};
 
 export const PhaseNames: Record<number, string> = {
   [Phase.Commit]: "Move Preparation",
@@ -50,27 +45,27 @@ export const PhaseNames: Record<number, string> = {
 };
 
 export const ActionNames: Record<number, string> = {
-  [Action.FireForward]: "Fire Forward",
-  [Action.FireRight]: "Fire Right",
-  [Action.FireLeft]: "Fire Left",
-  [Action.RaiseSail]: "Raise Sail",
-  [Action.LowerSail]: "Lower Sail",
-  [Action.ExtinguishFire]: "Extinguish Fire",
-  [Action.RepairLeak]: "Repair Leak",
-  [Action.RepairMast]: "Repair Mast",
-  [Action.RepairSail]: "Repair Sail",
+  [ActionType.Fire]: "Fire",
+  [ActionType.Load]: "Load",
+  [ActionType.None]: "None",
+  [ActionType.RaiseSail]: "Raise Sail",
+  [ActionType.LowerSail]: "Lower Sail",
+  [ActionType.ExtinguishFire]: "Extinguish Fire",
+  [ActionType.RepairLeak]: "Repair Leak",
+  [ActionType.RepairMast]: "Repair Mast",
+  [ActionType.RepairSail]: "Repair Sail",
 };
 
 export const ActionImg: Record<number, string> = {
-  [Action.FireForward]: "/icons/fire-forward.svg",
-  [Action.FireRight]: "/icons/fire-right.svg",
-  [Action.FireLeft]: "/icons/fire-left.svg",
-  [Action.RaiseSail]: "/icons/sail.svg",
-  [Action.LowerSail]: "/icons/anchor.svg",
-  [Action.ExtinguishFire]: "/icons/extinguish.svg",
-  [Action.RepairLeak]: "/icons/planks.svg",
-  [Action.RepairMast]: "/icons/broken-mast.svg",
-  [Action.RepairSail]: "/icons/broken-sail.svg",
+  [ActionType.Fire]: "/icons/fire-forward.svg",
+  [ActionType.Load]: "/icons/fire-right.svg",
+  [ActionType.None]: "/icons/fire-left.svg",
+  [ActionType.RaiseSail]: "/icons/sail.svg",
+  [ActionType.LowerSail]: "/icons/anchor.svg",
+  [ActionType.ExtinguishFire]: "/icons/extinguish.svg",
+  [ActionType.RepairLeak]: "/icons/planks.svg",
+  [ActionType.RepairMast]: "/icons/broken-mast.svg",
+  [ActionType.RepairSail]: "/icons/broken-sail.svg",
 };
 
 export type Line = {

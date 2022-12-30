@@ -6,9 +6,11 @@ import {
   getComponentValue,
   getComponentValueStrict,
   Has,
+  HasValue,
+  runQuery,
   UpdateType,
 } from "@latticexyz/recs";
-import { ActionToSide, Phase, Side } from "../../../../types";
+import { Phase } from "../../../../types";
 import { getFiringArea } from "../../../../utils/trig";
 import { DELAY } from "../../constants";
 import { RenderDepth, SHIP_RATIO } from "../constants";
@@ -19,7 +21,7 @@ export function createActiveSystem(layer: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: { Position, Length, Rotation, Range },
+        components: { Position, Length, Rotation, Range, Cannon, OwnedBy },
         utils: { getPhase },
       },
       backend: {
@@ -45,13 +47,13 @@ export function createActiveSystem(layer: PhaserLayer) {
       return;
     }
 
-    const shipEntityId = getComponentValueStrict(HoveredShip, GodEntityIndex).value as EntityIndex;
+    const shipEntity = getComponentValueStrict(HoveredShip, GodEntityIndex).value as EntityIndex;
 
     if (!hoveredGroup) hoveredGroup = phaserScene.add.group();
 
-    const position = getComponentValueStrict(Position, shipEntityId);
-    const length = getComponentValueStrict(Length, shipEntityId).value;
-    const rotation = getComponentValueStrict(Rotation, shipEntityId).value;
+    const position = getComponentValueStrict(Position, shipEntity);
+    const length = getComponentValueStrict(Length, shipEntity).value;
+    const rotation = getComponentValueStrict(Rotation, shipEntity).value;
 
     const pixelPosition = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
 
@@ -81,13 +83,13 @@ export function createActiveSystem(layer: PhaserLayer) {
       return;
     }
 
-    const shipEntityId = getComponentValueStrict(SelectedShip, GodEntityIndex).value as EntityIndex;
+    const shipEntity = getComponentValueStrict(SelectedShip, GodEntityIndex).value as EntityIndex;
 
     if (!activeGroup) activeGroup = phaserScene.add.group();
 
-    const position = getComponentValueStrict(Position, shipEntityId);
-    const length = getComponentValueStrict(Length, shipEntityId).value;
-    const rotation = getComponentValueStrict(Rotation, shipEntityId).value;
+    const position = getComponentValueStrict(Position, shipEntity);
+    const length = getComponentValueStrict(Length, shipEntity).value;
+    const rotation = getComponentValueStrict(Rotation, shipEntity).value;
 
     const pixelPosition = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
 
@@ -101,16 +103,19 @@ export function createActiveSystem(layer: PhaserLayer) {
     circle.setDepth(RenderDepth.Foreground5);
 
     if (phase == Phase.Action) {
-      const selectedActions = getComponentValue(SelectedActions, shipEntityId)?.value;
-      const range = getComponentValueStrict(Range, shipEntityId).value;
+      const selectedActions = getComponentValue(SelectedActions, shipEntity);
+      const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
 
-      const firingPolygons = [Side.Forward, Side.Left, Side.Right].map((side) => {
+      const firingPolygons = cannonEntities.map((cannonEntity) => {
+        const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
+        const range = getComponentValueStrict(Range, cannonEntity).value;
+
         const firingArea = getFiringArea(
           pixelPosition,
           range * positions.posHeight,
           length * positions.posHeight,
           rotation,
-          side
+          cannonRotation
         );
 
         const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, 0xffffff, 0.1);
@@ -118,7 +123,8 @@ export function createActiveSystem(layer: PhaserLayer) {
         firingPolygon.setDepth(RenderDepth.Foreground5);
 
         // TODO:  make this occur on action selection update, not selectedship update
-        if (selectedActions?.includes(ActionToSide[side])) {
+
+        if (selectedActions && selectedActions.specialEntities.includes(world.entities[cannonEntity])) {
           firingPolygon.setFillStyle(0xf33a6a, 0.2);
         }
 

@@ -81,8 +81,6 @@ export function createPositionSystem(phaser: PhaserLayer) {
   });
 
   defineSystem(world, [Has(CrewCount)], (update) => {
-    console.log("updating crew count");
-
     const object = objectPool.get(update.entity, "Sprite");
     const crewCount = getComponentValueStrict(CrewCount, update.entity).value;
 

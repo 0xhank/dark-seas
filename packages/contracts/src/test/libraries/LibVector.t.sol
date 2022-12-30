@@ -19,10 +19,10 @@ contract LibVectorTest is MudTest {
     uint32 rotation = 45;
     uint32 length = 50;
 
-    Coord memory sternLocation = LibVector.getSternLocation(startingPosition, rotation, length);
+    Coord memory sternPosition = LibVector.getSternLocation(startingPosition, rotation, length);
 
     Coord memory expectedLocation = Coord({ x: -35, y: -35 });
-    assertCoordEq(sternLocation, expectedLocation);
+    assertCoordEq(sternPosition, expectedLocation);
   }
 
   function testGetShipBowAndSternLocation() public prank(deployer) {
