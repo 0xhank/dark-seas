@@ -164,6 +164,7 @@ export async function createNetworkLayer(config: GameConfig) {
   }
 
   function submitActions(actions: Action[]) {
+    console.log("submitting actions:", actions);
     systems["ds.system.Action"].executeTyped(actions, {
       gasLimit: GAS_LIMIT,
     });

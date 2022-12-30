@@ -33,8 +33,6 @@ export function registerCameraControls(layer: PhaserLayer) {
       const zoom = camera.phaserCamera.zoom;
       const zoomScale = deltaY < 0 ? 1.08 : 0.92;
       const newZoom = zoom * zoomScale; // deltaY>0 means we scrolled down
-      console.log("new zoom:", newZoom);
-      console.log("delta:", deltaY);
       if (deltaY >= 0 && newZoom < 0.25) return;
       if (deltaY <= 0 && newZoom > 2) return;
 
