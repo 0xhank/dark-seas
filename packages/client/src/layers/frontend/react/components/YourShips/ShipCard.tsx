@@ -1,4 +1,3 @@
-import { GodID } from "@latticexyz/network";
 import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import styled from "styled-components";
 import { Layers, SailPositions } from "../../../../../types";
@@ -15,23 +14,9 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
       world,
       utils: { getPlayerEntity },
       network: { connectedAddress },
-      components: {
-        Health,
-        SailPosition,
-        CrewCount,
-        DamagedMast,
-        Firepower,
-        Leak,
-        OnFire,
-        Rotation,
-        Position,
-        OwnedBy,
-        Name,
-      },
+      components: { Health, SailPosition, CrewCount, DamagedMast, Leak, OnFire, Rotation, OwnedBy, Name },
     },
   } = layers;
-
-  const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
   const playerEntity = getPlayerEntity(connectedAddress.get());
   const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, ship).value);
@@ -39,7 +24,6 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
 
   const sailPosition = getComponentValueStrict(SailPosition, ship).value;
   const rotation = getComponentValueStrict(Rotation, ship).value;
-  const position = getComponentValueStrict(Position, ship);
   const health = getComponentValueStrict(Health, ship).value;
   const crewCount = getComponentValueStrict(CrewCount, ship).value;
   const onFire = getComponentValue(OnFire, ship)?.value;
@@ -54,7 +38,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
         {playerEntity !== ownerEntity && <span>{ownerName}</span>}
         <BoxImage>
           <img
-            src={ShipImages[getShipSprite(playerEntity, health, ownerEntity == playerEntity)]}
+            src={ShipImages[getShipSprite(ownerEntity, health, ownerEntity == playerEntity)]}
             style={{
               objectFit: "scale-down",
               left: "50%",
