@@ -11,12 +11,11 @@ import {
   UpdateType,
 } from "@latticexyz/recs";
 import { Phase } from "../../../../types";
-import { getFiringArea } from "../../../../utils/trig";
 import { DELAY } from "../../constants";
-import { RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
+import { renderCircle, renderFiringArea } from "./renderShip";
 
-export function createActiveSystem(layer: PhaserLayer) {
+export function createActiveSystem(phaser: PhaserLayer) {
   const {
     world,
     parentLayers: {
@@ -33,7 +32,7 @@ export function createActiveSystem(layer: PhaserLayer) {
     scenes: {
       Main: { phaserScene },
     },
-  } = layer;
+  } = phaser;
 
   const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
@@ -54,19 +53,7 @@ export function createActiveSystem(layer: PhaserLayer) {
     const position = getComponentValueStrict(Position, shipEntity);
     const length = getComponentValueStrict(Length, shipEntity).value;
     const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-
-    const pixelPosition = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
-
-    const circleWidth = length * positions.posWidth * 1.5;
-    const circleHeight = circleWidth / SHIP_RATIO;
-
-    const circle = phaserScene.add.ellipse(pixelPosition.x, pixelPosition.y, circleWidth, circleHeight, 0xffffff, 0.3);
-
-    circle.setAngle(rotation % 360);
-    circle.setOrigin(0.85, 0.5);
-    circle.setDepth(RenderDepth.Foreground5);
-
-    hoveredGroup.add(circle, true);
+    renderCircle(phaser, hoveredGroup, position, length, rotation, 0xffc415, 0.5);
 
     polygonRegistry.set("hoveredGroup", hoveredGroup);
   });
@@ -76,8 +63,8 @@ export function createActiveSystem(layer: PhaserLayer) {
 
     if (phase == undefined) return;
 
-    let activeGroup = polygonRegistry.get("activeGroup");
-    if (activeGroup) activeGroup.clear(true, true);
+    const activeGroup = polygonRegistry.get("activeGroup") || phaserScene.add.group();
+    activeGroup.clear(true, true);
 
     if (type === UpdateType.Exit) {
       return;
@@ -85,27 +72,24 @@ export function createActiveSystem(layer: PhaserLayer) {
 
     const shipEntity = getComponentValueStrict(SelectedShip, GodEntityIndex).value as EntityIndex;
 
-    if (!activeGroup) activeGroup = phaserScene.add.group();
-
     const position = getComponentValueStrict(Position, shipEntity);
     const length = getComponentValueStrict(Length, shipEntity).value;
     const rotation = getComponentValueStrict(Rotation, shipEntity).value;
 
-    const pixelPosition = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
-
-    const circleWidth = length * positions.posWidth * 1.5;
-    const circleHeight = circleWidth / SHIP_RATIO;
-
-    const circle = phaserScene.add.ellipse(pixelPosition.x, pixelPosition.y, circleWidth, circleHeight, 0xffc415, 0.5);
-
-    circle.setAngle(rotation % 360);
-    circle.setOrigin(0.85, 0.5);
-    circle.setDepth(RenderDepth.Foreground5);
+    renderCircle(phaser, activeGroup, position, length, rotation, 0xffc415, 0.5);
 
     if (phase == Phase.Action) {
       const selectedActions = getComponentValue(SelectedActions, shipEntity);
       const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
 
+      cannonEntities.forEach((cannonEntity) => {
+        const tint =
+          selectedActions && selectedActions.specialEntities.includes(world.entities[cannonEntity])
+            ? 0xf33a6a
+            : 0xffffff;
+        renderFiringArea(phaser, activeGroup, position, rotation, length, cannonEntity, tint, 0.3);
+      });
+      polygonRegistry.set("activeGroup", activeGroup);
       const firingPolygons = cannonEntities.map((cannonEntity) => {
         const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
         const range = getComponentValueStrict(Range, cannonEntity).value;
