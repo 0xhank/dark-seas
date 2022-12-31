@@ -14,7 +14,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
       world,
       utils: { getPlayerEntity },
       network: { connectedAddress },
-      components: { Health, SailPosition, CrewCount, DamagedMast, Leak, OnFire, Rotation, OwnedBy, Name },
+      components: { Health, SailPosition, DamagedCannons, OnFire, Rotation, OwnedBy, Name },
     },
   } = layers;
 
@@ -25,10 +25,8 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
   const sailPosition = getComponentValueStrict(SailPosition, ship).value;
   const rotation = getComponentValueStrict(Rotation, ship).value;
   const health = getComponentValueStrict(Health, ship).value;
-  const crewCount = getComponentValueStrict(CrewCount, ship).value;
   const onFire = getComponentValue(OnFire, ship)?.value;
-  const leak = getComponentValue(Leak, ship)?.value;
-  const damagedMast = getComponentValue(DamagedMast, ship)?.value;
+  const damagedCannons = getComponentValue(DamagedCannons, ship)?.value;
   const ownerName = getComponentValue(Name, ownerEntity)?.value;
 
   return (
@@ -55,13 +53,11 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
       <div style={{ flex: 3, display: "flex", flexDirection: "column", minWidth: 0 }}>
         <HullHealth health={health} />
         <div style={{ display: "flex", width: "100%", flexWrap: "wrap" }}>
-          <ShipAttribute attributeType={ShipAttributeTypes.Crew} attribute={crewCount} />
           <ShipAttribute attributeType={ShipAttributeTypes.Sails} attribute={SailPositions[sailPosition]} />
         </div>
         <div style={{ display: "flex" }}>
-          {damagedMast && <ShipDamage message="mast broken" amountLeft={damagedMast} />}
+          {damagedCannons && <ShipDamage message="cannons broken" amountLeft={damagedCannons} />}
           {onFire && <ShipDamage message="on fire" amountLeft={onFire} />}
-          {leak && <ShipDamage message="leaking" />}
           {sailPosition == 0 && <ShipDamage message="sails torn" />}
         </div>
       </div>

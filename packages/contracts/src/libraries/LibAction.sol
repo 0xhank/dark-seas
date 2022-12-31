@@ -8,11 +8,9 @@ import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 // Components
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
 import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireComponent.sol";
-import { LeakComponent, ID as LeakComponentID } from "../components/LeakComponent.sol";
-import { DamagedMastComponent, ID as DamagedMastComponentID } from "../components/DamagedMastComponent.sol";
+import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../components/DamagedCannonsComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
-import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { CannonComponent, ID as CannonComponentID } from "../components/CannonComponent.sol";
 import { LoadedComponent, ID as LoadedComponentID } from "../components/LoadedComponent.sol";
@@ -59,9 +57,7 @@ library LibAction {
         lowerSail(components, action.shipEntity);
       } else if (actionType == ActionType.ExtinguishFire) {
         extinguishFire(components, action.shipEntity);
-      } else if (actionType == ActionType.RepairLeak) {
-        repairLeak(components, action.shipEntity);
-      } else if (actionType == ActionType.RepairMast) {
+      } else if (actionType == ActionType.RepairCannons) {
         repairMast(components, action.shipEntity);
       } else if (actionType == ActionType.RepairSail) {
         repairSail(components, action.shipEntity);
@@ -75,27 +71,16 @@ library LibAction {
   }
 
   /**
-   * @notice  applies leak and damaged mast effects
+   * @notice  applies damaged mast effects
    * @param   components  world components
    * @param   shipEntity  entity to apply damage to
    */
   function applySpecialDamage(IUint256Component components, uint256 shipEntity) private {
-    LeakComponent leakComponent = LeakComponent(getAddressById(components, LeakComponentID));
-    CrewCountComponent crewCountComponent = CrewCountComponent(getAddressById(components, CrewCountComponentID));
-    DamagedMastComponent damagedMastComponent = DamagedMastComponent(
-      getAddressById(components, DamagedMastComponentID)
-    );
+    OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
 
-    // if ship is leaking, reduce crew count by 1
-    if (leakComponent.has(shipEntity)) {
-      uint32 crewCount = crewCountComponent.getValue(shipEntity);
-      if (crewCount <= 1) crewCountComponent.set(shipEntity, 0);
-      else crewCountComponent.set(shipEntity, crewCount - 1);
-    }
-
     // if ship has a damaged mast, reduce hull health by 1
-    if (damagedMastComponent.has(shipEntity)) {
+    if (onFireComponent.has(shipEntity)) {
       uint32 health = healthComponent.getValue(shipEntity);
       if (health <= 1) healthComponent.set(shipEntity, 0);
       else healthComponent.set(shipEntity, health - 1);
@@ -107,6 +92,8 @@ library LibAction {
     uint256 shipEntity,
     uint256 cannonEntity
   ) private {
+    if (DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).has(shipEntity)) return;
+
     require(
       CannonComponent(getAddressById(components, CannonComponentID)).has(cannonEntity),
       "load: entity not a cannon"
@@ -128,7 +115,7 @@ library LibAction {
     uint256 shipEntity,
     uint256 cannonEntity
   ) public {
-    if (OnFireComponent(getAddressById(components, OnFireComponentID)).has(shipEntity)) return;
+    if (DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).has(shipEntity)) return;
 
     require(
       CannonComponent(getAddressById(components, CannonComponentID)).has(cannonEntity),
@@ -283,35 +270,22 @@ library LibAction {
   }
 
   /**
-   * @notice  repairs leak on ship
-   * @param   components  world components
-   * @param   shipEntity  ship to repair
-   */
-  function repairLeak(IUint256Component components, uint256 shipEntity) private {
-    LeakComponent leakComponent = LeakComponent(getAddressById(components, LeakComponentID));
-
-    if (!leakComponent.has(shipEntity)) return;
-
-    leakComponent.remove(shipEntity);
-  }
-
-  /**
    * @notice  repairs mast on ship
    * @param   components  world components
    * @param   shipEntity  ship to repair
    */
   function repairMast(IUint256Component components, uint256 shipEntity) private {
-    DamagedMastComponent damagedMastComponent = DamagedMastComponent(
-      getAddressById(components, DamagedMastComponentID)
+    DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
+      getAddressById(components, DamagedCannonsComponentID)
     );
 
-    if (!damagedMastComponent.has(shipEntity)) return;
-    uint32 mastDamage = damagedMastComponent.getValue(shipEntity);
+    if (!damagedCannonsComponent.has(shipEntity)) return;
+    uint32 mastDamage = damagedCannonsComponent.getValue(shipEntity);
 
     // it takes two actions to repair a ship's mast from a ship
 
-    if (mastDamage <= 1) damagedMastComponent.remove(shipEntity);
-    else damagedMastComponent.set(shipEntity, mastDamage - 1);
+    if (mastDamage <= 1) damagedCannonsComponent.remove(shipEntity);
+    else damagedCannonsComponent.set(shipEntity, mastDamage - 1);
   }
 
   /**

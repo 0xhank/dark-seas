@@ -41,10 +41,8 @@ export function registerYourShips() {
             Position,
             Player,
             Health,
-            CrewCount,
-            DamagedMast,
+            DamagedCannons,
             Firepower,
-            Leak,
             OnFire,
             Ship,
             OwnedBy,
@@ -74,10 +72,8 @@ export function registerYourShips() {
         Position.update$,
         Player.update$,
         Health.update$,
-        CrewCount.update$,
-        DamagedMast.update$,
+        DamagedCannons.update$,
         Firepower.update$,
-        Leak.update$,
         OnFire.update$,
         Ship.update$,
         SelectedActions.update$,
@@ -190,7 +186,7 @@ export function registerYourShips() {
         const committedMoves = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
 
         if (lastMove == currentTurn) return <Success background={colors.confirmed}>Move execution successful!</Success>;
-        if (!committedMoves) return <Success background={colors.glass}>"No moves to execute"</Success>;
+        if (!committedMoves) return <Success background={colors.glass}>No moves to execute</Success>;
         return (
           <ConfirmButton style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmitExecute}>
             Execute Moves

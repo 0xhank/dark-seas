@@ -25,7 +25,7 @@ export function createPositionSystem(phaser: PhaserLayer) {
     },
     parentLayers: {
       network: {
-        components: { Position, Length, Rotation, OwnedBy, Health, CrewCount },
+        components: { Position, Length, Rotation, OwnedBy, Health },
         utils: { getPlayerEntity },
         network: { connectedAddress },
       },
@@ -69,26 +69,6 @@ export function createPositionSystem(phaser: PhaserLayer) {
         gameObject.setTexture(sprite.assetKey, sprite.frame);
 
         if (health == 0) {
-          gameObject.setAlpha(0.5);
-          gameObject.disableInteractive();
-          gameObject.setDepth(RenderDepth.Foreground4);
-        } else {
-          gameObject.setAlpha(1);
-          gameObject.setDepth(RenderDepth.Foreground3);
-        }
-      },
-    });
-  });
-
-  defineSystem(world, [Has(CrewCount)], (update) => {
-    const object = objectPool.get(update.entity, "Sprite");
-    const crewCount = getComponentValueStrict(CrewCount, update.entity).value;
-
-    object.setComponent({
-      id: `crew-count-${update.entity}`,
-
-      once: (gameObject) => {
-        if (crewCount == 0) {
           gameObject.setAlpha(0.5);
           gameObject.disableInteractive();
           gameObject.setDepth(RenderDepth.Foreground4);

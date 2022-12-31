@@ -64,12 +64,10 @@ export async function createNetworkLayer(config: GameConfig) {
       id: "SailPosition",
       metadata: { contractId: "ds.component.SailPosition" },
     }),
-    CrewCount: defineNumberComponent(world, { id: "CrewCount", metadata: { contractId: "ds.component.CrewCount" } }),
-    DamagedMast: defineNumberComponent(world, {
-      id: "DamagedMast",
-      metadata: { contractId: "ds.component.DamagedMast" },
+    DamagedCannons: defineNumberComponent(world, {
+      id: "DamagedCannons",
+      metadata: { contractId: "ds.component.DamagedCannons" },
     }),
-    Leak: defineBoolComponent(world, { id: "Leak", metadata: { contractId: "ds.component.Leak" } }),
     OnFire: defineNumberComponent(world, { id: "OnFire", metadata: { contractId: "ds.component.OnFire" } }),
     Firepower: defineNumberComponent(world, { id: "Firepower", metadata: { contractId: "ds.component.Firepower" } }),
     LastMove: defineNumberComponent(world, { id: "LastMove", metadata: { contractId: "ds.component.LastMove" } }),
@@ -176,6 +174,11 @@ export async function createNetworkLayer(config: GameConfig) {
     systems["ds.system.ComponentDev"].executeTyped(componentId, world.entities[ship], abi.encode(["bool"], [true]));
   }
 
+  function damageCannons(ship: EntityIndex) {
+    const componentId = keccak256("ds.component.DamagedCannons");
+    systems["ds.system.ComponentDev"].executeTyped(componentId, world.entities[ship], abi.encode(["uint32"], [2]));
+  }
+
   // --- CONTEXT --------------------------------------------------------------------
   const context = {
     world,
@@ -186,7 +189,7 @@ export async function createNetworkLayer(config: GameConfig) {
     startSync,
     network,
     utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn },
-    api: { revealMove, submitActions, spawnPlayer, commitMove, setOnFire },
+    api: { revealMove, submitActions, spawnPlayer, commitMove, setOnFire, damageCannons },
     dev: setupDevSystems(world, encoders, systems),
   };
 
