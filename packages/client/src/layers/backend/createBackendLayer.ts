@@ -26,11 +26,23 @@ import { submitActions } from "./api/submitActions";
 export async function createBackendLayer(network: NetworkLayer) {
   // --- WORLD ----------------------------------------------------------------------
   const world = namespaceWorld(network.world, "backend");
+  const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
+
   // --- COMPONENTS -----------------------------------------------------------------
   const components = {
     SelectedMove: defineNumberComponent(world, { id: "SelectedMove" }),
     SelectedShip: defineNumberComponent(world, { id: "SelectedShip" }),
     HoveredShip: defineNumberComponent(world, { id: "HoveredShip" }),
+    HoveredAction: defineComponent(
+      world,
+      { actionType: Type.Number, specialEntity: Type.Number },
+      { id: "HoveredAction" }
+    ),
+    HoveredMove: defineComponent(
+      world,
+      { shipEntity: Type.Number, moveCardEntity: Type.Number },
+      { id: "HoveredMove" }
+    ),
     SelectedActions: defineComponent(
       world,
       { actionTypes: Type.NumberArray, specialEntities: Type.EntityArray },
@@ -165,6 +177,7 @@ export async function createBackendLayer(network: NetworkLayer) {
       getPlayerShipsWithActions,
     },
     components,
+    godIndex: GodEntityIndex,
   };
 
   // --- SYSTEMS --------------------------------------------------------------------
