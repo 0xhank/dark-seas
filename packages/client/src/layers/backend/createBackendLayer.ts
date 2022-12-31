@@ -1,3 +1,4 @@
+import { GodID } from "@latticexyz/network";
 import {
   defineComponent,
   EntityID,
