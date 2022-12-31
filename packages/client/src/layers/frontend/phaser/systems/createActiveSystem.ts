@@ -1,5 +1,4 @@
 import { GodID } from "@latticexyz/network";
-import { tileCoordToPixelCoord } from "@latticexyz/phaserx";
 import {
   defineSystem,
   EntityIndex,
@@ -24,11 +23,10 @@ export function createActiveSystem(phaser: PhaserLayer) {
         utils: { getPhase },
       },
       backend: {
-        components: { SelectedShip, SelectedActions, HoveredShip },
+        components: { SelectedShip, SelectedActions, HoveredShip, HoveredAction },
       },
     },
     polygonRegistry,
-    positions,
     scenes: {
       Main: { phaserScene },
     },
@@ -37,8 +35,6 @@ export function createActiveSystem(phaser: PhaserLayer) {
   const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
   defineSystem(world, [Has(HoveredShip)], ({ type }) => {
-    const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
-
     let hoveredGroup = polygonRegistry.get("hoveredGroup");
     if (hoveredGroup) hoveredGroup.clear(true, true);
 
@@ -89,37 +85,7 @@ export function createActiveSystem(phaser: PhaserLayer) {
             : 0xffffff;
         renderFiringArea(phaser, activeGroup, position, rotation, length, cannonEntity, tint, 0.3);
       });
-      polygonRegistry.set("activeGroup", activeGroup);
-      const firingPolygons = cannonEntities.map((cannonEntity) => {
-        const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
-        const range = getComponentValueStrict(Range, cannonEntity).value;
-
-        const firingArea = getFiringArea(
-          pixelPosition,
-          range * positions.posHeight,
-          length * positions.posHeight,
-          rotation,
-          cannonRotation
-        );
-
-        const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, 0xffffff, 0.1);
-        firingPolygon.setDisplayOrigin(0);
-        firingPolygon.setDepth(RenderDepth.Foreground5);
-
-        // TODO:  make this occur on action selection update, not selectedship update
-
-        if (selectedActions && selectedActions.specialEntities.includes(world.entities[cannonEntity])) {
-          firingPolygon.setFillStyle(0xf33a6a, 0.2);
-        }
-
-        return firingPolygon;
-      });
-
-      activeGroup.addMultiple(firingPolygons, true);
     }
-
-    activeGroup.add(circle, true);
-
     polygonRegistry.set("activeGroup", activeGroup);
   });
 }

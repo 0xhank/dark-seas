@@ -91,7 +91,6 @@ export function renderFiringArea(
 
   const firingArea = getFiringArea(pixelPosition, range, length * positions.posHeight, rotation, cannonRotation);
 
-  console.log("firing area:", firingArea);
   const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, 0xffffff, 0.1);
   firingPolygon.setDisplayOrigin(0);
   firingPolygon.setDepth(RenderDepth.Foreground5);

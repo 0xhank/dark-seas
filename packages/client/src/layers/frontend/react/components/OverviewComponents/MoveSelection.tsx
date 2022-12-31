@@ -22,7 +22,7 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
   } = layers.network;
 
   const {
-    components: { SelectedMove, SelectedShip },
+    components: { SelectedMove, SelectedShip, HoveredMove },
   } = layers.backend;
 
   const worldRadius = getGameConfig()?.worldRadius;
@@ -63,6 +63,8 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
             disabled={disabled}
             isSelected={isSelected}
             key={`move-selection-${entity}`}
+            onMouseEnter={() => setComponent(HoveredMove, GodEntityIndex, { moveCardEntity: entity, shipEntity: ship })}
+            onMouseLeave={() => removeComponent(HoveredMove, GodEntityIndex)}
             onClick={(e) => {
               e.stopPropagation();
               if (isSelected) removeComponent(SelectedMove, ship);
