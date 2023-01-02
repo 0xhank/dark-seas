@@ -32,6 +32,8 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
     specialEntities: ["0" as EntityID, "0" as EntityID],
   };
 
+  const actions = structuredClone(selectedActions);
+
   const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[ship] })])];
 
   const disabled = selectedActions.actionTypes.every((a) => a !== ActionType.None);
@@ -43,21 +45,21 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
     if (index == -1) {
       const unusedSlot = selectedActions.actionTypes.indexOf(ActionType.None);
       if (unusedSlot == -1) return;
-      selectedActions.actionTypes[unusedSlot] = action;
-      selectedActions.specialEntities[unusedSlot] = cannonEntity;
+      actions.actionTypes[unusedSlot] = action;
+      actions.specialEntities[unusedSlot] = cannonEntity;
     } else {
-      selectedActions.actionTypes[index] = ActionType.None;
-      selectedActions.specialEntities[index] = "0" as EntityID;
+      actions.actionTypes[index] = ActionType.None;
+      actions.specialEntities[index] = "0" as EntityID;
     }
     setComponent(SelectedActions, ship, {
-      actionTypes: selectedActions.actionTypes,
-      specialEntities: selectedActions.specialEntities,
+      actionTypes: actions.actionTypes,
+      specialEntities: actions.specialEntities,
     });
     setComponent(SelectedShip, GodEntityIndex, { value: ship });
   };
 
   const handleNewActionsSpecial = (action: ActionType) => {
-    const actions = selectedActions;
+    const actions = structuredClone(selectedActions);
     const index = actions.actionTypes.indexOf(action);
     if (index == -1) {
       const unusedSlot = actions.actionTypes.indexOf(ActionType.None);
