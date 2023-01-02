@@ -36,8 +36,9 @@ export function createActiveSystem(phaser: PhaserLayer) {
     },
   } = phaser;
 
-  defineSystem(world, [Has(HoveredShip)], ({ type }) => {
-    let hoveredGroup = polygonRegistry.get("hoveredGroup");
+  defineSystem(world, [Has(SelectedShip)], ({ type }) => {
+    const groupId = "circle";
+    let hoveredGroup = polygonRegistry.get(groupId);
     if (hoveredGroup) hoveredGroup.clear(true, true);
 
     if (type === UpdateType.Exit) {
@@ -53,7 +54,28 @@ export function createActiveSystem(phaser: PhaserLayer) {
     const rotation = getComponentValueStrict(Rotation, shipEntity).value;
     renderCircle(phaser, hoveredGroup, position, length, rotation, colors.goldHex, 0.5);
 
-    polygonRegistry.set("hoveredGroup", hoveredGroup);
+    polygonRegistry.set(groupId, hoveredGroup);
+  });
+
+  defineSystem(world, [Has(HoveredShip)], ({ type }) => {
+    const groupId = "hover-circle";
+    let hoveredGroup = polygonRegistry.get(groupId);
+    if (hoveredGroup) hoveredGroup.clear(true, true);
+
+    if (type === UpdateType.Exit) {
+      return;
+    }
+
+    const shipEntity = getComponentValueStrict(HoveredShip, godIndex).value as EntityIndex;
+
+    if (!hoveredGroup) hoveredGroup = phaserScene.add.group();
+
+    const position = getComponentValueStrict(Position, shipEntity);
+    const length = getComponentValueStrict(Length, shipEntity).value;
+    const rotation = getComponentValueStrict(Rotation, shipEntity).value;
+    renderCircle(phaser, hoveredGroup, position, length, rotation, colors.whiteHex, 0.2);
+
+    polygonRegistry.set(groupId, hoveredGroup);
   });
 
   defineSystem(world, [Has(HoveredAction)], (update) => {
@@ -81,11 +103,9 @@ export function createActiveSystem(phaser: PhaserLayer) {
     const length = getComponentValueStrict(Length, shipEntity).value;
     const rotation = getComponentValueStrict(Rotation, shipEntity).value;
 
-    let tint = colors.whiteHex;
-    const alpha = 0.3;
+    const tint = colors.whiteHex;
+    const alpha = 0.1;
     const loaded = getComponentValue(Loaded, cannonEntity);
-
-    tint = !loaded ? colors.goldHex : colors.cannonReadyHex;
 
     renderFiringArea(phaser, hoveredGroup, position, rotation, length, cannonEntity, tint, alpha);
 
@@ -112,23 +132,6 @@ export function createActiveSystem(phaser: PhaserLayer) {
       setComponent(Targeted, entity, { value: targetedValue - 1 });
     });
   });
-
-  // defineSystem(world, [Has(SelectedShip)], (update) => {
-  //   const activeGroup = polygonRegistry.get("activeGroup") || phaserScene.add.group();
-  //   activeGroup.clear(true, true);
-  //   if (update.type == UpdateType.Exit) {
-  //     return;
-  //   }
-
-  //   const shipEntity = update.value[0]?.value as EntityIndex | undefined;
-  //   if (!shipEntity) return;
-
-  //   const position = getComponentValueStrict(Position, shipEntity);
-  //   const length = getComponentValueStrict(Length, shipEntity).value;
-  //   const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-
-  //   renderCircle(phaser, activeGroup, position, length, rotation, colors.goldHex, 0.5);
-  // });
 
   defineSystem(world, [Has(SelectedShip)], ({ type }) => {
     const phase: Phase | undefined = getPhase(DELAY);
