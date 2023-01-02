@@ -54,9 +54,9 @@ export function getFiringArea(
 
 export function inFiringArea(coords: Coord[], point: Coord) {
   let wn = 0;
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < coords.length; i++) {
     const point1 = coords[i];
-    const point2 = i == 2 ? coords[0] : coords[i + 1];
+    const point2 = i == coords.length - 1 ? coords[0] : coords[i + 1];
 
     const isLeft = (point2.x - point1.x) * (point.y - point1.y) - (point.x - point1.x) * (point2.y - point1.y);
     if (isLeft == 0) return false;

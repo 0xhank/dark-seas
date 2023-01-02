@@ -1,6 +1,7 @@
 import {
   defineExitSystem,
   defineSystem,
+  EntityID,
   EntityIndex,
   getComponentValue,
   getComponentValueStrict,
@@ -45,7 +46,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
       return;
     }
 
-    const shipEntity = getComponentValueStrict(HoveredShip, godIndex).value as EntityIndex;
+    const shipEntity = getComponentValueStrict(SelectedShip, godIndex).value as EntityIndex;
 
     if (!hoveredGroup) hoveredGroup = phaserScene.add.group();
 
@@ -110,8 +111,9 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
 
     polygonRegistry.set(objectId, hoveredGroup);
     // make targeted ships red
+
+    if (actionType != ActionType.Fire) return;
     getTargetedShips(cannonEntity).forEach((entity) => {
-      console.log("found targeted ships:", entity);
       const targetedValue = getComponentValue(Targeted, entity)?.value || 0;
       setComponent(Targeted, entity, { value: targetedValue + 1 });
     });
@@ -133,10 +135,59 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
   });
 
   defineSystem(world, [Has(SelectedActions)], (update) => {
+    const oldEntities = update.value[1]?.specialEntities as EntityID[] | undefined;
+    const newEntities = update.value[0]?.specialEntities as EntityID[] | undefined;
+
+    console.log(update.value);
+    const diff = getDiff(oldEntities, newEntities);
+
+    if (diff) {
+      getTargetedShips(diff.entity).forEach((entity) => {
+        const targetedValue = getComponentValue(Targeted, entity)?.value || 0;
+        setComponent(Targeted, entity, { value: diff.added ? targetedValue + 1 : Math.max(0, targetedValue - 1) });
+      });
+    }
     const hoveredShip = getComponentValue(HoveredShip, godIndex);
     if (!hoveredShip) return;
     setComponent(HoveredShip, godIndex, hoveredShip);
   });
+
+  function getDiff(
+    oldEntities: EntityID[] | undefined,
+    newEntities: EntityID[] | undefined
+  ): { entity: EntityIndex; added: boolean } | undefined {
+    if (!oldEntities && !newEntities) return;
+    if (!oldEntities && newEntities) {
+      const entityID = newEntities.find((e) => e !== "0");
+
+      if (!entityID) return;
+      const entity = world.entityToIndex.get(entityID);
+      if (!entity) return;
+      return { entity, added: true };
+    }
+    if (oldEntities && !newEntities) {
+      const entityID = oldEntities.find((e) => e !== "0");
+      if (!entityID) return;
+      const entity = world.entityToIndex.get(entityID);
+      if (!entity) return;
+      return { entity, added: false };
+    }
+    if (oldEntities && newEntities) {
+      const oldAddition = oldEntities.find((v) => v !== "0" && !newEntities.includes(v));
+      const newAddition = newEntities.find((v) => v !== "0" && !oldEntities.includes(v));
+
+      if (oldAddition) {
+        const entity = world.entityToIndex.get(oldAddition);
+
+        if (!entity) return;
+        return { entity, added: false };
+      } else if (newAddition) {
+        const entity = world.entityToIndex.get(newAddition);
+        if (!entity) return;
+        return { entity, added: true };
+      }
+    }
+  }
 
   defineSystem(world, [Has(HoveredShip)], ({ type }) => {
     const phase: Phase | undefined = getPhase(DELAY);

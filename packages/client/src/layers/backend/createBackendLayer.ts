@@ -125,10 +125,8 @@ export async function createBackendLayer(network: NetworkLayer) {
 
   function getTargetedShips(cannonEntity: EntityIndex): EntityIndex[] {
     const shipID = getComponentValue(OwnedBy, cannonEntity)?.value;
-    console.log("shipID", shipID);
     if (!shipID) return [];
     const shipEntity = world.entityToIndex.get(shipID);
-    console.log("shipEntity", shipEntity);
 
     const address = connectedAddress.get() as EntityID;
     if (!address || !shipEntity) return [];
@@ -148,11 +146,9 @@ export async function createBackendLayer(network: NetworkLayer) {
 
       const firingArea = getFiringArea(shipPosition, range, length, shipRotation, cannonRotation);
 
-      // console.log(`firingArea:`, firingArea, "position", position);
-      return inFiringArea(firingArea, enemyPosition) || inFiringArea(firingArea, sternPosition);
+      const toTarget = inFiringArea(firingArea, enemyPosition) || inFiringArea(firingArea, sternPosition);
+      return toTarget;
     });
-
-    console.log("filtered ships:", shipEntities);
 
     return shipEntities;
   }

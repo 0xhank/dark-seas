@@ -20,9 +20,11 @@ export function createTargetedSystem(phaser: PhaserLayer) {
     const targetedShip = objectPool.get(`${update.entity}`, "Sprite");
 
     const value = update.value[0]?.value;
-    if (!value) {
+
+    const hasTint = targetedShip.hasComponent("tint");
+    if (!value && hasTint) {
       targetedShip.removeComponent("tint");
-    } else {
+    } else if (!hasTint) {
       targetedShip.setComponent({
         id: "tint",
         once: (sprite) => {
