@@ -15,6 +15,7 @@ import {
 import { Phase } from "../../../../types";
 import { getFinalPosition } from "../../../../utils/directions";
 import { DELAY } from "../../constants";
+import { colors } from "../../react/styles/global";
 import { PhaserLayer } from "../types";
 import { renderFiringArea, renderShip } from "./renderShip";
 
@@ -62,7 +63,7 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, sailPosition, wind);
 
-    renderShip(phaser, shipEntity, `projection-${shipEntity}`, finalPosition, finalRotation, 0xffc415, 0.7);
+    renderShip(phaser, shipEntity, `projection-${shipEntity}`, finalPosition, finalRotation, colors.goldHex, 0.7);
   });
 
   /* ---------------------------------------------- Hovered Move update --------------------------------------------- */
@@ -92,11 +93,11 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
 
     cannonEntities.forEach((cannonEntity) => {
-      renderFiringArea(phaser, rangeGroup, finalPosition, finalRotation, length, cannonEntity, 0xffffff, 0.1);
+      renderFiringArea(phaser, rangeGroup, finalPosition, finalRotation, length, cannonEntity, colors.whiteHex, 0.1);
     });
     polygonRegistry.set(objectId, rangeGroup);
 
-    renderShip(phaser, shipEntity, `hoverGhost-${shipEntity}`, finalPosition, finalRotation, 0xffffff, 0.5);
+    renderShip(phaser, shipEntity, `hoverGhost-${shipEntity}`, finalPosition, finalRotation, colors.whiteHex, 0.5);
   });
 
   defineExitSystem(world, [Has(HoveredMove)], (update) => {
@@ -131,7 +132,7 @@ export function createProjectionSystem(phaser: PhaserLayer) {
 
       const objectId = `optionGhost-${moveCardEntity}`;
       objectPool.remove(objectId);
-      renderShip(phaser, shipEntity, objectId, finalPosition, finalRotation, 0xffffff, 0.3);
+      renderShip(phaser, shipEntity, objectId, finalPosition, finalRotation, colors.whiteHex, 0.3);
 
       objectPool.get(objectId, "Sprite").setComponent({
         id: objectId,

@@ -11,6 +11,7 @@ import {
 } from "@latticexyz/recs";
 import { Phase } from "../../../../types";
 import { DELAY } from "../../constants";
+import { colors } from "../../react/styles/global";
 import { PhaserLayer } from "../types";
 import { renderCircle, renderFiringArea } from "./renderShip";
 
@@ -49,7 +50,7 @@ export function createActiveSystem(phaser: PhaserLayer) {
     const position = getComponentValueStrict(Position, shipEntity);
     const length = getComponentValueStrict(Length, shipEntity).value;
     const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-    renderCircle(phaser, hoveredGroup, position, length, rotation, 0xffc415, 0.5);
+    renderCircle(phaser, hoveredGroup, position, length, rotation, colors.goldHex, 0.5);
 
     polygonRegistry.set("hoveredGroup", hoveredGroup);
   });

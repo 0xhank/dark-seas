@@ -1,3 +1,4 @@
+import color from "color";
 import styled from "styled-components";
 
 const lightGold = "hsl(45,100%,60%)";
@@ -18,6 +19,10 @@ const thinGlass = "hsla(0, 0%, 100%, 0.25)";
 const red = "hsl(0, 100%, 50%)";
 const waiting = "hsla(50, 100%, 50%, 0.5)";
 const confirmed = "hsla(120, 100%, 50%, 0.5)";
+const green = "hsla(106, 100%, 65%, 1)";
+const whiteHex = color(white).rgbNumber();
+const goldHex = color(gold).rgbNumber();
+const greenHex = color(green).rgbNumber();
 
 const blueGradient =
   "linear-gradient(45deg, hsla(203, 93%, 33%, 1) 0%, hsla(203, 97%, 37%, 1) 51%, hsla(203, 100%, 53%, 1) 100%)";
@@ -42,6 +47,10 @@ export const colors = {
   red,
   waiting,
   confirmed,
+  green,
+  whiteHex,
+  goldHex,
+  greenHex,
 };
 
 export const Container = styled.div`

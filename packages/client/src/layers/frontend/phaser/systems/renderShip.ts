@@ -4,6 +4,7 @@ import { EntityIndex, getComponentValueStrict } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
 import { getShipSprite } from "../../../../utils/ships";
 import { getFiringArea } from "../../../../utils/trig";
+import { colors } from "../../react/styles/global";
 import { RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
 
@@ -13,7 +14,7 @@ export function renderShip(
   objectId: string,
   position: Coord,
   rotation: number,
-  tint = 0xffffff,
+  tint = colors.whiteHex,
   alpha = 1
 ) {
   const {
@@ -69,7 +70,7 @@ export function renderFiringArea(
   rotation: number,
   length: number,
   cannonEntity: EntityIndex,
-  tint = 0xffffff,
+  tint = colors.whiteHex,
   alpha = 1
 ) {
   const {
@@ -91,7 +92,7 @@ export function renderFiringArea(
 
   const firingArea = getFiringArea(pixelPosition, range, length * positions.posHeight, rotation, cannonRotation);
 
-  const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, 0xffffff, 0.1);
+  const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, colors.whiteHex, 0.1);
   firingPolygon.setDisplayOrigin(0);
   firingPolygon.setDepth(RenderDepth.Foreground5);
   firingPolygon.setFillStyle(tint, alpha);
@@ -105,7 +106,7 @@ export function renderCircle(
   position: Coord,
   length: number,
   rotation: number,
-  tint = 0xffffff,
+  tint = colors.whiteHex,
   alpha = 1
 ) {
   const {
@@ -122,7 +123,7 @@ export function renderCircle(
     position.y * positions.posHeight,
     circleWidth,
     circleHeight,
-    0xffc415,
+    colors.goldHex,
     0.5
   );
 
