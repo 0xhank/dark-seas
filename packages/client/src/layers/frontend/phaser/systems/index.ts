@@ -1,4 +1,4 @@
-export { createActiveSystem } from "./createActiveSystem";
+export { createActionSelectionSystem } from "./createActionSelectionSystem";
 export { createInputSystem } from "./createInputSystem";
 export { createPositionSystem } from "./createPositionSystem";
 export { createRadiusSystem } from "./createRadiusSystem";

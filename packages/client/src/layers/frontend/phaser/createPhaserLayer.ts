@@ -4,7 +4,7 @@ import { BackendLayer } from "../../backend";
 import { phaserConfig } from "./config";
 import { POS_HEIGHT, POS_WIDTH } from "./constants";
 import {
-  createActiveSystem,
+  createActionSelectionSystem,
   createInputSystem,
   createPositionSystem,
   createShipOptionsSystem,
@@ -69,7 +69,7 @@ export async function createPhaserLayer(backend: BackendLayer) {
   // --- SYSTEMS --------------------------------------------------------------------
   createInputSystem(context);
   createPositionSystem(context);
-  createActiveSystem(context);
+  createActionSelectionSystem(context);
   createTargetedSystem(context);
   createShipOptionsSystem(context);
   createStatAnimationSystem(context);

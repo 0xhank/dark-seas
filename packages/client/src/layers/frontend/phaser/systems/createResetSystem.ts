@@ -55,6 +55,7 @@ export function createResetSystem(phaser: PhaserLayer) {
           polygonRegistry.get(`rangeGroup-${ship}`)?.clear(true, true);
           removeComponent(SelectedActions, ship);
         });
+        polygonRegistry.get("selectedActions")?.clear(true, true);
       }
 
       // END OF PHASE
