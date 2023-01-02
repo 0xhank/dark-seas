@@ -7,7 +7,9 @@ import {
   getComponentValueStrict,
   Has,
   HasValue,
+  removeComponent,
   runQuery,
+  setComponent,
   UpdateType,
 } from "@latticexyz/recs";
 import { Phase } from "../../../../types";
@@ -127,15 +129,23 @@ export function createProjectionSystem(phaser: PhaserLayer) {
       const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
       const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, sailPosition, wind);
 
-      renderShip(
-        phaser,
-        shipEntity,
-        `optionGhost-${shipEntity}-${moveCardEntity}`,
-        finalPosition,
-        finalRotation,
-        0xffffff,
-        0.3
-      );
+      const objectId = `optionGhost-${moveCardEntity}`;
+      objectPool.remove(objectId);
+      renderShip(phaser, shipEntity, objectId, finalPosition, finalRotation, 0xffffff, 0.3);
+
+      objectPool.get(objectId, "Sprite").setComponent({
+        id: objectId,
+        once: (gameObject) => {
+          gameObject.setInteractive();
+          gameObject.off("pointerdown");
+          gameObject.off("pointerover");
+          gameObject.off("pointerout");
+
+          gameObject.on("pointerover", () => setComponent(HoveredMove, godIndex, { shipEntity, moveCardEntity }));
+          gameObject.on("pointerdown", () => setComponent(SelectedMove, shipEntity, { value: moveCardEntity }));
+          gameObject.on("pointerout", () => removeComponent(HoveredMove, godIndex));
+        },
+      });
     });
   });
 

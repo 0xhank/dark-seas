@@ -153,6 +153,10 @@ export function createPositionSystem(phaser: PhaserLayer) {
         gameObject.setDepth(RenderDepth.Foreground3);
         if (health != 0) {
           gameObject.setInteractive();
+          gameObject.off("pointerdown");
+          gameObject.off("pointerover");
+          gameObject.off("pointerout");
+
           gameObject.on("pointerdown", () => setComponent(SelectedShip, GodEntityIndex, { value: update.entity }));
           gameObject.on("pointerover", () => setComponent(HoveredShip, GodEntityIndex, { value: update.entity }));
           gameObject.on("pointerout", () => removeComponent(HoveredShip, GodEntityIndex));
