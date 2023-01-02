@@ -12,7 +12,7 @@ import { getSternLocation, midpoint } from "../../../../utils/trig";
 import { Animations, RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
 
-export function createHealthSystem(layer: PhaserLayer) {
+export function createStatAnimationSystem(layer: PhaserLayer) {
   const {
     world,
     scenes: {

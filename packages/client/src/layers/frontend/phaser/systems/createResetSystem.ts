@@ -1,5 +1,11 @@
 import { GodID } from "@latticexyz/network";
-import { defineRxSystem, EntityIndex, getComponentValue, removeComponent } from "@latticexyz/recs";
+import {
+  defineRxSystem,
+  EntityIndex,
+  getComponentEntities,
+  getComponentValue,
+  removeComponent,
+} from "@latticexyz/recs";
 import { Phase } from "../../../../types";
 import { DELAY } from "../../constants";
 import { PhaserLayer } from "../types";
@@ -9,7 +15,7 @@ export function createResetSystem(phaser: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: { LastMove, LastAction },
+        components: { LastMove, LastAction, MoveCard },
         utils: { getPlayerEntity, getPhase, getGameConfig, getTurn },
         network: { clock },
       },
@@ -66,6 +72,10 @@ export function createResetSystem(phaser: PhaserLayer) {
     if (phase == Phase.Reveal) {
       if (timeToNextPhase !== gameConfig.revealPhaseLength) return;
 
+      [...getComponentEntities(MoveCard)].forEach((moveCardEntity) => {
+        const objectId = `optionGhost-${moveCardEntity}`;
+        objectPool.remove(objectId);
+      });
       const lastMove = getComponentValue(LastMove, playerEntity)?.value;
       if (lastMove == turn) return;
       const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;

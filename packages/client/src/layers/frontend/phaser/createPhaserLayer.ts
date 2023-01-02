@@ -5,9 +5,10 @@ import { phaserConfig } from "./config";
 import { POS_HEIGHT, POS_WIDTH } from "./constants";
 import {
   createActiveSystem,
-  createHealthSystem,
   createInputSystem,
   createPositionSystem,
+  createShipOptionsSystem,
+  createStatAnimationSystem,
   createStatUpdateSystem,
 } from "./systems";
 import { createProjectionSystem } from "./systems/createProjectionSystem";
@@ -70,7 +71,8 @@ export async function createPhaserLayer(backend: BackendLayer) {
   createPositionSystem(context);
   createActiveSystem(context);
   createTargetedSystem(context);
-  createHealthSystem(context);
+  createShipOptionsSystem(context);
+  createStatAnimationSystem(context);
   createProjectionSystem(context);
   createRadiusSystem(context);
   createStatUpdateSystem(context);

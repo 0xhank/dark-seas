@@ -2,14 +2,11 @@ import {
   defineExitSystem,
   defineSystem,
   EntityIndex,
-  getComponentEntities,
   getComponentValue,
   getComponentValueStrict,
   Has,
   HasValue,
-  removeComponent,
   runQuery,
-  setComponent,
   UpdateType,
 } from "@latticexyz/recs";
 import { Phase } from "../../../../types";
@@ -108,57 +105,5 @@ export function createProjectionSystem(phaser: PhaserLayer) {
 
     objectPool.remove(objectId);
     polygonRegistry.get(objectId)?.clear(true, true);
-  });
-
-  /* ---------------------------------------------- Move Options update ------------------------------------------- */
-  defineSystem(world, [Has(SelectedShip)], (update) => {
-    if (update.type == UpdateType.Exit) return;
-
-    if (getPhase(DELAY) == Phase.Action) return;
-    const shipEntity = getComponentValueStrict(SelectedShip, godIndex).value as EntityIndex;
-
-    const objectId = `hoverGhost-${shipEntity}`;
-    const rangeGroup = polygonRegistry.get(objectId) || phaserScene.add.group();
-
-    rangeGroup.clear(true, true);
-
-    const moveCardEntities = [...getComponentEntities(MoveCard)];
-
-    moveCardEntities.map((moveCardEntity) => {
-      const moveCard = getComponentValueStrict(MoveCard, moveCardEntity);
-      const position = getComponentValueStrict(Position, shipEntity);
-      const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-      const wind = getComponentValueStrict(Wind, godIndex);
-      const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
-      const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, sailPosition, wind);
-
-      const objectId = `optionGhost-${moveCardEntity}`;
-      objectPool.remove(objectId);
-      renderShip(phaser, shipEntity, objectId, finalPosition, finalRotation, colors.whiteHex, 0.3);
-
-      objectPool.get(objectId, "Sprite").setComponent({
-        id: objectId,
-        once: (gameObject) => {
-          gameObject.setInteractive();
-          gameObject.off("pointerdown");
-          gameObject.off("pointerover");
-          gameObject.off("pointerout");
-
-          gameObject.on("pointerover", () => setComponent(HoveredMove, godIndex, { shipEntity, moveCardEntity }));
-          gameObject.on("pointerdown", () => setComponent(SelectedMove, shipEntity, { value: moveCardEntity }));
-          gameObject.on("pointerout", () => removeComponent(HoveredMove, godIndex));
-        },
-      });
-    });
-  });
-
-  defineExitSystem(world, [Has(SelectedShip)], (update) => {
-    const shipEntity = update.value[1]?.value as EntityIndex | undefined;
-    if (!shipEntity) return;
-
-    [...getComponentEntities(MoveCard)].forEach((moveCardEntity) => {
-      const objectId = `optionGhost-${moveCardEntity}`;
-      objectPool.remove(objectId);
-    });
   });
 }
