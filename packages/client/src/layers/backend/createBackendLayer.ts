@@ -36,7 +36,7 @@ export async function createBackendLayer(network: NetworkLayer) {
     HoveredShip: defineNumberComponent(world, { id: "HoveredShip" }),
     HoveredAction: defineComponent(
       world,
-      { actionType: Type.Number, specialEntity: Type.Number },
+      { shipEntity: Type.Number, actionType: Type.Number, specialEntity: Type.Number },
       { id: "HoveredAction" }
     ),
     HoveredMove: defineComponent(

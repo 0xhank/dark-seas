@@ -113,6 +113,8 @@ export function createProjectionSystem(phaser: PhaserLayer) {
   /* ---------------------------------------------- Move Options update ------------------------------------------- */
   defineSystem(world, [Has(SelectedShip)], (update) => {
     if (update.type == UpdateType.Exit) return;
+
+    if (getPhase(DELAY) == Phase.Action) return;
     const shipEntity = getComponentValueStrict(SelectedShip, godIndex).value as EntityIndex;
 
     const objectId = `hoverGhost-${shipEntity}`;
@@ -154,10 +156,9 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const shipEntity = update.value[1]?.value as EntityIndex | undefined;
     if (!shipEntity) return;
 
-    const moveCardEntities = [...getComponentEntities(MoveCard)];
-
-    moveCardEntities.map((moveCardEntity) => {
-      objectPool.remove(`optionGhost-${shipEntity}-${moveCardEntity}`);
+    [...getComponentEntities(MoveCard)].forEach((moveCardEntity) => {
+      const objectId = `optionGhost-${moveCardEntity}`;
+      objectPool.remove(objectId);
     });
   });
 }

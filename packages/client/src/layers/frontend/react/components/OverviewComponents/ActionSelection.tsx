@@ -1,5 +1,14 @@
 import { GodID } from "@latticexyz/network";
-import { EntityID, EntityIndex, getComponentValue, Has, HasValue, runQuery, setComponent } from "@latticexyz/recs";
+import {
+  EntityID,
+  EntityIndex,
+  getComponentValue,
+  Has,
+  HasValue,
+  removeComponent,
+  runQuery,
+  setComponent,
+} from "@latticexyz/recs";
 import { ActionImg, ActionNames, ActionType, Layers } from "../../../../../types";
 import { isBroadside } from "../../../../../utils/trig";
 import { Img, OptionButton } from "../../styles/global";
@@ -8,7 +17,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
   const {
     backend: {
       world,
-      components: { SelectedActions, SelectedShip },
+      components: { SelectedActions, SelectedShip, HoveredAction },
       utils: { checkActionPossible },
     },
     network: {
@@ -66,10 +75,12 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
   return (
     <>
       {cannonEntities.map((cannonEntity) => {
+        const loaded = getComponentValue(Loaded, cannonEntity)?.value;
+
+        const actionType = loaded ? ActionType.Fire : ActionType.Load;
         if (!checkActionPossible(ActionType.Fire, ship)) return null;
         const usedAlready = selectedActions.specialEntities.find((a) => a == world.entities[cannonEntity]) != undefined;
 
-        const loaded = getComponentValue(Loaded, cannonEntity)?.value;
         const cannonRotation = getComponentValue(Rotation, cannonEntity)?.value || 0;
         const broadside = isBroadside(cannonRotation);
         const actionStr = loaded ? "Fire" : "Load";
@@ -89,6 +100,10 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
             isSelected={usedAlready}
             disabled={disabled && !usedAlready}
             key={`selectedCannon-${cannonEntity}`}
+            onMouseEnter={() =>
+              setComponent(HoveredAction, GodEntityIndex, { shipEntity: ship, actionType, specialEntity: cannonEntity })
+            }
+            onMouseLeave={() => removeComponent(HoveredAction, GodEntityIndex)}
             onClick={(e) => {
               e.stopPropagation();
               handleNewActionsCannon(loaded ? ActionType.Fire : ActionType.Load, world.entities[cannonEntity]);
