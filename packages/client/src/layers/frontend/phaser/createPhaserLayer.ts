@@ -13,6 +13,7 @@ import {
 import { createProjectionSystem } from "./systems/createProjectionSystem";
 import { createRadiusSystem } from "./systems/createRadiusSystem";
 import { createResetSystem } from "./systems/createResetSystem";
+import { createTargetedSystem } from "./systems/createTargetedSystem";
 
 /**
  * The Phaser layer is responsible for rendering game objects to the screen.
@@ -68,6 +69,7 @@ export async function createPhaserLayer(backend: BackendLayer) {
   createInputSystem(context);
   createPositionSystem(context);
   createActiveSystem(context);
+  createTargetedSystem(context);
   createHealthSystem(context);
   createProjectionSystem(context);
   createRadiusSystem(context);

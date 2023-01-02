@@ -15,6 +15,7 @@ import { createActionSystem, defineNumberComponent, defineStringComponent } from
 import { curry } from "lodash";
 
 import { Action, ActionType, Move, Phase } from "../../types";
+import { getFiringArea, getSternLocation, inFiringArea } from "../../utils/trig";
 import { NetworkLayer } from "../network";
 import { commitMove } from "./api/commitMove";
 import { revealMove } from "./api/revealMove";
@@ -50,12 +51,13 @@ export async function createBackendLayer(network: NetworkLayer) {
       { id: "Actions" }
     ),
     CommittedMoves: defineStringComponent(world, { id: "CommittedMoves" }),
+    Targeted: defineNumberComponent(world, { id: "Targeted" }),
   };
   // --- SETUP ----------------------------------------------------------------------
 
   const {
     utils: { getGameConfig, getPhase, getPlayerEntity },
-    components: { OnFire, DamagedCannons, SailPosition, Ship, OwnedBy },
+    components: { OnFire, DamagedCannons, SailPosition, Ship, OwnedBy, Range, Position, Rotation, Length },
     network: { connectedAddress },
   } = network;
 
@@ -121,6 +123,40 @@ export async function createBackendLayer(network: NetworkLayer) {
     return moves;
   }
 
+  function getTargetedShips(cannonEntity: EntityIndex): EntityIndex[] {
+    const shipID = getComponentValue(OwnedBy, cannonEntity)?.value;
+    console.log("shipID", shipID);
+    if (!shipID) return [];
+    const shipEntity = world.entityToIndex.get(shipID);
+    console.log("shipEntity", shipEntity);
+
+    const address = connectedAddress.get() as EntityID;
+    if (!address || !shipEntity) return [];
+
+    const length = getComponentValueStrict(Length, shipEntity).value;
+    const shipPosition = getComponentValueStrict(Position, shipEntity);
+    const shipRotation = getComponentValueStrict(Rotation, shipEntity).value;
+    const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
+
+    // const shipEntities = [...runQuery([Has(Ship), NotValue(OwnedBy, { value: address })])];
+    const shipEntities = [...runQuery([Has(Ship)])].filter((targetEntity) => {
+      if (targetEntity == shipEntity) return false;
+
+      const enemyPosition = getComponentValueStrict(Position, targetEntity);
+      const sternPosition = getSternLocation(enemyPosition, shipRotation, length);
+      const range = getComponentValueStrict(Range, cannonEntity).value;
+
+      const firingArea = getFiringArea(shipPosition, range, length, shipRotation, cannonRotation);
+
+      // console.log(`firingArea:`, firingArea, "position", position);
+      return inFiringArea(firingArea, enemyPosition) || inFiringArea(firingArea, sternPosition);
+    });
+
+    console.log("filtered ships:", shipEntities);
+
+    return shipEntities;
+  }
+
   function getPlayerShipsWithActions(player?: EntityIndex) {
     if (!player) player = getPlayerEntity(connectedAddress.get());
     if (!player) return;
@@ -176,6 +212,7 @@ export async function createBackendLayer(network: NetworkLayer) {
       getPlayerShips,
       getPlayerShipsWithMoves,
       getPlayerShipsWithActions,
+      getTargetedShips,
     },
     components,
     godIndex: GodEntityIndex,

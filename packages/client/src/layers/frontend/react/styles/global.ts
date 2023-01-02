@@ -25,6 +25,7 @@ const whiteHex = color(white).rgbNumber();
 const goldHex = color(gold).rgbNumber();
 const greenHex = color(green).rgbNumber();
 const cannonReadyHex = color(red).rgbNumber();
+const redHex = color(red).rgbNumber();
 
 const blueGradient =
   "linear-gradient(45deg, hsla(203, 93%, 33%, 1) 0%, hsla(203, 97%, 37%, 1) 51%, hsla(203, 100%, 53%, 1) 100%)";
@@ -55,6 +56,7 @@ export const colors = {
   goldHex,
   greenHex,
   cannonReadyHex,
+  redHex,
 };
 
 export const Container = styled.div`

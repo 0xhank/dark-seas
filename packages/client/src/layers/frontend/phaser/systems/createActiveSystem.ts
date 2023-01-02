@@ -7,6 +7,7 @@ import {
   Has,
   HasValue,
   runQuery,
+  setComponent,
   UpdateType,
 } from "@latticexyz/recs";
 import { ActionType, Phase } from "../../../../types";
@@ -24,7 +25,8 @@ export function createActiveSystem(phaser: PhaserLayer) {
         utils: { getPhase },
       },
       backend: {
-        components: { SelectedShip, SelectedActions, HoveredShip, HoveredAction },
+        utils: { getTargetedShips },
+        components: { SelectedShip, SelectedActions, HoveredShip, HoveredAction, Targeted },
         godIndex,
       },
     },
@@ -60,7 +62,6 @@ export function createActiveSystem(phaser: PhaserLayer) {
       | { shipEntity: EntityIndex; actionType: ActionType; specialEntity: EntityIndex }
       | undefined;
 
-    console.log("hoveredAction:", hoveredAction);
     if (!hoveredAction) return;
 
     const actionType = hoveredAction.actionType;
@@ -86,17 +87,30 @@ export function createActiveSystem(phaser: PhaserLayer) {
 
     tint = !loaded ? colors.goldHex : colors.cannonReadyHex;
 
-    console.log("tint:", tint);
-    console.log("alpha:", alpha);
     renderFiringArea(phaser, hoveredGroup, position, rotation, length, cannonEntity, tint, alpha);
 
     polygonRegistry.set(objectId, hoveredGroup);
+    // make targeted ships red
+    getTargetedShips(cannonEntity).forEach((entity) => {
+      console.log("found targeted ships:", entity);
+      const targetedValue = getComponentValue(Targeted, entity)?.value || 0;
+      setComponent(Targeted, entity, { value: targetedValue + 1 });
+    });
   });
 
   defineExitSystem(world, [Has(HoveredAction)], (update) => {
+    const prevValue = update.value[1];
+    if (!prevValue) return;
+
+    const cannonEntity = prevValue.specialEntity as EntityIndex;
     const objectId = `hoveredFiringArea`;
 
     polygonRegistry.get(objectId)?.clear(true, true);
+    getTargetedShips(cannonEntity).forEach((entity) => {
+      const targetedValue = getComponentValue(Targeted, entity)?.value || 0;
+      if (!targetedValue) return;
+      setComponent(Targeted, entity, { value: targetedValue - 1 });
+    });
   });
 
   // defineSystem(world, [Has(SelectedShip)], (update) => {
@@ -119,6 +133,7 @@ export function createActiveSystem(phaser: PhaserLayer) {
   defineSystem(world, [Has(SelectedShip)], ({ type }) => {
     const phase: Phase | undefined = getPhase(DELAY);
 
+    if (phase !== Phase.Action) return;
     const shipEntity = getComponentValue(SelectedShip, godIndex)?.value as EntityIndex | undefined;
     if (!shipEntity) return;
 
