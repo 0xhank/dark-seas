@@ -13,6 +13,7 @@ import {
   UpdateType,
 } from "@latticexyz/recs";
 import { ActionType, Phase } from "../../../../types";
+import { getColorNum } from "../../../../utils/procgen";
 import { DELAY } from "../../constants";
 import { colors } from "../../react/styles/global";
 import { PhaserLayer } from "../types";
@@ -25,6 +26,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
       network: {
         components: { Position, Length, Rotation, Loaded, Cannon, OwnedBy },
         utils: { getPhase },
+        network: { connectedAddress },
       },
       backend: {
         utils: { getTargetedShips },
@@ -48,13 +50,15 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     }
 
     const shipEntity = getComponentValueStrict(SelectedShip, godIndex).value as EntityIndex;
+    const myShip = getComponentValueStrict(OwnedBy, shipEntity).value == connectedAddress.get();
 
     if (!hoveredGroup) hoveredGroup = phaserScene.add.group();
 
     const position = getComponentValueStrict(Position, shipEntity);
     const length = getComponentValueStrict(Length, shipEntity).value;
     const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-    renderCircle(phaser, hoveredGroup, position, length, rotation, colors.goldHex, 0.5);
+    const shipColor = myShip ? getColorNum(shipEntity) : colors.whiteHex;
+    renderCircle(phaser, hoveredGroup, position, length, rotation, shipColor, 0.5);
 
     polygonRegistry.set(groupId, hoveredGroup);
   });

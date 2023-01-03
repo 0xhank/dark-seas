@@ -9,6 +9,7 @@ import {
 import { Coord } from "@latticexyz/utils";
 import styled from "styled-components";
 import { Layers, Phase } from "../../../../../types";
+import { getColorStr } from "../../../../../utils/procgen";
 import { colors, InternalContainer } from "../../styles/global";
 import { ActionSelection } from "../OverviewComponents/ActionSelection";
 import { MoveSelection } from "../OverviewComponents/MoveSelection";
@@ -54,6 +55,7 @@ export const YourShip = ({
   const hoveredShip = getComponentValue(HoveredShip, GodEntityIndex)?.value;
   const isSelected = selectedShip == ship;
   const isHovered = hoveredShip == ship;
+  const shipColor = getColorStr(ship);
 
   let selectionContent = null;
   selectionContent = <MoveSelection ship={ship} layers={layers} />;
@@ -72,6 +74,7 @@ export const YourShip = ({
       onMouseLeave={() => removeComponent(HoveredShip, GodEntityIndex)}
       isSelected={isSelected}
       isHovered={isHovered}
+      shipColor={shipColor}
       key={`move-selection-${ship}`}
     >
       <ShipCard layers={layers} ship={ship} />
@@ -105,6 +108,7 @@ const MoveButtons = styled.div`
 `;
 
 const YourShipContainer = styled(InternalContainer)<{
+  shipColor: string;
   isSelected?: boolean;
   isHovered?: boolean;
   noGoldBorder?: boolean;
@@ -116,7 +120,7 @@ const YourShipContainer = styled(InternalContainer)<{
   flex: 1;
   height: auto;
   cursor: pointer;
-  box-shadow: ${({ isSelected }) => `inset 0px 0px 0px ${isSelected ? "5px" : "0px"} ${colors.gold}`};
+  box-shadow: ${({ isSelected, shipColor }) => `inset 0px 0px 0px ${isSelected ? "5px" : "0px"} ${shipColor}`};
   background: ${({ isSelected, isHovered }) => `${isSelected || isHovered ? colors.thickGlass : colors.glass}`};
   padding-bottom: 5px;
 `;
