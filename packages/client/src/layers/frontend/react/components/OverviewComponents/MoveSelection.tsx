@@ -75,7 +75,7 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
             }}
           >
             <Img src={imageUrl} style={{ transform: `rotate(${rotation + 90}deg)` }} />
-            <p style={{ lineHeight: "16px" }}>{Math.round(moveCard.distance)}M</p>
+            <Sub>{Math.round(moveCard.distance)}M</Sub>
           </OptionButton>
         );
       })}
@@ -85,4 +85,9 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
 
 const SpecialText = styled.span`
   font-size: 2rem;
+`;
+
+const Sub = styled.p`
+  line-height: 1rem;
+  font-size: 0.8rem;
 `;

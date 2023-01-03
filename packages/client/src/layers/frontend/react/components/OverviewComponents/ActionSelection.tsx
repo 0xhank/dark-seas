@@ -8,6 +8,7 @@ import {
   runQuery,
   setComponent,
 } from "@latticexyz/recs";
+import styled from "styled-components";
 import { ActionImg, ActionNames, ActionType, Layers } from "../../../../../types";
 import { isBroadside } from "../../../../../utils/trig";
 import { DELAY } from "../../../constants";
@@ -128,9 +129,9 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
             }}
           >
             <Img src={src} style={{ height: "70%", transform: `rotate(${imgRotation}deg)` }} />
-            <p style={{ lineHeight: "16px" }}>
+            <Sub>
               {actionStr} {typeStr}
-            </p>
+            </Sub>
           </OptionButton>
         );
       })}
@@ -153,10 +154,15 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
             }}
           >
             <Img style={{ height: "70%" }} src={ActionImg[action]} />
-            <p style={{ lineHeight: "16px" }}>{ActionNames[action]}</p>
+            <Sub>{ActionNames[action]}</Sub>
           </OptionButton>
         );
       })}
     </>
   );
 };
+
+const Sub = styled.p`
+  line-height: 1rem;
+  font-size: 0.8rem;
+`;
