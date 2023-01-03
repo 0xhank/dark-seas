@@ -20,7 +20,7 @@ export function createResetSystem(phaser: PhaserLayer) {
         network: { clock },
       },
       backend: {
-        components: { SelectedMove, SelectedActions, CommittedMoves },
+        components: { SelectedMove, SelectedActions, CommittedMoves, ExecutedActions },
         api: { commitMove, revealMove, submitActions },
         utils: { secondsUntilNextPhase, getPlayerShipsWithMoves, getPlayerShipsWithActions, getPlayerShips },
       },
@@ -54,6 +54,7 @@ export function createResetSystem(phaser: PhaserLayer) {
           objectPool.remove(`projection-${ship}`);
           polygonRegistry.get(`rangeGroup-${ship}`)?.clear(true, true);
           removeComponent(SelectedActions, ship);
+          removeComponent(ExecutedActions, ship);
         });
         polygonRegistry.get("selectedActions")?.clear(true, true);
       }

@@ -21,10 +21,9 @@ export function createTargetedSystem(phaser: PhaserLayer) {
 
     const value = update.value[0]?.value;
 
-    const hasTint = targetedShip.hasComponent("tint");
-    if (!value && hasTint) {
+    if (!value) {
       targetedShip.removeComponent("tint");
-    } else if (!hasTint) {
+    } else {
       targetedShip.setComponent({
         id: "tint",
         once: (sprite) => {
