@@ -4,6 +4,7 @@ import { ActionSystem } from "@latticexyz/std-client";
 import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
 import { Move } from "../../../types";
 import { NetworkLayer } from "../../network";
+import { TxType } from "../types";
 
 export function commitMove(
   network: NetworkLayer,
@@ -76,6 +77,10 @@ export function commitMove(
       console.log("committing", encoding);
       network.api.commitMove(keccak256(encoding));
       setComponent(CommittedMoves, GodEntityIndex, { value: encoding });
+    },
+    metadata: {
+      type: TxType.Commit,
+      metadata: CommittedMoves,
     },
   });
 }
