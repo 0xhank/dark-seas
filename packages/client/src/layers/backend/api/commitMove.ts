@@ -69,7 +69,6 @@ export function commitMove(
       // const moveWorldEntities = moves.map((m) => world.entities[m]);
       // tuple(address facetAddress, uint8 action, bytes4[] functionSelectors)[] _diamondCut
 
-      console.log("moves:", moves);
       return abi.encode(["tuple(uint256 shipEntity, uint256 moveCardEntity)[]", "uint256"], [moves, 0]);
     },
     updates: () => [],

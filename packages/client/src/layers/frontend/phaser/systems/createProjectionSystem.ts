@@ -69,7 +69,6 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const hoveredMove = update.value[0] as { shipEntity: EntityIndex; moveCardEntity: EntityIndex } | undefined;
 
     if (!hoveredMove) return;
-    console.log("hovered move:", hoveredMove.shipEntity);
 
     const shipEntity = hoveredMove.shipEntity;
     const moveCardEntity = hoveredMove.moveCardEntity;
@@ -101,7 +100,6 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const hoveredMove = update.value[1] as { shipEntity: EntityIndex; moveCardEntity: EntityIndex } | undefined;
     if (!hoveredMove) return;
     const objectId = `hoverGhost-${hoveredMove.shipEntity}`;
-    console.log("removing hovering from", hoveredMove.shipEntity);
 
     objectPool.remove(objectId);
     polygonRegistry.get(objectId)?.clear(true, true);

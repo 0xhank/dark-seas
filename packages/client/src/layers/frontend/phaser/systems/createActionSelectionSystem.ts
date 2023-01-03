@@ -138,7 +138,6 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     const oldEntities = update.value[1]?.specialEntities as EntityID[] | undefined;
     const newEntities = update.value[0]?.specialEntities as EntityID[] | undefined;
 
-    console.log(update.value);
     const diff = getDiff(oldEntities, newEntities);
 
     if (diff) {
