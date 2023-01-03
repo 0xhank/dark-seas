@@ -103,16 +103,10 @@ export const Button = styled.button<{ isSelected?: boolean; noGoldBorder?: boole
   }
 `;
 
-export const OptionButton = styled(Button)<{ confirmed?: boolean }>`
-  margin-bottom: 12px;
+export const OptionButton = styled(Button)`
   :hover {
-    background: ${({ isSelected, confirmed }) => `${confirmed ? green : isSelected ? red : white}`};
-    color: ${({ isSelected, disabled }) => `${isSelected || disabled ? white : darkBrown}`};
-  }
-
-  :disabled {
-    background: ${({ confirmed }) => `${confirmed ? green : lightGray}`};
-    color: ${({ confirmed }) => `${confirmed ? darkBrown : lighterGray}`};
+    background: ${({ isSelected }) => `${isSelected ? red : white}`};
+    color: ${({ isSelected }) => `${isSelected ? white : darkBrown}`};
   }
 `;
 

@@ -70,13 +70,13 @@ export type Line = {
 };
 
 export enum SailPositions {
-  Torn,
+  Broken,
   Lowered,
   Full,
 }
 
 export const SailPositionNames: Record<number, string> = {
-  [SailPositions.Torn]: "Torn",
+  [SailPositions.Broken]: "Broken",
   [SailPositions.Lowered]: "Lowered",
   [SailPositions.Full]: "Full",
 };

@@ -2,7 +2,6 @@ import { EntityID, getComponentValue } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
 import { Action, ActionType } from "../../../types";
 import { NetworkLayer } from "../../network";
-import { TxType } from "../types";
 
 export function submitActions(network: NetworkLayer, actions: ActionSystem, shipActions: Action[]) {
   const {
@@ -34,15 +33,12 @@ export function submitActions(network: NetworkLayer, actions: ActionSystem, ship
           return null;
         }
       }
+
       return shipActions;
     },
     updates: () => [],
     execute: (shipActions) => {
       network.api.submitActions(shipActions);
-    },
-    metadata: {
-      type: TxType.Action,
-      metadata: shipActions,
     },
   });
 }

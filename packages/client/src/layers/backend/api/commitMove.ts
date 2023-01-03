@@ -4,7 +4,6 @@ import { ActionSystem } from "@latticexyz/std-client";
 import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
 import { Move } from "../../../types";
 import { NetworkLayer } from "../../network";
-import { TxType } from "../types";
 
 export function commitMove(
   network: NetworkLayer,
@@ -69,6 +68,7 @@ export function commitMove(
       // const moveWorldEntities = moves.map((m) => world.entities[m]);
       // tuple(address facetAddress, uint8 action, bytes4[] functionSelectors)[] _diamondCut
 
+      console.log("moves:", moves);
       return abi.encode(["tuple(uint256 shipEntity, uint256 moveCardEntity)[]", "uint256"], [moves, 0]);
     },
     updates: () => [],
@@ -76,10 +76,6 @@ export function commitMove(
       console.log("committing", encoding);
       network.api.commitMove(keccak256(encoding));
       setComponent(CommittedMoves, GodEntityIndex, { value: encoding });
-    },
-    metadata: {
-      type: TxType.Commit,
-      metadata: CommittedMoves,
     },
   });
 }

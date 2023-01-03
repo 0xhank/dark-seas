@@ -1,3 +1,4 @@
+import { GodID } from "@latticexyz/network";
 import {
   EntityID,
   EntityIndex,
@@ -8,25 +9,23 @@ import {
   runQuery,
   setComponent,
 } from "@latticexyz/recs";
-import styled from "styled-components";
 import { ActionImg, ActionNames, ActionType, Layers } from "../../../../../types";
 import { isBroadside } from "../../../../../utils/trig";
-import { DELAY } from "../../../constants";
 import { Img, OptionButton } from "../../styles/global";
 
 export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
   const {
     backend: {
       world,
-      components: { SelectedActions, SelectedShip, HoveredAction, ExecutedActions },
+      components: { SelectedActions, SelectedShip, HoveredAction },
       utils: { checkActionPossible },
-      godIndex,
     },
     network: {
-      components: { OwnedBy, Cannon, Rotation, Loaded, LastAction },
-      utils: { getTurn, getPlayerEntity },
+      components: { OwnedBy, Cannon, Rotation, Loaded },
     },
   } = layers;
+
+  const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
   const selectedActions = getComponentValue(SelectedActions, ship) || {
     actionTypes: [ActionType.None, ActionType.None],
@@ -35,20 +34,10 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
 
   const actions = structuredClone(selectedActions);
 
-  const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[ship] })])].sort(
-    (a, b) => a - b
-  );
+  const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[ship] })])];
 
-  const currentTurn = getTurn(DELAY);
+  const disabled = selectedActions.actionTypes.every((a) => a !== ActionType.None);
 
-  const playerEntity = getPlayerEntity();
-  if (!playerEntity) return null;
-  const lastAction = getComponentValue(LastAction, playerEntity)?.value;
-
-  const actionsExecuted = currentTurn == lastAction;
-  const disabled = actionsExecuted || selectedActions.actionTypes.every((a) => a !== ActionType.None);
-
-  const executedActions = getComponentValue(ExecutedActions, ship);
   const handleNewActionsCannon = (action: ActionType, cannonEntity: EntityID) => {
     const index = selectedActions.specialEntities.indexOf(cannonEntity);
 
@@ -66,7 +55,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
       actionTypes: actions.actionTypes,
       specialEntities: actions.specialEntities,
     });
-    setComponent(SelectedShip, godIndex, { value: ship });
+    setComponent(SelectedShip, GodEntityIndex, { value: ship });
   };
 
   const handleNewActionsSpecial = (action: ActionType) => {
@@ -82,7 +71,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
       actions.specialEntities[index] = "0" as EntityID;
     }
     setComponent(SelectedActions, ship, { actionTypes: actions.actionTypes, specialEntities: actions.specialEntities });
-    setComponent(SelectedShip, godIndex, { value: ship });
+    setComponent(SelectedShip, GodEntityIndex, { value: ship });
   };
 
   return (
@@ -94,19 +83,14 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
         if (!checkActionPossible(ActionType.Fire, ship)) return null;
         const usedAlready = selectedActions.specialEntities.find((a) => a == world.entities[cannonEntity]) != undefined;
 
-        const entityUsed = executedActions?.specialEntities.includes(world.entities[cannonEntity]);
-
         const cannonRotation = getComponentValue(Rotation, cannonEntity)?.value || 0;
         const broadside = isBroadside(cannonRotation);
-
-        // xor
-        const showFire = loaded ? !entityUsed : entityUsed;
-        const actionStr = showFire ? "Fire" : "Load";
-        const typeStr = entityUsed ? "" : broadside ? "Broadside" : "Pivot";
-        const imgRotation = showFire || broadside ? 0 : cannonRotation;
+        const actionStr = loaded ? "Fire" : "Load";
+        const typeStr = broadside ? "Broadside" : "Pivot";
+        const imgRotation = !loaded || broadside ? 0 : cannonRotation;
 
         let src = ActionImg[ActionType.Load];
-        if (showFire) {
+        if (loaded) {
           src = ActionImg[ActionType.Fire];
           if (broadside) {
             src = cannonRotation == 90 ? "/icons/fire-right.svg" : "/icons/fire-left.svg";
@@ -117,21 +101,20 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
           <OptionButton
             isSelected={usedAlready}
             disabled={disabled && !usedAlready}
-            confirmed={executedActions?.specialEntities.includes(world.entities[cannonEntity])}
             key={`selectedCannon-${cannonEntity}`}
             onMouseEnter={() =>
-              setComponent(HoveredAction, godIndex, { shipEntity: ship, actionType, specialEntity: cannonEntity })
+              setComponent(HoveredAction, GodEntityIndex, { shipEntity: ship, actionType, specialEntity: cannonEntity })
             }
-            onMouseLeave={() => removeComponent(HoveredAction, godIndex)}
+            onMouseLeave={() => removeComponent(HoveredAction, GodEntityIndex)}
             onClick={(e) => {
               e.stopPropagation();
               handleNewActionsCannon(loaded ? ActionType.Fire : ActionType.Load, world.entities[cannonEntity]);
             }}
           >
             <Img src={src} style={{ height: "70%", transform: `rotate(${imgRotation}deg)` }} />
-            <Sub>
+            <p style={{ lineHeight: "16px" }}>
               {actionStr} {typeStr}
-            </Sub>
+            </p>
           </OptionButton>
         );
       })}
@@ -147,22 +130,16 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
             isSelected={usedAlready}
             disabled={disabled && !usedAlready}
             key={`selectedAction-${action}`}
-            confirmed={executedActions?.actionTypes.includes(action)}
             onClick={(e) => {
               e.stopPropagation();
               handleNewActionsSpecial(action);
             }}
           >
             <Img style={{ height: "70%" }} src={ActionImg[action]} />
-            <Sub>{ActionNames[action]}</Sub>
+            <p style={{ lineHeight: "16px" }}>{ActionNames[action]}</p>
           </OptionButton>
         );
       })}
     </>
   );
 };
-
-const Sub = styled.p`
-  line-height: 1rem;
-  font-size: 0.8rem;
-`;
