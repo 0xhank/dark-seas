@@ -55,7 +55,7 @@ export function registerYourShips() {
         },
         backend: {
           actions: { Action },
-          components: { SelectedShip, SelectedMove, SelectedActions, CommittedMoves, HoveredShip, ExecutedActions },
+          components: { SelectedShip, SelectedMove, SelectedActions, CommittedMoves, HoveredShip },
           api: { commitMove, revealMove, submitActions },
           utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions },
         },
@@ -82,8 +82,7 @@ export function registerYourShips() {
         LastAction.update$,
         CommittedMoves.update$,
         Loaded.update$,
-        Action.update$,
-        ExecutedActions.update$
+        Action.update$
       ).pipe(
         map(() => {
           return {

@@ -1,6 +1,6 @@
 import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import styled from "styled-components";
-import { ActionType, Layers, SailPositions } from "../../../../../types";
+import { Layers, SailPositions } from "../../../../../types";
 import { getShipSprite, ShipImages } from "../../../../../utils/ships";
 import { BoxImage } from "../../styles/global";
 import { ShipAttributeTypes } from "../../types";
@@ -11,12 +11,10 @@ import ShipDamage from "../OverviewComponents/ShipDamage";
 export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
   const {
     network: {
+      world,
       utils: { getPlayerEntity },
       network: { connectedAddress },
       components: { Health, SailPosition, DamagedCannons, OnFire, Rotation, OwnedBy, Name },
-    },
-    backend: {
-      components: { SelectedActions },
     },
   } = layers;
 
@@ -30,15 +28,6 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
   const onFire = getComponentValue(OnFire, ship)?.value;
   const damagedCannons = getComponentValue(DamagedCannons, ship)?.value;
   const ownerName = getComponentValue(Name, ownerEntity)?.value;
-  const selectedActions = getComponentValue(SelectedActions, ship);
-
-  const updates = new Set(selectedActions?.actionTypes);
-
-  const updatedSailPosition = updates.has(ActionType.LowerSail)
-    ? sailPosition - 1
-    : updates.has(ActionType.RaiseSail)
-    ? sailPosition + 1
-    : sailPosition;
 
   return (
     <div style={{ display: "flex", borderRadius: "6px", width: "100%" }}>
@@ -64,24 +53,12 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
       <div style={{ flex: 3, display: "flex", flexDirection: "column", minWidth: 0 }}>
         <HullHealth health={health} />
         <div style={{ display: "flex", width: "100%", flexWrap: "wrap" }}>
-          <ShipAttribute
-            attributeType={ShipAttributeTypes.Sails}
-            attribute={SailPositions[updatedSailPosition]}
-            updating={updatedSailPosition !== sailPosition}
-          />
+          <ShipAttribute attributeType={ShipAttributeTypes.Sails} attribute={SailPositions[sailPosition]} />
         </div>
-        <div style={{ display: "flex", gap: "8px" }}>
-          {damagedCannons && (
-            <ShipDamage
-              message="cannons broken"
-              amountLeft={damagedCannons}
-              fixing={updates.has(ActionType.RepairCannons)}
-            />
-          )}
-          {onFire && (
-            <ShipDamage message="on fire" amountLeft={onFire} fixing={updates.has(ActionType.ExtinguishFire)} />
-          )}
-          {sailPosition == 0 && <ShipDamage message="sails torn" fixing={updates.has(ActionType.RepairSail)} />}
+        <div style={{ display: "flex" }}>
+          {damagedCannons && <ShipDamage message="cannons broken" amountLeft={damagedCannons} />}
+          {onFire && <ShipDamage message="on fire" amountLeft={onFire} />}
+          {sailPosition == 0 && <ShipDamage message="sails torn" />}
         </div>
       </div>
     </div>

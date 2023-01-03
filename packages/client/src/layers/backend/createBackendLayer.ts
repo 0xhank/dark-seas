@@ -21,7 +21,6 @@ import { commitMove } from "./api/commitMove";
 import { revealMove } from "./api/revealMove";
 import { spawnPlayer } from "./api/spawnPlayer";
 import { submitActions } from "./api/submitActions";
-import { createSuccessfulActionSystem } from "./systems";
 /**
  * The Network layer is the lowest layer in the client architecture.
  * Its purpose is to synchronize the client components with the contract components.
@@ -53,11 +52,6 @@ export async function createBackendLayer(network: NetworkLayer) {
     ),
     CommittedMoves: defineStringComponent(world, { id: "CommittedMoves" }),
     Targeted: defineNumberComponent(world, { id: "Targeted" }),
-    ExecutedActions: defineComponent(
-      world,
-      { actionTypes: Type.NumberArray, specialEntities: Type.EntityArray },
-      { id: "ExecutedActions" }
-    ),
   };
   // --- SETUP ----------------------------------------------------------------------
 
@@ -222,6 +216,5 @@ export async function createBackendLayer(network: NetworkLayer) {
 
   // --- SYSTEMS --------------------------------------------------------------------
 
-  createSuccessfulActionSystem(context);
   return context;
 }

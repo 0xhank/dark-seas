@@ -1,44 +1,32 @@
 import styled from "styled-components";
 import { colors, Container } from "../../styles/global";
 
-export default function ShipDamage({
-  message,
-  amountLeft,
-  fixing,
-}: {
-  message: string;
-  amountLeft?: number;
-  fixing?: boolean;
-}) {
-  if (fixing && amountLeft) {
-    amountLeft--;
-  }
-
-  const removing = !!fixing && !amountLeft;
+export default function ShipDamage({ message, amountLeft }: { message: string; amountLeft?: number }) {
   return (
-    <WarningContainer removing={removing}>
+    <WarningContainer>
       {message}
-      {!!amountLeft && <AmountLeft fixing={fixing}>{amountLeft}</AmountLeft>}
+      {amountLeft && <AmountLeft>{amountLeft}</AmountLeft>}
     </WarningContainer>
   );
 }
 
-const WarningContainer = styled(Container)<{ removing?: boolean }>`
-  height: 2.5rem;
-  background: ${({ removing }) => (removing ? colors.green : colors.red)};
+const WarningContainer = styled(Container)`
+  height: auto;
+  background: ${colors.red};
   color: ${colors.white};
-  padding: 0.5rem;
   flex-direction: row;
-  border-radius: 1rem;
+  padding: 2px;
+  border-radius: 10px;
+  gap: 0;
   width: auto;
   text-transform: uppercase;
-  gap: 0.5rem;
+  gap: 10px;
   font-size: 0.7rem;
 `;
 
-const AmountLeft = styled.div<{ fixing?: boolean }>`
+const AmountLeft = styled.div`
   background: ${colors.white};
-  color: ${({ fixing }) => (fixing ? colors.green : colors.red)};
+  color: ${colors.red};
   border-radius: 50%;
   width: 20px;
   height: 20px;

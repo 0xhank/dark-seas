@@ -1,33 +1,27 @@
 import styled from "styled-components";
-import { SailPositions } from "../../../../../types";
 import { colors, Container } from "../../styles/global";
 import { ShipAttributeTypes } from "../../types";
 
 export default function ShipAttribute({
   attributeType,
   attribute,
-  updating,
 }: {
   attributeType: ShipAttributeTypes;
   attribute: number | string;
-  updating?: boolean;
 }) {
-  let source = "";
-
-  if (attributeType == ShipAttributeTypes.Sails) {
-    if (attribute == SailPositions.Torn) source = "/icons/broken-sail.svg";
-    else source = "/icons/sail.svg";
-  }
-
+  const source =
+    attributeType == ShipAttributeTypes.Crew
+      ? "/icons/backup.svg"
+      : attributeType == ShipAttributeTypes.Sails
+      ? "/icons/sail.svg"
+      : "/icons/gunshot.svg";
   const attributeString = attribute.toString();
   return (
     <AttributeContainer>
       <LeftSide>
         <AttributeImg src={source} alt={`attribute-${attributeType}`} />
       </LeftSide>
-      <RightSide updating={updating} style={{ fontSize: `${attributeString.length > 2 ? "1rem" : "1.25rem"}` }}>
-        {attribute}
-      </RightSide>
+      <RightSide style={{ fontSize: `${attributeString.length > 2 ? "1rem" : "1.25rem"}` }}>{attribute}</RightSide>
     </AttributeContainer>
   );
 }
@@ -59,8 +53,8 @@ const LeftSide = styled.div`
   align-items: center;
 `;
 
-const RightSide = styled.div<{ updating?: boolean }>`
-  background: ${({ updating }) => (updating ? colors.green : colors.thickGlass)};
+const RightSide = styled.div`
+  background: ${colors.thickGlass};
   border-radius: 0 12px 12px 0;
   padding: 6px;
   display: flex;
