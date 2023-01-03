@@ -1,4 +1,5 @@
 import { defineEnterSystem, Has } from "@latticexyz/recs";
+import { colors } from "../../react/styles/global";
 import { RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
 
@@ -27,7 +28,7 @@ export function createRadiusSystem(phaser: PhaserLayer) {
 
     const radius = phaserScene.add.circle(0, 0, worldRadius * positions.posHeight);
 
-    radius.setStrokeStyle(50, 0xffffff);
+    radius.setStrokeStyle(50, colors.whiteHex);
     radius.setDepth(RenderDepth.Background1);
     radiusGroup.add(radius);
 

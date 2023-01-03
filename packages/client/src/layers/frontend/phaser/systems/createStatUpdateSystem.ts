@@ -1,5 +1,6 @@
 import { tileCoordToPixelCoord } from "@latticexyz/phaserx";
 import { defineSystem, getComponentValueStrict, Has } from "@latticexyz/recs";
+import { colors } from "../../react/styles/global";
 import { RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
 
@@ -39,7 +40,7 @@ export function createStatUpdateSystem(phaser: PhaserLayer) {
         const textObject = phaserScene.add.text(pixelPosition.x + 3, pixelPosition.y - barHeightOffset, text, {
           fontFamily: "sans-serif",
         });
-        textObject.setTint(0xffffff);
+        textObject.setTint(colors.whiteHex);
         textObject.setScale(2);
         textObject.setDepth(RenderDepth.Foreground5);
         updateGroup.add(textObject);
@@ -48,7 +49,7 @@ export function createStatUpdateSystem(phaser: PhaserLayer) {
         object.setComponent({
           id: "flash-red",
           now: (sprite) => {
-            sprite.setTint(0xff0000);
+            sprite.setTint(colors.greenHex);
 
             setTimeout(() => sprite.clearTint(), 1000);
           },

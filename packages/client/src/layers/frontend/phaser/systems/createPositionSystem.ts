@@ -115,7 +115,7 @@ export function createPositionSystem(phaser: PhaserLayer) {
         if (update.type == UpdateType.Enter) return;
         await tween({
           targets: gameObject,
-          duration: 250,
+          duration: 2000,
           props: {
             x,
             y,
@@ -138,7 +138,7 @@ export function createPositionSystem(phaser: PhaserLayer) {
             },
           },
 
-          ease: Phaser.Math.Easing.Linear,
+          ease: Phaser.Math.Easing.Sine.InOut,
         });
       },
       once: async (gameObject: Phaser.GameObjects.Sprite) => {
@@ -153,6 +153,10 @@ export function createPositionSystem(phaser: PhaserLayer) {
         gameObject.setDepth(RenderDepth.Foreground3);
         if (health != 0) {
           gameObject.setInteractive();
+          gameObject.off("pointerdown");
+          gameObject.off("pointerover");
+          gameObject.off("pointerout");
+
           gameObject.on("pointerdown", () => setComponent(SelectedShip, GodEntityIndex, { value: update.entity }));
           gameObject.on("pointerover", () => setComponent(HoveredShip, GodEntityIndex, { value: update.entity }));
           gameObject.on("pointerout", () => removeComponent(HoveredShip, GodEntityIndex));

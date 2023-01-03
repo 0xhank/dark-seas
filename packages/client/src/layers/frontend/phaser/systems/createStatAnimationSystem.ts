@@ -1,4 +1,4 @@
-import { tileCoordToPixelCoord } from "@latticexyz/phaserx";
+import { tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
 import {
   defineEnterSystem,
   defineExitSystem,
@@ -12,7 +12,7 @@ import { getSternLocation, midpoint } from "../../../../utils/trig";
 import { Animations, RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
 
-export function createHealthSystem(layer: PhaserLayer) {
+export function createStatAnimationSystem(layer: PhaserLayer) {
   const {
     world,
     scenes: {
@@ -27,6 +27,7 @@ export function createHealthSystem(layer: PhaserLayer) {
     positions,
   } = layer;
 
+  // HEALTH UPDATES
   defineUpdateSystem(world, [Has(Health)], (update) => {
     if (update.component != Health) return;
     if (!update.value[0] || !update.value[1]) return;
@@ -62,6 +63,7 @@ export function createHealthSystem(layer: PhaserLayer) {
     }
   });
 
+  // ON FIRE UPDATES
   defineEnterSystem(world, [Has(OnFire)], (update) => {
     const updateQueue = getComponentValue(UpdateQueue, update.entity)?.value || new Array<string>();
     const position = getComponentValueStrict(Position, update.entity);
@@ -98,6 +100,36 @@ export function createHealthSystem(layer: PhaserLayer) {
     }
   });
 
+  defineUpdateSystem(world, [Has(OnFire), Has(Position), Has(Rotation)], (update) => {
+    const position = getComponentValueStrict(Position, update.entity);
+    const rotation = getComponentValueStrict(Rotation, update.entity).value;
+    const length = getComponentValueStrict(Length, update.entity).value;
+    const sternPosition = getSternLocation(position, rotation, length);
+    const center = midpoint(position, sternPosition);
+    const fireLocations = [midpoint(position, center), center, center, midpoint(center, sternPosition)];
+    for (let i = 0; i < fireLocations.length; i++) {
+      const spriteId = `${update.entity}-fire-${i}`;
+      const object = objectPool.get(spriteId, "Sprite");
+
+      const { x, y } = tileCoordToPixelCoord(fireLocations[i], positions.posWidth, positions.posHeight);
+
+      object.setComponent({
+        id: `fire-entity-${i}`,
+        now: async (sprite) => {
+          await tween({
+            targets: sprite,
+            duration: 2000,
+            props: { x, y },
+            ease: Phaser.Math.Easing.Sine.InOut,
+          });
+        },
+        once: async (sprite) => {
+          sprite.setPosition(x, y);
+        },
+      });
+    }
+  });
+
   defineExitSystem(world, [Has(OnFire)], (update) => {
     for (let i = 0; i < 4; i++) {
       const spriteId = `${update.entity}-fire-${i}`;
@@ -105,6 +137,7 @@ export function createHealthSystem(layer: PhaserLayer) {
     }
   });
 
+  // DAMAGED CANNONS UPDATE
   defineEnterSystem(world, [Has(DamagedCannons)], (update) => {
     const updateQueue = getComponentValue(UpdateQueue, update.entity)?.value || new Array<string>();
 
@@ -112,6 +145,7 @@ export function createHealthSystem(layer: PhaserLayer) {
     setComponent(UpdateQueue, update.entity, { value: updateQueue });
   });
 
+  // SAIL POSITION UPDATE
   defineUpdateSystem(world, [Has(SailPosition)], (update) => {
     const sailPosition = getComponentValueStrict(SailPosition, update.entity).value;
     if (sailPosition != 0) return;

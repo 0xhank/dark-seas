@@ -52,6 +52,20 @@ export function getFiringArea(
   ];
 }
 
+export function inFiringArea(coords: Coord[], point: Coord) {
+  let wn = 0;
+  for (let i = 0; i < coords.length; i++) {
+    const point1 = coords[i];
+    const point2 = i == coords.length - 1 ? coords[0] : coords[i + 1];
+
+    const isLeft = (point2.x - point1.x) * (point.y - point1.y) - (point.x - point1.x) * (point2.y - point1.y);
+    if (isLeft == 0) return false;
+    if (point1.y <= point.y && point2.y > point.y && isLeft > 0) wn++;
+    else if (point1.y > point.y && point2.y <= point.y && isLeft < 0) wn--;
+  }
+  return wn != 0;
+}
+
 export function midpoint(a: Coord, b: Coord): Coord {
   return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
 }

@@ -1,5 +1,14 @@
 import { GodID } from "@latticexyz/network";
-import { EntityID, EntityIndex, getComponentValue, Has, HasValue, runQuery, setComponent } from "@latticexyz/recs";
+import {
+  EntityID,
+  EntityIndex,
+  getComponentValue,
+  Has,
+  HasValue,
+  removeComponent,
+  runQuery,
+  setComponent,
+} from "@latticexyz/recs";
 import { ActionImg, ActionNames, ActionType, Layers } from "../../../../../types";
 import { isBroadside } from "../../../../../utils/trig";
 import { Img, OptionButton } from "../../styles/global";
@@ -8,7 +17,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
   const {
     backend: {
       world,
-      components: { SelectedActions, SelectedShip },
+      components: { SelectedActions, SelectedShip, HoveredAction },
       utils: { checkActionPossible },
     },
     network: {
@@ -23,6 +32,8 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
     specialEntities: ["0" as EntityID, "0" as EntityID],
   };
 
+  const actions = structuredClone(selectedActions);
+
   const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[ship] })])];
 
   const disabled = selectedActions.actionTypes.every((a) => a !== ActionType.None);
@@ -34,21 +45,21 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
     if (index == -1) {
       const unusedSlot = selectedActions.actionTypes.indexOf(ActionType.None);
       if (unusedSlot == -1) return;
-      selectedActions.actionTypes[unusedSlot] = action;
-      selectedActions.specialEntities[unusedSlot] = cannonEntity;
+      actions.actionTypes[unusedSlot] = action;
+      actions.specialEntities[unusedSlot] = cannonEntity;
     } else {
-      selectedActions.actionTypes[index] = ActionType.None;
-      selectedActions.specialEntities[index] = "0" as EntityID;
+      actions.actionTypes[index] = ActionType.None;
+      actions.specialEntities[index] = "0" as EntityID;
     }
     setComponent(SelectedActions, ship, {
-      actionTypes: selectedActions.actionTypes,
-      specialEntities: selectedActions.specialEntities,
+      actionTypes: actions.actionTypes,
+      specialEntities: actions.specialEntities,
     });
     setComponent(SelectedShip, GodEntityIndex, { value: ship });
   };
 
   const handleNewActionsSpecial = (action: ActionType) => {
-    const actions = selectedActions;
+    const actions = structuredClone(selectedActions);
     const index = actions.actionTypes.indexOf(action);
     if (index == -1) {
       const unusedSlot = actions.actionTypes.indexOf(ActionType.None);
@@ -66,10 +77,12 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
   return (
     <>
       {cannonEntities.map((cannonEntity) => {
+        const loaded = getComponentValue(Loaded, cannonEntity)?.value;
+
+        const actionType = loaded ? ActionType.Fire : ActionType.Load;
         if (!checkActionPossible(ActionType.Fire, ship)) return null;
         const usedAlready = selectedActions.specialEntities.find((a) => a == world.entities[cannonEntity]) != undefined;
 
-        const loaded = getComponentValue(Loaded, cannonEntity)?.value;
         const cannonRotation = getComponentValue(Rotation, cannonEntity)?.value || 0;
         const broadside = isBroadside(cannonRotation);
         const actionStr = loaded ? "Fire" : "Load";
@@ -89,6 +102,10 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
             isSelected={usedAlready}
             disabled={disabled && !usedAlready}
             key={`selectedCannon-${cannonEntity}`}
+            onMouseEnter={() =>
+              setComponent(HoveredAction, GodEntityIndex, { shipEntity: ship, actionType, specialEntity: cannonEntity })
+            }
+            onMouseLeave={() => removeComponent(HoveredAction, GodEntityIndex)}
             onClick={(e) => {
               e.stopPropagation();
               handleNewActionsCannon(loaded ? ActionType.Fire : ActionType.Load, world.entities[cannonEntity]);
