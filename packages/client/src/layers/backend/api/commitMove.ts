@@ -79,7 +79,7 @@ export function commitMove(
     },
     metadata: {
       type: TxType.Commit,
-      metadata: CommittedMoves,
+      metadata: moves,
     },
   });
 }
