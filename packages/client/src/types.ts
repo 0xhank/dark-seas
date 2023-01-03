@@ -76,7 +76,7 @@ export enum SailPositions {
 }
 
 export const SailPositionNames: Record<number, string> = {
-  [SailPositions.Broken]: "Broken",
+  [SailPositions.Broken]: "Torn",
   [SailPositions.Lowered]: "Lowered",
   [SailPositions.Full]: "Full",
 };
