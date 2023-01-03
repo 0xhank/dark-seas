@@ -1,4 +1,5 @@
 import {
+  defineComponentSystem,
   defineExitSystem,
   defineSystem,
   EntityID,
@@ -79,19 +80,16 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     polygonRegistry.set(groupId, hoveredGroup);
   });
 
-  defineSystem(world, [Has(HoveredAction)], (update) => {
-    if (update.type == UpdateType.Exit) return;
-    const hoveredAction = update.value[0] as
-      | { shipEntity: EntityIndex; actionType: ActionType; specialEntity: EntityIndex }
-      | undefined;
+  defineComponentSystem(world, HoveredAction, ({ value }) => {
+    const hoveredAction = value[0];
 
     if (!hoveredAction) return;
 
     const actionType = hoveredAction.actionType;
     if (actionType != ActionType.Fire && actionType != ActionType.Load) return;
 
-    const shipEntity = hoveredAction.shipEntity;
-    const cannonEntity = hoveredAction.specialEntity;
+    const shipEntity = hoveredAction.shipEntity as EntityIndex;
+    const cannonEntity = hoveredAction.specialEntity as EntityIndex;
 
     const objectId = `hoveredFiringArea`;
 
@@ -138,7 +136,6 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     const oldEntities = update.value[1]?.specialEntities as EntityID[] | undefined;
     const newEntities = update.value[0]?.specialEntities as EntityID[] | undefined;
 
-    console.log(update.value);
     const diff = getDiff(oldEntities, newEntities);
 
     if (diff) {

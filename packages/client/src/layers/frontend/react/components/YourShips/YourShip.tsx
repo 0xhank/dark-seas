@@ -82,14 +82,26 @@ export const YourShip = ({
 
 const MoveButtons = styled.div`
   display: flex;
-  justify-content: center;
   gap: 8px;
   font-size: 1rem;
   font-weight: 700;
-  width: auto;
+  min-width: 100%;
+  justify-content: space-between;
   height: 8rem;
-  overflow-x: unset;
+  overflow-x: overlay;
   overflow-y: hidden;
+  ::-webkit-scrollbar {
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
 `;
 
 const YourShipContainer = styled(InternalContainer)<{
@@ -106,6 +118,7 @@ const YourShipContainer = styled(InternalContainer)<{
   cursor: pointer;
   box-shadow: ${({ isSelected }) => `inset 0px 0px 0px ${isSelected ? "5px" : "0px"} ${colors.gold}`};
   background: ${({ isSelected, isHovered }) => `${isSelected || isHovered ? colors.thickGlass : colors.glass}`};
+  padding-bottom: 5px;
 `;
 
 const SpecialText = styled.span`
