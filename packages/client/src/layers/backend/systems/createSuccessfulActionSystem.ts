@@ -1,11 +1,11 @@
-import { defineComponentSystem, setComponent } from "@latticexyz/recs";
+import { defineComponentSystem, getComponentEntities, removeComponent, setComponent } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
 import { Action } from "../../../types";
 import { BackendLayer, TxType } from "../types";
 export function createSuccessfulActionSystem(layer: BackendLayer) {
   const {
     world,
-    components: { ExecutedActions },
+    components: { ExecutedActions, SelectedActions, Targeted },
     actions: { Action },
   } = layer;
 
@@ -25,6 +25,9 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
         actionTypes: action.actionTypes,
         specialEntities: action.specialEntities,
       });
+      removeComponent(SelectedActions, shipEntity);
     });
+
+    [...getComponentEntities(Targeted)].forEach((ship) => removeComponent(Targeted, ship));
   });
 }

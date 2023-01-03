@@ -1,4 +1,3 @@
-import { GodID } from "@latticexyz/network";
 import {
   EntityID,
   EntityIndex,
@@ -11,21 +10,22 @@ import {
 } from "@latticexyz/recs";
 import { ActionImg, ActionNames, ActionType, Layers } from "../../../../../types";
 import { isBroadside } from "../../../../../utils/trig";
+import { DELAY } from "../../../constants";
 import { Img, OptionButton } from "../../styles/global";
 
 export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
   const {
     backend: {
       world,
-      components: { SelectedActions, SelectedShip, HoveredAction },
+      components: { SelectedActions, SelectedShip, HoveredAction, ExecutedActions },
       utils: { checkActionPossible },
+      godIndex,
     },
     network: {
-      components: { OwnedBy, Cannon, Rotation, Loaded },
+      components: { OwnedBy, Cannon, Rotation, Loaded, LastAction },
+      utils: { getTurn, getPlayerEntity },
     },
   } = layers;
-
-  const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
   const selectedActions = getComponentValue(SelectedActions, ship) || {
     actionTypes: [ActionType.None, ActionType.None],
@@ -34,10 +34,20 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
 
   const actions = structuredClone(selectedActions);
 
-  const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[ship] })])];
+  const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[ship] })])].sort(
+    (a, b) => a - b
+  );
 
-  const disabled = selectedActions.actionTypes.every((a) => a !== ActionType.None);
+  const currentTurn = getTurn(DELAY);
 
+  const playerEntity = getPlayerEntity();
+  if (!playerEntity) return;
+  const lastAction = getComponentValue(LastAction, playerEntity)?.value;
+
+  const actionsExecuted = currentTurn == lastAction;
+  const disabled = actionsExecuted || selectedActions.actionTypes.every((a) => a !== ActionType.None);
+
+  const executedActions = getComponentValue(ExecutedActions, ship);
   const handleNewActionsCannon = (action: ActionType, cannonEntity: EntityID) => {
     const index = selectedActions.specialEntities.indexOf(cannonEntity);
 
@@ -55,7 +65,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
       actionTypes: actions.actionTypes,
       specialEntities: actions.specialEntities,
     });
-    setComponent(SelectedShip, GodEntityIndex, { value: ship });
+    setComponent(SelectedShip, godIndex, { value: ship });
   };
 
   const handleNewActionsSpecial = (action: ActionType) => {
@@ -71,7 +81,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
       actions.specialEntities[index] = "0" as EntityID;
     }
     setComponent(SelectedActions, ship, { actionTypes: actions.actionTypes, specialEntities: actions.specialEntities });
-    setComponent(SelectedShip, GodEntityIndex, { value: ship });
+    setComponent(SelectedShip, godIndex, { value: ship });
   };
 
   return (
@@ -83,14 +93,19 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
         if (!checkActionPossible(ActionType.Fire, ship)) return null;
         const usedAlready = selectedActions.specialEntities.find((a) => a == world.entities[cannonEntity]) != undefined;
 
+        const entityUsed = executedActions?.specialEntities.includes(world.entities[cannonEntity]);
+
         const cannonRotation = getComponentValue(Rotation, cannonEntity)?.value || 0;
         const broadside = isBroadside(cannonRotation);
-        const actionStr = loaded ? "Fire" : "Load";
-        const typeStr = broadside ? "Broadside" : "Pivot";
-        const imgRotation = !loaded || broadside ? 0 : cannonRotation;
+
+        // xor
+        const showFire = loaded ? !entityUsed : entityUsed;
+        const actionStr = showFire ? "Fire" : "Load";
+        const typeStr = entityUsed ? "" : broadside ? "Broadside" : "Pivot";
+        const imgRotation = showFire || broadside ? 0 : cannonRotation;
 
         let src = ActionImg[ActionType.Load];
-        if (loaded) {
+        if (showFire) {
           src = ActionImg[ActionType.Fire];
           if (broadside) {
             src = cannonRotation == 90 ? "/icons/fire-right.svg" : "/icons/fire-left.svg";
@@ -101,11 +116,12 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
           <OptionButton
             isSelected={usedAlready}
             disabled={disabled && !usedAlready}
+            confirmed={executedActions?.specialEntities.includes(world.entities[cannonEntity])}
             key={`selectedCannon-${cannonEntity}`}
             onMouseEnter={() =>
-              setComponent(HoveredAction, GodEntityIndex, { shipEntity: ship, actionType, specialEntity: cannonEntity })
+              setComponent(HoveredAction, godIndex, { shipEntity: ship, actionType, specialEntity: cannonEntity })
             }
-            onMouseLeave={() => removeComponent(HoveredAction, GodEntityIndex)}
+            onMouseLeave={() => removeComponent(HoveredAction, godIndex)}
             onClick={(e) => {
               e.stopPropagation();
               handleNewActionsCannon(loaded ? ActionType.Fire : ActionType.Load, world.entities[cannonEntity]);
@@ -130,6 +146,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
             isSelected={usedAlready}
             disabled={disabled && !usedAlready}
             key={`selectedAction-${action}`}
+            confirmed={executedActions?.actionTypes.includes(action)}
             onClick={(e) => {
               e.stopPropagation();
               handleNewActionsSpecial(action);
