@@ -15,7 +15,7 @@ export default function ShipAttribute({
   let source = "";
 
   if (attributeType == ShipAttributeTypes.Sails) {
-    if (attribute == SailPositions.Broken) source = "/icons/broken-sail.svg";
+    if (attribute == SailPositions.Torn) source = "/icons/broken-sail.svg";
     else source = "/icons/sail.svg";
   }
 

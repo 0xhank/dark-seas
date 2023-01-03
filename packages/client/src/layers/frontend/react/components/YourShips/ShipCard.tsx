@@ -32,16 +32,14 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
   const ownerName = getComponentValue(Name, ownerEntity)?.value;
   const selectedActions = getComponentValue(SelectedActions, ship);
 
-  const updating = selectedActions?.actionTypes.find(
-    (action) => action == ActionType.LowerSail || action == ActionType.RaiseSail
-  );
+  const updates = new Set(selectedActions?.actionTypes);
 
-  const updatedSailPosition =
-    updating == ActionType.LowerSail
-      ? sailPosition - 1
-      : updating == ActionType.LowerSail
-      ? sailPosition + 1
-      : sailPosition;
+  const updatedSailPosition = updates.has(ActionType.LowerSail)
+    ? sailPosition - 1
+    : updates.has(ActionType.RaiseSail)
+    ? sailPosition + 1
+    : sailPosition;
+
   return (
     <div style={{ display: "flex", borderRadius: "6px", width: "100%" }}>
       <BoxContainer>
@@ -69,13 +67,21 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
           <ShipAttribute
             attributeType={ShipAttributeTypes.Sails}
             attribute={SailPositions[updatedSailPosition]}
-            updating={!!updating}
+            updating={updatedSailPosition !== sailPosition}
           />
         </div>
-        <div style={{ display: "flex" }}>
-          {damagedCannons && <ShipDamage message="cannons broken" amountLeft={damagedCannons} />}
-          {onFire && <ShipDamage message="on fire" amountLeft={onFire} />}
-          {sailPosition == 0 && <ShipDamage message="sails torn" />}
+        <div style={{ display: "flex", gap: "8px" }}>
+          {damagedCannons && (
+            <ShipDamage
+              message="cannons broken"
+              amountLeft={damagedCannons}
+              fixing={updates.has(ActionType.RepairCannons)}
+            />
+          )}
+          {onFire && (
+            <ShipDamage message="on fire" amountLeft={onFire} fixing={updates.has(ActionType.ExtinguishFire)} />
+          )}
+          {sailPosition == 0 && <ShipDamage message="sails torn" fixing={updates.has(ActionType.RepairSail)} />}
         </div>
       </div>
     </div>

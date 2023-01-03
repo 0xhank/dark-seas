@@ -41,7 +41,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
   const currentTurn = getTurn(DELAY);
 
   const playerEntity = getPlayerEntity();
-  if (!playerEntity) return;
+  if (!playerEntity) return null;
   const lastAction = getComponentValue(LastAction, playerEntity)?.value;
 
   const actionsExecuted = currentTurn == lastAction;
