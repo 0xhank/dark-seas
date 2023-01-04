@@ -88,12 +88,6 @@ export function registerTurnTimer() {
             </Text>
             <ProgressBar phaseLength={phaseLength} secondsUntilNextPhase={secondsUntilNextPhase} />
           </InternalContainer>
-          {windBoost != 0 && (
-            <span>
-              The wind is {windBoost > 0 ? "speeding this ship by" : "slowing this ship by"} {Math.abs(windBoost)}
-              kts!
-            </span>
-          )}
         </OuterContainer>
       );
     }
