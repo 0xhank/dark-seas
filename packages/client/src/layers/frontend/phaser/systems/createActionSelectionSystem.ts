@@ -13,11 +13,10 @@ import {
   UpdateType,
 } from "@latticexyz/recs";
 import { ActionType, Phase } from "../../../../types";
-import { getColorNum } from "../../../../utils/procgen";
 import { DELAY } from "../../constants";
 import { colors } from "../../react/styles/global";
 import { PhaserLayer } from "../types";
-import { renderCircle, renderFiringArea } from "./renderShip";
+import { renderFiringArea } from "./renderShip";
 
 export function createActionSelectionSystem(phaser: PhaserLayer) {
   const {
@@ -39,50 +38,6 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
       Main: { phaserScene },
     },
   } = phaser;
-
-  defineSystem(world, [Has(SelectedShip)], ({ type }) => {
-    const groupId = "circle";
-    let hoveredGroup = polygonRegistry.get(groupId);
-    if (hoveredGroup) hoveredGroup.clear(true, true);
-
-    if (type === UpdateType.Exit) {
-      return;
-    }
-
-    const shipEntity = getComponentValueStrict(SelectedShip, godIndex).value as EntityIndex;
-    const myShip = getComponentValueStrict(OwnedBy, shipEntity).value == connectedAddress.get();
-
-    if (!hoveredGroup) hoveredGroup = phaserScene.add.group();
-
-    const position = getComponentValueStrict(Position, shipEntity);
-    const length = getComponentValueStrict(Length, shipEntity).value;
-    const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-    const shipColor = myShip ? getColorNum(shipEntity) : colors.whiteHex;
-    renderCircle(phaser, hoveredGroup, position, length, rotation, shipColor, 0.5);
-
-    polygonRegistry.set(groupId, hoveredGroup);
-  });
-
-  defineSystem(world, [Has(HoveredShip)], ({ type }) => {
-    const groupId = "hover-circle";
-    let hoveredGroup = polygonRegistry.get(groupId);
-    if (hoveredGroup) hoveredGroup.clear(true, true);
-
-    if (type === UpdateType.Exit) {
-      return;
-    }
-
-    const shipEntity = getComponentValueStrict(HoveredShip, godIndex).value as EntityIndex;
-
-    if (!hoveredGroup) hoveredGroup = phaserScene.add.group();
-
-    const position = getComponentValueStrict(Position, shipEntity);
-    const length = getComponentValueStrict(Length, shipEntity).value;
-    const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-    renderCircle(phaser, hoveredGroup, position, length, rotation, colors.whiteHex, 0.3);
-
-    polygonRegistry.set(groupId, hoveredGroup);
-  });
 
   defineComponentSystem(world, HoveredAction, ({ value }) => {
     const hoveredAction = value[0];

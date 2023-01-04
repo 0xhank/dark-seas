@@ -62,12 +62,20 @@ export async function createBackendLayer(network: NetworkLayer) {
   // --- SETUP ----------------------------------------------------------------------
 
   const {
-    utils: { getGameConfig, getPhase, getPlayerEntity },
+    utils: { getPlayerEntity },
     components: { OnFire, DamagedCannons, SailPosition, Ship, OwnedBy, Range, Position, Rotation, Length },
     network: { connectedAddress },
   } = network;
 
   // --- UTILITIES ------------------------------------------------------------------
+
+  function isMyShip(shipEntity: EntityIndex): boolean {
+    const owner = getComponentValue(OwnedBy, shipEntity)?.value;
+    const myAddress = connectedAddress.get();
+    if (!owner || !myAddress) return false;
+    return owner == myAddress;
+  }
+
   function checkActionPossible(action: ActionType, ship: EntityIndex): boolean {
     const damagedCannons = getComponentValue(DamagedCannons, ship)?.value;
 
@@ -194,6 +202,7 @@ export async function createBackendLayer(network: NetworkLayer) {
       getPlayerShipsWithMoves,
       getPlayerShipsWithActions,
       getTargetedShips,
+      isMyShip,
     },
     components,
     godIndex: GodEntityIndex,
