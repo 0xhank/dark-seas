@@ -7,6 +7,8 @@ export enum Arrows {
   SoftLeft = "/img/arrows/soft-left.png",
   SoftRight = "/img/arrows/soft-right.png",
   UTurn = "/img/arrows/uturn.png",
+  MediumRight = "/img/arrows/medium-right.png",
+  MediumLeft = "/img/arrows/medium-left.png",
 }
 
 export enum ShipAttributeTypes {
@@ -16,19 +18,15 @@ export enum ShipAttributeTypes {
 }
 
 export function arrowImg(rotation: number) {
-  return rotation == 360 || rotation == 0
-    ? Arrows.Straight
-    : rotation > 270
-    ? Arrows.SoftLeft
-    : rotation == 270
-    ? Arrows.Left
-    : rotation > 180
-    ? Arrows.HardLeft
-    : rotation == 180
-    ? Arrows.UTurn
-    : rotation > 90
-    ? Arrows.HardRight
-    : rotation == 90
-    ? Arrows.Right
-    : Arrows.SoftRight;
+  rotation = rotation % 360;
+  if (rotation == 0) return Arrows.Straight;
+  if (rotation > 330) return Arrows.SoftLeft;
+  if (rotation > 290) return Arrows.MediumLeft;
+  if (rotation > 250) return Arrows.Left;
+  if (rotation > 200) return Arrows.HardLeft;
+  if (rotation > 160) return Arrows.UTurn;
+  if (rotation > 110) return Arrows.HardRight;
+  if (rotation > 70) return Arrows.Right;
+  if (rotation > 30) return Arrows.MediumRight;
+  return Arrows.SoftRight;
 }
