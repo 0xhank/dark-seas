@@ -7,6 +7,7 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
+import color from "color";
 import styled from "styled-components";
 import { Layers, Phase } from "../../../../../types";
 import { getColorStr } from "../../../../../utils/procgen";
@@ -120,8 +121,9 @@ const YourShipContainer = styled(InternalContainer)<{
   flex: 1;
   height: auto;
   cursor: pointer;
-  box-shadow: ${({ isSelected, shipColor }) => `inset 0px 0px 0px ${isSelected ? "5px" : "0px"} ${shipColor}`};
-  background: ${({ isSelected, isHovered }) => `${isSelected || isHovered ? colors.thickGlass : colors.glass}`};
+  box-shadow: ${({ isSelected, shipColor }) => `inset 0px 0px 0px ${isSelected ? "5px" : "0px"} ${colors.white}`};
+  background: ${({ isSelected, isHovered, shipColor }) =>
+    `${color(shipColor).alpha(isSelected || isHovered ? 0.5 : 0.25)}`};
   padding-bottom: 5px;
 `;
 
