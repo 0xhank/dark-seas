@@ -141,6 +141,26 @@ export async function createNetworkLayer(config: GameConfig) {
     return Math.floor(timeElapsed / turnLength);
   }
 
+  function secondsUntilNextPhase(delay = 0) {
+    const gameConfig = getGameConfig();
+    const phase = getPhase(delay);
+
+    if (!gameConfig || phase == undefined) return;
+
+    const gameLength = Math.floor(network.clock.currentTime / 1000) + delay - parseInt(gameConfig.startTime);
+    const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;
+    const secondsIntoTurn = gameLength % turnLength;
+
+    const phaseEnd =
+      phase == Phase.Commit
+        ? gameConfig.commitPhaseLength
+        : phase == Phase.Reveal
+        ? gameConfig.commitPhaseLength + gameConfig.revealPhaseLength
+        : turnLength;
+
+    return phaseEnd - secondsIntoTurn;
+  }
+
   // --- API ------------------------------------------------------------------------
 
   function commitMove(commitment: string) {
@@ -188,7 +208,7 @@ export async function createNetworkLayer(config: GameConfig) {
     txReduced$,
     startSync,
     network,
-    utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn },
+    utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn, secondsUntilNextPhase },
     api: { revealMove, submitActions, spawnPlayer, commitMove, setOnFire, damageCannons },
     dev: setupDevSystems(world, encoders, systems),
   };

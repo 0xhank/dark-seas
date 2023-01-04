@@ -14,7 +14,7 @@ import {
 import { createActionSystem, defineNumberComponent, defineStringComponent } from "@latticexyz/std-client";
 import { curry } from "lodash";
 
-import { Action, ActionType, Move, Phase } from "../../types";
+import { Action, ActionType, Move } from "../../types";
 import { getFiringArea, getSternLocation, inFiringArea } from "../../utils/trig";
 import { NetworkLayer } from "../network";
 import { commitMove } from "./api/commitMove";
@@ -68,26 +68,6 @@ export async function createBackendLayer(network: NetworkLayer) {
   } = network;
 
   // --- UTILITIES ------------------------------------------------------------------
-  function secondsUntilNextPhase(time: number, delay = 0) {
-    const gameConfig = getGameConfig();
-    const phase = getPhase(delay);
-
-    if (!gameConfig || phase == undefined) return;
-
-    const gameLength = Math.floor(time / 1000) + delay - parseInt(gameConfig.startTime);
-    const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;
-    const secondsIntoTurn = gameLength % turnLength;
-
-    const phaseEnd =
-      phase == Phase.Commit
-        ? gameConfig.commitPhaseLength
-        : phase == Phase.Reveal
-        ? gameConfig.commitPhaseLength + gameConfig.revealPhaseLength
-        : turnLength;
-
-    return phaseEnd - secondsIntoTurn;
-  }
-
   function checkActionPossible(action: ActionType, ship: EntityIndex): boolean {
     const damagedCannons = getComponentValue(DamagedCannons, ship)?.value;
 
@@ -210,7 +190,6 @@ export async function createBackendLayer(network: NetworkLayer) {
     parentLayers: { network },
     utils: {
       checkActionPossible,
-      secondsUntilNextPhase,
       getPlayerShips,
       getPlayerShipsWithMoves,
       getPlayerShipsWithActions,

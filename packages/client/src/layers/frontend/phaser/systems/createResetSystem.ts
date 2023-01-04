@@ -16,13 +16,13 @@ export function createResetSystem(phaser: PhaserLayer) {
     parentLayers: {
       network: {
         components: { LastMove, LastAction, MoveCard },
-        utils: { getPlayerEntity, getPhase, getGameConfig, getTurn },
+        utils: { getPlayerEntity, getPhase, getGameConfig, getTurn, secondsUntilNextPhase },
         network: { clock },
       },
       backend: {
         components: { SelectedMove, SelectedActions, CommittedMoves, ExecutedActions },
         api: { commitMove, revealMove, submitActions },
-        utils: { secondsUntilNextPhase, getPlayerShipsWithMoves, getPlayerShipsWithActions, getPlayerShips },
+        utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, getPlayerShips },
       },
     },
     scenes: {
@@ -31,14 +31,14 @@ export function createResetSystem(phaser: PhaserLayer) {
     polygonRegistry,
   } = phaser;
 
-  defineRxSystem(world, clock.time$, (currentTime) => {
+  defineRxSystem(world, clock.time$, () => {
     const phase = getPhase(DELAY);
     const turn = getTurn(DELAY);
     const gameConfig = getGameConfig();
 
     if (phase == undefined || !gameConfig) return;
 
-    const timeToNextPhase = secondsUntilNextPhase(currentTime, DELAY);
+    const timeToNextPhase = secondsUntilNextPhase(DELAY);
 
     const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 

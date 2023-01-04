@@ -37,12 +37,6 @@ export enum Phase {
   Action,
 }
 
-export const PhaseNames: Record<number, string> = {
-  [Phase.Commit]: "Move Preparation",
-  [Phase.Reveal]: "Move Execution",
-  [Phase.Action]: "Action",
-};
-
 export const ActionNames: Record<number, string> = {
   [ActionType.Fire]: "Fire",
   [ActionType.Load]: "Load",
