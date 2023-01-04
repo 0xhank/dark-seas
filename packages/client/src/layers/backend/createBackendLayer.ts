@@ -135,7 +135,8 @@ export async function createBackendLayer(network: NetworkLayer) {
       if (targetEntity == shipEntity) return false;
 
       const enemyPosition = getComponentValueStrict(Position, targetEntity);
-      const sternPosition = getSternLocation(enemyPosition, shipRotation, length);
+      const enemyRotation = getComponentValueStrict(Rotation, targetEntity).value;
+      const sternPosition = getSternLocation(enemyPosition, enemyRotation, length);
       const range = getComponentValueStrict(Range, cannonEntity).value;
 
       const firingArea = getFiringArea(shipPosition, range, length, shipRotation, cannonRotation);

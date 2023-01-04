@@ -25,11 +25,10 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
       network: {
         components: { Position, Length, Rotation, Loaded, Cannon, OwnedBy },
         utils: { getPhase },
-        network: { connectedAddress },
       },
       backend: {
         utils: { getTargetedShips },
-        components: { SelectedShip, SelectedActions, HoveredShip, HoveredAction, Targeted },
+        components: { SelectedActions, HoveredShip, HoveredAction, Targeted },
         godIndex,
       },
     },
@@ -91,12 +90,17 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     });
   });
 
-  defineSystem(world, [Has(SelectedActions)], (update) => {
-    const oldEntities = update.value[1]?.specialEntities as EntityID[] | undefined;
-    const newEntities = update.value[0]?.specialEntities as EntityID[] | undefined;
+  defineComponentSystem(world, SelectedActions, (update) => {
+    const oldValue = update.value[1]?.specialEntities.map((e, i) => [e, update.value[1]?.actionTypes[i]]) as
+      | [EntityID, ActionType][]
+      | undefined;
+    const newValue = update.value[0]?.specialEntities.map((e, i) => [e, update.value[0]?.actionTypes[0]]) as
+      | [EntityID, ActionType][]
+      | undefined;
 
-    const diff = getDiff(oldEntities, newEntities);
+    const diff = getDiff(oldValue, newValue);
 
+    console.log("cannon updated:", diff);
     if (diff) {
       getTargetedShips(diff.entity).forEach((entity) => {
         const targetedValue = getComponentValue(Targeted, entity)?.value || 0;
@@ -109,39 +113,24 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
   });
 
   function getDiff(
-    oldEntities: EntityID[] | undefined,
-    newEntities: EntityID[] | undefined
+    oldEntities: [EntityID, ActionType][] | undefined,
+    newEntities: [EntityID, ActionType][] | undefined
   ): { entity: EntityIndex; added: boolean } | undefined {
-    if (!oldEntities && !newEntities) return;
-    if (!oldEntities && newEntities) {
-      const entityID = newEntities.find((e) => e !== "0");
-
-      if (!entityID) return;
-      const entity = world.entityToIndex.get(entityID);
-      if (!entity) return;
-      return { entity, added: true };
-    }
-    if (oldEntities && !newEntities) {
-      const entityID = oldEntities.find((e) => e !== "0");
-      if (!entityID) return;
-      const entity = world.entityToIndex.get(entityID);
+    const oldAddition = oldEntities?.find(
+      (candidate) => candidate[1] == ActionType.Fire && !newEntities?.find((entity) => entity[0] == candidate[0])
+    );
+    if (oldAddition) {
+      const entity = world.entityToIndex.get(oldAddition[0]);
       if (!entity) return;
       return { entity, added: false };
     }
-    if (oldEntities && newEntities) {
-      const oldAddition = oldEntities.find((v) => v !== "0" && !newEntities.includes(v));
-      const newAddition = newEntities.find((v) => v !== "0" && !oldEntities.includes(v));
-
-      if (oldAddition) {
-        const entity = world.entityToIndex.get(oldAddition);
-
-        if (!entity) return;
-        return { entity, added: false };
-      } else if (newAddition) {
-        const entity = world.entityToIndex.get(newAddition);
-        if (!entity) return;
-        return { entity, added: true };
-      }
+    const newAddition = newEntities?.find(
+      (candidate) => candidate[1] == ActionType.Fire && !oldEntities?.find((entity) => entity[0] == candidate[0])
+    );
+    if (newAddition) {
+      const entity = world.entityToIndex.get(newAddition[0]);
+      if (!entity) return;
+      return { entity, added: true };
     }
   }
 
