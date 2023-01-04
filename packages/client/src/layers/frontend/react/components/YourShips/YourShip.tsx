@@ -59,7 +59,6 @@ export const YourShip = ({
   const shipColor = getColorStr(ship);
 
   let selectionContent = null;
-  selectionContent = <MoveSelection ship={ship} layers={layers} />;
 
   if (health == 0) {
     selectionContent = <SpecialText>This ship is sunk!</SpecialText>;
