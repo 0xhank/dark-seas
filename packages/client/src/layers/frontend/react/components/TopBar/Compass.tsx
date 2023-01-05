@@ -13,7 +13,7 @@ export function Compass({ speed, direction }: Wind) {
         <CompassArrow />
         <CompassLabels>
           <CompassSpan style={{ transform: `rotate(${360 - ((direction + 90) % 360)}deg)` }}>
-            {speed} kt{speed == 1 ? "" : "s"}
+            {/* {speed} kt{speed == 1 ? "" : "s"} */}
           </CompassSpan>
         </CompassLabels>
       </CompassArrowContainer>

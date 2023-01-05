@@ -70,8 +70,8 @@ export function renderFiringArea(
   rotation: number,
   length: number,
   cannonEntity: EntityIndex,
-  tint = colors.whiteHex,
-  alpha = 1
+  fill: { tint: number; alpha: number } | undefined = undefined,
+  stroke: { tint: number; alpha: number } | undefined = undefined
 ) {
   const {
     parentLayers: {
@@ -95,7 +95,12 @@ export function renderFiringArea(
   const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, colors.whiteHex, 0.1);
   firingPolygon.setDisplayOrigin(0);
   firingPolygon.setDepth(RenderDepth.Foreground5);
-  firingPolygon.setFillStyle(tint, alpha);
+  if (fill) {
+    firingPolygon.setFillStyle(fill.tint, fill.alpha);
+  }
+  if (stroke) {
+    firingPolygon.setStrokeStyle(6, stroke.tint, stroke.alpha);
+  }
 
   group.add(firingPolygon, true);
 }

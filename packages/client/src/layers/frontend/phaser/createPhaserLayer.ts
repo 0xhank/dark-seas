@@ -3,18 +3,7 @@ import { defineComponent, namespaceWorld, Type } from "@latticexyz/recs";
 import { BackendLayer } from "../../backend";
 import { phaserConfig } from "./config";
 import { POS_HEIGHT, POS_WIDTH } from "./constants";
-import {
-  createActionSelectionSystem,
-  createInputSystem,
-  createPositionSystem,
-  createShipOptionsSystem,
-  createStatAnimationSystem,
-  createStatUpdateSystem,
-} from "./systems";
-import { createProjectionSystem } from "./systems/createProjectionSystem";
-import { createRadiusSystem } from "./systems/createRadiusSystem";
-import { createResetSystem } from "./systems/createResetSystem";
-import { createTargetedSystem } from "./systems/createTargetedSystem";
+import { createPhaserSystems } from "./systems";
 
 /**
  * The Phaser layer is responsible for rendering game objects to the screen.
@@ -59,7 +48,6 @@ export async function createPhaserLayer(backend: BackendLayer) {
     api: {
       mapInteraction: createMapInteractionApi(),
     },
-    backend,
     game,
     scenes,
     polygonRegistry,
@@ -67,16 +55,7 @@ export async function createPhaserLayer(backend: BackendLayer) {
   };
 
   // --- SYSTEMS --------------------------------------------------------------------
-  createInputSystem(context);
-  createPositionSystem(context);
-  createActionSelectionSystem(context);
-  createTargetedSystem(context);
-  createShipOptionsSystem(context);
-  createStatAnimationSystem(context);
-  createProjectionSystem(context);
-  createRadiusSystem(context);
-  createStatUpdateSystem(context);
-  createResetSystem(context);
+  createPhaserSystems(context);
 
   return context;
 }

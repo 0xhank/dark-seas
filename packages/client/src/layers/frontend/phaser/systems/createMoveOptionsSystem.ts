@@ -14,23 +14,22 @@ import { colors } from "../../react/styles/global";
 import { PhaserLayer } from "../types";
 import { renderShip } from "./renderShip";
 
-export function createShipOptionsSystem(phaser: PhaserLayer) {
+export function createMoveOptionsSystem(phaser: PhaserLayer) {
   const {
     world,
     parentLayers: {
       network: {
-        components: { Wind, Position, Range, Length, Rotation, SailPosition, MoveCard, Health, Cannon, OwnedBy },
+        components: { Wind, Position, Rotation, SailPosition, MoveCard },
         utils: { getPhase },
       },
       backend: {
-        components: { SelectedMove, HoveredShip, SelectedShip },
+        components: { HoveredShip },
         godIndex,
       },
     },
     scenes: {
-      Main: { objectPool, phaserScene },
+      Main: { objectPool },
     },
-    polygonRegistry,
   } = phaser;
   /* ---------------------------------------------- Move Options update ------------------------------------------- */
   defineSystem(world, [Has(HoveredShip)], (update) => {

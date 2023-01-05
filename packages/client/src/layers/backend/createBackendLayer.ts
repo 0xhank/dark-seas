@@ -14,7 +14,7 @@ import {
 import { createActionSystem, defineNumberComponent, defineStringComponent } from "@latticexyz/std-client";
 import { curry } from "lodash";
 
-import { Action, ActionType, Move, Phase } from "../../types";
+import { Action, ActionType, Move } from "../../types";
 import { getFiringArea, getSternLocation, inFiringArea } from "../../utils/trig";
 import { NetworkLayer } from "../network";
 import { commitMove } from "./api/commitMove";
@@ -62,30 +62,18 @@ export async function createBackendLayer(network: NetworkLayer) {
   // --- SETUP ----------------------------------------------------------------------
 
   const {
-    utils: { getGameConfig, getPhase, getPlayerEntity },
+    utils: { getPlayerEntity },
     components: { OnFire, DamagedCannons, SailPosition, Ship, OwnedBy, Range, Position, Rotation, Length },
     network: { connectedAddress },
   } = network;
 
   // --- UTILITIES ------------------------------------------------------------------
-  function secondsUntilNextPhase(time: number, delay = 0) {
-    const gameConfig = getGameConfig();
-    const phase = getPhase(delay);
 
-    if (!gameConfig || phase == undefined) return;
-
-    const gameLength = Math.floor(time / 1000) + delay - parseInt(gameConfig.startTime);
-    const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;
-    const secondsIntoTurn = gameLength % turnLength;
-
-    const phaseEnd =
-      phase == Phase.Commit
-        ? gameConfig.commitPhaseLength
-        : phase == Phase.Reveal
-        ? gameConfig.commitPhaseLength + gameConfig.revealPhaseLength
-        : turnLength;
-
-    return phaseEnd - secondsIntoTurn;
+  function isMyShip(shipEntity: EntityIndex): boolean {
+    const owner = getComponentValue(OwnedBy, shipEntity)?.value;
+    const myAddress = connectedAddress.get();
+    if (!owner || !myAddress) return false;
+    return owner == myAddress;
   }
 
   function checkActionPossible(action: ActionType, ship: EntityIndex): boolean {
@@ -147,7 +135,8 @@ export async function createBackendLayer(network: NetworkLayer) {
       if (targetEntity == shipEntity) return false;
 
       const enemyPosition = getComponentValueStrict(Position, targetEntity);
-      const sternPosition = getSternLocation(enemyPosition, shipRotation, length);
+      const enemyRotation = getComponentValueStrict(Rotation, targetEntity).value;
+      const sternPosition = getSternLocation(enemyPosition, enemyRotation, length);
       const range = getComponentValueStrict(Range, cannonEntity).value;
 
       const firingArea = getFiringArea(shipPosition, range, length, shipRotation, cannonRotation);
@@ -210,11 +199,11 @@ export async function createBackendLayer(network: NetworkLayer) {
     parentLayers: { network },
     utils: {
       checkActionPossible,
-      secondsUntilNextPhase,
       getPlayerShips,
       getPlayerShipsWithMoves,
       getPlayerShipsWithActions,
       getTargetedShips,
+      isMyShip,
     },
     components,
     godIndex: GodEntityIndex,

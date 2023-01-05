@@ -16,7 +16,6 @@ export function createTargetedSystem(phaser: PhaserLayer) {
   } = phaser;
 
   defineSystem(world, [Has(Targeted)], (update) => {
-    console.log("targeting:", update);
     const targetedShip = objectPool.get(`${update.entity}`, "Sprite");
 
     const value = update.value[0]?.value;

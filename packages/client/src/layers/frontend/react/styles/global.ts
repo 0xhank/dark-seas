@@ -97,9 +97,6 @@ export const Button = styled.button<{ isSelected?: boolean; noGoldBorder?: boole
     color: ${lighterGray};
     border-color: ${darkGray};
     cursor: not-allowed;
-    :hover {
-      background: ${lightGray};
-    }
   }
 `;
 

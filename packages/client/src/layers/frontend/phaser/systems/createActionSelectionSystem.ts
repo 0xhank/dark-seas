@@ -1,7 +1,6 @@
 import {
   defineComponentSystem,
   defineExitSystem,
-  defineSystem,
   EntityID,
   EntityIndex,
   getComponentValue,
@@ -10,13 +9,12 @@ import {
   HasValue,
   runQuery,
   setComponent,
-  UpdateType,
 } from "@latticexyz/recs";
 import { ActionType, Phase } from "../../../../types";
 import { DELAY } from "../../constants";
 import { colors } from "../../react/styles/global";
 import { PhaserLayer } from "../types";
-import { renderCircle, renderFiringArea } from "./renderShip";
+import { renderFiringArea } from "./renderShip";
 
 export function createActionSelectionSystem(phaser: PhaserLayer) {
   const {
@@ -28,7 +26,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
       },
       backend: {
         utils: { getTargetedShips },
-        components: { SelectedShip, SelectedActions, HoveredShip, HoveredAction, Targeted },
+        components: { SelectedActions, HoveredShip, HoveredAction, Targeted },
         godIndex,
       },
     },
@@ -37,48 +35,6 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
       Main: { phaserScene },
     },
   } = phaser;
-
-  defineSystem(world, [Has(SelectedShip)], ({ type }) => {
-    const groupId = "circle";
-    let hoveredGroup = polygonRegistry.get(groupId);
-    if (hoveredGroup) hoveredGroup.clear(true, true);
-
-    if (type === UpdateType.Exit) {
-      return;
-    }
-
-    const shipEntity = getComponentValueStrict(SelectedShip, godIndex).value as EntityIndex;
-
-    if (!hoveredGroup) hoveredGroup = phaserScene.add.group();
-
-    const position = getComponentValueStrict(Position, shipEntity);
-    const length = getComponentValueStrict(Length, shipEntity).value;
-    const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-    renderCircle(phaser, hoveredGroup, position, length, rotation, colors.goldHex, 0.5);
-
-    polygonRegistry.set(groupId, hoveredGroup);
-  });
-
-  defineSystem(world, [Has(HoveredShip)], ({ type }) => {
-    const groupId = "hover-circle";
-    let hoveredGroup = polygonRegistry.get(groupId);
-    if (hoveredGroup) hoveredGroup.clear(true, true);
-
-    if (type === UpdateType.Exit) {
-      return;
-    }
-
-    const shipEntity = getComponentValueStrict(HoveredShip, godIndex).value as EntityIndex;
-
-    if (!hoveredGroup) hoveredGroup = phaserScene.add.group();
-
-    const position = getComponentValueStrict(Position, shipEntity);
-    const length = getComponentValueStrict(Length, shipEntity).value;
-    const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-    renderCircle(phaser, hoveredGroup, position, length, rotation, colors.whiteHex, 0.3);
-
-    polygonRegistry.set(groupId, hoveredGroup);
-  });
 
   defineComponentSystem(world, HoveredAction, ({ value }) => {
     const hoveredAction = value[0];
@@ -101,11 +57,14 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     const position = getComponentValueStrict(Position, shipEntity);
     const length = getComponentValueStrict(Length, shipEntity).value;
     const rotation = getComponentValueStrict(Rotation, shipEntity).value;
+    const loaded = getComponentValue(Loaded, cannonEntity)?.value;
+
+    const strokeFill = { tint: loaded ? colors.cannonReadyHex : colors.goldHex, alpha: 0.5 };
 
     const tint = colors.whiteHex;
     const alpha = 0.1;
 
-    renderFiringArea(phaser, hoveredGroup, position, rotation, length, cannonEntity, tint, alpha);
+    renderFiringArea(phaser, hoveredGroup, position, rotation, length, cannonEntity, undefined, strokeFill);
 
     polygonRegistry.set(objectId, hoveredGroup);
     // make targeted ships red
@@ -132,11 +91,8 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     });
   });
 
-  defineSystem(world, [Has(SelectedActions)], (update) => {
-    const oldEntities = update.value[1]?.specialEntities as EntityID[] | undefined;
-    const newEntities = update.value[0]?.specialEntities as EntityID[] | undefined;
-
-    const diff = getDiff(oldEntities, newEntities);
+  defineComponentSystem(world, SelectedActions, ({ value }) => {
+    const diff = getDiff(value[1], value[0]);
 
     if (diff) {
       getTargetedShips(diff.entity).forEach((entity) => {
@@ -149,80 +105,66 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     setComponent(HoveredShip, godIndex, hoveredShip);
   });
 
+  // this is probably the worst code ive ever written
+  // finds the added or deleted cannon with Fire action type
   function getDiff(
-    oldEntities: EntityID[] | undefined,
-    newEntities: EntityID[] | undefined
+    oldActions: { specialEntities: EntityID[]; actionTypes: ActionType[] } | undefined,
+    newActions: { specialEntities: EntityID[]; actionTypes: ActionType[] } | undefined
   ): { entity: EntityIndex; added: boolean } | undefined {
-    if (!oldEntities && !newEntities) return;
-    if (!oldEntities && newEntities) {
-      const entityID = newEntities.find((e) => e !== "0");
+    const oldEntities = oldActions?.specialEntities.map((specialEntity, i) => ({
+      specialEntity,
+      actionType: oldActions?.actionTypes[i],
+    }));
+    const newEntities = newActions?.specialEntities.map((specialEntity, i) => ({
+      specialEntity,
+      actionType: newActions?.actionTypes[i],
+    }));
 
-      if (!entityID) return;
-      const entity = world.entityToIndex.get(entityID);
-      if (!entity) return;
-      return { entity, added: true };
-    }
-    if (oldEntities && !newEntities) {
-      const entityID = oldEntities.find((e) => e !== "0");
-      if (!entityID) return;
-      const entity = world.entityToIndex.get(entityID);
+    const oldAddition = oldEntities?.find(
+      (candidate) =>
+        candidate.actionType == ActionType.Fire &&
+        !newEntities?.find((entity) => entity.specialEntity == candidate.specialEntity)
+    );
+    if (oldAddition) {
+      const entity = world.entityToIndex.get(oldAddition.specialEntity);
       if (!entity) return;
       return { entity, added: false };
     }
-    if (oldEntities && newEntities) {
-      const oldAddition = oldEntities.find((v) => v !== "0" && !newEntities.includes(v));
-      const newAddition = newEntities.find((v) => v !== "0" && !oldEntities.includes(v));
-
-      if (oldAddition) {
-        const entity = world.entityToIndex.get(oldAddition);
-
-        if (!entity) return;
-        return { entity, added: false };
-      } else if (newAddition) {
-        const entity = world.entityToIndex.get(newAddition);
-        if (!entity) return;
-        return { entity, added: true };
-      }
+    const newAddition = newEntities?.find((candidate) => {
+      const fireAction = candidate.actionType == ActionType.Fire;
+      const notInOld = !oldEntities?.find((entity) => entity.specialEntity == candidate.specialEntity);
+      return fireAction && notInOld;
+    });
+    if (newAddition) {
+      const entity = world.entityToIndex.get(newAddition.specialEntity);
+      if (!entity) return;
+      return { entity, added: true };
     }
   }
 
-  defineSystem(world, [Has(HoveredShip)], ({ type }) => {
+  defineComponentSystem(world, HoveredShip, (update) => {
     const phase: Phase | undefined = getPhase(DELAY);
 
-    if (phase !== Phase.Action) return;
-    const shipEntity = getComponentValue(HoveredShip, godIndex)?.value as EntityIndex | undefined;
+    // if (phase !== Phase.Action) return;
+    const shipEntity = update.value[0]?.value as EntityIndex | undefined;
     if (!shipEntity) return;
 
     const groupId = "selectedActions";
     const activeGroup = polygonRegistry.get(groupId) || phaserScene.add.group();
     activeGroup.clear(true, true);
 
-    if (type === UpdateType.Exit) {
-      return;
-    }
-
     const selectedActions = getComponentValue(SelectedActions, shipEntity);
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
 
     cannonEntities.forEach((cannonEntity) => {
-      let tint = colors.whiteHex;
-      let alpha = 0.1;
       const loaded = getComponentValue(Loaded, cannonEntity);
       const cannonSelected = selectedActions?.specialEntities.includes(world.entities[cannonEntity]);
-
-      if (cannonSelected) {
-        tint = loaded ? colors.cannonReadyHex : colors.goldHex;
-        alpha = 0.3;
-      } else if (loaded) {
-        tint = colors.goldHex;
-        alpha = 0.5;
-      }
 
       const position = getComponentValueStrict(Position, shipEntity);
       const length = getComponentValueStrict(Length, shipEntity).value;
       const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-
-      renderFiringArea(phaser, activeGroup, position, rotation, length, cannonEntity, tint, alpha);
+      const rangeColor = getRangeTintAlpha(!!loaded, !!cannonSelected);
+      renderFiringArea(phaser, activeGroup, position, rotation, length, cannonEntity, rangeColor);
     });
 
     polygonRegistry.set(groupId, activeGroup);
@@ -231,4 +173,23 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
   defineExitSystem(world, [Has(HoveredShip)], (update) => {
     polygonRegistry.get("selectedActions")?.clear(true, true);
   });
+
+  function getRangeTintAlpha(loaded: boolean, selected: boolean) {
+    //UNSELECTED
+    // Unloaded
+    let fill = { tint: colors.whiteHex, alpha: 0.2 };
+
+    // Loaded
+    if (loaded) {
+      fill = { tint: colors.goldHex, alpha: 0.5 };
+    }
+    //SELECTED
+    if (selected) {
+      //Unloaded
+      fill = { tint: colors.goldHex, alpha: 0.5 };
+      //Loaded
+      if (loaded) fill = { tint: colors.cannonReadyHex, alpha: 0.5 };
+    }
+    return fill;
+  }
 }
