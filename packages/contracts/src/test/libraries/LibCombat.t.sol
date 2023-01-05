@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 // External
-import "../MudTest.t.sol";
+import "../DarkSeasTest.t.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
@@ -17,10 +17,12 @@ import "../../libraries/LibCombat.sol";
 import "../../libraries/LibUtils.sol";
 import "../../libraries/LibSpawn.sol";
 
-contract LibCombatTest is MudTest {
+contract LibCombatTest is DarkSeasTest {
+  constructor() DarkSeasTest(new Deploy()) {}
+
   address zero = address(0);
 
-  function testGetBaseHitChance() public prank(deployer) {
+  function testGetBaseHitChance() public {
     uint256 baseHitChance = LibCombat.getBaseHitChance(28, 50);
     assertApproxEqAbs(baseHitChance, 3200, 50, "baseHitChance: 28 and 50 failed");
 
@@ -34,7 +36,7 @@ contract LibCombatTest is MudTest {
     assertApproxEqAbs(baseHitChance, 272, 50, "baseHitChance: 48 and 5 failed");
   }
 
-  function testGetByteUInt() public prank(deployer) {
+  function testGetByteUInt() public {
     uint256 randomness = LibUtils.randomness(69, 420);
 
     uint256 byteUInt = LibUtils.getByteUInt(randomness, 0, 14);
@@ -47,7 +49,7 @@ contract LibCombatTest is MudTest {
     console.log("byte (40, 20):", byteUInt);
   }
 
-  function testGetHullDamage() public prank(deployer) {
+  function testGetHullDamage() public {
     uint256 baseHitChance = 1000;
     uint256 threeDamage = (16384 * 999) / uint256(10000);
     uint256 twoDamage = (16384 * 1699) / uint256(10000);
@@ -60,7 +62,7 @@ contract LibCombatTest is MudTest {
     assertEq(LibCombat.getHullDamage(baseHitChance, zeroDamage), 0, "hull 0 failed");
   }
 
-  function testGetCrewDamage() public prank(deployer) {
+  function testGetCrewDamage() public {
     uint256 baseHitChance = 1000;
     uint256 threeDamage = ((499 << 14) * 16384) / uint256(10000); // 0x4E1C000
     uint256 twoDamage = ((999 << 14) * 16384) / uint256(10000);
@@ -73,7 +75,7 @@ contract LibCombatTest is MudTest {
     assertEq(LibCombat.getCrewDamage(baseHitChance, zeroDamage), 0, "crew 0 failed");
   }
 
-  function testGetSpecialChance() public prank(deployer) {
+  function testGetSpecialChance() public {
     uint256 baseHitChance = 10 * 100;
     uint256 tru = ((495 * 16384) / uint256(10000)) << (14 * 2); // 0x4E1C000
     uint256 fals = ((505 * 16384) / uint256(10000)) << (14 * 2);
@@ -88,11 +90,19 @@ contract LibCombatTest is MudTest {
     assertTrue(!LibCombat.getSpecialChance(baseHitChance, 1, fals, 1), "special 1 failed");
   }
 
-  function testFiringArea() public prank(address(0)) {
+  function testFiringArea() public prank(deployer) {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
     uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, 0);
+
+    console.log("deployer:", deployer);
+
+    CannonComponent cannonComponent = CannonComponent(getAddressById(components, CannonComponentID));
+    console.log("writer", cannonComponent.owner());
+
     uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 270, 50, 80);
+
+    console.log("hello1");
 
     uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
     uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
@@ -101,17 +111,14 @@ contract LibCombatTest is MudTest {
 
     uint32 rightRange = (cannonRotation + 10) % 360;
     uint32 leftRange = (cannonRotation - 10) % 360;
+    console.log("hello2");
 
     Coord[4] memory firingArea = LibCombat.getFiringAreaBroadside(components, shipEntity, cannonEntity);
 
     Coord memory stern = LibVector.getSternLocation(startingPosition, rotation, length);
     Coord memory backCorner = LibVector.getPositionByVector(stern, rotation, range, leftRange);
     Coord memory frontCorner = LibVector.getPositionByVector(startingPosition, rotation, range, rightRange);
-
-    logCoord("startingPosition", startingPosition);
-    logCoord("stern", stern);
-    logCoord("backCorner", backCorner);
-    logCoord("frontCorner", frontCorner);
+    console.log("hello3");
 
     assertCoordEq(startingPosition, firingArea[0]);
     assertCoordEq(stern, firingArea[1]);
@@ -119,7 +126,7 @@ contract LibCombatTest is MudTest {
     assertCoordEq(frontCorner, firingArea[3]);
   }
 
-  function testFiringAreaUpsideDown() public prank(address(0)) {
+  function testFiringAreaUpsideDown() public prank(deployer) {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
     uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, 180);
@@ -141,28 +148,17 @@ contract LibCombatTest is MudTest {
     );
     Coord memory backCorner = LibVector.getPositionByVector(stern, rotation, range, cannonRotation + 10);
 
-    logCoord("startingPosition", startingPosition);
-    logCoord("stern", stern);
-    logCoord("frontCorner", frontCorner);
-    logCoord("backCorner", backCorner);
-
-    logCoord("startingPosition", firingArea[0]);
-    logCoord("stern", firingArea[1]);
-    logCoord("frontCorner", firingArea[2]);
-    logCoord("backCorner", firingArea[3]);
-
     assertCoordEq(startingPosition, firingArea[0]);
     assertCoordEq(stern, firingArea[1]);
     assertCoordEq(backCorner, firingArea[2]);
     assertCoordEq(frontCorner, firingArea[3]);
   }
 
-  function testFiringAreaPivot() public prank(zero) {
+  function testFiringAreaPivot() public prank(deployer) {
     // setUp();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
     uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, 0);
-    // vm.startPrank(deployer);
     RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
     address owner = rotationComponent.owner();
     console.log("owner:", owner);
@@ -183,21 +179,15 @@ contract LibCombatTest is MudTest {
     );
     Coord memory backCorner = LibVector.getPositionByVector(startingPosition, rotation, range, cannonRotation + 10);
 
-    logCoord("startingPosition", startingPosition);
-    logCoord("frontCorner", frontCorner);
-    logCoord("backCorner", backCorner);
-
     assertCoordEq(startingPosition, firingArea[0]);
     assertCoordEq(frontCorner, firingArea[1]);
     assertCoordEq(backCorner, firingArea[2]);
   }
 
-  function testFiringAreaPivotBehind() public prank(zero) {
-    // setUp();
+  function testFiringAreaPivotBehind() public prank(deployer) {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
     uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, 0);
-    // vm.startPrank(deployer);
     RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
     address owner = rotationComponent.owner();
     console.log("owner:", owner);
@@ -214,10 +204,6 @@ contract LibCombatTest is MudTest {
     Coord[3] memory firingArea = LibCombat.getFiringAreaPivot(components, shipEntity, cannonEntity);
     Coord memory frontCorner = LibVector.getPositionByVector(stern, rotation, range, (cannonRotation + 350) % 360);
     Coord memory backCorner = LibVector.getPositionByVector(stern, rotation, range, cannonRotation + 10);
-
-    logCoord("stern", stern);
-    logCoord("frontCorner", frontCorner);
-    logCoord("backCorner", backCorner);
 
     assertCoordEq(stern, firingArea[0]);
     assertCoordEq(frontCorner, firingArea[1]);

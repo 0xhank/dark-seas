@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 // External
-import "../MudTest.t.sol";
+import "../DarkSeasTest.t.sol";
 import { getAddressById, addressToEntity } from "solecs/utils.sol";
 
 // Systems
@@ -18,10 +18,12 @@ import { Coord } from "../../libraries/DSTypes.sol";
 // Internal
 import "../../libraries/LibUtils.sol";
 
-contract PlayerSpawnTest is MudTest {
+contract PlayerSpawnTest is DarkSeasTest {
+  constructor() DarkSeasTest(new Deploy()) {}
+
   PlayerSpawnSystem playerSpawnSystem;
 
-  function testSpawn() public prank(deployer) {
+  function testSpawn() public {
     setup();
     NameComponent nameComponent = NameComponent(getAddressById(components, NameComponentID));
 
