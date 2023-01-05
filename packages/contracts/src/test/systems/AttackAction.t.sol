@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 // External
-import "../MudTest.t.sol";
+import "../DarkSeasTest.t.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
@@ -23,7 +23,9 @@ import "../../libraries/LibSpawn.sol";
 
 import { Side, Coord, Action, ActionType, Move } from "../../libraries/DSTypes.sol";
 
-contract AttackActionTest is MudTest {
+contract AttackActionTest is DarkSeasTest {
+  constructor() DarkSeasTest(new Deploy()) {}
+
   ActionSystem actionSystem;
   ShipSpawnSystem shipSpawnSystem;
   CommitSystem commitSystem;

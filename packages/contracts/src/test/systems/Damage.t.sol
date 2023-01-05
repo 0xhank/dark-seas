@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 // External
-import "../MudTest.t.sol";
+import "../DarkSeasTest.t.sol";
 
 // Systems
 import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
@@ -25,7 +25,9 @@ import { Action, ActionType, Coord, Move } from "../../libraries/DSTypes.sol";
 // Libraries
 import "../../libraries/LibTurn.sol";
 
-contract DamageTest is MudTest {
+contract DamageTest is DarkSeasTest {
+  constructor() DarkSeasTest(new Deploy()) {}
+
   SailPositionComponent sailPositionComponent;
   ActionSystem actionSystem;
   ShipSpawnSystem shipSpawnSystem;
@@ -34,7 +36,7 @@ contract DamageTest is MudTest {
   Action[] actions;
   Move[] moves;
 
-  function testDamagedCannonsEffect() public prank(deployer) {
+  function testDamagedCannonsEffect() public {
     setup();
     DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
       getAddressById(components, DamagedCannonsComponentID)
@@ -61,7 +63,7 @@ contract DamageTest is MudTest {
     assertEq(damagedCannonsComponent.getValue(attackerEntity), 1);
   }
 
-  function testFireEffect() public prank(deployer) {
+  function testFireEffect() public {
     setup();
     uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
 
@@ -91,7 +93,7 @@ contract DamageTest is MudTest {
     assertEq(healthComponent.getValue(shipEntity), health - 1);
   }
 
-  function testDamagedSailEffect() public prank(deployer) {
+  function testDamagedSailEffect() public {
     setup();
 
     PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));

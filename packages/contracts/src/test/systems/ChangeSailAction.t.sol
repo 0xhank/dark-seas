@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 // External
-import "../MudTest.t.sol";
+import "../DarkSeasTest.t.sol";
 
 // Components
 import { SailPositionComponent, ID as SailPositionComponentID } from "../../components/SailPositionComponent.sol";
@@ -16,7 +16,9 @@ import { Action, ActionType, Move, Coord } from "../../libraries/DSTypes.sol";
 // Libraries
 import "../../libraries/LibTurn.sol";
 
-contract ChangeSailActionTest is MudTest {
+contract ChangeSailActionTest is DarkSeasTest {
+  constructor() DarkSeasTest(new Deploy()) {}
+
   SailPositionComponent sailPositionComponent;
   ActionSystem actionSystem;
   ShipSpawnSystem shipSpawnSystem;
@@ -24,7 +26,7 @@ contract ChangeSailActionTest is MudTest {
   Move[] moves;
   Action[] actions;
 
-  function testExecute() public prank(deployer) {
+  function testExecute() public {
     setup();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
@@ -46,7 +48,7 @@ contract ChangeSailActionTest is MudTest {
     assertEq(newSailPosition, 1);
   }
 
-  function testNoEffect() public prank(deployer) {
+  function testNoEffect() public {
     setup();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;

@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 // External
-import "../MudTest.t.sol";
+import "../DarkSeasTest.t.sol";
 
 // Systems
 import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.sol";
@@ -21,7 +21,9 @@ import { Action, ActionType, Coord, GameConfig, GodID } from "../../libraries/DS
 // Internal
 import "../../libraries/LibTurn.sol";
 
-contract RepairActionTest is MudTest {
+contract RepairActionTest is DarkSeasTest {
+  constructor() DarkSeasTest(new Deploy()) {}
+
   SailPositionComponent sailPositionComponent;
   ActionSystem actionSystem;
   ShipSpawnSystem shipSpawnSystem;
@@ -29,7 +31,7 @@ contract RepairActionTest is MudTest {
 
   Action[] actions;
 
-  function testExtinguishFire() public prank(deployer) {
+  function testExtinguishFire() public {
     setup();
     OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
 
@@ -54,7 +56,7 @@ contract RepairActionTest is MudTest {
     assertFalse(onFireComponent.has(shipEntity));
   }
 
-  function testRepairSail() public prank(deployer) {
+  function testRepairSail() public {
     setup();
 
     uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
@@ -77,7 +79,7 @@ contract RepairActionTest is MudTest {
     assertEq(sailPositionComponent.getValue(shipEntity), 1);
   }
 
-  function testRepairCannons() public prank(deployer) {
+  function testRepairCannons() public {
     setup();
     DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
       getAddressById(components, DamagedCannonsComponentID)
