@@ -48,7 +48,6 @@ export async function createPhaserLayer(backend: BackendLayer) {
     api: {
       mapInteraction: createMapInteractionApi(),
     },
-    backend,
     game,
     scenes,
     polygonRegistry,

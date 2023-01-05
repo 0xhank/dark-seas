@@ -1,5 +1,6 @@
 import { PhaserLayer } from "../types";
 import { createActionSelectionSystem } from "./createActionSelectionSystem";
+import { createFireCannonAnimationSystem } from "./createFireCannonAnimationSystem";
 import { createInputSystem } from "./createInputSystem";
 import { createMoveOptionsSystem } from "./createMoveOptionsSystem";
 import { createPositionSystem } from "./createPositionSystem";
@@ -23,4 +24,5 @@ export function createPhaserSystems(context: PhaserLayer) {
   createStatAnimationSystem(context);
   createStatUpdateSystem(context);
   createTargetedSystem(context);
+  createFireCannonAnimationSystem(context);
 }

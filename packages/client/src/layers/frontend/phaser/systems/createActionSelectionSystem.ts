@@ -94,7 +94,6 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
   defineComponentSystem(world, SelectedActions, ({ value }) => {
     const diff = getDiff(value[1], value[0]);
 
-    console.log("cannon updated:", diff);
     if (diff) {
       getTargetedShips(diff.entity).forEach((entity) => {
         const targetedValue = getComponentValue(Targeted, entity)?.value || 0;
@@ -121,8 +120,6 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
       actionType: newActions?.actionTypes[i],
     }));
 
-    console.log("oldActions:", oldEntities);
-    console.log("newActions:", newEntities);
     const oldAddition = oldEntities?.find(
       (candidate) =>
         candidate.actionType == ActionType.Fire &&
@@ -136,10 +133,8 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     const newAddition = newEntities?.find((candidate) => {
       const fireAction = candidate.actionType == ActionType.Fire;
       const notInOld = !oldEntities?.find((entity) => entity.specialEntity == candidate.specialEntity);
-      console.log(fireAction, notInOld);
       return fireAction && notInOld;
     });
-    console.log("new addition:", newAddition);
     if (newAddition) {
       const entity = world.entityToIndex.get(newAddition.specialEntity);
       if (!entity) return;

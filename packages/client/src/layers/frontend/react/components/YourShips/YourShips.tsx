@@ -274,7 +274,7 @@ export function registerYourShips() {
           ? "Submit one move per ship"
           : phase == Phase.Action
           ? "Select up to two actions per ship"
-          : "Execute selected moves";
+          : "";
       return (
         <Container style={{ justifyContent: "flex-end" }}>
           <InternalContainer

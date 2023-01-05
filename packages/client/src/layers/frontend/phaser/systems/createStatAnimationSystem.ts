@@ -9,7 +9,7 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import { getSternLocation, midpoint } from "../../../../utils/trig";
-import { Animations, RenderDepth } from "../constants";
+import { Animations, CANNON_SHOT_LENGTH, RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
 
 export function createStatAnimationSystem(layer: PhaserLayer) {
@@ -56,8 +56,8 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
           sprite.play(Animations.Explosion);
           sprite.setAlpha(0);
 
-          setTimeout(() => sprite.setAlpha(1), delay * i);
-          setTimeout(() => objectPool.remove(spriteId), 2000 + delay * i);
+          setTimeout(() => sprite.setAlpha(1), delay * i + CANNON_SHOT_LENGTH);
+          setTimeout(() => objectPool.remove(spriteId), 2000 + delay * i + CANNON_SHOT_LENGTH);
         },
       });
     }
@@ -118,6 +118,7 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
         now: async (sprite) => {
           await tween({
             targets: sprite,
+            delay: CANNON_SHOT_LENGTH,
             duration: 2000,
             props: { x, y },
             ease: Phaser.Math.Easing.Sine.InOut,
