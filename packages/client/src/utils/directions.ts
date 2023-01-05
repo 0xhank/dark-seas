@@ -12,12 +12,12 @@ export function getWindBoost(wind: Wind, rotation: number): number {
 export function getMoveWithWind(moveCard: MoveCard, rotation: number, wind: Wind): MoveCard {
   // if 0, +-0% if 10, +- 25% if 20 , +-50%
   const windBoost = (getWindBoost(wind, rotation) * 100) / 40;
-  return getMoveWithBuff(moveCard, windBoost + 100);
+  return getMoveWithDebuff(moveCard, windBoost + 100);
 }
 
 export function getMoveWithSails(moveCard: MoveCard, sailPosition: number): MoveCard {
   const buff = sailPosition == 2 ? 100 : sailPosition == 1 ? 33 : 0;
-  return getMoveWithBuff(moveCard, buff);
+  return getMoveWithDebuff(moveCard, buff);
 }
 
 export function getFinalMoveCard(moveCard: MoveCard, rotation: number, sailPosition: number, wind: Wind): MoveCard {
@@ -26,22 +26,26 @@ export function getFinalMoveCard(moveCard: MoveCard, rotation: number, sailPosit
   return moveCard;
 }
 
-export function getMoveWithBuff(moveCard: MoveCard, buff: number): MoveCard {
-  if (buff == 100) return moveCard;
-  if (buff == 0) return { distance: 0, rotation: 0, direction: 0 };
+export function getMoveWithDebuff(moveCard: MoveCard, debuff: number): MoveCard {
+  debuff = debuff / 100;
+  if (debuff > 1) debuff = 1;
+  if (debuff == 1) return moveCard;
+  if (debuff == 0) return { distance: 0, rotation: 0, direction: 0 };
 
-  moveCard.distance = (moveCard.distance * buff) / 100;
+  moveCard.distance = moveCard.distance * debuff;
+  if (debuff > 1) return moveCard;
 
+  const modifiedDebuff = debuff * 1.75;
   if (moveCard.rotation > 180) {
-    moveCard.rotation = 360 - ((360 - moveCard.rotation) * buff) / 100;
+    moveCard.rotation = 360 - moveCard.rotation * modifiedDebuff;
   } else {
-    moveCard.rotation = (moveCard.rotation * buff) / 100;
+    moveCard.rotation = 180 - moveCard.rotation * modifiedDebuff;
   }
 
   if (moveCard.direction > 180) {
-    moveCard.direction = 360 - ((360 - moveCard.direction) * buff) / 100;
+    moveCard.direction = 360 - moveCard.rotation * modifiedDebuff;
   } else {
-    moveCard.direction = (moveCard.direction * buff) / 100;
+    moveCard.direction = 180 - moveCard.rotation * modifiedDebuff;
   }
   return moveCard;
 }

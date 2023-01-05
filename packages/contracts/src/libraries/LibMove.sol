@@ -67,7 +67,7 @@ library LibMove {
     }
 
     if (sailPosition == 1) {
-      return getMoveWithBuff(moveCard, 33);
+      return getMoveWithBuff(moveCard, 50);
     }
 
     return MoveCard(0, 0, 0);
@@ -76,25 +76,28 @@ library LibMove {
   /**
    * @notice  calculates updated move data based on card
    * @param   moveCard  original card
-   * @param   buff  update to apply
+   * @param   debuff  update to apply
    * @return  MoveCard  updated move card
    */
-  function getMoveWithBuff(MoveCard memory moveCard, uint32 buff) public pure returns (MoveCard memory) {
-    if (buff == 100) return moveCard;
-    if (buff == 0) return MoveCard(0, 0, 0);
+  function getMoveWithBuff(MoveCard memory moveCard, uint32 debuff) public pure returns (MoveCard memory) {
+    if (debuff > 100) debuff = 100;
+    if (debuff == 100) return moveCard;
+    if (debuff == 0) return MoveCard(0, 0, 0);
 
-    moveCard.distance = (moveCard.distance * buff) / 100;
+    moveCard.distance = (moveCard.distance * debuff) / 100;
+
+    uint32 modifiedDebuff = (debuff * 100) / 75;
 
     if (moveCard.rotation > 180) {
-      moveCard.rotation = 360 - (((360 - moveCard.rotation) * buff) / 100);
-    } else {
-      moveCard.rotation = (moveCard.rotation * buff) / 100;
+      moveCard.rotation = 360 - ((moveCard.rotation * modifiedDebuff) / 100);
+    } else if (moveCard.rotation < 180) {
+      moveCard.rotation = 180 - ((moveCard.rotation * modifiedDebuff) / 100);
     }
 
     if (moveCard.direction > 180) {
-      moveCard.direction = 360 - (((360 - moveCard.direction) * buff) / 100);
-    } else {
-      moveCard.direction = (moveCard.direction * buff) / 100;
+      moveCard.direction = 360 - ((moveCard.direction * modifiedDebuff) / 100);
+    } else if (moveCard.direction < 180) {
+      moveCard.direction = 180 - ((moveCard.direction * modifiedDebuff) / 100);
     }
     return moveCard;
   }
