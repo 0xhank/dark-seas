@@ -28,7 +28,6 @@ export function getFinalMoveCard(moveCard: MoveCard, rotation: number, sailPosit
 
 export function getMoveWithDebuff(moveCard: MoveCard, debuff: number): MoveCard {
   debuff = debuff / 100;
-  if (debuff > 1) debuff = 1;
   if (debuff == 1) return moveCard;
   if (debuff == 0) return { distance: 0, rotation: 0, direction: 0 };
 

@@ -80,12 +80,11 @@ library LibMove {
    * @return  MoveCard  updated move card
    */
   function getMoveWithBuff(MoveCard memory moveCard, uint32 debuff) public pure returns (MoveCard memory) {
-    if (debuff > 100) debuff = 100;
     if (debuff == 100) return moveCard;
     if (debuff == 0) return MoveCard(0, 0, 0);
 
     moveCard.distance = (moveCard.distance * debuff) / 100;
-
+    if (debuff > 100) return moveCard;
     uint32 modifiedDebuff = (debuff * 100) / 75;
 
     if (moveCard.rotation > 180) {
