@@ -63,7 +63,7 @@ contract AttackActionTest is DarkSeasTest {
     actionSystem.executeTyped(actions);
   }
 
-  function testRevertNotLoaded() public prank(address(0)) {
+  function testRevertNotLoaded() public prank(deployer) {
     setup();
     uint256 shipEntity = shipSpawnSystem.executeTyped(Coord(0, 0), 0);
     uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 90, 50, 80);
@@ -80,7 +80,7 @@ contract AttackActionTest is DarkSeasTest {
     actionSystem.executeTyped(actions);
   }
 
-  function testRevertSameCannon() public prank(address(0)) {
+  function testRevertSameCannon() public prank(deployer) {
     setup();
     uint256 shipEntity = shipSpawnSystem.executeTyped(Coord(0, 0), 0);
     uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 90, 50, 80);
@@ -97,7 +97,7 @@ contract AttackActionTest is DarkSeasTest {
     actionSystem.executeTyped(actions);
   }
 
-  function testRevertUnloaded() public prank(address(0)) {
+  function testRevertUnloaded() public prank(deployer) {
     setup();
     uint256 shipEntity = shipSpawnSystem.executeTyped(Coord(0, 0), 0);
     uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 90, 50, 80);
@@ -117,7 +117,7 @@ contract AttackActionTest is DarkSeasTest {
     actionSystem.executeTyped(actions);
   }
 
-  function testAttackAction() public prank(address(0)) {
+  function testAttackAction() public prank(deployer) {
     setup();
 
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
@@ -150,7 +150,7 @@ contract AttackActionTest is DarkSeasTest {
     assertEq(newHealth, attackerHealth);
   }
 
-  function testCombatAfterMove() public prank(address(0)) {
+  function testCombatAfterMove() public prank(deployer) {
     setup();
     HealthComponent healthComponent = HealthComponent(component(HealthComponentID));
 
@@ -188,7 +188,7 @@ contract AttackActionTest is DarkSeasTest {
 
     uint256 attackerEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
 
-    vm.startPrank(address(0));
+    vm.startPrank(deployer);
     uint256 cannonEntity = LibSpawn.spawnCannon(components, world, attackerEntity, 90, 50, 80);
     vm.stopPrank();
 
@@ -214,7 +214,7 @@ contract AttackActionTest is DarkSeasTest {
 
     uint256 attackerEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 0);
 
-    vm.startPrank(address(0));
+    vm.startPrank(deployer);
     uint256 cannonEntity = LibSpawn.spawnCannon(components, world, attackerEntity, 0, 50, 80);
     vm.stopPrank();
 
