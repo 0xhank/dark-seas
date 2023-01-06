@@ -22,6 +22,7 @@ import { FirepowerComponent, ID as FirepowerComponentID } from "../components/Fi
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
 import { CannonComponent, ID as CannonComponentID } from "../components/CannonComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
+import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedComponent.sol";
 
 // Types
 import { Coord, GodID } from "../libraries/DSTypes.sol";
@@ -131,12 +132,11 @@ library LibSpawn {
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
     CrewCountComponent(getAddressById(components, CrewCountComponentID)).set(shipEntity, 8);
     OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(shipEntity, playerEntity);
+    SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, 100);
 
     spawnCannon(components, world, shipEntity, 90, 50, 80);
     spawnCannon(components, world, shipEntity, 270, 50, 80);
     spawnCannon(components, world, shipEntity, 0, 50, 80);
-    // spawnCannon(components, world, shipEntity, 45, 50, 80);
-    // spawnCannon(components, world, shipEntity, 181, 50, 80);
   }
 
   function spawnCannon(

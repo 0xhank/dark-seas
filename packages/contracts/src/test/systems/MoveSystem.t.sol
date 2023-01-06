@@ -20,6 +20,7 @@ import { GameConfigComponent, ID as GameConfigComponentID } from "../../componen
 import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/ComponentDevSystem.sol";
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
 import { CrewCountComponent, ID as CrewCountComponentID } from "../../components/CrewCountComponent.sol";
+import { SpeedComponent, ID as SpeedComponentID } from "../../components/SpeedComponent.sol";
 
 // Types
 import { Wind, GodID, MoveCard, Move, Coord } from "../../libraries/DSTypes.sol";
@@ -38,6 +39,7 @@ contract MoveSystemTest is DarkSeasTest {
   MoveCardComponent moveCardComponent;
   WindComponent windComponent;
   SailPositionComponent sailPositionComponent;
+  SpeedComponent speedComponent;
 
   MoveSystem moveSystem;
   CommitSystem commitSystem;
@@ -203,7 +205,11 @@ contract MoveSystemTest is DarkSeasTest {
 
     moveCard = LibMove.getMoveWithWind(moveCard, rotation, wind);
 
-    moveCard = LibMove.getMoveWithSails(moveCard, sailPositionComponent.getValue(shipEntity));
+    moveCard = LibMove.getMoveWithSails(
+      moveCard,
+      speedComponent.getValue(shipEntity),
+      sailPositionComponent.getValue(shipEntity)
+    );
 
     Coord memory expectedPosition = LibVector.getPositionByVector(
       position,
@@ -237,7 +243,11 @@ contract MoveSystemTest is DarkSeasTest {
 
     moveCard = LibMove.getMoveWithWind(moveCard, rotation, wind);
 
-    moveCard = LibMove.getMoveWithSails(moveCard, sailPositionComponent.getValue(shipEntity));
+    moveCard = LibMove.getMoveWithSails(
+      moveCard,
+      speedComponent.getValue(shipEntity),
+      sailPositionComponent.getValue(shipEntity)
+    );
 
     Coord memory expectedPosition = LibVector.getPositionByVector(
       position,
@@ -271,7 +281,11 @@ contract MoveSystemTest is DarkSeasTest {
 
     moveCard = LibMove.getMoveWithWind(moveCard, rotation, wind);
 
-    moveCard = LibMove.getMoveWithSails(moveCard, sailPositionComponent.getValue(shipEntity));
+    moveCard = LibMove.getMoveWithSails(
+      moveCard,
+      speedComponent.getValue(shipEntity),
+      sailPositionComponent.getValue(shipEntity)
+    );
 
     Coord memory expectedPosition = LibVector.getPositionByVector(
       position,
@@ -307,7 +321,7 @@ contract MoveSystemTest is DarkSeasTest {
 
     MoveCard memory newMoveCard;
 
-    newMoveCard = LibMove.getMoveWithSails(moveCard, sailPosition);
+    newMoveCard = LibMove.getMoveWithSails(moveCard, 100, sailPosition);
     assertEq(moveCard.distance, newMoveCard.distance, "full sails distance failed");
     assertEq(moveCard.rotation, newMoveCard.rotation, "full sails rotation failed");
     assertEq(moveCard.direction, newMoveCard.direction, "full sails angle failed");
@@ -318,7 +332,7 @@ contract MoveSystemTest is DarkSeasTest {
     sailPosition = 1;
     uint32 debuff = 50;
     uint32 modifiedDebuff = (debuff * 100) / 75;
-    newMoveCard = LibMove.getMoveWithSails(moveCard, sailPosition);
+    newMoveCard = LibMove.getMoveWithSails(moveCard, 100, sailPosition);
     assertEq(newMoveCard.distance, (moveCard.distance * 50) / 100, "closed sails distance failed");
     assertEq(newMoveCard.rotation, 360 - ((moveCard.rotation * modifiedDebuff) / 100), "closed sails rotation failed");
     assertEq(newMoveCard.direction, 360 - ((moveCard.direction * modifiedDebuff) / 100), "closed sails angle failed");
@@ -326,7 +340,7 @@ contract MoveSystemTest is DarkSeasTest {
     moveCard.distance = 100;
     moveCard.rotation = 90;
     moveCard.direction = 45;
-    newMoveCard = LibMove.getMoveWithSails(moveCard, sailPosition);
+    newMoveCard = LibMove.getMoveWithSails(moveCard, 100, sailPosition);
 
     assertEq(newMoveCard.distance, (moveCard.distance * debuff) / 100, "closed sails distance 2 failed");
     assertEq(
@@ -355,7 +369,11 @@ contract MoveSystemTest is DarkSeasTest {
 
     moveCard = LibMove.getMoveWithWind(moveCard, rotation, wind);
 
-    moveCard = LibMove.getMoveWithSails(moveCard, sailPositionComponent.getValue(shipEntity));
+    moveCard = LibMove.getMoveWithSails(
+      moveCard,
+      speedComponent.getValue(shipEntity),
+      sailPositionComponent.getValue(shipEntity)
+    );
 
     Coord memory expectedPosition = LibVector.getPositionByVector(
       position,
@@ -384,6 +402,8 @@ contract MoveSystemTest is DarkSeasTest {
     rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
     moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
     sailPositionComponent = SailPositionComponent(getAddressById(components, SailPositionComponentID));
+    speedComponent = SpeedComponent(getAddressById(components, SpeedComponentID));
+
     wind = WindComponent(getAddressById(components, WindComponentID)).getValue(GodID);
     delete moves;
   }

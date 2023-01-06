@@ -24,7 +24,7 @@ contract PlayerSpawnTest is DarkSeasTest {
   PlayerSpawnSystem playerSpawnSystem;
   NameComponent nameComponent;
 
-  function testSpawn() public {
+  function testSpawn() public prank(deployer) {
     setup();
 
     playerSpawnSystem.executeTyped("Jamaican me crazy", Coord(1, 1));

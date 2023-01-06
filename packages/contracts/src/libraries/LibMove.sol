@@ -15,6 +15,7 @@ import { LastMoveComponent, ID as LastMoveComponentID } from "../components/Last
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
+import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedComponent.sol";
 
 // Types
 import { MoveCard, Move, Wind, Coord } from "./DSTypes.sol";
@@ -61,13 +62,17 @@ library LibMove {
    * @param   sailPosition ship's current sail position
    * @return  MoveCard  updated move card
    */
-  function getMoveWithSails(MoveCard memory moveCard, uint32 sailPosition) public pure returns (MoveCard memory) {
+  function getMoveWithSails(
+    MoveCard memory moveCard,
+    uint32 shipSpeed,
+    uint32 sailPosition
+  ) public pure returns (MoveCard memory) {
     if (sailPosition == 2) {
-      return getMoveWithBuff(moveCard, 100);
+      return getMoveWithBuff(moveCard, shipSpeed);
     }
 
     if (sailPosition == 1) {
-      return getMoveWithBuff(moveCard, 50);
+      return getMoveWithBuff(moveCard, (50 * shipSpeed) / 100);
     }
 
     return MoveCard(0, 0, 0);
@@ -153,9 +158,11 @@ library LibMove {
     uint32 rotation = rotationComponent.getValue(move.shipEntity);
 
     moveCard = getMoveWithWind(moveCard, rotation, wind);
+    moveCard = getMoveWithWind(moveCard, rotation, wind);
 
     moveCard = getMoveWithSails(
       moveCard,
+      SpeedComponent(getAddressById(components, SpeedComponentID)).getValue(move.shipEntity),
       SailPositionComponent(getAddressById(components, SailPositionComponentID)).getValue(move.shipEntity)
     );
 
