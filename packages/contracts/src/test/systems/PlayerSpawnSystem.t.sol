@@ -22,22 +22,25 @@ contract PlayerSpawnTest is DarkSeasTest {
   constructor() DarkSeasTest(new Deploy()) {}
 
   PlayerSpawnSystem playerSpawnSystem;
+  NameComponent nameComponent;
 
   function testSpawn() public {
     setup();
-    NameComponent nameComponent = NameComponent(getAddressById(components, NameComponentID));
 
     playerSpawnSystem.executeTyped("Jamaican me crazy", Coord(1, 1));
 
     (uint256[] memory entities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
-    assertEq(entities.length, 3);
+    assertEq(entities.length, 4, "incorrect number of ships");
 
     uint256 playerEntity = addressToEntity(deployer);
 
-    assertTrue(nameComponent.has(playerEntity));
-    string memory playerName = nameComponent.getValue(playerEntity);
-    assertEq(playerName, "Jamaican me crazy");
+    bool hasName = nameComponent.has(playerEntity);
+    assertTrue(hasName, "player name not stored");
+    if (hasName) {
+      string memory playerName = nameComponent.getValue(playerEntity);
+      assertEq(playerName, "Jamaican me crazy");
+    }
   }
 
   /**
@@ -46,5 +49,6 @@ contract PlayerSpawnTest is DarkSeasTest {
 
   function setup() internal {
     playerSpawnSystem = PlayerSpawnSystem(system(PlayerSpawnSystemID));
+    nameComponent = NameComponent(getAddressById(components, NameComponentID));
   }
 }

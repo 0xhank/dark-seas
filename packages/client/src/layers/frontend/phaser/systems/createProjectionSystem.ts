@@ -1,4 +1,5 @@
 import {
+  defineComponentSystem,
   defineExitSystem,
   defineSystem,
   EntityIndex,
@@ -74,13 +75,13 @@ export function createProjectionSystem(phaser: PhaserLayer) {
 
   /* ---------------------------------------------- Hovered Move update --------------------------------------------- */
 
-  defineSystem(world, [Has(HoveredMove)], (update) => {
-    const hoveredMove = update.value[0] as { shipEntity: EntityIndex; moveCardEntity: EntityIndex } | undefined;
+  defineComponentSystem(world, HoveredMove, (update) => {
+    const hoveredMove = update.value[0];
 
     if (!hoveredMove) return;
 
-    const shipEntity = hoveredMove.shipEntity;
-    const moveCardEntity = hoveredMove.moveCardEntity;
+    const shipEntity = hoveredMove.shipEntity as EntityIndex;
+    const moveCardEntity = hoveredMove.moveCardEntity as EntityIndex;
 
     const objectId = `hoverGhost-${shipEntity}`;
     const rangeGroup = polygonRegistry.get(objectId) || phaserScene.add.group();
@@ -98,7 +99,10 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
 
     cannonEntities.forEach((cannonEntity) => {
-      renderFiringArea(phaser, rangeGroup, finalPosition, finalRotation, length, cannonEntity, colors.whiteHex, 0.1);
+      renderFiringArea(phaser, rangeGroup, finalPosition, finalRotation, length, cannonEntity, {
+        tint: colors.whiteHex,
+        alpha: 0.1,
+      });
     });
     polygonRegistry.set(objectId, rangeGroup);
 

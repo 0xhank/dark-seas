@@ -341,9 +341,9 @@ contract MoveSystemTest is DarkSeasTest {
     sailPosition = 1;
 
     newMoveCard = LibMove.getMoveWithSails(moveCard, sailPosition);
-    assertEq(newMoveCard.distance, (moveCard.distance * 33) / 100, "closed sails distance failed");
-    assertEq(newMoveCard.rotation, 360 - ((360 - moveCard.rotation) * 33) / 100, "closed sails rotation failed");
-    assertEq(newMoveCard.direction, 360 - ((360 - moveCard.direction) * 33) / 100, "closed sails angle failed");
+    assertEq(newMoveCard.distance, (moveCard.distance * 50) / 100, "closed sails distance failed");
+    assertEq(newMoveCard.rotation, 360 - ((360 - moveCard.rotation) * 50) / 100, "closed sails rotation failed");
+    assertEq(newMoveCard.direction, 360 - ((360 - moveCard.direction) * 50) / 100, "closed sails angle failed");
   }
 
   function testMoveWithLoweredSails() public {
