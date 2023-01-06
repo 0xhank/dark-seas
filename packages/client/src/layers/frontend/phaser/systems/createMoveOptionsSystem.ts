@@ -9,6 +9,7 @@ import {
 } from "@latticexyz/recs";
 import { Phase } from "../../../../types";
 import { getFinalPosition } from "../../../../utils/directions";
+import { getColorNum } from "../../../../utils/procgen";
 import { DELAY } from "../../constants";
 import { colors } from "../../react/styles/global";
 import { PhaserLayer } from "../types";
@@ -24,6 +25,7 @@ export function createMoveOptionsSystem(phaser: PhaserLayer) {
       },
       backend: {
         components: { HoveredShip },
+        utils: { isMyShip },
         godIndex,
       },
     },
@@ -47,23 +49,10 @@ export function createMoveOptionsSystem(phaser: PhaserLayer) {
       const wind = getComponentValueStrict(Wind, godIndex);
       const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
       const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, sailPosition, wind);
+      const shipColor = isMyShip(shipEntity) ? getColorNum(shipEntity) : colors.whiteHex;
 
       const objectId = `optionGhost-${moveCardEntity}`;
-      renderShip(phaser, shipEntity, objectId, finalPosition, finalRotation, colors.whiteHex, 0.3);
-
-      //   objectPool.get(objectId, "Sprite").setComponent({
-      //     id: objectId,
-      //     once: (gameObject) => {
-      //       gameObject.setInteractive();
-      //       gameObject.off("pointerdown");
-      //       gameObject.off("pointerover");
-      //       gameObject.off("pointerout");
-
-      //       gameObject.on("pointerover", () => setComponent(HoveredMove, godIndex, { shipEntity, moveCardEntity }));
-      //       gameObject.on("pointerdown", () => setComponent(SelectedMove, shipEntity, { value: moveCardEntity }));
-      //       gameObject.on("pointerout", () => removeComponent(HoveredMove, godIndex));
-      //     },
-      //   });
+      renderShip(phaser, shipEntity, objectId, finalPosition, finalRotation, shipColor, 0.3);
     });
   });
 

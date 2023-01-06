@@ -8,6 +8,7 @@ import {
   Has,
   HasValue,
   namespaceWorld,
+  NotValue,
   runQuery,
   Type,
 } from "@latticexyz/recs";
@@ -130,8 +131,7 @@ export async function createBackendLayer(network: NetworkLayer) {
     const shipRotation = getComponentValueStrict(Rotation, shipEntity).value;
     const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
 
-    // const shipEntities = [...runQuery([Has(Ship), NotValue(OwnedBy, { value: address })])];
-    const shipEntities = [...runQuery([Has(Ship)])].filter((targetEntity) => {
+    const shipEntities = [...runQuery([Has(Ship), NotValue(OwnedBy, { value: address })])].filter((targetEntity) => {
       if (targetEntity == shipEntity) return false;
 
       const enemyPosition = getComponentValueStrict(Position, targetEntity);

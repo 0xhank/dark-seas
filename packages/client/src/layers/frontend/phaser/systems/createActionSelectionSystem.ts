@@ -145,7 +145,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
   defineComponentSystem(world, HoveredShip, (update) => {
     const phase: Phase | undefined = getPhase(DELAY);
 
-    // if (phase !== Phase.Action) return;
+    if (phase !== Phase.Action) return;
     const shipEntity = update.value[0]?.value as EntityIndex | undefined;
     if (!shipEntity) return;
 
