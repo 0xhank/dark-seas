@@ -1,5 +1,14 @@
 import { Coord, tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
-import { defineComponentSystem, defineEnterSystem, EntityIndex, getComponentValueStrict, Has } from "@latticexyz/recs";
+import {
+  defineComponentSystem,
+  defineEnterSystem,
+  defineUpdateSystem,
+  EntityIndex,
+  getComponentValueStrict,
+  Has,
+  HasValue,
+  runQuery,
+} from "@latticexyz/recs";
 import { ActionType, Sprites } from "../../../../types";
 import { getFiringArea, isBroadside, midpoint } from "../../../../utils/trig";
 import { CANNON_SHOT_LENGTH, RenderDepth } from "../constants";
@@ -10,7 +19,7 @@ export function createFireCannonAnimationSystem(phaser: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: { Position, Rotation, Length, Cannon, OwnedBy, Range },
+        components: { Position, Rotation, Length, Cannon, OwnedBy, Range, Ship },
       },
       backend: {
         components: { SelectedActions, ExecutedActions },
@@ -48,6 +57,25 @@ export function createFireCannonAnimationSystem(phaser: PhaserLayer) {
         },
       });
     }
+  });
+
+  defineUpdateSystem(world, [Has(Position), Has(Ship)], ({ entity: shipEntity }) => {
+    const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
+
+    cannonEntities.forEach((cannonEntity) => {
+      for (let i = 0; i < NUM_CANNONBALLS; i++) {
+        const spriteId = `${shipEntity}-cannonball-${cannonEntity}-${i}`;
+        const object = objectPool.get(spriteId, "Sprite");
+        const { start } = getCannonStartAndEnd(shipEntity, cannonEntity, i);
+
+        object.setComponent({
+          id: "cannonball",
+          once: async (gameObject) => {
+            gameObject.setPosition(start.x, start.y);
+          },
+        });
+      }
+    });
   });
 
   defineComponentSystem(world, ExecutedActions, ({ entity: shipEntity, value }) => {

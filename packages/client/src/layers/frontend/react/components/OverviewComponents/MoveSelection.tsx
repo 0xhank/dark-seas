@@ -8,7 +8,7 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import styled from "styled-components";
-import { Layers, MoveCard } from "../../../../../types";
+import { Layers } from "../../../../../types";
 import { getFinalMoveCard, getFinalPosition } from "../../../../../utils/directions";
 import { inRange } from "../../../../../utils/distance";
 import { Img, OptionButton } from "../../styles/global";
@@ -42,11 +42,16 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
   if (sailPosition == 0) {
     return <SpecialText>Cannot move with torn sails!</SpecialText>;
   }
+  const sortedMoveEntities = moveEntities.sort(
+    (a, b) =>
+      ((180 + getComponentValueStrict(MoveCard, a).rotation) % 360) -
+      (180 + (getComponentValueStrict(MoveCard, b).rotation % 360))
+  );
+
   return (
     <>
-      {moveEntities.map((entity) => {
-        let moveCard = getComponentValueStrict(MoveCard, entity) as MoveCard;
-
+      {sortedMoveEntities.map((entity) => {
+        let moveCard = getComponentValueStrict(MoveCard, entity);
         moveCard = getFinalMoveCard(moveCard, rotation, sailPosition, wind);
         const position = getComponentValueStrict(Position, ship);
         const isSelected = selectedMove && selectedMove.value == entity;

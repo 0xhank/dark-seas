@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 // External
-import "../MudTest.t.sol";
+import "../DarkSeasTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
 
 // Systems
@@ -28,8 +28,10 @@ import { Wind, GodID, MoveCard, Move, Coord } from "../../libraries/DSTypes.sol"
 import "../../libraries/LibMove.sol";
 import "../../libraries/LibTurn.sol";
 
-contract MoveSystemTest is MudTest {
+contract MoveSystemTest is DarkSeasTest {
   Wind wind;
+
+  constructor() DarkSeasTest(new Deploy()) {}
 
   PositionComponent positionComponent;
   RotationComponent rotationComponent;
@@ -184,7 +186,7 @@ contract MoveSystemTest is MudTest {
     moveSystem.executeTyped(moves, 69);
   }
 
-  function testMove() public prank(deployer) {
+  function testMove() public {
     setup();
 
     Coord memory position = Coord({ x: 0, y: 0 });
@@ -218,7 +220,7 @@ contract MoveSystemTest is MudTest {
     assertEq(rotation, expectedRotation);
   }
 
-  function testMoveHardRight() public prank(deployer) {
+  function testMoveHardRight() public {
     setup();
 
     Coord memory position = Coord({ x: 0, y: 0 });
@@ -252,7 +254,7 @@ contract MoveSystemTest is MudTest {
     assertEq(rotation, expectedRotation);
   }
 
-  function testMoveSoftRight() public prank(deployer) {
+  function testMoveSoftRight() public {
     setup();
 
     Coord memory position = Coord({ x: 0, y: 0 });
@@ -286,7 +288,7 @@ contract MoveSystemTest is MudTest {
     assertEq(rotation, expectedRotation);
   }
 
-  function testGetWindBoost() public prank(deployer) {
+  function testGetWindBoost() public {
     setup();
 
     Wind memory customWind = Wind({ direction: 0, speed: 10 });
@@ -335,7 +337,7 @@ contract MoveSystemTest is MudTest {
     assertEq(newMoveCard.direction, 180 - ((moveCard.direction * modifiedDebuff) / 100), "closed sails angle 2 failed");
   }
 
-  function testMoveWithLoweredSails() public prank(deployer) {
+  function testMoveWithLoweredSails() public {
     setup();
 
     Coord memory position = Coord({ x: 0, y: 0 });

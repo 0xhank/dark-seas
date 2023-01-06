@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 // External
-import "../MudTest.t.sol";
+import "../DarkSeasTest.t.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
@@ -13,8 +13,10 @@ import { Side, Coord } from "../../libraries/DSTypes.sol";
 // Libraries
 import "../../libraries/LibVector.sol";
 
-contract LibVectorTest is MudTest {
-  function testGetSternLocation() public prank(deployer) {
+contract LibVectorTest is DarkSeasTest {
+  constructor() DarkSeasTest(new Deploy()) {}
+
+  function testGetSternLocation() public {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 rotation = 45;
     uint32 length = 50;
@@ -25,7 +27,7 @@ contract LibVectorTest is MudTest {
     assertCoordEq(sternPosition, expectedLocation);
   }
 
-  function testGetShipBowAndSternLocation() public prank(deployer) {
+  function testGetShipBowAndSternLocation() public {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
     uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, startingRotation);
@@ -37,7 +39,7 @@ contract LibVectorTest is MudTest {
     assertCoordEq(stern, expectedStern);
   }
 
-  function testInsidePolygon() public prank(deployer) {
+  function testInsidePolygon() public {
     Coord[4] memory polygon = [
       Coord({ x: 0, y: 0 }),
       Coord({ x: 0, y: 10 }),
@@ -64,7 +66,7 @@ contract LibVectorTest is MudTest {
     assertTrue(LibVector.withinPolygon4(polygon, point8), "point 8 failed");
   }
 
-  function testPointInsideRectangle() public prank(deployer) {
+  function testPointInsideRectangle() public {
     Coord[4] memory coords = [
       Coord({ x: 0, y: 0 }),
       Coord({ x: 0, y: 4 }),
@@ -85,7 +87,7 @@ contract LibVectorTest is MudTest {
     assertTrue(!isOnLine);
   }
 
-  function testPointInsideTiltedTrapezoid() public prank(deployer) {
+  function testPointInsideTiltedTrapezoid() public {
     Coord[4] memory coords = [
       Coord({ x: 2, y: 0 }),
       Coord({ x: 0, y: 4 }),
@@ -106,7 +108,7 @@ contract LibVectorTest is MudTest {
     assertTrue(!isOnLine);
   }
 
-  function testPointInsideForwardPath() public prank(deployer) {
+  function testPointInsideForwardPath() public {
     Coord[3] memory coords = [Coord({ x: 0, y: 0 }), Coord({ x: 78, y: -13 }), Coord({ x: 78, y: 13 })];
 
     Coord memory insideCoord = Coord({ x: 70, y: 0 });
@@ -122,7 +124,7 @@ contract LibVectorTest is MudTest {
     assertTrue(!isOnLine, "is on line failed");
   }
 
-  function testSqrt() public prank(deployer) {
+  function testSqrt() public {
     Coord memory a = Coord(0, 0);
     Coord memory b = Coord(5, 0);
     assertEq(LibVector.distance(a, b), 5, "testSqrt: (0,0) and (5,0) failed");
