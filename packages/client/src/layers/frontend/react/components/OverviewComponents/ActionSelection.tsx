@@ -102,7 +102,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
         // xor
         const showFire = loaded ? !entityUsed : entityUsed;
         const actionStr = showFire ? `Fire${entityUsed ? "d" : ""}` : `Load${entityUsed ? "ed" : ""}`;
-        const typeStr = broadside ? "Broadside" : "Pivot";
+        const typeStr = broadside ? "Broadside" : "Pivot Gun";
         const imgRotation = showFire || broadside ? 0 : cannonRotation;
 
         let src = ActionImg[ActionType.Load];

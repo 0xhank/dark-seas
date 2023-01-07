@@ -89,7 +89,7 @@ const MoveButtons = styled.div`
   font-size: 1rem;
   font-weight: 700;
   min-width: 100%;
-  justify-content: space-between;
+  justify-content: center;
   height: 8rem;
   overflow-x: overlay;
   overflow-y: hidden;
@@ -127,5 +127,6 @@ const YourShipContainer = styled(InternalContainer)<{
 `;
 
 const SpecialText = styled.span`
-  font-size: 2rem;
+  font-size: 1.5rem;
+  align-text: center;
 `;

@@ -1,6 +1,6 @@
 import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import styled from "styled-components";
-import { ActionType, Layers, SailPositions } from "../../../../../types";
+import { ActionType, Layers } from "../../../../../types";
 import { getShipSprite, ShipImages } from "../../../../../utils/ships";
 import { BoxImage } from "../../styles/global";
 import { ShipAttributeTypes } from "../../types";
@@ -66,23 +66,25 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
         <div style={{ display: "flex", width: "100%", flexWrap: "wrap" }}>
           <ShipAttribute
             attributeType={ShipAttributeTypes.Sails}
-            attribute={SailPositions[updatedSailPosition]}
+            attribute={updatedSailPosition}
             updating={updatedSailPosition !== sailPosition}
           />
         </div>
-        <div style={{ display: "flex", gap: "8px" }}>
-          {damagedCannons && (
-            <ShipDamage
-              message="cannons broken"
-              amountLeft={damagedCannons}
-              fixing={updates.has(ActionType.RepairCannons)}
-            />
-          )}
-          {onFire && (
-            <ShipDamage message="on fire" amountLeft={onFire} fixing={updates.has(ActionType.ExtinguishFire)} />
-          )}
-          {sailPosition == 0 && <ShipDamage message="sails torn" fixing={updates.has(ActionType.RepairSail)} />}
-        </div>
+        {health !== 0 && (
+          <div style={{ display: "flex", gap: "8px" }}>
+            {damagedCannons && (
+              <ShipDamage
+                message="cannons broken"
+                amountLeft={damagedCannons}
+                fixing={updates.has(ActionType.RepairCannons)}
+              />
+            )}
+            {onFire && (
+              <ShipDamage message="on fire" amountLeft={onFire} fixing={updates.has(ActionType.ExtinguishFire)} />
+            )}
+            {sailPosition == 0 && <ShipDamage message="sails torn" fixing={updates.has(ActionType.RepairSail)} />}
+          </div>
+        )}
       </div>
     </div>
   );

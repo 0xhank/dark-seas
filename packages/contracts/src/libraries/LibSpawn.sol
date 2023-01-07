@@ -96,7 +96,7 @@ library LibSpawn {
     startingLocation = getRandomLocation(components, LibUtils.randomness(playerEntity, nonce));
 
     uint32 rotation = pointKindaTowardsTheCenter(startingLocation);
-    for (uint256 i = 0; i < 3; i++) {
+    for (uint256 i = 0; i < 2; i++) {
       spawnShip(components, world, playerEntity, startingLocation, rotation);
       startingLocation.x += 20;
     }

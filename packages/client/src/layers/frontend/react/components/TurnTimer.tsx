@@ -1,5 +1,5 @@
 import { map, merge } from "rxjs";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { Phase } from "../../../../types";
 import { DELAY } from "../../constants";
 import { registerUIComponent } from "../engine";
@@ -46,17 +46,21 @@ export function registerTurnTimer() {
     ({ phaseLength, secsLeft, phase }) => {
       if (!phaseLength) return null;
 
-      let str = "";
-      if (phase == Phase.Commit) str = `Move Phase`;
-      else if (phase == Phase.Reveal) str = "Waiting for Players to Reveal Moves...";
-      else if (phase == Phase.Action) str = `Action Phase`;
+      let str = null;
+      if (phase == Phase.Commit) str = <Text secsLeft={secsLeft}>Choose your moves</Text>;
+      else if (phase == Phase.Reveal) str = <PulsingText>Waiting for Players to Reveal Moves...</PulsingText>;
+      else if (phase == Phase.Action) str = <Text secsLeft={secsLeft}>Choose 2 actions per ship</Text>;
 
       return (
         <OuterContainer>
-          <InternalContainer>
-            <Text secsLeft={secsLeft}>{str} </Text>
-            <ProgressBar phaseLength={phaseLength} secsLeft={secsLeft} />
-          </InternalContainer>
+          {phase == Phase.Commit || phase == Phase.Action ? (
+            <InternalContainer>
+              {str}
+              <ProgressBar phaseLength={phaseLength} secsLeft={secsLeft} />
+            </InternalContainer>
+          ) : (
+            str
+          )}
         </OuterContainer>
       );
     }
@@ -81,12 +85,30 @@ const InternalContainer = styled.div`
   height: 30px;
 `;
 
-const Text = styled.div<{ secsLeft: number }>`
+const Text = styled.div<{ secsLeft?: number }>`
   width: 100%;
-  color: ${({ secsLeft }) => (secsLeft < 5 ? colors.white : colors.darkBrown)};
+  color: ${({ secsLeft }) => (secsLeft && secsLeft > 5 ? colors.darkBrown : colors.white)};
   line-height: 24px;
   text-align: center;
   z-index: 100;
+`;
+
+const pulse = keyframes`
+0% { 
+  opacity: 0.5;
+}
+50% { 
+  opacity: 1.0;
+}
+100% { 
+  opacity: 0.5;
+}
+`;
+const PulsingText = styled(Text)`
+  animation-name: ${pulse};
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
 `;
 
 const ProgressBar = styled.div<{ phaseLength: number; secsLeft: number }>`

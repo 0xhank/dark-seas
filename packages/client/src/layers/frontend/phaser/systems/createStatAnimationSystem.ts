@@ -3,10 +3,8 @@ import {
   defineEnterSystem,
   defineExitSystem,
   defineUpdateSystem,
-  getComponentValue,
   getComponentValueStrict,
   Has,
-  setComponent,
 } from "@latticexyz/recs";
 import { getSternLocation, midpoint } from "../../../../utils/trig";
 import { Animations, CANNON_SHOT_LENGTH, RenderDepth } from "../constants";
@@ -16,14 +14,13 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
   const {
     world,
     scenes: {
-      Main: { objectPool, config },
+      Main: { objectPool },
     },
     parentLayers: {
       network: {
         components: { Health, OnFire, DamagedCannons, SailPosition, Position, Rotation, Length },
       },
     },
-    components: { UpdateQueue },
     positions,
   } = layer;
 
@@ -65,10 +62,7 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
 
   // ON FIRE UPDATES
   defineEnterSystem(world, [Has(OnFire)], (update) => {
-    const updateQueue = getComponentValue(UpdateQueue, update.entity)?.value || new Array<string>();
     const position = getComponentValueStrict(Position, update.entity);
-    updateQueue.push("On fire!");
-    setComponent(UpdateQueue, update.entity, { value: updateQueue });
     const rotation = getComponentValueStrict(Rotation, update.entity).value;
     const length = getComponentValueStrict(Length, update.entity).value;
     const sternPosition = getSternLocation(position, rotation, length);
@@ -138,21 +132,18 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
     }
   });
 
-  // DAMAGED CANNONS UPDATE
-  defineEnterSystem(world, [Has(DamagedCannons)], (update) => {
-    const updateQueue = getComponentValue(UpdateQueue, update.entity)?.value || new Array<string>();
+  defineUpdateSystem(world, [Has(Health)], (update) => {
+    if (update.value[0]?.value !== 0) return;
 
-    updateQueue.push("Cannons are damaged!");
-    setComponent(UpdateQueue, update.entity, { value: updateQueue });
+    for (let i = 0; i < 4; i++) {
+      const spriteId = `${update.entity}-fire-${i}`;
+      objectPool.remove(spriteId);
+    }
   });
 
   // SAIL POSITION UPDATE
   defineUpdateSystem(world, [Has(SailPosition)], (update) => {
     const sailPosition = getComponentValueStrict(SailPosition, update.entity).value;
     if (sailPosition != 0) return;
-    const updateQueue = getComponentValue(UpdateQueue, update.entity)?.value || new Array<string>();
-
-    updateQueue.push("Sails broke!");
-    setComponent(UpdateQueue, update.entity, { value: updateQueue });
   });
 }
