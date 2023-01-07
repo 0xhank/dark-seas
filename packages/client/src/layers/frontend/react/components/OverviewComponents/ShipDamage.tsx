@@ -17,7 +17,7 @@ export default function ShipDamage({
   const removing = !!fixing && !amountLeft;
   return (
     <WarningContainer removing={removing}>
-      {message}
+      <p style={{ lineHeight: "1rem" }}>{message}</p>
       {!!amountLeft && <AmountLeft fixing={fixing}>{amountLeft}</AmountLeft>}
     </WarningContainer>
   );

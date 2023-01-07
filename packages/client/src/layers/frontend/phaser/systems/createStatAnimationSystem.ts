@@ -138,6 +138,15 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
     }
   });
 
+  defineUpdateSystem(world, [Has(Health)], (update) => {
+    if (update.value[0]?.value !== 0) return;
+
+    for (let i = 0; i < 4; i++) {
+      const spriteId = `${update.entity}-fire-${i}`;
+      objectPool.remove(spriteId);
+    }
+  });
+
   // DAMAGED CANNONS UPDATE
   defineEnterSystem(world, [Has(DamagedCannons)], (update) => {
     const updateQueue = getComponentValue(UpdateQueue, update.entity)?.value || new Array<string>();
