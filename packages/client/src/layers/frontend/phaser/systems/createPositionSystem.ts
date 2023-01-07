@@ -25,7 +25,7 @@ export function createPositionSystem(phaser: PhaserLayer) {
     },
     parentLayers: {
       network: {
-        components: { Position, Length, Rotation, OwnedBy, Health, CrewCount },
+        components: { Position, Length, Rotation, OwnedBy, Health },
         utils: { getPlayerEntity },
         network: { connectedAddress },
       },
@@ -80,28 +80,6 @@ export function createPositionSystem(phaser: PhaserLayer) {
     });
   });
 
-  defineSystem(world, [Has(CrewCount)], (update) => {
-    console.log("updating crew count");
-
-    const object = objectPool.get(update.entity, "Sprite");
-    const crewCount = getComponentValueStrict(CrewCount, update.entity).value;
-
-    object.setComponent({
-      id: `crew-count-${update.entity}`,
-
-      once: (gameObject) => {
-        if (crewCount == 0) {
-          gameObject.setAlpha(0.5);
-          gameObject.disableInteractive();
-          gameObject.setDepth(RenderDepth.Foreground4);
-        } else {
-          gameObject.setAlpha(1);
-          gameObject.setDepth(RenderDepth.Foreground3);
-        }
-      },
-    });
-  });
-
   defineSystem(world, [Has(Position), Has(Rotation), Has(Length), Has(OwnedBy), Has(Health)], (update) => {
     const rangeGroup = polygonRegistry.get(`rangeGroup-${update.entity}`);
     const activeGroup = polygonRegistry.get(`activeGroup`);
@@ -137,7 +115,7 @@ export function createPositionSystem(phaser: PhaserLayer) {
         if (update.type == UpdateType.Enter) return;
         await tween({
           targets: gameObject,
-          duration: 250,
+          duration: 2000,
           props: {
             x,
             y,
@@ -160,7 +138,7 @@ export function createPositionSystem(phaser: PhaserLayer) {
             },
           },
 
-          ease: Phaser.Math.Easing.Linear,
+          ease: Phaser.Math.Easing.Sine.InOut,
         });
       },
       once: async (gameObject: Phaser.GameObjects.Sprite) => {
@@ -175,6 +153,10 @@ export function createPositionSystem(phaser: PhaserLayer) {
         gameObject.setDepth(RenderDepth.Foreground3);
         if (health != 0) {
           gameObject.setInteractive();
+          gameObject.off("pointerdown");
+          gameObject.off("pointerover");
+          gameObject.off("pointerout");
+
           gameObject.on("pointerdown", () => setComponent(SelectedShip, GodEntityIndex, { value: update.entity }));
           gameObject.on("pointerover", () => setComponent(HoveredShip, GodEntityIndex, { value: update.entity }));
           gameObject.on("pointerout", () => removeComponent(HoveredShip, GodEntityIndex));

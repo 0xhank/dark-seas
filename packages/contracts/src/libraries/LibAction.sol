@@ -8,15 +8,15 @@ import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 // Components
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
 import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireComponent.sol";
-import { LeakComponent, ID as LeakComponentID } from "../components/LeakComponent.sol";
-import { DamagedMastComponent, ID as DamagedMastComponentID } from "../components/DamagedMastComponent.sol";
+import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../components/DamagedCannonsComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
-import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
+import { CannonComponent, ID as CannonComponentID } from "../components/CannonComponent.sol";
+import { LoadedComponent, ID as LoadedComponentID } from "../components/LoadedComponent.sol";
 
 // Types
-import { Coord, Side, Action } from "../libraries/DSTypes.sol";
+import { Coord, Side, Action, ActionType } from "../libraries/DSTypes.sol";
 
 // Libraries
 import "./LibCombat.sol";
@@ -24,83 +24,68 @@ import "./LibUtils.sol";
 import "./LibVector.sol";
 
 library LibAction {
-  function executeShipActions(
-    IUint256Component components,
-    uint256 shipEntity,
-    Action[] memory shipActions
-  ) public {
-    require(shipActions.length <= 2, "ActionSystem: too many actions");
-
-    require(
-      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(shipEntity) ==
-        addressToEntity(msg.sender),
-      "ActionSystem: you don't own this ship"
-    );
-
-    require(
-      ShipComponent(getAddressById(components, ShipComponentID)).has(shipEntity),
-      "ActionSystem: Entity must be a ship"
-    );
-
+  /**
+   * @notice  executes all actions corresponding to the input action
+   * @param   components  world components
+   * @param   action  set of actions to execute
+   */
+  function executeActions(IUint256Component components, Action memory action) public {
     // iterate through each action of each ship
-    for (uint256 j = 0; j < shipActions.length; j++) {
-      Action action = shipActions[j];
+    for (uint256 i = 0; i < 2; i++) {
+      ActionType actionType = action.actionTypes[i];
+      uint256 specialEntity = action.specialEntities[i];
+      if (actionType == ActionType.None) continue;
+      require(
+        OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(action.shipEntity) ==
+          addressToEntity(msg.sender),
+        "ActionSystem: you don't own this ship"
+      );
+
+      require(
+        ShipComponent(getAddressById(components, ShipComponentID)).has(action.shipEntity),
+        "ActionSystem: Entity must be a ship"
+      );
 
       // ensure action hasn't already been made
-      if (j == 1) {
-        require(shipActions[0] != action, "ActionSystem: action already used");
+      if (i == 1) {
+        if (actionType == ActionType.Fire || actionType == ActionType.Load)
+          require(specialEntity != action.specialEntities[0], "ActionSystem: cannon already acted");
+        else require(action.actionTypes[0] != actionType, "ActionSystem: action already used");
       }
-
-      // execute action
-      if (action == Action.FireForward) {
-        attackForward(components, shipEntity);
-      } else if (action == Action.FireRight) {
-        attackSide(components, shipEntity, Side.Right);
-      } else if (action == Action.FireLeft) {
-        attackSide(components, shipEntity, Side.Left);
-      } else if (action == Action.RaiseSail) {
-        raiseSail(components, shipEntity);
-      } else if (action == Action.LowerSail) {
-        lowerSail(components, shipEntity);
-      } else if (action == Action.ExtinguishFire) {
-        extinguishFire(components, shipEntity);
-      } else if (action == Action.RepairLeak) {
-        repairLeak(components, shipEntity);
-      } else if (action == Action.RepairMast) {
-        repairMast(components, shipEntity);
-      } else if (action == Action.RepairSail) {
-        repairSail(components, shipEntity);
+      if (actionType == ActionType.Load) {
+        load(components, action.shipEntity, specialEntity);
+      } else if (actionType == ActionType.Fire) {
+        attack(components, action.shipEntity, specialEntity);
+      } else if (actionType == ActionType.RaiseSail) {
+        raiseSail(components, action.shipEntity);
+      } else if (actionType == ActionType.LowerSail) {
+        lowerSail(components, action.shipEntity);
+      } else if (actionType == ActionType.ExtinguishFire) {
+        extinguishFire(components, action.shipEntity);
+      } else if (actionType == ActionType.RepairCannons) {
+        repairMast(components, action.shipEntity);
+      } else if (actionType == ActionType.RepairSail) {
+        repairSail(components, action.shipEntity);
       } else {
         revert("ActionSystem: invalid action");
       }
     }
 
     // todo: apply damage to all ships every turn instead of only if they act
-    applySpecialDamage(components, shipEntity);
+    applySpecialDamage(components, action.shipEntity);
   }
 
   /**
-   * @notice  applies leak and damaged mast effects
+   * @notice  applies damaged mast effects
    * @param   components  world components
    * @param   shipEntity  entity to apply damage to
    */
   function applySpecialDamage(IUint256Component components, uint256 shipEntity) private {
-    LeakComponent leakComponent = LeakComponent(getAddressById(components, LeakComponentID));
-    CrewCountComponent crewCountComponent = CrewCountComponent(getAddressById(components, CrewCountComponentID));
-    DamagedMastComponent damagedMastComponent = DamagedMastComponent(
-      getAddressById(components, DamagedMastComponentID)
-    );
+    OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
 
-    // if ship is leaking, reduce crew count by 1
-    if (leakComponent.has(shipEntity)) {
-      uint32 crewCount = crewCountComponent.getValue(shipEntity);
-      if (crewCount <= 1) crewCountComponent.set(shipEntity, 0);
-      else crewCountComponent.set(shipEntity, crewCount - 1);
-    }
-
     // if ship has a damaged mast, reduce hull health by 1
-    if (damagedMastComponent.has(shipEntity)) {
+    if (onFireComponent.has(shipEntity)) {
       uint32 health = healthComponent.getValue(shipEntity);
       if (health <= 1) healthComponent.set(shipEntity, 0);
       else healthComponent.set(shipEntity, health - 1);
@@ -108,17 +93,85 @@ library LibAction {
   }
 
   /**
+   * @notice  loads the given cannon
+   * @param   components  world components
+   * @param   shipEntity  ship controlling cannon
+   * @param   cannonEntity  cannon to load
+   */
+  function load(
+    IUint256Component components,
+    uint256 shipEntity,
+    uint256 cannonEntity
+  ) private {
+    if (DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).has(shipEntity)) return;
+
+    require(
+      CannonComponent(getAddressById(components, CannonComponentID)).has(cannonEntity),
+      "load: entity not a cannon"
+    );
+
+    require(
+      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(cannonEntity) == shipEntity,
+      "load: cannon not owned by ship"
+    );
+
+    LoadedComponent loadedComponent = LoadedComponent(getAddressById(components, LoadedComponentID));
+
+    require(!loadedComponent.has(cannonEntity), "attack: cannon already loaded");
+    loadedComponent.set(cannonEntity);
+  }
+
+  /**
+   * @notice  fires the given cannon
+   * @param   components  world components
+   * @param   shipEntity  ship controlling cannon
+   * @param   cannonEntity  cannon to load
+   */
+  function attack(
+    IUint256Component components,
+    uint256 shipEntity,
+    uint256 cannonEntity
+  ) public {
+    if (DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).has(shipEntity)) return;
+
+    require(
+      CannonComponent(getAddressById(components, CannonComponentID)).has(cannonEntity),
+      "attack: entity not a cannon"
+    );
+
+    require(
+      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(cannonEntity) == shipEntity,
+      "attack: cannon not owned by ship"
+    );
+
+    LoadedComponent loadedComponent = LoadedComponent(getAddressById(components, LoadedComponentID));
+
+    require(loadedComponent.has(cannonEntity), "attack: cannon not loaded");
+    uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
+    if (!LibCombat.isBroadside(cannonRotation)) {
+      attackPivot(components, shipEntity, cannonEntity);
+    } else {
+      attackBroadside(components, shipEntity, cannonEntity);
+    }
+    loadedComponent.remove(cannonEntity);
+  }
+
+  /**
    * @notice  attacks all enemies in forward arc of ship
    * @dev     todo: how can i combine this with attackSide despite different number of vertices in range?
    * @param   components  world components
    * @param   shipEntity  entity performing an attack
+   * @param   cannonEntity  .
    */
-  function attackForward(IUint256Component components, uint256 shipEntity) private {
-    if (OnFireComponent(getAddressById(components, OnFireComponentID)).has(shipEntity)) return;
+  function attackPivot(
+    IUint256Component components,
+    uint256 shipEntity,
+    uint256 cannonEntity
+  ) public {
     OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
-
+    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
     // get firing area of ship
-    Coord[3] memory firingRange = LibCombat.getFiringAreaForward(components, shipEntity);
+    Coord[3] memory firingRange = LibCombat.getFiringAreaPivot(components, shipEntity, cannonEntity);
 
     (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
@@ -131,11 +184,13 @@ library LibAction {
       if (owner == ownedByComponent.getValue(shipEntities[i])) continue;
 
       (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
-
+      uint256 distance;
       if (LibVector.withinPolygon3(firingRange, aft)) {
-        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], aft);
+        distance = LibVector.distance(firingRange[0], aft);
+        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
       } else if (LibVector.withinPolygon3(firingRange, stern)) {
-        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], stern);
+        distance = LibVector.distance(firingRange[0], stern);
+        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
       }
     }
   }
@@ -145,18 +200,18 @@ library LibAction {
    * @dev     todo: i plan to change this to reqiure inclusion of both an attacker and defender, saving gas and improving ux
    * @param   components  world components
    * @param   shipEntity  entity performing an attack
-   * @param   side  side of ship to attack on
+   * @param   cannonEntity  .
    */
-  function attackSide(
+  function attackBroadside(
     IUint256Component components,
     uint256 shipEntity,
-    Side side
-  ) private {
-    if (OnFireComponent(getAddressById(components, OnFireComponentID)).has(shipEntity)) return;
+    uint256 cannonEntity
+  ) public {
     OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
+    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
 
     // get firing area of ship
-    Coord[4] memory firingRange = LibCombat.getFiringAreaSide(components, shipEntity, side);
+    Coord[4] memory firingRange = LibCombat.getFiringAreaBroadside(components, shipEntity, cannonEntity);
 
     (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
@@ -170,10 +225,13 @@ library LibAction {
 
       (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
 
+      uint256 distance;
       if (LibVector.withinPolygon4(firingRange, aft)) {
-        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], aft);
+        distance = LibVector.distance(firingRange[0], aft);
+        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
       } else if (LibVector.withinPolygon4(firingRange, stern)) {
-        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], stern);
+        distance = LibVector.distance(firingRange[0], stern);
+        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
       }
     }
   }
@@ -229,35 +287,22 @@ library LibAction {
   }
 
   /**
-   * @notice  repairs leak on ship
-   * @param   components  world components
-   * @param   shipEntity  ship to repair
-   */
-  function repairLeak(IUint256Component components, uint256 shipEntity) private {
-    LeakComponent leakComponent = LeakComponent(getAddressById(components, LeakComponentID));
-
-    if (!leakComponent.has(shipEntity)) return;
-
-    leakComponent.remove(shipEntity);
-  }
-
-  /**
    * @notice  repairs mast on ship
    * @param   components  world components
    * @param   shipEntity  ship to repair
    */
   function repairMast(IUint256Component components, uint256 shipEntity) private {
-    DamagedMastComponent damagedMastComponent = DamagedMastComponent(
-      getAddressById(components, DamagedMastComponentID)
+    DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
+      getAddressById(components, DamagedCannonsComponentID)
     );
 
-    if (!damagedMastComponent.has(shipEntity)) return;
-    uint32 mastDamage = damagedMastComponent.getValue(shipEntity);
+    if (!damagedCannonsComponent.has(shipEntity)) return;
+    uint32 mastDamage = damagedCannonsComponent.getValue(shipEntity);
 
     // it takes two actions to repair a ship's mast from a ship
 
-    if (mastDamage <= 1) damagedMastComponent.remove(shipEntity);
-    else damagedMastComponent.set(shipEntity, mastDamage - 1);
+    if (mastDamage <= 1) damagedCannonsComponent.remove(shipEntity);
+    else damagedCannonsComponent.set(shipEntity, mastDamage - 1);
   }
 
   /**

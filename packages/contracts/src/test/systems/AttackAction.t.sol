@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 // External
-import "../MudTest.t.sol";
+import "../DarkSeasTest.t.sol";
 
 // Systems
 import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
@@ -19,25 +19,26 @@ import "../../libraries/LibVector.sol";
 import "../../libraries/LibCombat.sol";
 import "../../libraries/LibTurn.sol";
 import "../../libraries/LibUtils.sol";
+import "../../libraries/LibSpawn.sol";
 
-import { Side, Coord, Action } from "../../libraries/DSTypes.sol";
+import { Side, Coord, Action, ActionType, Move } from "../../libraries/DSTypes.sol";
 
-contract AttackActionTest is MudTest {
+contract AttackActionTest is DarkSeasTest {
+  constructor() DarkSeasTest(new Deploy()) {}
+
   ActionSystem actionSystem;
   ShipSpawnSystem shipSpawnSystem;
   CommitSystem commitSystem;
   MoveSystem moveSystem;
 
-  uint256[] shipEntities = new uint256[](0);
-  uint256[] moveEntities = new uint256[](0);
-  Action[][] allActions = new Action[][](0);
-  Action[] actions = new Action[](0);
+  Move[] moves;
+  Action[] actions;
 
   function testRevertNotPlayer() public {
     setup();
 
     vm.expectRevert(bytes("ActionSystem: player does not exist"));
-    actionSystem.executeTyped(shipEntities, allActions);
+    actionSystem.executeTyped(actions);
   }
 
   function testRevertNotOwner() public {
@@ -52,11 +53,68 @@ contract AttackActionTest is MudTest {
 
     vm.prank(deployer);
 
-    shipEntities.push(shipEntity);
-    allActions.push(actions);
-
+    Action memory action = Action({
+      shipEntity: shipEntity,
+      actionTypes: [ActionType.RepairSail, ActionType.None],
+      specialEntities: [uint256(0), uint256(0)]
+    });
+    actions.push(action);
     vm.expectRevert(bytes("ActionSystem: you don't own this ship"));
-    actionSystem.executeTyped(shipEntities, allActions);
+    actionSystem.executeTyped(actions);
+  }
+
+  function testRevertNotLoaded() public prank(deployer) {
+    setup();
+    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord(0, 0), 0);
+    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 90, 50, 80);
+
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
+
+    Action memory action = Action({
+      shipEntity: shipEntity,
+      actionTypes: [ActionType.Fire, ActionType.None],
+      specialEntities: [cannonEntity, uint256(0)]
+    });
+    actions.push(action);
+    vm.expectRevert(bytes("attack: cannon not loaded"));
+    actionSystem.executeTyped(actions);
+  }
+
+  function testRevertSameCannon() public prank(deployer) {
+    setup();
+    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord(0, 0), 0);
+    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 90, 50, 80);
+
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
+
+    Action memory action = Action({
+      shipEntity: shipEntity,
+      actionTypes: [ActionType.Load, ActionType.Fire],
+      specialEntities: [cannonEntity, cannonEntity]
+    });
+    actions.push(action);
+    vm.expectRevert(bytes("ActionSystem: cannon already acted"));
+    actionSystem.executeTyped(actions);
+  }
+
+  function testRevertUnloaded() public prank(deployer) {
+    setup();
+    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord(0, 0), 0);
+    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 90, 50, 80);
+
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
+
+    loadAndFireCannon(shipEntity, cannonEntity, 2);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 4, Phase.Action));
+
+    Action memory action = Action({
+      shipEntity: shipEntity,
+      actionTypes: [ActionType.Fire, ActionType.None],
+      specialEntities: [cannonEntity, uint256(0)]
+    });
+    actions.push(action);
+    vm.expectRevert(bytes("attack: cannon not loaded"));
+    actionSystem.executeTyped(actions);
   }
 
   function testAttackAction() public prank(deployer) {
@@ -67,6 +125,7 @@ contract AttackActionTest is MudTest {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 rotation = 0;
     uint256 attackerId = shipSpawnSystem.executeTyped(startingPosition, 350);
+    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, attackerId, 90, 50, 80);
 
     startingPosition = Coord({ x: -25, y: -25 });
     uint256 defender2Id = shipSpawnSystem.executeTyped(startingPosition, rotation);
@@ -78,16 +137,7 @@ contract AttackActionTest is MudTest {
     uint32 orig2Health = healthComponent.getValue(defender2Id);
     uint32 attackerHealth = healthComponent.getValue(attackerId);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
-
-    delete shipEntities;
-    delete actions;
-    delete allActions;
-
-    shipEntities.push(attackerId);
-    actions.push(Action.FireRight);
-    allActions.push(actions);
-    actionSystem.executeTyped(shipEntities, allActions);
+    loadAndFireCannon(attackerId, cannonEntity, 2);
 
     uint32 newHealth = healthComponent.getValue(defenderId);
 
@@ -106,13 +156,14 @@ contract AttackActionTest is MudTest {
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint256 attackerEntity = shipSpawnSystem.executeTyped(startingPosition, 0);
+    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, attackerEntity, 90, 50, 80);
 
     uint256 moveStraightEntity = uint256(keccak256("ds.prototype.moveEntity1"));
+    delete moves;
+    delete actions;
+    moves.push(Move({ moveCardEntity: moveStraightEntity, shipEntity: attackerEntity }));
 
-    shipEntities.push(attackerEntity);
-    moveEntities.push(moveStraightEntity);
-
-    commitAndExecuteMove(2, shipEntities, moveEntities);
+    commitAndExecuteMove(2, moves);
 
     uint256 defenderEntity = shipSpawnSystem.executeTyped(startingPosition, 0);
 
@@ -121,14 +172,7 @@ contract AttackActionTest is MudTest {
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
 
-    delete shipEntities;
-    delete actions;
-    delete allActions;
-
-    shipEntities.push(attackerEntity);
-    actions.push(Action.FireRight);
-    allActions.push(actions);
-    actionSystem.executeTyped(shipEntities, allActions);
+    loadAndFireCannon(attackerEntity, cannonEntity, 2);
 
     uint32 newHealth = healthComponent.getValue(attackerEntity);
     assertEq(newHealth, attackerHealth);
@@ -144,29 +188,47 @@ contract AttackActionTest is MudTest {
 
     uint256 attackerEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
 
-    vm.prank(deployer);
+    vm.startPrank(deployer);
+    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, attackerEntity, 90, 50, 80);
+    vm.stopPrank();
+
+    vm.prank(alice);
     uint256 defenderEntity = shipSpawnSystem.executeTyped(Coord({ x: 9, y: 25 }), 0);
+    vm.stopPrank();
 
     uint32 origHealth = healthComponent.getValue(defenderEntity);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
-
-    delete shipEntities;
-    delete actions;
-    delete allActions;
-
-    shipEntities.push(attackerEntity);
-    actions.push(Action.FireRight);
-    allActions.push(actions);
-
-    uint256 gas = gasleft();
-    actionSystem.executeTyped(shipEntities, allActions);
-
-    console.log("gas:", gas - gasleft());
+    loadAndFireCannon(attackerEntity, cannonEntity, 1);
 
     uint32 newHealth = healthComponent.getValue(defenderEntity);
 
-    uint32 ehd = expectedHealthDecrease(attackerEntity, defenderEntity, Side.Right);
+    uint32 ehd = expectedHealthDecrease(attackerEntity, cannonEntity, defenderEntity);
+    console.log("expected health decrease:", ehd);
+    assertEq(newHealth, origHealth - ehd);
+  }
+
+  function testCombatForward() public {
+    setup();
+
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+
+    uint256 attackerEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 0);
+
+    vm.startPrank(deployer);
+    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, attackerEntity, 0, 50, 80);
+    vm.stopPrank();
+
+    vm.prank(alice);
+    uint256 defenderEntity = shipSpawnSystem.executeTyped(Coord({ x: 20, y: 0 }), 180);
+    vm.stopPrank();
+
+    uint32 origHealth = healthComponent.getValue(defenderEntity);
+
+    loadAndFireCannon(attackerEntity, cannonEntity, 1);
+
+    uint32 newHealth = healthComponent.getValue(defenderEntity);
+
+    uint32 ehd = expectedHealthDecrease(attackerEntity, cannonEntity, defenderEntity);
     console.log("expected health decrease:", ehd);
     assertEq(newHealth, origHealth - ehd);
   }
@@ -219,10 +281,11 @@ contract AttackActionTest is MudTest {
 
   function expectedHealthDecrease(
     uint256 attackerEntity,
-    uint256 defenderEntity,
-    Side side
+    uint256 cannonEntity,
+    uint256 defenderEntity
   ) public view returns (uint32) {
-    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(attackerEntity);
+    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
+    uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
     Coord memory attackerPosition = PositionComponent(getAddressById(components, PositionComponentID)).getValue(
       attackerEntity
     );
@@ -230,8 +293,8 @@ contract AttackActionTest is MudTest {
 
     uint256 distance;
     uint256 randomness = LibUtils.randomness(attackerEntity, defenderEntity);
-    if (side == Side.Forward) {
-      Coord[3] memory firingRange3 = LibCombat.getFiringAreaForward(components, attackerEntity);
+    if (!LibCombat.isBroadside(cannonRotation)) {
+      Coord[3] memory firingRange3 = LibCombat.getFiringAreaPivot(components, attackerEntity, cannonEntity);
 
       if (LibVector.withinPolygon3(firingRange3, aft)) {
         distance = LibVector.distance(attackerPosition, aft);
@@ -241,7 +304,7 @@ contract AttackActionTest is MudTest {
         return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
       } else return 0;
     }
-    Coord[4] memory firingRange4 = LibCombat.getFiringAreaSide(components, attackerEntity, side);
+    Coord[4] memory firingRange4 = LibCombat.getFiringAreaBroadside(components, attackerEntity, cannonEntity);
 
     if (LibVector.withinPolygon4(firingRange4, aft)) {
       distance = LibVector.distance(attackerPosition, aft);
@@ -252,16 +315,39 @@ contract AttackActionTest is MudTest {
     } else return 0;
   }
 
-  function commitAndExecuteMove(
-    uint32 turn,
-    uint256[] memory _shipEntities,
-    uint256[] memory _moveEntities
-  ) internal {
+  function commitAndExecuteMove(uint32 turn, Move[] memory moves) internal {
     vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Commit));
-    uint256 commitment = uint256(keccak256(abi.encode(_shipEntities, _moveEntities, 69)));
+    uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
     commitSystem.executeTyped(commitment);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Reveal));
-    moveSystem.executeTyped(_shipEntities, _moveEntities, 69);
+    moveSystem.executeTyped(moves, 69);
+  }
+
+  function loadAndFireCannon(
+    uint256 shipEntity,
+    uint256 cannonEntity,
+    uint32 turn
+  ) internal {
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Action));
+
+    Action memory action = Action({
+      shipEntity: shipEntity,
+      actionTypes: [ActionType.Load, ActionType.None],
+      specialEntities: [cannonEntity, uint256(0)]
+    });
+    actions.push(action);
+    actionSystem.executeTyped(actions);
+
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, turn + 1, Phase.Action));
+    delete actions;
+    action = Action({
+      shipEntity: shipEntity,
+      actionTypes: [ActionType.Fire, ActionType.None],
+      specialEntities: [cannonEntity, uint256(0)]
+    });
+    actions.push(action);
+    actionSystem.executeTyped(actions);
+    delete actions;
   }
 }

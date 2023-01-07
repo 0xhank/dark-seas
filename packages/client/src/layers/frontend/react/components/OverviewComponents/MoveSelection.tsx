@@ -7,7 +7,8 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
-import { Layers, MoveCard } from "../../../../../types";
+import styled from "styled-components";
+import { Layers } from "../../../../../types";
 import { getFinalMoveCard, getFinalPosition } from "../../../../../utils/directions";
 import { inRange } from "../../../../../utils/distance";
 import { Img, OptionButton } from "../../styles/global";
@@ -21,7 +22,7 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
   } = layers.network;
 
   const {
-    components: { SelectedMove, SelectedShip },
+    components: { SelectedMove, SelectedShip, HoveredMove },
   } = layers.backend;
 
   const worldRadius = getGameConfig()?.worldRadius;
@@ -38,11 +39,19 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
   const rotation = getComponentValueStrict(Rotation, ship).value;
   const sailPosition = getComponentValueStrict(SailPosition, ship).value;
 
+  if (sailPosition == 0) {
+    return <SpecialText>Cannot move with torn sails!</SpecialText>;
+  }
+  const sortedMoveEntities = moveEntities.sort(
+    (a, b) =>
+      ((180 + getComponentValueStrict(MoveCard, a).rotation) % 360) -
+      (180 + (getComponentValueStrict(MoveCard, b).rotation % 360))
+  );
+
   return (
     <>
-      {moveEntities.map((entity) => {
-        let moveCard = getComponentValueStrict(MoveCard, entity) as MoveCard;
-
+      {sortedMoveEntities.map((entity) => {
+        let moveCard = getComponentValueStrict(MoveCard, entity);
         moveCard = getFinalMoveCard(moveCard, rotation, sailPosition, wind);
         const position = getComponentValueStrict(Position, ship);
         const isSelected = selectedMove && selectedMove.value == entity;
@@ -59,6 +68,8 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
             disabled={disabled}
             isSelected={isSelected}
             key={`move-selection-${entity}`}
+            onMouseEnter={() => setComponent(HoveredMove, GodEntityIndex, { moveCardEntity: entity, shipEntity: ship })}
+            onMouseLeave={() => removeComponent(HoveredMove, GodEntityIndex)}
             onClick={(e) => {
               e.stopPropagation();
               if (isSelected) removeComponent(SelectedMove, ship);
@@ -69,10 +80,19 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
             }}
           >
             <Img src={imageUrl} style={{ transform: `rotate(${rotation + 90}deg)` }} />
-            <p style={{ lineHeight: "16px" }}>{Math.round(moveCard.distance)}M</p>
+            <Sub>{Math.round(moveCard.distance)}M</Sub>
           </OptionButton>
         );
       })}
     </>
   );
 };
+
+const SpecialText = styled.span`
+  font-size: 2rem;
+`;
+
+const Sub = styled.p`
+  line-height: 1rem;
+  font-size: 0.8rem;
+`;

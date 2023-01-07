@@ -13,11 +13,9 @@ import { RotationComponent, ID as RotationComponentID } from "../components/Rota
 import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { FirepowerComponent, ID as FirepowerComponentID } from "../components/FirepowerComponent.sol";
-import { LeakComponent, ID as LeakComponentID } from "../components/LeakComponent.sol";
 import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
-import { DamagedMastComponent, ID as DamagedMastComponentID } from "../components/DamagedMastComponent.sol";
-import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
+import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../components/DamagedCannonsComponent.sol";
 
 // Types
 import { Side, Coord } from "../libraries/DSTypes.sol";
@@ -104,45 +102,77 @@ library LibCombat {
    * @param   shipEntity  attacking ship entity
    * @return  Coord[3]  points comprising firing area
    */
-  function getFiringAreaForward(IUint256Component components, uint256 shipEntity)
-    public
-    view
-    returns (Coord[3] memory)
-  {
-    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(shipEntity);
-    Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(shipEntity);
-    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
-    uint32 topRange = 10;
-    uint32 bottomRange = 350;
-    Coord memory topCorner = LibVector.getPositionByVector(position, rotation, range, topRange);
-    Coord memory bottomCorner = LibVector.getPositionByVector(position, rotation, range, bottomRange);
+  function getFiringAreaPivot(
+    IUint256Component components,
+    uint256 shipEntity,
+    uint256 cannonEntity
+  ) public view returns (Coord[3] memory) {
+    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
 
-    return ([position, bottomCorner, topCorner]);
+    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(cannonEntity);
+    Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(shipEntity);
+    uint32 shipRotation = rotationComponent.getValue(shipEntity);
+    uint32 cannonRotation = rotationComponent.getValue(cannonEntity);
+
+    if (cannonRotation >= 90 && cannonRotation < 270) {
+      uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
+      position = LibVector.getSternLocation(position, shipRotation, length);
+    }
+    Coord memory frontCorner = LibVector.getPositionByVector(
+      position,
+      shipRotation,
+      range,
+      (cannonRotation + 10) % 360
+    );
+    Coord memory backCorner = LibVector.getPositionByVector(
+      position,
+      shipRotation,
+      range,
+      (cannonRotation + 350) % 360
+    );
+
+    return ([position, backCorner, frontCorner]);
   }
 
   /**
    * @notice  calculates the location of four points comprising a quadrilateral firing area
+   * @dev     .
    * @param   components  world components
    * @param   shipEntity  attacking ship entity
-   * @param   side  of attack
+   * @param   cannonEntity  attacking cannon entity
    * @return  Coord[4]  points comprising firing area
    */
-  function getFiringAreaSide(
+  function getFiringAreaBroadside(
     IUint256Component components,
     uint256 shipEntity,
-    Side side
+    uint256 cannonEntity
   ) public view returns (Coord[4] memory) {
-    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(shipEntity);
+    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
+
+    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(cannonEntity);
     Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(shipEntity);
     uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
-    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
-    uint32 topRange = side == Side.Right ? 80 : 280;
-    uint32 bottomRange = side == Side.Right ? 100 : 260;
-    Coord memory sternLocation = LibVector.getSternLocation(position, rotation, length);
-    Coord memory topCorner = LibVector.getPositionByVector(position, rotation, range, topRange);
-    Coord memory bottomCorner = LibVector.getPositionByVector(sternLocation, rotation, range, bottomRange);
+    uint32 shipRotation = rotationComponent.getValue(shipEntity);
+    uint32 cannonRotation = rotationComponent.getValue(cannonEntity);
 
-    return ([position, sternLocation, bottomCorner, topCorner]);
+    uint32 rightRange = (cannonRotation + 10) % 360;
+    uint32 leftRange = (cannonRotation + 350) % 360;
+
+    Coord memory sternPosition = LibVector.getSternLocation(position, shipRotation, length);
+
+    Coord memory frontCorner;
+    Coord memory backCorner;
+
+    // if the stern is above the bow, switch the corners to ensure the quadrilateral doesn't cross in the middle
+    if (cannonRotation % 360 >= 180) {
+      frontCorner = LibVector.getPositionByVector(position, shipRotation, range, rightRange);
+      backCorner = LibVector.getPositionByVector(sternPosition, shipRotation, range, leftRange);
+    } else {
+      frontCorner = LibVector.getPositionByVector(position, shipRotation, range, leftRange);
+      backCorner = LibVector.getPositionByVector(sternPosition, shipRotation, range, rightRange);
+    }
+
+    return ([position, sternPosition, backCorner, frontCorner]);
   }
 
   /**
@@ -150,19 +180,16 @@ library LibCombat {
    * @param   components  world components
    * @param   attackerEntity  attacking entity
    * @param   defenderEntity  defending entity
-   * @param   defenderPosition  location of defender
+   * @param   distance  distance between attacker and defender
+   * @param   firepower  firepower of cannon firing
    */
   function damageEnemy(
     IUint256Component components,
     uint256 attackerEntity,
     uint256 defenderEntity,
-    Coord memory defenderPosition
+    uint256 distance,
+    uint32 firepower
   ) public {
-    Coord memory attackerPosition = PositionComponent(getAddressById(components, PositionComponentID)).getValue(
-      attackerEntity
-    );
-    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(attackerEntity);
-    uint256 distance = LibVector.distance(attackerPosition, defenderPosition);
     uint256 baseHitChance = getBaseHitChance(distance, firepower);
 
     // todo: make randomness more robust
@@ -171,10 +198,7 @@ library LibCombat {
     // perform hull and crew damage
     uint32 hullDamage = getHullDamage(baseHitChance, r);
 
-    bool dead = damageUint32(components, HealthComponentID, hullDamage, defenderEntity);
-    if (dead) return;
-
-    dead = damageUint32(components, CrewCountComponentID, getCrewDamage(baseHitChance, r), defenderEntity);
+    bool dead = damageHull(components, hullDamage, defenderEntity);
     if (dead) return;
 
     if (hullDamage == 0) return;
@@ -183,11 +207,8 @@ library LibCombat {
     if (getSpecialChance(baseHitChance, hullDamage, r, 0)) {
       OnFireComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity, 2);
     }
-    if (getSpecialChance(baseHitChance, hullDamage, r, 3)) {
-      LeakComponent(getAddressById(components, LeakComponentID));
-    }
     if (getSpecialChance(baseHitChance, hullDamage, r, 1)) {
-      DamagedMastComponent(getAddressById(components, DamagedMastComponentID)).set(defenderEntity, 2);
+      DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).set(defenderEntity, 2);
     }
     if (getSpecialChance(baseHitChance, hullDamage, r, 2)) {
       SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(defenderEntity, 0);
@@ -199,26 +220,33 @@ library LibCombat {
    * @notice  applies damage of type uint32
    * @dev     this is used to reuse code on hull and crew damage application
    * @param   components  world components
-   * @param   componentID  type of component to update
    * @param   damage  amount of damage applied
    * @param   shipEntity  to apply damage to
    * @return  bool  if the damage killed the boat
    */
-  function damageUint32(
+  function damageHull(
     IUint256Component components,
-    uint256 componentID,
     uint32 damage,
     uint256 shipEntity
   ) public returns (bool) {
-    Uint32Component component = Uint32Component(getAddressById(components, componentID));
-    uint32 value = component.getValue(shipEntity);
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    uint32 health = healthComponent.getValue(shipEntity);
 
-    if (value <= damage) {
-      component.set(shipEntity, 0);
+    if (health <= damage) {
+      healthComponent.set(shipEntity, 0);
       return true;
     }
 
-    component.set(shipEntity, value - damage);
+    healthComponent.set(shipEntity, health - damage);
     return false;
+  }
+
+  /**
+   * @notice  calculates if a cannon is a broadside based on its rotation
+   * @param   rotation  rotation of cannon
+   * @return  bool  is the ship a broadside
+   */
+  function isBroadside(uint256 rotation) public pure returns (bool) {
+    return (rotation == 90 || rotation == 270);
   }
 }

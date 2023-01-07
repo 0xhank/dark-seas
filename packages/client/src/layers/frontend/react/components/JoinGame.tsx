@@ -21,7 +21,6 @@ const JoinGameContainer = ({ layers }: { layers: Layers }) => {
 
   const findSpawnButtonDisabled = playerName.length === 0 || x == undefined || y == undefined;
   const spawnAction = [...runQuery([Has(Action)])].find((i) => world.entities[i].includes("spawn"));
-
   return (
     <div
       style={{
@@ -124,9 +123,12 @@ export function registerJoinGame() {
           components: { Player, OwnedBy },
           world,
         },
+        backend: {
+          actions: { Action },
+        },
       } = layers;
 
-      return merge(computedToStream(connectedAddress), Player.update$, OwnedBy.update$).pipe(
+      return merge(computedToStream(connectedAddress), Player.update$, OwnedBy.update$, Action.update$).pipe(
         map(() => connectedAddress.get()),
         map((address) => {
           if (!address) return;

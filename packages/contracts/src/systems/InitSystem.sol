@@ -28,9 +28,9 @@ contract InitSystem is System {
       GodID,
       GameConfig({
         startTime: block.timestamp,
-        commitPhaseLength: 30,
+        commitPhaseLength: 25,
         revealPhaseLength: 10,
-        actionPhaseLength: 30,
+        actionPhaseLength: 25,
         worldRadius: 400
       })
     );
@@ -42,20 +42,20 @@ contract InitSystem is System {
 
     uint256 moveEntity2 = uint256(keccak256("ds.prototype.moveEntity2"));
 
-    moveCardComponent.set(moveEntity2, MoveCard({ direction: 45, distance: 50, rotation: 90 }));
+    moveCardComponent.set(moveEntity2, MoveCard({ direction: 45, distance: 30, rotation: 90 }));
 
     uint256 moveEntity3 = uint256(keccak256("ds.prototype.moveEntity3"));
 
-    moveCardComponent.set(moveEntity3, MoveCard({ direction: 27, distance: 50, rotation: 45 }));
+    moveCardComponent.set(moveEntity3, MoveCard({ direction: 27, distance: 40, rotation: 45 }));
 
     uint256 moveEntity4 = uint256(keccak256("ds.prototype.moveEntity4"));
 
-    moveCardComponent.set(moveEntity4, MoveCard({ direction: 315, distance: 50, rotation: 270 }));
+    moveCardComponent.set(moveEntity4, MoveCard({ direction: 315, distance: 30, rotation: 270 }));
 
     uint256 moveEntity5 = uint256(keccak256("ds.prototype.moveEntity5"));
 
-    moveCardComponent.set(moveEntity5, MoveCard({ direction: 333, distance: 50, rotation: 315 }));
+    moveCardComponent.set(moveEntity5, MoveCard({ direction: 333, distance: 40, rotation: 315 }));
 
-    windComponent.set(GodID, Wind(5, 35));
+    windComponent.set(GodID, Wind(0, 270));
   }
 }

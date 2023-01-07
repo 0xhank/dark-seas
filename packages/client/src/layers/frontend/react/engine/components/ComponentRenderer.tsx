@@ -1,12 +1,12 @@
-import React, { useMemo } from "react";
-import { observer } from "mobx-react-lite";
-import { useLayers, useEngineStore } from "../hooks";
-import { filterNullishValues } from "@latticexyz/utils";
-import { Cell } from "./Cell";
-import styled from "styled-components";
-import { GridConfiguration, UIComponent } from "../types";
 import { useStream } from "@latticexyz/std-client";
-import { Layers } from "../../../../types";
+import { filterNullishValues } from "@latticexyz/utils";
+import { observer } from "mobx-react-lite";
+import React, { useMemo } from "react";
+import styled from "styled-components";
+import { Layers } from "../../../../../types";
+import { useEngineStore, useLayers } from "../hooks";
+import { GridConfiguration, UIComponent } from "../types";
+import { Cell } from "./Cell";
 
 const UIGrid = styled.div`
   display: grid;
@@ -59,7 +59,7 @@ export const ComponentRenderer: React.FC = observer(() => {
   if (!layers) return null;
 
   return (
-    <UIGrid>
+    <UIGrid onMouseDown={(e) => e.stopPropagation()}>
       {filterNullishValues(
         // Iterate through all registered UIComponents
         // and return those whose requirements are fulfilled

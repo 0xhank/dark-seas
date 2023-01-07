@@ -10,9 +10,8 @@
     "SailPositionComponent",
     "WindComponent",
     "OnFireComponent",
-    "LeakComponent",
     "CrewCountComponent",
-    "DamagedMastComponent",
+    "DamagedCannonsComponent",
     "FirepowerComponent",
     "GameConfigComponent",
     "LastMoveComponent",
@@ -20,7 +19,9 @@
     "OwnedByComponent",
     "NameComponent",
     "PlayerComponent",
-    "CommitmentComponent"
+    "CommitmentComponent",
+    "LoadedComponent",
+    "CannonComponent"
   ],
   "systems": [
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
@@ -29,12 +30,12 @@
       "name": "ActionSystem",
       "writeAccess": [
         "HealthComponent",
-        "LeakComponent",
         "OnFireComponent",
-        "DamagedMastComponent",
+        "DamagedCannonsComponent",
         "CrewCountComponent",
         "SailPositionComponent",
-        "LastActionComponent"
+        "LastActionComponent",
+        "LoadedComponent"
       ]
     },
     {
@@ -53,7 +54,8 @@
         "LastActionComponent",
         "OwnedByComponent",
         "PlayerComponent",
-        "NameComponent"
+        "NameComponent",
+        "CannonComponent"
       ]
     },
     { "name": "CommitSystem", "writeAccess": ["CommitmentComponent"] }

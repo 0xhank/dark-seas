@@ -6,6 +6,8 @@ export const TILE_HEIGHT = 64;
 export const POS_WIDTH = TILE_WIDTH / 4;
 export const POS_HEIGHT = TILE_HEIGHT / 4;
 
+export const CANNON_SHOT_LENGTH = 1000;
+
 export const SHIP_RATIO = 113 / 66;
 export enum Scenes {
   Main = "Main",
@@ -45,6 +47,7 @@ export enum RenderDepth {
 
 export enum Animations {
   Explosion = "Explosion",
+  Fire = "Fire",
 }
 
 export const UnitTypeSprites: Record<number, Sprites> = {};

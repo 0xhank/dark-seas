@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 // External
-import "../MudTest.t.sol";
+import "../DarkSeasTest.t.sol";
 
 // Systems
 import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.sol";
@@ -11,26 +11,27 @@ import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/Co
 
 // Components
 import { OnFireComponent, ID as OnFireComponentID } from "../../components/OnFireComponent.sol";
-import { LeakComponent, ID as LeakComponentID } from "../../components/LeakComponent.sol";
-import { DamagedMastComponent, ID as DamagedMastComponentID } from "../../components/DamagedMastComponent.sol";
+import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../../components/DamagedCannonsComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../../components/SailPositionComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
-import { Action, Coord, GameConfig, GodID } from "../../libraries/DSTypes.sol";
+
+// Types
+import { Action, ActionType, Coord, GameConfig, GodID } from "../../libraries/DSTypes.sol";
 
 // Internal
 import "../../libraries/LibTurn.sol";
 
-contract RepairActionTest is MudTest {
+contract RepairActionTest is DarkSeasTest {
+  constructor() DarkSeasTest(new Deploy()) {}
+
   SailPositionComponent sailPositionComponent;
   ActionSystem actionSystem;
   ShipSpawnSystem shipSpawnSystem;
   ComponentDevSystem componentDevSystem;
 
-  uint256[] shipEntities = new uint256[](0);
-  Action[][] allActions = new Action[][](0);
-  Action[] actions = new Action[](0);
+  Action[] actions;
 
-  function testExtinguishFire() public prank(deployer) {
+  function testExtinguishFire() public {
     setup();
     OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
 
@@ -42,45 +43,20 @@ contract RepairActionTest is MudTest {
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
-    delete shipEntities;
     delete actions;
-    delete allActions;
 
-    shipEntities.push(shipEntity);
-    actions.push(Action.ExtinguishFire);
-    allActions.push(actions);
-    actionSystem.executeTyped(shipEntities, allActions);
+    Action memory action = Action({
+      shipEntity: shipEntity,
+      actionTypes: [ActionType.ExtinguishFire, ActionType.None],
+      specialEntities: [uint256(0), uint256(0)]
+    });
+    actions.push(action);
+    actionSystem.executeTyped(actions);
 
     assertFalse(onFireComponent.has(shipEntity));
   }
 
-  function testRepairLeak() public prank(deployer) {
-    setup();
-    LeakComponent leakComponent = LeakComponent(getAddressById(components, LeakComponentID));
-    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
-      GodID
-    );
-    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
-
-    componentDevSystem.executeTyped(LeakComponentID, shipEntity, abi.encode(true));
-
-    assertTrue(leakComponent.has(shipEntity));
-
-    delete shipEntities;
-    delete actions;
-    delete allActions;
-
-    shipEntities.push(shipEntity);
-    actions.push(Action.RepairLeak);
-    allActions.push(actions);
-
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
-
-    actionSystem.executeTyped(shipEntities, allActions);
-    assertFalse(leakComponent.has(shipEntity));
-  }
-
-  function testRepairSail() public prank(deployer) {
+  function testRepairSail() public {
     setup();
 
     uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
@@ -88,44 +64,43 @@ contract RepairActionTest is MudTest {
     componentDevSystem.executeTyped(SailPositionComponentID, shipEntity, abi.encode(0));
 
     assertEq(sailPositionComponent.getValue(shipEntity), 0);
-
-    delete shipEntities;
     delete actions;
-    delete allActions;
 
-    shipEntities.push(shipEntity);
-    actions.push(Action.RepairSail);
-    allActions.push(actions);
-
+    Action memory action = Action({
+      shipEntity: shipEntity,
+      actionTypes: [ActionType.RepairSail, ActionType.None],
+      specialEntities: [uint256(0), uint256(0)]
+    });
+    actions.push(action);
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
-    actionSystem.executeTyped(shipEntities, allActions);
+    actionSystem.executeTyped(actions);
 
     assertEq(sailPositionComponent.getValue(shipEntity), 1);
   }
 
-  function testRepairMast() public prank(deployer) {
+  function testRepairCannons() public {
     setup();
-    DamagedMastComponent damagedMastComponent = DamagedMastComponent(
-      getAddressById(components, DamagedMastComponentID)
+    DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
+      getAddressById(components, DamagedCannonsComponentID)
     );
     uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
-    componentDevSystem.executeTyped(DamagedMastComponentID, shipEntity, abi.encode(1));
+    componentDevSystem.executeTyped(DamagedCannonsComponentID, shipEntity, abi.encode(1));
 
-    assertTrue(damagedMastComponent.has(shipEntity));
-
-    delete shipEntities;
+    assertTrue(damagedCannonsComponent.has(shipEntity));
     delete actions;
-    delete allActions;
 
-    shipEntities.push(shipEntity);
-    actions.push(Action.RepairMast);
-    allActions.push(actions);
-
+    Action memory action = Action({
+      shipEntity: shipEntity,
+      actionTypes: [ActionType.RepairCannons, ActionType.None],
+      specialEntities: [uint256(0), uint256(0)]
+    });
+    actions.push(action);
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
-    actionSystem.executeTyped(shipEntities, allActions);
-    assertFalse(damagedMastComponent.has(shipEntity));
+    actionSystem.executeTyped(actions);
+
+    assertFalse(damagedCannonsComponent.has(shipEntity));
   }
 
   /**

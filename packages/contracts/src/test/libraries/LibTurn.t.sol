@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 // External
-import "../MudTest.t.sol";
+import "../DarkSeasTest.t.sol";
 
 // Components
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
@@ -13,7 +13,9 @@ import { GameConfig, Phase, GodID } from "../../libraries/DSTypes.sol";
 // Libraries
 import "../../libraries/LibTurn.sol";
 
-contract LibTurnTest is MudTest {
+contract LibTurnTest is DarkSeasTest {
+  constructor() DarkSeasTest(new Deploy()) {}
+
   GameConfig gameConfig;
 
   function testGetCurrentTurn() public prank(deployer) {

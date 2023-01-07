@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 // External
-import "../MudTest.t.sol";
+import "../DarkSeasTest.t.sol";
 import { getAddressById, addressToEntity } from "solecs/utils.sol";
 
 // Systems
@@ -18,24 +18,29 @@ import { Coord } from "../../libraries/DSTypes.sol";
 // Internal
 import "../../libraries/LibUtils.sol";
 
-contract PlayerSpawnTest is MudTest {
-  PlayerSpawnSystem playerSpawnSystem;
+contract PlayerSpawnTest is DarkSeasTest {
+  constructor() DarkSeasTest(new Deploy()) {}
 
-  function testSpawn() public prank(deployer) {
+  PlayerSpawnSystem playerSpawnSystem;
+  NameComponent nameComponent;
+
+  function testSpawn() public {
     setup();
-    NameComponent nameComponent = NameComponent(getAddressById(components, NameComponentID));
 
     playerSpawnSystem.executeTyped("Jamaican me crazy", Coord(1, 1));
 
     (uint256[] memory entities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
-    assertEq(entities.length, 3);
+    assertEq(entities.length, 4, "incorrect number of ships");
 
     uint256 playerEntity = addressToEntity(deployer);
 
-    assertTrue(nameComponent.has(playerEntity));
-    string memory playerName = nameComponent.getValue(playerEntity);
-    assertEq(playerName, "Jamaican me crazy");
+    bool hasName = nameComponent.has(playerEntity);
+    assertTrue(hasName, "player name not stored");
+    if (hasName) {
+      string memory playerName = nameComponent.getValue(playerEntity);
+      assertEq(playerName, "Jamaican me crazy");
+    }
   }
 
   /**
@@ -44,5 +49,6 @@ contract PlayerSpawnTest is MudTest {
 
   function setup() internal {
     playerSpawnSystem = PlayerSpawnSystem(system(PlayerSpawnSystemID));
+    nameComponent = NameComponent(getAddressById(components, NameComponentID));
   }
 }

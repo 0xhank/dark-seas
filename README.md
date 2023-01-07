@@ -4,7 +4,7 @@ Multiplayer naval battle simulation game on blockchain. Built with <a href = htt
 
 # Requirements
 
-1. Node >=v.16
+1. Node >= 17
 2. <a href = https://book.getfoundry.sh/getting-started/installation>Foundry</a>
 
 # Quickstart guide

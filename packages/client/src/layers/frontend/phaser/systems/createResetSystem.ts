@@ -1,5 +1,11 @@
 import { GodID } from "@latticexyz/network";
-import { defineRxSystem, EntityIndex, getComponentValue, removeComponent } from "@latticexyz/recs";
+import {
+  defineRxSystem,
+  EntityIndex,
+  getComponentEntities,
+  getComponentValue,
+  removeComponent,
+} from "@latticexyz/recs";
 import { Phase } from "../../../../types";
 import { DELAY } from "../../constants";
 import { PhaserLayer } from "../types";
@@ -9,14 +15,14 @@ export function createResetSystem(phaser: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: { LastMove, LastAction },
-        utils: { getPlayerEntity, getPhase, getGameConfig, getTurn },
+        components: { LastMove, LastAction, MoveCard },
+        utils: { getPlayerEntity, getPhase, getGameConfig, getTurn, secondsUntilNextPhase },
         network: { clock },
       },
       backend: {
-        components: { SelectedMove, SelectedActions, CommittedMoves },
+        components: { SelectedMove, SelectedActions, CommittedMoves, ExecutedActions },
         api: { commitMove, revealMove, submitActions },
-        utils: { secondsUntilNextPhase, getPlayerShipsWithMoves, getPlayerShipsWithActions, getPlayerShips },
+        utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, getPlayerShips },
       },
     },
     scenes: {
@@ -25,14 +31,14 @@ export function createResetSystem(phaser: PhaserLayer) {
     polygonRegistry,
   } = phaser;
 
-  defineRxSystem(world, clock.time$, (currentTime) => {
+  defineRxSystem(world, clock.time$, () => {
     const phase = getPhase(DELAY);
     const turn = getTurn(DELAY);
     const gameConfig = getGameConfig();
 
     if (phase == undefined || !gameConfig) return;
 
-    const timeToNextPhase = secondsUntilNextPhase(currentTime, DELAY);
+    const timeToNextPhase = secondsUntilNextPhase(DELAY);
 
     const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
@@ -48,7 +54,9 @@ export function createResetSystem(phaser: PhaserLayer) {
           objectPool.remove(`projection-${ship}`);
           polygonRegistry.get(`rangeGroup-${ship}`)?.clear(true, true);
           removeComponent(SelectedActions, ship);
+          removeComponent(ExecutedActions, ship);
         });
+        polygonRegistry.get("selectedActions")?.clear(true, true);
       }
 
       // END OF PHASE
@@ -57,8 +65,7 @@ export function createResetSystem(phaser: PhaserLayer) {
         if (committedMoves) return;
         const shipsAndMoves = getPlayerShipsWithMoves();
         if (!shipsAndMoves) return;
-
-        commitMove(shipsAndMoves.ships, shipsAndMoves.moves);
+        commitMove(shipsAndMoves);
       }
     }
 
@@ -67,6 +74,10 @@ export function createResetSystem(phaser: PhaserLayer) {
     if (phase == Phase.Reveal) {
       if (timeToNextPhase !== gameConfig.revealPhaseLength) return;
 
+      [...getComponentEntities(MoveCard)].forEach((moveCardEntity) => {
+        const objectId = `optionGhost-${moveCardEntity}`;
+        objectPool.remove(objectId);
+      });
       const lastMove = getComponentValue(LastMove, playerEntity)?.value;
       if (lastMove == turn) return;
       const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
@@ -88,8 +99,8 @@ export function createResetSystem(phaser: PhaserLayer) {
         const lastAction = getComponentValue(LastAction, playerEntity)?.value;
         if (lastAction == turn) return;
         const shipsAndActions = getPlayerShipsWithActions();
-        if (!shipsAndActions) return;
-        submitActions(shipsAndActions.ships, shipsAndActions.actions);
+
+        if (shipsAndActions) submitActions(shipsAndActions);
       }
     }
   });

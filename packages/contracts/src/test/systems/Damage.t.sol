@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 // External
-import "../MudTest.t.sol";
+import "../DarkSeasTest.t.sol";
 
 // Systems
 import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
@@ -13,134 +13,87 @@ import { CommitSystem, ID as CommitSystemID } from "../../systems/CommitSystem.s
 
 // Components
 import { OnFireComponent, ID as OnFireComponentID } from "../../components/OnFireComponent.sol";
-import { LeakComponent, ID as LeakComponentID } from "../../components/LeakComponent.sol";
-import { DamagedMastComponent, ID as DamagedMastComponentID } from "../../components/DamagedMastComponent.sol";
+import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../../components/DamagedCannonsComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../../components/SailPositionComponent.sol";
-import { CrewCountComponent, ID as CrewCountComponentID } from "../../components/CrewCountComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
 import { PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
 
 // Types
-import { Action, Coord } from "../../libraries/DSTypes.sol";
+import { Action, ActionType, Coord, Move } from "../../libraries/DSTypes.sol";
 
 // Libraries
 import "../../libraries/LibTurn.sol";
 
-contract DamageTest is MudTest {
+contract DamageTest is DarkSeasTest {
+  constructor() DarkSeasTest(new Deploy()) {}
+
   SailPositionComponent sailPositionComponent;
   ActionSystem actionSystem;
   ShipSpawnSystem shipSpawnSystem;
   ComponentDevSystem componentDevSystem;
 
-  uint256[] shipEntities = new uint256[](0);
-  uint256[] moveEntities = new uint256[](0);
-  Action[][] allActions = new Action[][](0);
-  Action[] actions = new Action[](0);
+  Action[] actions;
+  Move[] moves;
 
-  function testFireEffect() public prank(deployer) {
+  function testDamagedCannonsEffect() public {
     setup();
-    OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
+    DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
+      getAddressById(components, DamagedCannonsComponentID)
+    );
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
     uint256 attackerEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
     uint256 defenderEntity = shipSpawnSystem.executeTyped(Coord({ x: 9, y: 25 }), 0);
     uint32 origHealth = healthComponent.getValue(defenderEntity);
 
-    componentDevSystem.executeTyped(OnFireComponentID, attackerEntity, abi.encode(2));
-    assertEq(onFireComponent.getValue(attackerEntity), 2);
+    componentDevSystem.executeTyped(DamagedCannonsComponentID, attackerEntity, abi.encode(2));
+    assertEq(damagedCannonsComponent.getValue(attackerEntity), 2);
 
-    delete shipEntities;
-    delete actions;
-    delete allActions;
-
-    shipEntities.push(attackerEntity);
-    actions.push(Action.ExtinguishFire);
-    allActions.push(actions);
-
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
-
-    actionSystem.executeTyped(shipEntities, allActions);
-    assertTrue(onFireComponent.has(attackerEntity));
-    assertEq(onFireComponent.getValue(attackerEntity), 1);
-
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
-
-    delete shipEntities;
-    delete actions;
-    delete allActions;
-
-    shipEntities.push(attackerEntity);
-    actions.push(Action.FireRight);
-    allActions.push(actions);
-
-    uint256 gas = gasleft();
-    actionSystem.executeTyped(shipEntities, allActions);
-
-    console.log("gas:", gas - gasleft());
-
-    uint32 newHealth = healthComponent.getValue(defenderEntity);
-    assertEq(newHealth, origHealth);
-  }
-
-  function testLeakEffect() public prank(deployer) {
-    setup();
-    LeakComponent leakComponent = LeakComponent(getAddressById(components, LeakComponentID));
-    CrewCountComponent crewCountComponent = CrewCountComponent(getAddressById(components, CrewCountComponentID));
-
-    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
-
-    componentDevSystem.executeTyped(LeakComponentID, shipEntity, abi.encode(true));
-
-    assertTrue(leakComponent.has(shipEntity));
-
-    uint32 crewCount = crewCountComponent.getValue(shipEntity);
-
-    delete shipEntities;
-    delete actions;
-    delete allActions;
-
-    shipEntities.push(shipEntity);
-    actions.push(Action.ExtinguishFire);
-    allActions.push(actions);
+    Action memory action = Action({
+      shipEntity: attackerEntity,
+      actionTypes: [ActionType.RepairCannons, ActionType.None],
+      specialEntities: [uint256(0), uint256(0)]
+    });
+    actions.push(action);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
-    actionSystem.executeTyped(shipEntities, allActions);
-    assertTrue(leakComponent.has(shipEntity));
-    assertEq(crewCountComponent.getValue(shipEntity), crewCount - 1);
+    actionSystem.executeTyped(actions);
+    assertTrue(damagedCannonsComponent.has(attackerEntity));
+    assertEq(damagedCannonsComponent.getValue(attackerEntity), 1);
   }
 
-  function testDamagedMastEffect() public prank(deployer) {
+  function testFireEffect() public {
     setup();
     uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
 
-    DamagedMastComponent damagedMastComponent = DamagedMastComponent(
-      getAddressById(components, DamagedMastComponentID)
-    );
+    OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
+
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
 
-    componentDevSystem.executeTyped(DamagedMastComponentID, shipEntity, abi.encode(2));
+    componentDevSystem.executeTyped(OnFireComponentID, shipEntity, abi.encode(2));
 
-    assertTrue(damagedMastComponent.has(shipEntity));
+    assertTrue(onFireComponent.getValue(shipEntity) == 2);
 
     uint32 health = healthComponent.getValue(shipEntity);
 
-    delete shipEntities;
     delete actions;
-    delete allActions;
 
-    shipEntities.push(shipEntity);
-    actions.push(Action.RepairMast);
-    allActions.push(actions);
+    Action memory action = Action({
+      shipEntity: shipEntity,
+      actionTypes: [ActionType.ExtinguishFire, ActionType.None],
+      specialEntities: [uint256(0), uint256(0)]
+    });
+    actions.push(action);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
-    actionSystem.executeTyped(shipEntities, allActions);
-    assertTrue(damagedMastComponent.has(shipEntity));
+    actionSystem.executeTyped(actions);
+    assertTrue(onFireComponent.has(shipEntity));
     assertEq(healthComponent.getValue(shipEntity), health - 1);
   }
 
-  function testDamagedSailEffect() public prank(deployer) {
+  function testDamagedSailEffect() public {
     setup();
 
     PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
@@ -153,17 +106,15 @@ contract DamageTest is MudTest {
     Coord memory position = positionComponent.getValue(shipEntity);
     uint32 rotation = rotationComponent.getValue(shipEntity);
     componentDevSystem.executeTyped(SailPositionComponentID, shipEntity, abi.encode(0));
+    Move memory move = Move({ shipEntity: shipEntity, moveCardEntity: moveStraightEntity });
 
-    delete shipEntities;
-    moveEntities.push(moveStraightEntity);
-    shipEntities.push(shipEntity);
-
+    moves.push(move);
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Commit));
-    uint256 commitment = uint256(keccak256(abi.encode(shipEntities, moveEntities, 69)));
+    uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
     CommitSystem(system(CommitSystemID)).executeTyped(commitment);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Reveal));
-    MoveSystem(system(MoveSystemID)).executeTyped(shipEntities, moveEntities, 69);
+    MoveSystem(system(MoveSystemID)).executeTyped(moves, 69);
 
     assertCoordEq(positionComponent.getValue(shipEntity), position);
     assertEq(rotationComponent.getValue(shipEntity), rotation);
@@ -178,5 +129,7 @@ contract DamageTest is MudTest {
     shipSpawnSystem = ShipSpawnSystem(system(ShipSpawnSystemID));
     componentDevSystem = ComponentDevSystem(system(ComponentDevSystemID));
     sailPositionComponent = SailPositionComponent(getAddressById(components, SailPositionComponentID));
+    delete moves;
+    delete actions;
   }
 }

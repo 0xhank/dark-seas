@@ -13,7 +13,7 @@ export function Compass({ speed, direction }: Wind) {
         <CompassArrow />
         <CompassLabels>
           <CompassSpan style={{ transform: `rotate(${360 - ((direction + 90) % 360)}deg)` }}>
-            {speed} kt{speed == 1 ? "" : "s"}
+            {/* {speed} kt{speed == 1 ? "" : "s"} */}
           </CompassSpan>
         </CompassLabels>
       </CompassArrowContainer>
@@ -161,10 +161,10 @@ const CompassArrowContainer = styled.div`
 
 const CompassArrow = styled.div`
   position: absolute;
-  width: 90%;
-  height: 90%;
-  margin-left: 4.5%;
-  margin-top: 4.5%;
+  width: 50%;
+  height: 50%;
+  margin-left: 26%;
+  margin-top: 26%;
   background-color: ${colors.lightBrown};
   border-radius: 0 50% 50% 50%;
   box-sizing: border-box;
