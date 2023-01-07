@@ -9,24 +9,22 @@ export default function ShipAttribute({
   updating,
 }: {
   attributeType: ShipAttributeTypes;
-  attribute: number | string;
+  attribute: number;
   updating?: boolean;
 }) {
   let source = "";
-
   if (attributeType == ShipAttributeTypes.Sails) {
     if (attribute == SailPositions.Torn) source = "/icons/broken-sail.svg";
     else source = "/icons/sail.svg";
   }
 
-  const attributeString = attribute.toString();
   return (
     <AttributeContainer>
       <LeftSide>
         <AttributeImg src={source} alt={`attribute-${attributeType}`} />
       </LeftSide>
-      <RightSide updating={updating} style={{ fontSize: `${attributeString.length > 2 ? "1rem" : "1.25rem"}` }}>
-        {attribute}
+      <RightSide updating={updating} style={{ fontSize: `${attribute.toString().length > 2 ? "1rem" : "1.25rem"}` }}>
+        {SailPositions[attribute]}
       </RightSide>
     </AttributeContainer>
   );

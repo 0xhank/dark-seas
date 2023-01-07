@@ -1,6 +1,6 @@
 import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import styled from "styled-components";
-import { ActionType, Layers, SailPositions } from "../../../../../types";
+import { ActionType, Layers } from "../../../../../types";
 import { getShipSprite, ShipImages } from "../../../../../utils/ships";
 import { BoxImage } from "../../styles/global";
 import { ShipAttributeTypes } from "../../types";
@@ -66,7 +66,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
         <div style={{ display: "flex", width: "100%", flexWrap: "wrap" }}>
           <ShipAttribute
             attributeType={ShipAttributeTypes.Sails}
-            attribute={SailPositions[updatedSailPosition]}
+            attribute={updatedSailPosition}
             updating={updatedSailPosition !== sailPosition}
           />
         </div>

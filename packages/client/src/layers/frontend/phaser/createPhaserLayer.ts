@@ -1,5 +1,5 @@
 import { createPhaserEngine } from "@latticexyz/phaserx";
-import { defineComponent, namespaceWorld, Type } from "@latticexyz/recs";
+import { namespaceWorld } from "@latticexyz/recs";
 import { BackendLayer } from "../../backend";
 import { phaserConfig } from "./config";
 import { POS_HEIGHT, POS_WIDTH } from "./constants";
@@ -13,9 +13,7 @@ export async function createPhaserLayer(backend: BackendLayer) {
   const world = namespaceWorld(backend.world, "phaser");
 
   // --- COMPONENTS -----------------------------------------------------------------
-  const components = {
-    UpdateQueue: defineComponent(world, { value: Type.StringArray }, { id: "UpdateQueue" }),
-  };
+  const components = {};
 
   // --- PHASER ENGINE SETUP --------------------------------------------------------
   const { game, scenes, dispose: disposePhaser } = await createPhaserEngine(phaserConfig);
