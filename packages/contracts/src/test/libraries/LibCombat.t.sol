@@ -209,4 +209,21 @@ contract LibCombatTest is DarkSeasTest {
     assertCoordEq(frontCorner, firingArea[1]);
     assertCoordEq(backCorner, firingArea[2]);
   }
+
+  function testFiringAreaForward() public prank(deployer) {
+    Coord memory startingPosition = Coord({ x: 0, y: 0 });
+
+    uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, 0);
+
+    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
+    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(shipEntity);
+
+    Coord[3] memory firingArea = LibCombat.getFiringAreaForward(components, shipEntity);
+    Coord memory leftCorner = LibVector.getPositionByVector(startingPosition, rotation, range, 10);
+    Coord memory rightCorner = LibVector.getPositionByVector(startingPosition, rotation, range, 350);
+
+    assertCoordEq(startingPosition, firingArea[0]);
+    assertCoordEq(rightCorner, firingArea[1]);
+    assertCoordEq(leftCorner, firingArea[2]);
+  }
 }

@@ -233,6 +233,41 @@ contract AttackActionTest is DarkSeasTest {
     assertEq(newHealth, origHealth - ehd);
   }
 
+  function testCombatForward() public {
+    setup();
+
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+
+    uint256 attackerEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 0);
+
+    vm.prank(deployer);
+    uint256 defenderEntity = shipSpawnSystem.executeTyped(Coord({ x: 20, y: 0 }), 180);
+
+    uint32 origHealth = healthComponent.getValue(defenderEntity);
+
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
+
+    delete shipEntities;
+    delete actions;
+    delete allActions;
+
+    shipEntities.push(attackerEntity);
+    actions.push(Action.FireForward);
+    allActions.push(actions);
+
+    uint256 gas = gasleft();
+    actionSystem.executeTyped(shipEntities, allActions);
+
+    console.log("gas:", gas - gasleft());
+
+    uint32 newHealth = healthComponent.getValue(defenderEntity);
+
+    uint32 ehd = expectedHealthDecrease(attackerEntity, defenderEntity, Side.Forward);
+    console.log("expected health decrease:", ehd);
+    console.log("new health:", newHealth);
+    assertEq(newHealth, origHealth - ehd);
+  }
+
   /**
    * Helpers
    */
