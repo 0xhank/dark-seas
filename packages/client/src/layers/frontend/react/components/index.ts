@@ -5,7 +5,7 @@ import { registerJoinGame } from "./JoinGame";
 import { registerLoadingState } from "./LoadingState";
 import { registerTopBar } from "./TopBar/TopBar";
 import { registerTurnTimer } from "./TurnTimer";
-import { registerYourShips } from "./YourShips/YourShips";
+import { registerYourShips } from "./YourShips";
 
 export function registerUIComponents() {
   registerLoadingState();
