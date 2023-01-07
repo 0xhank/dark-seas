@@ -12,8 +12,7 @@ export function createShipCircleSystem(phaser: PhaserLayer) {
       },
       backend: {
         utils: { isMyShip },
-        components: { SelectedShip, HoveredShip },
-        godIndex,
+        components: { HoveredShip },
       },
     },
     polygonRegistry,

@@ -1,14 +1,16 @@
+import { registerActionQueue } from "./ActionQueue";
+import { registerComponentBrowser } from "./ComponentBrowser";
+import { registerEnemyShip } from "./EnemyShip";
 import { registerJoinGame } from "./JoinGame";
 import { registerLoadingState } from "./LoadingState";
-import { registerEnemyShip } from "./OverviewComponents/EnemyShip";
 import { registerTopBar } from "./TopBar/TopBar";
 import { registerTurnTimer } from "./TurnTimer";
-import { registerYourShips } from "./YourShips/YourShips";
+import { registerYourShips } from "./YourShips";
 
 export function registerUIComponents() {
   registerLoadingState();
-  // registerComponentBrowser();
-  // registerActionQueue();
+  registerComponentBrowser();
+  registerActionQueue();
   registerTopBar();
   registerEnemyShip();
   registerYourShips();

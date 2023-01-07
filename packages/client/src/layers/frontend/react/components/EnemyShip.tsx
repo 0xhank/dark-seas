@@ -1,9 +1,9 @@
 import { GodID } from "@latticexyz/network";
 import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { map, merge, of } from "rxjs";
-import { registerUIComponent } from "../../engine";
-import { Container, InternalContainer } from "../../styles/global";
-import { ShipCard } from "../YourShips/ShipCard";
+import { registerUIComponent } from "../engine";
+import { Container, InternalContainer } from "../styles/global";
+import { ShipCard } from "./OverviewComponents/ShipCard";
 
 export function registerEnemyShip() {
   registerUIComponent(

@@ -24,6 +24,11 @@ import "./LibUtils.sol";
 import "./LibVector.sol";
 
 library LibAction {
+  /**
+   * @notice  executes all actions corresponding to the input action
+   * @param   components  world components
+   * @param   action  set of actions to execute
+   */
   function executeActions(IUint256Component components, Action memory action) public {
     // iterate through each action of each ship
     for (uint256 i = 0; i < 2; i++) {
@@ -87,6 +92,12 @@ library LibAction {
     }
   }
 
+  /**
+   * @notice  loads the given cannon
+   * @param   components  world components
+   * @param   shipEntity  ship controlling cannon
+   * @param   cannonEntity  cannon to load
+   */
   function load(
     IUint256Component components,
     uint256 shipEntity,
@@ -110,6 +121,12 @@ library LibAction {
     loadedComponent.set(cannonEntity);
   }
 
+  /**
+   * @notice  fires the given cannon
+   * @param   components  world components
+   * @param   shipEntity  ship controlling cannon
+   * @param   cannonEntity  cannon to load
+   */
   function attack(
     IUint256Component components,
     uint256 shipEntity,

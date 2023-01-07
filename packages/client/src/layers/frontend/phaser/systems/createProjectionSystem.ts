@@ -23,11 +23,11 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: { Wind, Position, Range, Length, Rotation, SailPosition, MoveCard, Health, Cannon, OwnedBy },
+        components: { Wind, Position, Length, Rotation, SailPosition, MoveCard, Cannon, OwnedBy },
         utils: { getPhase },
       },
       backend: {
-        components: { SelectedMove, HoveredMove, SelectedShip },
+        components: { SelectedMove, HoveredMove },
         godIndex,
       },
     },
