@@ -4,9 +4,9 @@ import { ActionType, Layers } from "../../../../../types";
 import { getShipSprite, ShipImages } from "../../../../../utils/ships";
 import { BoxImage } from "../../styles/global";
 import { ShipAttributeTypes } from "../../types";
-import HullHealth from "../OverviewComponents/HullHealth";
-import ShipAttribute from "../OverviewComponents/ShipAttribute";
-import ShipDamage from "../OverviewComponents/ShipDamage";
+import HullHealth from "./HullHealth";
+import ShipAttribute from "./ShipAttribute";
+import ShipDamage from "./ShipDamage";
 
 export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
   const {

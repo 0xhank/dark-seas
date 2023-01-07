@@ -9,12 +9,12 @@ import {
 import { Coord } from "@latticexyz/utils";
 import color from "color";
 import styled from "styled-components";
-import { Layers, Phase } from "../../../../../types";
-import { getColorStr } from "../../../../../utils/procgen";
-import { colors, InternalContainer } from "../../styles/global";
-import { ActionSelection } from "../OverviewComponents/ActionSelection";
-import { MoveSelection } from "../OverviewComponents/MoveSelection";
-import { ShipCard } from "./ShipCard";
+import { Layers, Phase } from "../../../../types";
+import { getColorStr } from "../../../../utils/procgen";
+import { colors, InternalContainer } from "../styles/global";
+import { ActionSelection } from "./OverviewComponents/ActionSelection";
+import { MoveSelection } from "./OverviewComponents/MoveSelection";
+import { ShipCard } from "./OverviewComponents/ShipCard";
 
 export const YourShip = ({
   layers,

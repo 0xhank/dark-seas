@@ -22,7 +22,7 @@ export function createFireCannonAnimationSystem(phaser: PhaserLayer) {
         components: { Position, Rotation, Length, Cannon, OwnedBy, Range, Ship },
       },
       backend: {
-        components: { SelectedActions, ExecutedActions },
+        components: { ExecutedActions },
       },
     },
     scenes: {

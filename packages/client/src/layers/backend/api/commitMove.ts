@@ -33,42 +33,6 @@ export function commitMove(
       const playerEntity = getPlayerEntity(connectedAddress.get());
       if (playerEntity == null) return null;
 
-      for (let i = 0; i < moves.length; i++) {
-        const move = moves[i];
-        // const movingEntityOwner = getComponentValue(OwnedBy, move.shipEntity)?.value;
-        // if (movingEntityOwner == null) {
-        //   console.warn(prefix, "Entity has no owner");
-        //   actions.cancel(actionId);
-        //   return null;
-        // }
-
-        // if (movingEntityOwner !== connectedAddress.get()) {
-        //   console.warn(prefix, "Can only move entities you own", movingEntityOwner, connectedAddress.get());
-        //   actions.cancel(actionId);
-        //   return null;
-        // }
-        // const moveCard = getComponentValueStrict(MoveCard, moveEntity);
-        // const position = getComponentValueStrict(Position, shipEntity);
-        // const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-        // const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
-
-        // if (
-        //   !inRange(
-        //     getFinalPosition(moveCard, position, rotation, sailPosition, wind).finalPosition,
-        //     { x: 0, y: 0 },
-        //     worldRadius
-        //   )
-        // ) {
-        //   console.warn(prefix, "move out of bounds");
-        //   actions.cancel(actionId);
-        //   return null;
-        // }
-      }
-
-      // const shipWorldEntities = ships.map((s) => world.entities[s]);
-      // const moveWorldEntities = moves.map((m) => world.entities[m]);
-      // tuple(address facetAddress, uint8 action, bytes4[] functionSelectors)[] _diamondCut
-
       return abi.encode(["tuple(uint256 shipEntity, uint256 moveCardEntity)[]", "uint256"], [moves, 0]);
     },
     updates: () => [],

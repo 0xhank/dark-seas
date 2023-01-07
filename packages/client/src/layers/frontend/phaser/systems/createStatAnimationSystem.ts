@@ -18,7 +18,7 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
     },
     parentLayers: {
       network: {
-        components: { Health, OnFire, DamagedCannons, SailPosition, Position, Rotation, Length },
+        components: { Health, OnFire, SailPosition, Position, Rotation, Length },
       },
     },
     positions,

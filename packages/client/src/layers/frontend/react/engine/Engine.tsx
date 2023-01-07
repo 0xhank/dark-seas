@@ -1,11 +1,9 @@
-import React from "react";
-import { LayerContext, EngineContext } from "./context";
-import { EngineStore } from "./store";
-import { BootScreen, MainWindow } from "./components";
+import { Layers } from "@latticexyz/recs";
 import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
-import { useState } from "react";
-import { Layers } from "../../../types";
+import React, { useEffect, useState } from "react";
+import { BootScreen, MainWindow } from "./components";
+import { EngineContext, LayerContext } from "./context";
+import { EngineStore } from "./store";
 
 export const Engine: React.FC<{
   setLayers: { current: (layers: Layers) => void };

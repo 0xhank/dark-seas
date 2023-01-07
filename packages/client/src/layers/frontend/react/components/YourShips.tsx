@@ -12,10 +12,10 @@ import {
 import { ActionState } from "@latticexyz/std-client";
 import { map, merge } from "rxjs";
 import styled from "styled-components";
-import { ActionType, Phase } from "../../../../../types";
-import { DELAY } from "../../../constants";
-import { registerUIComponent } from "../../engine";
-import { Button, colors, ConfirmButton, Container, InternalContainer } from "../../styles/global";
+import { ActionType, Phase } from "../../../../types";
+import { DELAY } from "../../constants";
+import { registerUIComponent } from "../engine";
+import { Button, colors, ConfirmButton, Container, InternalContainer } from "../styles/global";
 import { YourShip } from "./YourShip";
 
 export function registerYourShips() {
