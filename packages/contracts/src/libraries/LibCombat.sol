@@ -136,18 +136,11 @@ library LibCombat {
 
   /**
    * @notice  calculates the location of four points comprising a quadrilateral firing area
+   * @dev     .
    * @param   components  world components
    * @param   shipEntity  attacking ship entity
-   * @param   cannonRotation  rotation of cannon firing
+   * @param   cannonEntity  attacking cannon entity
    * @return  Coord[4]  points comprising firing area
-   */
-  /**
-   * @notice  .
-   * @dev     .
-   * @param   components  .
-   * @param   shipEntity  .
-   * @param   cannonEntity  .
-   * @return  Coord[4]  .
    */
   function getFiringAreaBroadside(
     IUint256Component components,
@@ -187,16 +180,8 @@ library LibCombat {
    * @param   components  world components
    * @param   attackerEntity  attacking entity
    * @param   defenderEntity  defending entity
-   * @param   defenderPosition  location of defender
-   */
-  /**
-   * @notice  .
-   * @dev     .
-   * @param   components  .
-   * @param   attackerEntity  .
-   * @param   defenderEntity  .
-   * @param   distance  .
-   * @param   firepower  .
+   * @param   distance  distance between attacker and defender
+   * @param   firepower  firepower of cannon firing
    */
   function damageEnemy(
     IUint256Component components,
@@ -213,7 +198,7 @@ library LibCombat {
     // perform hull and crew damage
     uint32 hullDamage = getHullDamage(baseHitChance, r);
 
-    bool dead = damageUint32(components, HealthComponentID, hullDamage, defenderEntity);
+    bool dead = damageHull(components, hullDamage, defenderEntity);
     if (dead) return;
 
     if (hullDamage == 0) return;
@@ -235,29 +220,32 @@ library LibCombat {
    * @notice  applies damage of type uint32
    * @dev     this is used to reuse code on hull and crew damage application
    * @param   components  world components
-   * @param   componentID  type of component to update
    * @param   damage  amount of damage applied
    * @param   shipEntity  to apply damage to
    * @return  bool  if the damage killed the boat
    */
-  function damageUint32(
+  function damageHull(
     IUint256Component components,
-    uint256 componentID,
     uint32 damage,
     uint256 shipEntity
   ) public returns (bool) {
-    Uint32Component component = Uint32Component(getAddressById(components, componentID));
-    uint32 value = component.getValue(shipEntity);
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    uint32 health = healthComponent.getValue(shipEntity);
 
-    if (value <= damage) {
-      component.set(shipEntity, 0);
+    if (health <= damage) {
+      healthComponent.set(shipEntity, 0);
       return true;
     }
 
-    component.set(shipEntity, value - damage);
+    healthComponent.set(shipEntity, health - damage);
     return false;
   }
 
+  /**
+   * @notice  calculates if a cannon is a broadside based on its rotation
+   * @param   rotation  rotation of cannon
+   * @return  bool  is the ship a broadside
+   */
   function isBroadside(uint256 rotation) public pure returns (bool) {
     return (rotation == 90 || rotation == 270);
   }

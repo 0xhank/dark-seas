@@ -135,8 +135,6 @@ library LibSpawn {
     spawnCannon(components, world, shipEntity, 90, 50, 80);
     spawnCannon(components, world, shipEntity, 270, 50, 80);
     spawnCannon(components, world, shipEntity, 0, 50, 80);
-    // spawnCannon(components, world, shipEntity, 45, 50, 80);
-    // spawnCannon(components, world, shipEntity, 181, 50, 80);
   }
 
   function spawnCannon(
