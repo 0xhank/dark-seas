@@ -1,37 +1,24 @@
-import { GodID } from "@latticexyz/network";
 import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import styled from "styled-components";
-import { Layers, SailPositions } from "../../../../../types";
+import { ActionType, Layers } from "../../../../../types";
 import { getShipSprite, ShipImages } from "../../../../../utils/ships";
 import { BoxImage } from "../../styles/global";
 import { ShipAttributeTypes } from "../../types";
-import HullHealth from "../OverviewComponents/HullHealth";
-import ShipAttribute from "../OverviewComponents/ShipAttribute";
-import ShipDamage from "../OverviewComponents/ShipDamage";
+import HullHealth from "./HullHealth";
+import ShipAttribute from "./ShipAttribute";
+import ShipDamage from "./ShipDamage";
 
 export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
   const {
     network: {
-      world,
       utils: { getPlayerEntity },
       network: { connectedAddress },
-      components: {
-        Health,
-        SailPosition,
-        CrewCount,
-        DamagedMast,
-        Firepower,
-        Leak,
-        OnFire,
-        Rotation,
-        Position,
-        OwnedBy,
-        Name,
-      },
+      components: { Health, SailPosition, DamagedCannons, OnFire, Rotation, OwnedBy, Name },
+    },
+    backend: {
+      components: { SelectedActions },
     },
   } = layers;
-
-  const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
   const playerEntity = getPlayerEntity(connectedAddress.get());
   const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, ship).value);
@@ -39,14 +26,19 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
 
   const sailPosition = getComponentValueStrict(SailPosition, ship).value;
   const rotation = getComponentValueStrict(Rotation, ship).value;
-  const position = getComponentValueStrict(Position, ship);
   const health = getComponentValueStrict(Health, ship).value;
-  const crewCount = getComponentValueStrict(CrewCount, ship).value;
-  const firepower = getComponentValueStrict(Firepower, ship).value;
   const onFire = getComponentValue(OnFire, ship)?.value;
-  const leak = getComponentValue(Leak, ship)?.value;
-  const damagedMast = getComponentValue(DamagedMast, ship)?.value;
+  const damagedCannons = getComponentValue(DamagedCannons, ship)?.value;
   const ownerName = getComponentValue(Name, ownerEntity)?.value;
+  const selectedActions = getComponentValue(SelectedActions, ship);
+
+  const updates = new Set(selectedActions?.actionTypes);
+
+  const updatedSailPosition = updates.has(ActionType.LowerSail)
+    ? sailPosition - 1
+    : updates.has(ActionType.RaiseSail)
+    ? sailPosition + 1
+    : sailPosition;
 
   return (
     <div style={{ display: "flex", borderRadius: "6px", width: "100%" }}>
@@ -55,7 +47,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
         {playerEntity !== ownerEntity && <span>{ownerName}</span>}
         <BoxImage>
           <img
-            src={ShipImages[getShipSprite(playerEntity, health, ownerEntity == playerEntity)]}
+            src={ShipImages[getShipSprite(ownerEntity, health, ownerEntity == playerEntity)]}
             style={{
               objectFit: "scale-down",
               left: "50%",
@@ -72,16 +64,27 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
       <div style={{ flex: 3, display: "flex", flexDirection: "column", minWidth: 0 }}>
         <HullHealth health={health} />
         <div style={{ display: "flex", width: "100%", flexWrap: "wrap" }}>
-          <ShipAttribute attributeType={ShipAttributeTypes.Crew} attribute={crewCount} />
-          <ShipAttribute attributeType={ShipAttributeTypes.Firepower} attribute={firepower} />
-          <ShipAttribute attributeType={ShipAttributeTypes.Sails} attribute={SailPositions[sailPosition]} />
+          <ShipAttribute
+            attributeType={ShipAttributeTypes.Sails}
+            attribute={updatedSailPosition}
+            updating={updatedSailPosition !== sailPosition}
+          />
         </div>
-        <div style={{ display: "flex" }}>
-          {damagedMast && <ShipDamage message="mast broken" amountLeft={damagedMast} />}
-          {onFire && <ShipDamage message="on fire" amountLeft={onFire} />}
-          {leak && <ShipDamage message="leaking" />}
-          {sailPosition == 0 && <ShipDamage message="sails torn" />}
-        </div>
+        {health !== 0 && (
+          <div style={{ display: "flex", gap: "8px" }}>
+            {damagedCannons && (
+              <ShipDamage
+                message="cannons broken"
+                amountLeft={damagedCannons}
+                fixing={updates.has(ActionType.RepairCannons)}
+              />
+            )}
+            {onFire && (
+              <ShipDamage message="on fire" amountLeft={onFire} fixing={updates.has(ActionType.ExtinguishFire)} />
+            )}
+            {sailPosition == 0 && <ShipDamage message="sails torn" fixing={updates.has(ActionType.RepairSail)} />}
+          </div>
+        )}
       </div>
     </div>
   );

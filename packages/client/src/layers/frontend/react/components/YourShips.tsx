@@ -12,10 +12,10 @@ import {
 import { ActionState } from "@latticexyz/std-client";
 import { map, merge } from "rxjs";
 import styled from "styled-components";
-import { Phase } from "../../../../../types";
-import { DELAY } from "../../../constants";
-import { registerUIComponent } from "../../engine";
-import { Button, colors, ConfirmButton, Container, InternalContainer } from "../../styles/global";
+import { ActionType, Phase } from "../../../../types";
+import { DELAY } from "../../constants";
+import { registerUIComponent } from "../engine";
+import { Button, colors, ConfirmButton, Container, InternalContainer } from "../styles/global";
 import { YourShip } from "./YourShip";
 
 export function registerYourShips() {
@@ -41,22 +41,21 @@ export function registerYourShips() {
             Position,
             Player,
             Health,
-            CrewCount,
-            DamagedMast,
+            DamagedCannons,
             Firepower,
-            Leak,
             OnFire,
             Ship,
             OwnedBy,
             LastMove,
             LastAction,
+            Loaded,
           },
           network: { connectedAddress, clock },
           utils: { getPlayerEntity, getPhase, getTurn },
         },
         backend: {
           actions: { Action },
-          components: { SelectedShip, SelectedMove, SelectedActions, CommittedMoves, HoveredShip },
+          components: { SelectedShip, SelectedMove, SelectedActions, CommittedMoves, HoveredShip, ExecutedActions },
           api: { commitMove, revealMove, submitActions },
           utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions },
         },
@@ -73,10 +72,8 @@ export function registerYourShips() {
         Position.update$,
         Player.update$,
         Health.update$,
-        CrewCount.update$,
-        DamagedMast.update$,
+        DamagedCannons.update$,
         Firepower.update$,
-        Leak.update$,
         OnFire.update$,
         Ship.update$,
         SelectedActions.update$,
@@ -84,7 +81,9 @@ export function registerYourShips() {
         LastMove.update$,
         LastAction.update$,
         CommittedMoves.update$,
-        Action.update$
+        Loaded.update$,
+        Action.update$,
+        ExecutedActions.update$
       ).pipe(
         map(() => {
           return {
@@ -157,25 +156,26 @@ export function registerYourShips() {
       const yourShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
 
       const selectedMoves = [...getComponentEntities(SelectedMove)];
-      const selectedActions = [...getComponentEntities(SelectedActions)].map(
-        (entity) => getComponentValue(SelectedActions, entity)?.value
+      const selectedActions = [...getComponentEntities(SelectedActions)].map((entity) =>
+        getComponentValueStrict(SelectedActions, entity)
       );
 
       const disabled =
         phase == Phase.Commit
           ? selectedMoves.length == 0
-          : selectedActions.length == 0 || selectedActions?.every((arr) => arr?.every((elem) => elem == -1));
+          : selectedActions.length == 0 ||
+            selectedActions.every((arr) => arr.actionTypes.every((elem) => elem == ActionType.None));
 
       const handleSubmitActions = () => {
         const shipsAndActions = getPlayerShipsWithActions();
         if (!shipsAndActions) return;
-        submitActions(shipsAndActions.ships, shipsAndActions.actions);
+        submitActions(shipsAndActions);
       };
 
       const handleSubmitCommitment = () => {
         const shipsAndMoves = getPlayerShipsWithMoves();
         if (!shipsAndMoves) return;
-        commitMove(shipsAndMoves.ships, shipsAndMoves.moves);
+        commitMove(shipsAndMoves);
       };
 
       const handleSubmitExecute = () => {
@@ -186,11 +186,11 @@ export function registerYourShips() {
       const RevealButtons = () => {
         const committedMoves = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
 
-        if (lastMove == currentTurn) return <Success background={colors.confirmed}>Move execution successful!</Success>;
-        if (!committedMoves) return <Success background={colors.glass}>"No moves to execute"</Success>;
+        if (lastMove == currentTurn) return <Success background={colors.confirmed}>Move reveal successful!</Success>;
+        if (!committedMoves) return <Success background={colors.glass}>No moves to reveal</Success>;
         return (
           <ConfirmButton style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmitExecute}>
-            Execute Moves
+            Reveal Moves
           </ConfirmButton>
         );
       };
@@ -256,7 +256,10 @@ export function registerYourShips() {
         let content: JSX.Element | null = null;
         const actionExecuting = !![...runQuery([Has(Action)])].find((entity) => {
           const state = getComponentValueStrict(Action, entity).state;
-          return [ActionState.Requested, ActionState.Executing, ActionState.WaitingForTxEvents].includes(state);
+          if (state == ActionState.Requested) return true;
+          if (state == ActionState.Executing) return true;
+          if (state == ActionState.WaitingForTxEvents) return true;
+          return false;
         });
         if (actionExecuting) content = <Success background={colors.waiting}>Executing...</Success>;
         else if (phase == Phase.Reveal) content = <RevealButtons />;
@@ -271,7 +274,7 @@ export function registerYourShips() {
           ? "Submit one move per ship"
           : phase == Phase.Action
           ? "Select up to two actions per ship"
-          : "Execute selected moves";
+          : "";
       return (
         <Container style={{ justifyContent: "flex-end" }}>
           <InternalContainer
@@ -329,5 +332,5 @@ const ConfirmButtonsContainer = styled.div`
 const Instructions = styled.div`
   font-size: 1.25rem;
   line-height: 1.25rem;
-  text-align: left;
+  // text-align: left;
 `;

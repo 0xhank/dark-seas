@@ -159,8 +159,7 @@ contract AttackActionTest is DarkSeasTest {
     uint256 cannonEntity = LibSpawn.spawnCannon(components, world, attackerEntity, 90, 50, 80);
 
     uint256 moveStraightEntity = uint256(keccak256("ds.prototype.moveEntity1"));
-    delete moves;
-    delete actions;
+
     moves.push(Move({ moveCardEntity: moveStraightEntity, shipEntity: attackerEntity }));
 
     commitAndExecuteMove(2, moves);
@@ -242,6 +241,9 @@ contract AttackActionTest is DarkSeasTest {
     actionSystem = ActionSystem(system(ActionSystemID));
     commitSystem = CommitSystem(system(CommitSystemID));
     moveSystem = MoveSystem(system(MoveSystemID));
+
+    delete moves;
+    delete actions;
   }
 
   function expectedHealthDecrease(

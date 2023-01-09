@@ -107,19 +107,15 @@ library LibMove {
   }
 
   /**
-   * @notice  moves a ship
-   * @param   components  world components
 
-   * @param   playerEntity  owner of ship
-   * @param   wind  direction and intensity of wind
+
    */
   /**
-   * @notice  .
-   * @dev     .
-   * @param   components  .
-   * @param   move  .
-   * @param   playerEntity  .
-   * @param   wind  .
+   * @notice  moves a ship
+   * @param   components  world components
+   * @param   move  move to execute
+   * @param   playerEntity  owner of ship
+   * @param   wind  direction and intensity of wind
    */
   function moveShip(
     IUint256Component components,

@@ -1,9 +1,9 @@
 import { GodID } from "@latticexyz/network";
 import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { map, merge, of } from "rxjs";
-import { registerUIComponent } from "../../engine";
-import { Container, InternalContainer } from "../../styles/global";
-import { ShipCard } from "../YourShips/ShipCard";
+import { registerUIComponent } from "../engine";
+import { Container, InternalContainer } from "../styles/global";
+import { ShipCard } from "./OverviewComponents/ShipCard";
 
 export function registerEnemyShip() {
   registerUIComponent(
@@ -26,10 +26,8 @@ export function registerEnemyShip() {
           components: {
             Health,
             SailPosition,
-            CrewCount,
-            DamagedMast,
+            DamagedCannons,
             Firepower,
-            Leak,
             OnFire,
             Player,
             Rotation,
@@ -52,10 +50,8 @@ export function registerEnemyShip() {
         Health.update$,
         SelectedShip.update$,
         SailPosition.update$,
-        CrewCount.update$,
-        DamagedMast.update$,
+        DamagedCannons.update$,
         Firepower.update$,
-        Leak.update$,
         OnFire.update$,
         Player.update$
       ).pipe(

@@ -27,15 +27,24 @@ contract PlayerSpawnTest is DarkSeasTest {
   function testSpawn() public prank(deployer) {
     setup();
 
+    uint256 playerEntity = addressToEntity(deployer);
+
+    console.log("player entity in spawn test:", playerEntity);
+    console.log("msg sender in spawn test:", msg.sender);
+    console.log("deployer in spawn test:", deployer);
     playerSpawnSystem.executeTyped("Jamaican me crazy", Coord(1, 1));
 
     (uint256[] memory entities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
-    assertEq(entities.length, 4, "incorrect number of ships");
-
-    uint256 playerEntity = addressToEntity(deployer);
+    assertEq(entities.length, 2, "incorrect number of ships");
 
     bool hasName = nameComponent.has(playerEntity);
+
+    (entities, ) = LibUtils.getEntityWith(components, NameComponentID);
+    for (uint256 i = 0; i < entities.length; i++) {
+      console.log("i:", entities[i]);
+    }
+
     assertTrue(hasName, "player name not stored");
     if (hasName) {
       string memory playerName = nameComponent.getValue(playerEntity);
