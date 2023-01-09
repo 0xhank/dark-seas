@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 // External
 import { getAddressById } from "solecs/utils.sol";
 import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
+import { Perlin } from "noise/Perlin.sol";
 
 // Components
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
@@ -16,12 +17,15 @@ import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedB
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedComponent.sol";
+import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
-import { MoveCard, Move, Coord } from "./DSTypes.sol";
+import { MoveCard, Move, Coord, GodID } from "./DSTypes.sol";
 
 // Libraries
 import "../libraries/LibVector.sol";
+import "../libraries/LibCombat.sol";
+import "../libraries/LibUtils.sol";
 import "trig/src/Trigonometry.sol";
 
 library LibMove {
@@ -129,7 +133,23 @@ library LibMove {
     require(LibVector.inWorldRadius(components, position), "MoveSystem: move out of bounds");
     rotation = (rotation + moveCard.rotation) % 360;
 
+    if (isWhirlpool(components, position)) {
+      LibCombat.damageHull(components, 1, move.shipEntity);
+      rotation = uint32(LibUtils.randomness(move.shipEntity, moveCard.distance) % 360);
+    }
+
     positionComponent.set(move.shipEntity, position);
     rotationComponent.set(move.shipEntity, rotation);
+  }
+
+  function isWhirlpool(IUint256Component components, Coord memory coord) private returns (bool) {
+    int128 perlinResult = Perlin.noise2d(
+      coord.x,
+      coord.y,
+      GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).perlinSeed,
+      64
+    );
+
+    return perlinResult % 100 < 5;
   }
 }
