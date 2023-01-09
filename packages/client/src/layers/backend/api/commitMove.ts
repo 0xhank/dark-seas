@@ -13,7 +13,7 @@ export function commitMove(
   moves: Move[]
 ) {
   const {
-    components: { OwnedBy, GameConfig, Wind, MoveCard, Position, Rotation, SailPosition },
+    components: { OwnedBy, GameConfig, MoveCard },
     network: { connectedAddress },
     utils: { getPlayerEntity },
     world,
@@ -25,9 +25,8 @@ export function commitMove(
   const actionId = `commitMove ${Date.now()}` as EntityID;
   actions.add({
     id: actionId,
-    components: { OwnedBy, GameConfig, Wind, MoveCard, CommittedMoves },
-    requirement: ({ OwnedBy, Wind, MoveCard }) => {
-      const wind = getComponentValueStrict(Wind, GodEntityIndex);
+    components: { OwnedBy, GameConfig, MoveCard, CommittedMoves },
+    requirement: ({ OwnedBy }) => {
       const worldRadius = getComponentValueStrict(GameConfig, GodEntityIndex).worldRadius;
 
       const playerEntity = getPlayerEntity(connectedAddress.get());

@@ -1,8 +1,7 @@
 import styled from "styled-components";
-import { Wind } from "../../../../../types";
 import { colors } from "../../styles/global";
 
-export function Compass({ speed, direction }: Wind) {
+export function Compass({ speed, direction }: { speed: number; direction: number }) {
   return (
     <CompassBody>
       <CompassWindRose>

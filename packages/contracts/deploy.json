@@ -8,7 +8,6 @@
     "HealthComponent",
     "ShipComponent",
     "SailPositionComponent",
-    "WindComponent",
     "OnFireComponent",
     "CrewCountComponent",
     "DamagedCannonsComponent",
@@ -21,7 +20,8 @@
     "PlayerComponent",
     "CommitmentComponent",
     "LoadedComponent",
-    "CannonComponent"
+    "CannonComponent",
+    "SpeedComponent"
   ],
   "systems": [
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
@@ -42,7 +42,8 @@
         "OwnedByComponent",
         "PlayerComponent",
         "LoadedComponent",
-        "CannonComponent"
+        "CannonComponent",
+        "SpeedComponent"
       ]
     },
     { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent", "LastMoveComponent"] },
@@ -76,7 +77,8 @@
         "OwnedByComponent",
         "PlayerComponent",
         "NameComponent",
-        "CannonComponent"
+        "CannonComponent",
+        "SpeedComponent"
       ]
     },
     { "name": "CommitSystem", "writeAccess": ["CommitmentComponent"] }

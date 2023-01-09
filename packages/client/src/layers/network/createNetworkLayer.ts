@@ -24,7 +24,6 @@ import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../../../contracts/types/SystemTypes";
 import { Action, Move, Phase } from "../../types";
 import { defineMoveCardComponent } from "./components/MoveCardComponent";
-import { defineWindComponent } from "./components/WindComponent";
 import { GameConfig, getNetworkConfig } from "./config";
 import { GAS_LIMIT } from "./constants";
 
@@ -52,7 +51,6 @@ export async function createNetworkLayer(config: GameConfig) {
       { id: "GameConfig", metadata: { contractId: "ds.component.GameConfig" } }
     ),
     LoadingState: defineLoadingStateComponent(world),
-    Wind: defineWindComponent(world),
     MoveCard: defineMoveCardComponent(world),
     Position: defineCoordComponent(world, { id: "Position", metadata: { contractId: "ds.component.Position" } }),
     Rotation: defineNumberComponent(world, { id: "Rotation", metadata: { contractId: "ds.component.Rotation" } }),

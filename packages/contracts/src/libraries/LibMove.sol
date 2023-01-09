@@ -15,9 +15,10 @@ import { LastMoveComponent, ID as LastMoveComponentID } from "../components/Last
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
+import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedComponent.sol";
 
 // Types
-import { MoveCard, Move, Wind, Coord } from "./DSTypes.sol";
+import { MoveCard, Move, Coord } from "./DSTypes.sol";
 
 // Libraries
 import "../libraries/LibVector.sol";
@@ -25,49 +26,22 @@ import "trig/src/Trigonometry.sol";
 
 library LibMove {
   /**
-   * @notice  calculates boost from wind
-   * @param   wind  current wind direction and intensity
-   * @param   rotation  of selected ship
-   * @return  int32  effect of wind
-   */
-  function windBoost(Wind memory wind, uint32 rotation) public pure returns (int32) {
-    uint32 rotationDiff = wind.direction > rotation ? wind.direction - rotation : rotation - wind.direction;
-    int32 windSpeed = int32(wind.speed);
-    if (rotationDiff > 120 && rotationDiff <= 240) return -windSpeed;
-    if (rotationDiff < 80 || rotationDiff > 280) return windSpeed;
-    return 0;
-  }
-
-  /**
-   * @notice  calculates modified move card based on wind
-   * @dev  if boost is 0, +-0% else if 10, +- 25% else if 20 , +-50%
-   * @param   moveCard  original move card
-   * @param   rotation  of selected ship
-   * @param   wind  current wind direction and intensity
-   * @return  MoveCard  updated move card
-   */
-  function getMoveWithWind(
-    MoveCard memory moveCard,
-    uint32 rotation,
-    Wind memory wind
-  ) public pure returns (MoveCard memory) {
-    int32 _windBoost = (windBoost(wind, rotation) * 100) / 40;
-    return getMoveWithBuff(moveCard, uint32(_windBoost + 100));
-  }
-
-  /**
    * @notice  calculates modified move card based on sail position
    * @param   moveCard  original move card
    * @param   sailPosition ship's current sail position
    * @return  MoveCard  updated move card
    */
-  function getMoveWithSails(MoveCard memory moveCard, uint32 sailPosition) public pure returns (MoveCard memory) {
+  function getMoveWithSails(
+    MoveCard memory moveCard,
+    uint32 shipSpeed,
+    uint32 sailPosition
+  ) public pure returns (MoveCard memory) {
     if (sailPosition == 2) {
-      return getMoveWithBuff(moveCard, 100);
+      return getMoveWithBuff(moveCard, shipSpeed);
     }
 
     if (sailPosition == 1) {
-      return getMoveWithBuff(moveCard, 50);
+      return getMoveWithBuff(moveCard, (60 * shipSpeed) / 100);
     }
 
     return MoveCard(0, 0, 0);
@@ -86,15 +60,15 @@ library LibMove {
     moveCard.distance = (moveCard.distance * buff) / 100;
 
     if (moveCard.rotation > 180) {
-      moveCard.rotation = 360 - (((360 - moveCard.rotation) * buff) / 100);
+      moveCard.rotation = 360 - (((360 - moveCard.rotation) * 100) / buff);
     } else {
-      moveCard.rotation = (moveCard.rotation * buff) / 100;
+      moveCard.rotation = (moveCard.rotation * 100) / buff;
     }
 
     if (moveCard.direction > 180) {
-      moveCard.direction = 360 - (((360 - moveCard.direction) * buff) / 100);
+      moveCard.direction = 360 - (((360 - moveCard.direction) * 100) / buff);
     } else {
-      moveCard.direction = (moveCard.direction * buff) / 100;
+      moveCard.direction = (moveCard.direction * 100) / buff;
     }
     return moveCard;
   }
@@ -108,13 +82,11 @@ library LibMove {
    * @param   components  world components
    * @param   move  move to execute
    * @param   playerEntity  owner of ship
-   * @param   wind  direction and intensity of wind
    */
   function moveShip(
     IUint256Component components,
     Move memory move,
-    uint256 playerEntity,
-    Wind memory wind
+    uint256 playerEntity
   ) public {
     MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
     PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
@@ -140,16 +112,15 @@ library LibMove {
       "MoveSystem: invalid ship entity id"
     );
 
-    // calculate move card with wind and sail modifiers
+    // calculate move card with  sail modifiers
     MoveCard memory moveCard = moveCardComponent.getValue(move.moveCardEntity);
 
     Coord memory position = positionComponent.getValue(move.shipEntity);
     uint32 rotation = rotationComponent.getValue(move.shipEntity);
 
-    moveCard = getMoveWithWind(moveCard, rotation, wind);
-
     moveCard = getMoveWithSails(
       moveCard,
+      SpeedComponent(getAddressById(components, SpeedComponentID)).getValue(move.shipEntity),
       SailPositionComponent(getAddressById(components, SailPositionComponentID)).getValue(move.shipEntity)
     );
 

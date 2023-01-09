@@ -4,11 +4,6 @@ import "std-contracts/components/CoordComponent.sol";
 
 uint256 constant GodID = uint256(0x060D);
 
-struct Wind {
-  uint32 speed;
-  uint32 direction;
-}
-
 struct MoveCard {
   uint32 distance;
   uint32 direction;

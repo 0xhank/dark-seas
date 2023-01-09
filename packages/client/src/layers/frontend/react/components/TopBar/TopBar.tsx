@@ -22,16 +22,15 @@ export function registerTopBar() {
       const {
         network: {
           world,
-          components: { Wind, Name },
+          components: { Name },
           network: { connectedAddress },
           utils: { getPlayerEntity },
         },
       } = layers;
 
-      return merge(of(0), Wind.update$, Name.update$).pipe(
+      return merge(of(0), Name.update$).pipe(
         map(() => {
           return {
-            Wind,
             Name,
             world,
             connectedAddress,
@@ -40,14 +39,14 @@ export function registerTopBar() {
         })
       );
     },
-    ({ Wind, Name, world, connectedAddress, getPlayerEntity }) => {
+    ({ Name, world, connectedAddress, getPlayerEntity }) => {
       const manyYearsAgo = 1000 * 60 * 60 * 24 * 265 * 322;
       const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
 
       const [date, setDate] = useState<Date>(new Date(Date.now() - manyYearsAgo));
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
-      const dir: number = Wind.values.direction.get(GodEntityIndex) || 0;
-      const speed: number = Wind.values.speed.get(GodEntityIndex) || 0;
+      const dir: number = 0;
+      const speed: number = 0;
 
       const playerEntity = getPlayerEntity(connectedAddress.get());
       const name = playerEntity ? getComponentValue(Name, playerEntity)?.value : undefined;

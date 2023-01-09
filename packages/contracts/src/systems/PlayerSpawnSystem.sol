@@ -4,8 +4,6 @@ pragma solidity >=0.8.0;
 // External
 import "solecs/System.sol";
 import { getAddressById } from "solecs/utils.sol";
-import { console } from "forge-std/console.sol";
-
 // Components
 import { NameComponent, ID as NameComponentID } from "../components/NameComponent.sol";
 
@@ -29,8 +27,6 @@ contract PlayerSpawnSystem is System {
 
     // create entity for player and name it
     uint256 playerEntity = LibSpawn.createPlayerEntity(components, msg.sender);
-    console.log("player entity in spawn system:", playerEntity);
-    console.log("msg sender in spawn system:", msg.sender);
     NameComponent(getAddressById(components, NameComponentID)).set(playerEntity, name);
 
     LibSpawn.spawn(world, components, playerEntity, location);
