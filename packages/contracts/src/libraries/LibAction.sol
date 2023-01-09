@@ -149,91 +149,11 @@ library LibAction {
     require(loadedComponent.has(cannonEntity), "attack: cannon not loaded");
     uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
     if (!LibCombat.isBroadside(cannonRotation)) {
-      attackPivot(components, shipEntity, cannonEntity);
+      LibCombat.attackPivot(components, shipEntity, cannonEntity);
     } else {
-      attackBroadside(components, shipEntity, cannonEntity);
+      LibCombat.attackBroadside(components, shipEntity, cannonEntity);
     }
     loadedComponent.remove(cannonEntity);
-  }
-
-  /**
-   * @notice  attacks all enemies in forward arc of ship
-   * @dev     todo: how can i combine this with attackSide despite different number of vertices in range?
-   * @param   components  world components
-   * @param   shipEntity  entity performing an attack
-   * @param   cannonEntity  .
-   */
-  function attackPivot(
-    IUint256Component components,
-    uint256 shipEntity,
-    uint256 cannonEntity
-  ) public {
-    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
-    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
-    // get firing area of ship
-    Coord[3] memory firingRange = LibCombat.getFiringAreaPivot(components, shipEntity, cannonEntity);
-
-    (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
-
-    uint256 owner = ownedByComponent.getValue(shipEntity);
-
-    // iterate through each ship, checking if it can be fired on
-    // 1. is not the current ship, 2. is not owned by attacker, 3. is within firing range
-    for (uint256 i = 0; i < shipEntities.length; i++) {
-      if (shipEntities[i] == shipEntity) continue;
-      if (owner == ownedByComponent.getValue(shipEntities[i])) continue;
-
-      (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
-      uint256 distance;
-      if (LibVector.withinPolygon3(firingRange, aft)) {
-        distance = LibVector.distance(firingRange[0], aft);
-        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
-      } else if (LibVector.withinPolygon3(firingRange, stern)) {
-        distance = LibVector.distance(firingRange[0], stern);
-        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
-      }
-    }
-  }
-
-  /**
-   * @notice  attacks all enemies on given side of ship
-   * @dev     todo: i plan to change this to reqiure inclusion of both an attacker and defender, saving gas and improving ux
-   * @param   components  world components
-   * @param   shipEntity  entity performing an attack
-   * @param   cannonEntity  .
-   */
-  function attackBroadside(
-    IUint256Component components,
-    uint256 shipEntity,
-    uint256 cannonEntity
-  ) public {
-    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
-    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
-
-    // get firing area of ship
-    Coord[4] memory firingRange = LibCombat.getFiringAreaBroadside(components, shipEntity, cannonEntity);
-
-    (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
-
-    uint256 owner = ownedByComponent.getValue(shipEntity);
-
-    // iterate through each ship, checking if it can be fired on
-    // 1. is not the current ship, 2. is not owned by attacker, 3. is within firing range
-    for (uint256 i = 0; i < shipEntities.length; i++) {
-      if (shipEntities[i] == shipEntity) continue;
-      if (owner == ownedByComponent.getValue(shipEntities[i])) continue;
-
-      (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
-
-      uint256 distance;
-      if (LibVector.withinPolygon4(firingRange, aft)) {
-        distance = LibVector.distance(firingRange[0], aft);
-        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
-      } else if (LibVector.withinPolygon4(firingRange, stern)) {
-        distance = LibVector.distance(firingRange[0], stern);
-        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
-      }
-    }
   }
 
   /**
