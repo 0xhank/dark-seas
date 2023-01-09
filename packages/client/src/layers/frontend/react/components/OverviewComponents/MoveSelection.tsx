@@ -9,7 +9,7 @@ import {
 } from "@latticexyz/recs";
 import styled from "styled-components";
 import { Layers } from "../../../../../types";
-import { getFinalMoveCard, getFinalPosition } from "../../../../../utils/directions";
+import { getFinalPosition } from "../../../../../utils/directions";
 import { inRange } from "../../../../../utils/distance";
 import { Img, OptionButton } from "../../styles/global";
 import { arrowImg } from "../../types";
@@ -50,17 +50,14 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
     <>
       {sortedMoveEntities.map((entity) => {
         let moveCard = getComponentValueStrict(MoveCard, entity);
-        moveCard = getFinalMoveCard(moveCard, rotation, sailPosition);
         const position = getComponentValueStrict(Position, ship);
+        const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, sailPosition);
+
         const isSelected = selectedMove && selectedMove.value == entity;
 
         const imageUrl = arrowImg(moveCard.rotation);
 
-        const disabled = !inRange(
-          getFinalPosition(moveCard, position, rotation, sailPosition).finalPosition,
-          { x: 0, y: 0 },
-          worldRadius
-        );
+        const disabled = !inRange(finalPosition, { x: 0, y: 0 }, worldRadius);
         return (
           <OptionButton
             disabled={disabled}

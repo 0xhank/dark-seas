@@ -3,34 +3,26 @@ import { MoveCard } from "../types";
 import { getPositionByVector } from "./trig";
 
 export function getMoveWithSails(moveCard: MoveCard, sailPosition: number): MoveCard {
-  const buff = sailPosition == 2 ? 100 : sailPosition == 1 ? 33 : 0;
+  const buff = sailPosition == 2 ? 100 : sailPosition == 1 ? 60 : 0;
   return getMoveWithDebuff(moveCard, buff);
 }
 
-export function getFinalMoveCard(moveCard: MoveCard, rotation: number, sailPosition: number): MoveCard {
-  moveCard = getMoveWithSails(moveCard, sailPosition);
-  return moveCard;
-}
+export function getMoveWithDebuff(moveCard: MoveCard, buff: number): MoveCard {
+  if (buff == 100) return moveCard;
+  if (buff == 0) return { distance: 0, rotation: 0, direction: 0 };
 
-export function getMoveWithDebuff(moveCard: MoveCard, debuff: number): MoveCard {
-  debuff = debuff / 100;
-  if (debuff == 1) return moveCard;
-  if (debuff == 0) return { distance: 0, rotation: 0, direction: 0 };
+  moveCard.distance = (moveCard.distance * buff) / 100;
 
-  moveCard.distance = moveCard.distance * debuff;
-  if (debuff > 1) return moveCard;
-
-  const modifiedDebuff = debuff * 1.75;
   if (moveCard.rotation > 180) {
-    moveCard.rotation = 360 - moveCard.rotation * modifiedDebuff;
+    moveCard.rotation = 360 - ((360 - moveCard.rotation) * 100) / buff;
   } else {
-    moveCard.rotation = 180 - moveCard.rotation * modifiedDebuff;
+    moveCard.rotation = (moveCard.rotation * 100) / buff;
   }
 
   if (moveCard.direction > 180) {
-    moveCard.direction = 360 - moveCard.rotation * modifiedDebuff;
+    moveCard.direction = 360 - ((360 - moveCard.direction) * 100) / buff;
   } else {
-    moveCard.direction = 180 - moveCard.rotation * modifiedDebuff;
+    moveCard.direction = (moveCard.direction * 100) / buff;
   }
   return moveCard;
 }

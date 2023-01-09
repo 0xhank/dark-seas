@@ -307,12 +307,11 @@ contract MoveSystemTest is DarkSeasTest {
     moveCard.direction = 315;
 
     sailPosition = 1;
-    uint32 debuff = 50;
-    uint32 modifiedDebuff = (debuff * 100) / 75;
+    uint32 debuff = 60;
     newMoveCard = LibMove.getMoveWithSails(moveCard, 100, sailPosition);
-    assertEq(newMoveCard.distance, (moveCard.distance * 50) / 100, "closed sails distance failed");
-    assertEq(newMoveCard.rotation, 360 - ((moveCard.rotation * modifiedDebuff) / 100), "closed sails rotation failed");
-    assertEq(newMoveCard.direction, 360 - ((moveCard.direction * modifiedDebuff) / 100), "closed sails angle failed");
+    assertEq(newMoveCard.distance, (moveCard.distance * debuff) / 100, "closed sails distance failed");
+    assertEq(newMoveCard.rotation, 360 - (((360 - moveCard.rotation) * 100) / debuff), "closed sails rotation failed");
+    assertEq(newMoveCard.direction, 360 - (((360 - moveCard.direction) * 100) / debuff), "closed sails angle failed");
 
     moveCard.distance = 100;
     moveCard.rotation = 90;
@@ -320,12 +319,8 @@ contract MoveSystemTest is DarkSeasTest {
     newMoveCard = LibMove.getMoveWithSails(moveCard, 100, sailPosition);
 
     assertEq(newMoveCard.distance, (moveCard.distance * debuff) / 100, "closed sails distance 2 failed");
-    assertEq(
-      newMoveCard.rotation,
-      180 - ((moveCard.rotation * modifiedDebuff) / 100),
-      "closed sails 2 rotation failed"
-    );
-    assertEq(newMoveCard.direction, 180 - ((moveCard.direction * modifiedDebuff) / 100), "closed sails angle 2 failed");
+    assertEq(newMoveCard.rotation, (moveCard.rotation * 100) / debuff, "closed sails 2 rotation failed");
+    assertEq(newMoveCard.direction, (moveCard.direction * 100) / debuff, "closed sails angle 2 failed");
   }
 
   function testMoveWithLoweredSails() public {
