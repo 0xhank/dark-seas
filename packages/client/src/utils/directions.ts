@@ -1,27 +1,13 @@
 import { Coord } from "@latticexyz/utils";
-import { MoveCard, Wind } from "../types";
+import { MoveCard } from "../types";
 import { getPositionByVector } from "./trig";
-
-export function getWindBoost(wind: Wind, rotation: number): number {
-  const rotationDiff: number = Math.abs(wind.direction - rotation);
-  if (rotationDiff > 120 && rotationDiff <= 240) return -wind.speed;
-  if (rotationDiff < 80 || rotationDiff > 280) return wind.speed;
-  return 0;
-}
-
-export function getMoveWithWind(moveCard: MoveCard, rotation: number, wind: Wind): MoveCard {
-  // if 0, +-0% if 10, +- 25% if 20 , +-50%
-  const windBoost = (getWindBoost(wind, rotation) * 100) / 40;
-  return getMoveWithDebuff(moveCard, windBoost + 100);
-}
 
 export function getMoveWithSails(moveCard: MoveCard, sailPosition: number): MoveCard {
   const buff = sailPosition == 2 ? 100 : sailPosition == 1 ? 33 : 0;
   return getMoveWithDebuff(moveCard, buff);
 }
 
-export function getFinalMoveCard(moveCard: MoveCard, rotation: number, sailPosition: number, wind: Wind): MoveCard {
-  moveCard = getMoveWithWind(moveCard, rotation, wind);
+export function getFinalMoveCard(moveCard: MoveCard, rotation: number, sailPosition: number): MoveCard {
   moveCard = getMoveWithSails(moveCard, sailPosition);
   return moveCard;
 }
@@ -53,11 +39,8 @@ export function getFinalPosition(
   moveCard: MoveCard,
   position: Coord,
   rotation: number,
-  sailPosition: number,
-  wind: Wind
+  sailPosition: number
 ): { finalPosition: Coord; finalRotation: number } {
-  moveCard = getMoveWithWind(moveCard, rotation, wind);
-
   moveCard = getMoveWithSails(moveCard, sailPosition);
 
   const finalPosition = getPositionByVector(position, rotation, moveCard.distance, moveCard.direction);

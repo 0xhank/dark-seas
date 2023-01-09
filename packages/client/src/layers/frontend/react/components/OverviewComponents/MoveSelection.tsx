@@ -18,7 +18,7 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
   const {
     world,
     utils: { getGameConfig },
-    components: { Wind, MoveCard, Rotation, SailPosition, Position },
+    components: { MoveCard, Rotation, SailPosition, Position },
   } = layers.network;
 
   const {
@@ -29,8 +29,6 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
   if (!worldRadius) return null;
 
   const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
-
-  const wind = getComponentValueStrict(Wind, GodEntityIndex);
 
   const selectedMove = getComponentValue(SelectedMove, ship as EntityIndex);
 
@@ -52,14 +50,14 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
     <>
       {sortedMoveEntities.map((entity) => {
         let moveCard = getComponentValueStrict(MoveCard, entity);
-        moveCard = getFinalMoveCard(moveCard, rotation, sailPosition, wind);
+        moveCard = getFinalMoveCard(moveCard, rotation, sailPosition);
         const position = getComponentValueStrict(Position, ship);
         const isSelected = selectedMove && selectedMove.value == entity;
 
         const imageUrl = arrowImg(moveCard.rotation);
 
         const disabled = !inRange(
-          getFinalPosition(moveCard, position, rotation, sailPosition, wind).finalPosition,
+          getFinalPosition(moveCard, position, rotation, sailPosition).finalPosition,
           { x: 0, y: 0 },
           worldRadius
         );

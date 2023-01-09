@@ -20,7 +20,7 @@ export function createMoveOptionsSystem(phaser: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: { Wind, Position, Rotation, SailPosition, MoveCard },
+        components: { Position, Rotation, SailPosition, MoveCard },
         utils: { getPhase },
       },
       backend: {
@@ -46,9 +46,8 @@ export function createMoveOptionsSystem(phaser: PhaserLayer) {
       const moveCard = getComponentValueStrict(MoveCard, moveCardEntity);
       const position = getComponentValueStrict(Position, shipEntity);
       const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-      const wind = getComponentValueStrict(Wind, godIndex);
       const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
-      const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, sailPosition, wind);
+      const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, sailPosition);
       const shipColor = isMyShip(shipEntity) ? getColorNum(shipEntity) : colors.whiteHex;
 
       const objectId = `optionGhost-${moveCardEntity}`;

@@ -81,11 +81,6 @@ export type MoveCard = {
   direction: number;
 };
 
-export type Wind = {
-  speed: number;
-  direction: number;
-};
-
 export enum Sprites {
   Cannon,
   Cannonball,
