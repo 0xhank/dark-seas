@@ -25,6 +25,10 @@ contract DarkSeasTest is MudTest {
     assertTrue(a.x != b.x || a.y != b.y);
   }
 
+  function assertFalse(bool falseAssertion, string memory err) internal {
+    assertTrue(!falseAssertion, err);
+  }
+
   function assertFalse(bool falseAssertion) internal {
     assertTrue(!falseAssertion);
   }

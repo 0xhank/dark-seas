@@ -111,6 +111,7 @@ library LibCombat {
 
   /**
    * @notice  damages enemy hull, crew, and special attacks
+   * @dev     cheat sheet https://tinyurl.com/ds-math
    * @param   components  world components
    * @param   attackerEntity  attacking entity
    * @param   defenderEntity  defending entity
@@ -139,7 +140,7 @@ library LibCombat {
 
     // perform special damage
     if (getSpecialChance(baseHitChance, hullDamage, r, 0)) {
-      OnFireComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity, 2);
+      OnFireComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity, 1);
     }
     if (getSpecialChance(baseHitChance, hullDamage, r, 1)) {
       DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).set(defenderEntity, 2);
@@ -176,7 +177,8 @@ library LibCombat {
   /*************************************************** UTILITIES **************************************************** */
   /**
    * @notice overview: increases damage as your firepower increases OR distance decreases
-          equation: 80 * e^(-.008 * distance) * (firepower / 100), multiplied by 100 for precision
+          equation: 50 * e^(-.008 * distance) * (firepower / 100), multiplied by 100 for precision.
+          
    * @param   distance  from target
    * @param   firepower  of attacker
    * @return  hitChance  based on above equation
@@ -184,7 +186,7 @@ library LibCombat {
   function getBaseHitChance(uint256 distance, uint256 firepower) public pure returns (uint256 hitChance) {
     int128 _scaleInv = Math.exp(Math.divu(distance * 8, 1000));
     int128 firepowerDebuff = Math.divu(firepower, 100);
-    int128 beforeDebuff = Math.div(Math.fromUInt(8000), _scaleInv);
+    int128 beforeDebuff = Math.div(Math.fromUInt(5000), _scaleInv);
     hitChance = Math.toUInt(Math.mul(beforeDebuff, firepowerDebuff));
   }
 
@@ -200,30 +202,13 @@ library LibCombat {
     uint256 odds = (LibUtils.getByteUInt(randomSeed, 14, 0) * 10000) / 16384;
     if (odds <= baseHitChance) return 3;
     if (odds <= (baseHitChance * 170) / 100) return 2;
-    if (odds <= (baseHitChance * 350) / 100) return 1;
-    return 0;
-  }
-
-  /**
-   * @notice  calculates crew damage from base hit chance and randomly generated seed
-   * @dev     chance of 3 dead crew is base chance / 2, 2 dead crew is
-   * @param   baseHitChance  calculated using getBaseHitChance
-   * @param   randomSeed  calculated using randomness
-   * @return  uint32  crew damage incurred
-   */
-  function getCrewDamage(uint256 baseHitChance, uint256 randomSeed) public pure returns (uint32) {
-    // use second 14 bits for hull damage and then normalize result to 10
-    // divide by 2 ** 14,
-    uint256 odds = (LibUtils.getByteUInt(randomSeed, 14, 14) * 10000) / 16384;
-    if (odds <= (baseHitChance * 50) / 100) return 3;
-    if (odds <= baseHitChance) return 2;
-    if (odds <= (baseHitChance * 200) / 100) return 1;
+    if (odds <= (baseHitChance * 450) / 100) return 1;
     return 0;
   }
 
   /**
    * @notice  calculates special chance from base hit chance, number of hits, and randomly generated seed
-   * @dev     calculation: base chance ^ 2 / 5 -- makes dropoff more dramatic
+   * @dev     calculation: base chance * 0.6, 10% more likely for each damage incurred
    * @param   baseHitChance calculated using getBaseHitChance
    * @param   damage  calculated using getHullDamage
    * @param   randomSeed  calculated using randomness
@@ -238,9 +223,8 @@ library LibCombat {
   ) public pure returns (bool) {
     // pre-shifted to account for hull and crew damage
     uint256 odds = ((LibUtils.getByteUInt(randomSeed, 14, (shift + 2) * 14)) * 10000) / 16384;
-    odds = (odds * (((damage - 1) * 10) + 100)) / 100;
-
-    uint256 outcome = ((baseHitChance**2) * 5) / 10000;
+    uint256 outcome = (baseHitChance * 6) / 10;
+    outcome = (outcome * ((damage - 1) + 10)) / 10;
     return (odds <= outcome);
   }
 
