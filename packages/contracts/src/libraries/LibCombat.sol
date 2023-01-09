@@ -16,6 +16,7 @@ import { FirepowerComponent, ID as FirepowerComponentID } from "../components/Fi
 import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../components/DamagedCannonsComponent.sol";
+import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 
 // Types
 import { Side, Coord } from "../libraries/DSTypes.sol";
@@ -26,6 +27,153 @@ import "./LibUtils.sol";
 import { ABDKMath64x64 as Math } from "./ABDKMath64x64.sol";
 
 library LibCombat {
+  /*************************************************** ATTACK **************************************************** */
+
+  /**
+   * @notice  attacks all enemies in forward arc of ship
+   * @dev     todo: how can i combine this with attackSide despite different number of vertices in range?
+   * @param   components  world components
+   * @param   shipEntity  entity performing an attack
+   * @param   cannonEntity  .
+   */
+  function attackPivot(
+    IUint256Component components,
+    uint256 shipEntity,
+    uint256 cannonEntity
+  ) public {
+    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
+    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
+    // get firing area of ship
+    Coord[3] memory firingRange = getFiringAreaPivot(components, shipEntity, cannonEntity);
+
+    (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
+
+    uint256 owner = ownedByComponent.getValue(shipEntity);
+
+    // iterate through each ship, checking if it can be fired on
+    // 1. is not the current ship, 2. is not owned by attacker, 3. is within firing range
+    for (uint256 i = 0; i < shipEntities.length; i++) {
+      if (shipEntities[i] == shipEntity) continue;
+      if (owner == ownedByComponent.getValue(shipEntities[i])) continue;
+
+      (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
+      uint256 distance;
+      if (LibVector.withinPolygon3(firingRange, aft)) {
+        distance = LibVector.distance(firingRange[0], aft);
+        damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
+      } else if (LibVector.withinPolygon3(firingRange, stern)) {
+        distance = LibVector.distance(firingRange[0], stern);
+        damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
+      }
+    }
+  }
+
+  /**
+   * @notice  attacks all enemies on given side of ship
+   * @dev     todo: i plan to change this to reqiure inclusion of both an attacker and defender, saving gas and improving ux
+   * @param   components  world components
+   * @param   shipEntity  entity performing an attack
+   * @param   cannonEntity  .
+   */
+  function attackBroadside(
+    IUint256Component components,
+    uint256 shipEntity,
+    uint256 cannonEntity
+  ) public {
+    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
+    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
+
+    // get firing area of ship
+    Coord[4] memory firingRange = getFiringAreaBroadside(components, shipEntity, cannonEntity);
+
+    (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
+
+    uint256 owner = ownedByComponent.getValue(shipEntity);
+
+    // iterate through each ship, checking if it can be fired on
+    // 1. is not the current ship, 2. is not owned by attacker, 3. is within firing range
+    for (uint256 i = 0; i < shipEntities.length; i++) {
+      if (shipEntities[i] == shipEntity) continue;
+      if (owner == ownedByComponent.getValue(shipEntities[i])) continue;
+
+      (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
+
+      uint256 distance;
+      if (LibVector.withinPolygon4(firingRange, aft)) {
+        distance = LibVector.distance(firingRange[0], aft);
+        damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
+      } else if (LibVector.withinPolygon4(firingRange, stern)) {
+        distance = LibVector.distance(firingRange[0], stern);
+        damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
+      }
+    }
+  }
+
+  /**
+   * @notice  damages enemy hull, crew, and special attacks
+   * @param   components  world components
+   * @param   attackerEntity  attacking entity
+   * @param   defenderEntity  defending entity
+   * @param   distance  distance between attacker and defender
+   * @param   firepower  firepower of cannon firing
+   */
+  function damageEnemy(
+    IUint256Component components,
+    uint256 attackerEntity,
+    uint256 defenderEntity,
+    uint256 distance,
+    uint32 firepower
+  ) public {
+    uint256 baseHitChance = getBaseHitChance(distance, firepower);
+
+    // todo: make randomness more robust
+    uint256 r = LibUtils.randomness(attackerEntity, defenderEntity);
+
+    // perform hull and crew damage
+    uint32 hullDamage = getHullDamage(baseHitChance, r);
+
+    bool dead = damageHull(components, hullDamage, defenderEntity);
+    if (dead) return;
+
+    if (hullDamage == 0) return;
+
+    // perform special damage
+    if (getSpecialChance(baseHitChance, hullDamage, r, 0)) {
+      OnFireComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity, 2);
+    }
+    if (getSpecialChance(baseHitChance, hullDamage, r, 1)) {
+      DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).set(defenderEntity, 2);
+    }
+    if (getSpecialChance(baseHitChance, hullDamage, r, 2)) {
+      SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(defenderEntity, 0);
+    }
+  }
+
+  /**
+   * @notice  applies damage to hull
+   * @param   components  world components
+   * @param   damage  amount of damage applied
+   * @param   shipEntity  to apply damage to
+   * @return  bool  if the damage killed the boat
+   */
+  function damageHull(
+    IUint256Component components,
+    uint32 damage,
+    uint256 shipEntity
+  ) public returns (bool) {
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    uint32 health = healthComponent.getValue(shipEntity);
+
+    if (health <= damage) {
+      healthComponent.set(shipEntity, 0);
+      return true;
+    }
+
+    healthComponent.set(shipEntity, health - damage);
+    return false;
+  }
+
+  /*************************************************** UTILITIES **************************************************** */
   /**
    * @notice overview: increases damage as your firepower increases OR distance decreases
           equation: 80 * e^(-.008 * distance) * (firepower / 100), multiplied by 100 for precision
@@ -173,72 +321,6 @@ library LibCombat {
     }
 
     return ([position, sternPosition, backCorner, frontCorner]);
-  }
-
-  /**
-   * @notice  damages enemy hull, crew, and special attacks
-   * @param   components  world components
-   * @param   attackerEntity  attacking entity
-   * @param   defenderEntity  defending entity
-   * @param   distance  distance between attacker and defender
-   * @param   firepower  firepower of cannon firing
-   */
-  function damageEnemy(
-    IUint256Component components,
-    uint256 attackerEntity,
-    uint256 defenderEntity,
-    uint256 distance,
-    uint32 firepower
-  ) public {
-    uint256 baseHitChance = getBaseHitChance(distance, firepower);
-
-    // todo: make randomness more robust
-    uint256 r = LibUtils.randomness(attackerEntity, defenderEntity);
-
-    // perform hull and crew damage
-    uint32 hullDamage = getHullDamage(baseHitChance, r);
-
-    bool dead = damageHull(components, hullDamage, defenderEntity);
-    if (dead) return;
-
-    if (hullDamage == 0) return;
-
-    // perform special damage
-    if (getSpecialChance(baseHitChance, hullDamage, r, 0)) {
-      OnFireComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity, 2);
-    }
-    if (getSpecialChance(baseHitChance, hullDamage, r, 1)) {
-      DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).set(defenderEntity, 2);
-    }
-    if (getSpecialChance(baseHitChance, hullDamage, r, 2)) {
-      SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(defenderEntity, 0);
-    }
-  }
-
-  // used for crew and hull damage, abstraction reuses code
-  /**
-   * @notice  applies damage of type uint32
-   * @dev     this is used to reuse code on hull and crew damage application
-   * @param   components  world components
-   * @param   damage  amount of damage applied
-   * @param   shipEntity  to apply damage to
-   * @return  bool  if the damage killed the boat
-   */
-  function damageHull(
-    IUint256Component components,
-    uint32 damage,
-    uint256 shipEntity
-  ) public returns (bool) {
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
-    uint32 health = healthComponent.getValue(shipEntity);
-
-    if (health <= damage) {
-      healthComponent.set(shipEntity, 0);
-      return true;
-    }
-
-    healthComponent.set(shipEntity, health - damage);
-    return false;
   }
 
   /**
