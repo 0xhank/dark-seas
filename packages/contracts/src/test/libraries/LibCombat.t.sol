@@ -5,7 +5,6 @@ pragma solidity >=0.8.0;
 import "../DarkSeasTest.t.sol";
 
 // Systems
-import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
 
 // Components
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
@@ -22,7 +21,7 @@ contract LibCombatTest is DarkSeasTest {
 
   address zero = address(0);
 
-  function testGetBaseHitChance() public {
+  function testGetBaseHitChance() public prank(deployer) {
     uint256 baseHitChance = LibCombat.getBaseHitChance(28, 50);
     assertApproxEqAbs(baseHitChance, 1998, 50, "baseHitChance: 28 and 50 failed");
 
@@ -36,7 +35,7 @@ contract LibCombatTest is DarkSeasTest {
     assertApproxEqAbs(baseHitChance, 170, 50, "baseHitChance: 48 and 5 failed");
   }
 
-  function testGetByteUInt() public {
+  function testGetByteUInt() public prank(deployer) {
     uint256 randomness = LibUtils.randomness(69, 420);
 
     uint256 byteUInt = LibUtils.getByteUInt(randomness, 0, 14);
@@ -49,7 +48,7 @@ contract LibCombatTest is DarkSeasTest {
     console.log("byte (40, 20):", byteUInt);
   }
 
-  function testGetHullDamage() public {
+  function testGetHullDamage() public prank(deployer) {
     uint256 baseHitChance = 1000;
     uint256 threeDamage = (16384 * 999) / uint256(10000);
     uint256 twoDamage = (16384 * 1699) / uint256(10000);
@@ -62,7 +61,7 @@ contract LibCombatTest is DarkSeasTest {
     assertEq(LibCombat.getHullDamage(baseHitChance, zeroDamage), 0, "hull 0 failed");
   }
 
-  function testGetSpecialChance() public {
+  function testGetSpecialChance() public prank(deployer) {
     uint256 baseHitChance = 1000;
     uint256 likelihood = (baseHitChance * 6) / 10;
     uint256 tru = (((likelihood - 5) * 16384) / uint256(10000)) << (14 * 2); // 0x4E1C000
@@ -82,9 +81,9 @@ contract LibCombatTest is DarkSeasTest {
   function testFiringArea() public prank(deployer) {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
-    uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, 0);
+    uint256 shipEntity = spawnShip(startingPosition, 0, deployer);
 
-    console.log("deployer:", deployer);
+    console.log("shipEntity", shipEntity);
 
     CannonComponent cannonComponent = CannonComponent(getAddressById(components, CannonComponentID));
     console.log("writer", cannonComponent.owner());
@@ -118,7 +117,7 @@ contract LibCombatTest is DarkSeasTest {
   function testFiringAreaUpsideDown() public prank(deployer) {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
-    uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, 180);
+    uint256 shipEntity = spawnShip(startingPosition, 180, deployer);
     uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 90, 50, 80);
 
     uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
@@ -147,7 +146,7 @@ contract LibCombatTest is DarkSeasTest {
     // setUp();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
-    uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, 0);
+    uint256 shipEntity = spawnShip(startingPosition, 0, deployer);
     RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
     address owner = rotationComponent.owner();
     console.log("owner:", owner);
@@ -176,7 +175,7 @@ contract LibCombatTest is DarkSeasTest {
   function testFiringAreaPivotBehind() public prank(deployer) {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
-    uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, 0);
+    uint256 shipEntity = spawnShip(startingPosition, 0, deployer);
     RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
     address owner = rotationComponent.owner();
     console.log("owner:", owner);

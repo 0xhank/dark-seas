@@ -6,7 +6,6 @@ import "../DarkSeasTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
 
 // Systems
-import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
 import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
 import { CommitSystem, ID as CommitSystemID } from "../../systems/CommitSystem.sol";
 import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/ComponentDevSystem.sol";
@@ -39,17 +38,16 @@ contract MoveSystemTest is DarkSeasTest {
 
   MoveSystem moveSystem;
   CommitSystem commitSystem;
-  ShipSpawnSystem shipSpawnSystem;
 
   Move[] moves;
 
-  function testCommitReveal() public {
+  function testCommitReveal() public prank(deployer) {
     setup();
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
 
-    uint256 shipEntity = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
+    uint256 shipEntity = spawnShip(startingPosition, startingRotation, deployer);
     uint256 moveStraightEntity = uint256(keccak256("ds.prototype.moveEntity1"));
 
     moves.push(Move({ moveCardEntity: moveStraightEntity, shipEntity: shipEntity }));
@@ -63,13 +61,13 @@ contract MoveSystemTest is DarkSeasTest {
     moveSystem.executeTyped(moves, 69);
   }
 
-  function testRevertCommitReveal() public {
+  function testRevertCommitReveal() public prank(deployer) {
     setup();
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
 
-    uint256 shipEntity = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
+    uint256 shipEntity = spawnShip(startingPosition, startingRotation, deployer);
     uint256 moveStraightEntity = uint256(keccak256("ds.prototype.moveEntity1"));
 
     moves.push(Move({ moveCardEntity: moveStraightEntity, shipEntity: shipEntity }));
@@ -84,14 +82,14 @@ contract MoveSystemTest is DarkSeasTest {
     moveSystem.executeTyped(moves, 420);
   }
 
-  function testRevertShipDed() public {
+  function testRevertShipDed() public prank(deployer) {
     setup();
 
     ComponentDevSystem componentDevSystem = ComponentDevSystem(system(ComponentDevSystemID));
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
-    uint256 shipEntity = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
+    uint256 shipEntity = spawnShip(startingPosition, startingRotation, deployer);
     uint256 moveStraightEntity = uint256(keccak256("ds.prototype.moveEntity1"));
 
     moves.push(Move({ moveCardEntity: moveStraightEntity, shipEntity: shipEntity }));
@@ -108,31 +106,7 @@ contract MoveSystemTest is DarkSeasTest {
     moveSystem.executeTyped(moves, 69);
   }
 
-  function testRevertCruDed() public {
-    setup();
-
-    ComponentDevSystem componentDevSystem = ComponentDevSystem(system(ComponentDevSystemID));
-
-    Coord memory startingPosition = Coord({ x: 0, y: 0 });
-    uint32 startingRotation = 45;
-    uint256 shipEntity = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
-    uint256 moveStraightEntity = uint256(keccak256("ds.prototype.moveEntity1"));
-
-    moves.push(Move({ moveCardEntity: moveStraightEntity, shipEntity: shipEntity }));
-
-    componentDevSystem.executeTyped(CrewCountComponentID, shipEntity, abi.encode(0));
-
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Commit));
-    uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
-    commitSystem.executeTyped(commitment);
-
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Reveal));
-
-    vm.expectRevert(bytes("MoveSystem: ship has no crew"));
-    moveSystem.executeTyped(moves, 69);
-  }
-
-  function testRevertNotPlayer() public {
+  function testRevertNotPlayer() public prank(deployer) {
     setup();
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Commit));
@@ -141,35 +115,32 @@ contract MoveSystemTest is DarkSeasTest {
     commitSystem.executeTyped(commitment);
   }
 
-  function testRevertNotOwner() public {
+  function testRevertNotOwner() public prank(deployer) {
     setup();
 
-    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord(0, 0), 0);
+    uint256 shipEntity = spawnShip(Coord(0, 0), 0, alice);
     uint256 moveStraightEntity = uint256(keccak256("ds.prototype.moveEntity1"));
 
     moves.push(Move({ moveCardEntity: moveStraightEntity, shipEntity: shipEntity }));
 
-    vm.prank(deployer);
-    shipSpawnSystem.executeTyped(Coord(0, 0), 0);
+    spawnShip(Coord(0, 0), 0, deployer);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Commit));
     uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
-    vm.prank(deployer);
     commitSystem.executeTyped(commitment);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Reveal));
 
     vm.expectRevert(bytes("MoveSystem: you don't own this ship"));
-    vm.prank(deployer);
     moveSystem.executeTyped(moves, 69);
   }
 
-  function testRevertOutOfBounds() public {
+  function testRevertOutOfBounds() public prank(deployer) {
     setup();
     uint32 worldRadius = GameConfigComponent(getAddressById(components, GameConfigComponentID))
       .getValue(GodID)
       .worldRadius;
-    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord(int32(worldRadius), 0), 0);
+    uint256 shipEntity = spawnShip(Coord(int32(worldRadius), 0), 0, deployer);
     uint256 moveStraightEntity = uint256(keccak256("ds.prototype.moveEntity1"));
 
     moves.push(Move({ moveCardEntity: moveStraightEntity, shipEntity: shipEntity }));
@@ -184,12 +155,12 @@ contract MoveSystemTest is DarkSeasTest {
     moveSystem.executeTyped(moves, 69);
   }
 
-  function testMove() public {
+  function testMove() public prank(deployer) {
     setup();
 
     Coord memory position = Coord({ x: 0, y: 0 });
     uint32 rotation = 0;
-    uint256 shipEntity = shipSpawnSystem.executeTyped(position, rotation);
+    uint256 shipEntity = spawnShip(position, rotation, deployer);
 
     uint256 moveCardEntity = uint256(keccak256("ds.prototype.moveEntity2"));
 
@@ -220,12 +191,12 @@ contract MoveSystemTest is DarkSeasTest {
     assertEq(rotation, expectedRotation);
   }
 
-  function testMoveHardRight() public {
+  function testMoveHardRight() public prank(deployer) {
     setup();
 
     Coord memory position = Coord({ x: 0, y: 0 });
     uint32 rotation = 0;
-    uint256 shipEntity = shipSpawnSystem.executeTyped(position, rotation);
+    uint256 shipEntity = spawnShip(position, rotation, deployer);
 
     uint256 moveCardEntity = uint256(keccak256("ds.prototype.moveEntity2"));
 
@@ -256,12 +227,12 @@ contract MoveSystemTest is DarkSeasTest {
     assertEq(rotation, expectedRotation);
   }
 
-  function testMoveSoftRight() public {
+  function testMoveSoftRight() public prank(deployer) {
     setup();
 
     Coord memory position = Coord({ x: 0, y: 0 });
     uint32 rotation = 0;
-    uint256 shipEntity = shipSpawnSystem.executeTyped(position, rotation);
+    uint256 shipEntity = spawnShip(position, rotation, deployer);
 
     uint256 moveCardEntity = uint256(keccak256("ds.prototype.moveEntity3"));
 
@@ -323,12 +294,12 @@ contract MoveSystemTest is DarkSeasTest {
     assertEq(newMoveCard.direction, (moveCard.direction * 100) / debuff, "closed sails angle 2 failed");
   }
 
-  function testMoveWithLoweredSails() public {
+  function testMoveWithLoweredSails() public prank(deployer) {
     setup();
 
     Coord memory position = Coord({ x: 0, y: 0 });
     uint32 rotation = 0;
-    uint256 shipEntity = shipSpawnSystem.executeTyped(position, rotation);
+    uint256 shipEntity = spawnShip(position, rotation, deployer);
     uint256 moveCardEntity = uint256(keccak256("ds.prototype.moveEntity2"));
 
     ComponentDevSystem(system(ComponentDevSystemID)).executeTyped(SailPositionComponentID, shipEntity, abi.encode(1));
@@ -365,7 +336,6 @@ contract MoveSystemTest is DarkSeasTest {
    */
 
   function setup() internal {
-    shipSpawnSystem = ShipSpawnSystem(system(ShipSpawnSystemID));
     moveSystem = MoveSystem(system(MoveSystemID));
     commitSystem = CommitSystem(system(CommitSystemID));
     positionComponent = PositionComponent(getAddressById(components, PositionComponentID));

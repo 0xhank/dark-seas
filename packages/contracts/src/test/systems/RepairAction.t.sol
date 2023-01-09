@@ -6,7 +6,6 @@ import "../DarkSeasTest.t.sol";
 
 // Systems
 import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.sol";
-import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
 import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/ComponentDevSystem.sol";
 
 // Components
@@ -26,16 +25,15 @@ contract RepairActionTest is DarkSeasTest {
 
   SailPositionComponent sailPositionComponent;
   ActionSystem actionSystem;
-  ShipSpawnSystem shipSpawnSystem;
   ComponentDevSystem componentDevSystem;
 
   Action[] actions;
 
-  function testExtinguishFire() public {
+  function testExtinguishFire() public prank(deployer) {
     setup();
     OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
 
-    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
+    uint256 shipEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
 
     componentDevSystem.executeTyped(OnFireComponentID, shipEntity, abi.encode(1));
 
@@ -56,10 +54,10 @@ contract RepairActionTest is DarkSeasTest {
     assertFalse(onFireComponent.has(shipEntity));
   }
 
-  function testRepairSail() public {
+  function testRepairSail() public prank(deployer) {
     setup();
 
-    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
+    uint256 shipEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
 
     componentDevSystem.executeTyped(SailPositionComponentID, shipEntity, abi.encode(0));
 
@@ -79,12 +77,12 @@ contract RepairActionTest is DarkSeasTest {
     assertEq(sailPositionComponent.getValue(shipEntity), 1);
   }
 
-  function testRepairCannons() public {
+  function testRepairCannons() public prank(deployer) {
     setup();
     DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
       getAddressById(components, DamagedCannonsComponentID)
     );
-    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
+    uint256 shipEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
     componentDevSystem.executeTyped(DamagedCannonsComponentID, shipEntity, abi.encode(1));
 
     assertTrue(damagedCannonsComponent.has(shipEntity));
@@ -109,7 +107,6 @@ contract RepairActionTest is DarkSeasTest {
 
   function setup() internal {
     actionSystem = ActionSystem(system(ActionSystemID));
-    shipSpawnSystem = ShipSpawnSystem(system(ShipSpawnSystemID));
     componentDevSystem = ComponentDevSystem(system(ComponentDevSystemID));
 
     sailPositionComponent = SailPositionComponent(getAddressById(components, SailPositionComponentID));
