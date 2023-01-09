@@ -7,11 +7,10 @@ import { getAddressById } from "solecs/utils.sol";
 
 // Components
 import { MoveCardComponent, ID as MoveCardComponentID } from "../components/MoveCardComponent.sol";
-import { WindComponent, ID as WindComponentID } from "../components/WindComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
-import { Wind, GodID, MoveCard, GameConfig } from "../libraries/DSTypes.sol";
+import { GodID, MoveCard, GameConfig } from "../libraries/DSTypes.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Init"));
 
@@ -21,7 +20,6 @@ contract InitSystem is System {
 
   function execute(bytes memory) public returns (bytes memory) {
     MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
-    WindComponent windComponent = WindComponent(getAddressById(components, WindComponentID));
     GameConfigComponent gameConfigComponent = GameConfigComponent(getAddressById(components, GameConfigComponentID));
 
     gameConfigComponent.set(
@@ -55,7 +53,5 @@ contract InitSystem is System {
     uint256 moveEntity5 = uint256(keccak256("ds.prototype.moveEntity5"));
 
     moveCardComponent.set(moveEntity5, MoveCard({ direction: 333, distance: 40, rotation: 315 }));
-
-    windComponent.set(GodID, Wind(0, 270));
   }
 }

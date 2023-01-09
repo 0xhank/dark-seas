@@ -14,7 +14,6 @@ import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/Co
 // Components
 import { PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
-import { WindComponent, ID as WindComponentID } from "../../components/WindComponent.sol";
 import { MoveCardComponent, ID as MoveCardComponentID } from "../../components/MoveCardComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/ComponentDevSystem.sol";
@@ -23,21 +22,18 @@ import { CrewCountComponent, ID as CrewCountComponentID } from "../../components
 import { SpeedComponent, ID as SpeedComponentID } from "../../components/SpeedComponent.sol";
 
 // Types
-import { Wind, GodID, MoveCard, Move, Coord } from "../../libraries/DSTypes.sol";
+import { GodID, MoveCard, Move, Coord } from "../../libraries/DSTypes.sol";
 
 // Libraries
 import "../../libraries/LibMove.sol";
 import "../../libraries/LibTurn.sol";
 
 contract MoveSystemTest is DarkSeasTest {
-  Wind wind;
-
   constructor() DarkSeasTest(new Deploy()) {}
 
   PositionComponent positionComponent;
   RotationComponent rotationComponent;
   MoveCardComponent moveCardComponent;
-  WindComponent windComponent;
   SailPositionComponent sailPositionComponent;
   SpeedComponent speedComponent;
 
@@ -203,8 +199,6 @@ contract MoveSystemTest is DarkSeasTest {
 
     MoveCard memory moveCard = moveCardComponent.getValue(moveCardEntity);
 
-    moveCard = LibMove.getMoveWithWind(moveCard, rotation, wind);
-
     moveCard = LibMove.getMoveWithSails(
       moveCard,
       speedComponent.getValue(shipEntity),
@@ -240,8 +234,6 @@ contract MoveSystemTest is DarkSeasTest {
     commitAndExecuteMove(1, moves);
 
     MoveCard memory moveCard = moveCardComponent.getValue(moveCardEntity);
-
-    moveCard = LibMove.getMoveWithWind(moveCard, rotation, wind);
 
     moveCard = LibMove.getMoveWithSails(
       moveCard,
@@ -279,8 +271,6 @@ contract MoveSystemTest is DarkSeasTest {
 
     MoveCard memory moveCard = moveCardComponent.getValue(moveCardEntity);
 
-    moveCard = LibMove.getMoveWithWind(moveCard, rotation, wind);
-
     moveCard = LibMove.getMoveWithSails(
       moveCard,
       speedComponent.getValue(shipEntity),
@@ -300,19 +290,6 @@ contract MoveSystemTest is DarkSeasTest {
 
     assertCoordEq(position, expectedPosition);
     assertEq(rotation, expectedRotation);
-  }
-
-  function testGetWindBoost() public {
-    setup();
-
-    Wind memory customWind = Wind({ direction: 0, speed: 10 });
-    assertEq(LibMove.windBoost(customWind, 90), 0);
-    assertEq(LibMove.windBoost(customWind, 112), 0);
-    assertEq(LibMove.windBoost(customWind, 171), -10);
-    assertEq(LibMove.windBoost(customWind, 211), -10);
-    assertEq(LibMove.windBoost(customWind, 331), 10);
-    assertEq(LibMove.windBoost(customWind, 11), 10);
-    assertEq(LibMove.windBoost(customWind, 70), 10);
   }
 
   function testGetMoveWithOpenSails() public prank(deployer) {
@@ -367,8 +344,6 @@ contract MoveSystemTest is DarkSeasTest {
 
     MoveCard memory moveCard = moveCardComponent.getValue(moveCardEntity);
 
-    moveCard = LibMove.getMoveWithWind(moveCard, rotation, wind);
-
     moveCard = LibMove.getMoveWithSails(
       moveCard,
       speedComponent.getValue(shipEntity),
@@ -404,7 +379,6 @@ contract MoveSystemTest is DarkSeasTest {
     sailPositionComponent = SailPositionComponent(getAddressById(components, SailPositionComponentID));
     speedComponent = SpeedComponent(getAddressById(components, SpeedComponentID));
 
-    wind = WindComponent(getAddressById(components, WindComponentID)).getValue(GodID);
     delete moves;
   }
 

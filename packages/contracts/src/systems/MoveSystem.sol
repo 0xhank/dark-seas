@@ -11,14 +11,13 @@ import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponen
 import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
 import { MoveCardComponent, ID as MoveCardComponentID } from "../components/MoveCardComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
-import { WindComponent, ID as WindComponentID } from "../components/WindComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { CommitmentComponent, ID as CommitmentComponentID } from "../components/CommitmentComponent.sol";
 
-import { Wind, GodID, MoveCard, Phase, Move } from "../libraries/DSTypes.sol";
+import { GodID, MoveCard, Phase, Move } from "../libraries/DSTypes.sol";
 import "../libraries/LibVector.sol";
 import "../libraries/LibMove.sol";
 import "../libraries/LibTurn.sol";
@@ -53,14 +52,12 @@ contract MoveSystem is System {
     uint32 currentTurn = LibTurn.getCurrentTurn(components);
     require(lastMoveComponent.getValue(playerEntity) < currentTurn, "MoveSystem: already moved this turn");
 
-    Wind memory wind = WindComponent(getAddressById(components, WindComponentID)).getValue(GodID);
-
     // iterate through each ship entity
     for (uint256 i = 0; i < moves.length; i++) {
       for (uint256 j = 0; j < i; j++) {
         require(moves[i].shipEntity != moves[j].shipEntity, "MoveSystem: ship already moved");
       }
-      LibMove.moveShip(components, moves[i], playerEntity, wind);
+      LibMove.moveShip(components, moves[i], playerEntity);
     }
 
     lastMoveComponent.set(playerEntity, currentTurn);
