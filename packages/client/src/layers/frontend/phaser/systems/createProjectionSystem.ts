@@ -28,7 +28,7 @@ export function createProjectionSystem(phaser: PhaserLayer) {
       },
       backend: {
         components: { SelectedMove, HoveredMove },
-        godIndex,
+        utils: { outOfBounds },
       },
     },
     scenes: {
@@ -105,9 +105,12 @@ export function createProjectionSystem(phaser: PhaserLayer) {
 
       renderFiringArea(phaser, rangeGroup, finalPosition, finalRotation, length, cannonEntity, rangeColor);
     });
-    polygonRegistry.set(objectId, rangeGroup);
 
-    renderShip(phaser, shipEntity, `hoverGhost-${shipEntity}`, finalPosition, finalRotation, colors.whiteHex, 0.6);
+    const color = outOfBounds(finalPosition) ? colors.redHex : colors.whiteHex;
+
+    renderShip(phaser, shipEntity, objectId, finalPosition, finalRotation, color, 0.6);
+
+    polygonRegistry.set(objectId, rangeGroup);
   });
 
   defineExitSystem(world, [Has(HoveredMove)], (update) => {

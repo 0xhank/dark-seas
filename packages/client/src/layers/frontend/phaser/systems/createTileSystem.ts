@@ -12,7 +12,9 @@ export function createTileSystem(phaser: PhaserLayer) {
       network: {
         components: { GameConfig },
       },
-      backend: { perlin },
+      backend: {
+        utils: { isWhirlpool },
+      },
     },
     scenes: {
       Main: {
@@ -30,7 +32,7 @@ export function createTileSystem(phaser: PhaserLayer) {
     if (!gameConfig) return;
 
     const worldRadius = gameConfig.worldRadius;
-    const perlinSeed = gameConfig.perlinSeed;
+    const perlinSeed = Number(gameConfig.perlinSeed);
     console.log("world radius:", worldRadius);
 
     const adjustment = TILE_HEIGHT / positions.posHeight;
@@ -40,7 +42,7 @@ export function createTileSystem(phaser: PhaserLayer) {
         const coord = { x: i, y: j };
         const adjustedCoord = { x: Math.floor(i / adjustment), y: Math.floor(j / adjustment) };
         if (!inRadius(coord, worldRadius)) continue;
-        const tile = getWhirlpoolTile(coord, 0, adjustment);
+        const tile = getWhirlpoolTile(coord, perlinSeed, adjustment);
         if (tile) {
           // console.log("placing whirlpool at,", coord.x, coord.y);
           Main.putTileAt(adjustedCoord, tile, "Foreground");
@@ -64,8 +66,6 @@ export function createTileSystem(phaser: PhaserLayer) {
     const rightPool = isWhirlpool(right, perlinSeed);
     const leftPool = isWhirlpool(left, perlinSeed);
     const numPools = [abovePool, belowPool, rightPool, leftPool].filter((i) => i).length;
-    console.log("coord:", coord.x, coord.y);
-    console.log("above:", above, "below:", below, "right:", right, "left:", left);
     if (numPools < 2) return DSTileset.Rock;
     if (numPools == 4) return DSTileset.Middle;
     if (numPools == 3) {
@@ -82,15 +82,5 @@ export function createTileSystem(phaser: PhaserLayer) {
       if (belowPool && rightPool) return DSTileset.TopLeft;
       if (belowPool && leftPool) return DSTileset.TopRight;
     }
-  }
-  function isWhirlpool(coord: Coord, perlinSeed: number): boolean {
-    const coordStr = `${coord.x}-${coord.y}`;
-    const retrievedVal = whirlpoolMap.get(coordStr);
-    if (retrievedVal != undefined) return retrievedVal;
-    const denom = 50;
-    const depth = perlin(coord.x + perlinSeed, coord.y + perlinSeed, 0, denom);
-    const ret = depth * 100 < 26;
-    whirlpoolMap.set(coordStr, ret);
-    return ret;
   }
 }

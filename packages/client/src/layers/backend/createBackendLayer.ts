@@ -14,9 +14,11 @@ import {
   Type,
 } from "@latticexyz/recs";
 import { createActionSystem, defineNumberComponent, defineStringComponent } from "@latticexyz/std-client";
+import { Coord } from "@latticexyz/utils";
 import { curry } from "lodash";
 
 import { Action, ActionType, Move } from "../../types";
+import { inRadius } from "../../utils/distance";
 import { getFiringArea, getSternLocation, inFiringArea } from "../../utils/trig";
 import { NetworkLayer } from "../network";
 import { commitMove } from "./api/commitMove";
@@ -66,7 +68,7 @@ export async function createBackendLayer(network: NetworkLayer) {
   // --- SETUP ----------------------------------------------------------------------
 
   const {
-    utils: { getPlayerEntity },
+    utils: { getPlayerEntity, getGameConfig },
     components: { OnFire, DamagedCannons, SailPosition, Ship, OwnedBy, Range, Position, Rotation, Length },
     network: { connectedAddress },
   } = network;
@@ -184,6 +186,32 @@ export async function createBackendLayer(network: NetworkLayer) {
       ];
     }, []);
   }
+
+  const outOfBoundsMap = new Map<string, boolean>();
+
+  function outOfBounds(position: Coord) {
+    const gameConfig = getGameConfig();
+    if (!gameConfig) return false;
+
+    if (!inRadius(position, gameConfig.worldRadius)) return true;
+
+    const whirlpool = isWhirlpool(position, Number(gameConfig.perlinSeed));
+    if (whirlpool) return true;
+    return false;
+  }
+
+  function isWhirlpool(coord: Coord, perlinSeed: number): boolean {
+    const coordStr = `${coord.x}-${coord.y}`;
+    const retrievedVal = outOfBoundsMap.get(coordStr);
+    if (retrievedVal != undefined) return retrievedVal;
+    const denom = 50;
+    const depth = perlin(coord.x + perlinSeed, coord.y + perlinSeed, 0, denom);
+    console.log(`perlin: ${perlinSeed}`, "depth:", coord.x, coord.y, depth);
+    const ret = depth * 100 < 26;
+    outOfBoundsMap.set(coordStr, ret);
+    return ret;
+  }
+
   // --- SYSTEMS --------------------------------------------------------------
   const actions = createActionSystem(world, network.txReduced$);
 
@@ -207,6 +235,8 @@ export async function createBackendLayer(network: NetworkLayer) {
       getPlayerShipsWithActions,
       getTargetedShips,
       isMyShip,
+      outOfBounds,
+      isWhirlpool,
     },
     components,
     godIndex: GodEntityIndex,
