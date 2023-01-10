@@ -2,8 +2,8 @@ import { Coord } from "@latticexyz/utils";
 import { MoveCard } from "../types";
 import { getPositionByVector } from "./trig";
 
-export function getMoveWithSails(moveCard: MoveCard, sailPosition: number): MoveCard {
-  const buff = sailPosition == 2 ? 100 : sailPosition == 1 ? 60 : 0;
+export function getMoveWithSails(moveCard: MoveCard, speed: number, sailPosition: number): MoveCard {
+  const buff = sailPosition == 2 ? speed : sailPosition == 1 ? speed * 0.6 : 0;
   return getMoveWithDebuff(moveCard, buff);
 }
 
@@ -31,9 +31,10 @@ export function getFinalPosition(
   moveCard: MoveCard,
   position: Coord,
   rotation: number,
+  speed: number,
   sailPosition: number
 ): { finalPosition: Coord; finalRotation: number } {
-  moveCard = getMoveWithSails(moveCard, sailPosition);
+  moveCard = getMoveWithSails(moveCard, speed, sailPosition);
 
   const finalPosition = getPositionByVector(position, rotation, moveCard.distance, moveCard.direction);
   const finalRotation = rotation + (moveCard.rotation % 360);

@@ -24,6 +24,7 @@ export function registerEnemyShip() {
           utils: { getPlayerEntity },
           network: { connectedAddress },
           components: {
+            MaxHealth,
             Health,
             SailPosition,
             DamagedCannons,
@@ -48,6 +49,7 @@ export function registerEnemyShip() {
         Ship.update$,
         OwnedBy.update$,
         Health.update$,
+        MaxHealth.update$,
         SelectedShip.update$,
         SailPosition.update$,
         DamagedCannons.update$,
