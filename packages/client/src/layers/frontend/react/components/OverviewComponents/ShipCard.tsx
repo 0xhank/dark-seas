@@ -13,7 +13,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
     network: {
       utils: { getPlayerEntity },
       network: { connectedAddress },
-      components: { Health, SailPosition, DamagedCannons, OnFire, Rotation, OwnedBy, Name },
+      components: { MaxHealth, Health, SailPosition, DamagedCannons, OnFire, Rotation, OwnedBy, Name },
     },
     backend: {
       components: { SelectedActions },
@@ -27,6 +27,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
   const sailPosition = getComponentValueStrict(SailPosition, ship).value;
   const rotation = getComponentValueStrict(Rotation, ship).value;
   const health = getComponentValueStrict(Health, ship).value;
+  const maxHealth = getComponentValueStrict(MaxHealth, ship).value;
   const onFire = getComponentValue(OnFire, ship)?.value;
   const damagedCannons = getComponentValue(DamagedCannons, ship)?.value;
   const ownerName = getComponentValue(Name, ownerEntity)?.value;
@@ -62,7 +63,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
         </BoxImage>
       </BoxContainer>
       <div style={{ flex: 3, display: "flex", flexDirection: "column", minWidth: 0 }}>
-        <HullHealth health={health} />
+        <HullHealth health={health} maxHealth={maxHealth} />
         <div style={{ display: "flex", width: "100%", flexWrap: "wrap" }}>
           <ShipAttribute
             attributeType={ShipAttributeTypes.Sails}

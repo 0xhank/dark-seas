@@ -1,8 +1,7 @@
 import styled from "styled-components";
 import { colors, Container } from "../../styles/global";
 
-export default function HullHealth({ health }: { health: number }) {
-  const maxHealth = 10;
+export default function HullHealth({ health, maxHealth }: { health: number; maxHealth: number }) {
   return (
     <HealthContainer>
       <span style={{ textTransform: "uppercase", fontWeight: 600, fontSize: "1rem" }}>hull</span>

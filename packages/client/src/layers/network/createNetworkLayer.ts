@@ -57,6 +57,7 @@ export async function createNetworkLayer(config: GameConfig) {
     Length: defineNumberComponent(world, { id: "Length", metadata: { contractId: "ds.component.Length" } }),
     Range: defineNumberComponent(world, { id: "Range", metadata: { contractId: "ds.component.Range" } }),
     Health: defineNumberComponent(world, { id: "Health", metadata: { contractId: "ds.component.Health" } }),
+    MaxHealth: defineNumberComponent(world, { id: "MaxHealth", metadata: { contractId: "ds.component.MaxHealth" } }),
     Ship: defineBoolComponent(world, { id: "Ship", metadata: { contractId: "ds.component.Ship" } }),
     SailPosition: defineNumberComponent(world, {
       id: "SailPosition",
