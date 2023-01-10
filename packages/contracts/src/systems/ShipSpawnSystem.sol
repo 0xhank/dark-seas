@@ -27,7 +27,7 @@ contract ShipSpawnSystem is System {
     uint256 playerEntity = addressToEntity(msg.sender);
 
     if (!LibUtils.playerIdExists(components, playerEntity)) LibSpawn.createPlayerEntity(components, msg.sender);
-    uint256 shipEntity = LibSpawn.spawnShip(components, world, playerEntity, location, rotation);
+    uint256 shipEntity = LibSpawn.spawnBattleship(components, world, playerEntity, location, rotation);
 
     LastActionComponent(getAddressById(components, LastActionComponentID)).set(addressToEntity(msg.sender), 0);
     LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(addressToEntity(msg.sender), 0);

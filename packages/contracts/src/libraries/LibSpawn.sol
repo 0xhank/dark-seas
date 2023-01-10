@@ -97,10 +97,9 @@ library LibSpawn {
     startingLocation = getRandomLocation(components, LibUtils.randomness(playerEntity, nonce));
 
     uint32 rotation = pointKindaTowardsTheCenter(startingLocation);
-    for (uint256 i = 0; i < 2; i++) {
-      spawnShip(components, world, playerEntity, startingLocation, rotation);
-      startingLocation.x += 20;
-    }
+    spawnBattleship(components, world, playerEntity, startingLocation, rotation);
+    startingLocation.x += 20;
+    spawnDestroyer(components, world, playerEntity, startingLocation, rotation);
 
     LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 0);
     LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 0);
@@ -115,7 +114,7 @@ library LibSpawn {
    * @param   location  starting location of ship
    * @param   rotation  starting rotation of ship
    */
-  function spawnShip(
+  function spawnBattleship(
     IUint256Component components,
     IWorld world,
     uint256 playerEntity,
@@ -123,19 +122,58 @@ library LibSpawn {
     uint32 rotation
   ) internal returns (uint256 shipEntity) {
     shipEntity = world.getUniqueEntityId();
+    ShipComponent(getAddressById(components, ShipComponentID)).set(shipEntity);
 
+    uint32 maxHealth = 10;
     PositionComponent(getAddressById(components, PositionComponentID)).set(shipEntity, location);
     RotationComponent(getAddressById(components, RotationComponentID)).set(shipEntity, rotation);
     LengthComponent(getAddressById(components, LengthComponentID)).set(shipEntity, 10);
-    HealthComponent(getAddressById(components, HealthComponentID)).set(shipEntity, 10);
-    ShipComponent(getAddressById(components, ShipComponentID)).set(shipEntity);
+    HealthComponent(getAddressById(components, HealthComponentID)).set(shipEntity, maxHealth);
+    MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).set(shipEntity, maxHealth);
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
     OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(shipEntity, playerEntity);
-    SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, 100);
+    SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, 110);
 
-    spawnCannon(components, world, shipEntity, 90, 50, 80);
-    spawnCannon(components, world, shipEntity, 270, 50, 80);
-    spawnCannon(components, world, shipEntity, 0, 50, 80);
+    spawnCannon(components, world, shipEntity, 90, 40, 100);
+    spawnCannon(components, world, shipEntity, 270, 40, 100);
+    spawnCannon(components, world, shipEntity, 0, 40, 100);
+  }
+
+  /**
+   * @notice  spawns a basic ship type
+   * @dev todo: move this to shipPrototype and create a couple options for ships
+   * @param   components  creates a ship
+   * @param   world  world
+   * @param   playerEntity  entity id of ship's owner
+   * @param   location  starting location of ship
+   * @param   rotation  starting rotation of ship
+   */
+  function spawnDestroyer(
+    IUint256Component components,
+    IWorld world,
+    uint256 playerEntity,
+    Coord memory location,
+    uint32 rotation
+  ) internal returns (uint256 shipEntity) {
+    shipEntity = world.getUniqueEntityId();
+    uint32 maxHealth = 15;
+
+    ShipComponent(getAddressById(components, ShipComponentID)).set(shipEntity);
+
+    PositionComponent(getAddressById(components, PositionComponentID)).set(shipEntity, location);
+    RotationComponent(getAddressById(components, RotationComponentID)).set(shipEntity, rotation);
+    LengthComponent(getAddressById(components, LengthComponentID)).set(shipEntity, 15);
+    HealthComponent(getAddressById(components, HealthComponentID)).set(shipEntity, maxHealth);
+    MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).set(shipEntity, maxHealth);
+
+    SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
+    OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(shipEntity, playerEntity);
+    SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, 80);
+
+    spawnCannon(components, world, shipEntity, 90, 65, 60);
+    spawnCannon(components, world, shipEntity, 270, 65, 60);
+    spawnCannon(components, world, shipEntity, 345, 65, 50);
+    spawnCannon(components, world, shipEntity, 15, 65, 50);
   }
 
   function spawnCannon(
