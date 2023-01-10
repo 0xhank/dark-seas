@@ -23,7 +23,7 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: { Position, Length, Rotation, SailPosition, MoveCard, Cannon, OwnedBy },
+        components: { Position, Length, Rotation, SailPosition, MoveCard, Cannon, OwnedBy, Speed },
         utils: { getPhase },
       },
       backend: {
@@ -58,8 +58,9 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const moveCard = getComponentValueStrict(MoveCard, moveCardEntity.value as EntityIndex);
     const position = getComponentValueStrict(Position, shipEntity);
     const rotation = getComponentValueStrict(Rotation, shipEntity).value;
+    const speed = getComponentValueStrict(Speed, shipEntity).value;
     const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
-    const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, sailPosition);
+    const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
 
     renderShip(
       phaser,
@@ -93,7 +94,8 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const rotation = getComponentValueStrict(Rotation, shipEntity).value;
     const length = getComponentValueStrict(Length, shipEntity).value;
     const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
-    const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, sailPosition);
+    const speed = getComponentValueStrict(Speed, shipEntity).value;
+    const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
 
     cannonEntities.forEach((cannonEntity) => {

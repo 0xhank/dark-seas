@@ -19,7 +19,6 @@ import { MoveCardComponent, ID as MoveCardComponentID } from "../../components/M
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/ComponentDevSystem.sol";
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
-import { CrewCountComponent, ID as CrewCountComponentID } from "../../components/CrewCountComponent.sol";
 import { SpeedComponent, ID as SpeedComponentID } from "../../components/SpeedComponent.sol";
 
 // Types

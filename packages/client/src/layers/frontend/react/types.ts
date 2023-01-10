@@ -6,14 +6,12 @@ export enum Arrows {
   Right = "/img/arrows/right.png",
   SoftLeft = "/img/arrows/soft-left.png",
   SoftRight = "/img/arrows/soft-right.png",
-  UTurn = "/img/arrows/uturn.png",
+  UTurn = "/img/arrows/u-turn.png",
   MediumRight = "/img/arrows/medium-right.png",
   MediumLeft = "/img/arrows/medium-left.png",
 }
 
 export enum ShipAttributeTypes {
-  Firepower,
-  Crew,
   Sails,
 }
 

@@ -17,7 +17,7 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
   const {
     world,
     utils: { getGameConfig },
-    components: { MoveCard, Rotation, SailPosition, Position },
+    components: { MoveCard, Rotation, SailPosition, Position, Speed },
   } = layers.network;
 
   const {
@@ -35,6 +35,7 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
 
   const rotation = getComponentValueStrict(Rotation, ship).value;
   const sailPosition = getComponentValueStrict(SailPosition, ship).value;
+  const speed = getComponentValueStrict(Speed, ship).value;
 
   if (sailPosition == 0) {
     return <SpecialText>Cannot move with torn sails!</SpecialText>;
@@ -50,7 +51,7 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
       {sortedMoveEntities.map((entity) => {
         let moveCard = getComponentValueStrict(MoveCard, entity);
         const position = getComponentValueStrict(Position, ship);
-        const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, sailPosition);
+        const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
 
         const isSelected = selectedMove && selectedMove.value == entity;
 

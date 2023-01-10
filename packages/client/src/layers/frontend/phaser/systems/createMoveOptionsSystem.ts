@@ -20,7 +20,7 @@ export function createMoveOptionsSystem(phaser: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: { Position, Rotation, SailPosition, MoveCard },
+        components: { Position, Rotation, SailPosition, MoveCard, Speed },
         utils: { getPhase },
       },
       backend: {
@@ -41,13 +41,14 @@ export function createMoveOptionsSystem(phaser: PhaserLayer) {
     const shipEntity = getComponentValueStrict(HoveredShip, godIndex).value as EntityIndex;
 
     const moveCardEntities = [...getComponentEntities(MoveCard)];
-
+    const position = getComponentValueStrict(Position, shipEntity);
+    const rotation = getComponentValueStrict(Rotation, shipEntity).value;
+    const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
+    const speed = getComponentValueStrict(Speed, shipEntity).value;
     moveCardEntities.map((moveCardEntity) => {
       const moveCard = getComponentValueStrict(MoveCard, moveCardEntity);
-      const position = getComponentValueStrict(Position, shipEntity);
-      const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-      const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
-      const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, sailPosition);
+
+      const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
       const shipColor = isMyShip(shipEntity) ? getColorNum(shipEntity) : colors.whiteHex;
 
       const objectId = `optionGhost-${moveCardEntity}`;

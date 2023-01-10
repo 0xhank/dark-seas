@@ -15,7 +15,6 @@ import { SailPositionComponent, ID as SailPositionComponentID } from "../compone
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
-import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
@@ -99,11 +98,6 @@ library LibMove {
     require(
       HealthComponent(getAddressById(components, HealthComponentID)).getValue(move.shipEntity) > 0,
       "MoveSystem: ship is sunk"
-    );
-
-    require(
-      CrewCountComponent(getAddressById(components, CrewCountComponentID)).getValue(move.shipEntity) > 0,
-      "MoveSystem: ship has no crew"
     );
 
     require(
