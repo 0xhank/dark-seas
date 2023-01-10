@@ -168,7 +168,7 @@ library LibSpawn {
 
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
     OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(shipEntity, playerEntity);
-    SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, 80);
+    SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, 90);
 
     spawnCannon(components, world, shipEntity, 90, 65, 60);
     spawnCannon(components, world, shipEntity, 270, 65, 60);
