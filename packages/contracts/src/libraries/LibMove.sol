@@ -146,7 +146,7 @@ library LibMove {
     GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
       GodID
     );
-    int128 denom = 40;
+    int128 denom = 50;
     int128 depth = Perlin.noise2d(position.x + gameConfig.perlinSeed, position.y + gameConfig.perlinSeed, denom, 64);
 
     depth = int128(Math.muli(depth, 100));
