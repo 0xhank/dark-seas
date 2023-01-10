@@ -10,7 +10,6 @@ import {
 import styled from "styled-components";
 import { Layers } from "../../../../../types";
 import { getFinalPosition } from "../../../../../utils/directions";
-import { inRange } from "../../../../../utils/distance";
 import { Img, OptionButton } from "../../styles/global";
 import { arrowImg } from "../../types";
 
@@ -58,10 +57,8 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
 
         const imageUrl = arrowImg(moveCard.rotation);
 
-        const disabled = !inRange(finalPosition, { x: 0, y: 0 }, worldRadius);
         return (
           <OptionButton
-            disabled={disabled}
             isSelected={isSelected}
             key={`move-selection-${entity}`}
             onMouseEnter={() => setComponent(HoveredMove, GodEntityIndex, { moveCardEntity: entity, shipEntity: ship })}

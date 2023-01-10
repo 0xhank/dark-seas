@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 // External
 import { getAddressById } from "solecs/utils.sol";
 import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
+import { Perlin } from "noise/Perlin.sol";
 
 // Components
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
@@ -15,12 +16,15 @@ import { LastMoveComponent, ID as LastMoveComponentID } from "../components/Last
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedComponent.sol";
+import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
-import { MoveCard, Move, Coord } from "./DSTypes.sol";
+import { MoveCard, Move, Coord, GodID, GameConfig } from "./DSTypes.sol";
 
 // Libraries
 import "../libraries/LibVector.sol";
+import "../libraries/LibCombat.sol";
+import "../libraries/LibUtils.sol";
 import "trig/src/Trigonometry.sol";
 
 library LibMove {
@@ -120,10 +124,27 @@ library LibMove {
 
     position = LibVector.getPositionByVector(position, rotation, moveCard.distance, moveCard.direction);
 
-    require(LibVector.inWorldRadius(components, position), "MoveSystem: move out of bounds");
     rotation = (rotation + moveCard.rotation) % 360;
+
+    if (outOfBounds(components, position)) {
+      LibCombat.damageHull(components, 1, move.shipEntity);
+    }
 
     positionComponent.set(move.shipEntity, position);
     rotationComponent.set(move.shipEntity, rotation);
+  }
+
+  function outOfBounds(IUint256Component components, Coord memory position) private returns (bool) {
+    if (!LibVector.inWorldRadius(components, position)) return true;
+
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+    int128 denom = 50;
+    int128 depth = Perlin.noise2d(position.x + gameConfig.perlinSeed, position.y + gameConfig.perlinSeed, denom, 64);
+
+    depth = int128(Math.muli(depth, 100));
+
+    return depth < 26;
   }
 }

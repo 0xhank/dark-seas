@@ -3,9 +3,17 @@ pragma solidity >=0.8.0;
 
 import "std-contracts/test/MudTest.t.sol";
 
-import { console } from "forge-std/console.sol";
+import { getAddressById, addressToEntity } from "solecs/utils.sol";
 import { Coord } from "std-contracts/components/CoordComponent.sol";
 import { Deploy } from "./Deploy.sol";
+
+// Components
+import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
+import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
+
+import "../libraries/LibTurn.sol";
+import "../libraries/LibSpawn.sol";
+import "../libraries/LibUtils.sol";
 
 contract DarkSeasTest is MudTest {
   constructor(IDeploy deploy) MudTest(deploy) {}
@@ -14,6 +22,20 @@ contract DarkSeasTest is MudTest {
     vm.startPrank(prankster);
     _;
     vm.stopPrank();
+  }
+
+  function spawnShip(
+    Coord memory position,
+    uint32 rotation,
+    address spawner
+  ) internal returns (uint256 shipEntity) {
+    uint256 playerEntity = addressToEntity(spawner);
+
+    if (!LibUtils.playerIdExists(components, playerEntity)) LibSpawn.createPlayerEntity(components, spawner);
+    shipEntity = LibSpawn.spawnShip(components, world, playerEntity, position, rotation);
+
+    LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 0);
+    LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 0);
   }
 
   function assertCoordEq(Coord memory a, Coord memory b) internal {

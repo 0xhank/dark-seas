@@ -16,7 +16,7 @@ import { GameConfigComponent, ID as GameConfigComponentID } from "../components/
 import { Coord, GodID } from "../libraries/DSTypes.sol";
 
 // Libraries
-import { ABDKMath64x64 as Math } from "./ABDKMath64x64.sol";
+import { ABDKMath64x64 as Math } from "abdk-libraries-solidity/ABDKMath64x64.sol";
 import "trig/src/Trigonometry.sol";
 
 library LibVector {

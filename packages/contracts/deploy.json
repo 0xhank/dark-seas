@@ -26,27 +26,9 @@
   "systems": [
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
     {
-      "name": "ShipSpawnSystem",
-      "writeAccess": [
-        "PositionComponent",
-        "RotationComponent",
-        "LengthComponent",
-        "RangeComponent",
-        "HealthComponent",
-        "MaxHealthComponent",
-        "ShipComponent",
-        "SailPositionComponent",
-        "FirepowerComponent",
-        "LastMoveComponent",
-        "LastActionComponent",
-        "OwnedByComponent",
-        "PlayerComponent",
-        "LoadedComponent",
-        "CannonComponent",
-        "SpeedComponent"
-      ]
+      "name": "MoveSystem",
+      "writeAccess": ["PositionComponent", "RotationComponent", "LastMoveComponent", "HealthComponent"]
     },
-    { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent", "LastMoveComponent"] },
     {
       "name": "ActionSystem",
       "writeAccess": [

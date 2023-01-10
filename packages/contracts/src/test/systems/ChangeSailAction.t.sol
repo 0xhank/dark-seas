@@ -8,7 +8,6 @@ import "../DarkSeasTest.t.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../../components/SailPositionComponent.sol";
 
 // Systems
-import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
 import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.sol";
 
 import { Action, ActionType, Move, Coord } from "../../libraries/DSTypes.sol";
@@ -21,16 +20,15 @@ contract ChangeSailActionTest is DarkSeasTest {
 
   SailPositionComponent sailPositionComponent;
   ActionSystem actionSystem;
-  ShipSpawnSystem shipSpawnSystem;
 
   Move[] moves;
   Action[] actions;
 
-  function testExecute() public {
+  function testExecute() public prank(deployer) {
     setup();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
-    uint256 shipEntity = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
+    uint256 shipEntity = spawnShip(startingPosition, startingRotation, deployer);
 
     Action memory action = Action({
       shipEntity: shipEntity,
@@ -48,11 +46,11 @@ contract ChangeSailActionTest is DarkSeasTest {
     assertEq(newSailPosition, 1);
   }
 
-  function testNoEffect() public {
+  function testNoEffect() public prank(deployer) {
     setup();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
-    uint256 shipEntity = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
+    uint256 shipEntity = spawnShip(startingPosition, startingRotation, deployer);
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
 
     Action memory action = Action({
@@ -97,7 +95,6 @@ contract ChangeSailActionTest is DarkSeasTest {
 
   function setup() internal {
     actionSystem = ActionSystem(system(ActionSystemID));
-    shipSpawnSystem = ShipSpawnSystem(system(ShipSpawnSystemID));
     sailPositionComponent = SailPositionComponent(getAddressById(components, SailPositionComponentID));
     delete moves;
     delete actions;

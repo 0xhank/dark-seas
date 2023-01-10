@@ -10,6 +10,7 @@ import { createResetSystem } from "./createResetSystem";
 import { createShipCircleSystem } from "./createShipCircleSystem";
 import { createStatAnimationSystem } from "./createStatAnimationSystem";
 import { createTargetedSystem } from "./createTargetedSystem";
+import { createTileSystem } from "./createTileSystem";
 
 export function createPhaserSystems(context: PhaserLayer) {
   createActionSelectionSystem(context);
@@ -23,4 +24,5 @@ export function createPhaserSystems(context: PhaserLayer) {
   createStatAnimationSystem(context);
   createTargetedSystem(context);
   createFireCannonAnimationSystem(context);
+  createTileSystem(context);
 }

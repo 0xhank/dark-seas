@@ -5,7 +5,6 @@ pragma solidity >=0.8.0;
 import "../DarkSeasTest.t.sol";
 
 // Systems
-import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
 
 // Types
 import { Side, Coord } from "../../libraries/DSTypes.sol";
@@ -16,7 +15,7 @@ import "../../libraries/LibVector.sol";
 contract LibVectorTest is DarkSeasTest {
   constructor() DarkSeasTest(new Deploy()) {}
 
-  function testGetSternLocation() public {
+  function testGetSternLocation() public prank(deployer) {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 rotation = 45;
     uint32 length = 50;
@@ -27,10 +26,10 @@ contract LibVectorTest is DarkSeasTest {
     assertCoordEq(sternPosition, expectedLocation);
   }
 
-  function testGetShipBowAndSternLocation() public {
+  function testGetShipBowAndSternLocation() public prank(deployer) {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
-    uint256 shipEntity = ShipSpawnSystem(system(ShipSpawnSystemID)).executeTyped(startingPosition, startingRotation);
+    uint256 shipEntity = spawnShip(startingPosition, startingRotation, deployer);
 
     (Coord memory bow, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntity);
 
@@ -39,7 +38,7 @@ contract LibVectorTest is DarkSeasTest {
     assertCoordEq(stern, expectedStern);
   }
 
-  function testInsidePolygon() public {
+  function testInsidePolygon() public prank(deployer) {
     Coord[4] memory polygon = [
       Coord({ x: 0, y: 0 }),
       Coord({ x: 0, y: 10 }),
@@ -66,7 +65,7 @@ contract LibVectorTest is DarkSeasTest {
     assertTrue(LibVector.withinPolygon4(polygon, point8), "point 8 failed");
   }
 
-  function testPointInsideRectangle() public {
+  function testPointInsideRectangle() public prank(deployer) {
     Coord[4] memory coords = [
       Coord({ x: 0, y: 0 }),
       Coord({ x: 0, y: 4 }),
@@ -87,7 +86,7 @@ contract LibVectorTest is DarkSeasTest {
     assertTrue(!isOnLine);
   }
 
-  function testPointInsideTiltedTrapezoid() public {
+  function testPointInsideTiltedTrapezoid() public prank(deployer) {
     Coord[4] memory coords = [
       Coord({ x: 2, y: 0 }),
       Coord({ x: 0, y: 4 }),
@@ -108,7 +107,7 @@ contract LibVectorTest is DarkSeasTest {
     assertTrue(!isOnLine);
   }
 
-  function testPointInsideForwardPath() public {
+  function testPointInsideForwardPath() public prank(deployer) {
     Coord[3] memory coords = [Coord({ x: 0, y: 0 }), Coord({ x: 78, y: -13 }), Coord({ x: 78, y: 13 })];
 
     Coord memory insideCoord = Coord({ x: 70, y: 0 });
@@ -124,7 +123,7 @@ contract LibVectorTest is DarkSeasTest {
     assertTrue(!isOnLine, "is on line failed");
   }
 
-  function testSqrt() public {
+  function testSqrt() public prank(deployer) {
     Coord memory a = Coord(0, 0);
     Coord memory b = Coord(5, 0);
     assertEq(LibVector.distance(a, b), 5, "testSqrt: (0,0) and (5,0) failed");

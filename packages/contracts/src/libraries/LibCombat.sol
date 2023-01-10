@@ -24,7 +24,7 @@ import { Side, Coord } from "../libraries/DSTypes.sol";
 // Libraries
 import "./LibVector.sol";
 import "./LibUtils.sol";
-import { ABDKMath64x64 as Math } from "./ABDKMath64x64.sol";
+import { ABDKMath64x64 as Math } from "abdk-libraries-solidity/ABDKMath64x64.sol";
 
 library LibCombat {
   /*************************************************** ATTACK **************************************************** */

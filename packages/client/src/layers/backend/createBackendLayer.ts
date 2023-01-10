@@ -1,4 +1,5 @@
 import { GodID } from "@latticexyz/network";
+import { createPerlin } from "@latticexyz/noise";
 import {
   defineComponent,
   EntityID,
@@ -30,6 +31,8 @@ import { createSuccessfulActionSystem } from "./systems";
 export async function createBackendLayer(network: NetworkLayer) {
   // --- WORLD ----------------------------------------------------------------------
   const world = namespaceWorld(network.world, "backend");
+  const perlin = await createPerlin();
+
   const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
   // --- COMPONENTS -----------------------------------------------------------------
@@ -207,6 +210,7 @@ export async function createBackendLayer(network: NetworkLayer) {
     },
     components,
     godIndex: GodEntityIndex,
+    perlin,
   };
 
   // --- SYSTEMS --------------------------------------------------------------------
