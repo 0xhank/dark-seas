@@ -110,7 +110,7 @@ library LibCombat {
   }
 
   /**
-   * @notice  damages enemy hull, crew, and special attacks
+   * @notice  damages enemy hull, and special attacks
    * @dev     cheat sheet https://tinyurl.com/ds-math
    * @param   components  world components
    * @param   attackerEntity  attacking entity
@@ -130,7 +130,7 @@ library LibCombat {
     // todo: make randomness more robust
     uint256 r = LibUtils.randomness(attackerEntity, defenderEntity);
 
-    // perform hull and crew damage
+    // perform hull damage
     uint32 hullDamage = getHullDamage(baseHitChance, r);
 
     bool dead = damageHull(components, hullDamage, defenderEntity);
@@ -221,7 +221,7 @@ library LibCombat {
     uint256 randomSeed,
     uint256 shift
   ) public pure returns (bool) {
-    // pre-shifted to account for hull and crew damage
+    // pre-shifted to account for hull damage
     uint256 odds = ((LibUtils.getByteUInt(randomSeed, 14, (shift + 2) * 14)) * 10000) / 16384;
     uint256 outcome = (baseHitChance * 6) / 10;
     outcome = (outcome * ((damage - 1) + 10)) / 10;

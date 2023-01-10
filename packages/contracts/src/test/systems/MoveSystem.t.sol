@@ -18,7 +18,6 @@ import { MoveCardComponent, ID as MoveCardComponentID } from "../../components/M
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/ComponentDevSystem.sol";
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
-import { CrewCountComponent, ID as CrewCountComponentID } from "../../components/CrewCountComponent.sol";
 import { SpeedComponent, ID as SpeedComponentID } from "../../components/SpeedComponent.sol";
 
 // Types
@@ -105,30 +104,6 @@ contract MoveSystemTest is DarkSeasTest {
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Reveal));
 
     vm.expectRevert(bytes("MoveSystem: ship is sunk"));
-    moveSystem.executeTyped(moves, 69);
-  }
-
-  function testRevertCruDed() public {
-    setup();
-
-    ComponentDevSystem componentDevSystem = ComponentDevSystem(system(ComponentDevSystemID));
-
-    Coord memory startingPosition = Coord({ x: 0, y: 0 });
-    uint32 startingRotation = 45;
-    uint256 shipEntity = shipSpawnSystem.executeTyped(startingPosition, startingRotation);
-    uint256 moveStraightEntity = uint256(keccak256("ds.prototype.moveEntity1"));
-
-    moves.push(Move({ moveCardEntity: moveStraightEntity, shipEntity: shipEntity }));
-
-    componentDevSystem.executeTyped(CrewCountComponentID, shipEntity, abi.encode(0));
-
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Commit));
-    uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
-    commitSystem.executeTyped(commitment);
-
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Reveal));
-
-    vm.expectRevert(bytes("MoveSystem: ship has no crew"));
     moveSystem.executeTyped(moves, 69);
   }
 

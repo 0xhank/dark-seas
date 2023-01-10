@@ -9,7 +9,7 @@
     "devnode": "mud devnode",
     "test": "mud test",
     "types": "mud types",
-    "dev": "mud deploy-contracts --dev --watch --openUrl http://localhost:3000?dev=true",
+    "dev": "yarn prepare && mud deploy-contracts --dev --watch --openUrl http://localhost:3000?dev=true",
     "deploy": "mud deploy-contracts",
     "lint": "yarn prettier && yarn solhint",
     "----- INTERNAL -----": "---------------------------",

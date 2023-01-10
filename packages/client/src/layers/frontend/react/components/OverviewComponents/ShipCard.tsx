@@ -13,7 +13,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
     network: {
       utils: { getPlayerEntity },
       network: { connectedAddress },
-      components: { Health, SailPosition, DamagedCannons, OnFire, Rotation, OwnedBy, Name },
+      components: { MaxHealth, Health, SailPosition, DamagedCannons, OnFire, Rotation, OwnedBy, Name },
     },
     backend: {
       components: { SelectedActions },
@@ -27,6 +27,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
   const sailPosition = getComponentValueStrict(SailPosition, ship).value;
   const rotation = getComponentValueStrict(Rotation, ship).value;
   const health = getComponentValueStrict(Health, ship).value;
+  const maxHealth = getComponentValueStrict(MaxHealth, ship).value;
   const onFire = getComponentValue(OnFire, ship)?.value;
   const damagedCannons = getComponentValue(DamagedCannons, ship)?.value;
   const ownerName = getComponentValue(Name, ownerEntity)?.value;
@@ -40,10 +41,12 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
     ? sailPosition + 1
     : sailPosition;
 
+  const name = maxHealth < 12 ? "The Weasel" : "Big Bertha";
+
   return (
     <div style={{ display: "flex", borderRadius: "6px", width: "100%" }}>
       <BoxContainer>
-        <span style={{ fontSize: "1.5rem", lineHeight: "1.5rem" }}>HMS {ship}</span>
+        <span style={{ fontSize: "1.5rem", lineHeight: "1.5rem" }}>{name}</span>
         {playerEntity !== ownerEntity && <span>{ownerName}</span>}
         <BoxImage>
           <img
@@ -61,8 +64,8 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
           />
         </BoxImage>
       </BoxContainer>
-      <div style={{ flex: 3, display: "flex", flexDirection: "column", minWidth: 0 }}>
-        <HullHealth health={health} />
+      <div style={{ flex: 3, display: "flex", flexDirection: "column", minWidth: 0, marginLeft: "3px" }}>
+        <HullHealth health={health} maxHealth={maxHealth} />
         <div style={{ display: "flex", width: "100%", flexWrap: "wrap" }}>
           <ShipAttribute
             attributeType={ShipAttributeTypes.Sails}
@@ -97,6 +100,7 @@ const BoxContainer = styled.div`
   position: relative;
   max-width: 12rem;
   min-width: 8rem;
+  padding-top: 6px;
 
   @media (max-width: 1500px) {
     max-width: 10rem;
