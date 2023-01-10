@@ -137,7 +137,7 @@ contract MoveSystemTest is DarkSeasTest {
     moveSystem.executeTyped(moves, 69);
   }
 
-  function testRevertOutOfBounds() public prank(deployer) {
+  function testOutOfBounds() public prank(deployer) {
     setup();
     uint32 worldRadius = GameConfigComponent(getAddressById(components, GameConfigComponentID))
       .getValue(GodID)
@@ -146,15 +146,18 @@ contract MoveSystemTest is DarkSeasTest {
     uint256 moveStraightEntity = uint256(keccak256("ds.prototype.moveEntity1"));
 
     moves.push(Move({ moveCardEntity: moveStraightEntity, shipEntity: shipEntity }));
-
+    uint32 health = HealthComponent(getAddressById(components, HealthComponentID)).getValue(shipEntity);
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Commit));
     uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
     commitSystem.executeTyped(commitment);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Reveal));
 
-    vm.expectRevert(bytes("MoveSystem: move out of bounds"));
     moveSystem.executeTyped(moves, 69);
+
+    uint32 newHealth = HealthComponent(getAddressById(components, HealthComponentID)).getValue(shipEntity);
+
+    assertEq(health - 1, newHealth);
   }
 
   function testMove() public prank(deployer) {

@@ -28,7 +28,7 @@ export function createTileSystem(phaser: PhaserLayer) {
     if (!gameConfig) return;
 
     const worldRadius = gameConfig.worldRadius;
-    const startTime = Number(gameConfig.startTime);
+    const perlinSeed = gameConfig.perlinSeed;
     console.log("world radius:", worldRadius);
 
     const adjustment = TILE_HEIGHT / positions.posHeight;
@@ -37,7 +37,7 @@ export function createTileSystem(phaser: PhaserLayer) {
       for (let j = -worldRadius; j < worldRadius; j++) {
         const coord = { x: i, y: j };
         const adjustedCoord = { x: Math.floor(i / adjustment), y: Math.floor(j / adjustment) };
-        if (isWhirlpool(coord, startTime) && inRadius(coord, worldRadius)) {
+        if (isWhirlpool(coord, perlinSeed) && inRadius(coord, worldRadius)) {
           // console.log("placing whirlpool at,", coord.x, coord.y);
           Main.putTileAt(adjustedCoord, DSTileset.Blank, "Foreground");
 
@@ -47,9 +47,9 @@ export function createTileSystem(phaser: PhaserLayer) {
     }
   });
 
-  function isWhirlpool(coord: Coord, startTime: number): boolean {
+  function isWhirlpool(coord: Coord, perlinSeed: number): boolean {
     const denom = 40;
-    let depth = perlin(coord.x, coord.y, 0, denom);
+    let depth = perlin(coord.x + perlinSeed, coord.y + perlinSeed, 0, denom);
     depth = depth * 100;
 
     return depth < 26;
