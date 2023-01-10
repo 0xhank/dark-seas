@@ -25,7 +25,10 @@
   ],
   "systems": [
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
-    { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent", "LastMoveComponent"] },
+    {
+      "name": "MoveSystem",
+      "writeAccess": ["PositionComponent", "RotationComponent", "LastMoveComponent", "HealthComponent"]
+    },
     {
       "name": "ActionSystem",
       "writeAccess": [

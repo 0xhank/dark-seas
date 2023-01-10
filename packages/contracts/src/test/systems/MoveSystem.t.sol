@@ -4,11 +4,13 @@ pragma solidity >=0.8.0;
 // External
 import "../DarkSeasTest.t.sol";
 import { addressToEntity } from "solecs/utils.sol";
+import { Perlin } from "noise/Perlin.sol";
 
 // Systems
 import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
 import { CommitSystem, ID as CommitSystemID } from "../../systems/CommitSystem.sol";
 import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/ComponentDevSystem.sol";
+import { ABDKMath64x64 as Math } from "abdk-libraries-solidity/ABDKMath64x64.sol";
 
 // Components
 import { PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
@@ -329,6 +331,31 @@ contract MoveSystemTest is DarkSeasTest {
 
     assertCoordEq(position, expectedPosition);
     assertEq(rotation, expectedRotation);
+  }
+
+  int128 constant _11 = 8 * 2**64;
+
+  function getValue(Coord memory input) public returns (int32 finalResult) {
+    int128 denom = 15;
+    uint8 precision = 64;
+    int128 perlinResult = Perlin.noise2d(input.x, input.y, denom, precision);
+
+    finalResult = int32(Math.muli(perlinResult, 100));
+
+    // console.logCoord(input);
+    console.logInt(finalResult);
+  }
+
+  function testGetPerlin() public {
+    getValue(Coord({ x: 66, y: -210 }));
+
+    // perlinResult = Perlin.noise2d(0, 1, 69, 64);
+    // console.log("perlin result:");
+    // console.logInt(perlinResult);
+
+    // perlinResult = Perlin.noise2d(0, 2, 69, 64);
+    // console.log("perlin result:");
+    // console.logInt(perlinResult);
   }
 
   /**

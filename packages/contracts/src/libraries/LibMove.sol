@@ -20,7 +20,7 @@ import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedCompo
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
-import { MoveCard, Move, Coord, GodID } from "./DSTypes.sol";
+import { MoveCard, Move, Coord, GodID, GameConfig } from "./DSTypes.sol";
 
 // Libraries
 import "../libraries/LibVector.sol";
@@ -130,26 +130,27 @@ library LibMove {
 
     position = LibVector.getPositionByVector(position, rotation, moveCard.distance, moveCard.direction);
 
-    require(LibVector.inWorldRadius(components, position), "MoveSystem: move out of bounds");
     rotation = (rotation + moveCard.rotation) % 360;
 
-    if (isWhirlpool(components, position)) {
+    if (outOfBounds(components, position)) {
       LibCombat.damageHull(components, 1, move.shipEntity);
-      rotation = uint32(LibUtils.randomness(move.shipEntity, moveCard.distance) % 360);
     }
 
     positionComponent.set(move.shipEntity, position);
     rotationComponent.set(move.shipEntity, rotation);
   }
 
-  function isWhirlpool(IUint256Component components, Coord memory coord) private returns (bool) {
-    int128 perlinResult = Perlin.noise2d(
-      coord.x,
-      coord.y,
-      GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).perlinSeed,
-      64
-    );
+  function outOfBounds(IUint256Component components, Coord memory position) private returns (bool) {
+    if (!LibVector.inWorldRadius(components, position)) return true;
 
-    return perlinResult % 100 < 5;
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+    int128 denom = 40;
+    int128 depth = Perlin.noise2d(position.x, position.y, denom, 64);
+
+    depth = int128(Math.muli(depth, 100));
+
+    return depth < 26;
   }
 }

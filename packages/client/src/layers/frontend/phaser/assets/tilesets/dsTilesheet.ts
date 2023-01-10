@@ -1,4 +1,4 @@
 export enum DSTileset {
-  Blank = 27,
+  Blank = 65,
   Water = 72,
 }
