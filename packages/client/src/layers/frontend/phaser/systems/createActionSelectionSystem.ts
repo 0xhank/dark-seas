@@ -14,7 +14,7 @@ import { ActionType, Phase } from "../../../../types";
 import { DELAY } from "../../constants";
 import { colors } from "../../react/styles/global";
 import { PhaserLayer } from "../types";
-import { renderFiringArea } from "./renderShip";
+import { getRangeTintAlpha, renderFiringArea } from "./renderShip";
 
 export function createActionSelectionSystem(phaser: PhaserLayer) {
   const {
@@ -60,9 +60,6 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     const loaded = getComponentValue(Loaded, cannonEntity)?.value;
 
     const strokeFill = { tint: loaded ? colors.cannonReadyHex : colors.goldHex, alpha: 0.5 };
-
-    const tint = colors.whiteHex;
-    const alpha = 0.1;
 
     renderFiringArea(phaser, hoveredGroup, position, rotation, length, cannonEntity, undefined, strokeFill);
 
@@ -173,23 +170,4 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
   defineExitSystem(world, [Has(HoveredShip)], (update) => {
     polygonRegistry.get("selectedActions")?.clear(true, true);
   });
-
-  function getRangeTintAlpha(loaded: boolean, selected: boolean) {
-    //UNSELECTED
-    // Unloaded
-    let fill = { tint: colors.whiteHex, alpha: 0.2 };
-
-    // Loaded
-    if (loaded) {
-      fill = { tint: colors.goldHex, alpha: 0.5 };
-    }
-    //SELECTED
-    if (selected) {
-      //Unloaded
-      fill = { tint: colors.goldHex, alpha: 0.5 };
-      //Loaded
-      if (loaded) fill = { tint: colors.cannonReadyHex, alpha: 0.5 };
-    }
-    return fill;
-  }
 }

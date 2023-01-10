@@ -94,7 +94,7 @@ export function renderFiringArea(
 
   const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, colors.whiteHex, 0.1);
   firingPolygon.setDisplayOrigin(0);
-  firingPolygon.setDepth(RenderDepth.Foreground5);
+  firingPolygon.setDepth(RenderDepth.Foreground6);
   if (fill) {
     firingPolygon.setFillStyle(fill.tint, fill.alpha);
   }
@@ -138,4 +138,23 @@ export function renderCircle(
   circle.setFillStyle(tint, alpha);
 
   group.add(circle, true);
+}
+
+export function getRangeTintAlpha(loaded: boolean, selected: boolean) {
+  //UNSELECTED
+  // Unloaded
+  let fill = { tint: colors.whiteHex, alpha: 0.2 };
+
+  // Loaded
+  if (loaded) {
+    fill = { tint: colors.goldHex, alpha: 0.5 };
+  }
+  //SELECTED
+  if (selected) {
+    //Unloaded
+    fill = { tint: colors.goldHex, alpha: 0.5 };
+    //Loaded
+    if (loaded) fill = { tint: colors.cannonReadyHex, alpha: 0.5 };
+  }
+  return fill;
 }
