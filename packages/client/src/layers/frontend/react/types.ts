@@ -12,8 +12,6 @@ export enum Arrows {
 }
 
 export enum ShipAttributeTypes {
-  Firepower,
-  Crew,
   Sails,
 }
 

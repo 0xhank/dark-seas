@@ -17,7 +17,6 @@ import { RangeComponent, ID as RangeComponentID } from "../components/RangeCompo
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
-import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
 import { FirepowerComponent, ID as FirepowerComponentID } from "../components/FirepowerComponent.sol";
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
 import { CannonComponent, ID as CannonComponentID } from "../components/CannonComponent.sol";
@@ -130,7 +129,6 @@ library LibSpawn {
     HealthComponent(getAddressById(components, HealthComponentID)).set(shipEntity, 10);
     ShipComponent(getAddressById(components, ShipComponentID)).set(shipEntity);
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
-    CrewCountComponent(getAddressById(components, CrewCountComponentID)).set(shipEntity, 8);
     OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(shipEntity, playerEntity);
     SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, 100);
 

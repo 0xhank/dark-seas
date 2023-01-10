@@ -9,7 +9,6 @@
     "ShipComponent",
     "SailPositionComponent",
     "OnFireComponent",
-    "CrewCountComponent",
     "DamagedCannonsComponent",
     "FirepowerComponent",
     "GameConfigComponent",
@@ -31,7 +30,6 @@
         "HealthComponent",
         "OnFireComponent",
         "DamagedCannonsComponent",
-        "CrewCountComponent",
         "SailPositionComponent",
         "LastActionComponent",
         "LoadedComponent"
@@ -47,7 +45,6 @@
         "HealthComponent",
         "ShipComponent",
         "SailPositionComponent",
-        "CrewCountComponent",
         "FirepowerComponent",
         "LastMoveComponent",
         "LastActionComponent",
