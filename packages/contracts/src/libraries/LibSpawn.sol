@@ -15,6 +15,7 @@ import { RotationComponent, ID as RotationComponentID } from "../components/Rota
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
 import { RangeComponent, ID as RangeComponentID } from "../components/RangeComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
+import { MaxHealthComponent, ID as MaxHealthComponentID } from "../components/MaxHealthComponent.sol";
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { FirepowerComponent, ID as FirepowerComponentID } from "../components/FirepowerComponent.sol";
