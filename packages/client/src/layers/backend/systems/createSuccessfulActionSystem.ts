@@ -7,6 +7,7 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
     world,
     components: { ExecutedActions, SelectedActions, Targeted },
     actions: { Action },
+    systemDecoders: { onAction },
   } = layer;
 
   defineComponentSystem(world, Action, ({ value }) => {
@@ -18,16 +19,17 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
     const { type, metadata } = newAction.metadata as { type: TxType; metadata: Action[] };
     if (type != TxType.Action || state != ActionState.Complete) return;
 
-    metadata.forEach((action) => {
+    [...getComponentEntities(Targeted)].forEach((ship) => removeComponent(Targeted, ship));
+  });
+
+  onAction(({ actions }) => {
+    actions.forEach((action) => {
       const shipEntity = world.entityToIndex.get(action.shipEntity);
       if (!shipEntity) return;
       setComponent(ExecutedActions, shipEntity, {
         actionTypes: action.actionTypes,
         specialEntities: action.specialEntities,
       });
-      removeComponent(SelectedActions, shipEntity);
     });
-
-    [...getComponentEntities(Targeted)].forEach((ship) => removeComponent(Targeted, ship));
   });
 }

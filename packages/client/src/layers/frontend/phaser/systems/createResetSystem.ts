@@ -1,4 +1,4 @@
-import { defineRxSystem, getComponentEntities, getComponentValue, removeComponent } from "@latticexyz/recs";
+import { defineRxSystem, getComponentEntities, getComponentValue } from "@latticexyz/recs";
 import { Phase } from "../../../../types";
 import { DELAY } from "../../constants";
 import { PhaserLayer } from "../types";
@@ -15,7 +15,7 @@ export function createResetSystem(phaser: PhaserLayer) {
       backend: {
         components: { SelectedMove, SelectedActions, CommittedMoves, ExecutedActions, HoveredMove },
         api: { commitMove, revealMove, submitActions },
-        utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, getPlayerShips },
+        utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, getPlayerShips, clearComponent },
         godIndex,
       },
     },
@@ -45,8 +45,8 @@ export function createResetSystem(phaser: PhaserLayer) {
         getPlayerShips()?.map((ship) => {
           objectPool.remove(`projection-${ship}`);
           polygonRegistry.get(`rangeGroup-${ship}`)?.clear(true, true);
-          removeComponent(SelectedActions, ship);
-          removeComponent(ExecutedActions, ship);
+          clearComponent(SelectedActions);
+          clearComponent(ExecutedActions);
         });
         polygonRegistry.get("selectedActions")?.clear(true, true);
       }
@@ -90,10 +90,8 @@ export function createResetSystem(phaser: PhaserLayer) {
     if (phase == Phase.Action) {
       // START OF PHASE
       if (timeToNextPhase == gameConfig.actionPhaseLength) {
-        removeComponent(CommittedMoves, godIndex);
-        getPlayerShips()?.map((ship) => {
-          removeComponent(SelectedMove, ship);
-        });
+        clearComponent(CommittedMoves);
+        clearComponent(SelectedMove);
       }
       // END OF PHASE
       if (timeToNextPhase == 1) {

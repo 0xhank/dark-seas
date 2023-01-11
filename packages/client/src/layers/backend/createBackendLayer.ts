@@ -1,7 +1,9 @@
 import { GodID } from "@latticexyz/network";
 import { createPerlin } from "@latticexyz/noise";
 import {
+  Component,
   defineComponent,
+  defineRxSystem,
   EntityID,
   EntityIndex,
   getComponentValue,
@@ -10,12 +12,20 @@ import {
   HasValue,
   namespaceWorld,
   NotValue,
+  removeComponent,
   runQuery,
   Type,
 } from "@latticexyz/recs";
-import { createActionSystem, defineNumberComponent, defineStringComponent } from "@latticexyz/std-client";
+import {
+  createActionSystem,
+  DecodedSystemCall,
+  defineNumberComponent,
+  defineStringComponent,
+} from "@latticexyz/std-client";
 import { Coord } from "@latticexyz/utils";
-import { curry } from "lodash";
+import { BigNumber } from "ethers";
+import { curry, toLower } from "lodash";
+import { merge } from "rxjs";
 
 import { Action, ActionType, Move } from "../../types";
 import { inRadius } from "../../utils/distance";
@@ -71,10 +81,47 @@ export async function createBackendLayer(network: NetworkLayer) {
     utils: { getPlayerEntity, getGameConfig },
     components: { OnFire, DamagedCannons, SailPosition, Ship, OwnedBy, Range, Position, Rotation, Length },
     network: { connectedAddress },
+    systemCallStreams,
   } = network;
 
   // --- UTILITIES ------------------------------------------------------------------
 
+  function clearComponent(component: Component) {
+    [...component.entities()].forEach((entity) => removeComponent(component, entity));
+  }
+
+  function bigNumToEntityID(bigNum: BigNumber): EntityID {
+    return toLower(BigNumber.from(bigNum).toHexString()) as EntityID;
+  }
+  function getActions(args: Record<string, unknown>): Action[] {
+    const { actions: rawActions } = args as {
+      actions: { shipEntity: BigNumber; actionTypes: [number, number]; specialEntities: [BigNumber, BigNumber] }[];
+    };
+
+    const actions: Action[] = rawActions.map((action) => {
+      return {
+        shipEntity: bigNumToEntityID(action.shipEntity),
+        actionTypes: action.actionTypes,
+        specialEntities: [bigNumToEntityID(action.specialEntities[0]), bigNumToEntityID(action.specialEntities[1])],
+      };
+    });
+    return actions;
+  }
+
+  function onAction(
+    callback: (
+      combatData: {
+        actions: Action[];
+      } & DecodedSystemCall
+    ) => void
+  ) {
+    defineRxSystem(world, merge(systemCallStreams["ds.system.Action"]), (systemCall) => {
+      const { args, systemId } = systemCall;
+      const actions = getActions(args);
+
+      callback({ ...systemCall, actions });
+    });
+  }
   function isMyShip(shipEntity: EntityIndex): boolean {
     const owner = getComponentValue(OwnedBy, shipEntity)?.value;
     const myAddress = connectedAddress.get();
@@ -236,10 +283,15 @@ export async function createBackendLayer(network: NetworkLayer) {
       isMyShip,
       outOfBounds,
       isWhirlpool,
+      clearComponent,
     },
     components,
     godIndex: GodEntityIndex,
     perlin,
+
+    systemDecoders: {
+      onAction,
+    },
   };
 
   // --- SYSTEMS --------------------------------------------------------------------
