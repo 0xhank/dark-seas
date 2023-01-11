@@ -15,7 +15,7 @@ import styled from "styled-components";
 import { ActionType, Phase } from "../../../../types";
 import { DELAY } from "../../constants";
 import { registerUIComponent } from "../engine";
-import { Button, colors, ConfirmButton, Container, InternalContainer } from "../styles/global";
+import { colors, ConfirmButton, Container, InternalContainer } from "../styles/global";
 import { YourShip } from "./YourShip";
 
 export function registerYourShips() {
@@ -269,32 +269,15 @@ export function registerYourShips() {
         return <ConfirmButtonsContainer>{content}</ConfirmButtonsContainer>;
       };
 
-      const helpMessage =
-        phase == Phase.Commit
-          ? "Submit one move per ship"
-          : phase == Phase.Action
-          ? "Select up to two actions per ship"
-          : "";
       return (
         <Container style={{ justifyContent: "flex-end" }}>
-          <InternalContainer
-            style={{ height: "auto", flexDirection: "column", justifyContent: "space-between", gap: "12px" }}
-          >
-            <Instructions> {helpMessage}</Instructions>
-            <InternalContainer style={{ gap: "24px", padding: "0", background: "transparent" }}>
-              <MoveButtons>
-                {yourShips.map((ship) => (
-                  <YourShip
-                    key={`ship-${ship}`}
-                    layers={layers}
-                    ship={ship}
-                    selectedShip={selectedShip}
-                    phase={phase}
-                  />
-                ))}
-              </MoveButtons>
-              <ConfirmButtons />
-            </InternalContainer>
+          <InternalContainer style={{ gap: "24px", height: "auto", padding: "0", background: "transparent" }}>
+            <MoveButtons>
+              {yourShips.map((ship) => (
+                <YourShip key={`ship-${ship}`} layers={layers} ship={ship} selectedShip={selectedShip} phase={phase} />
+              ))}
+            </MoveButtons>
+            <ConfirmButtons />
           </InternalContainer>
         </Container>
       );

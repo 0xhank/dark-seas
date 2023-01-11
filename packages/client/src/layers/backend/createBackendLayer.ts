@@ -206,7 +206,6 @@ export async function createBackendLayer(network: NetworkLayer) {
     if (retrievedVal != undefined) return retrievedVal;
     const denom = 50;
     const depth = perlin(coord.x + perlinSeed, coord.y + perlinSeed, 0, denom);
-    console.log(`perlin: ${perlinSeed}`, "depth:", coord.x, coord.y, depth);
     const ret = depth * 100 < 26;
     outOfBoundsMap.set(coordStr, ret);
     return ret;

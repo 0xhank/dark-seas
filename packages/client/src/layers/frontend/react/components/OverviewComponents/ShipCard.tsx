@@ -13,7 +13,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
     network: {
       utils: { getPlayerEntity },
       network: { connectedAddress },
-      components: { MaxHealth, Health, SailPosition, DamagedCannons, OnFire, Rotation, OwnedBy, Name },
+      components: { MaxHealth, Health, SailPosition, DamagedCannons, OnFire, Rotation, OwnedBy, Name, Length },
     },
     backend: {
       components: { SelectedActions },
@@ -32,7 +32,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
   const damagedCannons = getComponentValue(DamagedCannons, ship)?.value;
   const ownerName = getComponentValue(Name, ownerEntity)?.value;
   const selectedActions = getComponentValue(SelectedActions, ship);
-
+  const length = getComponentValue(Length, ship)?.value || 10;
   const updates = new Set(selectedActions?.actionTypes);
 
   const updatedSailPosition = updates.has(ActionType.LowerSail)
@@ -59,7 +59,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
               margin: "auto",
               transform: `rotate(${rotation - 90}deg) translate(-50%,-50%)`,
               transformOrigin: `top left`,
-              maxWidth: "50px",
+              maxWidth: `${(50 * length) / 10}px`,
             }}
           />
         </BoxImage>

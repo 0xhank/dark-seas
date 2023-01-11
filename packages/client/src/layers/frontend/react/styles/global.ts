@@ -19,8 +19,8 @@ const thinGlass = "hsla(0, 0%, 100%, 0.25)";
 const red = "hsl(0, 100%, 50%)";
 const cannonReady = "hsla(344, 89%, 59%, 1)";
 const waiting = "hsla(50, 100%, 50%, 0.5)";
-const confirmed = "hsla(120, 100%, 50%, 0.5)";
-const green = "hsl(133, 100%, 65%)";
+const green = "hsl(119, 78%, 39%)";
+const greenGlass = color(green).alpha(0.7).toString();
 const whiteHex = color(white).rgbNumber();
 const goldHex = color(gold).rgbNumber();
 const greenHex = color(green).rgbNumber();
@@ -50,7 +50,7 @@ export const colors = {
   red,
   cannonReady,
   waiting,
-  confirmed,
+  greenGlass,
   green,
   whiteHex,
   goldHex,
