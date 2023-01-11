@@ -1,6 +1,6 @@
 import { PhaserLayer } from "../types";
 import { createActionSelectionSystem } from "./createActionSelectionSystem";
-import { createFireCannonAnimationSystem } from "./createFireCannonAnimationSystem";
+import { createCannonAnimationSystem } from "./createCannonAnimationSystem";
 import { createInputSystem } from "./createInputSystem";
 import { createMoveOptionsSystem } from "./createMoveOptionsSystem";
 import { createProjectionSystem } from "./createProjectionSystem";
@@ -23,6 +23,6 @@ export function createPhaserSystems(context: PhaserLayer) {
   createMoveOptionsSystem(context);
   createStatAnimationSystem(context);
   createTargetedSystem(context);
-  createFireCannonAnimationSystem(context);
+  createCannonAnimationSystem(context);
   createTileSystem(context);
 }
