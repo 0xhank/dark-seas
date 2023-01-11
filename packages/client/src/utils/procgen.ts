@@ -4,6 +4,7 @@ import color from "color";
 const huesByHash = new Map<number | string, color>();
 
 export function getColor(entity: number | string) {
+  return color.rgb("#ffffff");
   if (huesByHash.has(entity)) {
     return huesByHash.get(entity) || color(0);
   }

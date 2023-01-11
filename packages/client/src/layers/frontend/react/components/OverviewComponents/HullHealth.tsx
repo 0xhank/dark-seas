@@ -35,6 +35,7 @@ const HealthContainer = styled(Container)`
   height: 4.5rem;
   width: 100%;
   color: ${colors.darkBrown};
+  border: 1px solid ${colors.gold};
   flex-direction: row;
   padding: 6px;
   border-radius: 6px;

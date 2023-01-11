@@ -186,7 +186,7 @@ export function registerYourShips() {
       const RevealButtons = () => {
         const committedMoves = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
 
-        if (lastMove == currentTurn) return <Success background={colors.confirmed}>Move reveal successful!</Success>;
+        if (lastMove == currentTurn) return <Success background={colors.greenGlass}>Move reveal successful!</Success>;
         if (!committedMoves) return <Success background={colors.glass}>No moves to reveal</Success>;
         return (
           <ConfirmButton style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmitExecute}>
@@ -208,7 +208,7 @@ export function registerYourShips() {
             >
               {msg}
             </ConfirmButton>
-            <Button
+            <ConfirmButton
               disabled={disabled}
               noGoldBorder
               onClick={() => {
@@ -218,7 +218,7 @@ export function registerYourShips() {
               style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}
             >
               Clear
-            </Button>
+            </ConfirmButton>
           </>
         );
       };
@@ -236,7 +236,7 @@ export function registerYourShips() {
               >
                 Submit Actions
               </ConfirmButton>
-              <Button
+              <ConfirmButton
                 disabled={disabled}
                 noGoldBorder
                 onClick={() => {
@@ -246,7 +246,7 @@ export function registerYourShips() {
                 style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}
               >
                 Clear
-              </Button>
+              </ConfirmButton>
             </>
           );
         }
