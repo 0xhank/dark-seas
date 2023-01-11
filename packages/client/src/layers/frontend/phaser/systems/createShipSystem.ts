@@ -14,7 +14,7 @@ import {
 } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
 import { getShipSprite } from "../../../../utils/ships";
-import { CANNON_SHOT_LENGTH, RenderDepth, SHIP_RATIO } from "../constants";
+import { MOVE_LENGTH, RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
 
 export function createShipSystem(phaser: PhaserLayer) {
@@ -154,7 +154,7 @@ export function createShipSystem(phaser: PhaserLayer) {
         if (update.type == UpdateType.Enter) return;
         await tween({
           targets: gameObject,
-          duration: CANNON_SHOT_LENGTH,
+          duration: MOVE_LENGTH,
           props: {
             x,
             y,
