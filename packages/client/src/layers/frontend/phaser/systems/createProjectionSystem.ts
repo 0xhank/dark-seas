@@ -12,7 +12,6 @@ import {
 } from "@latticexyz/recs";
 import { Phase } from "../../../../types";
 import { getFinalPosition } from "../../../../utils/directions";
-import { getColorNum } from "../../../../utils/procgen";
 import { DELAY } from "../../constants";
 import { colors } from "../../react/styles/global";
 import { PhaserLayer } from "../types";
@@ -62,15 +61,7 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
 
-    renderShip(
-      phaser,
-      shipEntity,
-      `projection-${shipEntity}`,
-      finalPosition,
-      finalRotation,
-      getColorNum(shipEntity),
-      0.7
-    );
+    renderShip(phaser, shipEntity, `projection-${shipEntity}`, finalPosition, finalRotation, colors.darkGrayHex, 0.7);
   });
 
   /* ---------------------------------------------- Hovered Move update --------------------------------------------- */

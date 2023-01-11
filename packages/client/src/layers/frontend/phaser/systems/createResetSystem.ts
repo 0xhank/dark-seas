@@ -1,11 +1,4 @@
-import { GodID } from "@latticexyz/network";
-import {
-  defineRxSystem,
-  EntityIndex,
-  getComponentEntities,
-  getComponentValue,
-  removeComponent,
-} from "@latticexyz/recs";
+import { defineRxSystem, getComponentEntities, getComponentValue, removeComponent } from "@latticexyz/recs";
 import { Phase } from "../../../../types";
 import { DELAY } from "../../constants";
 import { PhaserLayer } from "../types";
@@ -20,9 +13,10 @@ export function createResetSystem(phaser: PhaserLayer) {
         network: { clock },
       },
       backend: {
-        components: { SelectedMove, SelectedActions, CommittedMoves, ExecutedActions },
+        components: { SelectedMove, SelectedActions, CommittedMoves, ExecutedActions, HoveredMove },
         api: { commitMove, revealMove, submitActions },
         utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, getPlayerShips },
+        godIndex,
       },
     },
     scenes: {
@@ -39,8 +33,6 @@ export function createResetSystem(phaser: PhaserLayer) {
     if (phase == undefined || !gameConfig) return;
 
     const timeToNextPhase = secondsUntilNextPhase(DELAY);
-
-    const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
     const playerEntity = getPlayerEntity();
     if (!playerEntity) return;
@@ -61,7 +53,7 @@ export function createResetSystem(phaser: PhaserLayer) {
 
       // END OF PHASE
       if (timeToNextPhase == 1) {
-        const committedMoves = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
+        const committedMoves = getComponentValue(CommittedMoves, godIndex)?.value;
         if (committedMoves) return;
         const shipsAndMoves = getPlayerShipsWithMoves();
         if (!shipsAndMoves) return;
@@ -80,8 +72,17 @@ export function createResetSystem(phaser: PhaserLayer) {
       });
       const lastMove = getComponentValue(LastMove, playerEntity)?.value;
       if (lastMove == turn) return;
-      const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
+      const encoding = getComponentValue(CommittedMoves, godIndex)?.value;
       if (encoding) revealMove(encoding);
+
+      // clear projected ship
+      const hoveredShip = getComponentValue(HoveredMove, godIndex)?.shipEntity;
+      if (hoveredShip) {
+        const hoverId = `hoverGhost-${hoveredShip}`;
+
+        objectPool.remove(hoverId);
+        polygonRegistry.get(hoverId)?.clear(true, true);
+      }
     }
 
     // START OF PHASE: clear move commitments
@@ -89,7 +90,7 @@ export function createResetSystem(phaser: PhaserLayer) {
     if (phase == Phase.Action) {
       // START OF PHASE
       if (timeToNextPhase == gameConfig.actionPhaseLength) {
-        removeComponent(CommittedMoves, GodEntityIndex);
+        removeComponent(CommittedMoves, godIndex);
         getPlayerShips()?.map((ship) => {
           removeComponent(SelectedMove, ship);
         });
