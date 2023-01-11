@@ -21,6 +21,7 @@ const cannonReady = "hsla(344, 89%, 59%, 1)";
 const waiting = "hsla(50, 100%, 50%, 0.5)";
 const green = "hsl(119, 78%, 39%)";
 const greenGlass = color(green).alpha(0.7).toString();
+const darkGrayHex = color(darkGray).rgbNumber();
 const whiteHex = color(white).rgbNumber();
 const goldHex = color(gold).rgbNumber();
 const greenHex = color(green).rgbNumber();
@@ -57,6 +58,7 @@ export const colors = {
   greenHex,
   cannonReadyHex,
   redHex,
+  darkGrayHex,
 };
 
 export const Container = styled.div`
