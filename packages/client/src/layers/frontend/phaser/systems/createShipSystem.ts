@@ -49,6 +49,7 @@ export function createShipSystem(phaser: PhaserLayer) {
     if (!playerEntity || !ownerEntity) return null;
 
     const spriteAsset: Sprites = getShipSprite(playerEntity, health, playerEntity == ownerEntity);
+
     // @ts-expect-error doesnt recognize a sprite as a number
     const sprite = config.sprites[spriteAsset];
     object.setComponent({
@@ -63,18 +64,6 @@ export function createShipSystem(phaser: PhaserLayer) {
           gameObject.setAlpha(1);
           gameObject.setDepth(RenderDepth.Foreground3);
         }
-      },
-    });
-
-    const length = getComponentValue(Length, update.entity)?.value || 0;
-
-    object.setComponent({
-      id: "len",
-      once: (sprite) => {
-        const shipLength = length * positions.posWidth * 1.25;
-        const shipWidth = shipLength / SHIP_RATIO;
-        sprite.setDisplaySize(shipWidth, shipLength);
-        sprite.setOrigin(0.5, 0.92);
       },
     });
 
@@ -102,12 +91,29 @@ export function createShipSystem(phaser: PhaserLayer) {
 
   // LENGTH UPDATES
   defineComponentSystem(world, Length, (update) => {
-    if (update.component != Length) return;
-    const length = (update.value[0]?.value as number) || 0;
+    const length = update.value[0]?.value || 0;
     const object = objectPool.get(update.entity, "Sprite");
+    const health = getComponentValue(Health, update.entity)?.value;
 
-    console.log(`${update.entity} length: ${length}`);
+    if (!update.value[1]) {
+      const ownerEntity = getPlayerEntity(getComponentValue(OwnedBy, update.entity)?.value);
+      const playerEntity = getPlayerEntity();
+      if (!playerEntity || !ownerEntity) return null;
+      const spriteAsset: Sprites = getShipSprite(playerEntity, 10, playerEntity == ownerEntity);
+      // @ts-expect-error doesnt recognize a sprite as a number
 
+      const sprite = config.sprites[spriteAsset];
+
+      object.setComponent({
+        id: `texture`,
+        once: (gameObject) => {
+          gameObject.setTexture(sprite.assetKey, sprite.frame);
+
+          gameObject.setAlpha(1);
+          gameObject.setDepth(RenderDepth.Foreground3);
+        },
+      });
+    }
     object.setComponent({
       id: "len",
       once: (sprite) => {
