@@ -24,6 +24,7 @@ import {
 } from "@latticexyz/std-client";
 import { Coord } from "@latticexyz/utils";
 import { BigNumber } from "ethers";
+import { Howl } from "howler";
 import { curry, toLower } from "lodash";
 import { merge } from "rxjs";
 
@@ -35,6 +36,7 @@ import { commitMove } from "./api/commitMove";
 import { revealMove } from "./api/revealMove";
 import { spawnPlayer } from "./api/spawnPlayer";
 import { submitActions } from "./api/submitActions";
+import { Category, soundLibrary } from "./sound/library";
 import { createSuccessfulActionSystem } from "./systems";
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -74,6 +76,9 @@ export async function createBackendLayer(network: NetworkLayer) {
       { actionTypes: Type.NumberArray, specialEntities: Type.EntityArray },
       { id: "ExecutedActions" }
     ),
+
+    // SOUND COMPONENTS
+    Volume: defineNumberComponent(world, { id: "Volume" }),
   };
   // --- SETUP ----------------------------------------------------------------------
 
@@ -84,6 +89,41 @@ export async function createBackendLayer(network: NetworkLayer) {
     systemCallStreams,
   } = network;
 
+  // SOUND
+
+  function playSound(id: string, category: Category, loop = false, fade = false) {
+    let timeout;
+    console.log(`playing ${id} sound`);
+    const sound = new Howl({
+      src: [soundLibrary[category][id].src],
+      volume: soundLibrary[category][id].volume,
+      preload: true,
+      loop: loop,
+    });
+    if (fade) {
+      // Fade on begin and end
+      const FADE_TIME = 2000;
+
+      // Init
+      sound.play();
+      sound.fade(0, 0.4, FADE_TIME);
+      sound.on("load", function () {
+        const FADE_OUT_TIME = sound.duration() * 1000 - sound.seek() - FADE_TIME;
+        timeout = setTimeout(function () {
+          sound.fade(0.4, 0, FADE_TIME);
+        }, FADE_OUT_TIME);
+      });
+    } else {
+      sound.play();
+    }
+    return sound;
+  }
+
+  function startEnvironmentSoundSystem() {
+    playSound("ocean", Category.Environment, true);
+  }
+
+  startEnvironmentSoundSystem();
   // --- UTILITIES ------------------------------------------------------------------
 
   function clearComponent(component: Component) {
