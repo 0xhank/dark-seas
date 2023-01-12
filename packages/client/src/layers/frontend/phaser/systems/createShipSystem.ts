@@ -39,51 +39,129 @@ export function createShipSystem(phaser: PhaserLayer) {
 
   const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
+  defineEnterSystem(
+    world,
+    [Has(Health), Has(Length), Has(Position), Has(Rotation), Has(OwnedBy)],
+    ({ entity: shipEntity }) => {
+      const health = getComponentValueStrict(Health, shipEntity).value;
+      const position = getComponentValueStrict(Position, shipEntity);
+      const length = getComponentValueStrict(Length, shipEntity).value;
+      const rotation = getComponentValueStrict(Rotation, shipEntity).value;
+      const ownerId = getComponentValueStrict(OwnedBy, shipEntity).value;
+
+      const ownerEntity = getPlayerEntity(ownerId);
+      if (!ownerEntity) return;
+      const playerEntity = getPlayerEntity();
+      const object = objectPool.get(shipEntity, "Sprite");
+      const spriteAsset: Sprites = getShipSprite(ownerEntity, health, playerEntity == ownerEntity);
+      // @ts-expect-error doesnt recognize a sprite as a number
+      const sprite = config.sprites[spriteAsset];
+      object.setComponent({
+        id: `texture`,
+        once: (ship) => {
+          ship.setTexture(sprite.assetKey, sprite.frame);
+
+          if (health == 0) {
+            ship.setAlpha(0.5);
+            ship.setDepth(RenderDepth.Foreground4);
+          } else {
+            ship.setAlpha(1);
+            ship.setDepth(RenderDepth.Foreground3);
+          }
+        },
+      });
+
+      object.setComponent({
+        id: "interactive",
+        once: (ship) => {
+          if (health == 0) {
+            ship.off("pointerdown");
+            ship.off("pointerover");
+            ship.off("pointerout");
+            ship.disableInteractive();
+          } else {
+            ship.setInteractive();
+            ship.off("pointerdown");
+            ship.off("pointerover");
+            ship.off("pointerout");
+
+            ship.on("pointerdown", () => setComponent(SelectedShip, GodEntityIndex, { value: shipEntity }));
+            ship.on("pointerover", () => setComponent(HoveredShip, GodEntityIndex, { value: shipEntity }));
+            ship.on("pointerout", () => removeComponent(HoveredShip, GodEntityIndex));
+          }
+        },
+      });
+
+      object.setComponent({
+        id: "len",
+        once: (sprite) => {
+          const shipLength = length * positions.posWidth * 1.25;
+          const shipWidth = shipLength / SHIP_RATIO;
+          sprite.setDisplaySize(shipWidth, shipLength);
+          sprite.setOrigin(0.5, 0.92);
+        },
+      });
+
+      object.setComponent({
+        id: "position-rotation",
+
+        once: async (ship) => {
+          const { x, y } = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
+
+          ship.setAngle((rotation - 90) % 360);
+          ship.setPosition(x, y);
+        },
+      });
+
+      if (playerEntity == ownerEntity)
+        camera.centerOn(position.x * positions.posWidth, position.y * positions.posHeight + 400);
+    }
+  );
   // HEALTH UPDATES
   defineComponentSystem(world, Health, (update) => {
-    const health = update.value[0]?.value;
-    if (health == undefined) return;
+    if (update.value[0] === undefined || update.value[1] === undefined) return;
+    const health = update.value[0].value;
     const object = objectPool.get(update.entity, "Sprite");
     const ownerEntity = getPlayerEntity(getComponentValue(OwnedBy, update.entity)?.value);
     const playerEntity = getPlayerEntity();
-    if (!playerEntity || !ownerEntity) return null;
+    if (!ownerEntity) return null;
 
-    const spriteAsset: Sprites = getShipSprite(playerEntity, health, playerEntity == ownerEntity);
+    const spriteAsset: Sprites = getShipSprite(ownerEntity, health, playerEntity == ownerEntity);
 
     // @ts-expect-error doesnt recognize a sprite as a number
     const sprite = config.sprites[spriteAsset];
     object.setComponent({
       id: `texture`,
-      once: (gameObject) => {
-        gameObject.setTexture(sprite.assetKey, sprite.frame);
+      once: (ship) => {
+        ship.setTexture(sprite.assetKey, sprite.frame);
 
         if (health == 0) {
-          gameObject.setAlpha(0.5);
-          gameObject.setDepth(RenderDepth.Foreground4);
+          ship.setAlpha(0.5);
+          ship.setDepth(RenderDepth.Foreground4);
         } else {
-          gameObject.setAlpha(1);
-          gameObject.setDepth(RenderDepth.Foreground3);
+          ship.setAlpha(1);
+          ship.setDepth(RenderDepth.Foreground3);
         }
       },
     });
 
     object.setComponent({
       id: "interactive",
-      once: (gameObject) => {
+      once: (ship) => {
         if (health == 0) {
-          gameObject.off("pointerdown");
-          gameObject.off("pointerover");
-          gameObject.off("pointerout");
-          gameObject.disableInteractive();
+          ship.off("pointerdown");
+          ship.off("pointerover");
+          ship.off("pointerout");
+          ship.disableInteractive();
         } else {
-          gameObject.setInteractive();
-          gameObject.off("pointerdown");
-          gameObject.off("pointerover");
-          gameObject.off("pointerout");
+          ship.setInteractive();
+          ship.off("pointerdown");
+          ship.off("pointerover");
+          ship.off("pointerout");
 
-          gameObject.on("pointerdown", () => setComponent(SelectedShip, GodEntityIndex, { value: update.entity }));
-          gameObject.on("pointerover", () => setComponent(HoveredShip, GodEntityIndex, { value: update.entity }));
-          gameObject.on("pointerout", () => removeComponent(HoveredShip, GodEntityIndex));
+          ship.on("pointerdown", () => setComponent(SelectedShip, GodEntityIndex, { value: update.entity }));
+          ship.on("pointerover", () => setComponent(HoveredShip, GodEntityIndex, { value: update.entity }));
+          ship.on("pointerout", () => removeComponent(HoveredShip, GodEntityIndex));
         }
       },
     });
@@ -91,29 +169,11 @@ export function createShipSystem(phaser: PhaserLayer) {
 
   // LENGTH UPDATES
   defineComponentSystem(world, Length, (update) => {
-    const length = update.value[0]?.value || 0;
+    if (update.value[0] === undefined || update.value[1] === undefined) return;
+
+    const length = update.value[0].value;
     const object = objectPool.get(update.entity, "Sprite");
-    const health = getComponentValue(Health, update.entity)?.value;
 
-    if (!update.value[1]) {
-      const ownerEntity = getPlayerEntity(getComponentValue(OwnedBy, update.entity)?.value);
-      const playerEntity = getPlayerEntity();
-      if (!playerEntity || !ownerEntity) return null;
-      const spriteAsset: Sprites = getShipSprite(playerEntity, 10, playerEntity == ownerEntity);
-      // @ts-expect-error doesnt recognize a sprite as a number
-
-      const sprite = config.sprites[spriteAsset];
-
-      object.setComponent({
-        id: `texture`,
-        once: (gameObject) => {
-          gameObject.setTexture(sprite.assetKey, sprite.frame);
-
-          gameObject.setAlpha(1);
-          gameObject.setDepth(RenderDepth.Foreground3);
-        },
-      });
-    }
     object.setComponent({
       id: "len",
       once: (sprite) => {
@@ -127,16 +187,18 @@ export function createShipSystem(phaser: PhaserLayer) {
 
   // Position and Rotation updates
   defineSystem(world, [Has(Position), Has(Rotation)], (update) => {
+    if (update.value[0] === undefined || update.value[1] === undefined) return;
+
     const object = objectPool.get(update.entity, "Sprite");
 
     if (update.type == UpdateType.Exit) {
       object.setComponent({
         id: "interactive",
-        once: (gameObject) => {
-          gameObject.off("pointerdown");
-          gameObject.off("pointerover");
-          gameObject.off("pointerout");
-          gameObject.disableInteractive();
+        once: (ship) => {
+          ship.off("pointerdown");
+          ship.off("pointerover");
+          ship.off("pointerout");
+          ship.disableInteractive();
         },
       });
       objectPool.remove(update.entity);
@@ -156,10 +218,10 @@ export function createShipSystem(phaser: PhaserLayer) {
 
     object.setComponent({
       id: "position-rotation",
-      now: async (gameObject) => {
+      now: async (ship) => {
         if (update.type == UpdateType.Enter) return;
         await tween({
-          targets: gameObject,
+          targets: ship,
           duration: MOVE_LENGTH,
           props: {
             x,
@@ -182,21 +244,10 @@ export function createShipSystem(phaser: PhaserLayer) {
           ease: Phaser.Math.Easing.Sine.InOut,
         });
       },
-      once: async (gameObject: Phaser.GameObjects.Sprite) => {
-        gameObject.setAngle((rotation - 90) % 360);
-        gameObject.setPosition(x, y);
+      once: async (ship) => {
+        ship.setAngle((rotation - 90) % 360);
+        ship.setPosition(x, y);
       },
     });
-  });
-
-  // CENTER ON SHIP WHEN IT SPAWNS
-  defineEnterSystem(world, [Has(OwnedBy), Has(Position)], (update) => {
-    const position = getComponentValue(Position, update.entity);
-    const ownerEntity = getPlayerEntity(getComponentValue(OwnedBy, update.entity)?.value);
-    const playerEntity = getPlayerEntity(connectedAddress.get());
-
-    if (!position || !ownerEntity || !playerEntity || ownerEntity !== playerEntity) return;
-
-    camera.centerOn(position.x * positions.posWidth, position.y * positions.posHeight + 400);
   });
 }
