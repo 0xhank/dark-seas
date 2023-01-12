@@ -63,6 +63,29 @@ export function renderShip(
   return object;
 }
 
+export function getFiringAreaPixels(
+  phaser: PhaserLayer,
+  position: Coord,
+  rotation: number,
+  length: number,
+  cannonEntity: EntityIndex
+) {
+  const {
+    parentLayers: {
+      network: {
+        components: { Range, Rotation },
+      },
+    },
+    positions,
+  } = phaser;
+  const range = getComponentValueStrict(Range, cannonEntity).value * positions.posHeight;
+
+  const pixelPosition = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
+  const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
+
+  return getFiringArea(pixelPosition, range, length * positions.posHeight, rotation, cannonRotation);
+}
+
 export function renderFiringArea(
   phaser: PhaserLayer,
   group: Phaser.GameObjects.Group,
@@ -73,28 +96,12 @@ export function renderFiringArea(
   fill: { tint: number; alpha: number } | undefined = undefined,
   stroke: { tint: number; alpha: number } | undefined = undefined
 ) {
-  const {
-    parentLayers: {
-      network: {
-        components: { Range, Rotation },
-      },
-    },
-    scenes: {
-      Main: { phaserScene },
-    },
-    positions,
-  } = phaser;
+  const { phaserScene } = phaser.scenes.Main;
 
-  const pixelPosition = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
-
-  const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
-  const range = getComponentValueStrict(Range, cannonEntity).value * positions.posHeight;
-
-  const firingArea = getFiringArea(pixelPosition, range, length * positions.posHeight, rotation, cannonRotation);
-
+  const firingArea = getFiringAreaPixels(phaser, position, rotation, length, cannonEntity);
   const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, colors.whiteHex, 0.1);
   firingPolygon.setDisplayOrigin(0);
-  firingPolygon.setDepth(RenderDepth.Foreground5);
+  firingPolygon.setDepth(RenderDepth.Foreground6);
   if (fill) {
     firingPolygon.setFillStyle(fill.tint, fill.alpha);
   }
@@ -138,4 +145,24 @@ export function renderCircle(
   circle.setFillStyle(tint, alpha);
 
   group.add(circle, true);
+}
+
+export function getRangeTintAlpha(loaded: boolean, selected: boolean, damaged: boolean) {
+  if (damaged) return { tint: colors.blackHex, alpha: 0.2 };
+  //UNSELECTED
+  // Unloaded
+  let fill = { tint: colors.whiteHex, alpha: 0.2 };
+
+  // Loaded
+  if (loaded) {
+    fill = { tint: colors.goldHex, alpha: 0.5 };
+  }
+  //SELECTED
+  if (selected) {
+    //Unloaded
+    fill = { tint: colors.goldHex, alpha: 0.5 };
+    //Loaded
+    if (loaded) fill = { tint: colors.cannonReadyHex, alpha: 0.5 };
+  }
+  return fill;
 }

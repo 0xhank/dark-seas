@@ -1,14 +1,19 @@
 import { tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
 import {
+  defineComponentSystem,
   defineEnterSystem,
   defineExitSystem,
   defineUpdateSystem,
   getComponentValueStrict,
   Has,
+  HasValue,
+  runQuery,
 } from "@latticexyz/recs";
 import { getSternLocation, midpoint } from "../../../../utils/trig";
-import { Animations, CANNON_SHOT_LENGTH, RenderDepth } from "../constants";
+import { colors } from "../../react/styles/global";
+import { Animations, CANNON_SHOT_LENGTH, MOVE_LENGTH, RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
+import { renderFiringArea } from "./renderShip";
 
 export function createStatAnimationSystem(layer: PhaserLayer) {
   const {
@@ -18,35 +23,48 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
     },
     parentLayers: {
       network: {
-        components: { Health, OnFire, SailPosition, Position, Rotation, Length },
+        components: { Health, OnFire, DamagedCannons, Position, Rotation, Length, Cannon, OwnedBy },
       },
     },
     positions,
+    polygonRegistry,
+    scenes: {
+      Main: { phaserScene },
+    },
   } = layer;
 
   // HEALTH UPDATES
-  defineUpdateSystem(world, [Has(Health)], (update) => {
+  defineComponentSystem(world, Health, (update) => {
     if (update.component != Health) return;
     if (!update.value[0] || !update.value[1]) return;
     const healthLost = Number(update.value[1].value) - Number(update.value[0].value);
     if (healthLost <= 0 || healthLost >= 4) return;
-    const position = getComponentValueStrict(Position, update.entity);
-    const rotation = getComponentValueStrict(Rotation, update.entity).value;
-    const length = getComponentValueStrict(Length, update.entity).value;
-    const sternPosition = getSternLocation(position, rotation, length);
-    const delay = 600;
-    const center = midpoint(position, sternPosition);
-    const hitLocations = [midpoint(position, center), center, midpoint(center, sternPosition)];
+
     for (let i = 0; i < healthLost; i++) {
       const spriteId = `${update.entity}-explosion-${i}`;
 
       const object = objectPool.get(spriteId, "Sprite");
-      const { x, y } = tileCoordToPixelCoord(hitLocations[i], positions.posWidth, positions.posHeight);
 
       object.setComponent({
         id: `explosion-${i}`,
+        now: async (sprite) => {
+          await tween({
+            targets: sprite,
+            duration: CANNON_SHOT_LENGTH,
+          });
+        },
         once: async (sprite) => {
           // sprite.setScale(Math.random() + 1);
+
+          const position = getComponentValueStrict(Position, update.entity);
+          const rotation = getComponentValueStrict(Rotation, update.entity).value;
+          const length = getComponentValueStrict(Length, update.entity).value;
+          const sternPosition = getSternLocation(position, rotation, length);
+          const delay = 600;
+          const center = midpoint(position, sternPosition);
+          const hitLocations = [midpoint(position, center), center, midpoint(center, sternPosition)];
+          const { x, y } = tileCoordToPixelCoord(hitLocations[i], positions.posWidth, positions.posHeight);
+
           sprite.setOrigin(0.5, 0.5);
           sprite.setPosition(x, y);
           sprite.setDepth(RenderDepth.UI5);
@@ -112,8 +130,7 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
         now: async (sprite) => {
           await tween({
             targets: sprite,
-            delay: CANNON_SHOT_LENGTH,
-            duration: 2000,
+            duration: MOVE_LENGTH,
             props: { x, y },
             ease: Phaser.Math.Easing.Sine.InOut,
           });
@@ -141,9 +158,49 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
     }
   });
 
-  // SAIL POSITION UPDATE
-  defineUpdateSystem(world, [Has(SailPosition)], (update) => {
-    const sailPosition = getComponentValueStrict(SailPosition, update.entity).value;
-    if (sailPosition != 0) return;
+  // BROKEN CANNON UPDATES
+
+  defineComponentSystem(world, DamagedCannons, (update) => {
+    const shipEntity = update.entity;
+
+    // exit
+    if (!update.value[0]) return;
+    // update
+    if (update.value[0] && update.value[1]) return;
+    console.log(`flashing ${shipEntity} cannons`);
+    const groupId = `flash-cannons-${shipEntity}`;
+    const group = polygonRegistry.get(groupId) || phaserScene.add.group();
+    const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
+    console.log("hello from", cannonEntities);
+
+    const duration = 500;
+    const repeat = -1;
+    cannonEntities.forEach((cannonEntity) => {
+      const position = getComponentValueStrict(Position, shipEntity);
+      const length = getComponentValueStrict(Length, shipEntity).value;
+      const rotation = getComponentValueStrict(Rotation, shipEntity).value;
+      const rangeColor = { tint: colors.blackHex, alpha: 0.3 };
+      renderFiringArea(layer, group, position, rotation, length, cannonEntity, rangeColor);
+    });
+
+    phaserScene.tweens.add({
+      targets: group.getChildren(),
+      props: {
+        alpha: 0,
+      },
+      ease: Phaser.Math.Easing.Sine.Out,
+      duration: duration,
+      repeat: repeat,
+      yoyo: true,
+    });
+
+    phaserScene.time.addEvent({
+      delay: duration * 7,
+      callback: function () {
+        console.log("clearing group");
+        group.clear(true, true);
+      },
+      callbackScope: phaserScene,
+    });
   });
 }

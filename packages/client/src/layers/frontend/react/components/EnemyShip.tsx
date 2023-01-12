@@ -38,7 +38,7 @@ export function registerEnemyShip() {
           },
         },
         backend: {
-          components: { SelectedShip },
+          components: { HoveredShip },
         },
       } = layers;
 
@@ -50,7 +50,7 @@ export function registerEnemyShip() {
         OwnedBy.update$,
         Health.update$,
         MaxHealth.update$,
-        SelectedShip.update$,
+        HoveredShip.update$,
         SailPosition.update$,
         DamagedCannons.update$,
         Firepower.update$,
@@ -63,16 +63,16 @@ export function registerEnemyShip() {
             getPlayerEntity,
             connectedAddress,
             OwnedBy,
-            SelectedShip,
+            HoveredShip,
             world,
           };
         })
       );
     },
-    ({ layers, getPlayerEntity, connectedAddress, OwnedBy, SelectedShip, world }) => {
+    ({ layers, getPlayerEntity, connectedAddress, OwnedBy, HoveredShip, world }) => {
       const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
-      const ship = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
+      const ship = getComponentValue(HoveredShip, GodEntityIndex)?.value as EntityIndex | undefined;
       if (!ship) return null;
 
       const playerEntity = getPlayerEntity(connectedAddress.get());

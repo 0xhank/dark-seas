@@ -1,7 +1,9 @@
 import { GodID } from "@latticexyz/network";
 import { createPerlin } from "@latticexyz/noise";
 import {
+  Component,
   defineComponent,
+  defineRxSystem,
   EntityID,
   EntityIndex,
   getComponentValue,
@@ -10,13 +12,23 @@ import {
   HasValue,
   namespaceWorld,
   NotValue,
+  removeComponent,
   runQuery,
   Type,
 } from "@latticexyz/recs";
-import { createActionSystem, defineNumberComponent, defineStringComponent } from "@latticexyz/std-client";
-import { curry } from "lodash";
+import {
+  createActionSystem,
+  DecodedSystemCall,
+  defineNumberComponent,
+  defineStringComponent,
+} from "@latticexyz/std-client";
+import { Coord } from "@latticexyz/utils";
+import { BigNumber } from "ethers";
+import { curry, toLower } from "lodash";
+import { merge } from "rxjs";
 
 import { Action, ActionType, Move } from "../../types";
+import { inRadius } from "../../utils/distance";
 import { getFiringArea, getSternLocation, inFiringArea } from "../../utils/trig";
 import { NetworkLayer } from "../network";
 import { commitMove } from "./api/commitMove";
@@ -66,13 +78,50 @@ export async function createBackendLayer(network: NetworkLayer) {
   // --- SETUP ----------------------------------------------------------------------
 
   const {
-    utils: { getPlayerEntity },
+    utils: { getPlayerEntity, getGameConfig },
     components: { OnFire, DamagedCannons, SailPosition, Ship, OwnedBy, Range, Position, Rotation, Length },
     network: { connectedAddress },
+    systemCallStreams,
   } = network;
 
   // --- UTILITIES ------------------------------------------------------------------
 
+  function clearComponent(component: Component) {
+    [...component.entities()].forEach((entity) => removeComponent(component, entity));
+  }
+
+  function bigNumToEntityID(bigNum: BigNumber): EntityID {
+    return toLower(BigNumber.from(bigNum).toHexString()) as EntityID;
+  }
+  function getActions(args: Record<string, unknown>): Action[] {
+    const { actions: rawActions } = args as {
+      actions: { shipEntity: BigNumber; actionTypes: [number, number]; specialEntities: [BigNumber, BigNumber] }[];
+    };
+
+    const actions: Action[] = rawActions.map((action) => {
+      return {
+        shipEntity: bigNumToEntityID(action.shipEntity),
+        actionTypes: action.actionTypes,
+        specialEntities: [bigNumToEntityID(action.specialEntities[0]), bigNumToEntityID(action.specialEntities[1])],
+      };
+    });
+    return actions;
+  }
+
+  function onAction(
+    callback: (
+      combatData: {
+        actions: Action[];
+      } & DecodedSystemCall
+    ) => void
+  ) {
+    defineRxSystem(world, merge(systemCallStreams["ds.system.Action"]), (systemCall) => {
+      const { args, systemId } = systemCall;
+      const actions = getActions(args);
+
+      callback({ ...systemCall, actions });
+    });
+  }
   function isMyShip(shipEntity: EntityIndex): boolean {
     const owner = getComponentValue(OwnedBy, shipEntity)?.value;
     const myAddress = connectedAddress.get();
@@ -184,6 +233,31 @@ export async function createBackendLayer(network: NetworkLayer) {
       ];
     }, []);
   }
+
+  const outOfBoundsMap = new Map<string, boolean>();
+
+  function outOfBounds(position: Coord) {
+    const gameConfig = getGameConfig();
+    if (!gameConfig) return false;
+
+    if (!inRadius(position, gameConfig.worldRadius)) return true;
+
+    const whirlpool = isWhirlpool(position, Number(gameConfig.perlinSeed));
+    if (whirlpool) return true;
+    return false;
+  }
+
+  function isWhirlpool(coord: Coord, perlinSeed: number): boolean {
+    const coordStr = `${coord.x}-${coord.y}`;
+    const retrievedVal = outOfBoundsMap.get(coordStr);
+    if (retrievedVal != undefined) return retrievedVal;
+    const denom = 50;
+    const depth = perlin(coord.x + perlinSeed, coord.y + perlinSeed, 0, denom);
+    const ret = depth * 100 < 26;
+    outOfBoundsMap.set(coordStr, ret);
+    return ret;
+  }
+
   // --- SYSTEMS --------------------------------------------------------------
   const actions = createActionSystem(world, network.txReduced$);
 
@@ -207,10 +281,17 @@ export async function createBackendLayer(network: NetworkLayer) {
       getPlayerShipsWithActions,
       getTargetedShips,
       isMyShip,
+      outOfBounds,
+      isWhirlpool,
+      clearComponent,
     },
     components,
     godIndex: GodEntityIndex,
     perlin,
+
+    systemDecoders: {
+      onAction,
+    },
   };
 
   // --- SYSTEMS --------------------------------------------------------------------

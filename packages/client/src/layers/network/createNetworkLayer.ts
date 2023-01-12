@@ -47,7 +47,7 @@ export async function createNetworkLayer(config: GameConfig) {
         revealPhaseLength: Type.Number,
         actionPhaseLength: Type.Number,
         worldRadius: Type.Number,
-        perlinSeed: Type.Number,
+        perlinSeed: Type.String,
       },
       { id: "GameConfig", metadata: { contractId: "ds.component.GameConfig" } }
     ),
@@ -86,10 +86,10 @@ export async function createNetworkLayer(config: GameConfig) {
   };
 
   // --- SETUP ----------------------------------------------------------------------
-  const { txQueue, systems, txReduced$, network, startSync, encoders } = await setupMUDNetwork<
+  const { txQueue, systems, txReduced$, network, startSync, encoders, systemCallStreams } = await setupMUDNetwork<
     typeof components,
     SystemTypes
-  >(getNetworkConfig(config), world, components, SystemAbis);
+  >(getNetworkConfig(config), world, components, SystemAbis, { fetchSystemCalls: true });
 
   // --- UTILITIES ------------------------------------------------------------------
   const getGameConfig = () => {
@@ -207,6 +207,7 @@ export async function createNetworkLayer(config: GameConfig) {
     txQueue,
     systems,
     txReduced$,
+    systemCallStreams,
     startSync,
     network,
     utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn, secondsUntilNextPhase },

@@ -122,7 +122,9 @@ const YourShipContainer = styled(InternalContainer)<{
   cursor: pointer;
   box-shadow: ${({ isSelected, shipColor }) => `inset 0px 0px 0px ${isSelected ? "5px" : "0px"} ${colors.white}`};
   background: ${({ isSelected, isHovered, shipColor }) =>
-    `${color(shipColor).alpha(isSelected || isHovered ? 0.5 : 0.25)}`};
+    `${color(shipColor)
+      .lighten(0.1)
+      .alpha(isSelected || isHovered ? 0.8 : 0.7)}`};
   padding-bottom: 5px;
 `;
 

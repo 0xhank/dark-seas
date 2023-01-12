@@ -12,23 +12,33 @@ import {
 } from "@latticexyz/recs";
 import { Phase } from "../../../../types";
 import { getFinalPosition } from "../../../../utils/directions";
-import { getColorNum } from "../../../../utils/procgen";
 import { DELAY } from "../../constants";
 import { colors } from "../../react/styles/global";
 import { PhaserLayer } from "../types";
-import { renderFiringArea, renderShip } from "./renderShip";
+import { getRangeTintAlpha, renderFiringArea, renderShip } from "./renderShip";
 
 export function createProjectionSystem(phaser: PhaserLayer) {
   const {
     world,
     parentLayers: {
       network: {
-        components: { Position, Length, Rotation, SailPosition, MoveCard, Cannon, OwnedBy, Speed },
+        components: {
+          Position,
+          Length,
+          Rotation,
+          SailPosition,
+          MoveCard,
+          Cannon,
+          OwnedBy,
+          Speed,
+          Loaded,
+          DamagedCannons,
+        },
         utils: { getPhase },
       },
       backend: {
         components: { SelectedMove, HoveredMove },
-        godIndex,
+        utils: { outOfBounds },
       },
     },
     scenes: {
@@ -62,15 +72,7 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
 
-    renderShip(
-      phaser,
-      shipEntity,
-      `projection-${shipEntity}`,
-      finalPosition,
-      finalRotation,
-      getColorNum(shipEntity),
-      0.7
-    );
+    renderShip(phaser, shipEntity, `projection-${shipEntity}`, finalPosition, finalRotation, colors.darkGrayHex, 0.7);
   });
 
   /* ---------------------------------------------- Hovered Move update --------------------------------------------- */
@@ -95,18 +97,23 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const length = getComponentValueStrict(Length, shipEntity).value;
     const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
     const speed = getComponentValueStrict(Speed, shipEntity).value;
+    const damaged = getComponentValue(DamagedCannons, shipEntity);
+
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
 
     cannonEntities.forEach((cannonEntity) => {
-      renderFiringArea(phaser, rangeGroup, finalPosition, finalRotation, length, cannonEntity, {
-        tint: colors.whiteHex,
-        alpha: 0.1,
-      });
-    });
-    polygonRegistry.set(objectId, rangeGroup);
+      const loaded = getComponentValue(Loaded, cannonEntity);
+      const rangeColor = getRangeTintAlpha(!!loaded, false, !!damaged);
 
-    renderShip(phaser, shipEntity, `hoverGhost-${shipEntity}`, finalPosition, finalRotation, colors.whiteHex, 0.5);
+      renderFiringArea(phaser, rangeGroup, finalPosition, finalRotation, length, cannonEntity, rangeColor);
+    });
+
+    const color = outOfBounds(finalPosition) ? colors.redHex : colors.whiteHex;
+
+    renderShip(phaser, shipEntity, objectId, finalPosition, finalRotation, color, 0.6);
+
+    polygonRegistry.set(objectId, rangeGroup);
   });
 
   defineExitSystem(world, [Has(HoveredMove)], (update) => {

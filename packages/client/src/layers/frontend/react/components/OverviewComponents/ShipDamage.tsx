@@ -25,7 +25,7 @@ export default function ShipDamage({
 
 const WarningContainer = styled(Container)<{ removing?: boolean }>`
   height: 2.5rem;
-  background: ${({ removing }) => (removing ? colors.green : colors.red)};
+  background: ${({ removing }) => (removing ? colors.greenGlass : colors.red)};
   color: ${colors.white};
   padding: 0.5rem;
   flex-direction: row;
@@ -38,7 +38,7 @@ const WarningContainer = styled(Container)<{ removing?: boolean }>`
 
 const AmountLeft = styled.div<{ fixing?: boolean }>`
   background: ${colors.white};
-  color: ${({ fixing }) => (fixing ? colors.green : colors.red)};
+  color: ${({ fixing }) => (fixing ? colors.greenGlass : colors.red)};
   border-radius: 50%;
   width: 20px;
   height: 20px;

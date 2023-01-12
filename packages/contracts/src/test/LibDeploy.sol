@@ -22,10 +22,10 @@ import { MoveCardComponent, ID as MoveCardComponentID } from "components/MoveCar
 import { LengthComponent, ID as LengthComponentID } from "components/LengthComponent.sol";
 import { RangeComponent, ID as RangeComponentID } from "components/RangeComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "components/HealthComponent.sol";
+import { MaxHealthComponent, ID as MaxHealthComponentID } from "components/MaxHealthComponent.sol";
 import { ShipComponent, ID as ShipComponentID } from "components/ShipComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "components/SailPositionComponent.sol";
 import { OnFireComponent, ID as OnFireComponentID } from "components/OnFireComponent.sol";
-import { CrewCountComponent, ID as CrewCountComponentID } from "components/CrewCountComponent.sol";
 import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "components/DamagedCannonsComponent.sol";
 import { FirepowerComponent, ID as FirepowerComponentID } from "components/FirepowerComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "components/GameConfigComponent.sol";
@@ -96,6 +96,10 @@ library LibDeploy {
       comp = new HealthComponent(address(result.world));
       console.log(address(comp));
 
+      console.log("Deploying MaxHealthComponent");
+      comp = new MaxHealthComponent(address(result.world));
+      console.log(address(comp));
+
       console.log("Deploying ShipComponent");
       comp = new ShipComponent(address(result.world));
       console.log(address(comp));
@@ -106,10 +110,6 @@ library LibDeploy {
 
       console.log("Deploying OnFireComponent");
       comp = new OnFireComponent(address(result.world));
-      console.log(address(comp));
-
-      console.log("Deploying CrewCountComponent");
-      comp = new CrewCountComponent(address(result.world));
       console.log(address(comp));
 
       console.log("Deploying DamagedCannonsComponent");
@@ -192,10 +192,10 @@ library LibDeploy {
     authorizeWriter(components, LengthComponentID, address(system));
     authorizeWriter(components, RangeComponentID, address(system));
     authorizeWriter(components, HealthComponentID, address(system));
+    authorizeWriter(components, MaxHealthComponentID, address(system));
     authorizeWriter(components, ShipComponentID, address(system));
     authorizeWriter(components, SailPositionComponentID, address(system));
     authorizeWriter(components, OnFireComponentID, address(system));
-    authorizeWriter(components, CrewCountComponentID, address(system));
     authorizeWriter(components, DamagedCannonsComponentID, address(system));
     authorizeWriter(components, FirepowerComponentID, address(system));
     authorizeWriter(components, GameConfigComponentID, address(system));
@@ -226,7 +226,6 @@ library LibDeploy {
     authorizeWriter(components, HealthComponentID, address(system));
     authorizeWriter(components, OnFireComponentID, address(system));
     authorizeWriter(components, DamagedCannonsComponentID, address(system));
-    authorizeWriter(components, CrewCountComponentID, address(system));
     authorizeWriter(components, SailPositionComponentID, address(system));
     authorizeWriter(components, LastActionComponentID, address(system));
     authorizeWriter(components, LoadedComponentID, address(system));
@@ -241,10 +240,10 @@ library LibDeploy {
     authorizeWriter(components, LengthComponentID, address(system));
     authorizeWriter(components, RangeComponentID, address(system));
     authorizeWriter(components, HealthComponentID, address(system));
+    authorizeWriter(components, MaxHealthComponentID, address(system));
     authorizeWriter(components, ShipComponentID, address(system));
     authorizeWriter(components, SailPositionComponentID, address(system));
     authorizeWriter(components, OnFireComponentID, address(system));
-    authorizeWriter(components, CrewCountComponentID, address(system));
     authorizeWriter(components, DamagedCannonsComponentID, address(system));
     authorizeWriter(components, FirepowerComponentID, address(system));
     authorizeWriter(components, GameConfigComponentID, address(system));
@@ -267,9 +266,9 @@ library LibDeploy {
     authorizeWriter(components, LengthComponentID, address(system));
     authorizeWriter(components, RangeComponentID, address(system));
     authorizeWriter(components, HealthComponentID, address(system));
+    authorizeWriter(components, MaxHealthComponentID, address(system));
     authorizeWriter(components, ShipComponentID, address(system));
     authorizeWriter(components, SailPositionComponentID, address(system));
-    authorizeWriter(components, CrewCountComponentID, address(system));
     authorizeWriter(components, FirepowerComponentID, address(system));
     authorizeWriter(components, LastMoveComponentID, address(system));
     authorizeWriter(components, LastActionComponentID, address(system));

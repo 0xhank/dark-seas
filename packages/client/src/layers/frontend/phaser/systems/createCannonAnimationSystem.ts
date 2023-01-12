@@ -2,7 +2,7 @@ import { Coord, tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
 import {
   defineComponentSystem,
   defineEnterSystem,
-  defineUpdateSystem,
+  defineSystem,
   EntityIndex,
   getComponentValueStrict,
   Has,
@@ -14,7 +14,7 @@ import { getFiringArea, isBroadside, midpoint } from "../../../../utils/trig";
 import { CANNON_SHOT_LENGTH, RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
 
-export function createFireCannonAnimationSystem(phaser: PhaserLayer) {
+export function createCannonAnimationSystem(phaser: PhaserLayer) {
   const {
     world,
     parentLayers: {
@@ -33,7 +33,7 @@ export function createFireCannonAnimationSystem(phaser: PhaserLayer) {
 
   const NUM_CANNONBALLS = 3;
 
-  defineEnterSystem(world, [Has(Cannon), Has(OwnedBy), Has(Range), Has(Rotation)], ({ entity: cannonEntity }) => {
+  defineEnterSystem(world, [Has(Cannon), Has(OwnedBy), Has(Rotation), Has(Range)], ({ entity: cannonEntity }) => {
     const shipId = getComponentValueStrict(OwnedBy, cannonEntity).value;
     const shipEntity = world.entityToIndex.get(shipId);
     if (!shipEntity) return;
@@ -46,10 +46,10 @@ export function createFireCannonAnimationSystem(phaser: PhaserLayer) {
       const object = objectPool.get(spriteId, "Sprite");
 
       object.setComponent({
-        id: `cannonball`,
+        id: `texture`,
         once: async (gameObject) => {
-          gameObject.setAlpha(0);
           gameObject.setPosition(start.x, start.y);
+          gameObject.setAlpha(0);
           gameObject.setTexture(sprite.assetKey, sprite.frame);
           gameObject.setScale(4);
           gameObject.setDepth(RenderDepth.Foreground1);
@@ -59,7 +59,7 @@ export function createFireCannonAnimationSystem(phaser: PhaserLayer) {
     }
   });
 
-  defineUpdateSystem(world, [Has(Position), Has(Ship)], ({ entity: shipEntity }) => {
+  defineSystem(world, [Has(Position), Has(Ship)], ({ entity: shipEntity }) => {
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
 
     cannonEntities.forEach((cannonEntity) => {
@@ -69,7 +69,7 @@ export function createFireCannonAnimationSystem(phaser: PhaserLayer) {
         const { start } = getCannonStartAndEnd(shipEntity, cannonEntity, i);
 
         object.setComponent({
-          id: "cannonball",
+          id: "position",
           once: async (gameObject) => {
             gameObject.setPosition(start.x, start.y);
           },
@@ -93,7 +93,7 @@ export function createFireCannonAnimationSystem(phaser: PhaserLayer) {
         const object = objectPool.get(spriteId, "Sprite");
 
         object.setComponent({
-          id: `cannonball`,
+          id: `position`,
           now: async (gameObject) => {
             await tween({
               targets: gameObject,
@@ -112,7 +112,6 @@ export function createFireCannonAnimationSystem(phaser: PhaserLayer) {
           once: async (gameObject) => {
             gameObject.setPosition(start.x, start.y);
             gameObject.setAlpha(0);
-            // objectPool.remove(spriteId);
           },
         });
       }

@@ -1,11 +1,10 @@
 import {
+  defineComponentSystem,
   defineExitSystem,
-  defineSystem,
   EntityIndex,
   getComponentEntities,
   getComponentValueStrict,
   Has,
-  UpdateType,
 } from "@latticexyz/recs";
 import { Phase } from "../../../../types";
 import { getFinalPosition } from "../../../../utils/directions";
@@ -34,11 +33,12 @@ export function createMoveOptionsSystem(phaser: PhaserLayer) {
     },
   } = phaser;
   /* ---------------------------------------------- Move Options update ------------------------------------------- */
-  defineSystem(world, [Has(HoveredShip)], (update) => {
-    if (update.type == UpdateType.Exit) return;
-
-    if (getPhase(DELAY) !== Phase.Commit) return;
-    const shipEntity = getComponentValueStrict(HoveredShip, godIndex).value as EntityIndex;
+  defineComponentSystem(world, HoveredShip, (update) => {
+    const shipEntity = update.value[0]?.value as EntityIndex | undefined;
+    if (!shipEntity) return;
+    const phase: Phase | undefined = getPhase(DELAY);
+    const isMine = isMyShip(shipEntity);
+    if (phase != Phase.Commit || !isMine) return;
 
     const moveCardEntities = [...getComponentEntities(MoveCard)];
     const position = getComponentValueStrict(Position, shipEntity);
@@ -49,7 +49,7 @@ export function createMoveOptionsSystem(phaser: PhaserLayer) {
       const moveCard = getComponentValueStrict(MoveCard, moveCardEntity);
 
       const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
-      const shipColor = isMyShip(shipEntity) ? getColorNum(shipEntity) : colors.whiteHex;
+      const shipColor = isMine ? getColorNum(shipEntity) : colors.whiteHex;
 
       const objectId = `optionGhost-${moveCardEntity}`;
       renderShip(phaser, shipEntity, objectId, finalPosition, finalRotation, shipColor, 0.3);
