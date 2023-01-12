@@ -25,7 +25,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
         utils: { getPhase },
       },
       backend: {
-        utils: { getTargetedShips },
+        utils: { getTargetedShips, isMyShip },
         components: { SelectedActions, HoveredShip, HoveredAction, Targeted },
         godIndex,
       },
@@ -140,11 +140,11 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
   }
 
   defineComponentSystem(world, HoveredShip, (update) => {
-    const phase: Phase | undefined = getPhase(DELAY);
-
-    if (phase !== Phase.Action) return;
     const shipEntity = update.value[0]?.value as EntityIndex | undefined;
     if (!shipEntity) return;
+    const phase: Phase | undefined = getPhase(DELAY);
+    const isMine = isMyShip(shipEntity);
+    if (phase == Phase.Commit && isMine) return;
 
     const groupId = "selectedActions";
     const activeGroup = polygonRegistry.get(groupId) || phaserScene.add.group();
