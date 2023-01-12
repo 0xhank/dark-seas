@@ -6,10 +6,14 @@ import {
   defineUpdateSystem,
   getComponentValueStrict,
   Has,
+  HasValue,
+  runQuery,
 } from "@latticexyz/recs";
 import { getSternLocation, midpoint } from "../../../../utils/trig";
+import { colors } from "../../react/styles/global";
 import { Animations, CANNON_SHOT_LENGTH, MOVE_LENGTH, RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
+import { renderFiringArea } from "./renderShip";
 
 export function createStatAnimationSystem(layer: PhaserLayer) {
   const {
@@ -19,10 +23,14 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
     },
     parentLayers: {
       network: {
-        components: { Health, OnFire, SailPosition, Position, Rotation, Length },
+        components: { Health, OnFire, DamagedCannons, Position, Rotation, Length, Cannon, OwnedBy },
       },
     },
     positions,
+    polygonRegistry,
+    scenes: {
+      Main: { phaserScene },
+    },
   } = layer;
 
   // HEALTH UPDATES
@@ -150,9 +158,49 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
     }
   });
 
-  // SAIL POSITION UPDATE
-  defineUpdateSystem(world, [Has(SailPosition)], (update) => {
-    const sailPosition = getComponentValueStrict(SailPosition, update.entity).value;
-    if (sailPosition != 0) return;
+  // BROKEN CANNON UPDATES
+
+  defineComponentSystem(world, DamagedCannons, (update) => {
+    const shipEntity = update.entity;
+
+    // exit
+    if (!update.value[0]) return;
+    // update
+    if (update.value[0] && update.value[1]) return;
+    console.log(`flashing ${shipEntity} cannons`);
+    const groupId = `flash-cannons-${shipEntity}`;
+    const group = polygonRegistry.get(groupId) || phaserScene.add.group();
+    const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
+    console.log("hello from", cannonEntities);
+
+    const duration = 500;
+    const repeat = -1;
+    cannonEntities.forEach((cannonEntity) => {
+      const position = getComponentValueStrict(Position, shipEntity);
+      const length = getComponentValueStrict(Length, shipEntity).value;
+      const rotation = getComponentValueStrict(Rotation, shipEntity).value;
+      const rangeColor = { tint: colors.blackHex, alpha: 0.3 };
+      renderFiringArea(layer, group, position, rotation, length, cannonEntity, rangeColor);
+    });
+
+    phaserScene.tweens.add({
+      targets: group.getChildren(),
+      props: {
+        alpha: 0,
+      },
+      ease: Phaser.Math.Easing.Sine.Out,
+      duration: duration,
+      repeat: repeat,
+      yoyo: true,
+    });
+
+    phaserScene.time.addEvent({
+      delay: duration * 7,
+      callback: function () {
+        console.log("clearing group");
+        group.clear(true, true);
+      },
+      callbackScope: phaserScene,
+    });
   });
 }

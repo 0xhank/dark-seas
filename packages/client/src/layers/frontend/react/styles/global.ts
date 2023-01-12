@@ -22,6 +22,7 @@ const waiting = "hsla(50, 100%, 50%, 0.5)";
 const green = "hsl(119, 78%, 39%)";
 const greenGlass = color(green).alpha(0.7).toString();
 const darkGrayHex = color(darkGray).rgbNumber();
+const blackHex = color(black).rgbNumber();
 const whiteHex = color(white).rgbNumber();
 const goldHex = color(gold).rgbNumber();
 const greenHex = color(green).rgbNumber();
@@ -59,6 +60,7 @@ export const colors = {
   cannonReadyHex,
   redHex,
   darkGrayHex,
+  blackHex,
 };
 
 export const Container = styled.div`
@@ -105,12 +107,12 @@ export const Button = styled.button<{ isSelected?: boolean; noGoldBorder?: boole
 export const OptionButton = styled(Button)<{ confirmed?: boolean }>`
   margin-bottom: 12px;
   :hover {
-    background: ${({ isSelected, confirmed }) => `${confirmed ? green : isSelected ? red : white}`};
+    background: ${({ isSelected, confirmed }) => `${confirmed ? greenGlass : isSelected ? red : white}`};
     color: ${({ isSelected, disabled }) => `${isSelected || disabled ? white : darkBrown}`};
   }
 
   :disabled {
-    background: ${({ confirmed }) => `${confirmed ? green : lightGray}`};
+    background: ${({ confirmed }) => `${confirmed ? greenGlass : lightGray}`};
     color: ${({ confirmed }) => `${confirmed ? darkBrown : lighterGray}`};
   }
 `;

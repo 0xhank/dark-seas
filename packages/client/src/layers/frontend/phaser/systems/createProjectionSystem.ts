@@ -22,7 +22,18 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: { Position, Length, Rotation, SailPosition, MoveCard, Cannon, OwnedBy, Speed, Loaded },
+        components: {
+          Position,
+          Length,
+          Rotation,
+          SailPosition,
+          MoveCard,
+          Cannon,
+          OwnedBy,
+          Speed,
+          Loaded,
+          DamagedCannons,
+        },
         utils: { getPhase },
       },
       backend: {
@@ -86,13 +97,14 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const length = getComponentValueStrict(Length, shipEntity).value;
     const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
     const speed = getComponentValueStrict(Speed, shipEntity).value;
+    const damaged = getComponentValue(DamagedCannons, shipEntity);
+
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
 
     cannonEntities.forEach((cannonEntity) => {
       const loaded = getComponentValue(Loaded, cannonEntity);
-
-      const rangeColor = getRangeTintAlpha(!!loaded, false);
+      const rangeColor = getRangeTintAlpha(!!loaded, false, !!damaged);
 
       renderFiringArea(phaser, rangeGroup, finalPosition, finalRotation, length, cannonEntity, rangeColor);
     });

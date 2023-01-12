@@ -21,7 +21,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: { Position, Length, Rotation, Loaded, Cannon, OwnedBy },
+        components: { Position, Length, Rotation, Loaded, Cannon, OwnedBy, DamagedCannons },
         utils: { getPhase },
       },
       backend: {
@@ -152,6 +152,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
 
     const selectedActions = getComponentValue(SelectedActions, shipEntity);
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
+    const damagedCannons = getComponentValue(DamagedCannons, shipEntity);
 
     cannonEntities.forEach((cannonEntity) => {
       const loaded = getComponentValue(Loaded, cannonEntity);
@@ -160,7 +161,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
       const position = getComponentValueStrict(Position, shipEntity);
       const length = getComponentValueStrict(Length, shipEntity).value;
       const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-      const rangeColor = getRangeTintAlpha(!!loaded, !!cannonSelected);
+      const rangeColor = getRangeTintAlpha(!!loaded, !!cannonSelected, !!damagedCannons);
       renderFiringArea(phaser, activeGroup, position, rotation, length, cannonEntity, rangeColor);
     });
 
