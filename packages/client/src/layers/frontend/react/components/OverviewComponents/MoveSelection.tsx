@@ -35,7 +35,7 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
 
   const rotation = getComponentValueStrict(Rotation, ship).value;
   const sailPosition = getComponentValueStrict(SailPosition, ship).value;
-  const speed = getComponentValueStrict(Speed, ship).value;
+  const speed = getComponentValue(Speed, ship)?.value || 0;
 
   if (sailPosition == 0) {
     return <SpecialText>Cannot move with torn sails!</SpecialText>;
@@ -43,7 +43,7 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
   const sortedMoveEntities = moveEntities.sort(
     (a, b) =>
       ((180 + getComponentValueStrict(MoveCard, a).rotation) % 360) -
-      (180 + (getComponentValueStrict(MoveCard, b).rotation % 360))
+      ((180 + getComponentValueStrict(MoveCard, b).rotation) % 360)
   );
 
   return (

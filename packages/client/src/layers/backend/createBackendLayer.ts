@@ -24,6 +24,7 @@ import {
 } from "@latticexyz/std-client";
 import { Coord } from "@latticexyz/utils";
 import { BigNumber } from "ethers";
+import { Howl } from "howler";
 import { curry, toLower } from "lodash";
 import { merge } from "rxjs";
 
@@ -35,7 +36,8 @@ import { commitMove } from "./api/commitMove";
 import { revealMove } from "./api/revealMove";
 import { spawnPlayer } from "./api/spawnPlayer";
 import { submitActions } from "./api/submitActions";
-import { createSuccessfulActionSystem } from "./systems";
+import { Category, soundLibrary } from "./sound/library";
+import { createBackendSystems } from "./systems";
 /**
  * The Network layer is the lowest layer in the client architecture.
  * Its purpose is to synchronize the client components with the contract components.
@@ -67,7 +69,8 @@ export async function createBackendLayer(network: NetworkLayer) {
       { actionTypes: Type.NumberArray, specialEntities: Type.EntityArray },
       { id: "Actions" }
     ),
-    CommittedMoves: defineStringComponent(world, { id: "CommittedMoves" }),
+    EncodedCommitment: defineStringComponent(world, { id: "EncodedCommitment" }),
+    CommittedMove: defineComponent(world, { value: Type.Number }, { id: "CommittedMove" }),
     Targeted: defineNumberComponent(world, { id: "Targeted" }),
     ExecutedActions: defineComponent(
       world,
@@ -84,6 +87,41 @@ export async function createBackendLayer(network: NetworkLayer) {
     systemCallStreams,
   } = network;
 
+  // SOUND
+
+  function playSound(id: string, category: Category, loop = false, fade?: number) {
+    let timeout;
+    const sound = new Howl({
+      src: [soundLibrary[category][id].src],
+      volume: soundLibrary[category][id].volume,
+      preload: true,
+      loop: loop,
+    });
+    if (fade) {
+      // Fade on begin and end
+
+      // Init
+      sound.play();
+      sound.fade(0, 0.4, fade);
+      sound.on("load", function () {
+        const FADE_OUT_TIME = sound.duration() * 1000 - sound.seek() - fade;
+        timeout = setTimeout(function () {
+          sound.fade(0.4, 0, fade);
+        }, FADE_OUT_TIME);
+      });
+    } else {
+      sound.play();
+    }
+    return sound;
+  }
+
+  function startEnvironmentSoundSystem() {
+    playSound("ocean", Category.Ambience, true);
+  }
+
+  startEnvironmentSoundSystem();
+
+  const soundRegistry = new Map<string, Howl>();
   // --- UTILITIES ------------------------------------------------------------------
 
   function clearComponent(component: Component) {
@@ -264,7 +302,7 @@ export async function createBackendLayer(network: NetworkLayer) {
   // --- API ------------------------------------------------------------------------
   const api = {
     spawnPlayer: curry(spawnPlayer)(network, actions),
-    commitMove: curry(commitMove)(network, actions, components.CommittedMoves),
+    commitMove: curry(commitMove)(network, actions),
     revealMove: curry(revealMove)(network, actions),
     submitActions: curry(submitActions)(network, actions),
   };
@@ -274,6 +312,7 @@ export async function createBackendLayer(network: NetworkLayer) {
     actions,
     api,
     parentLayers: { network },
+    soundRegistry,
     utils: {
       checkActionPossible,
       getPlayerShips,
@@ -284,6 +323,7 @@ export async function createBackendLayer(network: NetworkLayer) {
       outOfBounds,
       isWhirlpool,
       clearComponent,
+      playSound,
     },
     components,
     godIndex: GodEntityIndex,
@@ -296,6 +336,6 @@ export async function createBackendLayer(network: NetworkLayer) {
 
   // --- SYSTEMS --------------------------------------------------------------------
 
-  createSuccessfulActionSystem(context);
+  createBackendSystems(context);
   return context;
 }

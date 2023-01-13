@@ -11,6 +11,7 @@ import {
 } from "@latticexyz/recs";
 import { ActionType, Sprites } from "../../../../types";
 import { getFiringArea, isBroadside, midpoint } from "../../../../utils/trig";
+import { Category } from "../../../backend/sound/library";
 import { CANNON_SHOT_LENGTH, RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
 
@@ -23,6 +24,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
       },
       backend: {
         components: { ExecutedActions },
+        utils: { playSound },
       },
     },
     scenes: {
@@ -101,6 +103,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
               duration: 50,
               props: { alpha: 1 },
             });
+            playSound("cannon_shot", Category.Combat);
             gameObject.setAlpha(1);
             await tween({
               targets: gameObject,
@@ -108,6 +111,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
               props: { x: end.x, y: end.y },
               ease: Phaser.Math.Easing.Quadratic.Out,
             });
+            playSound("impact_water_1", Category.Combat);
           },
           once: async (gameObject) => {
             gameObject.setPosition(start.x, start.y);

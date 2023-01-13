@@ -19,21 +19,27 @@ export function submitActions(network: NetworkLayer, actions: ActionSystem, ship
     components: { OwnedBy },
     requirement: ({ OwnedBy }) => {
       const playerEntity = getPlayerEntity(connectedAddress.get());
-      if (playerEntity == null) return null;
+      if (shipActions.length == 0 || playerEntity == null) {
+        actions.cancel(actionId);
+        return null;
+      }
 
       for (const action of shipActions) {
         if (action.actionTypes.every((elem) => elem == ActionType.None)) return null;
         const shipOwner = getComponentValue(OwnedBy, world.getEntityIndexStrict(action.shipEntity))?.value;
         if (shipOwner == null) {
           console.warn(prefix, "Entity has no owner");
+          actions.cancel(actionId);
           return null;
         }
 
         if (shipOwner !== connectedAddress.get()) {
           console.warn(prefix, "Can only move entities you own", shipOwner, connectedAddress.get());
+          actions.cancel(actionId);
           return null;
         }
       }
+
       return shipActions;
     },
     updates: () => [],

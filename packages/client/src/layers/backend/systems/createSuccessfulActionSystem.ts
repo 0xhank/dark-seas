@@ -1,13 +1,15 @@
-import { defineComponentSystem, getComponentEntities, removeComponent, setComponent } from "@latticexyz/recs";
+import { defineComponentSystem, setComponent } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
-import { Action } from "../../../types";
+import { Move } from "../../../types";
 import { BackendLayer, TxType } from "../types";
 export function createSuccessfulActionSystem(layer: BackendLayer) {
   const {
     world,
-    components: { ExecutedActions, SelectedActions, Targeted },
+    components: { SelectedActions, ExecutedActions, EncodedCommitment, CommittedMove, Targeted },
     actions: { Action },
+    utils: { clearComponent },
     systemDecoders: { onAction },
+    godIndex,
   } = layer;
 
   defineComponentSystem(world, Action, ({ value }) => {
@@ -16,10 +18,23 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
 
     const state = newAction.state as ActionState;
     if (!newAction.metadata) return;
-    const { type, metadata } = newAction.metadata as { type: TxType; metadata: Action[] };
+    const { type, metadata } = newAction.metadata as { type: TxType; metadata: any };
+    if (type == TxType.Commit) {
+      const { moves, encoding } = metadata as { moves: Move[]; encoding: string };
+      setComponent(EncodedCommitment, godIndex, { value: encoding });
+
+      moves.map((move) => {
+        const shipEntity = world.entityToIndex.get(move.shipEntity);
+        const moveCardEntity = world.entityToIndex.get(move.moveCardEntity);
+        if (!shipEntity || !moveCardEntity) return;
+        setComponent(CommittedMove, shipEntity, { value: moveCardEntity });
+      });
+    }
+
     if (type != TxType.Action || state != ActionState.Complete) return;
 
-    [...getComponentEntities(Targeted)].forEach((ship) => removeComponent(Targeted, ship));
+    clearComponent(Targeted);
+    clearComponent(SelectedActions);
   });
 
   onAction(({ actions }) => {

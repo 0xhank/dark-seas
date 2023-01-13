@@ -2,6 +2,7 @@ import {
   EntityID,
   EntityIndex,
   getComponentValue,
+  getComponentValueStrict,
   Has,
   HasValue,
   removeComponent,
@@ -85,16 +86,22 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
     setComponent(SelectedShip, godIndex, { value: ship });
   };
 
+  const sortedCannonEntities = cannonEntities.sort(
+    (a, b) =>
+      ((180 + getComponentValueStrict(Rotation, a).value) % 360) -
+      ((180 + getComponentValueStrict(Rotation, b).value) % 360)
+  );
   return (
     <>
-      {cannonEntities.map((cannonEntity) => {
+      {sortedCannonEntities.map((cannonEntity) => {
         const loaded = getComponentValue(Loaded, cannonEntity)?.value;
 
         const actionType = loaded ? ActionType.Fire : ActionType.Load;
         if (!checkActionPossible(ActionType.Fire, ship)) return null;
-        const usedAlready = selectedActions.specialEntities.find((a) => a == world.entities[cannonEntity]) != undefined;
 
         const entityUsed = executedActions?.specialEntities.includes(world.entities[cannonEntity]);
+
+        const usedAlready = !entityUsed && selectedActions.specialEntities.includes(world.entities[cannonEntity]);
 
         const cannonRotation = getComponentValue(Rotation, cannonEntity)?.value || 0;
         const broadside = isBroadside(cannonRotation);
@@ -152,6 +159,10 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
               e.stopPropagation();
               handleNewActionsSpecial(action);
             }}
+            onMouseEnter={() =>
+              setComponent(HoveredAction, godIndex, { shipEntity: ship, actionType: action, specialEntity: 0 })
+            }
+            onMouseLeave={() => removeComponent(HoveredAction, godIndex)}
           >
             <Img style={{ height: "70%" }} src={ActionImg[action]} />
             <Sub>{ActionNames[action]}</Sub>
