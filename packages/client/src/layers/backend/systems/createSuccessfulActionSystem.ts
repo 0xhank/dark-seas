@@ -20,7 +20,6 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
     if (!newAction.metadata) return;
     const { type, metadata } = newAction.metadata as { type: TxType; metadata: any };
     if (type == TxType.Commit) {
-      console.log("metadata:", metadata);
       const { moves, encoding } = metadata as { moves: Move[]; encoding: string };
       setComponent(EncodedCommitment, godIndex, { value: encoding });
 

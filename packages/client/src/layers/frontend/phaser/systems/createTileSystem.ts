@@ -33,7 +33,6 @@ export function createTileSystem(phaser: PhaserLayer) {
 
     const worldRadius = gameConfig.worldRadius;
     const perlinSeed = Number(gameConfig.perlinSeed);
-    console.log("world radius:", worldRadius);
 
     const adjustment = TILE_HEIGHT / positions.posHeight;
 

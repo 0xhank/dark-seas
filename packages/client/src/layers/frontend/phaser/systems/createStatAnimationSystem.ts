@@ -174,11 +174,9 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
     if (!update.value[0]) return;
     // update
     if (update.value[0] && update.value[1]) return;
-    console.log(`flashing ${shipEntity} cannons`);
     const groupId = `flash-cannons-${shipEntity}`;
     const group = polygonRegistry.get(groupId) || phaserScene.add.group();
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
-    console.log("hello from", cannonEntities);
 
     const duration = 500;
     const repeat = -1;
@@ -204,7 +202,6 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
     phaserScene.time.addEvent({
       delay: duration * 7,
       callback: function () {
-        console.log("clearing group");
         group.clear(true, true);
       },
       callbackScope: phaserScene,
