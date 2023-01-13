@@ -103,7 +103,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
               duration: 50,
               props: { alpha: 1 },
             });
-            playSound("CannonsShot_1", Category.Combat);
+            playSound("cannon_shot", Category.Combat);
             gameObject.setAlpha(1);
             await tween({
               targets: gameObject,

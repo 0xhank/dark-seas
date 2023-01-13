@@ -7,4 +7,8 @@ export const move: SoundAsset = {
     src: "/sounds/move/Item_Rudder_Movement_01.wav",
     volume: BASE_VOLUME,
   },
+  whoosh: {
+    src: "/sounds/move/whoosh.wav",
+    volume: FULL_VOLUME,
+  },
 };

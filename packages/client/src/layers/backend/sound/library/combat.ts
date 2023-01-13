@@ -19,16 +19,16 @@ export const combat: SoundAsset = {
     src: "/sounds/combat/Impact_Ship_02.wav",
     volume: FULL_VOLUME,
   },
-  CannonsShot_1: {
-    src: "/sounds/combat/Weapons_CannonsShot_01.wav",
-    volume: BASE_VOLUME,
-  },
-  CannonsShot_2: {
-    src: "/sounds/combat/Weapons_CannonsShot_02.wav",
+  cannon_shot: {
+    src: "/sounds/combat/Weapons_CannonsShot_04.wav",
     volume: FULL_VOLUME,
   },
-  CannonsShot_3: {
-    src: "/sounds/combat/Weapons_CannonsShot_03.wav",
+  load_action: {
+    src: "/sounds/combat/Weapons_Load.wav",
+    volume: FULL_VOLUME,
+  },
+  fire_action: {
+    src: "/sounds/combat/Weapons_Aim.wav",
     volume: FULL_VOLUME,
   },
 };
