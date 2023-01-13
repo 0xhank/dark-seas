@@ -39,12 +39,13 @@ library LibMove {
     uint32 shipSpeed,
     uint32 sailPosition
   ) public pure returns (MoveCard memory) {
+    moveCard.distance = (moveCard.distance * shipSpeed) / 100;
     if (sailPosition == 2) {
-      return getMoveWithBuff(moveCard, shipSpeed);
+      return getMoveWithBuff(moveCard, 100);
     }
 
     if (sailPosition == 1) {
-      return getMoveWithBuff(moveCard, (60 * shipSpeed) / 100);
+      return getMoveWithBuff(moveCard, 60);
     }
 
     return MoveCard(0, 0, 0);
