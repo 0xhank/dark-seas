@@ -2,6 +2,7 @@ import { EntityID, getComponentValue } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
 import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
 import { NetworkLayer } from "../../network";
+import { TxType } from "../types";
 
 export function revealMove(network: NetworkLayer, actions: ActionSystem, encodedCommitment: string) {
   const {
@@ -50,6 +51,10 @@ export function revealMove(network: NetworkLayer, actions: ActionSystem, encoded
     updates: () => [],
     execute: ({ moves, salt }) => {
       network.api.revealMove(moves, salt);
+    },
+    metadata: {
+      type: TxType.Reveal,
+      metadata: { encodedCommitment },
     },
   });
 }

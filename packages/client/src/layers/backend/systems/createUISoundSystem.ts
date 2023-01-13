@@ -2,7 +2,7 @@ import { defineComponentSystem, defineSystem, EntityID, Has, Not } from "@lattic
 import { ActionState } from "@latticexyz/std-client";
 import { ActionType } from "../../../types";
 import { Category } from "../sound/library";
-import { BackendLayer } from "../types";
+import { BackendLayer, TxType } from "../types";
 
 export function createUISoundSystem(backend: BackendLayer) {
   const {
@@ -21,8 +21,10 @@ export function createUISoundSystem(backend: BackendLayer) {
     const newAction = value[0];
     if (!newAction) return;
     const state = newAction.state as ActionState;
+    if (!newAction.metadata) return;
+    const { type } = newAction.metadata as { type: TxType; metadata: any };
 
-    if (state == ActionState.Complete) playSound("success_notif", Category.UI);
+    if (state == ActionState.Complete && type != TxType.Reveal) playSound("success_notif", Category.UI);
     if (state == ActionState.Failed) playSound("fail_notif", Category.UI);
   });
 

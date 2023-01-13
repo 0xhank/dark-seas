@@ -19,8 +19,10 @@ export function submitActions(network: NetworkLayer, actions: ActionSystem, ship
     components: { OwnedBy },
     requirement: ({ OwnedBy }) => {
       const playerEntity = getPlayerEntity(connectedAddress.get());
-      if (shipActions.length == 0) return null;
-      if (playerEntity == null) return null;
+      if (shipActions.length == 0 || playerEntity == null) {
+        actions.cancel(actionId);
+        return null;
+      }
 
       for (const action of shipActions) {
         if (action.actionTypes.every((elem) => elem == ActionType.None)) return null;
