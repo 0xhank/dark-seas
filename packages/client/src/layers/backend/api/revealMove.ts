@@ -20,6 +20,7 @@ export function revealMove(network: NetworkLayer, actions: ActionSystem, encoded
       const playerEntity = getPlayerEntity();
       if (!playerEntity) {
         console.warn(prefix, "No player entity");
+        actions.cancel(actionId);
         return null;
       }
 
@@ -27,12 +28,16 @@ export function revealMove(network: NetworkLayer, actions: ActionSystem, encoded
 
       if (!commitment) {
         console.warn(prefix, "no commitment submitted");
+        actions.cancel(actionId);
+
         return null;
       }
 
       const hash = keccak256(encodedCommitment);
       if (commitment != hash) {
         console.warn(prefix, "commitment does not match stored committed moves");
+        actions.cancel(actionId);
+
         return null;
       }
 
