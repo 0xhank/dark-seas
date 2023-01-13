@@ -43,7 +43,7 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
   const sortedMoveEntities = moveEntities.sort(
     (a, b) =>
       ((180 + getComponentValueStrict(MoveCard, a).rotation) % 360) -
-      (180 + (getComponentValueStrict(MoveCard, b).rotation % 360))
+      ((180 + getComponentValueStrict(MoveCard, b).rotation) % 360)
   );
 
   return (

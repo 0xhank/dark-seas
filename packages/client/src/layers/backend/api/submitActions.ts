@@ -19,6 +19,7 @@ export function submitActions(network: NetworkLayer, actions: ActionSystem, ship
     components: { OwnedBy },
     requirement: ({ OwnedBy }) => {
       const playerEntity = getPlayerEntity(connectedAddress.get());
+      if (shipActions.length == 0) return null;
       if (playerEntity == null) return null;
 
       for (const action of shipActions) {
@@ -34,6 +35,7 @@ export function submitActions(network: NetworkLayer, actions: ActionSystem, ship
           return null;
         }
       }
+
       return shipActions;
     },
     updates: () => [],

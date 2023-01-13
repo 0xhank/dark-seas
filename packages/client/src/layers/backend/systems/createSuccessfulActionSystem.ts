@@ -5,7 +5,7 @@ import { BackendLayer, TxType } from "../types";
 export function createSuccessfulActionSystem(layer: BackendLayer) {
   const {
     world,
-    components: { ExecutedActions, EncodedCommitment, CommittedMove, Targeted },
+    components: { SelectedActions, ExecutedActions, EncodedCommitment, CommittedMove, Targeted },
     actions: { Action },
     utils: { clearComponent },
     systemDecoders: { onAction },
@@ -30,14 +30,12 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
         if (!shipEntity || !moveCardEntity) return;
         setComponent(CommittedMove, shipEntity, { value: moveCardEntity });
       });
-
-      console.log(`encoding:`, encoding);
-      console.log(`moves:`, moves);
     }
 
     if (type != TxType.Action || state != ActionState.Complete) return;
 
     clearComponent(Targeted);
+    clearComponent(SelectedActions);
   });
 
   onAction(({ actions }) => {

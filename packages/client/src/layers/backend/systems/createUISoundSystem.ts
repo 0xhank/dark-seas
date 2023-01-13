@@ -1,4 +1,4 @@
-import { defineComponentSystem, defineSystem, Has, Not } from "@latticexyz/recs";
+import { defineComponentSystem, defineSystem, EntityID, Has, Not } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
 import { ActionType } from "../../../types";
 import { Category } from "../sound/library";
@@ -26,10 +26,18 @@ export function createUISoundSystem(backend: BackendLayer) {
     if (state == ActionState.Failed) playSound("fail_notif", Category.UI);
   });
 
-  defineSystem(world, [Has(Position), Has(Rotation)], (update) => {
-    if (update.value[0] === undefined || update.value[1] === undefined) return;
+  defineComponentSystem(world, Rotation, (update) => {
+    if (!update.value[0] || !update.value[1]) return;
 
-    playSound("rudder_1", Category.Move);
+    if (update.value[0]?.value !== update.value[1]?.value) {
+      playSound("rudder_1", Category.Move);
+    }
+  });
+
+  defineComponentSystem(world, Position, (update) => {
+    if (!update.value[0] || !update.value[1]) return;
+
+    playSound("whoosh", Category.Move);
   });
 
   defineSystem(world, [Has(HoveredAction)], (update) => {
@@ -49,18 +57,56 @@ export function createUISoundSystem(backend: BackendLayer) {
   });
 
   defineComponentSystem(world, SelectedActions, (update) => {
-    const oldActions = update.value[1];
-    const newActions = update.value[0];
-    if (!newActions) return;
-    if (!oldActions) return playSound("click", Category.UI);
+    const addedAction = getAddedAction(update.value[1], update.value[0]);
 
-    const newActionLength = newActions.actionTypes.filter((elem) => elem !== ActionType.None).length;
-    const oldActionLength = oldActions.actionTypes.filter((elem) => elem !== ActionType.None).length;
+    if (!addedAction || addedAction.actionType == ActionType.None) return;
 
-    console.log(`newActionLength: ${newActionLength}, oldActionLength: ${oldActionLength}`);
+    if (addedAction.actionType == ActionType.Load) {
+      playSound("load_action", Category.Combat);
+    }
 
-    if (newActionLength > oldActionLength) playSound("click", Category.UI);
+    if (addedAction.actionType == ActionType.Fire) {
+      playSound("fire_action", Category.Combat);
+    }
+
+    if (addedAction.actionType == ActionType.LowerSail || addedAction.actionType == ActionType.RaiseSail) {
+      playSound("hoist_sail", Category.Action);
+    } else {
+      playSound("ship_repair_1", Category.Action);
+    }
   });
+
+  function getAddedAction(
+    oldActions: { specialEntities: EntityID[]; actionTypes: ActionType[] } | undefined,
+    newActions: { specialEntities: EntityID[]; actionTypes: ActionType[] } | undefined
+  ): { specialEntity: EntityID; actionType: ActionType } | undefined {
+    if (!newActions) return;
+
+    const oldEntities = oldActions?.actionTypes
+      .map((actionType, i) => ({
+        specialEntity: oldActions?.specialEntities[i],
+        actionType,
+      }))
+      .filter((action) => action.actionType !== ActionType.None);
+
+    const newEntities = newActions?.actionTypes
+      .map((actionType, i) => ({
+        specialEntity: newActions?.specialEntities[i],
+        actionType,
+      }))
+      .filter((action) => action.actionType !== ActionType.None);
+
+    if (oldEntities && oldEntities.length > newEntities.length) return;
+
+    const newAddition = newEntities?.find((candidate) => {
+      if (candidate.actionType == ActionType.Fire || candidate.actionType == ActionType.Load) {
+        return !oldEntities?.find((entity) => entity.specialEntity == candidate.specialEntity);
+      } else {
+        return !oldEntities?.find((entity) => entity.actionType == candidate.actionType);
+      }
+    });
+    return newAddition;
+  }
 
   defineSystem(world, [Has(HoveredShip)], (update) => {
     if (!update.value[0]) return;

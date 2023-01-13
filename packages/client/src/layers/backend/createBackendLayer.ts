@@ -70,7 +70,7 @@ export async function createBackendLayer(network: NetworkLayer) {
       { id: "Actions" }
     ),
     EncodedCommitment: defineStringComponent(world, { id: "EncodedCommitment" }),
-    CommittedMove: defineComponent(world, { value: Type.Number }, { id: "DecodedCommitment" }),
+    CommittedMove: defineComponent(world, { value: Type.Number }, { id: "CommittedMove" }),
     Targeted: defineNumberComponent(world, { id: "Targeted" }),
     ExecutedActions: defineComponent(
       world,

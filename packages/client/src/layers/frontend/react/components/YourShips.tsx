@@ -224,8 +224,9 @@ export function registerYourShips() {
         });
 
         const msg = "Confirm Moves";
+        const committedMoves = getComponentValue(EncodedCommitment, GodEntityIndex)?.value;
 
-        if (movesComplete) {
+        if (movesComplete && committedMoves) {
           return <Success background="hsla(120, 100%, 50%, .5)">Moves Successful!</Success>;
         }
         return (
