@@ -1,5 +1,4 @@
-import { GodID } from "@latticexyz/network";
-import { EntityID, EntityIndex, getComponentValueStrict } from "@latticexyz/recs";
+import { EntityID } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
 import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
 import { Move } from "../../../types";
@@ -13,7 +12,6 @@ export function commitMove(network: NetworkLayer, actions: ActionSystem, moves: 
     utils: { getPlayerEntity },
     world,
   } = network;
-  const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
   // Entity must be owned by the player
   const prefix = "Commit Move:";
@@ -21,12 +19,7 @@ export function commitMove(network: NetworkLayer, actions: ActionSystem, moves: 
   actions.add({
     id: actionId,
     components: { OwnedBy, GameConfig, MoveCard },
-    requirement: ({ OwnedBy }) => {
-      const worldRadius = getComponentValueStrict(GameConfig, GodEntityIndex).worldRadius;
-
-      const playerEntity = getPlayerEntity(connectedAddress.get());
-      if (playerEntity == null) return null;
-
+    requirement: () => {
       return abi.encode(["tuple(uint256 shipEntity, uint256 moveCardEntity)[]", "uint256"], [moves, 0]);
     },
     updates: () => [],

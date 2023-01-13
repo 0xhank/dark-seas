@@ -27,4 +27,8 @@ export const ui: SoundAsset = {
     src: "sounds/ui/fail-notif.wav",
     volume: QUIET_VOLUME,
   },
+  tick: {
+    src: "sounds/ui/tick.wav",
+    volume: FULL_VOLUME,
+  },
 };
