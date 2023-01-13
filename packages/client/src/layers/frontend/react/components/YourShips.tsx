@@ -13,6 +13,7 @@ import { ActionState } from "@latticexyz/std-client";
 import { map, merge } from "rxjs";
 import styled from "styled-components";
 import { ActionType, Phase } from "../../../../types";
+import { Category } from "../../../backend/sound/library";
 import { DELAY } from "../../constants";
 import { registerUIComponent } from "../engine";
 import { colors, ConfirmButton, Container, InternalContainer } from "../styles/global";
@@ -49,6 +50,7 @@ export function registerYourShips() {
             LastMove,
             LastAction,
             Loaded,
+            Speed,
           },
           network: { connectedAddress, clock },
           utils: { getPlayerEntity, getPhase, getTurn },
@@ -57,7 +59,7 @@ export function registerYourShips() {
           actions: { Action },
           components: { SelectedShip, SelectedMove, SelectedActions, CommittedMoves, HoveredShip, ExecutedActions },
           api: { commitMove, revealMove, submitActions },
-          utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions },
+          utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, playSound },
         },
       } = layers;
 
@@ -83,7 +85,8 @@ export function registerYourShips() {
         CommittedMoves.update$,
         Loaded.update$,
         Action.update$,
-        ExecutedActions.update$
+        ExecutedActions.update$,
+        Speed.update$
       ).pipe(
         map(() => {
           return {
@@ -108,6 +111,7 @@ export function registerYourShips() {
             commitMove,
             getPlayerShipsWithMoves,
             getPlayerShipsWithActions,
+            playSound,
           };
         })
       );
@@ -136,6 +140,7 @@ export function registerYourShips() {
         commitMove,
         getPlayerShipsWithMoves,
         getPlayerShipsWithActions,
+        playSound,
       } = props;
 
       const phase: Phase | undefined = getPhase(DELAY);
@@ -169,12 +174,17 @@ export function registerYourShips() {
       const handleSubmitActions = () => {
         const shipsAndActions = getPlayerShipsWithActions();
         if (!shipsAndActions) return;
+        playSound("click", Category.UI);
+
         submitActions(shipsAndActions);
       };
 
       const handleSubmitCommitment = () => {
         const shipsAndMoves = getPlayerShipsWithMoves();
         if (!shipsAndMoves) return;
+
+        playSound("click", Category.UI);
+
         commitMove(shipsAndMoves);
       };
 
@@ -261,6 +271,7 @@ export function registerYourShips() {
           if (state == ActionState.WaitingForTxEvents) return true;
           return false;
         });
+        console.log("action executing:", actionExecuting);
         if (actionExecuting) content = <Success background={colors.waiting}>Executing...</Success>;
         else if (phase == Phase.Reveal) content = <RevealButtons />;
         else if (phase == Phase.Commit) content = <CommitButtons />;

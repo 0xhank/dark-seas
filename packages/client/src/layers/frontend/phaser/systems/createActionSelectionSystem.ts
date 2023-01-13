@@ -40,7 +40,6 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     const hoveredAction = value[0];
 
     if (!hoveredAction) return;
-
     const actionType = hoveredAction.actionType;
     if (actionType != ActionType.Fire && actionType != ActionType.Load) return;
 
@@ -88,7 +87,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     });
   });
 
-  defineComponentSystem(world, SelectedActions, ({ value }) => {
+  defineComponentSystem(world, SelectedActions, ({ value, entity: shipEntity }) => {
     const diff = getDiff(value[1], value[0]);
 
     if (diff) {
@@ -97,9 +96,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
         setComponent(Targeted, entity, { value: diff.added ? targetedValue + 1 : Math.max(0, targetedValue - 1) });
       });
     }
-    const hoveredShip = getComponentValue(HoveredShip, godIndex);
-    if (!hoveredShip) return;
-    setComponent(HoveredShip, godIndex, hoveredShip);
+    renderCannons(shipEntity);
   });
 
   // this is probably the worst code ive ever written
@@ -146,6 +143,14 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     const isMine = isMyShip(shipEntity);
     if (phase == Phase.Commit && isMine) return;
 
+    renderCannons(shipEntity);
+  });
+
+  defineExitSystem(world, [Has(HoveredShip)], (update) => {
+    polygonRegistry.get("selectedActions")?.clear(true, true);
+  });
+
+  function renderCannons(shipEntity: EntityIndex) {
     const groupId = "selectedActions";
     const activeGroup = polygonRegistry.get(groupId) || phaserScene.add.group();
     activeGroup.clear(true, true);
@@ -166,9 +171,5 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     });
 
     polygonRegistry.set(groupId, activeGroup);
-  });
-
-  defineExitSystem(world, [Has(HoveredShip)], (update) => {
-    polygonRegistry.get("selectedActions")?.clear(true, true);
-  });
+  }
 }

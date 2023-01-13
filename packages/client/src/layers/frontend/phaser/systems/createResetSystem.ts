@@ -13,7 +13,15 @@ export function createResetSystem(phaser: PhaserLayer) {
         network: { clock },
       },
       backend: {
-        components: { SelectedMove, SelectedActions, CommittedMoves, ExecutedActions, HoveredMove },
+        components: {
+          SelectedMove,
+          SelectedActions,
+          CommittedMoves,
+          ExecutedActions,
+          HoveredMove,
+          HoveredAction,
+          Targeted,
+        },
         api: { commitMove, revealMove, submitActions },
         utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, getPlayerShips, clearComponent },
         godIndex,
@@ -47,6 +55,8 @@ export function createResetSystem(phaser: PhaserLayer) {
           polygonRegistry.get(`rangeGroup-${ship}`)?.clear(true, true);
           clearComponent(SelectedActions);
           clearComponent(ExecutedActions);
+          clearComponent(HoveredAction);
+          clearComponent(Targeted);
         });
         polygonRegistry.get("selectedActions")?.clear(true, true);
       }

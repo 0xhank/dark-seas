@@ -37,7 +37,7 @@ import { revealMove } from "./api/revealMove";
 import { spawnPlayer } from "./api/spawnPlayer";
 import { submitActions } from "./api/submitActions";
 import { Category, soundLibrary } from "./sound/library";
-import { createSuccessfulActionSystem } from "./systems";
+import { createBackendSystems } from "./systems";
 /**
  * The Network layer is the lowest layer in the client architecture.
  * Its purpose is to synchronize the client components with the contract components.
@@ -93,7 +93,6 @@ export async function createBackendLayer(network: NetworkLayer) {
 
   function playSound(id: string, category: Category, loop = false, fade = false) {
     let timeout;
-    console.log(`playing ${id} sound`);
     const sound = new Howl({
       src: [soundLibrary[category][id].src],
       volume: soundLibrary[category][id].volume,
@@ -120,7 +119,7 @@ export async function createBackendLayer(network: NetworkLayer) {
   }
 
   function startEnvironmentSoundSystem() {
-    playSound("ocean", Category.Environment, true);
+    playSound("ocean", Category.Ambience, true);
   }
 
   startEnvironmentSoundSystem();
@@ -324,6 +323,7 @@ export async function createBackendLayer(network: NetworkLayer) {
       outOfBounds,
       isWhirlpool,
       clearComponent,
+      playSound,
     },
     components,
     godIndex: GodEntityIndex,
@@ -336,6 +336,6 @@ export async function createBackendLayer(network: NetworkLayer) {
 
   // --- SYSTEMS --------------------------------------------------------------------
 
-  createSuccessfulActionSystem(context);
+  createBackendSystems(context);
   return context;
 }

@@ -152,6 +152,10 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
               e.stopPropagation();
               handleNewActionsSpecial(action);
             }}
+            onMouseEnter={() =>
+              setComponent(HoveredAction, godIndex, { shipEntity: ship, actionType: action, specialEntity: 0 })
+            }
+            onMouseLeave={() => removeComponent(HoveredAction, godIndex)}
           >
             <Img style={{ height: "70%" }} src={ActionImg[action]} />
             <Sub>{ActionNames[action]}</Sub>
