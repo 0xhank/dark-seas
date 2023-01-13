@@ -3,7 +3,8 @@ import { MoveCard } from "../types";
 import { getPositionByVector } from "./trig";
 
 export function getMoveWithSails(moveCard: MoveCard, speed: number, sailPosition: number): MoveCard {
-  const buff = sailPosition == 2 ? speed : sailPosition == 1 ? speed * 0.6 : 0;
+  moveCard.distance = (moveCard.distance * speed) / 100;
+  const buff = sailPosition == 2 ? speed : sailPosition == 1 ? 0.6 : 0;
   return getMoveWithDebuff(moveCard, buff);
 }
 
