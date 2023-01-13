@@ -57,7 +57,15 @@ export function registerYourShips() {
         },
         backend: {
           actions: { Action },
-          components: { SelectedShip, SelectedMove, SelectedActions, CommittedMoves, HoveredShip, ExecutedActions },
+          components: {
+            SelectedShip,
+            SelectedMove,
+            SelectedActions,
+            EncodedCommitment,
+            HoveredShip,
+            ExecutedActions,
+            CommittedMove,
+          },
           api: { commitMove, revealMove, submitActions },
           utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, playSound },
         },
@@ -82,10 +90,11 @@ export function registerYourShips() {
         OwnedBy.update$,
         LastMove.update$,
         LastAction.update$,
-        CommittedMoves.update$,
+        EncodedCommitment.update$,
         Loaded.update$,
         Action.update$,
         ExecutedActions.update$,
+        CommittedMove.update$,
         Speed.update$
       ).pipe(
         map(() => {
@@ -99,7 +108,8 @@ export function registerYourShips() {
             SelectedActions,
             LastMove,
             LastAction,
-            CommittedMoves,
+            EncodedCommitment,
+            CommittedMove,
             Action,
             world,
             connectedAddress,
@@ -128,7 +138,8 @@ export function registerYourShips() {
         SelectedActions,
         LastMove,
         LastAction,
-        CommittedMoves,
+        EncodedCommitment,
+        CommittedMove,
         Action,
         world,
         connectedAddress,
@@ -189,15 +200,15 @@ export function registerYourShips() {
       };
 
       const handleSubmitExecute = () => {
-        const encoding = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
+        const encoding = getComponentValue(EncodedCommitment, GodEntityIndex)?.value;
         if (encoding) revealMove(encoding);
       };
 
       const RevealButtons = () => {
-        const committedMoves = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
+        const encodedCommitment = getComponentValue(EncodedCommitment, GodEntityIndex)?.value;
 
         if (lastMove == currentTurn) return <Success background={colors.greenGlass}>Move reveal successful!</Success>;
-        if (!committedMoves) return <Success background={colors.glass}>No moves to reveal</Success>;
+        if (!encodedCommitment) return <Success background={colors.glass}>No moves to reveal</Success>;
         return (
           <ConfirmButton style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmitExecute}>
             Reveal Moves
@@ -206,9 +217,17 @@ export function registerYourShips() {
       };
 
       const CommitButtons = () => {
-        const committedMoves = getComponentValue(CommittedMoves, GodEntityIndex)?.value;
+        const movesComplete = yourShips.every((ship) => {
+          const committedMove = getComponentValue(CommittedMove, ship)?.value;
+          const selectedMove = getComponentValue(SelectedMove, ship)?.value;
+          return committedMove == selectedMove;
+        });
 
-        const msg = committedMoves ? "Update Prepared Moves" : "Confirm Prepared Moves";
+        const msg = "Confirm Moves";
+
+        if (movesComplete) {
+          return <Success background="hsla(120, 100%, 50%, .5)">Moves Successful!</Success>;
+        }
         return (
           <>
             <ConfirmButton
@@ -271,7 +290,6 @@ export function registerYourShips() {
           if (state == ActionState.WaitingForTxEvents) return true;
           return false;
         });
-        console.log("action executing:", actionExecuting);
         if (actionExecuting) content = <Success background={colors.waiting}>Executing...</Success>;
         else if (phase == Phase.Reveal) content = <RevealButtons />;
         else if (phase == Phase.Commit) content = <CommitButtons />;

@@ -3,7 +3,7 @@ import { ActionSystem } from "@latticexyz/std-client";
 import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
 import { NetworkLayer } from "../../network";
 
-export function revealMove(network: NetworkLayer, actions: ActionSystem, committedMoves: string) {
+export function revealMove(network: NetworkLayer, actions: ActionSystem, encodedCommitment: string) {
   const {
     components: { Commitment },
     utils: { getPlayerEntity },
@@ -30,7 +30,7 @@ export function revealMove(network: NetworkLayer, actions: ActionSystem, committ
         return null;
       }
 
-      const hash = keccak256(committedMoves);
+      const hash = keccak256(encodedCommitment);
       if (commitment != hash) {
         console.warn(prefix, "commitment does not match stored committed moves");
         return null;
@@ -38,7 +38,7 @@ export function revealMove(network: NetworkLayer, actions: ActionSystem, committ
 
       const [moves, salt] = abi.decode(
         ["tuple(uint256 shipEntity, uint256 moveCardEntity)[]", "uint256"],
-        committedMoves
+        encodedCommitment
       );
       return { moves, salt };
     },

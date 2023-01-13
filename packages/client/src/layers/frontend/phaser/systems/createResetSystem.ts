@@ -16,7 +16,8 @@ export function createResetSystem(phaser: PhaserLayer) {
         components: {
           SelectedMove,
           SelectedActions,
-          CommittedMoves,
+          EncodedCommitment,
+          CommittedMove,
           ExecutedActions,
           HoveredMove,
           HoveredAction,
@@ -63,8 +64,8 @@ export function createResetSystem(phaser: PhaserLayer) {
 
       // END OF PHASE
       if (timeToNextPhase == 1) {
-        const committedMoves = getComponentValue(CommittedMoves, godIndex)?.value;
-        if (committedMoves) return;
+        const encodedCommitment = getComponentValue(EncodedCommitment, godIndex)?.value;
+        if (encodedCommitment) return;
         const shipsAndMoves = getPlayerShipsWithMoves();
         if (!shipsAndMoves) return;
         commitMove(shipsAndMoves);
@@ -82,7 +83,7 @@ export function createResetSystem(phaser: PhaserLayer) {
       });
       const lastMove = getComponentValue(LastMove, playerEntity)?.value;
       if (lastMove == turn) return;
-      const encoding = getComponentValue(CommittedMoves, godIndex)?.value;
+      const encoding = getComponentValue(EncodedCommitment, godIndex)?.value;
       if (encoding) revealMove(encoding);
 
       // clear projected ship
@@ -100,7 +101,8 @@ export function createResetSystem(phaser: PhaserLayer) {
     if (phase == Phase.Action) {
       // START OF PHASE
       if (timeToNextPhase == gameConfig.actionPhaseLength) {
-        clearComponent(CommittedMoves);
+        clearComponent(EncodedCommitment);
+        clearComponent(CommittedMove);
         clearComponent(SelectedMove);
       }
       // END OF PHASE

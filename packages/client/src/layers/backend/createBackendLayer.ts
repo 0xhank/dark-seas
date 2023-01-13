@@ -69,16 +69,14 @@ export async function createBackendLayer(network: NetworkLayer) {
       { actionTypes: Type.NumberArray, specialEntities: Type.EntityArray },
       { id: "Actions" }
     ),
-    CommittedMoves: defineStringComponent(world, { id: "CommittedMoves" }),
+    EncodedCommitment: defineStringComponent(world, { id: "EncodedCommitment" }),
+    CommittedMove: defineComponent(world, { value: Type.Number }, { id: "DecodedCommitment" }),
     Targeted: defineNumberComponent(world, { id: "Targeted" }),
     ExecutedActions: defineComponent(
       world,
       { actionTypes: Type.NumberArray, specialEntities: Type.EntityArray },
       { id: "ExecutedActions" }
     ),
-
-    // SOUND COMPONENTS
-    Volume: defineNumberComponent(world, { id: "Volume" }),
   };
   // --- SETUP ----------------------------------------------------------------------
 
@@ -91,7 +89,7 @@ export async function createBackendLayer(network: NetworkLayer) {
 
   // SOUND
 
-  function playSound(id: string, category: Category, loop = false, fade = false) {
+  function playSound(id: string, category: Category, loop = false, fade?: number) {
     let timeout;
     const sound = new Howl({
       src: [soundLibrary[category][id].src],
@@ -101,15 +99,14 @@ export async function createBackendLayer(network: NetworkLayer) {
     });
     if (fade) {
       // Fade on begin and end
-      const FADE_TIME = 2000;
 
       // Init
       sound.play();
-      sound.fade(0, 0.4, FADE_TIME);
+      sound.fade(0, 0.4, fade);
       sound.on("load", function () {
-        const FADE_OUT_TIME = sound.duration() * 1000 - sound.seek() - FADE_TIME;
+        const FADE_OUT_TIME = sound.duration() * 1000 - sound.seek() - fade;
         timeout = setTimeout(function () {
-          sound.fade(0.4, 0, FADE_TIME);
+          sound.fade(0.4, 0, fade);
         }, FADE_OUT_TIME);
       });
     } else {
@@ -123,6 +120,8 @@ export async function createBackendLayer(network: NetworkLayer) {
   }
 
   startEnvironmentSoundSystem();
+
+  const soundRegistry = new Map<string, Howl>();
   // --- UTILITIES ------------------------------------------------------------------
 
   function clearComponent(component: Component) {
@@ -303,7 +302,7 @@ export async function createBackendLayer(network: NetworkLayer) {
   // --- API ------------------------------------------------------------------------
   const api = {
     spawnPlayer: curry(spawnPlayer)(network, actions),
-    commitMove: curry(commitMove)(network, actions, components.CommittedMoves),
+    commitMove: curry(commitMove)(network, actions),
     revealMove: curry(revealMove)(network, actions),
     submitActions: curry(submitActions)(network, actions),
   };
@@ -313,6 +312,7 @@ export async function createBackendLayer(network: NetworkLayer) {
     actions,
     api,
     parentLayers: { network },
+    soundRegistry,
     utils: {
       checkActionPossible,
       getPlayerShips,
