@@ -1,4 +1,8 @@
-import { environment } from "./environment";
+import { action } from "./action";
+import { ambience } from "./ambience";
+import { combat } from "./combat";
+import { move } from "./move";
+import { ui } from "./ui";
 
 export interface Sound {
   src: string;
@@ -6,7 +10,11 @@ export interface Sound {
 }
 
 export enum Category {
-  Environment,
+  Ambience,
+  Action,
+  Combat,
+  Move,
+  UI,
 }
 
 export type SoundAsset = {
@@ -18,5 +26,9 @@ type soundLibrary = {
 };
 
 export const soundLibrary = {
-  [Category.Environment]: environment,
+  [Category.Ambience]: ambience,
+  [Category.Action]: action,
+  [Category.Move]: move,
+  [Category.Combat]: combat,
+  [Category.UI]: ui,
 };
