@@ -21,7 +21,8 @@
     "CommitmentComponent",
     "LoadedComponent",
     "CannonComponent",
-    "SpeedComponent"
+    "SpeedComponent",
+    "ShipPrototypeComponent"
   ],
   "systems": [
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },

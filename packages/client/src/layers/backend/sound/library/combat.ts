@@ -21,7 +21,7 @@ export const combat: SoundAsset = {
   },
   cannon_shot: {
     src: "/sounds/combat/Weapons_CannonsShot_04.wav",
-    volume: FULL_VOLUME,
+    volume: BASE_VOLUME,
   },
   load_action: {
     src: "/sounds/combat/Weapons_Load.wav",
