@@ -23,6 +23,7 @@ import { LastMoveComponent, ID as LastMoveComponentID } from "../components/Last
 import { CannonComponent, ID as CannonComponentID } from "../components/CannonComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedComponent.sol";
+import { KillsComponent, ID as KillsComponentID } from "../components/KillsComponent.sol";
 
 // Types
 import { Coord, GodID } from "../libraries/DSTypes.sol";
@@ -133,6 +134,7 @@ library LibSpawn {
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
     OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(shipEntity, playerEntity);
     SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, 110);
+    KillsComponent(getAddressById(components, KillsComponentID)).set(shipEntity, 0);
 
     spawnCannon(components, world, shipEntity, 90, 40, 100);
     spawnCannon(components, world, shipEntity, 270, 40, 100);
@@ -169,6 +171,7 @@ library LibSpawn {
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
     OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(shipEntity, playerEntity);
     SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, 90);
+    KillsComponent(getAddressById(components, KillsComponentID)).set(shipEntity, 0);
 
     spawnCannon(components, world, shipEntity, 90, 65, 60);
     spawnCannon(components, world, shipEntity, 270, 65, 60);
