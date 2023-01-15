@@ -52,7 +52,7 @@ export const YourShip = ({
   const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
   const position = getComponentValueStrict(Position, ship);
-  const health = getComponentValueStrict(Health, ship).value;
+  const health = getComponentValue(Health, ship)?.value;
   const hoveredShip = getComponentValue(HoveredShip, GodEntityIndex)?.value;
   const isSelected = selectedShip == ship;
   const isHovered = hoveredShip == ship;

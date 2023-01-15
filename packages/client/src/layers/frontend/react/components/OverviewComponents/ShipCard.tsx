@@ -26,8 +26,8 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
 
   const sailPosition = getComponentValueStrict(SailPosition, ship).value;
   const rotation = getComponentValueStrict(Rotation, ship).value;
-  const health = getComponentValueStrict(Health, ship).value;
-  const maxHealth = getComponentValueStrict(MaxHealth, ship).value;
+  const health = getComponentValue(Health, ship)?.value || 0;
+  const maxHealth = getComponentValue(MaxHealth, ship)?.value || 0;
   const onFire = getComponentValue(OnFire, ship)?.value;
   const damagedCannons = getComponentValue(DamagedCannons, ship)?.value;
   const ownerName = getComponentValue(Name, ownerEntity)?.value;

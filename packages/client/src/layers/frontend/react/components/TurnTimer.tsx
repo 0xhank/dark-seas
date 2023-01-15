@@ -147,6 +147,6 @@ const ProgressBar = styled.div<{ phaseLength: number; secsLeft: number }>`
   height: 30px;
   transition: width 1s linear;
   background-color: ${({ secsLeft }) => (secsLeft > 5 ? colors.gold : colors.red)};
-  width: ${({ phaseLength, secsLeft }) => `calc(100% * ${(phaseLength - secsLeft) / phaseLength})`};
+  width: ${({ phaseLength, secsLeft }) => `calc(100% * ${(phaseLength - secsLeft + 1) / phaseLength})`};
   border-radius: 6px;
 `;
