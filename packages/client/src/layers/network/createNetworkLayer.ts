@@ -83,6 +83,7 @@ export async function createNetworkLayer(config: GameConfig) {
     Cannon: defineBoolComponent(world, { id: "Cannon", metadata: { contractId: "ds.component.Cannon" } }),
     Loaded: defineBoolComponent(world, { id: "Loaded", metadata: { contractId: "ds.component.Loaded" } }),
     Speed: defineNumberComponent(world, { id: "Speed", metadata: { contractId: "ds.component.Speed" } }),
+    Kills: defineNumberComponent(world, { id: "Kills", metadata: { contractId: "ds.component.Kills" } }),
   };
 
   // --- SETUP ----------------------------------------------------------------------

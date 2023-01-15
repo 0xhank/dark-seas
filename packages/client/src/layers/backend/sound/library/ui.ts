@@ -31,4 +31,8 @@ export const ui: SoundAsset = {
     src: "sounds/ui/tick.wav",
     volume: FULL_VOLUME,
   },
+  reset: {
+    src: "sounds/ui/reset.wav",
+    volume: FULL_VOLUME,
+  },
 };

@@ -19,6 +19,7 @@ import {
 import {
   createActionSystem,
   DecodedSystemCall,
+  defineBoolComponent,
   defineNumberComponent,
   defineStringComponent,
 } from "@latticexyz/std-client";
@@ -77,6 +78,9 @@ export async function createBackendLayer(network: NetworkLayer) {
       { actionTypes: Type.NumberArray, specialEntities: Type.EntityArray },
       { id: "ExecutedActions" }
     ),
+    LeaderboardOpen: defineBoolComponent(world, {
+      id: "LeaderboardOpen",
+    }),
   };
   // --- SETUP ----------------------------------------------------------------------
 

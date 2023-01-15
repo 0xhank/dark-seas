@@ -17,6 +17,8 @@ import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireCo
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../components/DamagedCannonsComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
+import { KillsComponent, ID as KillsComponentID } from "../components/KillsComponent.sol";
+import { LastHitComponent, ID as LastHitComponentID } from "../components/LastHitComponent.sol";
 
 // Types
 import { Side, Coord } from "../libraries/DSTypes.sol";
@@ -134,9 +136,15 @@ library LibCombat {
     uint32 hullDamage = getHullDamage(baseHitChance, r);
 
     bool dead = damageHull(components, hullDamage, defenderEntity);
-    if (dead) return;
-
     if (hullDamage == 0) return;
+
+    LastHitComponent(getAddressById(components, LastHitComponentID)).set(defenderEntity, attackerEntity);
+    if (dead) {
+      KillsComponent killsComponent = KillsComponent(getAddressById(components, KillsComponentID));
+      uint32 prevKills = killsComponent.getValue(attackerEntity);
+      killsComponent.set(attackerEntity, prevKills + 1);
+      return;
+    }
 
     // perform special damage
     if (getSpecialChance(baseHitChance, hullDamage, r, 0)) {

@@ -1,5 +1,6 @@
 import { defineRxSystem, getComponentEntities, getComponentValue } from "@latticexyz/recs";
 import { Phase } from "../../../../types";
+import { Category } from "../../../backend/sound/library";
 import { DELAY } from "../../constants";
 import { PhaserLayer } from "../types";
 
@@ -24,7 +25,7 @@ export function createResetSystem(phaser: PhaserLayer) {
           Targeted,
         },
         api: { commitMove, revealMove, submitActions },
-        utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, getPlayerShips, clearComponent },
+        utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, getPlayerShips, clearComponent, playSound },
         godIndex,
       },
     },
@@ -51,6 +52,7 @@ export function createResetSystem(phaser: PhaserLayer) {
     if (phase == Phase.Commit) {
       // START OF PHASE
       if (timeToNextPhase == gameConfig.commitPhaseLength) {
+        playSound("reset", Category.UI);
         getPlayerShips()?.map((ship) => {
           objectPool.remove(`projection-${ship}`);
           polygonRegistry.get(`rangeGroup-${ship}`)?.clear(true, true);
@@ -101,6 +103,8 @@ export function createResetSystem(phaser: PhaserLayer) {
     if (phase == Phase.Action) {
       // START OF PHASE
       if (timeToNextPhase == gameConfig.actionPhaseLength) {
+        playSound("reset", Category.UI);
+
         clearComponent(EncodedCommitment);
         clearComponent(CommittedMove);
         clearComponent(SelectedMove);
