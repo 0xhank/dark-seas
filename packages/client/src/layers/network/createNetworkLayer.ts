@@ -48,6 +48,7 @@ export async function createNetworkLayer(config: GameConfig) {
         actionPhaseLength: Type.Number,
         worldRadius: Type.Number,
         perlinSeed: Type.String,
+        shipPrototypes: Type.StringArray,
       },
       { id: "GameConfig", metadata: { contractId: "ds.component.GameConfig" } }
     ),
@@ -83,6 +84,14 @@ export async function createNetworkLayer(config: GameConfig) {
     Cannon: defineBoolComponent(world, { id: "Cannon", metadata: { contractId: "ds.component.Cannon" } }),
     Loaded: defineBoolComponent(world, { id: "Loaded", metadata: { contractId: "ds.component.Loaded" } }),
     Speed: defineNumberComponent(world, { id: "Speed", metadata: { contractId: "ds.component.Speed" } }),
+    ShipPrototype: defineComponent(
+      world,
+      { value: Type.String },
+      {
+        id: "ShipPrototype",
+        metadata: { contractId: "ds.component.ShipPrototype" },
+      }
+    ),
   };
 
   // --- SETUP ----------------------------------------------------------------------

@@ -16,11 +16,6 @@ contract ShipPrototypeComponent is Component {
   }
 
   function getValue(uint256 entity) public view returns (bytes memory) {
-    bytes memory value = getRawValue(entity);
-    return value;
-  }
-
-  function encodedValue(bytes memory value) private pure returns (bytes memory) {
-    return value;
+    return getRawValue(entity);
   }
 }
