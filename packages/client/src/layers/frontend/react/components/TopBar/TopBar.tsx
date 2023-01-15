@@ -2,7 +2,7 @@ import { getComponentValue, setComponent } from "@latticexyz/recs";
 import { map, merge, of } from "rxjs";
 import styled from "styled-components";
 import { registerUIComponent } from "../../engine";
-import { Button } from "../../styles/global";
+import { Button, colors } from "../../styles/global";
 import { Compass } from "./Compass";
 
 export function registerTopBar() {
@@ -60,7 +60,7 @@ export function registerTopBar() {
               onClick={() => {
                 setComponent(LeaderboardOpen, godIndex, { value: true });
               }}
-              style={{ width: "40px" }}
+              style={{ width: "40px", background: colors.thickGlass }}
             >
               {" "}
               <img src={"/icons/podium.svg"} style={{ width: "100%" }} />

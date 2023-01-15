@@ -9,6 +9,8 @@ import { registerTurnTimer } from "./TurnTimer";
 import { registerYourShips } from "./YourShips";
 
 export function registerUIComponents() {
+  registerLeaderboard();
+
   registerLoadingState();
   registerComponentBrowser();
   registerActionQueue();
@@ -17,5 +19,4 @@ export function registerUIComponents() {
   registerYourShips();
   registerTurnTimer();
   registerJoinGame();
-  registerLeaderboard();
 }

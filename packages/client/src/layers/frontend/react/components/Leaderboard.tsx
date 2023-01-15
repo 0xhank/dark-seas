@@ -104,10 +104,16 @@ export function registerLeaderboard() {
       if (!show) return null;
       console.log("ships:", ships);
       return (
-        <Container style={{ background: "hsla(0, 0%, 0%, .5)", zIndex: 9999 }} onClick={close}>
+        <Container
+          style={{ flexDirection: "row", background: "hsla(0, 0%, 0%, 0.6", zIndex: 9999, gap: "20px" }}
+          onClick={close}
+          onMouseEnter={(e) => e.stopPropagation()}
+        >
           <LeaderboardContainer onClick={(e) => e.stopPropagation()}>
-            <PlayerTable theadData={["Name", "Kills", "Health"]} tbodyData={players} />
-            <ShipTable theadData={["Name", "Kills", "Health", "Owner"]} tbodyData={ships} />
+            <PlayerTable theadData={["Rank", "Name", "Kills", "Health"]} tbodyData={players} />
+          </LeaderboardContainer>
+          <LeaderboardContainer onClick={(e) => e.stopPropagation()}>
+            <ShipTable theadData={["ID", "Kills", "Health", "Owner"]} tbodyData={ships} />
           </LeaderboardContainer>
         </Container>
       );
@@ -116,9 +122,9 @@ export function registerLeaderboard() {
 }
 
 const LeaderboardContainer = styled.div`
-  width: 70%;
   height: 80%;
-  background: hsla(0, 0%, 100%, 0.8);
+  min-width: 20%;
+  background: whitesmoke;
   border: 5px solid ${colors.gold};
 
   color: ${colors.darkBrown};
@@ -131,7 +137,6 @@ const LeaderboardContainer = styled.div`
 `;
 
 const TableContainer = styled.div`
-  height: 50%;
   overflow-y: auto;
   width: 100%;
   display: flex;
@@ -145,9 +150,9 @@ const TableHeadItem = ({ item }: { item: string }) => {
 const ShipTable = ({ theadData, tbodyData }: { theadData: string[]; tbodyData: (ShipData | undefined)[] }) => {
   return (
     <TableContainer>
-      <p>Ship Leaderboard</p>
+      <p style={{ fontSize: "2rem" }}>Ship Leaderboard</p>
 
-      <table>
+      <table style={{ textAlign: "center", color: colors.darkBrown }}>
         <thead>
           <tr>
             {theadData.map((h) => {
@@ -177,11 +182,12 @@ const ShipTableRow = ({ data }: { data: ShipData }) => {
     </tr>
   );
 };
+
 const PlayerTable = ({ theadData, tbodyData }: { theadData: string[]; tbodyData: (PlayerData | undefined)[] }) => {
   return (
     <TableContainer>
-      <p>Player Leaderboard</p>
-      <table>
+      <p style={{ fontSize: "2rem" }}>Player Leaderboard</p>
+      <table style={{ textAlign: "center", color: colors.darkBrown }}>
         <thead>
           <tr>
             {theadData.map((h) => {
@@ -192,18 +198,19 @@ const PlayerTable = ({ theadData, tbodyData }: { theadData: string[]; tbodyData:
         <tbody>
           {tbodyData
             .sort((a, b) => (a?.kills || 0) - (b?.kills || 0))
-            .map((item) => {
+            .map((item, i) => {
               if (!item) return null;
-              return <PlayerTableRow key={`item ${item.playerEntity}`} data={item} />;
+              return <PlayerTableRow key={`item ${item.playerEntity}`} data={item} index={i} />;
             })}
         </tbody>
       </table>
     </TableContainer>
   );
 };
-const PlayerTableRow = ({ data }: { data: PlayerData }) => {
+const PlayerTableRow = ({ data, index }: { data: PlayerData; index: number }) => {
   return (
     <tr>
+      <td>{index + 1}</td>
       <td>{data.name}</td>
       <td>{data.kills}</td>
       <td>{data.health}</td>
