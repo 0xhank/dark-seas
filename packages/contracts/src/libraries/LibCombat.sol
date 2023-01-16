@@ -12,6 +12,7 @@ import { LengthComponent, ID as LengthComponentID } from "../components/LengthCo
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
 import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
+import { MaxHealthComponent, ID as MaxHealthComponentID } from "../components/MaxHealthComponent.sol";
 import { FirepowerComponent, ID as FirepowerComponentID } from "../components/FirepowerComponent.sol";
 import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
@@ -141,8 +142,14 @@ library LibCombat {
     LastHitComponent(getAddressById(components, LastHitComponentID)).set(defenderEntity, attackerEntity);
     if (dead) {
       KillsComponent killsComponent = KillsComponent(getAddressById(components, KillsComponentID));
+      HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
       uint32 prevKills = killsComponent.getValue(attackerEntity);
       killsComponent.set(attackerEntity, prevKills + 1);
+
+      uint32 maxHealth = MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).getValue(attackerEntity);
+      uint32 health = healthComponent.getValue(attackerEntity);
+      if (health + 2 >= maxHealth) healthComponent.set(attackerEntity, maxHealth);
+      else healthComponent.set(attackerEntity, health + 2);
       return;
     }
 

@@ -1,6 +1,6 @@
-import { Layers } from "@latticexyz/recs";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
+import { Layers } from "../../../../types";
 import { BootScreen, MainWindow } from "./components";
 import { EngineContext, LayerContext } from "./context";
 import { EngineStore } from "./store";

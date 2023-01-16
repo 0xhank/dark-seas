@@ -7,7 +7,7 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
     world,
     components: { SelectedActions, ExecutedActions, EncodedCommitment, CommittedMove, Targeted },
     actions: { Action },
-    utils: { clearComponent },
+    utils: { clearComponent, isMyShip },
     systemDecoders: { onAction },
     godIndex,
   } = layer;
@@ -30,21 +30,24 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
         setComponent(CommittedMove, shipEntity, { value: moveCardEntity });
       });
     }
-
-    if (type != TxType.Action || state != ActionState.Complete) return;
-
-    clearComponent(Targeted);
-    clearComponent(SelectedActions);
   });
 
   onAction(({ actions }) => {
+    let mine = false;
     actions.forEach((action) => {
       const shipEntity = world.entityToIndex.get(action.shipEntity);
       if (!shipEntity) return;
+      if (!mine && isMyShip(shipEntity)) mine = true;
+
       setComponent(ExecutedActions, shipEntity, {
         actionTypes: action.actionTypes,
         specialEntities: action.specialEntities,
       });
     });
+
+    if (mine) {
+      clearComponent(Targeted);
+      clearComponent(SelectedActions);
+    }
   });
 }

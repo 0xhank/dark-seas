@@ -1,6 +1,6 @@
 import { SoundAsset } from ".";
 
-const BASE_VOLUME = 0.3;
+const BASE_VOLUME = 0.5;
 const FULL_VOLUME = 1;
 export const combat: SoundAsset = {
   impact_water_1: {
@@ -13,11 +13,11 @@ export const combat: SoundAsset = {
   },
   impact_ship_1: {
     src: "/sounds/combat/Impact_Ship_01.wav",
-    volume: BASE_VOLUME,
+    volume: 0.1,
   },
   impact_ship_2: {
     src: "/sounds/combat/Impact_Ship_02.wav",
-    volume: FULL_VOLUME,
+    volume: 0.1,
   },
   cannon_shot: {
     src: "/sounds/combat/Weapons_CannonsShot_04.wav",
