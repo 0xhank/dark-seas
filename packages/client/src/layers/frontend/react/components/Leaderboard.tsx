@@ -167,7 +167,15 @@ const ShipTable = ({ theadData, tbodyData }: { theadData: string[]; tbodyData: (
         </thead>
         <tbody>
           {tbodyData
-            .sort((a, b) => (a?.kills || 0) - (b?.kills || 0))
+            .sort((a, b) => {
+              if (!a) return 1;
+              if (!b) return -1;
+
+              const kills = b.kills - a.kills;
+              if (kills !== 0) return kills;
+
+              return b.health - a.health;
+            })
             .map((item) => {
               if (!item) return null;
               return <ShipTableRow key={`item ${item.shipEntity}`} data={item} />;
@@ -202,7 +210,15 @@ const PlayerTable = ({ theadData, tbodyData }: { theadData: string[]; tbodyData:
         </thead>
         <tbody>
           {tbodyData
-            .sort((a, b) => (a?.kills || 0) - (b?.kills || 0))
+            .sort((a, b) => {
+              if (!a) return 1;
+              if (!b) return -1;
+
+              const kills = b.kills - a.kills;
+              if (kills !== 0) return kills;
+
+              return b.health - a.health;
+            })
             .map((item, i) => {
               if (!item) return null;
               return <PlayerTableRow key={`item ${item.playerEntity}`} data={item} index={i} />;

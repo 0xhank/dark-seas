@@ -136,9 +136,9 @@ library LibSpawn {
     SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, 110);
     KillsComponent(getAddressById(components, KillsComponentID)).set(shipEntity, 0);
 
-    spawnCannon(components, world, shipEntity, 90, 40, 100);
-    spawnCannon(components, world, shipEntity, 270, 40, 100);
-    spawnCannon(components, world, shipEntity, 0, 40, 100);
+    spawnCannon(components, world, shipEntity, 90, 40, 90);
+    spawnCannon(components, world, shipEntity, 270, 40, 90);
+    spawnCannon(components, world, shipEntity, 0, 40, 90);
   }
 
   /**
@@ -164,19 +164,19 @@ library LibSpawn {
 
     PositionComponent(getAddressById(components, PositionComponentID)).set(shipEntity, location);
     RotationComponent(getAddressById(components, RotationComponentID)).set(shipEntity, rotation);
-    LengthComponent(getAddressById(components, LengthComponentID)).set(shipEntity, 15);
+    LengthComponent(getAddressById(components, LengthComponentID)).set(shipEntity, 13);
     HealthComponent(getAddressById(components, HealthComponentID)).set(shipEntity, maxHealth);
     MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).set(shipEntity, maxHealth);
 
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
     OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(shipEntity, playerEntity);
-    SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, 90);
+    SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, 85);
     KillsComponent(getAddressById(components, KillsComponentID)).set(shipEntity, 0);
 
-    spawnCannon(components, world, shipEntity, 90, 65, 60);
-    spawnCannon(components, world, shipEntity, 270, 65, 60);
-    spawnCannon(components, world, shipEntity, 345, 65, 50);
-    spawnCannon(components, world, shipEntity, 15, 65, 50);
+    spawnCannon(components, world, shipEntity, 90, 65, 100);
+    spawnCannon(components, world, shipEntity, 270, 65, 100);
+    spawnCannon(components, world, shipEntity, 345, 65, 100);
+    spawnCannon(components, world, shipEntity, 15, 65, 100);
   }
 
   function spawnCannon(
