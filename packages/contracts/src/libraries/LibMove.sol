@@ -136,7 +136,7 @@ library LibMove {
   }
 
   function outOfBounds(IUint256Component components, Coord memory position) private returns (bool) {
-    if (!LibVector.inWorldRadius(components, position)) return true;
+    if (!LibVector.inWorld(components, position)) return true;
 
     GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
       GodID
