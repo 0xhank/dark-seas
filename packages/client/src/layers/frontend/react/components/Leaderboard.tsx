@@ -44,65 +44,70 @@ export function registerLeaderboard() {
           const close = () => {
             setComponent(LeaderboardOpen, godIndex, { value: false });
           };
-          const ships: (ShipData | undefined)[] = [...getComponentEntities(Ship)].map((shipEntity) => {
-            const health = getComponentValue(Health, shipEntity)?.value;
-            const kills = getComponentValue(Kills, shipEntity)?.value;
-            const ownerId = getComponentValue(OwnedBy, shipEntity)?.value;
-            console.log(`ship: ${shipEntity}, health: ${health}, kills:${kills}, ownerId:${ownerId}`);
+          const getShips = () =>
+            [...getComponentEntities(Ship)].map((shipEntity) => {
+              const health = getComponentValue(Health, shipEntity)?.value;
+              const kills = getComponentValue(Kills, shipEntity)?.value;
+              const ownerId = getComponentValue(OwnedBy, shipEntity)?.value;
+              console.log(`ship: ${shipEntity}, health: ${health}, kills:${kills}, ownerId:${ownerId}`);
 
-            if (!ownerId) return;
-            const owner = world.entityToIndex.get(ownerId);
-            if (!owner) return;
-            const name = getComponentValue(Name, owner)?.value;
-            if (health == undefined || kills == undefined || name == undefined) return;
-            return {
-              shipEntity,
-              health,
-              kills,
-              owner: name,
-            };
-          });
-
-          let players: PlayerData[] = [];
-          [...getComponentEntities(Ship)].forEach((shipEntity) => {
-            const health = getComponentValue(Health, shipEntity)?.value;
-            const kills = getComponentValue(Kills, shipEntity)?.value;
-            const ownerId = getComponentValue(OwnedBy, shipEntity)?.value;
-            console.log(`ship: ${shipEntity}, health: ${health}, kills:${kills}, ownerId:${ownerId}`);
-
-            if (!ownerId) return;
-            const owner = world.entityToIndex.get(ownerId);
-            if (!owner) return;
-            const name = getComponentValue(Name, owner)?.value;
-            if (health == undefined || kills == undefined || name == undefined) return;
-
-            const player = players.find((player) => player.playerEntity == owner);
-
-            if (!player) {
-              players.push({
-                playerEntity: owner,
-                name,
+              if (!ownerId) return;
+              const owner = world.entityToIndex.get(ownerId);
+              if (!owner) return;
+              const name = getComponentValue(Name, owner)?.value;
+              if (health == undefined || kills == undefined || name == undefined) return;
+              return {
+                shipEntity,
                 health,
                 kills,
-              });
-            } else {
-              player.health += health;
-              player.kills += kills;
-            }
-          });
+                owner: name,
+              };
+            });
+
+          const getPlayers = () => {
+            let players: PlayerData[] = [];
+            [...getComponentEntities(Ship)].forEach((shipEntity) => {
+              const health = getComponentValue(Health, shipEntity)?.value;
+              const kills = getComponentValue(Kills, shipEntity)?.value;
+              const ownerId = getComponentValue(OwnedBy, shipEntity)?.value;
+              console.log(`ship: ${shipEntity}, health: ${health}, kills:${kills}, ownerId:${ownerId}`);
+
+              if (!ownerId) return;
+              const owner = world.entityToIndex.get(ownerId);
+              if (!owner) return;
+              const name = getComponentValue(Name, owner)?.value;
+              if (health == undefined || kills == undefined || name == undefined) return;
+
+              const player = players.find((player) => player.playerEntity == owner);
+
+              if (!player) {
+                players.push({
+                  playerEntity: owner,
+                  name,
+                  health,
+                  kills,
+                });
+              } else {
+                player.health += health;
+                player.kills += kills;
+              }
+            });
+            return players;
+          };
 
           return {
-            ships,
-            players,
+            getShips,
+            getPlayers,
             show,
             close,
           };
         })
       );
     },
-    ({ show, ships, players, close }) => {
+    ({ show, getShips, getPlayers, close }) => {
       if (!show) return null;
-      console.log("ships:", ships);
+      const ships = getShips();
+      const players = getPlayers();
       return (
         <Container
           style={{ flexDirection: "row", background: "hsla(0, 0%, 0%, 0.6", zIndex: 9999, gap: "20px" }}

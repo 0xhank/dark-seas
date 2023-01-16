@@ -1,6 +1,5 @@
 import { defineRxSystem, getComponentEntities, getComponentValue } from "@latticexyz/recs";
 import { Phase } from "../../../../types";
-import { Category } from "../../../backend/sound/library";
 import { DELAY } from "../../constants";
 import { PhaserLayer } from "../types";
 
@@ -25,7 +24,7 @@ export function createResetSystem(phaser: PhaserLayer) {
           Targeted,
         },
         api: { commitMove, revealMove, submitActions },
-        utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, getPlayerShips, clearComponent, playSound },
+        utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, getPlayerShips, clearComponent },
         godIndex,
       },
     },
@@ -52,7 +51,6 @@ export function createResetSystem(phaser: PhaserLayer) {
     if (phase == Phase.Commit) {
       // START OF PHASE
       if (timeToNextPhase == gameConfig.commitPhaseLength) {
-        playSound("reset", Category.UI);
         getPlayerShips()?.map((ship) => {
           objectPool.remove(`projection-${ship}`);
           polygonRegistry.get(`rangeGroup-${ship}`)?.clear(true, true);
@@ -77,6 +75,10 @@ export function createResetSystem(phaser: PhaserLayer) {
     // START OF PHASE: reveal moves
     // note: contract-side this occurs during the commit phase
     if (phase == Phase.Reveal) {
+      if (timeToNextPhase == gameConfig.revealPhaseLength - 3) {
+        const encoding = getComponentValue(EncodedCommitment, godIndex)?.value;
+        if (encoding) revealMove(encoding);
+      }
       if (timeToNextPhase !== gameConfig.revealPhaseLength) return;
 
       [...getComponentEntities(MoveCard)].forEach((moveCardEntity) => {
@@ -85,8 +87,6 @@ export function createResetSystem(phaser: PhaserLayer) {
       });
       const lastMove = getComponentValue(LastMove, playerEntity)?.value;
       if (lastMove == turn) return;
-      const encoding = getComponentValue(EncodedCommitment, godIndex)?.value;
-      if (encoding) revealMove(encoding);
 
       // clear projected ship
       const hoveredShip = getComponentValue(HoveredMove, godIndex)?.shipEntity;
@@ -103,8 +103,6 @@ export function createResetSystem(phaser: PhaserLayer) {
     if (phase == Phase.Action) {
       // START OF PHASE
       if (timeToNextPhase == gameConfig.actionPhaseLength) {
-        playSound("reset", Category.UI);
-
         clearComponent(EncodedCommitment);
         clearComponent(CommittedMove);
         clearComponent(SelectedMove);

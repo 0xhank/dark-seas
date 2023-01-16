@@ -55,11 +55,11 @@ library LibSpawn {
    * @return  Coord  randomly generated location
    */
   function getRandomLocation(IUint256Component components, uint256 r) public view returns (Coord memory) {
-    uint256 worldRadius = GameConfigComponent(getAddressById(components, GameConfigComponentID))
+    uint32 worldRadius = GameConfigComponent(getAddressById(components, GameConfigComponentID))
       .getValue(GodID)
       .worldRadius;
 
-    uint32 distance = uint32(LibUtils.getByteUInt(r, 14, 0) % (worldRadius - 70));
+    uint32 distance = worldRadius - 40;
     uint32 rotation = uint32(LibUtils.getByteUInt(r, 14, 14) % 360);
 
     Coord memory location = LibVector.getPositionByVector(Coord(0, 0), 0, distance, rotation);
