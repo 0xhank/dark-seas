@@ -29,7 +29,7 @@ contract InitSystem is System {
         commitPhaseLength: 25,
         revealPhaseLength: 10,
         actionPhaseLength: 25,
-        worldRadius: 400,
+        worldSize: 100,
         perlinSeed: 69
       })
     );

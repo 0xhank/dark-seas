@@ -30,7 +30,7 @@ import { curry, toLower } from "lodash";
 import { merge } from "rxjs";
 
 import { Action, ActionType, Move } from "../../types";
-import { inRadius } from "../../utils/distance";
+import { inWorld } from "../../utils/distance";
 import { getFiringArea, getSternLocation, inFiringArea } from "../../utils/trig";
 import { NetworkLayer } from "../network";
 import { commitMove } from "./api/commitMove";
@@ -283,7 +283,7 @@ export async function createBackendLayer(network: NetworkLayer) {
     const gameConfig = getGameConfig();
     if (!gameConfig) return false;
 
-    if (!inRadius(position, gameConfig.worldRadius)) return true;
+    if (!inWorld(position, gameConfig.worldSize)) return true;
 
     const whirlpool = isWhirlpool(position, Number(gameConfig.perlinSeed));
     if (whirlpool) return true;

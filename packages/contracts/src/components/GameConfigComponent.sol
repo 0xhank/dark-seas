@@ -26,7 +26,7 @@ contract GameConfigComponent is Component {
     keys[3] = "actionPhaseLength";
     values[3] = LibTypes.SchemaValue.UINT32;
 
-    keys[4] = "worldRadius";
+    keys[4] = "worldSize";
     values[4] = LibTypes.SchemaValue.UINT32;
 
     keys[5] = "perlinSeed";
@@ -43,10 +43,10 @@ contract GameConfigComponent is Component {
       uint32 commitPhaseLength,
       uint32 revealPhaseLength,
       uint32 actionPhaseLength,
-      uint32 worldRadius,
+      uint32 worldSize,
       int128 perlinSeed
     ) = abi.decode(getRawValue(entity), (uint256, uint32, uint32, uint32, uint32, int128));
-    return GameConfig(startTime, commitPhaseLength, revealPhaseLength, actionPhaseLength, worldRadius, perlinSeed);
+    return GameConfig(startTime, commitPhaseLength, revealPhaseLength, actionPhaseLength, worldSize, perlinSeed);
   }
 
   function getEntitiesWithValue(GameConfig calldata config) public view returns (uint256[] memory) {
@@ -60,7 +60,7 @@ contract GameConfigComponent is Component {
         config.commitPhaseLength,
         config.revealPhaseLength,
         config.actionPhaseLength,
-        config.worldRadius,
+        config.worldSize,
         config.perlinSeed
       );
   }

@@ -1,10 +1,10 @@
 import { PhaserLayer } from "../types";
 import { createActionSelectionSystem } from "./createActionSelectionSystem";
+import { createBorderSystem } from "./createBorderSystem";
 import { createCannonAnimationSystem } from "./createCannonAnimationSystem";
 import { createInputSystem } from "./createInputSystem";
 import { createMoveOptionsSystem } from "./createMoveOptionsSystem";
 import { createProjectionSystem } from "./createProjectionSystem";
-import { createRadiusSystem } from "./createRadiusSystem";
 import { createResetSystem } from "./createResetSystem";
 import { createShipCircleSystem } from "./createShipCircleSystem";
 import { createShipSystem } from "./createShipSystem";
@@ -18,7 +18,7 @@ export function createPhaserSystems(context: PhaserLayer) {
   createShipSystem(context);
   createProjectionSystem(context);
   createResetSystem(context);
-  createRadiusSystem(context);
+  createBorderSystem(context);
   createShipCircleSystem(context);
   createMoveOptionsSystem(context);
   createStatAnimationSystem(context);

@@ -8,6 +8,6 @@ export function inRange(a: Coord, b: Coord, range: number): boolean {
   return (a.x - b.x) ** 2 + (a.y - b.y) ** 2 <= range ** 2;
 }
 
-export function inRadius(a: Coord, radius: number): boolean {
-  return Math.abs(a.x) < radius && Math.abs(a.y) < radius;
+export function inWorld(a: Coord, size: number): boolean {
+  return Math.abs(a.x) < size && Math.abs(a.y) < size;
 }

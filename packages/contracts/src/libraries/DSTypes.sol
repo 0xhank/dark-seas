@@ -51,6 +51,6 @@ struct GameConfig {
   uint32 commitPhaseLength;
   uint32 revealPhaseLength;
   uint32 actionPhaseLength;
-  uint32 worldRadius;
+  uint32 worldSize;
   int128 perlinSeed;
 }

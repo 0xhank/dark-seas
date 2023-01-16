@@ -1,6 +1,6 @@
 import { defineComponentSystem } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
-import { inRadius } from "../../../../utils/distance";
+import { inWorld } from "../../../../utils/distance";
 import { DSTileset } from "../assets/tilesets/dsTilesheet";
 import { TILE_HEIGHT } from "../constants";
 import { PhaserLayer } from "../types";
@@ -28,19 +28,18 @@ export function createTileSystem(phaser: PhaserLayer) {
 
   defineComponentSystem(world, GameConfig, (update) => {
     const gameConfig = update.value[0];
-    // const worldRadius = 10;
     if (!gameConfig) return;
 
-    const worldRadius = gameConfig.worldRadius;
+    const worldSize = gameConfig.worldSize;
     const perlinSeed = Number(gameConfig.perlinSeed);
 
     const adjustment = TILE_HEIGHT / positions.posHeight;
 
-    for (let i = -worldRadius; i < worldRadius; i += adjustment) {
-      for (let j = -worldRadius; j < worldRadius; j += adjustment) {
+    for (let i = 0; i < worldSize; i += adjustment) {
+      for (let j = 0; j < worldSize; j += adjustment) {
         const coord = { x: i, y: j };
         const adjustedCoord = { x: Math.floor(i / adjustment), y: Math.floor(j / adjustment) };
-        if (!inRadius(coord, worldRadius)) continue;
+        if (!inWorld(coord, worldSize)) continue;
         const tile = getWhirlpoolTile(coord, perlinSeed, adjustment);
         if (tile) {
           // console.log("placing whirlpool at,", coord.x, coord.y);
