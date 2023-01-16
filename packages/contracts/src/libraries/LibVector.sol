@@ -160,8 +160,9 @@ library LibVector {
       .getValue(GodID)
       .worldRadius;
 
-    int32 distanceSquared = (position.x)**2 + (position.y)**2;
+    if (position.x < 0) position.x = 0 - position.x;
+    if (position.y < 0) position.y = 0 - position.y;
 
-    return worldRadius**2 >= uint32(distanceSquared);
+    return uint32(position.x) < worldRadius && uint32(position.y) < worldRadius;
   }
 }

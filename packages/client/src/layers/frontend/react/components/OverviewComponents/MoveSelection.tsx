@@ -16,16 +16,12 @@ import { arrowImg } from "../../types";
 export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
   const {
     world,
-    utils: { getGameConfig },
     components: { MoveCard, Rotation, SailPosition, Position, Speed },
   } = layers.network;
 
   const {
     components: { SelectedMove, SelectedShip, HoveredMove },
   } = layers.backend;
-
-  const worldRadius = getGameConfig()?.worldRadius;
-  if (!worldRadius) return null;
 
   const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 

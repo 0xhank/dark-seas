@@ -9,5 +9,5 @@ export function inRange(a: Coord, b: Coord, range: number): boolean {
 }
 
 export function inRadius(a: Coord, radius: number): boolean {
-  return inRange(a, { x: 0, y: 0 }, radius);
+  return Math.abs(a.x) < radius && Math.abs(a.y) < radius;
 }

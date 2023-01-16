@@ -26,8 +26,12 @@ export function createRadiusSystem(phaser: PhaserLayer) {
     let radiusGroup = polygonRegistry.get("radiusGroup");
     if (!radiusGroup) radiusGroup = phaserScene.add.group();
 
-    const radius = phaserScene.add.circle(0, 0, worldRadius * positions.posHeight);
-
+    const radius = phaserScene.add.rectangle(
+      0,
+      0,
+      worldRadius * positions.posHeight * 2,
+      worldRadius * positions.posHeight * 2
+    );
     radius.setStrokeStyle(50, colors.whiteHex);
     radius.setDepth(RenderDepth.Background1);
     radiusGroup.add(radius);
