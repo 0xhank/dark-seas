@@ -280,7 +280,7 @@ contract MoveSystemTest is DarkSeasTest {
     moveCard.direction = 315;
 
     sailPosition = 1;
-    uint32 debuff = 60;
+    uint32 debuff = 70;
     newMoveCard = LibMove.getMoveWithSails(moveCard, 100, sailPosition);
     assertEq(newMoveCard.distance, (moveCard.distance * debuff) / 100, "closed sails distance failed");
     assertEq(newMoveCard.rotation, 360 - (((360 - moveCard.rotation) * 100) / debuff), "closed sails rotation failed");

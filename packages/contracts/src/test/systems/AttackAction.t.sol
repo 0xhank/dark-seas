@@ -31,6 +31,9 @@ contract AttackActionTest is DarkSeasTest {
 
   Move[] moves;
   Action[] actions;
+  uint256[] targets;
+
+  bytes none = abi.encode(0);
 
   function testRevertNotPlayer() public prank(deployer) {
     setup();
@@ -50,7 +53,7 @@ contract AttackActionTest is DarkSeasTest {
     Action memory action = Action({
       shipEntity: shipEntity,
       actionTypes: [ActionType.RepairSail, ActionType.None],
-      specialEntities: [uint256(0), uint256(0)]
+      metadata: [none, none]
     });
     actions.push(action);
     vm.expectRevert(bytes("ActionSystem: you don't own this ship"));
@@ -67,7 +70,7 @@ contract AttackActionTest is DarkSeasTest {
     Action memory action = Action({
       shipEntity: shipEntity,
       actionTypes: [ActionType.Fire, ActionType.None],
-      specialEntities: [cannonEntity, uint256(0)]
+      metadata: [abi.encode(cannonEntity, targets), none]
     });
     actions.push(action);
     vm.expectRevert(bytes("attack: cannon not loaded"));
@@ -84,7 +87,7 @@ contract AttackActionTest is DarkSeasTest {
     Action memory action = Action({
       shipEntity: shipEntity,
       actionTypes: [ActionType.Load, ActionType.Fire],
-      specialEntities: [cannonEntity, cannonEntity]
+      metadata: [abi.encode(cannonEntity), abi.encode(cannonEntity, targets)]
     });
     actions.push(action);
     vm.expectRevert(bytes("ActionSystem: cannon already acted"));
@@ -95,16 +98,17 @@ contract AttackActionTest is DarkSeasTest {
     setup();
     uint256 shipEntity = spawnShip(Coord(0, 0), 0, deployer);
     uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 90, 50, 80);
+    uint256 defenderId = spawnShip(Coord(69, 69), 69, deployer);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
 
-    loadAndFireCannon(shipEntity, cannonEntity, 2);
+    loadAndFireCannon(shipEntity, cannonEntity, defenderId, 2);
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 4, Phase.Action));
 
     Action memory action = Action({
       shipEntity: shipEntity,
       actionTypes: [ActionType.Fire, ActionType.None],
-      specialEntities: [cannonEntity, uint256(0)]
+      metadata: [abi.encode(cannonEntity, targets), none]
     });
     actions.push(action);
     vm.expectRevert(bytes("attack: cannon not loaded"));
@@ -131,7 +135,7 @@ contract AttackActionTest is DarkSeasTest {
     uint32 orig2Health = healthComponent.getValue(defender2Id);
     uint32 attackerHealth = healthComponent.getValue(attackerId);
 
-    loadAndFireCannon(attackerId, cannonEntity, 2);
+    loadAndFireCannon(attackerId, cannonEntity, defenderId, 2);
 
     uint32 newHealth = healthComponent.getValue(defenderId);
 
@@ -165,7 +169,7 @@ contract AttackActionTest is DarkSeasTest {
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
 
-    loadAndFireCannon(attackerEntity, cannonEntity, 2);
+    loadAndFireCannon(attackerEntity, cannonEntity, defenderEntity, 2);
 
     uint32 newHealth = healthComponent.getValue(attackerEntity);
     assertEq(newHealth, attackerHealth);
@@ -187,7 +191,7 @@ contract AttackActionTest is DarkSeasTest {
 
     uint32 origHealth = healthComponent.getValue(defenderEntity);
 
-    loadAndFireCannon(attackerEntity, cannonEntity, 1);
+    loadAndFireCannon(attackerEntity, cannonEntity, defenderEntity, 1);
 
     uint32 newHealth = healthComponent.getValue(defenderEntity);
 
@@ -209,7 +213,7 @@ contract AttackActionTest is DarkSeasTest {
 
     uint32 origHealth = healthComponent.getValue(defenderEntity);
 
-    loadAndFireCannon(attackerEntity, cannonEntity, 1);
+    loadAndFireCannon(attackerEntity, cannonEntity, defenderEntity, 1);
 
     uint32 newHealth = healthComponent.getValue(defenderEntity);
 
@@ -229,6 +233,7 @@ contract AttackActionTest is DarkSeasTest {
 
     delete moves;
     delete actions;
+    delete targets;
   }
 
   function expectedHealthDecrease(
@@ -279,6 +284,7 @@ contract AttackActionTest is DarkSeasTest {
   function loadAndFireCannon(
     uint256 shipEntity,
     uint256 cannonEntity,
+    uint256 targetEntity,
     uint32 turn
   ) internal {
     vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Action));
@@ -286,20 +292,23 @@ contract AttackActionTest is DarkSeasTest {
     Action memory action = Action({
       shipEntity: shipEntity,
       actionTypes: [ActionType.Load, ActionType.None],
-      specialEntities: [cannonEntity, uint256(0)]
+      metadata: [abi.encode(cannonEntity), none]
     });
     actions.push(action);
     actionSystem.executeTyped(actions);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, turn + 1, Phase.Action));
     delete actions;
+
+    targets.push(targetEntity);
     action = Action({
       shipEntity: shipEntity,
       actionTypes: [ActionType.Fire, ActionType.None],
-      specialEntities: [cannonEntity, uint256(0)]
+      metadata: [abi.encode(cannonEntity, targets), none]
     });
     actions.push(action);
     actionSystem.executeTyped(actions);
     delete actions;
+    delete targets;
   }
 }
