@@ -45,7 +45,7 @@ library LibMove {
     }
 
     if (sailPosition == 1) {
-      return getMoveWithBuff(moveCard, 60);
+      return getMoveWithBuff(moveCard, 70);
     }
 
     return MoveCard(0, 0, 0);
