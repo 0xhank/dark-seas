@@ -32,7 +32,7 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
     }
   });
 
-  onAction(({ actions }) => {
+  onAction(({ actions, updates }) => {
     let mine = false;
     actions.forEach((action) => {
       const shipEntity = world.entityToIndex.get(action.shipEntity);

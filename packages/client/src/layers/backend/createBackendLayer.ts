@@ -1,5 +1,7 @@
 import { GodID } from "@latticexyz/network";
 import { createPerlin } from "@latticexyz/noise";
+import { defaultAbiCoder as abi } from "ethers/lib/utils";
+
 import {
   Component,
   defineComponent,
@@ -24,10 +26,11 @@ import {
   defineStringComponent,
 } from "@latticexyz/std-client";
 import { Coord } from "@latticexyz/utils";
-import { BigNumber } from "ethers";
+import { BigNumber, BigNumberish, BytesLike } from "ethers";
 import { Howl } from "howler";
-import { curry, toLower } from "lodash";
+import { toLower } from "lodash";
 import { merge } from "rxjs";
+import { ActionStruct } from "../../../../contracts/types/ethers-contracts/ActionSystem";
 
 import { Action, ActionType, Move } from "../../types";
 import { inWorld } from "../../utils/distance";
@@ -132,21 +135,42 @@ export async function createBackendLayer(network: NetworkLayer) {
     [...component.entities()].forEach((entity) => removeComponent(component, entity));
   }
 
-  function bigNumToEntityID(bigNum: BigNumber): EntityID {
+  function bigNumToEntityID(bigNum: BigNumberish): EntityID {
     return toLower(BigNumber.from(bigNum).toHexString()) as EntityID;
+  }
+
+  function parseMetadata(action: ActionType, metadata: BytesLike): EntityID {
+    if (action == ActionType.Load) {
+      const [cannonEntity] = abi.decode(["uint256"], metadata);
+
+      return cannonEntity;
+    } else if (action == ActionType.Fire) {
+      const [cannon, targets] = abi.decode(["uint256", "uint256[]"], metadata);
+      return cannon;
+    } else {
+      return "0" as EntityID;
+    }
   }
   function getActions(args: Record<string, unknown>): Action[] {
     const { actions: rawActions } = args as {
-      actions: { shipEntity: BigNumber; actionTypes: [number, number]; specialEntities: [BigNumber, BigNumber] }[];
+      actions: ActionStruct[];
     };
 
     const actions: Action[] = rawActions.map((action) => {
+      const shipEntity = bigNumToEntityID(action.shipEntity);
+
+      const actionTypes: [ActionType, ActionType] = [Number(action.actionTypes[0]), Number(action.actionTypes[1])];
       return {
-        shipEntity: bigNumToEntityID(action.shipEntity),
-        actionTypes: action.actionTypes,
-        specialEntities: [bigNumToEntityID(action.specialEntities[0]), bigNumToEntityID(action.specialEntities[1])],
+        shipEntity,
+        actionTypes,
+        specialEntities: [
+          parseMetadata(actionTypes[0], action.metadata[0]),
+          parseMetadata(actionTypes[1], action.metadata[1]),
+        ],
       };
     });
+
+    console.log("actions made:", actions);
     return actions;
   }
 
@@ -243,22 +267,23 @@ export async function createBackendLayer(network: NetworkLayer) {
     return shipEntities;
   }
 
-  function getPlayerShipsWithActions(player?: EntityIndex) {
+  function getPlayerShipsWithActions(player?: EntityIndex): Action[] {
     if (!player) player = getPlayerEntity(connectedAddress.get());
-    if (!player) return;
+    if (!player) return [];
     const ships = [
       ...runQuery([HasValue(OwnedBy, { value: world.entities[player] }), Has(components.SelectedActions)]),
     ];
-    if (ships.length == 0) return;
+    if (ships.length == 0) return [];
 
     return ships.reduce((prevActions: Action[], ship: EntityIndex) => {
       const actions = getComponentValueStrict(components.SelectedActions, ship);
       const actionTypes = actions.actionTypes;
+      if (actionTypes.length == 0) return prevActions;
+      if (actionTypes.every((actionType) => actionType == ActionType.None)) return prevActions;
+
       const specialEntities = actions.specialEntities;
       const finalActions: [ActionType, ActionType] = [ActionType.None, ActionType.None];
       const finalSpecials: [EntityID, EntityID] = ["0" as EntityID, "0" as EntityID];
-      if (actionTypes.length == 0) return prevActions;
-      if (actionTypes.every((actionType) => actionType == ActionType.None)) return prevActions;
 
       actionTypes.forEach((val, idx) => {
         if (idx > 1) return;
@@ -306,10 +331,10 @@ export async function createBackendLayer(network: NetworkLayer) {
 
   // --- API ------------------------------------------------------------------------
   const api = {
-    spawnPlayer: curry(spawnPlayer)(network, actions),
-    commitMove: curry(commitMove)(network, actions),
-    revealMove: curry(revealMove)(network, actions),
-    submitActions: curry(submitActions)(network, actions),
+    spawnPlayer: (name: string) => spawnPlayer(network, actions, name),
+    commitMove: (moves: Move[]) => commitMove(network, actions, moves),
+    revealMove: (encoding: string) => revealMove(network, actions, encoding),
+    submitActions: (actionsToSubmit: Action[]) => submitActions(network, actions, getTargetedShips, actionsToSubmit),
   };
   // --- CONTEXT --------------------------------------------------------------------
   const context = {

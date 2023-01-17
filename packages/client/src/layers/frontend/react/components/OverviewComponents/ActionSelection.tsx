@@ -34,8 +34,6 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
     specialEntities: ["0" as EntityID, "0" as EntityID],
   };
 
-  const actions = structuredClone(selectedActions);
-
   const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[ship] })])].sort(
     (a, b) => a - b
   );
@@ -50,8 +48,11 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
   const disabled = actionsExecuted || selectedActions.actionTypes.every((a) => a !== ActionType.None);
 
   const executedActions = getComponentValue(ExecutedActions, ship);
+
   const handleNewActionsCannon = (action: ActionType, cannonEntity: EntityID) => {
-    const index = selectedActions.specialEntities.indexOf(cannonEntity);
+    const actions = structuredClone(selectedActions);
+
+    const index = actions.specialEntities.indexOf(cannonEntity);
 
     // couldn't find the cannon
     if (index == -1) {
@@ -124,7 +125,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
           <OptionButton
             isSelected={usedAlready}
             disabled={disabled && !usedAlready}
-            confirmed={executedActions?.specialEntities.includes(world.entities[cannonEntity])}
+            confirmed={entityUsed}
             key={`selectedCannon-${cannonEntity}`}
             onMouseEnter={() =>
               setComponent(HoveredAction, godIndex, { shipEntity: ship, actionType, specialEntity: cannonEntity })
@@ -148,13 +149,13 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
         if (action == ActionType.Fire || action == ActionType.Load) return null;
         if (!checkActionPossible(action as ActionType, ship)) return null;
         const usedAlready = selectedActions.actionTypes.find((a) => a == action) != undefined;
-
+        const actionExecuted = executedActions?.actionTypes.includes(action);
         return (
           <OptionButton
             isSelected={usedAlready}
             disabled={disabled && !usedAlready}
             key={`selectedAction-${action}`}
-            confirmed={executedActions?.actionTypes.includes(action)}
+            confirmed={actionExecuted}
             onClick={(e) => {
               e.stopPropagation();
               handleNewActionsSpecial(action);

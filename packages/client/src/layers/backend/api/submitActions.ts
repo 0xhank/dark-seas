@@ -1,10 +1,16 @@
-import { EntityID, getComponentValue } from "@latticexyz/recs";
+import { EntityID, EntityIndex, getComponentValue } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
+import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { Action, ActionType } from "../../../types";
 import { NetworkLayer } from "../../network";
 import { TxType } from "../types";
 
-export function submitActions(network: NetworkLayer, actions: ActionSystem, shipActions: Action[]) {
+export function submitActions(
+  network: NetworkLayer,
+  actions: ActionSystem,
+  getTargetedShips: (cannonEntity: EntityIndex) => EntityIndex[],
+  shipActions: Action[]
+) {
   const {
     components: { OwnedBy },
     network: { connectedAddress },
@@ -40,7 +46,29 @@ export function submitActions(network: NetworkLayer, actions: ActionSystem, ship
         }
       }
 
-      return shipActions;
+      const shipStruct = shipActions.map((action) => {
+        const metadata = action.actionTypes.map((actionType, i) => {
+          if (actionType == ActionType.Load) return abi.encode(["uint256"], [action.specialEntities[i]]);
+          if (actionType == ActionType.Fire) {
+            const cannonEntity = world.entityToIndex.get(action.specialEntities[i]);
+            if (!cannonEntity) return "";
+            const targetedShips = getTargetedShips(cannonEntity);
+            return abi.encode(
+              ["uint256", "uint256[]"],
+              [action.specialEntities[i], targetedShips.map((ship) => world.entities[ship])]
+            );
+          } else return abi.encode(["uint256"], [0]);
+        });
+
+        return {
+          shipEntity: action.shipEntity,
+          actionTypes: action.actionTypes,
+          metadata: [metadata[0], metadata[1]] as [string, string],
+        };
+      });
+
+      console.log("ships:", shipStruct);
+      return shipStruct;
     },
     updates: () => [],
     execute: (shipActions) => {

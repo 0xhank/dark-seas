@@ -21,9 +21,11 @@ import { createFaucetService, GodID } from "@latticexyz/network";
 import { Coord, keccak256 } from "@latticexyz/utils";
 import { utils } from "ethers";
 import { defaultAbiCoder as abi } from "ethers/lib/utils";
+import { ActionStruct } from "../../../../contracts/types/ethers-contracts/ActionSystem";
+import { MoveStruct } from "../../../../contracts/types/ethers-contracts/MoveSystem";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../../../contracts/types/SystemTypes";
-import { Action, Move, Phase } from "../../types";
+import { Phase } from "../../types";
 import { defineMoveCardComponent } from "./components/MoveCardComponent";
 import { GameConfig, getNetworkConfig } from "./config";
 
@@ -201,13 +203,13 @@ export async function createNetworkLayer(config: GameConfig) {
     systems["ds.system.PlayerSpawn"].executeTyped(name, location);
   }
 
-  function revealMove(moves: Move[], salt: number) {
+  function revealMove(moves: MoveStruct[], salt: number) {
     systems["ds.system.Move"].executeTyped(moves, salt, {
       gasLimit: 10_000_000,
     });
   }
 
-  function submitActions(actions: Action[]) {
+  function submitActions(actions: ActionStruct[]) {
     console.log("submitting actions:", actions);
     systems["ds.system.Action"].executeTyped(actions, {
       gasLimit: 10_000_000,
