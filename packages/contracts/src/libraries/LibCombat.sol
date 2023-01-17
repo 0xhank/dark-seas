@@ -87,15 +87,22 @@ library LibCombat {
     );
 
     LoadedComponent loadedComponent = LoadedComponent(getAddressById(components, LoadedComponentID));
-
     require(loadedComponent.has(cannonEntity), "attack: cannon not loaded");
+    loadedComponent.remove(cannonEntity);
+
+    if (targetEntities.length == 0) return;
+    for (uint256 i = 1; i < targetEntities.length; i++) {
+      for (uint256 j = 0; j < i; j++) {
+        require(targetEntities[i] != targetEntities[j], "attack: target already shot at");
+      }
+    }
+
     uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
     if (!isBroadside(cannonRotation)) {
       attackPivot(components, shipEntity, cannonEntity, targetEntities);
     } else {
       attackBroadside(components, shipEntity, cannonEntity, targetEntities);
     }
-    loadedComponent.remove(cannonEntity);
   }
 
   /**
