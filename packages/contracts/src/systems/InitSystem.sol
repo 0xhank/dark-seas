@@ -28,9 +28,9 @@ contract InitSystem is System {
         startTime: block.timestamp,
         commitPhaseLength: 25,
         revealPhaseLength: 10,
-        actionPhaseLength: 25,
-        worldSize: 100,
-        perlinSeed: 69
+        actionPhaseLength: 23,
+        worldSize: 175,
+        perlinSeed: 34567654
       })
     );
 

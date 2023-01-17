@@ -17,15 +17,15 @@ import {
 import { defineLoadingStateComponent } from "./components";
 import { setupDevSystems } from "./setup";
 
-import { GodID } from "@latticexyz/network";
+import { createFaucetService, GodID } from "@latticexyz/network";
 import { Coord, keccak256 } from "@latticexyz/utils";
+import { utils } from "ethers";
 import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../../../contracts/types/SystemTypes";
 import { Action, Move, Phase } from "../../types";
 import { defineMoveCardComponent } from "./components/MoveCardComponent";
 import { GameConfig, getNetworkConfig } from "./config";
-import { GAS_LIMIT } from "./constants";
 
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -84,6 +84,7 @@ export async function createNetworkLayer(config: GameConfig) {
     Loaded: defineBoolComponent(world, { id: "Loaded", metadata: { contractId: "ds.component.Loaded" } }),
     Speed: defineNumberComponent(world, { id: "Speed", metadata: { contractId: "ds.component.Speed" } }),
     Kills: defineNumberComponent(world, { id: "Kills", metadata: { contractId: "ds.component.Kills" } }),
+    LastHit: defineNumberComponent(world, { id: "LastHit", metadata: { contractId: "ds.component.LastHit" } }),
   };
 
   // --- SETUP ----------------------------------------------------------------------
@@ -91,6 +92,32 @@ export async function createNetworkLayer(config: GameConfig) {
     typeof components,
     SystemTypes
   >(getNetworkConfig(config), world, components, SystemAbis, { fetchSystemCalls: true });
+
+  if (!config.devMode) {
+    const faucetServiceUrl = "https://faucet.testnet-mud-services.linfra.xyz";
+
+    const faucet = createFaucetService(faucetServiceUrl);
+    const address = network.connectedAddress.get();
+    console.info("[Dev Faucet]: Player Address -> ", address);
+
+    const requestDrip = async () => {
+      const balance = await network.signer.get()?.getBalance();
+      console.info(`[Dev Faucet]: Player Balance -> ${balance}`);
+      const playerIsBroke = balance?.lte(utils.parseEther(".5"));
+      console.info(`[Dev Faucet]: Player is broke -> ${playerIsBroke}`);
+      if (playerIsBroke) {
+        console.info("[Dev Faucet]: Dripping funds to player");
+        // Double drip
+        address && (await faucet?.dripDev({ address })) && (await faucet?.dripDev({ address }));
+        address && (await faucet?.dripDev({ address })) && (await faucet?.dripDev({ address }));
+        address && (await faucet?.dripDev({ address })) && (await faucet?.dripDev({ address }));
+      }
+    };
+
+    requestDrip();
+    // Request a drip every 20 seconds
+    setInterval(requestDrip, 20000);
+  }
 
   // --- UTILITIES ------------------------------------------------------------------
   const getGameConfig = () => {
@@ -166,28 +193,24 @@ export async function createNetworkLayer(config: GameConfig) {
   // --- API ------------------------------------------------------------------------
 
   function commitMove(commitment: string) {
-    systems["ds.system.Commit"].executeTyped(commitment, {
-      gasLimit: GAS_LIMIT,
-    });
+    systems["ds.system.Commit"].executeTyped(commitment);
   }
 
   function spawnPlayer(name: string) {
-    const location: Coord = { x: Math.round(Math.random() * 300000), y: Math.round(Math.random() * 300000) };
-    systems["ds.system.PlayerSpawn"].executeTyped(name, location, {
-      gasLimit: GAS_LIMIT,
-    });
+    const location: Coord = { x: 0, y: 0 };
+    systems["ds.system.PlayerSpawn"].executeTyped(name, location);
   }
 
   function revealMove(moves: Move[], salt: number) {
     systems["ds.system.Move"].executeTyped(moves, salt, {
-      gasLimit: GAS_LIMIT,
+      gasLimit: 10_000_000,
     });
   }
 
   function submitActions(actions: Action[]) {
     console.log("submitting actions:", actions);
     systems["ds.system.Action"].executeTyped(actions, {
-      gasLimit: GAS_LIMIT,
+      gasLimit: 10_000_000,
     });
   }
 
