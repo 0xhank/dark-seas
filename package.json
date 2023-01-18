@@ -38,6 +38,7 @@
     "dev:node": "yarn workspace contracts run devnode",
     "dev:contracts": "yarn workspace contracts run dev",
     "test": "yarn workspace contracts run test",
+    "deploy:prod": "yarn workspace contracts run deploy:prod",
     "commit": "cz",
     "prettier:check": "prettier --check 'src/**/*.ts'",
     "prettier": "prettier --write 'packages/**/*.ts'",
