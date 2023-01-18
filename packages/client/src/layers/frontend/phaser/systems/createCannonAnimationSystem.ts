@@ -10,9 +10,9 @@ import {
   runQuery,
 } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
-import { getSternLocation, midpoint } from "../../../../utils/trig";
+import { getShipMidpoint } from "../../../../utils/trig";
 import { Category } from "../../../backend/sound/library";
-import { CANNON_SHOT_LENGTH, RenderDepth } from "../constants";
+import { CANNON_SHOT_DELAY, CANNON_SHOT_LENGTH, RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
 
 export function createCannonAnimationSystem(phaser: PhaserLayer) {
@@ -86,13 +86,14 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
 
     const attacks = data.targets.map((target, i) => ({ target: target as EntityIndex, damage: data.damage[i] }));
     const shipEntity = world.getEntityIndexStrict(getComponentValueStrict(OwnedBy, cannonEntity).value);
+    console.log("shipEntity", shipEntity);
     for (const attack of attacks) {
       for (let i = 0; i < NUM_CANNONBALLS; i++) {
-        const hit = i + 1 < attack.damage;
-        const { start, end } = getCannonStartAndEnd(shipEntity, cannonEntity, attack.target, hit);
+        const hit = i < attack.damage;
+        const { start, end } = getCannonStartAndEnd(shipEntity, attack.target, i + 1, hit);
 
         const spriteId = `${shipEntity}-cannonball-${cannonEntity}-${i}`;
-        const delay = i * 200;
+        const delay = i * CANNON_SHOT_DELAY;
         const object = objectPool.get(spriteId, "Sprite");
         object.setComponent({
           id: `position`,
@@ -111,9 +112,9 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
               targets: gameObject,
               duration: CANNON_SHOT_LENGTH,
               props: { x: end.x, y: end.y },
-              ease: Phaser.Math.Easing.Quadratic.Out,
+              ease: Phaser.Math.Easing.Linear,
             });
-            playSound("impact_water_1", Category.Combat);
+            playSound(hit ? "impact_ship_1" : "impact_water_1", Category.Combat);
           },
           once: async (gameObject) => {
             gameObject.setPosition(start.x, start.y);
@@ -128,28 +129,30 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     const attackerPosition = getComponentValueStrict(Position, shipEntity);
     const attackerRotation = getComponentValueStrict(Rotation, shipEntity).value;
     const attackerLength = getComponentValueStrict(Length, shipEntity).value;
-    const attackerStern = getSternLocation(attackerPosition, attackerRotation, attackerLength);
-    return tileCoordToPixelCoord(midpoint(attackerPosition, attackerStern), positions.posWidth, positions.posHeight);
+    const attackerMidpoint = getShipMidpoint(attackerPosition, attackerRotation, attackerLength);
+    return tileCoordToPixelCoord(attackerMidpoint, positions.posWidth, positions.posHeight);
   }
   function getCannonStartAndEnd(
     shipEntity: EntityIndex,
-    cannonEntity: EntityIndex,
     targetEntity: EntityIndex,
+    shotNumber: number,
     hit: boolean
   ): { start: Coord; end: Coord } {
     const targetPosition = getComponentValueStrict(Position, targetEntity);
-    const targetRotation = getComponentValueStrict(Rotation, shipEntity).value;
-    const targetLength = getComponentValueStrict(Length, shipEntity).value;
-    const targetStern = getSternLocation(targetPosition, targetRotation, targetLength);
+    const targetRotation = getComponentValueStrict(Rotation, targetEntity).value;
+    const targetLength = getComponentValueStrict(Length, targetEntity).value;
+
+    const targetMidpoint = getShipMidpoint(targetPosition, targetRotation, (targetLength * shotNumber) / 2);
     const startCenter = getCannonStart(shipEntity);
-    const endCenter = tileCoordToPixelCoord(
-      midpoint(targetPosition, targetStern),
-      positions.posWidth,
-      positions.posHeight
-    );
+    const endCenter = tileCoordToPixelCoord(targetMidpoint, positions.posWidth, positions.posHeight);
 
     if (hit) return { start: startCenter, end: endCenter };
 
-    return { start: startCenter, end: { x: endCenter.x + 20, y: endCenter.y + 20 } };
+    const randX = Math.random() * 50 + 50;
+    const randY = Math.random() * 50 + 50;
+    return {
+      start: startCenter,
+      end: { x: endCenter.x + (randX % 2 ? randX : -randX), y: endCenter.y + (randY % 2 ? randY : -randY) },
+    };
   }
 }

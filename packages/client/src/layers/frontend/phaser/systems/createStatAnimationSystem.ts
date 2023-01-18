@@ -12,7 +12,7 @@ import {
 import { getSternLocation, midpoint } from "../../../../utils/trig";
 import { Category } from "../../../backend/sound/library";
 import { colors } from "../../react/styles/global";
-import { Animations, CANNON_SHOT_LENGTH, MOVE_LENGTH, RenderDepth } from "../constants";
+import { Animations, CANNON_SHOT_DELAY, CANNON_SHOT_LENGTH, MOVE_LENGTH, RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
 import { renderFiringArea } from "./renderShip";
 
@@ -64,11 +64,10 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
           const rotation = getComponentValueStrict(Rotation, update.entity).value;
           const length = getComponentValueStrict(Length, update.entity).value;
           const sternPosition = getSternLocation(position, rotation, length);
-          const delay = 600;
           const center = midpoint(position, sternPosition);
           const hitLocations = [midpoint(position, center), center, midpoint(center, sternPosition)];
           const { x, y } = tileCoordToPixelCoord(hitLocations[i], positions.posWidth, positions.posHeight);
-
+          const delay = CANNON_SHOT_LENGTH + 50;
           sprite.setOrigin(0.5, 0.5);
           sprite.setPosition(x, y);
           sprite.setDepth(RenderDepth.UI5);
@@ -78,8 +77,8 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
           setTimeout(() => {
             sprite.setAlpha(1);
             playSound("impact_ship_1", Category.Combat);
-          }, delay * i + CANNON_SHOT_LENGTH);
-          setTimeout(() => objectPool.remove(spriteId), 2000 + delay * i + CANNON_SHOT_LENGTH);
+          }, CANNON_SHOT_DELAY * i + delay);
+          setTimeout(() => objectPool.remove(spriteId), 2000 + CANNON_SHOT_DELAY * i + delay);
         },
       });
     }

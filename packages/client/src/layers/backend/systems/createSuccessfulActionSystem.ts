@@ -1,10 +1,4 @@
-import {
-  defineComponentSystem,
-  defineRxSystem,
-  EntityIndex,
-  getComponentValueStrict,
-  setComponent,
-} from "@latticexyz/recs";
+import { defineComponentSystem, defineRxSystem, EntityIndex, setComponent } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
 import { BigNumber } from "ethers";
 import { BytesLike, defaultAbiCoder as abi } from "ethers/lib/utils";
@@ -100,9 +94,11 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
             const newHealth = healthUpdates.find((update) => update.entity == target)?.value?.value as
               | number
               | undefined;
-            const oldHealth = getComponentValueStrict(LocalHealth, target).value;
-            return oldHealth - (newHealth || oldHealth);
+            return 2;
+            // const oldHealth = getComponentValueStrict(LocalHealth, target).value;
+            // return oldHealth - (newHealth || oldHealth);
           });
+          console.log("targets:", targets, "damage:", damage);
           setComponent(ExecutedShots, cannonEntity, { targets, damage });
         } else if (actionType == ActionType.ExtinguishFire) {
           setComponent(ExecutedExtinguishFire, shipEntity, { value: true });
