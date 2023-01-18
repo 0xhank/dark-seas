@@ -19,8 +19,9 @@ import { setupDevSystems } from "./setup";
 
 import { createFaucetService, GodID } from "@latticexyz/network";
 import { Coord, keccak256 } from "@latticexyz/utils";
-import { utils } from "ethers";
+import { BigNumber, BigNumberish, utils } from "ethers";
 import { defaultAbiCoder as abi } from "ethers/lib/utils";
+import { toLower } from "lodash";
 import { ActionStruct } from "../../../../contracts/types/ethers-contracts/ActionSystem";
 import { MoveStruct } from "../../../../contracts/types/ethers-contracts/MoveSystem";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
@@ -122,6 +123,11 @@ export async function createNetworkLayer(config: GameConfig) {
   }
 
   // --- UTILITIES ------------------------------------------------------------------
+
+  function bigNumToEntityID(bigNum: BigNumberish): EntityID {
+    return toLower(BigNumber.from(bigNum).toHexString()) as EntityID;
+  }
+
   const getGameConfig = () => {
     const godEntityIndex = world.entityToIndex.get(GodID);
     if (godEntityIndex == null) return;
@@ -236,7 +242,15 @@ export async function createNetworkLayer(config: GameConfig) {
     systemCallStreams,
     startSync,
     network,
-    utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn, secondsUntilNextPhase },
+    utils: {
+      getGameConfig,
+      getPlayerEntity,
+      getPhase,
+      getGamePhaseAt,
+      getTurn,
+      secondsUntilNextPhase,
+      bigNumToEntityID,
+    },
     api: { revealMove, submitActions, spawnPlayer, commitMove, setOnFire, damageCannons },
     dev: setupDevSystems(world, encoders, systems),
   };

@@ -19,7 +19,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
   const {
     backend: {
       world,
-      components: { SelectedActions, SelectedShip, HoveredAction, ExecutedActions },
+      components: { SelectedActions, SelectedShip, HoveredAction },
       utils: { checkActionPossible },
       godIndex,
     },
@@ -46,8 +46,6 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
 
   const actionsExecuted = currentTurn == lastAction;
   const disabled = actionsExecuted || selectedActions.actionTypes.every((a) => a !== ActionType.None);
-
-  const executedActions = getComponentValue(ExecutedActions, ship);
 
   const handleNewActionsCannon = (action: ActionType, cannonEntity: EntityID) => {
     const actions = structuredClone(selectedActions);
@@ -100,7 +98,8 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
         const actionType = loaded ? ActionType.Fire : ActionType.Load;
         if (!checkActionPossible(ActionType.Fire, ship)) return null;
 
-        const entityUsed = executedActions?.specialEntities.includes(world.entities[cannonEntity]);
+        // const entityUsed = executedActions?.specialEntities.includes(world.entities[cannonEntity]);
+        const entityUsed = false;
 
         const usedAlready = !entityUsed && selectedActions.specialEntities.includes(world.entities[cannonEntity]);
 
@@ -149,7 +148,8 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
         if (action == ActionType.Fire || action == ActionType.Load) return null;
         if (!checkActionPossible(action as ActionType, ship)) return null;
         const usedAlready = selectedActions.actionTypes.find((a) => a == action) != undefined;
-        const actionExecuted = executedActions?.actionTypes.includes(action);
+        // const actionExecuted = executedActions?.actionTypes.includes(action);
+        const actionExecuted = false;
         return (
           <OptionButton
             isSelected={usedAlready}

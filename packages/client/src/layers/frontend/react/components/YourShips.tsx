@@ -57,15 +57,7 @@ export function registerYourShips() {
         },
         backend: {
           actions: { Action },
-          components: {
-            SelectedShip,
-            SelectedMove,
-            SelectedActions,
-            EncodedCommitment,
-            HoveredShip,
-            ExecutedActions,
-            CommittedMove,
-          },
+          components: { SelectedShip, SelectedMove, SelectedActions, EncodedCommitment, HoveredShip, CommittedMove },
           api: { commitMove, revealMove, submitActions },
           utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, playSound },
         },
@@ -93,7 +85,6 @@ export function registerYourShips() {
         EncodedCommitment.update$,
         Loaded.update$,
         Action.update$,
-        ExecutedActions.update$,
         CommittedMove.update$,
         Speed.update$
       ).pipe(

@@ -1,11 +1,9 @@
 import { GodID } from "@latticexyz/network";
 import { createPerlin } from "@latticexyz/noise";
-import { defaultAbiCoder as abi } from "ethers/lib/utils";
 
 import {
   Component,
   defineComponent,
-  defineRxSystem,
   EntityID,
   EntityIndex,
   getComponentValue,
@@ -20,17 +18,12 @@ import {
 } from "@latticexyz/recs";
 import {
   createActionSystem,
-  DecodedSystemCall,
   defineBoolComponent,
   defineNumberComponent,
   defineStringComponent,
 } from "@latticexyz/std-client";
 import { Coord } from "@latticexyz/utils";
-import { BigNumber, BigNumberish, BytesLike } from "ethers";
 import { Howl } from "howler";
-import { toLower } from "lodash";
-import { merge } from "rxjs";
-import { ActionStruct } from "../../../../contracts/types/ethers-contracts/ActionSystem";
 
 import { Action, ActionType, Move } from "../../types";
 import { inWorld } from "../../utils/distance";
@@ -76,14 +69,21 @@ export async function createBackendLayer(network: NetworkLayer) {
     EncodedCommitment: defineStringComponent(world, { id: "EncodedCommitment" }),
     CommittedMove: defineComponent(world, { value: Type.Number }, { id: "CommittedMove" }),
     Targeted: defineNumberComponent(world, { id: "Targeted" }),
-    ExecutedActions: defineComponent(
+
+    ExecutedShots: defineComponent(
       world,
-      { actionTypes: Type.NumberArray, specialEntities: Type.EntityArray },
-      { id: "ExecutedActions" }
+      { targets: Type.NumberArray, damage: Type.NumberArray },
+      { id: "CommittedMove" }
     ),
+    ExecutedLoad: defineBoolComponent(world, { id: "ExecutedLoad" }),
+    ExecutedChangeSail: defineBoolComponent(world, { id: "ExecutedRaiseSail" }),
+    ExecutedExtinguishFire: defineBoolComponent(world, { id: "ExecutedExtinguishFire" }),
+    ExecutedRepairSail: defineBoolComponent(world, { id: "ExecutedRepairSail" }),
+    ExecutedRepairCannons: defineBoolComponent(world, { id: "ExecutedRepairCannons" }),
     LeaderboardOpen: defineBoolComponent(world, {
       id: "LeaderboardOpen",
     }),
+    LocalHealth: defineNumberComponent(world, { id: "LocalHealth" }),
   };
   // --- SETUP ----------------------------------------------------------------------
 
@@ -135,59 +135,6 @@ export async function createBackendLayer(network: NetworkLayer) {
     [...component.entities()].forEach((entity) => removeComponent(component, entity));
   }
 
-  function bigNumToEntityID(bigNum: BigNumberish): EntityID {
-    return toLower(BigNumber.from(bigNum).toHexString()) as EntityID;
-  }
-
-  function parseMetadata(action: ActionType, metadata: BytesLike): EntityID {
-    if (action == ActionType.Load) {
-      const [cannonEntity] = abi.decode(["uint256"], metadata);
-
-      return cannonEntity;
-    } else if (action == ActionType.Fire) {
-      const [cannon, targets] = abi.decode(["uint256", "uint256[]"], metadata);
-      return cannon;
-    } else {
-      return "0" as EntityID;
-    }
-  }
-  function getActions(args: Record<string, unknown>): Action[] {
-    const { actions: rawActions } = args as {
-      actions: ActionStruct[];
-    };
-
-    const actions: Action[] = rawActions.map((action) => {
-      const shipEntity = bigNumToEntityID(action.shipEntity);
-
-      const actionTypes: [ActionType, ActionType] = [Number(action.actionTypes[0]), Number(action.actionTypes[1])];
-      return {
-        shipEntity,
-        actionTypes,
-        specialEntities: [
-          parseMetadata(actionTypes[0], action.metadata[0]),
-          parseMetadata(actionTypes[1], action.metadata[1]),
-        ],
-      };
-    });
-
-    console.log("actions made:", actions);
-    return actions;
-  }
-
-  function onAction(
-    callback: (
-      combatData: {
-        actions: Action[];
-      } & DecodedSystemCall
-    ) => void
-  ) {
-    defineRxSystem(world, merge(systemCallStreams["ds.system.Action"]), (systemCall) => {
-      const { args, systemId } = systemCall;
-      const actions = getActions(args);
-
-      callback({ ...systemCall, actions });
-    });
-  }
   function isMyShip(shipEntity: EntityIndex): boolean {
     const owner = getComponentValue(OwnedBy, shipEntity)?.value;
     const myAddress = connectedAddress.get();
@@ -358,10 +305,6 @@ export async function createBackendLayer(network: NetworkLayer) {
     components,
     godIndex: GodEntityIndex,
     perlin,
-
-    systemDecoders: {
-      onAction,
-    },
   };
 
   // --- SYSTEMS --------------------------------------------------------------------

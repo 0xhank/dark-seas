@@ -18,7 +18,6 @@ export function createResetSystem(phaser: PhaserLayer) {
           SelectedActions,
           EncodedCommitment,
           CommittedMove,
-          ExecutedActions,
           HoveredMove,
           HoveredAction,
           Targeted,
@@ -55,7 +54,6 @@ export function createResetSystem(phaser: PhaserLayer) {
           objectPool.remove(`projection-${ship}`);
           polygonRegistry.get(`rangeGroup-${ship}`)?.clear(true, true);
           clearComponent(SelectedActions);
-          clearComponent(ExecutedActions);
           clearComponent(HoveredAction);
           clearComponent(Targeted);
         });
