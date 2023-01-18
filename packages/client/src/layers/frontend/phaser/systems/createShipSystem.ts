@@ -204,7 +204,7 @@ export function createShipSystem(phaser: PhaserLayer) {
       objectPool.remove(update.entity);
     }
 
-    polygonRegistry.get(`rangeGroup-${update.entity}`)?.clear(true, true);
+    polygonRegistry.get(`projection-${update.entity}`)?.clear(true, true);
     objectPool.remove(`projection-${update.entity}`);
     removeComponent(SelectedMove, update.entity);
     if (update.entity == getComponentValue(SelectedShip, GodEntityIndex)?.value) {

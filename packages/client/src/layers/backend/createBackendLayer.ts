@@ -86,7 +86,7 @@ export async function createBackendLayer(network: NetworkLayer) {
 
   const {
     utils: { getPlayerEntity, getGameConfig },
-    components: { OnFire, DamagedCannons, SailPosition, Ship, OwnedBy, Range, Position, Rotation, Length },
+    components: { OnFire, DamagedCannons, SailPosition, Ship, OwnedBy, Range, Position, Rotation, Length, Health },
     network: { connectedAddress },
     systemCallStreams,
   } = network;
@@ -225,7 +225,9 @@ export async function createBackendLayer(network: NetworkLayer) {
     const shipRotation = getComponentValueStrict(Rotation, shipEntity).value;
     const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
 
-    const shipEntities = [...runQuery([Has(Ship), NotValue(OwnedBy, { value: address })])].filter((targetEntity) => {
+    const shipEntities = [
+      ...runQuery([Has(Ship), NotValue(OwnedBy, { value: address }), NotValue(Health, { value: 0 })]),
+    ].filter((targetEntity) => {
       if (targetEntity == shipEntity) return false;
 
       const enemyPosition = getComponentValueStrict(Position, targetEntity);

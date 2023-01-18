@@ -35,8 +35,8 @@ export function createTileSystem(phaser: PhaserLayer) {
 
     const adjustment = TILE_HEIGHT / positions.posHeight;
 
-    for (let i = 0; i < worldSize; i += adjustment) {
-      for (let j = 0; j < worldSize; j += adjustment) {
+    for (let i = -worldSize; i < worldSize; i += adjustment) {
+      for (let j = -worldSize; j < worldSize; j += adjustment) {
         const coord = { x: i, y: j };
         const adjustedCoord = { x: Math.floor(i / adjustment), y: Math.floor(j / adjustment) };
         if (!inWorld(coord, worldSize)) continue;

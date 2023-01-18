@@ -53,13 +53,13 @@ export function createResetSystem(phaser: PhaserLayer) {
       if (timeToNextPhase == gameConfig.commitPhaseLength) {
         getPlayerShips()?.map((ship) => {
           objectPool.remove(`projection-${ship}`);
-          polygonRegistry.get(`rangeGroup-${ship}`)?.clear(true, true);
-          clearComponent(SelectedActions);
-          clearComponent(ExecutedActions);
-          clearComponent(HoveredAction);
-          clearComponent(Targeted);
+          polygonRegistry.get(`projection-${ship}`)?.clear(true, true);
         });
         polygonRegistry.get("selectedActions")?.clear(true, true);
+        clearComponent(SelectedActions);
+        clearComponent(ExecutedActions);
+        clearComponent(HoveredAction);
+        clearComponent(Targeted);
       }
 
       // END OF PHASE

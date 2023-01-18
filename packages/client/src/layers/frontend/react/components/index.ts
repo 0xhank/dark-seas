@@ -1,5 +1,3 @@
-import { registerActionQueue } from "./ActionQueue";
-import { registerComponentBrowser } from "./ComponentBrowser";
 import { registerEnemyShip } from "./EnemyShip";
 import { registerJoinGame } from "./JoinGame";
 import { registerLeaderboard } from "./Leaderboard";
@@ -12,8 +10,8 @@ export function registerUIComponents() {
   registerLeaderboard();
 
   registerLoadingState();
-  registerComponentBrowser();
-  registerActionQueue();
+  // registerComponentBrowser();
+  // registerActionQueue();
   registerTopBar();
   registerEnemyShip();
   registerYourShips();

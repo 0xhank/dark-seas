@@ -17,15 +17,14 @@ import {
 import { defineLoadingStateComponent } from "./components";
 import { setupDevSystems } from "./setup";
 
-import { GodID } from "@latticexyz/network";
-import { Coord, keccak256 } from "@latticexyz/utils";
-import { defaultAbiCoder as abi } from "ethers/lib/utils";
+import { createFaucetService, GodID } from "@latticexyz/network";
+import { Coord } from "@latticexyz/utils";
+import { utils } from "ethers";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../../../contracts/types/SystemTypes";
 import { Action, Move, Phase } from "../../types";
 import { defineMoveCardComponent } from "./components/MoveCardComponent";
 import { GameConfig, getNetworkConfig } from "./config";
-import { GAS_LIMIT } from "./constants";
 
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -91,6 +90,33 @@ export async function createNetworkLayer(config: GameConfig) {
     typeof components,
     SystemTypes
   >(getNetworkConfig(config), world, components, SystemAbis, { fetchSystemCalls: true });
+
+  // Faucet setup
+  const faucetUrl = "https://faucet.testnet-mud-services.linfra.xyz";
+
+  if (!config.devMode) {
+    const faucet = createFaucetService(faucetUrl);
+    const address = network.connectedAddress.get();
+    console.info("[Dev Faucet]: Player Address -> ", address);
+
+    const requestDrip = async () => {
+      const balance = await network.signer.get()?.getBalance();
+      console.info(`[Dev Faucet]: Player Balance -> ${balance}`);
+      const playerIsBroke = balance?.lte(utils.parseEther(".5"));
+      console.info(`[Dev Faucet]: Player is broke -> ${playerIsBroke}`);
+      if (playerIsBroke) {
+        console.info("[Dev Faucet]: Dripping funds to player");
+        // Double drip
+        address && (await faucet?.dripDev({ address })) && (await faucet?.dripDev({ address }));
+        address && (await faucet?.dripDev({ address })) && (await faucet?.dripDev({ address }));
+        address && (await faucet?.dripDev({ address })) && (await faucet?.dripDev({ address }));
+      }
+    };
+
+    requestDrip();
+    // Request a drip every 20 seconds
+    setInterval(requestDrip, 5000);
+  }
 
   // --- UTILITIES ------------------------------------------------------------------
   const getGameConfig = () => {
@@ -166,39 +192,25 @@ export async function createNetworkLayer(config: GameConfig) {
   // --- API ------------------------------------------------------------------------
 
   function commitMove(commitment: string) {
-    systems["ds.system.Commit"].executeTyped(commitment, {
-      gasLimit: GAS_LIMIT,
-    });
+    systems["ds.system.Commit"].executeTyped(commitment);
   }
 
   function spawnPlayer(name: string) {
     const location: Coord = { x: Math.round(Math.random() * 300000), y: Math.round(Math.random() * 300000) };
-    systems["ds.system.PlayerSpawn"].executeTyped(name, location, {
-      gasLimit: GAS_LIMIT,
-    });
+    systems["ds.system.PlayerSpawn"].executeTyped(name, location);
   }
 
   function revealMove(moves: Move[], salt: number) {
     systems["ds.system.Move"].executeTyped(moves, salt, {
-      gasLimit: GAS_LIMIT,
+      gasLimit: 5_000_000,
     });
   }
 
   function submitActions(actions: Action[]) {
     console.log("submitting actions:", actions);
     systems["ds.system.Action"].executeTyped(actions, {
-      gasLimit: GAS_LIMIT,
+      gasLimit: 10_000_000,
     });
-  }
-
-  function setOnFire(ship: EntityIndex) {
-    const componentId = keccak256("ds.component.OnFire");
-    systems["ds.system.ComponentDev"].executeTyped(componentId, world.entities[ship], abi.encode(["bool"], [true]));
-  }
-
-  function damageCannons(ship: EntityIndex) {
-    const componentId = keccak256("ds.component.DamagedCannons");
-    systems["ds.system.ComponentDev"].executeTyped(componentId, world.entities[ship], abi.encode(["uint32"], [2]));
   }
 
   // --- CONTEXT --------------------------------------------------------------------
@@ -212,7 +224,7 @@ export async function createNetworkLayer(config: GameConfig) {
     startSync,
     network,
     utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn, secondsUntilNextPhase },
-    api: { revealMove, submitActions, spawnPlayer, commitMove, setOnFire, damageCannons },
+    api: { revealMove, submitActions, spawnPlayer, commitMove },
     dev: setupDevSystems(world, encoders, systems),
   };
 
