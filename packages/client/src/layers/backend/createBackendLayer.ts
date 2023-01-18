@@ -11,7 +11,7 @@ import { spawnPlayer } from "./api/spawnPlayer";
 import { submitActions } from "./api/submitActions";
 import { createBackendComponents } from "./createBackendComponents";
 import { createBackendSystems } from "./systems";
-import { createBackendUtilities } from "./utilities/createBackendUtilities";
+import { createBackendUtilities } from "./utilities";
 /**
  * The Network layer is the lowest layer in the client architecture.
  * Its purpose is to synchronize the client components with the contract components.
