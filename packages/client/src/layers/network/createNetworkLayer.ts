@@ -18,10 +18,8 @@ import { defineLoadingStateComponent } from "./components";
 import { setupDevSystems } from "./setup";
 
 import { createFaucetService, GodID } from "@latticexyz/network";
-import { Coord, keccak256 } from "@latticexyz/utils";
+import { Coord } from "@latticexyz/utils";
 import { BigNumber, BigNumberish, utils } from "ethers";
-import { defaultAbiCoder as abi } from "ethers/lib/utils";
-import { toLower } from "lodash";
 import { ActionStruct } from "../../../../contracts/types/ethers-contracts/ActionSystem";
 import { MoveStruct } from "../../../../contracts/types/ethers-contracts/MoveSystem";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
@@ -96,10 +94,11 @@ export async function createNetworkLayer(config: GameConfig) {
     SystemTypes
   >(getNetworkConfig(config), world, components, SystemAbis, { fetchSystemCalls: true });
 
-  if (!config.devMode) {
-    const faucetServiceUrl = "https://faucet.testnet-mud-services.linfra.xyz";
+  // Faucet setup
+  const faucetUrl = "https://faucet.testnet-mud-services.linfra.xyz";
 
-    const faucet = createFaucetService(faucetServiceUrl);
+  if (!config.devMode) {
+    const faucet = createFaucetService(faucetUrl);
     const address = network.connectedAddress.get();
     console.info("[Dev Faucet]: Player Address -> ", address);
 
@@ -119,13 +118,13 @@ export async function createNetworkLayer(config: GameConfig) {
 
     requestDrip();
     // Request a drip every 20 seconds
-    setInterval(requestDrip, 20000);
+    setInterval(requestDrip, 5000);
   }
 
   // --- UTILITIES ------------------------------------------------------------------
 
   function bigNumToEntityID(bigNum: BigNumberish): EntityID {
-    return toLower(BigNumber.from(bigNum).toHexString()) as EntityID;
+    return BigNumber.from(bigNum).toHexString() as EntityID;
   }
 
   const getGameConfig = () => {
@@ -211,7 +210,7 @@ export async function createNetworkLayer(config: GameConfig) {
 
   function revealMove(moves: MoveStruct[], salt: number) {
     systems["ds.system.Move"].executeTyped(moves, salt, {
-      gasLimit: 10_000_000,
+      gasLimit: 5_000_000,
     });
   }
 
@@ -220,16 +219,6 @@ export async function createNetworkLayer(config: GameConfig) {
     systems["ds.system.Action"].executeTyped(actions, {
       gasLimit: 10_000_000,
     });
-  }
-
-  function setOnFire(ship: EntityIndex) {
-    const componentId = keccak256("ds.component.OnFire");
-    systems["ds.system.ComponentDev"].executeTyped(componentId, world.entities[ship], abi.encode(["bool"], [true]));
-  }
-
-  function damageCannons(ship: EntityIndex) {
-    const componentId = keccak256("ds.component.DamagedCannons");
-    systems["ds.system.ComponentDev"].executeTyped(componentId, world.entities[ship], abi.encode(["uint32"], [2]));
   }
 
   // --- CONTEXT --------------------------------------------------------------------
@@ -242,16 +231,8 @@ export async function createNetworkLayer(config: GameConfig) {
     systemCallStreams,
     startSync,
     network,
-    utils: {
-      getGameConfig,
-      getPlayerEntity,
-      getPhase,
-      getGamePhaseAt,
-      getTurn,
-      secondsUntilNextPhase,
-      bigNumToEntityID,
-    },
-    api: { revealMove, submitActions, spawnPlayer, commitMove, setOnFire, damageCannons },
+    utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn, secondsUntilNextPhase },
+    api: { revealMove, submitActions, spawnPlayer, commitMove },
     dev: setupDevSystems(world, encoders, systems),
   };
 
