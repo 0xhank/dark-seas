@@ -20,7 +20,6 @@ import { setupDevSystems } from "./setup";
 import { createFaucetService, GodID } from "@latticexyz/network";
 import { Coord } from "@latticexyz/utils";
 import { BigNumber, BigNumberish, utils } from "ethers";
-import { ActionStruct } from "../../../../contracts/types/ethers-contracts/ActionSystem";
 import { MoveStruct } from "../../../../contracts/types/ethers-contracts/MoveSystem";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../../../contracts/types/SystemTypes";

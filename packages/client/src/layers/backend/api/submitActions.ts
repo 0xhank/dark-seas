@@ -1,6 +1,7 @@
 import { EntityID, EntityIndex, getComponentValue } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
 import { defaultAbiCoder as abi } from "ethers/lib/utils";
+import { ActionStruct } from "../../../../../contracts/types/ethers-contracts/ActionSystem";
 import { Action, ActionType } from "../../../types";
 import { NetworkLayer } from "../../network";
 import { TxType } from "../types";
@@ -30,27 +31,23 @@ export function submitActions(
         return null;
       }
 
-      for (const action of shipActions) {
+      const shipStruct: ActionStruct[] = [];
+      shipActions.forEach((action) => {
         if (action.actionTypes.every((elem) => elem == ActionType.None)) return null;
         const shipOwner = getComponentValue(OwnedBy, world.getEntityIndexStrict(action.shipEntity))?.value;
         if (shipOwner == null) {
-          console.warn(prefix, "Entity has no owner");
-          actions.cancel(actionId);
-          return null;
+          return;
         }
 
         if (shipOwner !== connectedAddress.get()) {
-          console.warn(prefix, "Can only move entities you own", shipOwner, connectedAddress.get());
-          actions.cancel(actionId);
-          return null;
+          return;
         }
-      }
 
-      const shipStruct = shipActions.map((action) => {
         const metadata = action.actionTypes.map((actionType, i) => {
-          if (actionType == ActionType.Load) return abi.encode(["uint256"], [action.specialEntities[i]]);
+          const specialEntity = action.specialEntities[i];
+          if (actionType == ActionType.Load) return abi.encode(["uint256"], [specialEntity]);
           if (actionType == ActionType.Fire) {
-            const cannonEntity = world.entityToIndex.get(action.specialEntities[i]);
+            const cannonEntity = world.entityToIndex.get(specialEntity);
             if (!cannonEntity) return "";
             const targetedShips = getTargetedShips(cannonEntity);
             return abi.encode(
@@ -60,19 +57,24 @@ export function submitActions(
           } else return abi.encode(["uint256"], [0]);
         });
 
-        return {
+        shipStruct.push({
           shipEntity: action.shipEntity,
           actionTypes: action.actionTypes,
           metadata: [metadata[0], metadata[1]] as [string, string],
-        };
+        });
       });
 
+      if (shipStruct.length == 0) {
+        console.log("no actions submitted");
+        actions.cancel(actionId);
+        return null;
+      }
       console.log("ships:", shipStruct);
       return shipStruct;
     },
     updates: () => [],
-    execute: (shipActions) => {
-      network.api.submitActions(shipActions);
+    execute: (actions) => {
+      network.api.submitActions(actions);
     },
     metadata: {
       type: TxType.Action,
