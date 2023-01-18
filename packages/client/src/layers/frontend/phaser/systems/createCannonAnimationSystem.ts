@@ -9,8 +9,8 @@ import {
   HasValue,
   runQuery,
 } from "@latticexyz/recs";
-import { ActionType, Sprites } from "../../../../types";
-import { getFiringArea, isBroadside, midpoint } from "../../../../utils/trig";
+import { Sprites } from "../../../../types";
+import { getSternLocation, midpoint } from "../../../../utils/trig";
 import { Category } from "../../../backend/sound/library";
 import { CANNON_SHOT_LENGTH, RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
@@ -23,8 +23,8 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
         components: { Position, Rotation, Length, Cannon, OwnedBy, Range, Ship },
       },
       backend: {
-        components: { ExecutedActions },
         utils: { playSound },
+        components: { ExecutedShots },
       },
     },
     scenes: {
@@ -43,7 +43,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     const sprite = config.sprites[Sprites.Cannonball];
 
     for (let i = 0; i < NUM_CANNONBALLS; i++) {
-      const { start } = getCannonStartAndEnd(shipEntity, cannonEntity, i);
+      const start = getCannonStart(shipEntity);
       const spriteId = `${shipEntity}-cannonball-${cannonEntity}-${i}`;
       const object = objectPool.get(spriteId, "Sprite");
 
@@ -68,7 +68,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
       for (let i = 0; i < NUM_CANNONBALLS; i++) {
         const spriteId = `${shipEntity}-cannonball-${cannonEntity}-${i}`;
         const object = objectPool.get(spriteId, "Sprite");
-        const { start } = getCannonStartAndEnd(shipEntity, cannonEntity, i);
+        const start = getCannonStart(shipEntity);
 
         object.setComponent({
           id: "position",
@@ -80,20 +80,20 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     });
   });
 
-  defineComponentSystem(world, ExecutedActions, ({ entity: shipEntity, value }) => {
-    value[0]?.specialEntities.forEach((cannonId, i) => {
-      const cannonEntity = world.entityToIndex.get(cannonId);
-      if (!cannonEntity) return;
-      const action = value[0]?.actionTypes[i];
-      if (action != ActionType.Fire) return;
+  defineComponentSystem(world, ExecutedShots, ({ entity: cannonEntity, value }) => {
+    const data = value[0];
+    if (!data) return;
 
+    const attacks = data.targets.map((target, i) => ({ target: target as EntityIndex, damage: data.damage[i] }));
+    const shipEntity = world.getEntityIndexStrict(getComponentValueStrict(OwnedBy, cannonEntity).value);
+    for (const attack of attacks) {
       for (let i = 0; i < NUM_CANNONBALLS; i++) {
-        const { start, end } = getCannonStartAndEnd(shipEntity, cannonEntity, i);
+        const hit = i + 1 < attack.damage;
+        const { start, end } = getCannonStartAndEnd(shipEntity, cannonEntity, attack.target, hit);
 
         const spriteId = `${shipEntity}-cannonball-${cannonEntity}-${i}`;
         const delay = i * 200;
         const object = objectPool.get(spriteId, "Sprite");
-
         object.setComponent({
           id: `position`,
           now: async (gameObject) => {
@@ -105,6 +105,8 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
             });
             playSound("cannon_shot", Category.Combat);
             gameObject.setAlpha(1);
+            console.log(`firing cannonball ${i}`);
+
             await tween({
               targets: gameObject,
               duration: CANNON_SHOT_LENGTH,
@@ -119,49 +121,35 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
           },
         });
       }
-    });
+    }
   });
 
+  function getCannonStart(shipEntity: EntityIndex) {
+    const attackerPosition = getComponentValueStrict(Position, shipEntity);
+    const attackerRotation = getComponentValueStrict(Rotation, shipEntity).value;
+    const attackerLength = getComponentValueStrict(Length, shipEntity).value;
+    const attackerStern = getSternLocation(attackerPosition, attackerRotation, attackerLength);
+    return tileCoordToPixelCoord(midpoint(attackerPosition, attackerStern), positions.posWidth, positions.posHeight);
+  }
   function getCannonStartAndEnd(
     shipEntity: EntityIndex,
     cannonEntity: EntityIndex,
-    index: number
+    targetEntity: EntityIndex,
+    hit: boolean
   ): { start: Coord; end: Coord } {
-    const position = getComponentValueStrict(Position, shipEntity);
-    const shipRotation = getComponentValueStrict(Rotation, shipEntity).value;
-    const length = getComponentValueStrict(Length, shipEntity).value;
-    const range = getComponentValueStrict(Range, cannonEntity).value;
-    const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
-
-    if (isBroadside(cannonRotation)) {
-      const [bow, stern, sternCorner, bowCorner] = getFiringArea(
-        position,
-        range,
-        length,
-        shipRotation,
-        cannonRotation
-      ).map((coord) => tileCoordToPixelCoord(coord, positions.posWidth, positions.posHeight));
-
-      const startCenter = midpoint(bow, stern);
-
-      if (index == 0) {
-        const bowStart = midpoint(bow, startCenter);
-        return { start: bowStart, end: bowCorner };
-      }
-      if (index == 1) {
-        return { start: startCenter, end: midpoint(sternCorner, bowCorner) };
-      }
-      const sternStart = midpoint(stern, startCenter);
-
-      return { start: sternStart, end: sternCorner };
-    }
-
-    const [start, sternCorner, bowCorner] = getFiringArea(position, range, length, shipRotation, cannonRotation).map(
-      (coord) => tileCoordToPixelCoord(coord, positions.posWidth, positions.posHeight)
+    const targetPosition = getComponentValueStrict(Position, targetEntity);
+    const targetRotation = getComponentValueStrict(Rotation, shipEntity).value;
+    const targetLength = getComponentValueStrict(Length, shipEntity).value;
+    const targetStern = getSternLocation(targetPosition, targetRotation, targetLength);
+    const startCenter = getCannonStart(shipEntity);
+    const endCenter = tileCoordToPixelCoord(
+      midpoint(targetPosition, targetStern),
+      positions.posWidth,
+      positions.posHeight
     );
 
-    if (index == 0) return { start, end: sternCorner };
-    if (index == 1) return { start, end: bowCorner };
-    return { start, end: midpoint(sternCorner, bowCorner) };
+    if (hit) return { start: startCenter, end: endCenter };
+
+    return { start: startCenter, end: { x: endCenter.x + 20, y: endCenter.y + 20 } };
   }
 }

@@ -103,7 +103,7 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
             const oldHealth = getComponentValueStrict(LocalHealth, target).value;
             return oldHealth - (newHealth || oldHealth);
           });
-          setComponent(ExecutedShots, cannonEntity, { targets: targets, damage });
+          setComponent(ExecutedShots, cannonEntity, { targets, damage });
         } else if (actionType == ActionType.ExtinguishFire) {
           setComponent(ExecutedExtinguishFire, shipEntity, { value: true });
         } else if (actionType == ActionType.LowerSail || actionType == ActionType.RaiseSail) {
