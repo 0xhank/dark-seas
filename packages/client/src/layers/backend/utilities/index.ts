@@ -55,7 +55,7 @@ export async function createBackendUtilities(network: NetworkLayer, components: 
     const sailPosition = getComponentValueStrict(SailPosition, ship).value;
     if (action == ActionType.LowerSail && sailPosition != 2) return false;
     if (action == ActionType.RaiseSail && sailPosition != 1) return false;
-    const newLocal = action == ActionType.RepairSail && sailPosition > 0;
+    if (action == ActionType.RepairSail && sailPosition > 0) return false;
 
     return true;
   }

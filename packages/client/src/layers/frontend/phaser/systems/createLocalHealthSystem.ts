@@ -46,6 +46,7 @@ export function createLocalHealthSystem(phaser: PhaserLayer) {
 
     const spriteAsset: Sprites = getShipSprite(ownerEntity, health, playerEntity == ownerEntity);
 
+    // @ts-expect-error doesnt recognize a sprite as a number
     const sprite = config.sprites[spriteAsset];
     object.setComponent({
       id: `texture`,

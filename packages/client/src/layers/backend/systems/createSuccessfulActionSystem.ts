@@ -22,6 +22,7 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
       ExecutedLoad,
       ExecutedRepairCannons,
       ExecutedRepairSail,
+      LocalHealth,
     },
   } = layer;
 
@@ -64,7 +65,7 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
           const damage = targets.map((target) => {
             const newHealth = updates.find((update) => update.entity == target && update.component == Health)?.value
               ?.value as number | undefined;
-            const oldHealth = getComponentValueStrict(Health, target).value;
+            const oldHealth = getComponentValueStrict(LocalHealth, target).value;
 
             console.log("old health:", oldHealth, "new health:", newHealth);
             return oldHealth - (newHealth || oldHealth);

@@ -21,7 +21,10 @@ export function renderShip(
     world,
     parentLayers: {
       network: {
-        components: { Length, Health },
+        components: { Length },
+      },
+      backend: {
+        components: { LocalHealth },
       },
     },
     scenes: {
@@ -35,7 +38,7 @@ export function renderShip(
   const object = objectPool.get(objectId, "Sprite");
 
   const length = getComponentValueStrict(Length, shipEntity).value;
-  const health = getComponentValueStrict(Health, shipEntity).value;
+  const health = getComponentValueStrict(LocalHealth, shipEntity).value;
 
   const spriteAsset: Sprites = getShipSprite(GodEntityIndex, health, true);
   // @ts-expect-error doesnt recognize a sprite as a number

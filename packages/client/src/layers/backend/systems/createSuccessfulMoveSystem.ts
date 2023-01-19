@@ -7,15 +7,13 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
   const {
     parentLayers: {
       network: {
-        components: { Health },
         systemCallStreams,
         utils: { bigNumToEntityID },
       },
     },
     world,
-    components: { EncodedCommitment, CommittedMove, ExecutedChangeSail },
+    components: { EncodedCommitment, CommittedMove },
     actions: { Action },
-    utils: { clearComponent, isMyShip, playSound },
     godIndex,
   } = layer;
 

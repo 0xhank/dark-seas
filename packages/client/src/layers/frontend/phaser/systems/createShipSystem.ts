@@ -27,10 +27,9 @@ export function createShipSystem(phaser: PhaserLayer) {
       network: {
         components: { Position, Length, Rotation, OwnedBy, Health },
         utils: { getPlayerEntity },
-        network: { connectedAddress },
       },
       backend: {
-        components: { SelectedShip, SelectedMove, HoveredShip },
+        components: { SelectedShip, SelectedMove, HoveredShip, LocalHealth },
       },
     },
     polygonRegistry,
@@ -43,7 +42,7 @@ export function createShipSystem(phaser: PhaserLayer) {
     world,
     [Has(Health), Has(Length), Has(Position), Has(Rotation), Has(OwnedBy)],
     ({ entity: shipEntity }) => {
-      const health = getComponentValueStrict(Health, shipEntity).value;
+      const health = getComponentValueStrict(LocalHealth, shipEntity).value;
       const position = getComponentValueStrict(Position, shipEntity);
       const length = getComponentValueStrict(Length, shipEntity).value;
       const rotation = getComponentValueStrict(Rotation, shipEntity).value;
