@@ -4,6 +4,7 @@ import {
   defineEnterSystem,
   defineSystem,
   EntityIndex,
+  getComponentValue,
   getComponentValueStrict,
   Has,
   HasValue,
@@ -30,7 +31,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
       },
       backend: {
         utils: { playSound },
-        components: { ExecutedShots, LocalHealth },
+        components: { ExecutedShots, LocalHealth, Targeted },
       },
     },
     scenes: {
@@ -102,6 +103,8 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     const delay = index * CANNON_SHOT_DELAY;
     const object = getSpriteObject(spriteId);
 
+    const targetedValue = getComponentValue(Targeted, attack.target)?.value || 1;
+    setComponent(Targeted, attack.target, { value: targetedValue - 1 });
     await tween({
       targets: object,
       delay,
