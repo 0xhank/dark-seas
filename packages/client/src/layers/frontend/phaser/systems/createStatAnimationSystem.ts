@@ -30,10 +30,9 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
         utils: { playSound },
       },
     },
-    positions,
     polygonRegistry,
     scenes: {
-      Main: { phaserScene },
+      Main: { phaserScene, positions },
     },
   } = layer;
 

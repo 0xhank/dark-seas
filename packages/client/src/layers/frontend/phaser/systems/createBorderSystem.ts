@@ -14,9 +14,8 @@ export function createBorderSystem(phaser: PhaserLayer) {
     },
     polygonRegistry,
     scenes: {
-      Main: { phaserScene },
+      Main: { phaserScene, positions },
     },
-    positions,
   } = phaser;
 
   defineComponentSystem(world, GameConfig, (update) => {

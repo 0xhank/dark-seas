@@ -47,7 +47,7 @@ export async function createPhaserLayer(backend: BackendLayer) {
       mapInteraction: createMapInteractionApi(),
     },
     game,
-    scenes,
+    scenes: { ...scenes, Main: { ...scenes.Main, positions: { posWidth: POS_WIDTH, posHeight: POS_HEIGHT } } },
     polygonRegistry,
     positions: { posWidth: POS_WIDTH, posHeight: POS_HEIGHT },
   };

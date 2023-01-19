@@ -18,10 +18,10 @@ export function createTileSystem(phaser: PhaserLayer) {
     },
     scenes: {
       Main: {
+        positions,
         maps: { Main },
       },
     },
-    positions,
   } = phaser;
 
   defineComponentSystem(world, GameConfig, (update) => {

@@ -33,7 +33,9 @@ export function createShipSystem(phaser: PhaserLayer) {
       },
     },
     polygonRegistry,
-    positions,
+    scenes: {
+      Main: { positions },
+    },
   } = phaser;
 
   const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);

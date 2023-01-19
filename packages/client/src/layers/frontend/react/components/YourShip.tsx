@@ -37,9 +37,8 @@ export const YourShip = ({
     },
     phaser: {
       scenes: {
-        Main: { camera },
+        Main: { camera, positions },
       },
-      positions,
     },
   } = layers;
 

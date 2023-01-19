@@ -28,9 +28,8 @@ export function renderShip(
       },
     },
     scenes: {
-      Main: { objectPool, config },
+      Main: { objectPool, config, positions },
     },
-    positions,
   } = phaser;
 
   const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
