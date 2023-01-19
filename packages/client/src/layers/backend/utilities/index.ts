@@ -26,7 +26,6 @@ export async function createBackendUtilities(network: NetworkLayer, components: 
     utils: { getPlayerEntity, getGameConfig },
     components: { OnFire, DamagedCannons, SailPosition, Ship, OwnedBy, Range, Position, Rotation, Length },
     network: { connectedAddress },
-    systemCallStreams,
   } = network;
 
   const perlin = await createPerlin();
@@ -176,7 +175,6 @@ export async function createBackendUtilities(network: NetworkLayer, components: 
   }
 
   function playSound(id: string, category: Category, loop = false, fade?: number) {
-    let timeout;
     const sound = new Howl({
       src: [soundLibrary[category][id].src],
       volume: soundLibrary[category][id].volume,
@@ -189,12 +187,6 @@ export async function createBackendUtilities(network: NetworkLayer, components: 
       // Init
       sound.play();
       sound.fade(0, 0.4, fade);
-      sound.on("load", function () {
-        const FADE_OUT_TIME = sound.duration() * 1000 - sound.seek() - fade;
-        timeout = setTimeout(function () {
-          sound.fade(0.4, 0, fade);
-        }, FADE_OUT_TIME);
-      });
     } else {
       sound.play();
     }

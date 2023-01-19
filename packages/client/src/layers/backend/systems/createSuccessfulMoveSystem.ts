@@ -1,15 +1,11 @@
-import { defineComponentSystem, defineRxSystem, setComponent } from "@latticexyz/recs";
-import { MoveStruct } from "../../../../../contracts/types/ethers-contracts/MoveSystem";
+import { defineComponentSystem, setComponent } from "@latticexyz/recs";
 import { Move } from "../../../types";
 import { BackendLayer, TxType } from "../types";
 
-export function createSuccessfulActionSystem(layer: BackendLayer) {
+export function createSuccessfulMoveSystem(layer: BackendLayer) {
   const {
     parentLayers: {
-      network: {
-        systemCallStreams,
-        utils: { bigNumToEntityID },
-      },
+      network: { systemCallStreams },
     },
     world,
     components: { EncodedCommitment, CommittedMove },
@@ -33,12 +29,5 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
       if (!shipEntity || !moveCardEntity) return;
       setComponent(CommittedMove, shipEntity, { value: moveCardEntity });
     });
-  });
-
-  defineRxSystem(world, systemCallStreams["ds.system.Move"], (systemCall) => {
-    const { args, systemId, updates } = systemCall;
-    const { actions: rawMoves } = args as {
-      actions: MoveStruct[];
-    };
   });
 }

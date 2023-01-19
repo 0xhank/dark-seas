@@ -1,5 +1,5 @@
 import { GodID } from "@latticexyz/network";
-import { tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
+import { Coord, tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
 import {
   defineComponentSystem,
   defineEnterSystem,
@@ -136,36 +136,39 @@ export function createShipSystem(phaser: PhaserLayer) {
     const rotation = getComponentValueStrict(Rotation, update.entity).value;
     const position = getComponentValueStrict(Position, update.entity);
 
-    const { x, y } = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
+    const coord = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
 
     if (update.type == UpdateType.Enter) return;
-    async function move() {
-      await tween({
-        targets: object,
-        duration: MOVE_LENGTH,
-        props: {
-          x,
-          y,
-          angle: {
-            getEnd: function (target, key, value) {
-              const start = target.angle % 360;
-              const end = (rotation - 90) % 360;
-              let diff = end - start;
-              if (diff < -180) diff += 360;
-              else if (diff > 180) diff -= 360;
-              return start + diff;
-            },
-            getStart: function (target, key, value) {
-              return target.angle % 360;
-            },
+
+    move(object, coord, rotation);
+  });
+
+  async function move(object: Phaser.GameObjects.Sprite, coord: Coord, rotation: number) {
+    console.log("moving ship!");
+    await tween({
+      targets: object,
+      duration: MOVE_LENGTH,
+      props: {
+        x: coord.x,
+        y: coord.y,
+        angle: {
+          getEnd: function (target) {
+            const start = target.angle % 360;
+            const end = (rotation - 90) % 360;
+            let diff = end - start;
+            if (diff < -180) diff += 360;
+            else if (diff > 180) diff -= 360;
+            return start + diff;
+          },
+          getStart: function (target) {
+            return target.angle % 360;
           },
         },
+      },
 
-        ease: Phaser.Math.Easing.Sine.InOut,
-      });
-      object.setAngle((rotation - 90) % 360);
-      object.setPosition(x, y);
-    }
-    move();
-  });
+      ease: Phaser.Math.Easing.Sine.InOut,
+    });
+    object.setAngle((rotation - 90) % 360);
+    object.setPosition(coord.x, coord.y);
+  }
 }
