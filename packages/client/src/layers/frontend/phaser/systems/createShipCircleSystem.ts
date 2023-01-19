@@ -15,7 +15,8 @@ export function createShipCircleSystem(phaser: PhaserLayer) {
         components: { HoveredShip },
       },
     },
-    polygonRegistry,
+    utils: { getGroupObject },
+
     scenes: {
       Main: { phaserScene },
     },
@@ -23,8 +24,7 @@ export function createShipCircleSystem(phaser: PhaserLayer) {
 
   defineComponentSystem(world, HoveredShip, (update) => {
     const groupId = "hover-circle";
-    let hoveredGroup = polygonRegistry.get(groupId);
-    if (hoveredGroup) hoveredGroup.clear(true, true);
+    let hoveredGroup = getGroupObject(groupId, true);
     const shipEntity = update.value[0]?.value as EntityIndex | undefined;
     if (shipEntity === undefined) return;
 
@@ -36,7 +36,5 @@ export function createShipCircleSystem(phaser: PhaserLayer) {
     const shipColor = isMyShip(shipEntity) ? getColorNum(shipEntity) : colors.whiteHex;
 
     renderCircle(phaser, hoveredGroup, position, length, rotation, shipColor, 0.3);
-
-    polygonRegistry.set(groupId, hoveredGroup);
   });
 }

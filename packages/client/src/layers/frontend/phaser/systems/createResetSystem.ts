@@ -27,10 +27,7 @@ export function createResetSystem(phaser: PhaserLayer) {
         godIndex,
       },
     },
-    scenes: {
-      Main: { objectPool },
-    },
-    polygonRegistry,
+    utils: { destroySpriteObject, destroyGroupObject },
   } = phaser;
 
   defineRxSystem(world, clock.time$, () => {
@@ -51,10 +48,10 @@ export function createResetSystem(phaser: PhaserLayer) {
       // START OF PHASE
       if (timeToNextPhase == gameConfig.commitPhaseLength) {
         getPlayerShips()?.map((ship) => {
-          objectPool.remove(`projection-${ship}`);
-          polygonRegistry.get(`projection-${ship}`)?.clear(true, true);
+          destroySpriteObject(`projection-${ship}`);
+          destroyGroupObject(`projection-${ship}`);
         });
-        polygonRegistry.get("selectedActions")?.clear(true, true);
+        destroyGroupObject("selectedActions");
         clearComponent(SelectedActions);
         clearComponent(HoveredAction);
         clearComponent(Targeted);
@@ -81,7 +78,7 @@ export function createResetSystem(phaser: PhaserLayer) {
 
       [...getComponentEntities(MoveCard)].forEach((moveCardEntity) => {
         const objectId = `optionGhost-${moveCardEntity}`;
-        objectPool.remove(objectId);
+        destroySpriteObject(objectId);
       });
       const lastMove = getComponentValue(LastMove, playerEntity)?.value;
       if (lastMove == turn) return;
@@ -91,8 +88,8 @@ export function createResetSystem(phaser: PhaserLayer) {
       if (hoveredShip) {
         const hoverId = `hoverGhost-${hoveredShip}`;
 
-        objectPool.remove(hoverId);
-        polygonRegistry.get(hoverId)?.clear(true, true);
+        destroySpriteObject(hoverId);
+        destroyGroupObject(hoverId);
       }
     }
 

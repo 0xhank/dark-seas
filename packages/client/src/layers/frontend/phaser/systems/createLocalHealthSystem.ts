@@ -24,8 +24,9 @@ export function createLocalHealthSystem(phaser: PhaserLayer) {
         godIndex,
       },
     },
+    utils: { getSpriteObject },
     scenes: {
-      Main: { objectPool, config },
+      Main: { config },
     },
   } = phaser;
 
@@ -36,10 +37,10 @@ export function createLocalHealthSystem(phaser: PhaserLayer) {
   });
 
   // HEALTH UPDATES
-  defineComponentSystem(world, Health, (update) => {
+  defineComponentSystem(world, LocalHealth, (update) => {
     if (update.value[0] === undefined || update.value[1] === undefined) return;
     const health = update.value[0].value;
-    const object = objectPool.get(update.entity, "Sprite");
+    const shipObject = getSpriteObject(update.entity);
     const ownerEntity = getPlayerEntity(getComponentValue(OwnedBy, update.entity)?.value);
     const playerEntity = getPlayerEntity();
     if (!ownerEntity) return null;
@@ -48,40 +49,31 @@ export function createLocalHealthSystem(phaser: PhaserLayer) {
 
     // @ts-expect-error doesnt recognize a sprite as a number
     const sprite = config.sprites[spriteAsset];
-    object.setComponent({
-      id: `texture`,
-      once: (ship) => {
-        ship.setTexture(sprite.assetKey, sprite.frame);
 
-        if (health == 0) {
-          ship.setAlpha(0.5);
-          ship.setDepth(RenderDepth.Foreground4);
-        } else {
-          ship.setAlpha(1);
-          ship.setDepth(RenderDepth.Foreground3);
-        }
-      },
-    });
+    shipObject.setTexture(sprite.assetKey, sprite.frame);
 
-    object.setComponent({
-      id: "interactive",
-      once: (ship) => {
-        if (health == 0) {
-          ship.off("pointerdown");
-          ship.off("pointerover");
-          ship.off("pointerout");
-          ship.disableInteractive();
-        } else {
-          ship.setInteractive();
-          ship.off("pointerdown");
-          ship.off("pointerover");
-          ship.off("pointerout");
+    if (health == 0) {
+      shipObject.setAlpha(0.5);
+      shipObject.setDepth(RenderDepth.Foreground4);
+    } else {
+      shipObject.setAlpha(1);
+      shipObject.setDepth(RenderDepth.Foreground3);
+    }
 
-          ship.on("pointerdown", () => setComponent(SelectedShip, godIndex, { value: update.entity }));
-          ship.on("pointerover", () => setComponent(HoveredShip, godIndex, { value: update.entity }));
-          ship.on("pointerout", () => removeComponent(HoveredShip, godIndex));
-        }
-      },
-    });
+    if (health == 0) {
+      shipObject.off("pointerdown");
+      shipObject.off("pointerover");
+      shipObject.off("pointerout");
+      shipObject.disableInteractive();
+    } else {
+      shipObject.setInteractive();
+      shipObject.off("pointerdown");
+      shipObject.off("pointerover");
+      shipObject.off("pointerout");
+
+      shipObject.on("pointerdown", () => setComponent(SelectedShip, godIndex, { value: update.entity }));
+      shipObject.on("pointerover", () => setComponent(HoveredShip, godIndex, { value: update.entity }));
+      shipObject.on("pointerout", () => removeComponent(HoveredShip, godIndex));
+    }
   });
 }

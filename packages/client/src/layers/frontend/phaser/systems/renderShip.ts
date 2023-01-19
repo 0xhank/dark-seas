@@ -28,13 +28,14 @@ export function renderShip(
       },
     },
     scenes: {
-      Main: { objectPool, config, positions },
+      Main: { config, positions },
     },
+    utils: { getSpriteObject },
   } = phaser;
 
   const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
-  const object = objectPool.get(objectId, "Sprite");
+  const object = getSpriteObject(objectId);
 
   const length = getComponentValueStrict(Length, shipEntity).value;
   const health = getComponentValueStrict(LocalHealth, shipEntity).value;
@@ -45,22 +46,17 @@ export function renderShip(
 
   const { x, y } = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
 
-  object.setComponent({
-    id: `projection-${shipEntity}`,
-    once: async (gameObject) => {
-      gameObject.setTexture(sprite.assetKey, sprite.frame);
+  object.setTexture(sprite.assetKey, sprite.frame);
 
-      gameObject.setAngle((rotation - 90) % 360);
-      const shipLength = length * positions.posWidth * 1.25;
-      const shipWidth = shipLength / SHIP_RATIO;
-      gameObject.setOrigin(0.5, 0.92);
-      gameObject.setDisplaySize(shipWidth, shipLength);
-      gameObject.setPosition(x, y);
-      gameObject.setAlpha(alpha);
-      gameObject.setTint(tint);
-      gameObject.setDepth(RenderDepth.Foreground5);
-    },
-  });
+  object.setAngle((rotation - 90) % 360);
+  const shipLength = length * positions.posWidth * 1.25;
+  const shipWidth = shipLength / SHIP_RATIO;
+  object.setOrigin(0.5, 0.92);
+  object.setDisplaySize(shipWidth, shipLength);
+  object.setPosition(x, y);
+  object.setAlpha(alpha);
+  object.setTint(tint);
+  object.setDepth(RenderDepth.Foreground5);
 
   return object;
 }
@@ -78,7 +74,9 @@ export function getFiringAreaPixels(
         components: { Range, Rotation },
       },
     },
-    positions,
+    scenes: {
+      Main: { positions },
+    },
   } = phaser;
   const range = getComponentValueStrict(Range, cannonEntity).value * positions.posHeight;
 
@@ -125,9 +123,8 @@ export function renderCircle(
 ) {
   const {
     scenes: {
-      Main: { phaserScene },
+      Main: { phaserScene, positions },
     },
-    positions,
   } = phaser;
   const circleWidth = length * positions.posWidth * 1.5;
   const circleHeight = circleWidth / SHIP_RATIO;

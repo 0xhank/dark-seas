@@ -8,6 +8,7 @@ import {
   Has,
   HasValue,
   runQuery,
+  setComponent,
 } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
 import { getShipMidpoint } from "../../../../utils/trig";
@@ -15,6 +16,10 @@ import { Category } from "../../../backend/sound/library";
 import { CANNON_SHOT_DELAY, CANNON_SHOT_LENGTH, RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
 
+type Attack = {
+  target: EntityIndex;
+  damage: number;
+};
 export function createCannonAnimationSystem(phaser: PhaserLayer) {
   const {
     world,
@@ -24,13 +29,13 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
       },
       backend: {
         utils: { playSound },
-        components: { ExecutedShots },
+        components: { ExecutedShots, LocalHealth },
       },
     },
     scenes: {
-      Main: { objectPool, config },
+      Main: { config, positions },
     },
-    positions,
+    utils: { getSpriteObject },
   } = phaser;
 
   const NUM_CANNONBALLS = 3;
@@ -45,19 +50,14 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     for (let i = 0; i < NUM_CANNONBALLS; i++) {
       const start = getCannonStart(shipEntity);
       const spriteId = `${shipEntity}-cannonball-${cannonEntity}-${i}`;
-      const object = objectPool.get(spriteId, "Sprite");
+      const object = getSpriteObject(spriteId);
 
-      object.setComponent({
-        id: `texture`,
-        once: async (gameObject) => {
-          gameObject.setPosition(start.x, start.y);
-          gameObject.setAlpha(0);
-          gameObject.setTexture(sprite.assetKey, sprite.frame);
-          gameObject.setScale(4);
-          gameObject.setDepth(RenderDepth.Foreground1);
-          gameObject.setOrigin(0);
-        },
-      });
+      object.setPosition(start.x, start.y);
+      object.setAlpha(0);
+      object.setTexture(sprite.assetKey, sprite.frame);
+      object.setScale(4);
+      object.setDepth(RenderDepth.Foreground1);
+      object.setOrigin(0);
     }
   });
 
@@ -67,15 +67,10 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     cannonEntities.forEach((cannonEntity) => {
       for (let i = 0; i < NUM_CANNONBALLS; i++) {
         const spriteId = `${shipEntity}-cannonball-${cannonEntity}-${i}`;
-        const object = objectPool.get(spriteId, "Sprite");
+        const object = getSpriteObject(spriteId);
         const start = getCannonStart(shipEntity);
 
-        object.setComponent({
-          id: "position",
-          once: async (gameObject) => {
-            gameObject.setPosition(start.x, start.y);
-          },
-        });
+        object.setPosition(start.x, start.y);
       }
     });
   });
@@ -83,47 +78,53 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
   defineComponentSystem(world, ExecutedShots, ({ entity: cannonEntity, value }) => {
     const data = value[0];
     if (!data) return;
-
     const attacks = data.targets.map((target, i) => ({ target: target as EntityIndex, damage: data.damage[i] }));
     const shipEntity = world.getEntityIndexStrict(getComponentValueStrict(OwnedBy, cannonEntity).value);
-    console.log("shipEntity", shipEntity);
     for (const attack of attacks) {
       for (let i = 0; i < NUM_CANNONBALLS; i++) {
         const hit = i < attack.damage;
-        const { start, end } = getCannonStartAndEnd(shipEntity, attack.target, i + 1, hit);
-
-        const spriteId = `${shipEntity}-cannonball-${cannonEntity}-${i}`;
-        const delay = i * CANNON_SHOT_DELAY;
-        const object = objectPool.get(spriteId, "Sprite");
-        object.setComponent({
-          id: `position`,
-          now: async (gameObject) => {
-            await tween({
-              targets: gameObject,
-              delay,
-              duration: 50,
-              props: { alpha: 1 },
-            });
-            playSound("cannon_shot", Category.Combat);
-            gameObject.setAlpha(1);
-            console.log(`firing cannonball ${i}`);
-
-            await tween({
-              targets: gameObject,
-              duration: CANNON_SHOT_LENGTH,
-              props: { x: end.x, y: end.y },
-              ease: Phaser.Math.Easing.Linear,
-            });
-            playSound(hit ? "impact_ship_1" : "impact_water_1", Category.Combat);
-          },
-          once: async (gameObject) => {
-            gameObject.setPosition(start.x, start.y);
-            gameObject.setAlpha(0);
-          },
-        });
+        fireCannon(shipEntity, cannonEntity, attack, i, hit);
       }
     }
   });
+
+  function fireCannon(shipEntity: EntityIndex, cannonEntity: EntityIndex, attack: Attack, index: number, hit: boolean) {
+    const { start, end } = getCannonStartAndEnd(shipEntity, attack.target, index + 1, hit);
+    console.log(`firing cannonball ${index}`);
+
+    const spriteId = `${shipEntity}-cannonball-${cannonEntity}-${index}`;
+    const delay = index * CANNON_SHOT_DELAY;
+    const object = getSpriteObject(spriteId);
+
+    async function fire() {
+      await tween({
+        targets: object,
+        delay,
+        duration: 50,
+        props: { alpha: 1 },
+      });
+      playSound("cannon_shot", Category.Combat);
+      object.setAlpha(1);
+
+      await tween({
+        targets: object,
+        duration: CANNON_SHOT_LENGTH,
+        props: { x: end.x, y: end.y },
+        ease: Phaser.Math.Easing.Linear,
+      });
+      playSound(hit ? "impact_ship_1" : "impact_water_1", Category.Combat);
+
+      object.setPosition(start.x, start.y);
+      object.setAlpha(0);
+      if (hit) {
+        const localHealth = getComponentValueStrict(LocalHealth, attack.target).value;
+        setComponent(LocalHealth, attack.target, { value: localHealth - 1 });
+        console.log("localhealth:", localHealth - 1);
+      }
+    }
+
+    fire();
+  }
 
   function getCannonStart(shipEntity: EntityIndex) {
     const attackerPosition = getComponentValueStrict(Position, shipEntity);

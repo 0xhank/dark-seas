@@ -10,25 +10,18 @@ export function createTargetedSystem(phaser: PhaserLayer) {
         components: { Targeted },
       },
     },
-    scenes: {
-      Main: { objectPool },
-    },
+    utils: { getSpriteObject },
   } = phaser;
 
   defineSystem(world, [Has(Targeted)], (update) => {
-    const targetedShip = objectPool.get(`${update.entity}`, "Sprite");
+    const targetedShip = getSpriteObject(`${update.entity}`);
 
     const value = update.value[0]?.value;
 
     if (!value) {
-      targetedShip.removeComponent("tint");
+      targetedShip.clearTint();
     } else {
-      targetedShip.setComponent({
-        id: "tint",
-        once: (sprite) => {
-          sprite.setTint(colors.redHex);
-        },
-      });
+      targetedShip.setTint(colors.redHex);
     }
   });
 }
