@@ -6,7 +6,7 @@ export const TILE_HEIGHT = 64;
 export const POS_WIDTH = TILE_WIDTH / 4;
 export const POS_HEIGHT = TILE_HEIGHT / 4;
 
-export const CANNON_SHOT_LENGTH = 1200;
+export const CANNON_SPEED = 1;
 export const CANNON_SHOT_DELAY = 600;
 export const MOVE_LENGTH = 2000;
 

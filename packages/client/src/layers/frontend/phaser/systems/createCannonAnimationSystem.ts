@@ -11,9 +11,10 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
+import { distance } from "../../../../utils/distance";
 import { getShipMidpoint } from "../../../../utils/trig";
 import { Category } from "../../../backend/sound/library";
-import { CANNON_SHOT_DELAY, CANNON_SHOT_LENGTH, RenderDepth } from "../constants";
+import { Animations, CANNON_SHOT_DELAY, CANNON_SPEED, RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
 
 type Attack = {
@@ -33,9 +34,9 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
       },
     },
     scenes: {
-      Main: { config, positions },
+      Main: { config, positions, phaserScene },
     },
-    utils: { getSpriteObject },
+    utils: { getSpriteObject, getGroupObject, destroySpriteObject, destroyGroupObject },
   } = phaser;
 
   const NUM_CANNONBALLS = 3;
@@ -88,42 +89,77 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     }
   });
 
-  function fireCannon(shipEntity: EntityIndex, cannonEntity: EntityIndex, attack: Attack, index: number, hit: boolean) {
+  async function fireCannon(
+    shipEntity: EntityIndex,
+    cannonEntity: EntityIndex,
+    attack: Attack,
+    index: number,
+    hit: boolean
+  ) {
     const { start, end } = getCannonStartAndEnd(shipEntity, attack.target, index + 1, hit);
-    console.log(`firing cannonball ${index}`);
 
     const spriteId = `${shipEntity}-cannonball-${cannonEntity}-${index}`;
     const delay = index * CANNON_SHOT_DELAY;
     const object = getSpriteObject(spriteId);
 
-    async function fire() {
-      await tween({
-        targets: object,
-        delay,
-        duration: 50,
-        props: { alpha: 1 },
-      });
-      playSound("cannon_shot", Category.Combat);
-      object.setAlpha(1);
+    await tween({
+      targets: object,
+      delay,
+      duration: 50,
+      props: { alpha: 1 },
+    });
+    playSound("cannon_shot", Category.Combat);
+    object.setAlpha(1);
 
-      await tween({
-        targets: object,
-        duration: CANNON_SHOT_LENGTH,
-        props: { x: end.x, y: end.y },
-        ease: Phaser.Math.Easing.Linear,
-      });
-      playSound(hit ? "impact_ship_1" : "impact_water_1", Category.Combat);
+    const duration = CANNON_SPEED * distance(start, end);
+    await tween({
+      targets: object,
+      duration,
+      props: { x: end.x, y: end.y },
+      ease: Phaser.Math.Easing.Linear,
+    });
 
-      object.setPosition(start.x, start.y);
+    if (hit) {
+      const localHealth = getComponentValueStrict(LocalHealth, attack.target).value;
+      setComponent(LocalHealth, attack.target, { value: localHealth - 1 });
+      console.log("localhealth:", localHealth - 1);
       object.setAlpha(0);
-      if (hit) {
-        const localHealth = getComponentValueStrict(LocalHealth, attack.target).value;
-        setComponent(LocalHealth, attack.target, { value: localHealth - 1 });
-        console.log("localhealth:", localHealth - 1);
-      }
-    }
 
-    fire();
+      const explosionId = `explosion-${cannonEntity}-${index}`;
+      const explosion = getSpriteObject(explosionId);
+      explosion.setOrigin(0.5, 0.5);
+      explosion.setPosition(end.x, end.y);
+      explosion.setDepth(RenderDepth.UI5);
+      playSound("impact_ship_1", Category.Combat);
+
+      explosion.play(Animations.Explosion);
+
+      explosion.on(`animationcomplete`, () => {
+        destroySpriteObject(explosionId);
+      });
+    } else {
+      playSound("impact_water_1", Category.Combat);
+
+      tween({
+        targets: object,
+        duration: 250,
+        props: { alpha: 0 },
+      });
+      const textId = `miss-text-${cannonEntity}-${index}`;
+      const textGroup = getGroupObject(textId);
+      const text = phaserScene.add.text(end.x, end.y, "MISS", {
+        color: "white",
+        fontSize: "64px",
+        // fontStyle: "strong",
+        fontFamily: "Inknut Antiqua, serif",
+      });
+      text.setDepth(RenderDepth.Foreground5);
+      text.setOrigin(0.5);
+      textGroup.add(text);
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      destroyGroupObject(textId);
+    }
+    object.setPosition(start.x, start.y);
   }
 
   function getCannonStart(shipEntity: EntityIndex) {
@@ -148,12 +184,13 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     const endCenter = tileCoordToPixelCoord(targetMidpoint, positions.posWidth, positions.posHeight);
 
     if (hit) return { start: startCenter, end: endCenter };
-
-    const randX = Math.random() * 50 + 50;
-    const randY = Math.random() * 50 + 50;
+    const missDistance = (targetLength * positions.posHeight) / 2;
+    const missArea = 40;
+    const randX = Math.round(Math.random() * missArea + missDistance);
+    const randY = Math.round(Math.random() * missArea + missDistance);
     return {
       start: startCenter,
-      end: { x: endCenter.x + (randX % 2 ? randX : -randX), y: endCenter.y + (randY % 2 ? randY : -randY) },
+      end: { x: endCenter.x + (randX % 2 == 1 ? randX : -randX), y: endCenter.y + (randY % 2 == 1 ? randY : -randY) },
     };
   }
 }
