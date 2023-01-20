@@ -3,6 +3,7 @@ import {
   defineEnterSystem,
   getComponentValue,
   Has,
+  Not,
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
@@ -16,11 +17,11 @@ export function createHealthLocalSystem(phaser: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: { Health, OwnedBy },
+        components: { Health, OwnedBy, OnFire, DamagedCannons, SailPosition },
         utils: { getPlayerEntity },
       },
       backend: {
-        components: { HealthLocal, OnFireLocal, SelectedShip, HoveredShip },
+        components: { HealthLocal, OnFireLocal, SelectedShip, HoveredShip, DamagedCannonsLocal, SailPositionLocal },
         godIndex,
       },
     },
@@ -31,6 +32,24 @@ export function createHealthLocalSystem(phaser: PhaserLayer) {
   } = phaser;
 
   defineEnterSystem(world, [Has(Health)], ({ entity, value }) => {
+    const health = value[0]?.value as number | undefined;
+    if (!health) return;
+    setComponent(HealthLocal, entity, { value: health });
+  });
+
+  defineEnterSystem(world, [Has(OnFire), Not(OnFireLocal)], ({ entity, value }) => {
+    const health = value[0]?.value as number | undefined;
+    if (!health) return;
+    setComponent(HealthLocal, entity, { value: health });
+  });
+
+  defineEnterSystem(world, [Has(DamagedCannons), Not(DamagedCannonsLocal)], ({ entity, value }) => {
+    const health = value[0]?.value as number | undefined;
+    if (!health) return;
+    setComponent(HealthLocal, entity, { value: health });
+  });
+
+  defineEnterSystem(world, [Has(SailPosition), Not(SailPositionLocal)], ({ entity, value }) => {
     const health = value[0]?.value as number | undefined;
     if (!health) return;
     setComponent(HealthLocal, entity, { value: health });

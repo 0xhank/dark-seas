@@ -9,7 +9,6 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
   const {
     parentLayers: {
       network: {
-        components: { Health },
         systemCallStreams,
         utils: { bigNumToEntityID },
       },
@@ -23,6 +22,9 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
       ExecutedRepairCannons,
       ExecutedRepairSail,
       HealthLocal,
+      OnFireLocal,
+      SailPositionLocal,
+      DamagedCannonsLocal,
     },
   } = layer;
 
@@ -91,13 +93,19 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
       if (!cannonEntity) return;
       setComponent(ExecutedShots, cannonEntity, encodeExecutedShot(targets, shipUpdates));
     } else if (actionType == ActionType.ExtinguishFire) {
+      // todo: animate this
+      setComponent(OnFireLocal, shipEntity, { value: 0 });
       setComponent(ExecutedExtinguishFire, shipEntity, { value: true });
     } else if (actionType == ActionType.LowerSail || actionType == ActionType.RaiseSail) {
       setComponent(ExecutedChangeSail, shipEntity, { value: true });
+      const newSailPosition = shipUpdates.get(`${shipEntity}-SailPosition`)?.value as number | undefined;
+      setComponent(SailPositionLocal, shipEntity, { value: newSailPosition || 0 });
     } else if (actionType == ActionType.RepairCannons) {
       setComponent(ExecutedRepairCannons, shipEntity, { value: true });
+      setComponent(DamagedCannonsLocal, shipEntity, { value: false });
     } else if (actionType == ActionType.RepairSail) {
       setComponent(ExecutedRepairSail, shipEntity, { value: true });
+      setComponent(SailPositionLocal, shipEntity, { value: 1 });
     }
   }
 

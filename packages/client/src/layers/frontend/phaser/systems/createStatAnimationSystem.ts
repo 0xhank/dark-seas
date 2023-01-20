@@ -2,7 +2,6 @@ import { tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
 import {
   defineComponentSystem,
   defineEnterSystem,
-  defineExitSystem,
   defineUpdateSystem,
   getComponentValueStrict,
   Has,
@@ -22,7 +21,7 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
 
     parentLayers: {
       network: {
-        components: { OnFire, DamagedCannons, Position, Rotation, Length, Cannon, OwnedBy },
+        components: { Position, Rotation, Length, Cannon, OwnedBy },
       },
       backend: {
         components: { HealthLocal, OnFireLocal, DamagedCannonsLocal },
@@ -35,7 +34,7 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
   } = layer;
 
   // ON FIRE UPDATES
-  defineEnterSystem(world, [Has(OnFire)], (update) => {
+  defineEnterSystem(world, [Has(OnFireLocal)], (update) => {
     const position = getComponentValueStrict(Position, update.entity);
     const rotation = getComponentValueStrict(Rotation, update.entity).value;
     const length = getComponentValueStrict(Length, update.entity).value;
@@ -63,7 +62,7 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
     }
   });
 
-  defineUpdateSystem(world, [Has(OnFire), Has(Position), Has(Rotation)], (update) => {
+  defineUpdateSystem(world, [Has(OnFireLocal), Has(Position), Has(Rotation)], (update) => {
     const position = getComponentValueStrict(Position, update.entity);
     const rotation = getComponentValueStrict(Rotation, update.entity).value;
     const length = getComponentValueStrict(Length, update.entity).value;
@@ -90,7 +89,9 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
     object.setPosition(coord.x, coord.y);
   }
 
-  defineExitSystem(world, [Has(OnFire)], (update) => {
+  defineComponentSystem(world, OnFireLocal, (update) => {
+    if (!update.value[0]) return;
+    if (!(update.value[0].value == 0)) return;
     for (let i = 0; i < 4; i++) {
       const spriteId = `${update.entity}-fire-${i}`;
       destroySpriteObject(spriteId);
@@ -108,7 +109,7 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
 
   // BROKEN CANNON UPDATES
 
-  defineComponentSystem(world, DamagedCannons, (update) => {
+  defineComponentSystem(world, DamagedCannonsLocal, (update) => {
     const shipEntity = update.entity;
 
     // exit

@@ -22,22 +22,11 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: {
-          Position,
-          Length,
-          Rotation,
-          SailPosition,
-          MoveCard,
-          Cannon,
-          OwnedBy,
-          Speed,
-          Loaded,
-          DamagedCannons,
-        },
+        components: { Position, Length, Rotation, MoveCard, Cannon, OwnedBy, Speed, Loaded },
         utils: { getPhase },
       },
       backend: {
-        components: { SelectedMove, HoveredMove },
+        components: { SelectedMove, HoveredMove, SailPositionLocal, DamagedCannonsLocal },
         utils: { outOfBounds },
       },
     },
@@ -67,7 +56,7 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const position = getComponentValueStrict(Position, shipEntity);
     const rotation = getComponentValueStrict(Rotation, shipEntity).value;
     const speed = getComponentValueStrict(Speed, shipEntity).value;
-    const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
+    const sailPosition = getComponentValueStrict(SailPositionLocal, shipEntity).value;
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
 
     renderShip(phaser, shipEntity, groupId, finalPosition, finalRotation, colors.darkGrayHex, 0.7);
@@ -91,9 +80,9 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const position = getComponentValueStrict(Position, shipEntity);
     const rotation = getComponentValueStrict(Rotation, shipEntity).value;
     const length = getComponentValueStrict(Length, shipEntity).value;
-    const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
+    const sailPosition = getComponentValueStrict(SailPositionLocal, shipEntity).value;
     const speed = getComponentValueStrict(Speed, shipEntity).value;
-    const damaged = getComponentValue(DamagedCannons, shipEntity);
+    const damaged = getComponentValue(DamagedCannonsLocal, shipEntity);
 
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
