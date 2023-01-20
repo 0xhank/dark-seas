@@ -27,7 +27,7 @@ export function createBackendComponents(world: World) {
 
     ExecutedShots: defineComponent(
       world,
-      { targets: Type.NumberArray, damage: Type.NumberArray },
+      { targets: Type.NumberArray, damage: Type.NumberArray, specialDamage: Type.NumberArray },
       { id: "ExecutedShots" }
     ),
     ExecutedLoad: defineBoolComponent(world, { id: "ExecutedLoad" }),

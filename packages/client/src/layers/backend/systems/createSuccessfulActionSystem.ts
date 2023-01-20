@@ -1,4 +1,4 @@
-import { defineRxSystem, EntityIndex, getComponentValueStrict, setComponent } from "@latticexyz/recs";
+import { ComponentValue, defineRxSystem, EntityIndex, getComponentValueStrict, setComponent } from "@latticexyz/recs";
 import { BigNumber } from "ethers";
 import { BytesLike, defaultAbiCoder as abi } from "ethers/lib/utils";
 import { ActionStruct } from "../../../../../contracts/types/ethers-contracts/ActionSystem";
@@ -49,39 +49,87 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
       actions: ActionStruct[];
     };
 
+    const shipUpdates: Map<string, ComponentValue> = new Map();
+    updates.forEach((update) => {
+      const entity = update.entity;
+      const component = update.component;
+      const key = `${entity}-${component.id}`;
+      if (update.value == undefined) return;
+      shipUpdates.set(key, update.value);
+    });
+
+    // iterate through ships
     rawActions.forEach((action) => {
       const shipEntity = world.entityToIndex.get(bigNumToEntityID(action.shipEntity));
       if (!shipEntity) return;
 
+      // iterate through ship actions
       action.actionTypes.forEach((actionType, i) => {
-        if (actionType == ActionType.Load) {
-          const parsedCannon = parseLoadAction(action.metadata[i]);
-          if (!parsedCannon) return;
-          setComponent(ExecutedLoad, parsedCannon, { value: true });
-        } else if (actionType == ActionType.Fire) {
-          const { cannonEntity, targets } = parseShotAction(action.metadata[i]);
-          if (!cannonEntity) return;
-
-          const damage = targets.map((target) => {
-            const newHealth = updates.find((update) => update.entity == target && update.component == Health)?.value
-              ?.value as number | undefined;
-            const oldHealth = getComponentValueStrict(LocalHealth, target).value;
-
-            console.log("old health:", oldHealth, "new health:", newHealth);
-            return oldHealth - (newHealth || oldHealth);
-          });
-          console.log("targets:", targets, "damage:", damage);
-          setComponent(ExecutedShots, cannonEntity, { targets, damage });
-        } else if (actionType == ActionType.ExtinguishFire) {
-          setComponent(ExecutedExtinguishFire, shipEntity, { value: true });
-        } else if (actionType == ActionType.LowerSail || actionType == ActionType.RaiseSail) {
-          setComponent(ExecutedChangeSail, shipEntity, { value: true });
-        } else if (actionType == ActionType.RepairCannons) {
-          setComponent(ExecutedRepairCannons, shipEntity, { value: true });
-        } else if (actionType == ActionType.RepairSail) {
-          setComponent(ExecutedRepairSail, shipEntity, { value: true });
-        }
+        completeAction(shipEntity, actionType as ActionType, action.metadata[i], shipUpdates);
       });
+
+      //TODO: animate this
+      if (shipUpdates.get(`${shipEntity}-Health`)) {
+        const oldHealth = getComponentValueStrict(LocalHealth, shipEntity).value || 1;
+        setComponent(LocalHealth, shipEntity, { value: oldHealth - 1 });
+      }
     });
   });
+
+  function completeAction(
+    shipEntity: EntityIndex,
+    actionType: number,
+    metadata: BytesLike,
+    shipUpdates: Map<string, ComponentValue>
+  ) {
+    if (actionType == ActionType.Load) {
+      const parsedCannon = parseLoadAction(metadata);
+      if (!parsedCannon) return;
+      setComponent(ExecutedLoad, parsedCannon, { value: true });
+    } else if (actionType == ActionType.Fire) {
+      const { cannonEntity, targets } = parseShotAction(metadata);
+      if (!cannonEntity) return;
+      setComponent(ExecutedShots, cannonEntity, encodeExecutedShot(targets, shipUpdates));
+    } else if (actionType == ActionType.ExtinguishFire) {
+      setComponent(ExecutedExtinguishFire, shipEntity, { value: true });
+    } else if (actionType == ActionType.LowerSail || actionType == ActionType.RaiseSail) {
+      setComponent(ExecutedChangeSail, shipEntity, { value: true });
+    } else if (actionType == ActionType.RepairCannons) {
+      setComponent(ExecutedRepairCannons, shipEntity, { value: true });
+    } else if (actionType == ActionType.RepairSail) {
+      setComponent(ExecutedRepairSail, shipEntity, { value: true });
+    }
+  }
+
+  function encodeExecutedShot(targets: EntityIndex[], shipUpdates: Map<string, ComponentValue>) {
+    const damage: number[] = [];
+    const specialDamage: number[] = [];
+    targets.forEach((target) => {
+      const healthKey = `${target}-Health`;
+      const oldHealth = getComponentValueStrict(LocalHealth, target).value;
+      const newHealth = shipUpdates.get(healthKey)?.value as number | undefined;
+      shipUpdates.delete(healthKey);
+      damage.push(oldHealth - (newHealth || oldHealth));
+
+      const fireKey = `${target}-OnFire`;
+      const damagedCannonsKey = `${target}-DamagedCannons`;
+      const sailPositionKey = `${target}-SailPosition`;
+      let total = 0;
+      if (shipUpdates.get(fireKey)) {
+        total++;
+        shipUpdates.delete(fireKey);
+      }
+      if (shipUpdates.get(damagedCannonsKey)) {
+        total += 10;
+        shipUpdates.delete(damagedCannonsKey);
+      }
+      if (shipUpdates.get(sailPositionKey)) {
+        total += 100;
+        shipUpdates.delete(sailPositionKey);
+      }
+      specialDamage.push(total);
+    });
+
+    return { targets, damage, specialDamage };
+  }
 }

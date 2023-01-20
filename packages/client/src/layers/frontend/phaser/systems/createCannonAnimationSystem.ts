@@ -21,6 +21,9 @@ import { PhaserLayer } from "../types";
 type Attack = {
   target: EntityIndex;
   damage: number;
+  onFire: boolean;
+  damagedCannons: boolean;
+  toreSail: boolean;
 };
 export function createCannonAnimationSystem(phaser: PhaserLayer) {
   const {
@@ -77,10 +80,22 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     });
   });
 
+  function decodeSpecialAttacks(encoding: number) {
+    if (encoding == 0) return { onFire: false, damagedCannons: false, toreSail: false };
+    const onFire = encoding % 2 == 1;
+    const damagedCannons = Math.round(encoding / 10) % 2 == 1;
+    const toreSail = Math.round(encoding / 100) % 2 == 1;
+    return { onFire, damagedCannons, toreSail };
+  }
   defineComponentSystem(world, ExecutedShots, ({ entity: cannonEntity, value }) => {
     const data = value[0];
     if (!data) return;
-    const attacks = data.targets.map((target, i) => ({ target: target as EntityIndex, damage: data.damage[i] }));
+    const attacks = data.targets.map((target, i) => ({
+      target: target as EntityIndex,
+      damage: data.damage[i],
+      ...decodeSpecialAttacks(data.specialDamage[i]),
+    }));
+
     const shipEntity = world.getEntityIndexStrict(getComponentValueStrict(OwnedBy, cannonEntity).value);
     for (const attack of attacks) {
       for (let i = 0; i < NUM_CANNONBALLS; i++) {
@@ -102,7 +117,6 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     const spriteId = `${shipEntity}-cannonball-${cannonEntity}-${index}`;
     const delay = index * CANNON_SHOT_DELAY;
     const object = getSpriteObject(spriteId);
-
     const targetedValue = getComponentValue(Targeted, attack.target)?.value || 1;
     setComponent(Targeted, attack.target, { value: targetedValue - 1 });
     await tween({
