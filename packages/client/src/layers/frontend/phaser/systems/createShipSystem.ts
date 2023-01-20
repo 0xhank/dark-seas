@@ -25,11 +25,19 @@ export function createShipSystem(phaser: PhaserLayer) {
     },
     parentLayers: {
       network: {
-        components: { Position, Length, Rotation, OwnedBy },
+        components: { Position, Length, Rotation, OwnedBy, OnFire, DamagedCannons, SailPosition },
         utils: { getPlayerEntity },
       },
       backend: {
-        components: { SelectedShip, SelectedMove, HoveredShip, HealthLocal },
+        components: {
+          SelectedShip,
+          SelectedMove,
+          HoveredShip,
+          HealthLocal,
+          OnFireLocal,
+          DamagedCannonsLocal,
+          SailPositionLocal,
+        },
       },
     },
     scenes: {
@@ -42,7 +50,7 @@ export function createShipSystem(phaser: PhaserLayer) {
 
   defineEnterSystem(
     world,
-    [Has(HealthLocal), Has(Length), Has(Position), Has(Rotation), Has(OwnedBy)],
+    [Has(HealthLocal), Has(Length), Has(Position), Has(Rotation), Has(OwnedBy), Has(SailPosition)],
     ({ entity: shipEntity }) => {
       const health = getComponentValueStrict(HealthLocal, shipEntity).value;
       const position = getComponentValueStrict(Position, shipEntity);
@@ -67,18 +75,13 @@ export function createShipSystem(phaser: PhaserLayer) {
         object.setAlpha(1);
         object.setDepth(RenderDepth.Foreground3);
       }
-
+      object.off("pointerdown");
+      object.off("pointerover");
+      object.off("pointerout");
       if (health == 0) {
-        object.off("pointerdown");
-        object.off("pointerover");
-        object.off("pointerout");
         object.disableInteractive();
       } else {
         object.setInteractive();
-        object.off("pointerdown");
-        object.off("pointerover");
-        object.off("pointerout");
-
         object.on("pointerdown", () => setComponent(SelectedShip, GodEntityIndex, { value: shipEntity }));
         object.on("pointerover", () => setComponent(HoveredShip, GodEntityIndex, { value: shipEntity }));
         object.on("pointerout", () => removeComponent(HoveredShip, GodEntityIndex));
@@ -96,6 +99,13 @@ export function createShipSystem(phaser: PhaserLayer) {
 
       if (playerEntity == ownerEntity)
         camera.centerOn(position.x * positions.posWidth, position.y * positions.posHeight + 400);
+
+      const onFire = getComponentValue(OnFire, shipEntity)?.value || 0;
+      setComponent(OnFireLocal, shipEntity, { value: onFire });
+      const damagedCannons = getComponentValue(DamagedCannons, shipEntity)?.value || 0;
+      setComponent(DamagedCannonsLocal, shipEntity, { value: damagedCannons });
+      const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
+      setComponent(SailPositionLocal, shipEntity, { value: sailPosition });
     }
   );
 

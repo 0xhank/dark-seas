@@ -75,14 +75,14 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
         </div>
         {health !== 0 && (
           <div style={{ display: "flex", gap: "8px" }}>
-            {damagedCannons && (
+            {damagedCannons !== undefined && (
               <ShipDamage
                 message="cannons broken"
                 amountLeft={damagedCannons}
                 fixing={updates.has(ActionType.RepairCannons)}
               />
             )}
-            {onFire && (
+            {onFire !== undefined && (
               <ShipDamage message="on fire" amountLeft={onFire} fixing={updates.has(ActionType.ExtinguishFire)} />
             )}
             {sailPosition == 0 && <ShipDamage message="sails torn" fixing={updates.has(ActionType.RepairSail)} />}

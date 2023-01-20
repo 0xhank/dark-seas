@@ -1,7 +1,6 @@
 import { tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
 import {
   defineComponentSystem,
-  defineEnterSystem,
   defineUpdateSystem,
   getComponentValueStrict,
   Has,
@@ -34,7 +33,7 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
   } = layer;
 
   // ON FIRE UPDATES
-  defineEnterSystem(world, [Has(OnFireLocal)], (update) => {
+  defineUpdateSystem(world, [Has(OnFireLocal)], (update) => {
     const position = getComponentValueStrict(Position, update.entity);
     const rotation = getComponentValueStrict(Rotation, update.entity).value;
     const length = getComponentValueStrict(Length, update.entity).value;
@@ -50,7 +49,7 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
 
       setTimeout(() => {
         object.setAlpha(1);
-        object.play(Animations.Fire);
+        object?.play(Animations.Fire);
       }, Math.random() * 1000);
 
       const xLoc = Math.random();
@@ -112,12 +111,13 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
   defineComponentSystem(world, DamagedCannonsLocal, (update) => {
     const shipEntity = update.entity;
 
-    // exit
-    if (!update.value[0]) return;
-    // update
-    if (update.value[0] && update.value[1]) return;
+    // exit or enter
+    if (update.value[0] == undefined || update.value[1] == undefined) return;
+
+    const improvement = update.value[0].value - update.value[1].value < 0;
+    if (improvement && update.value[0].value !== 0) return;
     const groupId = `flash-cannons-${shipEntity}`;
-    const group = getGroupObject(groupId);
+    const group = getGroupObject(groupId, true);
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
 
     const duration = 500;
@@ -126,14 +126,14 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
       const position = getComponentValueStrict(Position, shipEntity);
       const length = getComponentValueStrict(Length, shipEntity).value;
       const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-      const rangeColor = { tint: colors.blackHex, alpha: 0.3 };
+      const rangeColor = { tint: improvement ? colors.greenHex : colors.blackHex, alpha: 0.3 };
       renderFiringArea(layer, group, position, rotation, length, cannonEntity, rangeColor);
     });
 
     phaserScene.tweens.add({
       targets: group.getChildren(),
       props: {
-        alpha: 0,
+        alpha: 0.3,
       },
       ease: Phaser.Math.Easing.Sine.Out,
       duration: duration,
@@ -142,7 +142,7 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
     });
 
     phaserScene.time.addEvent({
-      delay: duration * 7,
+      delay: duration * 3,
       callback: function () {
         group.clear(true, true);
       },
