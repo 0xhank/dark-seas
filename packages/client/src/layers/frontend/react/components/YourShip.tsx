@@ -33,7 +33,7 @@ export const YourShip = ({
       world,
     },
     backend: {
-      components: { SelectedShip, HoveredShip, LocalHealth },
+      components: { SelectedShip, HoveredShip, HealthLocal },
     },
     phaser: {
       scenes: {
@@ -51,7 +51,7 @@ export const YourShip = ({
   const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
   const position = getComponentValueStrict(Position, ship);
-  const health = getComponentValue(LocalHealth, ship)?.value;
+  const health = getComponentValue(HealthLocal, ship)?.value;
   const hoveredShip = getComponentValue(HoveredShip, GodEntityIndex)?.value;
   const isSelected = selectedShip == ship;
   const isHovered = hoveredShip == ship;

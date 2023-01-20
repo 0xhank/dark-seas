@@ -31,28 +31,32 @@ export function createHealthLocalSystem(phaser: PhaserLayer) {
     },
   } = phaser;
 
-  defineEnterSystem(world, [Has(Health)], ({ entity, value }) => {
+  defineEnterSystem(world, [Has(Health), Not(HealthLocal)], ({ entity, value }) => {
     const health = value[0]?.value as number | undefined;
     if (!health) return;
     setComponent(HealthLocal, entity, { value: health });
+  });
+
+  defineComponentSystem(world, HealthLocal, (update) => {
+    console.log("local health:", update.value[0]?.value);
   });
 
   defineEnterSystem(world, [Has(OnFire), Not(OnFireLocal)], ({ entity, value }) => {
     const health = value[0]?.value as number | undefined;
     if (!health) return;
-    setComponent(HealthLocal, entity, { value: health });
+    setComponent(OnFireLocal, entity, { value: health });
   });
 
   defineEnterSystem(world, [Has(DamagedCannons), Not(DamagedCannonsLocal)], ({ entity, value }) => {
     const health = value[0]?.value as number | undefined;
     if (!health) return;
-    setComponent(HealthLocal, entity, { value: health });
+    setComponent(DamagedCannonsLocal, entity, { value: health });
   });
 
   defineEnterSystem(world, [Has(SailPosition), Not(SailPositionLocal)], ({ entity, value }) => {
     const health = value[0]?.value as number | undefined;
     if (!health) return;
-    setComponent(HealthLocal, entity, { value: health });
+    setComponent(SailPositionLocal, entity, { value: health });
   });
 
   // HEALTH UPDATES

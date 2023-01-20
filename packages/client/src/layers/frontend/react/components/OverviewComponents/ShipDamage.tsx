@@ -10,6 +10,8 @@ export default function ShipDamage({
   amountLeft?: number;
   fixing?: boolean;
 }) {
+  if (amountLeft == 0) return null;
+
   if (fixing && amountLeft) {
     amountLeft--;
   }

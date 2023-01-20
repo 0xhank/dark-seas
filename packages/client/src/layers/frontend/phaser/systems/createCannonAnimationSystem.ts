@@ -34,7 +34,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
       },
       backend: {
         utils: { playSound },
-        components: { ExecutedShots, HealthLocal, Targeted },
+        components: { ExecutedShots, HealthLocal, Targeted, OnFireLocal, DamagedCannonsLocal, SailPositionLocal },
       },
     },
     scenes: {
@@ -139,8 +139,11 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     if (hit) {
       const healthLocal = getComponentValueStrict(HealthLocal, attack.target).value;
       setComponent(HealthLocal, attack.target, { value: healthLocal - 1 });
-      console.log("HealthLocal:", healthLocal - 1);
       object.setAlpha(0);
+
+      if (attack.onFire) setComponent(OnFireLocal, attack.target, { value: 1 });
+      if (attack.damagedCannons) setComponent(DamagedCannonsLocal, attack.target, { value: 2 });
+      if (attack.toreSail) setComponent(SailPositionLocal, attack.target, { value: 0 });
 
       const explosionId = `explosion-${cannonEntity}-${index}`;
       const explosion = getSpriteObject(explosionId);
@@ -178,7 +181,6 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     }
     object.setPosition(start.x, start.y);
   }
-
   function getCannonStart(shipEntity: EntityIndex) {
     const attackerPosition = getComponentValueStrict(Position, shipEntity);
     const attackerRotation = getComponentValueStrict(Rotation, shipEntity).value;

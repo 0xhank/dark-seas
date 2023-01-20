@@ -94,7 +94,8 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
       setComponent(ExecutedShots, cannonEntity, encodeExecutedShot(targets, shipUpdates));
     } else if (actionType == ActionType.ExtinguishFire) {
       // todo: animate this
-      setComponent(OnFireLocal, shipEntity, { value: 0 });
+      const newOnFire = shipUpdates.get(`${shipEntity}-OnFire`)?.value as number | undefined;
+      setComponent(OnFireLocal, shipEntity, { value: newOnFire || 0 });
       setComponent(ExecutedExtinguishFire, shipEntity, { value: true });
     } else if (actionType == ActionType.LowerSail || actionType == ActionType.RaiseSail) {
       setComponent(ExecutedChangeSail, shipEntity, { value: true });
@@ -102,7 +103,9 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
       setComponent(SailPositionLocal, shipEntity, { value: newSailPosition || 0 });
     } else if (actionType == ActionType.RepairCannons) {
       setComponent(ExecutedRepairCannons, shipEntity, { value: true });
-      setComponent(DamagedCannonsLocal, shipEntity, { value: false });
+      const newCannons = shipUpdates.get(`${shipEntity}-DamagedCannons`)?.value as number | undefined;
+
+      setComponent(DamagedCannonsLocal, shipEntity, { value: newCannons || 0 });
     } else if (actionType == ActionType.RepairSail) {
       setComponent(ExecutedRepairSail, shipEntity, { value: true });
       setComponent(SailPositionLocal, shipEntity, { value: 1 });

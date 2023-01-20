@@ -13,10 +13,10 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
     network: {
       utils: { getPlayerEntity },
       network: { connectedAddress },
-      components: { MaxHealth, SailPosition, DamagedCannons, OnFire, Rotation, OwnedBy, Name, Length },
+      components: { MaxHealth, Rotation, OwnedBy, Name, Length },
     },
     backend: {
-      components: { SelectedActions, LocalHealth },
+      components: { SelectedActions, HealthLocal, OnFireLocal, SailPositionLocal, DamagedCannonsLocal },
     },
   } = layers;
 
@@ -24,12 +24,12 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
   const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, ship).value);
   if (!ownerEntity || !playerEntity) return null;
 
-  const sailPosition = getComponentValueStrict(SailPosition, ship).value;
+  const sailPosition = getComponentValueStrict(SailPositionLocal, ship).value;
   const rotation = getComponentValueStrict(Rotation, ship).value;
-  const health = getComponentValue(LocalHealth, ship)?.value || 0;
+  const health = getComponentValue(HealthLocal, ship)?.value || 0;
   const maxHealth = getComponentValue(MaxHealth, ship)?.value || 0;
-  const onFire = getComponentValue(OnFire, ship)?.value;
-  const damagedCannons = getComponentValue(DamagedCannons, ship)?.value;
+  const onFire = getComponentValue(OnFireLocal, ship)?.value;
+  const damagedCannons = getComponentValue(DamagedCannonsLocal, ship)?.value;
   const ownerName = getComponentValue(Name, ownerEntity)?.value;
   const selectedActions = getComponentValue(SelectedActions, ship);
   const length = getComponentValue(Length, ship)?.value || 10;

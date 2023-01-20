@@ -33,12 +33,17 @@ export function registerLeaderboard() {
           components: { Kills, OwnedBy, Ship, Name },
         },
         backend: {
-          components: { LeaderboardOpen, LocalHealth },
+          components: { LeaderboardOpen, HealthLocal },
           godIndex,
         },
       } = layers;
 
-      return merge(OwnedBy.update$, LocalHealth.update$, Kills.update$, LeaderboardOpen.update$).pipe(
+      return merge(
+        // OwnedBy.update$,
+        HealthLocal.update$,
+        Kills.update$,
+        LeaderboardOpen.update$
+      ).pipe(
         map(() => {
           const show = !!getComponentValue(LeaderboardOpen, godIndex)?.value;
           const close = () => {
@@ -46,7 +51,7 @@ export function registerLeaderboard() {
           };
           const getShips = () =>
             [...getComponentEntities(Ship)].map((shipEntity) => {
-              const health = getComponentValue(LocalHealth, shipEntity)?.value;
+              const health = getComponentValue(HealthLocal, shipEntity)?.value;
               const kills = getComponentValue(Kills, shipEntity)?.value;
               const ownerId = getComponentValue(OwnedBy, shipEntity)?.value;
 
@@ -66,7 +71,7 @@ export function registerLeaderboard() {
           const getPlayers = () => {
             let players: PlayerData[] = [];
             [...getComponentEntities(Ship)].forEach((shipEntity) => {
-              const health = getComponentValue(LocalHealth, shipEntity)?.value;
+              const health = getComponentValue(HealthLocal, shipEntity)?.value;
               const kills = getComponentValue(Kills, shipEntity)?.value;
               const ownerId = getComponentValue(OwnedBy, shipEntity)?.value;
 

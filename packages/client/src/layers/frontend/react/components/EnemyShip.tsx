@@ -19,21 +19,16 @@ export function registerEnemyShip() {
     (layers) => {
       const {
         network: {
-          components: {
-            MaxHealth,
-            SailPosition,
-            DamagedCannons,
-            Firepower,
-            OnFire,
-            Player,
-            Rotation,
-            Position,
-            Ship,
-            OwnedBy,
-          },
+          components: { MaxHealth, Firepower, Player, Rotation, Position, Ship, OwnedBy },
         },
         backend: {
-          components: { HoveredShip, LocalHealth },
+          components: {
+            HoveredShip,
+            HealthLocal,
+            OnFireLocal: OnFire,
+            DamagedCannonsLocal: DamagedCannons,
+            SailPositionLocal: SailPosition,
+          },
           godIndex,
         },
       } = layers;
@@ -44,7 +39,7 @@ export function registerEnemyShip() {
         Position.update$,
         Ship.update$,
         OwnedBy.update$,
-        LocalHealth.update$,
+        HealthLocal.update$,
         MaxHealth.update$,
         HoveredShip.update$,
         SailPosition.update$,
