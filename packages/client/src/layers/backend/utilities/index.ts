@@ -96,7 +96,7 @@ export async function createBackendUtilities(network: NetworkLayer, components: 
     const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
 
     const shipEntities = [
-      ...runQuery([Has(Ship), NotValue(OwnedBy, { value: address }), NotValue(components.LocalHealth, { value: 0 })]),
+      ...runQuery([Has(Ship), NotValue(OwnedBy, { value: address }), NotValue(components.HealthLocal, { value: 0 })]),
     ].filter((targetEntity) => {
       if (targetEntity == shipEntity) return false;
 

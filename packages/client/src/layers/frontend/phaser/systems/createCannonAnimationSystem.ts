@@ -34,7 +34,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
       },
       backend: {
         utils: { playSound },
-        components: { ExecutedShots, LocalHealth, Targeted },
+        components: { ExecutedShots, HealthLocal, Targeted },
       },
     },
     scenes: {
@@ -137,9 +137,9 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     });
 
     if (hit) {
-      const localHealth = getComponentValueStrict(LocalHealth, attack.target).value;
-      setComponent(LocalHealth, attack.target, { value: localHealth - 1 });
-      console.log("localhealth:", localHealth - 1);
+      const healthLocal = getComponentValueStrict(HealthLocal, attack.target).value;
+      setComponent(HealthLocal, attack.target, { value: healthLocal - 1 });
+      console.log("HealthLocal:", healthLocal - 1);
       object.setAlpha(0);
 
       const explosionId = `explosion-${cannonEntity}-${index}`;

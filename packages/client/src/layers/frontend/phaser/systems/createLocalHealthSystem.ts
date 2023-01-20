@@ -11,7 +11,7 @@ import { getShipSprite } from "../../../../utils/ships";
 import { RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
 
-export function createLocalHealthSystem(phaser: PhaserLayer) {
+export function createHealthLocalSystem(phaser: PhaserLayer) {
   const {
     world,
     parentLayers: {
@@ -20,7 +20,7 @@ export function createLocalHealthSystem(phaser: PhaserLayer) {
         utils: { getPlayerEntity },
       },
       backend: {
-        components: { LocalHealth, SelectedShip, HoveredShip },
+        components: { HealthLocal, OnFireLocal, SelectedShip, HoveredShip },
         godIndex,
       },
     },
@@ -33,11 +33,11 @@ export function createLocalHealthSystem(phaser: PhaserLayer) {
   defineEnterSystem(world, [Has(Health)], ({ entity, value }) => {
     const health = value[0]?.value as number | undefined;
     if (!health) return;
-    setComponent(LocalHealth, entity, { value: health });
+    setComponent(HealthLocal, entity, { value: health });
   });
 
   // HEALTH UPDATES
-  defineComponentSystem(world, LocalHealth, (update) => {
+  defineComponentSystem(world, HealthLocal, (update) => {
     if (update.value[0] === undefined || update.value[1] === undefined) return;
     const health = update.value[0].value;
     const shipObject = getSpriteObject(update.entity);

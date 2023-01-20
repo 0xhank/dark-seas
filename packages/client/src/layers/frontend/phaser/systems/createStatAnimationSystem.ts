@@ -25,7 +25,7 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
         components: { OnFire, DamagedCannons, Position, Rotation, Length, Cannon, OwnedBy },
       },
       backend: {
-        components: { LocalHealth },
+        components: { HealthLocal, OnFireLocal, DamagedCannonsLocal },
       },
     },
     scenes: {
@@ -97,7 +97,7 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
     }
   });
 
-  defineUpdateSystem(world, [Has(LocalHealth)], (update) => {
+  defineUpdateSystem(world, [Has(HealthLocal)], (update) => {
     if (update.value[0]?.value !== 0) return;
 
     for (let i = 0; i < 4; i++) {

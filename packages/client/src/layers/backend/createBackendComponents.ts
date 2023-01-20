@@ -38,7 +38,7 @@ export function createBackendComponents(world: World) {
     LeaderboardOpen: defineBoolComponent(world, {
       id: "LeaderboardOpen",
     }),
-    LocalHealth: defineNumberComponent(world, { id: "LocalHealth" }),
+    HealthLocal: defineNumberComponent(world, { id: "HealthLocal" }),
   };
 }
 

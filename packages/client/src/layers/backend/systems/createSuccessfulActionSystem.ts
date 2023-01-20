@@ -22,7 +22,7 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
       ExecutedLoad,
       ExecutedRepairCannons,
       ExecutedRepairSail,
-      LocalHealth,
+      HealthLocal,
     },
   } = layer;
 
@@ -70,8 +70,8 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
 
       //TODO: animate this
       if (shipUpdates.get(`${shipEntity}-Health`)) {
-        const oldHealth = getComponentValueStrict(LocalHealth, shipEntity).value || 1;
-        setComponent(LocalHealth, shipEntity, { value: oldHealth - 1 });
+        const oldHealth = getComponentValueStrict(HealthLocal, shipEntity).value || 1;
+        setComponent(HealthLocal, shipEntity, { value: oldHealth - 1 });
       }
     });
   });
@@ -106,7 +106,7 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
     const specialDamage: number[] = [];
     targets.forEach((target) => {
       const healthKey = `${target}-Health`;
-      const oldHealth = getComponentValueStrict(LocalHealth, target).value;
+      const oldHealth = getComponentValueStrict(HealthLocal, target).value;
       const newHealth = shipUpdates.get(healthKey)?.value as number | undefined;
       shipUpdates.delete(healthKey);
       damage.push(oldHealth - (newHealth || oldHealth));

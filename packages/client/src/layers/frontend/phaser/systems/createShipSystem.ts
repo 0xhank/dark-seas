@@ -29,7 +29,7 @@ export function createShipSystem(phaser: PhaserLayer) {
         utils: { getPlayerEntity },
       },
       backend: {
-        components: { SelectedShip, SelectedMove, HoveredShip, LocalHealth },
+        components: { SelectedShip, SelectedMove, HoveredShip, HealthLocal },
       },
     },
     scenes: {
@@ -42,9 +42,9 @@ export function createShipSystem(phaser: PhaserLayer) {
 
   defineEnterSystem(
     world,
-    [Has(LocalHealth), Has(Length), Has(Position), Has(Rotation), Has(OwnedBy)],
+    [Has(HealthLocal), Has(Length), Has(Position), Has(Rotation), Has(OwnedBy)],
     ({ entity: shipEntity }) => {
-      const health = getComponentValueStrict(LocalHealth, shipEntity).value;
+      const health = getComponentValueStrict(HealthLocal, shipEntity).value;
       const position = getComponentValueStrict(Position, shipEntity);
       const length = getComponentValueStrict(Length, shipEntity).value;
       const rotation = getComponentValueStrict(Rotation, shipEntity).value;
