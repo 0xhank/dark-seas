@@ -30,11 +30,10 @@ export function createBackendComponents(world: World) {
       { targets: Type.NumberArray, damage: Type.NumberArray, specialDamage: Type.NumberArray },
       { id: "ExecutedShots" }
     ),
-    ExecutedLoad: defineBoolComponent(world, { id: "ExecutedLoad" }),
-    ExecutedChangeSail: defineBoolComponent(world, { id: "ExecutedRaiseSail" }),
-    ExecutedExtinguishFire: defineBoolComponent(world, { id: "ExecutedExtinguishFire" }),
-    ExecutedRepairSail: defineBoolComponent(world, { id: "ExecutedRepairSail" }),
-    ExecutedRepairCannons: defineBoolComponent(world, { id: "ExecutedRepairCannons" }),
+
+    ExecutedActions: defineComponent(world, { value: Type.NumberArray }, { id: "ExecutedActions" }),
+    ExecutedCannon: defineBoolComponent(world, { id: "ExecutedLoad" }),
+
     LeaderboardOpen: defineBoolComponent(world, {
       id: "LeaderboardOpen",
     }),

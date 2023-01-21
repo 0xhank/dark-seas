@@ -21,6 +21,8 @@ export function createResetSystem(phaser: PhaserLayer) {
           HoveredMove,
           HoveredAction,
           Targeted,
+          ExecutedActions,
+          ExecutedCannon,
         },
         api: { commitMove, revealMove, submitActions },
         utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, getPlayerShips, clearComponent },
@@ -54,6 +56,8 @@ export function createResetSystem(phaser: PhaserLayer) {
         destroyGroupObject("selectedActions");
         clearComponent(SelectedActions);
         clearComponent(HoveredAction);
+        clearComponent(ExecutedActions);
+        clearComponent(ExecutedCannon);
         clearComponent(Targeted);
       }
 

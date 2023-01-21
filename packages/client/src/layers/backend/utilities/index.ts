@@ -49,7 +49,8 @@ export async function createBackendUtilities(network: NetworkLayer, components: 
     if (action == ActionType.Fire && damagedCannons) return false;
     if (action == ActionType.Load && damagedCannons) return false;
 
-    if (action == ActionType.RepairCannons && !getComponentValue(components.DamagedCannonsLocal, ship)) return false;
+    if (action == ActionType.RepairCannons && !getComponentValue(components.DamagedCannonsLocal, ship)?.value)
+      return false;
 
     const sailPosition = getComponentValueStrict(components.SailPositionLocal, ship).value;
     if (action == ActionType.LowerSail && sailPosition != 2) return false;

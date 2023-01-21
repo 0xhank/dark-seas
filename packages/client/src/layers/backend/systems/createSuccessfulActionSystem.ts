@@ -1,4 +1,11 @@
-import { ComponentValue, defineRxSystem, EntityIndex, getComponentValueStrict, setComponent } from "@latticexyz/recs";
+import {
+  ComponentValue,
+  defineRxSystem,
+  EntityIndex,
+  getComponentValue,
+  getComponentValueStrict,
+  setComponent,
+} from "@latticexyz/recs";
 import { BigNumber } from "ethers";
 import { BytesLike, defaultAbiCoder as abi } from "ethers/lib/utils";
 import { ActionStruct } from "../../../../../contracts/types/ethers-contracts/ActionSystem";
@@ -15,12 +22,9 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
     },
     world,
     components: {
-      ExecutedExtinguishFire,
       ExecutedShots,
-      ExecutedChangeSail,
-      ExecutedLoad,
-      ExecutedRepairCannons,
-      ExecutedRepairSail,
+      ExecutedCannon,
+      ExecutedActions,
       HealthLocal,
       OnFireLocal,
       SailPositionLocal,
@@ -64,12 +68,14 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
     rawActions.forEach((action) => {
       const shipEntity = world.entityToIndex.get(bigNumToEntityID(action.shipEntity));
       if (!shipEntity) return;
-
       // iterate through ship actions
-      action.actionTypes.forEach((actionType, i) => {
-        completeAction(shipEntity, actionType as ActionType, action.metadata[i], shipUpdates);
-      });
 
+      const executedActions = action.actionTypes.map((a, i) => {
+        const actionType = a as ActionType;
+        completeAction(shipEntity, actionType, action.metadata[i], shipUpdates);
+        return actionType;
+      });
+      setComponent(ExecutedActions, shipEntity, { value: executedActions });
       //TODO: animate this
       if (shipUpdates.get(`${shipEntity}-Health`)) {
         const oldHealth = getComponentValueStrict(HealthLocal, shipEntity).value || 1;
@@ -85,29 +91,27 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
     shipUpdates: Map<string, ComponentValue>
   ) {
     if (actionType == ActionType.Load) {
-      const parsedCannon = parseLoadAction(metadata);
-      if (!parsedCannon) return;
-      setComponent(ExecutedLoad, parsedCannon, { value: true });
+      const cannonEntity = parseLoadAction(metadata);
+      if (!cannonEntity) return;
+      setComponent(ExecutedCannon, cannonEntity, { value: true });
     } else if (actionType == ActionType.Fire) {
       const { cannonEntity, targets } = parseShotAction(metadata);
       if (!cannonEntity) return;
       setComponent(ExecutedShots, cannonEntity, encodeExecutedShot(targets, shipUpdates));
+      setComponent(ExecutedCannon, cannonEntity, { value: true });
     } else if (actionType == ActionType.ExtinguishFire) {
-      // todo: animate this
       const newOnFire = shipUpdates.get(`${shipEntity}-OnFire`)?.value as number | undefined;
       setComponent(OnFireLocal, shipEntity, { value: newOnFire || 0 });
-      setComponent(ExecutedExtinguishFire, shipEntity, { value: true });
-    } else if (actionType == ActionType.LowerSail || actionType == ActionType.RaiseSail) {
-      setComponent(ExecutedChangeSail, shipEntity, { value: true });
-      const newSailPosition = shipUpdates.get(`${shipEntity}-SailPosition`)?.value as number | undefined;
-      setComponent(SailPositionLocal, shipEntity, { value: newSailPosition || 0 });
+    } else if (actionType == ActionType.LowerSail) {
+      const oldSailPosition = getComponentValue(SailPositionLocal, shipEntity)?.value || 2;
+      setComponent(SailPositionLocal, shipEntity, { value: oldSailPosition - 1 });
+    } else if (actionType == ActionType.RaiseSail) {
+      const oldSailPosition = getComponentValue(SailPositionLocal, shipEntity)?.value || 1;
+      setComponent(SailPositionLocal, shipEntity, { value: oldSailPosition + 1 });
     } else if (actionType == ActionType.RepairCannons) {
-      setComponent(ExecutedRepairCannons, shipEntity, { value: true });
       const newCannons = shipUpdates.get(`${shipEntity}-DamagedCannons`)?.value as number | undefined;
-
       setComponent(DamagedCannonsLocal, shipEntity, { value: newCannons || 0 });
     } else if (actionType == ActionType.RepairSail) {
-      setComponent(ExecutedRepairSail, shipEntity, { value: true });
       setComponent(SailPositionLocal, shipEntity, { value: 1 });
     }
   }
