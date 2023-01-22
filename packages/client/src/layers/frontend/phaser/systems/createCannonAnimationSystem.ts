@@ -15,7 +15,7 @@ import { Sprites } from "../../../../types";
 import { distance } from "../../../../utils/distance";
 import { getShipMidpoint } from "../../../../utils/trig";
 import { Category } from "../../../backend/sound/library";
-import { Animations, CANNON_SHOT_DELAY, CANNON_SPEED, RenderDepth } from "../constants";
+import { Animations, CANNON_SHOT_DELAY, CANNON_SPEED, RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
 
 type Attack = {
@@ -53,7 +53,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     const sprite = config.sprites[Sprites.Cannonball];
 
     for (let i = 0; i < NUM_CANNONBALLS; i++) {
-      const start = getCannonStart(shipEntity);
+      const start = getMidpoint(shipEntity);
       const spriteId = `${shipEntity}-cannonball-${cannonEntity}-${i}`;
       const object = getSpriteObject(spriteId);
 
@@ -73,7 +73,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
       for (let i = 0; i < NUM_CANNONBALLS; i++) {
         const spriteId = `${shipEntity}-cannonball-${cannonEntity}-${i}`;
         const object = getSpriteObject(spriteId);
-        const start = getCannonStart(shipEntity);
+        const start = getMidpoint(shipEntity);
 
         object.setPosition(start.x, start.y);
       }
@@ -97,24 +97,20 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     }));
 
     const shipEntity = world.getEntityIndexStrict(getComponentValueStrict(OwnedBy, cannonEntity).value);
-    for (const attack of attacks) {
-      for (let i = 0; i < NUM_CANNONBALLS; i++) {
+
+    const start = getMidpoint(shipEntity);
+    attacks.forEach((attack, i) => {
+      for (let j = 0; j < NUM_CANNONBALLS; j++) {
         const hit = i < attack.damage;
-        fireCannon(shipEntity, cannonEntity, attack, i, hit);
+        fireCannon(start, cannonEntity, attack, i * NUM_CANNONBALLS + j, hit);
       }
-    }
+    });
   });
 
-  async function fireCannon(
-    shipEntity: EntityIndex,
-    cannonEntity: EntityIndex,
-    attack: Attack,
-    index: number,
-    hit: boolean
-  ) {
-    const { start, end } = getCannonStartAndEnd(shipEntity, attack.target, index + 1, hit);
+  async function fireCannon(start: Coord, cannonEntity: EntityIndex, attack: Attack, index: number, hit: boolean) {
+    const end = getCannonEnd(attack.target, hit);
 
-    const spriteId = `${shipEntity}-cannonball-${cannonEntity}-${index}`;
+    const spriteId = `cannonball-${cannonEntity}-${index}`;
     const delay = index * CANNON_SHOT_DELAY;
     const object = getSpriteObject(spriteId);
     const targetedValue = getComponentValue(Targeted, attack.target)?.value || 1;
@@ -181,35 +177,32 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     }
     object.setPosition(start.x, start.y);
   }
-  function getCannonStart(shipEntity: EntityIndex) {
-    const attackerPosition = getComponentValueStrict(Position, shipEntity);
-    const attackerRotation = getComponentValueStrict(Rotation, shipEntity).value;
-    const attackerLength = getComponentValueStrict(Length, shipEntity).value;
-    const attackerMidpoint = getShipMidpoint(attackerPosition, attackerRotation, attackerLength);
-    return tileCoordToPixelCoord(attackerMidpoint, positions.posWidth, positions.posHeight);
+  function getMidpoint(shipEntity: EntityIndex, random = false) {
+    const position = getComponentValueStrict(Position, shipEntity);
+    const rotation = getComponentValueStrict(Rotation, shipEntity).value;
+    const length = getComponentValueStrict(Length, shipEntity).value;
+    const midpoint = getShipMidpoint(position, rotation, length);
+
+    return tileCoordToPixelCoord(midpoint, positions.posWidth, positions.posHeight);
   }
-  function getCannonStartAndEnd(
-    shipEntity: EntityIndex,
-    targetEntity: EntityIndex,
-    shotNumber: number,
-    hit: boolean
-  ): { start: Coord; end: Coord } {
-    const targetPosition = getComponentValueStrict(Position, targetEntity);
-    const targetRotation = getComponentValueStrict(Rotation, targetEntity).value;
-    const targetLength = getComponentValueStrict(Length, targetEntity).value;
+  function getCannonEnd(targetEntity: EntityIndex, hit: boolean): Coord {
+    const targetCenter = getMidpoint(targetEntity);
+    const length = getComponentValueStrict(Length, targetEntity).value;
+    const targetWidth = length / SHIP_RATIO;
 
-    const targetMidpoint = getShipMidpoint(targetPosition, targetRotation, (targetLength * shotNumber) / 2);
-    const startCenter = getCannonStart(shipEntity);
-    const endCenter = tileCoordToPixelCoord(targetMidpoint, positions.posWidth, positions.posHeight);
+    if (hit) {
+      const randX = Math.random() * targetWidth * 2 - targetWidth;
+      const randY = Math.random() * targetWidth * 2 - targetWidth;
+      return { x: targetCenter.x + randX * positions.posHeight, y: targetCenter.y + randY * positions.posHeight };
+    }
 
-    if (hit) return { start: startCenter, end: endCenter };
-    const missDistance = (targetLength * positions.posHeight) / 2;
+    const missDistance = (length * positions.posHeight) / 2;
     const missArea = 40;
     const randX = Math.round(Math.random() * missArea + missDistance);
     const randY = Math.round(Math.random() * missArea + missDistance);
     return {
-      start: startCenter,
-      end: { x: endCenter.x + (randX % 2 == 1 ? randX : -randX), y: endCenter.y + (randY % 2 == 1 ? randY : -randY) },
+      x: targetCenter.x + (randX % 2 == 1 ? randX : -randX),
+      y: targetCenter.y + (randY % 2 == 1 ? randY : -randY),
     };
   }
 }
