@@ -42,11 +42,9 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     const shipEntity = hoveredAction.shipEntity as EntityIndex;
     const cannonEntity = hoveredAction.specialEntity as EntityIndex;
 
-    const objectId = `hoveredFiringArea`;
+    const objectId = "hoveredFiringArea";
 
-    const hoveredGroup = getGroupObject(objectId);
-
-    hoveredGroup.clear(true, true);
+    const hoveredGroup = getGroupObject(objectId, true);
     if (!shipEntity || !cannonEntity) return;
 
     const position = getComponentValueStrict(Position, shipEntity);
@@ -72,9 +70,9 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     if (!prevValue) return;
 
     const cannonEntity = prevValue.specialEntity as EntityIndex;
-    const objectId = `hoveredFiringArea`;
+    const objectId = "hoveredFiringArea";
 
-    getGroupObject(objectId).clear(true, true);
+    destroyGroupObject(objectId);
     getTargetedShips(cannonEntity).forEach((entity) => {
       const targetedValue = getComponentValue(Targeted, entity)?.value || 0;
       if (!targetedValue) return;
@@ -143,6 +141,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
 
   defineExitSystem(world, [Has(HoveredShip)], () => {
     destroyGroupObject("selectedActions");
+    destroyGroupObject("hoveredFiringArea");
   });
 
   function renderCannons(shipEntity: EntityIndex) {
