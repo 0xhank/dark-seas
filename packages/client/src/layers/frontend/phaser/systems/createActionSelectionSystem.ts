@@ -21,12 +21,12 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: { Position, Length, Rotation, Loaded, Cannon, OwnedBy, DamagedCannons },
+        components: { Position, Length, Rotation, Loaded, Cannon, OwnedBy },
         utils: { getPhase },
       },
       backend: {
         utils: { getTargetedShips, isMyShip },
-        components: { SelectedActions, HoveredShip, HoveredAction, Targeted },
+        components: { SelectedActions, HoveredShip, HoveredAction, Targeted, DamagedCannonsLocal },
       },
     },
     utils: { getGroupObject, destroyGroupObject },
@@ -152,7 +152,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
 
     const selectedActions = getComponentValue(SelectedActions, shipEntity);
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
-    const damagedCannons = getComponentValue(DamagedCannons, shipEntity);
+    const damagedCannons = getComponentValue(DamagedCannonsLocal, shipEntity)?.value != 0;
 
     cannonEntities.forEach((cannonEntity) => {
       const loaded = getComponentValue(Loaded, cannonEntity);
@@ -161,7 +161,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
       const position = getComponentValueStrict(Position, shipEntity);
       const length = getComponentValueStrict(Length, shipEntity).value;
       const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-      const rangeColor = getRangeTintAlpha(!!loaded, !!cannonSelected, !!damagedCannons);
+      const rangeColor = getRangeTintAlpha(!!loaded, !!cannonSelected, damagedCannons);
       renderFiringArea(phaser, activeGroup, position, rotation, length, cannonEntity, rangeColor);
     });
   }

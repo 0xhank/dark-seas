@@ -82,14 +82,14 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const length = getComponentValueStrict(Length, shipEntity).value;
     const sailPosition = getComponentValueStrict(SailPositionLocal, shipEntity).value;
     const speed = getComponentValueStrict(Speed, shipEntity).value;
-    const damaged = getComponentValue(DamagedCannonsLocal, shipEntity);
+    const damaged = getComponentValue(DamagedCannonsLocal, shipEntity)?.value != 0;
 
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
 
     cannonEntities.forEach((cannonEntity) => {
       const loaded = getComponentValue(Loaded, cannonEntity);
-      const rangeColor = getRangeTintAlpha(!!loaded, false, !!damaged);
+      const rangeColor = getRangeTintAlpha(!!loaded, false, damaged);
 
       renderFiringArea(phaser, hoverGroup, finalPosition, finalRotation, length, cannonEntity, rangeColor);
     });
