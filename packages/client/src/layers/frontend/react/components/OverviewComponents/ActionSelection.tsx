@@ -57,13 +57,13 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
     return (
       <>
         {executedCannons.map((cannonEntity) => (
-          <CannonOptions cannonEntity={cannonEntity} executed />
+          <CannonOptions cannonEntity={cannonEntity} executed key={`executedCannon-${cannonEntity}`} />
         ))}
 
         {executedActions?.map((a) => {
           if (a == ActionType.Load || a == ActionType.Fire) return null;
           return (
-            <OptionButton disabled confirmed key={`executedactionCannon-${a}`}>
+            <OptionButton disabled confirmed key={`executedaction-${a}`}>
               <Img src={ActionImg[a]} style={{ height: "70%" }} />
               <Sub>{ActionNames[a]}</Sub>
             </OptionButton>
@@ -75,11 +75,11 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
   return (
     <>
       {cannonEntities.map((cannonEntity) => (
-        <CannonOptions cannonEntity={cannonEntity} />
+        <CannonOptions cannonEntity={cannonEntity} key={`cannonOption-${cannonEntity}`} />
       ))}
 
       {Object.keys(ActionType).map((a) => (
-        <ActionOptions actionType={a} />
+        <ActionOptions actionType={a} key={`actionOption-${a}`} />
       ))}
     </>
   );
