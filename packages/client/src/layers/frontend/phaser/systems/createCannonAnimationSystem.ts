@@ -54,7 +54,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
 
     for (let i = 0; i < NUM_CANNONBALLS; i++) {
       const start = getMidpoint(shipEntity);
-      const spriteId = `${shipEntity}-cannonball-${cannonEntity}-${i}`;
+      const spriteId = `cannonball-${cannonEntity}-${i}`;
       const object = getSpriteObject(spriteId);
 
       object.setPosition(start.x, start.y);
@@ -71,7 +71,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
 
     cannonEntities.forEach((cannonEntity) => {
       for (let i = 0; i < NUM_CANNONBALLS; i++) {
-        const spriteId = `${shipEntity}-cannonball-${cannonEntity}-${i}`;
+        const spriteId = `cannonball-${cannonEntity}-${i}`;
         const object = getSpriteObject(spriteId);
         const start = getMidpoint(shipEntity);
 
@@ -188,11 +188,18 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
   function getCannonEnd(targetEntity: EntityIndex, hit: boolean): Coord {
     const targetCenter = getMidpoint(targetEntity);
     const length = getComponentValueStrict(Length, targetEntity).value;
-    const targetWidth = length / SHIP_RATIO;
+    const targetWidth = length / (1.5 * SHIP_RATIO);
 
     if (hit) {
       const randX = Math.random() * targetWidth * 2 - targetWidth;
       const randY = Math.random() * targetWidth * 2 - targetWidth;
+
+      const circle = phaserScene.add.circle(targetCenter.x, targetCenter.y, targetWidth);
+      circle.setFillStyle(0xffffff);
+      circle.setDepth(RenderDepth.Background1);
+
+      getGroupObject("circle").add(circle);
+
       return { x: targetCenter.x + randX * positions.posHeight, y: targetCenter.y + randY * positions.posHeight };
     }
 
