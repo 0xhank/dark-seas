@@ -1,3 +1,4 @@
+import { registerDamageChance } from "./DamageChance";
 import { registerEnemyShip } from "./EnemyShip";
 import { registerJoinGame } from "./JoinGame";
 import { registerLeaderboard } from "./Leaderboard";
@@ -17,4 +18,5 @@ export function registerUIComponents() {
   registerYourShips();
   registerTurnTimer();
   registerJoinGame();
+  registerDamageChance();
 }
