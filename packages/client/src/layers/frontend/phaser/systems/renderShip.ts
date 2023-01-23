@@ -1,6 +1,6 @@
 import { GodID } from "@latticexyz/network";
 import { Coord, tileCoordToPixelCoord } from "@latticexyz/phaserx";
-import { EntityIndex, getComponentValueStrict } from "@latticexyz/recs";
+import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
 import { getShipSprite } from "../../../../utils/ships";
 import { getFiringArea } from "../../../../utils/trig";
@@ -78,7 +78,7 @@ export function getFiringAreaPixels(
       Main: { positions },
     },
   } = phaser;
-  const range = getComponentValueStrict(Range, cannonEntity).value * positions.posHeight;
+  const range = (getComponentValue(Range, cannonEntity)?.value || 0) * positions.posHeight;
 
   const pixelPosition = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
   const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
