@@ -2,6 +2,7 @@ import { EntityIndex, getComponentValue, getComponentValueStrict } from "@lattic
 import styled from "styled-components";
 import { ActionType, Layers } from "../../../../../types";
 import { getShipSprite, ShipImages } from "../../../../../utils/ships";
+import { DELAY } from "../../../constants";
 import { BoxImage } from "../../styles/global";
 import { ShipAttributeTypes } from "../../types";
 import HullHealth from "./HullHealth";
@@ -11,9 +12,9 @@ import ShipDamage from "./ShipDamage";
 export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
   const {
     network: {
-      utils: { getPlayerEntity },
+      utils: { getPlayerEntity, getTurn },
       network: { connectedAddress },
-      components: { MaxHealth, Rotation, OwnedBy, Name, Length },
+      components: { MaxHealth, Rotation, OwnedBy, Name, Length, LastAction },
     },
     backend: {
       components: { SelectedActions, HealthLocal, OnFireLocal, SailPositionLocal, DamagedCannonsLocal },
@@ -33,11 +34,14 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
   const ownerName = getComponentValue(Name, ownerEntity)?.value;
   const selectedActions = getComponentValue(SelectedActions, ship);
   const length = getComponentValue(Length, ship)?.value || 10;
-  const updates = new Set(selectedActions?.actionTypes);
+  const lastAction = getComponentValue(LastAction, playerEntity)?.value;
+  const currentTurn = getTurn(DELAY);
+  const actionsExecuted = currentTurn == lastAction;
+  const updates = actionsExecuted ? undefined : selectedActions?.actionTypes;
 
-  const updatedSailPosition = updates.has(ActionType.LowerSail)
+  const updatedSailPosition = updates?.includes(ActionType.LowerSail)
     ? sailPosition - 1
-    : updates.has(ActionType.RaiseSail)
+    : updates?.includes(ActionType.RaiseSail)
     ? sailPosition + 1
     : sailPosition;
 
@@ -79,13 +83,13 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
               <ShipDamage
                 message="cannons broken"
                 amountLeft={damagedCannons}
-                fixing={updates.has(ActionType.RepairCannons)}
+                fixing={updates?.includes(ActionType.RepairCannons)}
               />
             )}
             {onFire !== undefined && (
-              <ShipDamage message="on fire" amountLeft={onFire} fixing={updates.has(ActionType.ExtinguishFire)} />
+              <ShipDamage message="on fire" amountLeft={onFire} fixing={updates?.includes(ActionType.ExtinguishFire)} />
             )}
-            {sailPosition == 0 && <ShipDamage message="sails torn" fixing={updates.has(ActionType.RepairSail)} />}
+            {sailPosition == 0 && <ShipDamage message="sails torn" fixing={updates?.includes(ActionType.RepairSail)} />}
           </div>
         )}
       </div>
