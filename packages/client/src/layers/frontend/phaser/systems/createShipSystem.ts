@@ -199,6 +199,7 @@ export function createShipSystem(phaser: PhaserLayer) {
       explosion.on(`animationcomplete`, () => {
         destroySpriteObject(explosionId);
       });
+      setComponent(SailPositionLocal, shipEntity, { value: 0 });
     }
 
     object.setAngle((rotation - 90) % 360);
