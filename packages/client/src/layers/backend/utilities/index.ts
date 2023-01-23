@@ -157,19 +157,25 @@ export async function createBackendUtilities(network: NetworkLayer, components: 
 
     if (!inWorld(position, gameConfig.worldSize)) return true;
 
-    const whirlpool = isWhirlpool(position, Number(gameConfig.perlinSeed));
+    const whirlpool = isWhirlpool(position);
     if (whirlpool) return true;
     return false;
   }
 
-  function isWhirlpool(coord: Coord, perlinSeed: number): boolean {
+  function isWhirlpool(coord: Coord): boolean {
+    const gameConfig = getGameConfig();
+    if (!gameConfig) return false;
+    const perlinSeed = Number(gameConfig.perlinSeed);
     const coordStr = `${coord.x}-${coord.y}`;
     const retrievedVal = outOfBoundsMap.get(coordStr);
+
     if (retrievedVal != undefined) return retrievedVal;
     const denom = 50;
     const depth = perlin(coord.x + perlinSeed, coord.y + perlinSeed, 0, denom);
     const ret = depth * 100 < 26;
     outOfBoundsMap.set(coordStr, ret);
+    console.log("ret:", ret, coord);
+
     return ret;
   }
 

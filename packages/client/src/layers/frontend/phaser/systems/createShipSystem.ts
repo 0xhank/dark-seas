@@ -14,7 +14,9 @@ import {
 } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
 import { getShipSprite } from "../../../../utils/ships";
-import { MOVE_LENGTH, RenderDepth, SHIP_RATIO } from "../constants";
+import { getShipMidpoint } from "../../../../utils/trig";
+import { Category } from "../../../backend/sound/library";
+import { Animations, MOVE_LENGTH, RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
 
 export function createShipSystem(phaser: PhaserLayer) {
@@ -38,6 +40,7 @@ export function createShipSystem(phaser: PhaserLayer) {
           DamagedCannonsLocal,
           SailPositionLocal,
         },
+        utils: { isWhirlpool, playSound },
       },
     },
     scenes: {
@@ -146,14 +149,14 @@ export function createShipSystem(phaser: PhaserLayer) {
     const rotation = getComponentValueStrict(Rotation, update.entity).value;
     const position = getComponentValueStrict(Position, update.entity);
 
-    const coord = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
-
     if (update.type == UpdateType.Enter) return;
 
-    move(object, coord, rotation);
+    move(update.entity, object, position, rotation);
   });
 
-  async function move(object: Phaser.GameObjects.Sprite, coord: Coord, rotation: number) {
+  async function move(shipEntity: EntityIndex, object: Phaser.GameObjects.Sprite, position: Coord, rotation: number) {
+    const coord = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
+
     await tween({
       targets: object,
       duration: MOVE_LENGTH,
@@ -177,7 +180,36 @@ export function createShipSystem(phaser: PhaserLayer) {
 
       ease: Phaser.Math.Easing.Sine.InOut,
     });
+
+    if (isWhirlpool(position)) {
+      console.log("landed on whirlpool");
+      const midpoint = getMidpoint(shipEntity);
+      const healthLocal = getComponentValueStrict(HealthLocal, shipEntity).value;
+      setComponent(HealthLocal, shipEntity, { value: healthLocal - 1 });
+      const explosionId = `explosion-move-${shipEntity}`;
+      const explosion = getSpriteObject(explosionId);
+      explosion.setOrigin(0.5, 0.5);
+      explosion.setPosition(midpoint.x, midpoint.y);
+      explosion.setDepth(RenderDepth.UI5);
+      playSound("impact_ship_1", Category.Combat);
+
+      explosion.play(Animations.Explosion);
+
+      explosion.on(`animationcomplete`, () => {
+        destroySpriteObject(explosionId);
+      });
+    }
+
     object.setAngle((rotation - 90) % 360);
     object.setPosition(coord.x, coord.y);
+  }
+
+  function getMidpoint(shipEntity: EntityIndex) {
+    const position = getComponentValueStrict(Position, shipEntity);
+    const rotation = getComponentValue(Rotation, shipEntity)?.value || 0;
+    const length = getComponentValue(Length, shipEntity)?.value || 10;
+    const midpoint = getShipMidpoint(position, rotation, length);
+
+    return tileCoordToPixelCoord(midpoint, positions.posWidth, positions.posHeight);
   }
 }
