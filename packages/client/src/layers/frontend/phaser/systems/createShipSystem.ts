@@ -154,7 +154,6 @@ export function createShipSystem(phaser: PhaserLayer) {
   });
 
   async function move(object: Phaser.GameObjects.Sprite, coord: Coord, rotation: number) {
-    console.log("moving ship!");
     await tween({
       targets: object,
       duration: MOVE_LENGTH,

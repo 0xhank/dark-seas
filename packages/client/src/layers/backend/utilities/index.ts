@@ -42,12 +42,11 @@ export async function createBackendUtilities(network: NetworkLayer, components: 
   }
 
   function checkActionPossible(action: ActionType, ship: EntityIndex): boolean {
-    const damagedCannons = getComponentValue(components.DamagedCannonsLocal, ship)?.value;
-
+    if (isNaN(action)) return false;
     if (action == ActionType.None) return false;
+    if (action == ActionType.Fire) return false;
+    if (action == ActionType.Load) return false;
     if (action == ActionType.ExtinguishFire && !getComponentValue(components.OnFireLocal, ship)?.value) return false;
-    if (action == ActionType.Fire && damagedCannons) return false;
-    if (action == ActionType.Load && damagedCannons) return false;
 
     if (action == ActionType.RepairCannons && !getComponentValue(components.DamagedCannonsLocal, ship)?.value)
       return false;

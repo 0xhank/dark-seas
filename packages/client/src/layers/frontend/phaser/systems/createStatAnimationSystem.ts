@@ -33,7 +33,15 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
   } = layer;
 
   // ON FIRE UPDATES
-  defineUpdateSystem(world, [Has(OnFireLocal)], (update) => {
+  defineComponentSystem(world, OnFireLocal, (update) => {
+    if (!update.value[0]) return;
+    if (update.value[0].value == 0) {
+      for (let i = 0; i < 4; i++) {
+        const spriteId = `${update.entity}-fire-${i}`;
+        destroySpriteObject(spriteId);
+      }
+      return;
+    }
     const position = getComponentValueStrict(Position, update.entity);
     const rotation = getComponentValueStrict(Rotation, update.entity).value;
     const length = getComponentValueStrict(Length, update.entity).value;
@@ -62,6 +70,8 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
   });
 
   defineUpdateSystem(world, [Has(OnFireLocal), Has(Position), Has(Rotation)], (update) => {
+    const onFire = getComponentValueStrict(OnFireLocal, update.entity).value > 0;
+    if (!onFire) return;
     const position = getComponentValueStrict(Position, update.entity);
     const rotation = getComponentValueStrict(Rotation, update.entity).value;
     const length = getComponentValueStrict(Length, update.entity).value;
@@ -87,15 +97,6 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
     });
     object.setPosition(coord.x, coord.y);
   }
-
-  defineComponentSystem(world, OnFireLocal, (update) => {
-    if (!update.value[0]) return;
-    if (!(update.value[0].value == 0)) return;
-    for (let i = 0; i < 4; i++) {
-      const spriteId = `${update.entity}-fire-${i}`;
-      destroySpriteObject(spriteId);
-    }
-  });
 
   defineUpdateSystem(world, [Has(HealthLocal)], (update) => {
     if (update.value[0]?.value !== 0) return;

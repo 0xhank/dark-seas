@@ -37,10 +37,6 @@ export function createHealthLocalSystem(phaser: PhaserLayer) {
     setComponent(HealthLocal, entity, { value: health });
   });
 
-  defineComponentSystem(world, HealthLocal, (update) => {
-    console.log("local health:", update.value[0]?.value);
-  });
-
   defineEnterSystem(world, [Has(OnFire), Not(OnFireLocal)], ({ entity, value }) => {
     const health = value[0]?.value as number | undefined;
     if (!health) return;
