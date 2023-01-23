@@ -1,14 +1,9 @@
 import { Coord, tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
 import {
   defineComponentSystem,
-  defineEnterSystem,
-  defineSystem,
   EntityIndex,
   getComponentValue,
   getComponentValueStrict,
-  Has,
-  HasValue,
-  runQuery,
   setComponent,
 } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
@@ -45,41 +40,6 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
 
   const NUM_CANNONBALLS = 3;
 
-  defineEnterSystem(world, [Has(Cannon), Has(OwnedBy), Has(Rotation), Has(Range)], ({ entity: cannonEntity }) => {
-    const shipId = getComponentValueStrict(OwnedBy, cannonEntity).value;
-    const shipEntity = world.entityToIndex.get(shipId);
-    if (!shipEntity) return;
-
-    const sprite = config.sprites[Sprites.Cannonball];
-
-    for (let i = 0; i < NUM_CANNONBALLS; i++) {
-      const start = getMidpoint(shipEntity);
-      const spriteId = `cannonball-${cannonEntity}-${i}`;
-      const object = getSpriteObject(spriteId);
-
-      object.setPosition(start.x, start.y);
-      object.setAlpha(0);
-      object.setTexture(sprite.assetKey, sprite.frame);
-      object.setScale(4);
-      object.setDepth(RenderDepth.Foreground1);
-      object.setOrigin(0);
-    }
-  });
-
-  defineSystem(world, [Has(Position), Has(Ship)], ({ entity: shipEntity }) => {
-    const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
-
-    cannonEntities.forEach((cannonEntity) => {
-      for (let i = 0; i < NUM_CANNONBALLS; i++) {
-        const spriteId = `cannonball-${cannonEntity}-${i}`;
-        const object = getSpriteObject(spriteId);
-        const start = getMidpoint(shipEntity);
-
-        object.setPosition(start.x, start.y);
-      }
-    });
-  });
-
   function decodeSpecialAttacks(encoding: number) {
     if (encoding == 0) return { onFire: false, damagedCannons: false, toreSail: false };
     const onFire = encoding % 2 == 1;
@@ -87,6 +47,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     const toreSail = Math.round(encoding / 100) % 2 == 1;
     return { onFire, damagedCannons, toreSail };
   }
+
   defineComponentSystem(world, ExecutedShots, ({ entity: cannonEntity, value }) => {
     const data = value[0];
     if (!data) return;
@@ -101,19 +62,28 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     const start = getMidpoint(shipEntity);
     attacks.forEach((attack, i) => {
       for (let j = 0; j < NUM_CANNONBALLS; j++) {
-        const hit = i < attack.damage;
-        fireCannon(start, cannonEntity, attack, i * NUM_CANNONBALLS + j, hit);
+        fireCannon(start, cannonEntity, attack, i * NUM_CANNONBALLS + j, j < attack.damage);
       }
     });
   });
 
-  async function fireCannon(start: Coord, cannonEntity: EntityIndex, attack: Attack, index: number, hit: boolean) {
+  async function fireCannon(start: Coord, cannonEntity: EntityIndex, attack: Attack, shotIndex: number, hit: boolean) {
     const end = getCannonEnd(attack.target, hit);
 
-    const spriteId = `cannonball-${cannonEntity}-${index}`;
-    const delay = index * CANNON_SHOT_DELAY;
+    const spriteId = `cannonball-${cannonEntity}-${shotIndex}`;
+
+    console.log(`firing ${spriteId}`);
+    const delay = shotIndex * CANNON_SHOT_DELAY;
     const object = getSpriteObject(spriteId);
     const targetedValue = getComponentValue(Targeted, attack.target)?.value || 1;
+    object.setAlpha(0);
+    object.setPosition(start.x, start.y);
+
+    const sprite = config.sprites[Sprites.Cannonball];
+    object.setTexture(sprite.assetKey, sprite.frame);
+    object.setScale(4);
+    object.setDepth(RenderDepth.Foreground1);
+    object.setOrigin(0);
     setComponent(Targeted, attack.target, { value: targetedValue - 1 });
     await tween({
       targets: object,
@@ -141,7 +111,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
       if (attack.damagedCannons) setComponent(DamagedCannonsLocal, attack.target, { value: 2 });
       if (attack.toreSail) setComponent(SailPositionLocal, attack.target, { value: 0 });
 
-      const explosionId = `explosion-${cannonEntity}-${index}`;
+      const explosionId = `explosion-${cannonEntity}-${shotIndex}`;
       const explosion = getSpriteObject(explosionId);
       explosion.setOrigin(0.5, 0.5);
       explosion.setPosition(end.x, end.y);
@@ -161,7 +131,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
         duration: 250,
         props: { alpha: 0 },
       });
-      const textId = `miss-text-${cannonEntity}-${index}`;
+      const textId = `miss-text-${cannonEntity}-${shotIndex}`;
       const textGroup = getGroupObject(textId);
       const text = phaserScene.add.text(end.x, end.y, "MISS", {
         color: "white",
@@ -175,12 +145,12 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
       await new Promise((resolve) => setTimeout(resolve, 500));
       destroyGroupObject(textId);
     }
-    object.setPosition(start.x, start.y);
+    destroySpriteObject(spriteId);
   }
-  function getMidpoint(shipEntity: EntityIndex, random = false) {
+  function getMidpoint(shipEntity: EntityIndex) {
     const position = getComponentValueStrict(Position, shipEntity);
-    const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-    const length = getComponentValueStrict(Length, shipEntity).value;
+    const rotation = getComponentValue(Rotation, shipEntity)?.value || 0;
+    const length = getComponentValue(Length, shipEntity)?.value || 10;
     const midpoint = getShipMidpoint(position, rotation, length);
 
     return tileCoordToPixelCoord(midpoint, positions.posWidth, positions.posHeight);
