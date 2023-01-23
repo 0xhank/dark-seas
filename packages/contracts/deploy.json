@@ -29,7 +29,13 @@
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
     {
       "name": "MoveSystem",
-      "writeAccess": ["PositionComponent", "RotationComponent", "LastMoveComponent", "HealthComponent"]
+      "writeAccess": [
+        "PositionComponent",
+        "RotationComponent",
+        "LastMoveComponent",
+        "HealthComponent",
+        "SailPositionComponent"
+      ]
     },
     {
       "name": "ActionSystem",
