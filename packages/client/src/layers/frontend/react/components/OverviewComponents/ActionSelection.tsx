@@ -138,7 +138,6 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
     selected = false,
     disabled = false,
     executed = false,
-    key,
     actionType,
     imgRotation = 0,
     specialEntity = 0 as EntityIndex,
@@ -149,7 +148,6 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
     selected?: boolean;
     disabled?: boolean;
     executed?: boolean;
-    key: string;
     actionType: ActionType;
     specialEntity?: EntityIndex;
     handleClick: (action: ActionType, specialEntity: EntityIndex) => void;
@@ -162,7 +160,6 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
         isSelected={selected}
         disabled={disabled && !selected}
         confirmed={executed}
-        key={key}
         onMouseEnter={() => setComponent(HoveredAction, godIndex, { shipEntity: ship, actionType, specialEntity })}
         onMouseLeave={() => removeComponent(HoveredAction, godIndex)}
         onClick={(e) => {

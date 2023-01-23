@@ -95,10 +95,9 @@ export async function createBackendUtilities(network: NetworkLayer, components: 
     const shipRotation = getComponentValueStrict(Rotation, shipEntity).value;
     const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
 
-    const shipEntities = [
-      ...runQuery([Has(Ship), NotValue(OwnedBy, { value: address }), NotValue(components.HealthLocal, { value: 0 })]),
-    ].filter((targetEntity) => {
+    const shipEntities = [...runQuery([Has(Ship), NotValue(OwnedBy, { value: address })])].filter((targetEntity) => {
       if (targetEntity == shipEntity) return false;
+      if (getComponentValue(components.HealthLocal, targetEntity)?.value == 0) return false;
 
       const enemyPosition = getComponentValueStrict(Position, targetEntity);
       const enemyRotation = getComponentValueStrict(Rotation, targetEntity).value;

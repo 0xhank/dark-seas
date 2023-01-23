@@ -4,6 +4,7 @@ import {
   EntityIndex,
   getComponentValue,
   getComponentValueStrict,
+  removeComponent,
   setComponent,
 } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
@@ -70,12 +71,13 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
   async function fireCannon(start: Coord, cannonEntity: EntityIndex, attack: Attack, shotIndex: number, hit: boolean) {
     const end = getCannonEnd(attack.target, hit);
 
+    const targetedValue = getComponentValue(Targeted, attack.target)?.value;
+    if (targetedValue) removeComponent(Targeted, attack.target);
+
     const spriteId = `cannonball-${cannonEntity}-${shotIndex}`;
 
-    console.log(`firing ${spriteId}`);
     const delay = shotIndex * CANNON_SHOT_DELAY;
     const object = getSpriteObject(spriteId);
-    const targetedValue = getComponentValue(Targeted, attack.target)?.value || 1;
     object.setAlpha(0);
     object.setPosition(start.x, start.y);
 
@@ -84,7 +86,6 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     object.setScale(4);
     object.setDepth(RenderDepth.Foreground1);
     object.setOrigin(0);
-    setComponent(Targeted, attack.target, { value: targetedValue - 1 });
     await tween({
       targets: object,
       delay,
