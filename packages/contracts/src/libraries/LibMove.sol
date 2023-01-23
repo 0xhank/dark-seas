@@ -16,6 +16,7 @@ import { LastMoveComponent, ID as LastMoveComponentID } from "../components/Last
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedComponent.sol";
+import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
@@ -129,13 +130,18 @@ library LibMove {
 
     if (outOfBounds(components, position)) {
       LibCombat.damageHull(components, 1, move.shipEntity);
+    } else {
+      uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(move.shipEntity);
+      Coord memory sternPosition = LibVector.getSternLocation(position, rotation, length);
+      if (outOfBounds(components, sternPosition)) {
+        LibCombat.damageHull(components, 1, move.shipEntity);
+      }
     }
-
     positionComponent.set(move.shipEntity, position);
     rotationComponent.set(move.shipEntity, rotation);
   }
 
-  function outOfBounds(IUint256Component components, Coord memory position) private returns (bool) {
+  function outOfBounds(IUint256Component components, Coord memory position) internal returns (bool) {
     if (!LibVector.inWorld(components, position)) return true;
 
     GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(

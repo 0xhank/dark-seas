@@ -14,7 +14,7 @@ import {
 } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
 import { getShipSprite } from "../../../../utils/ships";
-import { getShipMidpoint } from "../../../../utils/trig";
+import { getShipMidpoint, getSternLocation } from "../../../../utils/trig";
 import { Category } from "../../../backend/sound/library";
 import { Animations, MOVE_LENGTH, RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
@@ -40,7 +40,7 @@ export function createShipSystem(phaser: PhaserLayer) {
           DamagedCannonsLocal,
           SailPositionLocal,
         },
-        utils: { isWhirlpool, playSound },
+        utils: { outOfBounds, playSound },
       },
     },
     scenes: {
@@ -181,8 +181,9 @@ export function createShipSystem(phaser: PhaserLayer) {
       ease: Phaser.Math.Easing.Sine.InOut,
     });
 
-    if (isWhirlpool(position)) {
-      console.log("landed on whirlpool");
+    const length = getComponentValueStrict(Length, shipEntity).value;
+
+    if (outOfBounds(position) || outOfBounds(getSternLocation(position, rotation, length))) {
       const midpoint = getMidpoint(shipEntity);
       const healthLocal = getComponentValueStrict(HealthLocal, shipEntity).value;
       setComponent(HealthLocal, shipEntity, { value: healthLocal - 1 });

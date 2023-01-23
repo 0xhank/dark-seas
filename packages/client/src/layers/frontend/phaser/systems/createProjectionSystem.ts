@@ -12,6 +12,7 @@ import {
 } from "@latticexyz/recs";
 import { Phase } from "../../../../types";
 import { getFinalPosition } from "../../../../utils/directions";
+import { getSternLocation } from "../../../../utils/trig";
 import { DELAY } from "../../constants";
 import { colors } from "../../react/styles/global";
 import { PhaserLayer } from "../types";
@@ -94,7 +95,10 @@ export function createProjectionSystem(phaser: PhaserLayer) {
       renderFiringArea(phaser, hoverGroup, finalPosition, finalRotation, length, cannonEntity, rangeColor);
     });
 
-    const color = outOfBounds(finalPosition) ? colors.redHex : colors.whiteHex;
+    const color =
+      outOfBounds(finalPosition) || outOfBounds(getSternLocation(finalPosition, finalRotation, length))
+        ? colors.redHex
+        : colors.whiteHex;
 
     renderShip(phaser, shipEntity, objectId, finalPosition, finalRotation, color, 0.6);
   });

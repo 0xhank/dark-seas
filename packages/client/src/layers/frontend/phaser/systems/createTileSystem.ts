@@ -50,17 +50,17 @@ export function createTileSystem(phaser: PhaserLayer) {
   });
 
   function getWhirlpoolTile(coord: Coord, perlinSeed: number, adjustment: number): DSTileset | undefined {
-    const whirlpool = isWhirlpool(coord);
+    const whirlpool = isWhirlpool(coord, perlinSeed);
     if (!whirlpool) return;
     const above = { x: coord.x, y: coord.y - adjustment };
     const below = { x: coord.x, y: coord.y + adjustment };
     const right = { x: coord.x + adjustment, y: coord.y };
     const left = { x: coord.x - adjustment, y: coord.y };
 
-    const abovePool = isWhirlpool(above);
-    const belowPool = isWhirlpool(below);
-    const rightPool = isWhirlpool(right);
-    const leftPool = isWhirlpool(left);
+    const abovePool = isWhirlpool(above, perlinSeed);
+    const belowPool = isWhirlpool(below, perlinSeed);
+    const rightPool = isWhirlpool(right, perlinSeed);
+    const leftPool = isWhirlpool(left, perlinSeed);
     const numPools = [abovePool, belowPool, rightPool, leftPool].filter((i) => i).length;
     if (numPools < 2) return DSTileset.Rock;
     if (numPools == 4) return DSTileset.Middle;
