@@ -34,6 +34,8 @@ contract DamageTest is DarkSeasTest {
   Action[] actions;
   Move[] moves;
 
+  bytes none = abi.encode(0);
+
   function testDamagedCannonsEffect() public prank(deployer) {
     setup();
     DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
@@ -50,7 +52,7 @@ contract DamageTest is DarkSeasTest {
     Action memory action = Action({
       shipEntity: attackerEntity,
       actionTypes: [ActionType.RepairCannons, ActionType.None],
-      specialEntities: [uint256(0), uint256(0)]
+      metadata: [none, none]
     });
     actions.push(action);
 
@@ -80,7 +82,7 @@ contract DamageTest is DarkSeasTest {
     Action memory action = Action({
       shipEntity: shipEntity,
       actionTypes: [ActionType.ExtinguishFire, ActionType.None],
-      specialEntities: [uint256(0), uint256(0)]
+      metadata: [none, none]
     });
     actions.push(action);
 

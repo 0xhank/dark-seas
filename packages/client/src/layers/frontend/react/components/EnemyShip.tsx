@@ -1,5 +1,4 @@
-import { GodID } from "@latticexyz/network";
-import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
+import { EntityIndex, getComponentValue } from "@latticexyz/recs";
 import { map, merge, of } from "rxjs";
 import { registerUIComponent } from "../engine";
 import { Container, InternalContainer } from "../styles/global";
@@ -20,25 +19,17 @@ export function registerEnemyShip() {
     (layers) => {
       const {
         network: {
-          world,
-          utils: { getPlayerEntity },
-          network: { connectedAddress },
-          components: {
-            MaxHealth,
-            Health,
-            SailPosition,
-            DamagedCannons,
-            Firepower,
-            OnFire,
-            Player,
-            Rotation,
-            Position,
-            Ship,
-            OwnedBy,
-          },
+          components: { MaxHealth, Firepower, Player, Rotation, Position, Ship, OwnedBy },
         },
         backend: {
-          components: { HoveredShip },
+          components: {
+            HoveredShip,
+            HealthLocal,
+            OnFireLocal: OnFire,
+            DamagedCannonsLocal: DamagedCannons,
+            SailPositionLocal: SailPosition,
+          },
+          godIndex,
         },
       } = layers;
 
@@ -48,7 +39,7 @@ export function registerEnemyShip() {
         Position.update$,
         Ship.update$,
         OwnedBy.update$,
-        Health.update$,
+        HealthLocal.update$,
         MaxHealth.update$,
         HoveredShip.update$,
         SailPosition.update$,
@@ -60,24 +51,15 @@ export function registerEnemyShip() {
         map(() => {
           return {
             layers,
-            getPlayerEntity,
-            connectedAddress,
-            OwnedBy,
             HoveredShip,
-            world,
+            godIndex,
           };
         })
       );
     },
-    ({ layers, getPlayerEntity, connectedAddress, OwnedBy, HoveredShip, world }) => {
-      const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
-
-      const ship = getComponentValue(HoveredShip, GodEntityIndex)?.value as EntityIndex | undefined;
+    ({ layers, HoveredShip, godIndex }) => {
+      const ship = getComponentValue(HoveredShip, godIndex)?.value as EntityIndex | undefined;
       if (!ship) return null;
-
-      const playerEntity = getPlayerEntity(connectedAddress.get());
-      const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, ship).value);
-      if (!ownerEntity || playerEntity == ownerEntity) return null;
       return (
         <Container style={{ justifyContent: "flex-start" }}>
           <InternalContainer style={{ gap: "24px", height: "auto" }}>

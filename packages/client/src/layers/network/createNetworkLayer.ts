@@ -19,10 +19,11 @@ import { setupDevSystems } from "./setup";
 
 import { createFaucetService, GodID } from "@latticexyz/network";
 import { Coord } from "@latticexyz/utils";
-import { utils } from "ethers";
+import { BigNumber, BigNumberish, utils } from "ethers";
+import { MoveStruct } from "../../../../contracts/types/ethers-contracts/MoveSystem";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../../../contracts/types/SystemTypes";
-import { Action, Move, Phase } from "../../types";
+import { Phase } from "../../types";
 import { defineMoveCardComponent } from "./components/MoveCardComponent";
 import { GameConfig, getNetworkConfig } from "./config";
 
@@ -83,6 +84,7 @@ export async function createNetworkLayer(config: GameConfig) {
     Loaded: defineBoolComponent(world, { id: "Loaded", metadata: { contractId: "ds.component.Loaded" } }),
     Speed: defineNumberComponent(world, { id: "Speed", metadata: { contractId: "ds.component.Speed" } }),
     Kills: defineNumberComponent(world, { id: "Kills", metadata: { contractId: "ds.component.Kills" } }),
+    LastHit: defineNumberComponent(world, { id: "LastHit", metadata: { contractId: "ds.component.LastHit" } }),
   };
 
   // --- SETUP ----------------------------------------------------------------------
@@ -119,6 +121,11 @@ export async function createNetworkLayer(config: GameConfig) {
   }
 
   // --- UTILITIES ------------------------------------------------------------------
+
+  function bigNumToEntityID(bigNum: BigNumberish): EntityID {
+    return BigNumber.from(bigNum).toHexString() as EntityID;
+  }
+
   const getGameConfig = () => {
     const godEntityIndex = world.entityToIndex.get(GodID);
     if (godEntityIndex == null) return;
@@ -196,17 +203,17 @@ export async function createNetworkLayer(config: GameConfig) {
   }
 
   function spawnPlayer(name: string) {
-    const location: Coord = { x: Math.round(Math.random() * 300000), y: Math.round(Math.random() * 300000) };
+    const location: Coord = { x: 0, y: 0 };
     systems["ds.system.PlayerSpawn"].executeTyped(name, location);
   }
 
-  function revealMove(moves: Move[], salt: number) {
+  function revealMove(moves: MoveStruct[], salt: number) {
     systems["ds.system.Move"].executeTyped(moves, salt, {
       gasLimit: 5_000_000,
     });
   }
 
-  function submitActions(actions: Action[]) {
+  function submitActions(actions: ActionStruct[]) {
     console.log("submitting actions:", actions);
     systems["ds.system.Action"].executeTyped(actions, {
       gasLimit: 10_000_000,

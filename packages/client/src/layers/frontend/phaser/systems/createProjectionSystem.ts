@@ -22,38 +22,23 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: {
-          Position,
-          Length,
-          Rotation,
-          SailPosition,
-          MoveCard,
-          Cannon,
-          OwnedBy,
-          Speed,
-          Loaded,
-          DamagedCannons,
-        },
+        components: { Position, Length, Rotation, MoveCard, Cannon, OwnedBy, Speed, Loaded },
         utils: { getPhase },
       },
       backend: {
-        components: { SelectedMove, HoveredMove },
+        components: { SelectedMove, HoveredMove, SailPositionLocal, DamagedCannonsLocal },
         utils: { outOfBounds },
       },
     },
-    scenes: {
-      Main: { objectPool, phaserScene },
-    },
-    polygonRegistry,
+
+    utils: { destroySpriteObject, getGroupObject, destroyGroupObject },
   } = phaser;
 
   /* --------------------------------------------- Selected Move update --------------------------------------------- */
   defineExitSystem(world, [Has(SelectedMove)], ({ entity: shipEntity }) => {
     const groupId = `projection-${shipEntity}`;
-    const rangeGroup = polygonRegistry.get(groupId);
-    if (rangeGroup) rangeGroup.clear(true, true);
-
-    objectPool.remove(groupId);
+    destroyGroupObject(groupId);
+    destroySpriteObject(groupId);
   });
 
   defineSystem(world, [Has(SelectedMove)], ({ entity: shipEntity, type }) => {
@@ -71,7 +56,7 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const position = getComponentValueStrict(Position, shipEntity);
     const rotation = getComponentValueStrict(Rotation, shipEntity).value;
     const speed = getComponentValueStrict(Speed, shipEntity).value;
-    const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
+    const sailPosition = getComponentValueStrict(SailPositionLocal, shipEntity).value;
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
 
     renderShip(phaser, shipEntity, groupId, finalPosition, finalRotation, colors.darkGrayHex, 0.7);
@@ -88,25 +73,23 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const moveCardEntity = hoveredMove.moveCardEntity as EntityIndex;
 
     const objectId = `hoverGhost-${shipEntity}`;
-    const hoverGroup = polygonRegistry.get(objectId) || phaserScene.add.group();
-
-    hoverGroup.clear(true, true);
+    const hoverGroup = getGroupObject(objectId, true);
     if (!moveCardEntity) return;
 
     const moveCard = getComponentValueStrict(MoveCard, moveCardEntity);
     const position = getComponentValueStrict(Position, shipEntity);
     const rotation = getComponentValueStrict(Rotation, shipEntity).value;
     const length = getComponentValueStrict(Length, shipEntity).value;
-    const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
+    const sailPosition = getComponentValueStrict(SailPositionLocal, shipEntity).value;
     const speed = getComponentValueStrict(Speed, shipEntity).value;
-    const damaged = getComponentValue(DamagedCannons, shipEntity);
+    const damaged = getComponentValue(DamagedCannonsLocal, shipEntity)?.value != 0;
 
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
 
     cannonEntities.forEach((cannonEntity) => {
       const loaded = getComponentValue(Loaded, cannonEntity);
-      const rangeColor = getRangeTintAlpha(!!loaded, false, !!damaged);
+      const rangeColor = getRangeTintAlpha(!!loaded, false, damaged);
 
       renderFiringArea(phaser, hoverGroup, finalPosition, finalRotation, length, cannonEntity, rangeColor);
     });
@@ -114,8 +97,6 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     const color = outOfBounds(finalPosition) ? colors.redHex : colors.whiteHex;
 
     renderShip(phaser, shipEntity, objectId, finalPosition, finalRotation, color, 0.6);
-
-    polygonRegistry.set(objectId, hoverGroup);
   });
 
   defineExitSystem(world, [Has(HoveredMove)], (update) => {
@@ -123,7 +104,7 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     if (!hoveredMove) return;
     const objectId = `hoverGhost-${hoveredMove.shipEntity}`;
 
-    objectPool.remove(objectId);
-    polygonRegistry.get(objectId)?.clear(true, true);
+    destroySpriteObject(objectId);
+    destroyGroupObject(objectId);
   });
 }

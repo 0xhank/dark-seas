@@ -20,6 +20,8 @@ import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../com
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { KillsComponent, ID as KillsComponentID } from "../components/KillsComponent.sol";
 import { LastHitComponent, ID as LastHitComponentID } from "../components/LastHitComponent.sol";
+import { CannonComponent, ID as CannonComponentID } from "../components/CannonComponent.sol";
+import { LoadedComponent, ID as LoadedComponentID } from "../components/LoadedComponent.sol";
 
 // Types
 import { Side, Coord } from "../libraries/DSTypes.sol";
@@ -30,7 +32,78 @@ import "./LibUtils.sol";
 import { ABDKMath64x64 as Math } from "abdk-libraries-solidity/ABDKMath64x64.sol";
 
 library LibCombat {
+  /**
+   * @notice  loads the given cannon
+   * @param   components  world components
+   * @param   shipEntity  ship controlling cannon
+   * @param   cannonEntity  cannon to load
+   */
+  function load(
+    IUint256Component components,
+    uint256 shipEntity,
+    uint256 cannonEntity
+  ) internal {
+    if (DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).has(shipEntity)) return;
+
+    require(
+      CannonComponent(getAddressById(components, CannonComponentID)).has(cannonEntity),
+      "load: entity not a cannon"
+    );
+
+    require(
+      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(cannonEntity) == shipEntity,
+      "load: cannon not owned by ship"
+    );
+
+    LoadedComponent loadedComponent = LoadedComponent(getAddressById(components, LoadedComponentID));
+
+    require(!loadedComponent.has(cannonEntity), "attack: cannon already loaded");
+    loadedComponent.set(cannonEntity);
+  }
+
   /*************************************************** ATTACK **************************************************** */
+  /**
+   * @notice  fires the given cannon
+   * @param   components  world components
+   * @param   shipEntity  ship controlling cannon
+   * @param   cannonEntity  cannon to load
+   */
+  function attack(
+    IUint256Component components,
+    uint256 shipEntity,
+    uint256 cannonEntity,
+    uint256[] memory targetEntities
+  ) internal {
+    if (DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).has(shipEntity)) return;
+
+    require(
+      CannonComponent(getAddressById(components, CannonComponentID)).has(cannonEntity),
+      "attack: entity not a cannon"
+    );
+
+    require(
+      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(cannonEntity) == shipEntity,
+      "attack: cannon not owned by ship"
+    );
+
+    LoadedComponent loadedComponent = LoadedComponent(getAddressById(components, LoadedComponentID));
+    require(loadedComponent.has(cannonEntity), "attack: cannon not loaded");
+    loadedComponent.remove(cannonEntity);
+
+    if (targetEntities.length == 0) return;
+    for (uint256 i = 1; i < targetEntities.length; i++) {
+      for (uint256 j = 0; j < i; j++) {
+        require(targetEntities[i] != targetEntities[j], "attack: target already shot at");
+      }
+    }
+
+    uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
+    if (!isBroadside(cannonRotation)) {
+      attackPivot(components, shipEntity, cannonEntity, targetEntities);
+    } else {
+      attackBroadside(components, shipEntity, cannonEntity, targetEntities);
+    }
+  }
 
   /**
    * @notice  attacks all enemies in forward arc of ship
@@ -42,31 +115,23 @@ library LibCombat {
   function attackPivot(
     IUint256Component components,
     uint256 shipEntity,
-    uint256 cannonEntity
-  ) public {
+    uint256 cannonEntity,
+    uint256[] memory targetEntities
+  ) private {
     OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
     uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
     // get firing area of ship
     Coord[3] memory firingRange = getFiringAreaPivot(components, shipEntity, cannonEntity);
 
-    (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
-
-    uint256 owner = ownedByComponent.getValue(shipEntity);
-
-    // iterate through each ship, checking if it can be fired on
-    // 1. is not the current ship, 2. is not owned by attacker, 3. is within firing range
-    for (uint256 i = 0; i < shipEntities.length; i++) {
-      if (shipEntities[i] == shipEntity) continue;
-      if (owner == ownedByComponent.getValue(shipEntities[i])) continue;
-
-      (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
-      uint256 distance;
+    // iterate through each ship, checking if it is within firing range
+    for (uint256 i = 0; i < targetEntities.length; i++) {
+      (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, targetEntities[i]);
       if (LibVector.withinPolygon3(firingRange, aft)) {
-        distance = LibVector.distance(firingRange[0], aft);
-        damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
+        uint256 distance = LibVector.distance(firingRange[0], aft);
+        damageEnemy(components, shipEntity, targetEntities[i], distance, firepower);
       } else if (LibVector.withinPolygon3(firingRange, stern)) {
-        distance = LibVector.distance(firingRange[0], stern);
-        damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
+        uint256 distance = LibVector.distance(firingRange[0], stern);
+        damageEnemy(components, shipEntity, targetEntities[i], distance, firepower);
       }
     }
   }
@@ -81,33 +146,25 @@ library LibCombat {
   function attackBroadside(
     IUint256Component components,
     uint256 shipEntity,
-    uint256 cannonEntity
-  ) public {
+    uint256 cannonEntity,
+    uint256[] memory targetEntities
+  ) private {
     OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
     uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
 
     // get firing area of ship
     Coord[4] memory firingRange = getFiringAreaBroadside(components, shipEntity, cannonEntity);
 
-    (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
+    // iterate through each ship, checking if it is within firing range
+    for (uint256 i = 0; i < targetEntities.length; i++) {
+      (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, targetEntities[i]);
 
-    uint256 owner = ownedByComponent.getValue(shipEntity);
-
-    // iterate through each ship, checking if it can be fired on
-    // 1. is not the current ship, 2. is not owned by attacker, 3. is within firing range
-    for (uint256 i = 0; i < shipEntities.length; i++) {
-      if (shipEntities[i] == shipEntity) continue;
-      if (owner == ownedByComponent.getValue(shipEntities[i])) continue;
-
-      (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
-
-      uint256 distance;
       if (LibVector.withinPolygon4(firingRange, aft)) {
-        distance = LibVector.distance(firingRange[0], aft);
-        damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
+        uint256 distance = LibVector.distance(firingRange[0], aft);
+        damageEnemy(components, shipEntity, targetEntities[i], distance, firepower);
       } else if (LibVector.withinPolygon4(firingRange, stern)) {
-        distance = LibVector.distance(firingRange[0], stern);
-        damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
+        uint256 distance = LibVector.distance(firingRange[0], stern);
+        damageEnemy(components, shipEntity, targetEntities[i], distance, firepower);
       }
     }
   }

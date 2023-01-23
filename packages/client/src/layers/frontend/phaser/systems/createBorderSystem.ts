@@ -9,21 +9,18 @@ export function createBorderSystem(phaser: PhaserLayer) {
     parentLayers: {
       network: {
         components: { GameConfig },
-        utils: { getGameConfig },
       },
     },
-    polygonRegistry,
     scenes: {
-      Main: { phaserScene },
+      Main: { phaserScene, positions },
     },
-    positions,
+    utils: { getGroupObject },
   } = phaser;
 
   defineComponentSystem(world, GameConfig, (update) => {
     const worldSize = update.value[0]?.worldSize;
     if (!worldSize) return;
-    let borderGroup = polygonRegistry.get("borderGroup");
-    if (!borderGroup) borderGroup = phaserScene.add.group();
+    const borderGroup = getGroupObject("borderGroup", true);
 
     const border = phaserScene.add.rectangle(
       0,
@@ -34,7 +31,5 @@ export function createBorderSystem(phaser: PhaserLayer) {
     border.setStrokeStyle(50, colors.whiteHex);
     border.setDepth(RenderDepth.Background1);
     borderGroup.add(border);
-
-    polygonRegistry.set("borderGroup", borderGroup);
   });
 }

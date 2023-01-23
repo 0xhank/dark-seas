@@ -19,7 +19,8 @@ export async function createPhaserLayer(backend: BackendLayer) {
   const { game, scenes, dispose: disposePhaser } = await createPhaserEngine(phaserConfig);
   world.registerDisposer(disposePhaser);
 
-  const polygonRegistry = new Map<string, Phaser.GameObjects.Group>();
+  const polygonRegistry = new Map<string | number, Phaser.GameObjects.Group>();
+  const spriteRegistry = new Map<string | number, Phaser.GameObjects.Sprite>();
 
   // --- API ------------------------------------------------------------------------
   function createMapInteractionApi() {
@@ -35,6 +36,41 @@ export async function createPhaserLayer(backend: BackendLayer) {
   }
   // --- UTILS ----------------------------------------------------------------------
 
+  function getSpriteObject(id: string | number, s?: Phaser.Scene): Phaser.GameObjects.Sprite {
+    const scene = s || scenes.Main.phaserScene;
+    const sprite = spriteRegistry.get(id);
+    if (sprite) return sprite;
+
+    const newSprite = scene.add.sprite(5, 5, "");
+    spriteRegistry.set(id, newSprite);
+    return newSprite;
+  }
+
+  function destroySpriteObject(id: string | number) {
+    const sprite = spriteRegistry.get(id);
+    if (!sprite) return;
+    sprite.destroy(true);
+    spriteRegistry.delete(id);
+  }
+
+  function getGroupObject(id: string | number, clear = false, s?: Phaser.Scene): Phaser.GameObjects.Group {
+    const scene = s || scenes.Main.phaserScene;
+    const group = polygonRegistry.get(id);
+    if (clear) group?.clear(true, true);
+    if (group) return group;
+
+    const newGroup = scene.add.group();
+    polygonRegistry.set(id, newGroup);
+    return newGroup;
+  }
+
+  function destroyGroupObject(id: string | number) {
+    const group = polygonRegistry.get(id);
+    if (!group) return;
+    group.destroy(true, true);
+    polygonRegistry.delete(id);
+  }
+
   // --- LAYER CONTEXT --------------------------------------------------------------
   const context = {
     world,
@@ -46,10 +82,9 @@ export async function createPhaserLayer(backend: BackendLayer) {
     api: {
       mapInteraction: createMapInteractionApi(),
     },
+    utils: { getSpriteObject, getGroupObject, destroySpriteObject, destroyGroupObject },
     game,
-    scenes,
-    polygonRegistry,
-    positions: { posWidth: POS_WIDTH, posHeight: POS_HEIGHT },
+    scenes: { ...scenes, Main: { ...scenes.Main, positions: { posWidth: POS_WIDTH, posHeight: POS_HEIGHT } } },
   };
 
   // --- SYSTEMS --------------------------------------------------------------------

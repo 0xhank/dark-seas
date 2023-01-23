@@ -13,7 +13,7 @@ struct MoveCard {
 struct Action {
   uint256 shipEntity;
   ActionType[2] actionTypes;
-  uint256[2] specialEntities;
+  bytes[2] metadata;
 }
 
 struct Move {

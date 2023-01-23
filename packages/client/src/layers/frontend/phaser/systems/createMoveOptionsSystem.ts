@@ -25,12 +25,9 @@ export function createMoveOptionsSystem(phaser: PhaserLayer) {
       backend: {
         components: { HoveredShip },
         utils: { isMyShip },
-        godIndex,
       },
     },
-    scenes: {
-      Main: { objectPool },
-    },
+    utils: { destroySpriteObject },
   } = phaser;
   /* ---------------------------------------------- Move Options update ------------------------------------------- */
   defineComponentSystem(world, HoveredShip, (update) => {
@@ -56,10 +53,11 @@ export function createMoveOptionsSystem(phaser: PhaserLayer) {
     });
   });
 
-  defineExitSystem(world, [Has(HoveredShip)], (update) => {
+  defineExitSystem(world, [Has(HoveredShip)], () => {
     [...getComponentEntities(MoveCard)].forEach((moveCardEntity) => {
       const objectId = `optionGhost-${moveCardEntity}`;
-      objectPool.remove(objectId);
+
+      destroySpriteObject(objectId);
     });
   });
 }

@@ -24,6 +24,8 @@ contract ChangeSailActionTest is DarkSeasTest {
   Move[] moves;
   Action[] actions;
 
+  bytes none = abi.encode(0);
+
   function testExecute() public prank(deployer) {
     setup();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
@@ -33,7 +35,7 @@ contract ChangeSailActionTest is DarkSeasTest {
     Action memory action = Action({
       shipEntity: shipEntity,
       actionTypes: [ActionType.LowerSail, ActionType.None],
-      specialEntities: [uint256(0), uint256(0)]
+      metadata: [none, none]
     });
     actions.push(action);
 
@@ -56,7 +58,7 @@ contract ChangeSailActionTest is DarkSeasTest {
     Action memory action = Action({
       shipEntity: shipEntity,
       actionTypes: [ActionType.RaiseSail, ActionType.None],
-      specialEntities: [uint256(0), uint256(0)]
+      metadata: [none, none]
     });
     actions.push(action);
 
@@ -71,7 +73,7 @@ contract ChangeSailActionTest is DarkSeasTest {
     action = Action({
       shipEntity: shipEntity,
       actionTypes: [ActionType.LowerSail, ActionType.None],
-      specialEntities: [uint256(0), uint256(0)]
+      metadata: [none, none]
     });
 
     actions.push(action);

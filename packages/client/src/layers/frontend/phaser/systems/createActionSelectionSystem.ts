@@ -21,19 +21,15 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: { Position, Length, Rotation, Loaded, Cannon, OwnedBy, DamagedCannons },
+        components: { Position, Length, Rotation, Loaded, Cannon, OwnedBy },
         utils: { getPhase },
       },
       backend: {
         utils: { getTargetedShips, isMyShip },
-        components: { SelectedActions, HoveredShip, HoveredAction, Targeted },
-        godIndex,
+        components: { SelectedActions, HoveredShip, HoveredAction, Targeted, DamagedCannonsLocal },
       },
     },
-    polygonRegistry,
-    scenes: {
-      Main: { phaserScene },
-    },
+    utils: { getGroupObject, destroyGroupObject },
   } = phaser;
 
   defineComponentSystem(world, HoveredAction, ({ value }) => {
@@ -46,11 +42,9 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     const shipEntity = hoveredAction.shipEntity as EntityIndex;
     const cannonEntity = hoveredAction.specialEntity as EntityIndex;
 
-    const objectId = `hoveredFiringArea`;
+    const objectId = "hoveredFiringArea";
 
-    const hoveredGroup = polygonRegistry.get(objectId) || phaserScene.add.group();
-
-    hoveredGroup.clear(true, true);
+    const hoveredGroup = getGroupObject(objectId, true);
     if (!shipEntity || !cannonEntity) return;
 
     const position = getComponentValueStrict(Position, shipEntity);
@@ -62,7 +56,6 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
 
     renderFiringArea(phaser, hoveredGroup, position, rotation, length, cannonEntity, undefined, strokeFill);
 
-    polygonRegistry.set(objectId, hoveredGroup);
     // make targeted ships red
 
     if (actionType != ActionType.Fire) return;
@@ -77,9 +70,9 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     if (!prevValue) return;
 
     const cannonEntity = prevValue.specialEntity as EntityIndex;
-    const objectId = `hoveredFiringArea`;
+    const objectId = "hoveredFiringArea";
 
-    polygonRegistry.get(objectId)?.clear(true, true);
+    destroyGroupObject(objectId);
     getTargetedShips(cannonEntity).forEach((entity) => {
       const targetedValue = getComponentValue(Targeted, entity)?.value || 0;
       if (!targetedValue) return;
@@ -146,18 +139,19 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     renderCannons(shipEntity);
   });
 
-  defineExitSystem(world, [Has(HoveredShip)], (update) => {
-    polygonRegistry.get("selectedActions")?.clear(true, true);
+  defineExitSystem(world, [Has(HoveredShip)], () => {
+    destroyGroupObject("selectedActions");
+    destroyGroupObject("hoveredFiringArea");
   });
 
   function renderCannons(shipEntity: EntityIndex) {
     const groupId = "selectedActions";
-    const activeGroup = polygonRegistry.get(groupId) || phaserScene.add.group();
+    const activeGroup = getGroupObject(groupId);
     activeGroup.clear(true, true);
 
     const selectedActions = getComponentValue(SelectedActions, shipEntity);
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
-    const damagedCannons = getComponentValue(DamagedCannons, shipEntity);
+    const damagedCannons = getComponentValue(DamagedCannonsLocal, shipEntity)?.value != 0;
 
     cannonEntities.forEach((cannonEntity) => {
       const loaded = getComponentValue(Loaded, cannonEntity);
@@ -166,10 +160,8 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
       const position = getComponentValueStrict(Position, shipEntity);
       const length = getComponentValueStrict(Length, shipEntity).value;
       const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-      const rangeColor = getRangeTintAlpha(!!loaded, !!cannonSelected, !!damagedCannons);
+      const rangeColor = getRangeTintAlpha(!!loaded, !!cannonSelected, damagedCannons);
       renderFiringArea(phaser, activeGroup, position, rotation, length, cannonEntity, rangeColor);
     });
-
-    polygonRegistry.set(groupId, activeGroup);
   }
 }
