@@ -91,7 +91,8 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
         setComponent(Targeted, entity, { value: diff.added ? targetedValue + 1 : Math.max(0, targetedValue - 1) });
       });
     }
-    // renderCannons(shipEntity);
+
+    if (value[0]) renderCannons(shipEntity);
   });
 
   // this is probably the worst code ive ever written
@@ -157,7 +158,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     const selectedActions = getComponentValue(SelectedActions, shipEntity);
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
     const damagedCannons = getComponentValue(DamagedCannonsLocal, shipEntity)?.value != 0;
-
+    const myShip = isMyShip(shipEntity);
     cannonEntities.forEach((cannonEntity) => {
       const loaded = getComponentValue(Loaded, cannonEntity);
       const cannonSelected = selectedActions?.specialEntities.includes(world.entities[cannonEntity]);
@@ -169,6 +170,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
       const firingPolygon = renderFiringArea(phaser, activeGroup, position, rotation, length, cannonEntity, rangeColor);
       const actionType = loaded ? ActionType.Fire : ActionType.Load;
 
+      if (damagedCannons || !myShip) return;
       firingPolygon.setInteractive(firingPolygon.geom, Phaser.Geom.Polygon.Contains);
       firingPolygon.on("pointerdown", () => handleNewActionsCannon(actionType, cannonEntity));
       firingPolygon.on("pointerover", () =>
