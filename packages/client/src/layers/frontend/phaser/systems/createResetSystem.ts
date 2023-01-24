@@ -6,30 +6,36 @@ import { PhaserLayer } from "../types";
 export function createResetSystem(phaser: PhaserLayer) {
   const {
     world,
-    parentLayers: {
-      network: {
-        components: { LastMove, LastAction, MoveCard },
-        utils: { getPlayerEntity, getPhase, getGameConfig, getTurn, secondsUntilNextPhase },
-        network: { clock },
-      },
-      backend: {
-        components: {
-          SelectedMove,
-          SelectedActions,
-          EncodedCommitment,
-          CommittedMove,
-          HoveredMove,
-          HoveredAction,
-          Targeted,
-          ExecutedActions,
-          ExecutedCannon,
-        },
-        api: { commitMove, revealMove, submitActions },
-        utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, getPlayerShips, clearComponent },
-        godIndex,
-      },
+    godIndex,
+    components: {
+      SelectedMove,
+      SelectedActions,
+      EncodedCommitment,
+      CommittedMove,
+      HoveredMove,
+      HoveredAction,
+      Targeted,
+      ExecutedActions,
+      ExecutedCannon,
+      LastMove,
+      LastAction,
+      MoveCard,
     },
-    utils: { destroySpriteObject, destroyGroupObject },
+    api: { commitMove, revealMove, submitActions },
+    network: { clock },
+    utils: {
+      destroySpriteObject,
+      destroyGroupObject,
+      getPlayerEntity,
+      getPhase,
+      getGameConfig,
+      getTurn,
+      secondsUntilNextPhase,
+      getPlayerShipsWithMoves,
+      getPlayerShipsWithActions,
+      getPlayerShips,
+      clearComponent,
+    },
   } = phaser;
 
   defineRxSystem(world, clock.time$, () => {

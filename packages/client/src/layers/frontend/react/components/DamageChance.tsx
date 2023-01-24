@@ -32,9 +32,7 @@ export function registerDamageChance() {
           godIndex,
         },
         phaser: {
-          scenes: {
-            Main: { camera },
-          },
+          scene: { camera },
           utils: { getSpriteObject },
         },
       } = layers;
@@ -72,7 +70,6 @@ export function registerDamageChance() {
     },
     ({ data, zoom }) => {
       const prefix = "/img/explosions/explosion";
-
       const width = zoom * 100;
       const fontSize = zoom;
       const borderRadius = zoom * 6;

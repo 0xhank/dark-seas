@@ -24,19 +24,20 @@ type Attack = {
 export function createCannonAnimationSystem(phaser: PhaserLayer) {
   const {
     world,
-    parentLayers: {
-      network: {
-        components: { Position, Rotation, Length, Cannon, OwnedBy, Range, Ship },
-      },
-      backend: {
-        utils: { playSound },
-        components: { ExecutedShots, HealthLocal, Targeted, OnFireLocal, DamagedCannonsLocal, SailPositionLocal },
-      },
+    scene: { config, posHeight, phaserScene, posWidth },
+    components: {
+      Position,
+      Rotation,
+      Length,
+      OwnedBy,
+      ExecutedShots,
+      HealthLocal,
+      Targeted,
+      OnFireLocal,
+      DamagedCannonsLocal,
+      SailPositionLocal,
     },
-    scenes: {
-      Main: { config, positions, phaserScene },
-    },
-    utils: { getSpriteObject, getGroupObject, destroySpriteObject, destroyGroupObject },
+    utils: { getSpriteObject, getGroupObject, destroySpriteObject, destroyGroupObject, playSound },
   } = phaser;
 
   const NUM_CANNONBALLS = 3;
@@ -154,7 +155,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     const length = getComponentValue(Length, shipEntity)?.value || 10;
     const midpoint = getShipMidpoint(position, rotation, length);
 
-    return tileCoordToPixelCoord(midpoint, positions.posWidth, positions.posHeight);
+    return tileCoordToPixelCoord(midpoint, posWidth, posHeight);
   }
   function getCannonEnd(targetEntity: EntityIndex, hit: boolean): Coord {
     const targetCenter = getMidpoint(targetEntity);
@@ -171,10 +172,10 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
 
       getGroupObject("circle").add(circle);
 
-      return { x: targetCenter.x + randX * positions.posHeight, y: targetCenter.y + randY * positions.posHeight };
+      return { x: targetCenter.x + randX * posHeight, y: targetCenter.y + randY * posHeight };
     }
 
-    const missDistance = (length * positions.posHeight) / 2;
+    const missDistance = (length * posHeight) / 2;
     const missArea = 40;
     const randX = Math.round(Math.random() * missArea + missDistance);
     const randY = Math.round(Math.random() * missArea + missDistance);

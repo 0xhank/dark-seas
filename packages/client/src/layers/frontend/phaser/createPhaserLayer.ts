@@ -87,17 +87,17 @@ export async function createPhaserLayer(backend: BackendLayer) {
   // --- LAYER CONTEXT --------------------------------------------------------------
   const context = {
     world,
-    components,
-    parentLayers: {
-      ...backend.parentLayers,
-      backend,
-    },
+    godIndex: backend.godIndex,
+    actions: backend.actions,
+    components: { ...components, ...backend.components },
     api: {
+      ...backend.api,
       mapInteraction: createMapInteractionApi(),
     },
-    utils: { getSpriteObject, getGroupObject, destroySpriteObject, destroyGroupObject },
+    utils: { ...backend.utils, getSpriteObject, getGroupObject, destroySpriteObject, destroyGroupObject },
     game,
-    scenes: { ...scenes, Main: { ...scenes.Main, positions: { posWidth: POS_WIDTH, posHeight: POS_HEIGHT } } },
+    scene: { ...scenes.Main, posWidth: POS_WIDTH, posHeight: POS_HEIGHT },
+    network: backend.network,
   };
 
   // --- SYSTEMS --------------------------------------------------------------------

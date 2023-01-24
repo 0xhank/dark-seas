@@ -49,27 +49,10 @@ export function registerLeaderboard() {
           const close = () => {
             setComponent(LeaderboardOpen, godIndex, { value: false });
           };
-          const getShips = () =>
-            [...getComponentEntities(Ship)].map((shipEntity) => {
-              const health = getComponentValue(HealthLocal, shipEntity)?.value;
-              const kills = getComponentValue(Kills, shipEntity)?.value;
-              const ownerId = getComponentValue(OwnedBy, shipEntity)?.value;
-
-              if (!ownerId) return;
-              const owner = world.entityToIndex.get(ownerId);
-              if (!owner) return;
-              const name = getComponentValue(Name, owner)?.value;
-              if (health == undefined || kills == undefined || name == undefined) return;
-              return {
-                shipEntity,
-                health,
-                kills,
-                owner: name,
-              };
-            });
-
-          const getPlayers = () => {
+          const getPlayersAndShips = () => {
             let players: PlayerData[] = [];
+            let ships: ShipData[] = [];
+
             [...getComponentEntities(Ship)].forEach((shipEntity) => {
               const health = getComponentValue(HealthLocal, shipEntity)?.value;
               const kills = getComponentValue(Kills, shipEntity)?.value;
@@ -94,23 +77,28 @@ export function registerLeaderboard() {
                 player.health += health;
                 player.kills += kills;
               }
+
+              ships.push({
+                shipEntity,
+                health,
+                kills,
+                owner: name,
+              });
             });
-            return players;
+            return { players, ships };
           };
 
           return {
-            getShips,
-            getPlayers,
+            getPlayersAndShips,
             show,
             close,
           };
         })
       );
     },
-    ({ show, getShips, getPlayers, close }) => {
+    ({ show, getPlayersAndShips, close }) => {
       if (!show) return null;
-      const ships = getShips();
-      const players = getPlayers();
+      const { ships, players } = getPlayersAndShips();
       return (
         <Container
           style={{ flexDirection: "row", background: "hsla(0, 0%, 0%, 0.6", zIndex: 9999, gap: "20px" }}

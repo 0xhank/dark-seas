@@ -21,18 +21,21 @@ import { getRangeTintAlpha, renderFiringArea, renderShip } from "./renderShip";
 export function createProjectionSystem(phaser: PhaserLayer) {
   const {
     world,
-    parentLayers: {
-      network: {
-        components: { Position, Length, Rotation, MoveCard, Cannon, OwnedBy, Speed, Loaded },
-        utils: { getPhase },
-      },
-      backend: {
-        components: { SelectedMove, HoveredMove, SailPositionLocal, DamagedCannonsLocal },
-        utils: { outOfBounds },
-      },
+    components: {
+      Position,
+      Length,
+      Rotation,
+      MoveCard,
+      Cannon,
+      OwnedBy,
+      Speed,
+      Loaded,
+      SelectedMove,
+      HoveredMove,
+      SailPositionLocal,
+      DamagedCannonsLocal,
     },
-
-    utils: { destroySpriteObject, getGroupObject, destroyGroupObject },
+    utils: { destroySpriteObject, getGroupObject, destroyGroupObject, getPhase, outOfBounds },
   } = phaser;
 
   /* --------------------------------------------- Selected Move update --------------------------------------------- */

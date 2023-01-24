@@ -35,14 +35,12 @@ export const YourShip = ({
       godIndex,
     },
     phaser: {
-      scenes: {
-        Main: { camera, positions },
-      },
+      scene: { camera, posWidth, posHeight },
     },
   } = layers;
 
   const selectShip = (ship: EntityIndex, position: Coord) => {
-    camera.centerOn(position.x * positions.posWidth, position.y * positions.posHeight + 400);
+    camera.centerOn(position.x * posWidth, position.y * posHeight + 400);
 
     setComponent(SelectedShip, godIndex, { value: ship });
   };

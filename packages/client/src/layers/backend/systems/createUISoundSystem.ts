@@ -7,13 +7,17 @@ import { BackendLayer, TxType } from "../types";
 export function createUISoundSystem(backend: BackendLayer) {
   const {
     utils: { playSound },
-    parentLayers: {
-      network: {
-        components: { Position, Rotation },
-      },
-    },
     world,
-    components: { HoveredAction, HoveredMove, SelectedMove, SelectedActions, HoveredShip, SelectedShip },
+    components: {
+      HoveredAction,
+      HoveredMove,
+      SelectedMove,
+      SelectedActions,
+      HoveredShip,
+      SelectedShip,
+      Rotation,
+      Position,
+    },
     actions: { Action },
   } = backend;
 

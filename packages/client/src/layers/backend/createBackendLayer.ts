@@ -47,10 +47,11 @@ export async function createBackendLayer(network: NetworkLayer) {
     world,
     actions,
     api,
-    parentLayers: { network },
-    utils,
-    components,
+    utils: { ...network.utils, ...utils },
+    components: { ...network.components, ...components },
     godIndex: GodEntityIndex,
+    systemCallStreams: network.systemCallStreams,
+    network: network.network,
   };
 
   // --- SYSTEMS --------------------------------------------------------------------

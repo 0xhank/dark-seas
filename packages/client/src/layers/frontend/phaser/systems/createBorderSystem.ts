@@ -6,14 +6,8 @@ import { PhaserLayer } from "../types";
 export function createBorderSystem(phaser: PhaserLayer) {
   const {
     world,
-    parentLayers: {
-      network: {
-        components: { GameConfig },
-      },
-    },
-    scenes: {
-      Main: { phaserScene, positions },
-    },
+    components: { GameConfig },
+    scene: { phaserScene, posHeight },
     utils: { getGroupObject },
   } = phaser;
 
@@ -22,12 +16,7 @@ export function createBorderSystem(phaser: PhaserLayer) {
     if (!worldSize) return;
     const borderGroup = getGroupObject("borderGroup", true);
 
-    const border = phaserScene.add.rectangle(
-      0,
-      0,
-      worldSize * positions.posHeight * 2,
-      worldSize * positions.posHeight * 2
-    );
+    const border = phaserScene.add.rectangle(0, 0, worldSize * posHeight * 2, worldSize * posHeight * 2);
     border.setStrokeStyle(50, colors.whiteHex);
     border.setDepth(RenderDepth.Background1);
     borderGroup.add(border);

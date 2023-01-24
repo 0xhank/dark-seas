@@ -5,16 +5,8 @@ import { renderCircle } from "./renderShip";
 export function createShipCircleSystem(phaser: PhaserLayer) {
   const {
     world,
-    parentLayers: {
-      network: {
-        components: { Position, Length, Rotation },
-      },
-      backend: {
-        utils: { isMyShip },
-        components: { SelectedShip, HoveredShip },
-      },
-    },
-    utils: { getGroupObject, destroyGroupObject },
+    components: { Position, Length, Rotation, SelectedShip, HoveredShip },
+    utils: { getGroupObject, destroyGroupObject, isMyShip },
   } = phaser;
 
   defineComponentSystem(world, SelectedShip, (update) => {

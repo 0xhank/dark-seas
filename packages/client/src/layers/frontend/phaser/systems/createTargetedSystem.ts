@@ -5,11 +5,8 @@ import { PhaserLayer } from "../types";
 export function createTargetedSystem(phaser: PhaserLayer) {
   const {
     world,
-    parentLayers: {
-      backend: {
-        components: { Targeted },
-      },
-    },
+    components: { Targeted },
+
     utils: { getSpriteObject },
   } = phaser;
 

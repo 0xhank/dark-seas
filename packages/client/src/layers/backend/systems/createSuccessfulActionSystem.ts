@@ -14,12 +14,6 @@ import { BackendLayer } from "../types";
 
 export function createSuccessfulActionSystem(layer: BackendLayer) {
   const {
-    parentLayers: {
-      network: {
-        systemCallStreams,
-        utils: { bigNumToEntityID },
-      },
-    },
     world,
     components: {
       ExecutedShots,
@@ -31,7 +25,8 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
       DamagedCannonsLocal,
       SelectedShip,
     },
-    utils: { isMyShip, clearComponent },
+    utils: { isMyShip, clearComponent, bigNumToEntityID },
+    systemCallStreams,
   } = layer;
 
   function parseLoadAction(action: BytesLike) {

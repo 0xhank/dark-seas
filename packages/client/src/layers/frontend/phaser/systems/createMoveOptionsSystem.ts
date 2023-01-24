@@ -18,18 +18,9 @@ import { renderShip } from "./renderShip";
 export function createMoveOptionsSystem(phaser: PhaserLayer) {
   const {
     world,
-    parentLayers: {
-      network: {
-        components: { Position, Rotation, SailPosition, MoveCard, Speed },
-        utils: { getPhase },
-      },
-      backend: {
-        components: { SelectedShip, SelectedMove, HoveredMove },
-        utils: { isMyShip },
-        godIndex,
-      },
-    },
-    utils: { destroySpriteObject },
+    components: { Position, Rotation, SailPosition, MoveCard, Speed, SelectedShip, SelectedMove, HoveredMove },
+    utils: { destroySpriteObject, getPhase, isMyShip },
+    godIndex,
   } = phaser;
   /* ---------------------------------------------- Move Options update ------------------------------------------- */
   defineComponentSystem(world, SelectedShip, (update) => {

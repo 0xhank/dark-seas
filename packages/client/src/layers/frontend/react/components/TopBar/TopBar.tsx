@@ -20,7 +20,6 @@ export function registerTopBar() {
     (layers) => {
       const {
         network: {
-          world,
           components: { Name },
           network: { connectedAddress },
           utils: { getPlayerEntity },
@@ -33,35 +32,30 @@ export function registerTopBar() {
 
       return merge(of(0), Name.update$).pipe(
         map(() => {
+          const dir: number = 0;
+          const speed: number = 0;
+
+          const playerEntity = getPlayerEntity(connectedAddress.get());
+          const name = playerEntity ? getComponentValue(Name, playerEntity)?.value : undefined;
+          const openLeaderboard = () => setComponent(LeaderboardOpen, godIndex, { value: true });
+
+          if (!name) return null;
           return {
-            Name,
-            world,
-            connectedAddress,
-            getPlayerEntity,
-            godIndex,
-            LeaderboardOpen,
+            name,
+            dir,
+            speed,
+            openLeaderboard,
           };
         })
       );
     },
-    ({ Name, world, connectedAddress, getPlayerEntity, godIndex, LeaderboardOpen }) => {
-      const dir: number = 0;
-      const speed: number = 0;
-
-      const playerEntity = getPlayerEntity(connectedAddress.get());
-      const name = playerEntity ? getComponentValue(Name, playerEntity)?.value : undefined;
-      if (!name) return null;
+    ({ name, dir, speed, openLeaderboard }) => {
       return (
         <TopBarContainer>
           <Compass direction={dir} speed={speed} />
           <div style={{ display: "flex", flexDirection: "column", textAlign: "left", gap: "8px" }}>
             <span style={{ fontWeight: "bolder", fontSize: "1.5rem", lineHeight: "2rem" }}>Captain {name}'s Log</span>
-            <Button
-              onClick={() => {
-                setComponent(LeaderboardOpen, godIndex, { value: true });
-              }}
-              style={{ width: "40px", background: colors.thickGlass }}
-            >
+            <Button onClick={openLeaderboard} style={{ width: "40px", background: colors.thickGlass }}>
               {" "}
               <img src={"/icons/podium.svg"} style={{ width: "100%" }} />
             </Button>

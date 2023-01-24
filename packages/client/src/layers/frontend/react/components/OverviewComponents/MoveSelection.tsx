@@ -8,7 +8,6 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import styled from "styled-components";
-import { Layers } from "../../../../../types";
 import { getFinalPosition } from "../../../../../utils/directions";
 import { Img, OptionButton } from "../../styles/global";
 import { arrowImg } from "../../types";
