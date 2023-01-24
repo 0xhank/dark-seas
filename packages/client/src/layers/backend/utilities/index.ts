@@ -10,6 +10,7 @@ import {
   NotValue,
   removeComponent,
   runQuery,
+  setComponent,
 } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
 import { Howl } from "howler";
@@ -20,7 +21,11 @@ import { NetworkLayer } from "../../network";
 import { BackendComponents } from "../createBackendComponents";
 import { Category, soundLibrary } from "../sound/library";
 
-export async function createBackendUtilities(network: NetworkLayer, components: BackendComponents) {
+export async function createBackendUtilities(
+  network: NetworkLayer,
+  components: BackendComponents,
+  godIndex: EntityIndex
+) {
   const {
     world,
     utils: { getPlayerEntity, getGameConfig },
@@ -219,6 +224,60 @@ export async function createBackendUtilities(network: NetworkLayer, components: 
     playSound("ocean", Category.Ambience, true);
   }
 
+  function handleNewActionsSpecial(action: ActionType, shipEntity: EntityIndex) {
+    const selectedActions = getComponentValue(components.SelectedActions, shipEntity) || {
+      actionTypes: [ActionType.None, ActionType.None],
+      specialEntities: ["0" as EntityID, "0" as EntityID],
+    };
+
+    const actions = structuredClone(selectedActions);
+    const index = actions.actionTypes.indexOf(action);
+    if (index == -1) {
+      const unusedSlot = actions.actionTypes.indexOf(ActionType.None);
+      if (unusedSlot == -1) return;
+      actions.actionTypes[unusedSlot] = action;
+      actions.specialEntities[unusedSlot] = "0" as EntityID;
+    } else {
+      actions.actionTypes[index] = ActionType.None;
+      actions.specialEntities[index] = "0" as EntityID;
+    }
+    setComponent(components.SelectedActions, shipEntity, {
+      actionTypes: actions.actionTypes,
+      specialEntities: actions.specialEntities,
+    });
+    setComponent(components.SelectedShip, godIndex, { value: shipEntity });
+  }
+
+  function handleNewActionsCannon(action: ActionType, cannonEntity: EntityIndex) {
+    const shipID = getComponentValueStrict(OwnedBy, cannonEntity).value;
+    if (!shipID) return;
+    const shipEntity = world.entityToIndex.get(shipID);
+    if (!shipEntity) return;
+    const selectedActions = getComponentValue(components.SelectedActions, shipEntity) || {
+      actionTypes: [ActionType.None, ActionType.None],
+      specialEntities: ["0" as EntityID, "0" as EntityID],
+    };
+    const actions = structuredClone(selectedActions);
+    const entityID = world.entities[cannonEntity];
+    const index = actions.specialEntities.indexOf(entityID);
+
+    // couldn't find the cannon
+    if (index == -1) {
+      const unusedSlot = selectedActions.actionTypes.indexOf(ActionType.None);
+      if (unusedSlot == -1) return;
+      actions.actionTypes[unusedSlot] = action;
+      actions.specialEntities[unusedSlot] = entityID;
+    } else {
+      actions.actionTypes[index] = ActionType.None;
+      actions.specialEntities[index] = "0" as EntityID;
+    }
+    setComponent(components.SelectedActions, shipEntity, {
+      actionTypes: actions.actionTypes,
+      specialEntities: actions.specialEntities,
+    });
+    setComponent(components.SelectedShip, godIndex, { value: shipEntity });
+  }
+
   startEnvironmentSoundSystem();
 
   return {
@@ -233,5 +292,7 @@ export async function createBackendUtilities(network: NetworkLayer, components: 
     clearComponent,
     getDamageLikelihood,
     playSound,
+    handleNewActionsCannon,
+    handleNewActionsSpecial,
   };
 }

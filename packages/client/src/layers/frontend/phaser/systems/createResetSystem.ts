@@ -54,6 +54,7 @@ export function createResetSystem(phaser: PhaserLayer) {
           destroyGroupObject(`projection-${ship}`);
         });
         destroyGroupObject("selectedActions");
+        destroyGroupObject("hoveredFiringArea");
         clearComponent(SelectedActions);
         clearComponent(HoveredAction);
         clearComponent(ExecutedActions);

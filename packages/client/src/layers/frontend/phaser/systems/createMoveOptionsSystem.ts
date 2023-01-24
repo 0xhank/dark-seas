@@ -5,6 +5,8 @@ import {
   getComponentEntities,
   getComponentValueStrict,
   Has,
+  removeComponent,
+  setComponent,
 } from "@latticexyz/recs";
 import { Phase } from "../../../../types";
 import { getFinalPosition } from "../../../../utils/directions";
@@ -22,14 +24,15 @@ export function createMoveOptionsSystem(phaser: PhaserLayer) {
         utils: { getPhase },
       },
       backend: {
-        components: { HoveredShip },
+        components: { SelectedShip, SelectedMove, HoveredMove },
         utils: { isMyShip },
+        godIndex,
       },
     },
     utils: { destroySpriteObject },
   } = phaser;
   /* ---------------------------------------------- Move Options update ------------------------------------------- */
-  defineComponentSystem(world, HoveredShip, (update) => {
+  defineComponentSystem(world, SelectedShip, (update) => {
     const shipEntity = update.value[0]?.value as EntityIndex | undefined;
     if (!shipEntity) return;
     const phase: Phase | undefined = getPhase(DELAY);
@@ -47,11 +50,16 @@ export function createMoveOptionsSystem(phaser: PhaserLayer) {
       const shipColor = colors.whiteHex;
 
       const objectId = `optionGhost-${moveCardEntity}`;
-      renderShip(phaser, shipEntity, objectId, finalPosition, finalRotation, shipColor, 0.3);
+      destroySpriteObject(objectId);
+      const shipObject = renderShip(phaser, shipEntity, objectId, finalPosition, finalRotation, shipColor, 0.3);
+      shipObject.setInteractive();
+      shipObject.on("pointerdown", () => setComponent(SelectedMove, shipEntity, { value: moveCardEntity }));
+      shipObject.on("pointerover", () => setComponent(HoveredMove, godIndex, { shipEntity, moveCardEntity }));
+      shipObject.on("pointerout", () => removeComponent(HoveredMove, godIndex));
     });
   });
 
-  defineExitSystem(world, [Has(HoveredShip)], () => {
+  defineExitSystem(world, [Has(SelectedShip)], () => {
     [...getComponentEntities(MoveCard)].forEach((moveCardEntity) => {
       const objectId = `optionGhost-${moveCardEntity}`;
 

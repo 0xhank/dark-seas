@@ -29,7 +29,9 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
       OnFireLocal,
       SailPositionLocal,
       DamagedCannonsLocal,
+      SelectedShip,
     },
+    utils: { isMyShip, clearComponent },
   } = layer;
 
   function parseLoadAction(action: BytesLike) {
@@ -58,6 +60,7 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
     const shipUpdates: Map<string, ComponentValue> = new Map();
     updates.forEach((update) => {
       const entity = update.entity;
+
       const component = update.component;
       const key = `${entity}-${component.id}`;
       if (update.value == undefined) return;
@@ -69,6 +72,7 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
       const shipEntity = world.entityToIndex.get(bigNumToEntityID(action.shipEntity));
       if (!shipEntity) return;
       // iterate through ship actions
+      if (isMyShip(shipEntity)) clearComponent(SelectedShip);
 
       const executedActions = action.actionTypes.map((a, i) => {
         const actionType = a as ActionType;

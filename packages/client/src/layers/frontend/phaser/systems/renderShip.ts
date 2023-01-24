@@ -99,9 +99,14 @@ export function renderFiringArea(
   const { phaserScene } = phaser.scenes.Main;
 
   const firingArea = getFiringAreaPixels(phaser, position, rotation, length, cannonEntity);
-  const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, colors.whiteHex, 0.1);
+  const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, colors.whiteHex, 0.3);
   firingPolygon.setDisplayOrigin(0);
   firingPolygon.setDepth(RenderDepth.Foreground6);
+
+  const geomPolygon = new Phaser.Geom.Polygon(
+    firingArea.reduce((prev: number[], coord) => [...prev, coord.x, coord.y], [])
+  );
+
   if (fill) {
     firingPolygon.setFillStyle(fill.tint, fill.alpha);
   }
@@ -110,6 +115,8 @@ export function renderFiringArea(
   }
 
   group.add(firingPolygon, true);
+
+  return firingPolygon;
 }
 
 export function renderCircle(

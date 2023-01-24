@@ -30,6 +30,7 @@ export function registerEnemyShip() {
             SailPositionLocal: SailPosition,
           },
           godIndex,
+          utils: { isMyShip },
         },
       } = layers;
 
@@ -49,17 +50,18 @@ export function registerEnemyShip() {
         Player.update$
       ).pipe(
         map(() => {
+          const ship = getComponentValue(HoveredShip, godIndex)?.value as EntityIndex | undefined;
+          if (!ship) return null;
+
+          if (isMyShip(ship)) return null;
           return {
             layers,
-            HoveredShip,
-            godIndex,
+            ship,
           };
         })
       );
     },
-    ({ layers, HoveredShip, godIndex }) => {
-      const ship = getComponentValue(HoveredShip, godIndex)?.value as EntityIndex | undefined;
-      if (!ship) return null;
+    ({ layers, ship }) => {
       return (
         <Container style={{ justifyContent: "flex-start" }}>
           <InternalContainer style={{ gap: "24px", height: "auto" }}>

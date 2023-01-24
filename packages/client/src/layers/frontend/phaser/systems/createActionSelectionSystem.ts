@@ -7,6 +7,7 @@ import {
   getComponentValueStrict,
   Has,
   HasValue,
+  removeComponent,
   runQuery,
   setComponent,
 } from "@latticexyz/recs";
@@ -25,8 +26,9 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
         utils: { getPhase },
       },
       backend: {
-        utils: { getTargetedShips, isMyShip },
-        components: { SelectedActions, HoveredShip, HoveredAction, Targeted, DamagedCannonsLocal },
+        utils: { getTargetedShips, isMyShip, handleNewActionsCannon },
+        components: { SelectedActions, SelectedShip, HoveredAction, Targeted, DamagedCannonsLocal },
+        godIndex,
       },
     },
     utils: { getGroupObject, destroyGroupObject },
@@ -89,7 +91,8 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
         setComponent(Targeted, entity, { value: diff.added ? targetedValue + 1 : Math.max(0, targetedValue - 1) });
       });
     }
-    renderCannons(shipEntity);
+
+    if (value[0]) renderCannons(shipEntity);
   });
 
   // this is probably the worst code ive ever written
@@ -129,7 +132,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     }
   }
 
-  defineComponentSystem(world, HoveredShip, (update) => {
+  defineComponentSystem(world, SelectedShip, (update) => {
     const shipEntity = update.value[0]?.value as EntityIndex | undefined;
     if (!shipEntity) return;
     const phase: Phase | undefined = getPhase(DELAY);
@@ -139,20 +142,23 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     renderCannons(shipEntity);
   });
 
-  defineExitSystem(world, [Has(HoveredShip)], () => {
+  defineExitSystem(world, [Has(SelectedShip)], () => {
+    clearCannons();
+  });
+
+  function clearCannons() {
     destroyGroupObject("selectedActions");
     destroyGroupObject("hoveredFiringArea");
-  });
+  }
 
   function renderCannons(shipEntity: EntityIndex) {
     const groupId = "selectedActions";
-    const activeGroup = getGroupObject(groupId);
-    activeGroup.clear(true, true);
+    const activeGroup = getGroupObject(groupId, true);
 
     const selectedActions = getComponentValue(SelectedActions, shipEntity);
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
     const damagedCannons = getComponentValue(DamagedCannonsLocal, shipEntity)?.value != 0;
-
+    const myShip = isMyShip(shipEntity);
     cannonEntities.forEach((cannonEntity) => {
       const loaded = getComponentValue(Loaded, cannonEntity);
       const cannonSelected = selectedActions?.specialEntities.includes(world.entities[cannonEntity]);
@@ -161,7 +167,16 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
       const length = getComponentValueStrict(Length, shipEntity).value;
       const rotation = getComponentValueStrict(Rotation, shipEntity).value;
       const rangeColor = getRangeTintAlpha(!!loaded, !!cannonSelected, damagedCannons);
-      renderFiringArea(phaser, activeGroup, position, rotation, length, cannonEntity, rangeColor);
+      const firingPolygon = renderFiringArea(phaser, activeGroup, position, rotation, length, cannonEntity, rangeColor);
+      const actionType = loaded ? ActionType.Fire : ActionType.Load;
+
+      if (damagedCannons || !myShip) return;
+      firingPolygon.setInteractive(firingPolygon.geom, Phaser.Geom.Polygon.Contains);
+      firingPolygon.on("pointerdown", () => handleNewActionsCannon(actionType, cannonEntity));
+      firingPolygon.on("pointerover", () =>
+        setComponent(HoveredAction, godIndex, { shipEntity, actionType, specialEntity: cannonEntity })
+      );
+      firingPolygon.on("pointerout", () => removeComponent(HoveredAction, godIndex));
     });
   }
 }
