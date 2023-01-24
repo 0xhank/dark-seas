@@ -1,8 +1,9 @@
-import { Has, runQuery } from "@latticexyz/recs";
+import { EntityIndex, getComponentValue } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
 import { map, merge } from "rxjs";
 import styled from "styled-components";
 import { registerUIComponent } from "../engine";
+import { colors } from "../styles/global";
 
 type ShipData = {
   location: Coord;
@@ -23,16 +24,16 @@ export function registerDamageChance() {
     (layers) => {
       const {
         network: {
-          components: { Cannon },
+          components: { Loaded },
         },
         backend: {
           components: { HoveredAction },
-          utils: { getTargetedShips, getDamageLikelihood, getPlayerShips },
+          utils: { getTargetedShips, getDamageLikelihood },
           godIndex,
         },
         phaser: {
           scenes: {
-            Main: { phaserScene, camera },
+            Main: { camera },
           },
           utils: { getSpriteObject },
         },
@@ -40,46 +41,41 @@ export function registerDamageChance() {
 
       return merge(HoveredAction.update$, camera.worldView$, camera.zoom$).pipe(
         map(() => {
-          // const hoveredAction = getComponentValue(HoveredAction, godIndex);
+          const hoveredAction = getComponentValue(HoveredAction, godIndex);
 
-          // if (!hoveredAction) return;
-          // const cannonEntity = hoveredAction.specialEntity as EntityIndex;
+          if (!hoveredAction) return;
+          const cannonEntity = hoveredAction.specialEntity as EntityIndex;
 
-          // if (!cannonEntity) return;
+          if (!cannonEntity) return;
 
-          const playerShips = getPlayerShips();
+          if (!getComponentValue(Loaded, cannonEntity)?.value) return;
+          const cam = camera.phaserCamera;
 
-          if (!playerShips) return;
-          // const data = getTargetedShips(hoveredAction.specialEntity as EntityIndex).reduce((curr: ShipData[], ship) => {
-          const data = playerShips.reduce((curr: ShipData[], ship) => {
+          const data = getTargetedShips(hoveredAction.specialEntity as EntityIndex).reduce((curr: ShipData[], ship) => {
             const shipObject = getSpriteObject(ship);
-
-            console.log("ship position:", shipObject.x, shipObject.y);
-
-            const cam = camera.phaserCamera;
-
-            console.log("ship location: ", shipObject.x, shipObject.y);
-            console.log("camera scroll:", cam.worldView);
 
             const x = Math.round(((shipObject.x - cam.worldView.x) * cam.zoom) / 2);
             const y = Math.round(((shipObject.y - cam.worldView.y) * cam.zoom) / 2);
 
             const location = { x, y };
-            console.log(`location: ${location.x}, ${location.y}`);
-
-            const cannon = [...runQuery([Has(Cannon)])][0];
-            const hitChances = getDamageLikelihood(cannon, ship);
+            const hitChances = getDamageLikelihood(cannonEntity, ship);
             if (!hitChances) return curr;
             return [...curr, { location, ...hitChances }];
           }, []);
 
           return {
             data,
+            zoom: cam.zoom,
           };
         })
       );
     },
-    ({ data }) => {
+    ({ data, zoom }) => {
+      const prefix = "/img/explosions/explosion";
+
+      const width = zoom * 100;
+      const fontSize = zoom;
+      const borderRadius = zoom * 6;
       return (
         <div style={{ width: "100%", height: "100%", position: "relative" }}>
           {data.map((ship) => {
@@ -87,12 +83,19 @@ export function registerDamageChance() {
               <DamageContainer
                 top={ship.location.y}
                 left={ship.location.x}
+                width={width}
+                borderRadius={borderRadius}
                 key={`ship-${ship.location.x}-${ship.location.y}`}
               >
-                <span>Chance of damage</span>
-                <span>1: {ship[1]}</span>
-                <span>2: {ship[2]}</span>
-                <span>3: {ship[3]}</span>
+                <StatContainer fontSize={fontSize}>
+                  <img src={prefix + "1.png"} /> {ship[1]}%
+                </StatContainer>
+                <StatContainer fontSize={fontSize}>
+                  <img src={prefix + "2.png"} /> {ship[2]}%
+                </StatContainer>
+                <StatContainer fontSize={fontSize}>
+                  <img src={prefix + "3.png"} /> {ship[3]}%
+                </StatContainer>
               </DamageContainer>
             );
           })}
@@ -102,12 +105,23 @@ export function registerDamageChance() {
   );
 }
 
-const DamageContainer = styled.div<{ top: number; left: number }>`
+const DamageContainer = styled.div<{ top: number; left: number; width: number; borderRadius: number }>`
   position: absolute;
-  width: 100px;
+  width: ${({ width }) => width}px;
   top: ${({ top }) => top};
   left: ${({ left }) => left};
-  background: red;
+  display: grid;
+  grid-template-columns: repeat(3, calc(33.3% - 3px));
+  gap: 4px;
+  background: ${colors.glass};
+  border-radius: ${({ borderRadius }) => borderRadius}px;
+  text-align: center;
+`;
+
+const StatContainer = styled.div<{ fontSize: number }>`
   display: flex;
   flex-direction: column;
+  line-height: ${({ fontSize }) => fontSize * 2}rem;
+  color: ${colors.darkBrown};
+  font-size: ${({ fontSize }) => fontSize}rem;
 `;

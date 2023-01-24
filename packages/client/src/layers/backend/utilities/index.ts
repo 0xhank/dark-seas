@@ -131,7 +131,8 @@ export async function createBackendUtilities(network: NetworkLayer, components: 
     const firepower = getComponentValueStrict(Firepower, cannonEntity).value;
     const baseHitChance = getBaseHitChance(dist, firepower);
 
-    return { 3: Math.round(baseHitChance), 2: Math.round(baseHitChance * 1.7), 1: Math.round(baseHitChance * 4.5) };
+    const format = (n: number) => Math.min(100, Math.round(n));
+    return { 3: format(baseHitChance), 2: format(baseHitChance * 1.7), 1: format(baseHitChance * 4.5) };
   }
 
   function getPlayerShipsWithActions(player?: EntityIndex): Action[] {

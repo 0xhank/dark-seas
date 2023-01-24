@@ -75,6 +75,7 @@ export const Container = styled.div`
   padding: 12px;
   pointer-events: all;
   gap: 5px;
+  z-index: 5;
 `;
 
 export const Button = styled.button<{ isSelected?: boolean; noGoldBorder?: boolean }>`
