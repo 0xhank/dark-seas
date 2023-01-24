@@ -8,7 +8,6 @@ import {
 } from "@latticexyz/recs";
 import { Phase } from "../../../../types";
 import { getFinalPosition } from "../../../../utils/directions";
-import { getColorNum } from "../../../../utils/procgen";
 import { DELAY } from "../../constants";
 import { colors } from "../../react/styles/global";
 import { PhaserLayer } from "../types";
@@ -34,8 +33,7 @@ export function createMoveOptionsSystem(phaser: PhaserLayer) {
     const shipEntity = update.value[0]?.value as EntityIndex | undefined;
     if (!shipEntity) return;
     const phase: Phase | undefined = getPhase(DELAY);
-    const isMine = isMyShip(shipEntity);
-    if (phase != Phase.Commit || !isMine) return;
+    if (phase != Phase.Commit) return;
 
     const moveCardEntities = [...getComponentEntities(MoveCard)];
     const position = getComponentValueStrict(Position, shipEntity);
@@ -46,7 +44,7 @@ export function createMoveOptionsSystem(phaser: PhaserLayer) {
       const moveCard = getComponentValueStrict(MoveCard, moveCardEntity);
 
       const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
-      const shipColor = isMine ? getColorNum(shipEntity) : colors.whiteHex;
+      const shipColor = colors.whiteHex;
 
       const objectId = `optionGhost-${moveCardEntity}`;
       renderShip(phaser, shipEntity, objectId, finalPosition, finalRotation, shipColor, 0.3);

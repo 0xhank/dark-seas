@@ -230,7 +230,15 @@ export async function createNetworkLayer(config: GameConfig) {
     systemCallStreams,
     startSync,
     network,
-    utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn, secondsUntilNextPhase },
+    utils: {
+      getGameConfig,
+      getPlayerEntity,
+      getPhase,
+      getGamePhaseAt,
+      getTurn,
+      secondsUntilNextPhase,
+      bigNumToEntityID,
+    },
     api: { revealMove, submitActions, spawnPlayer, commitMove },
     dev: setupDevSystems(world, encoders, systems),
   };
