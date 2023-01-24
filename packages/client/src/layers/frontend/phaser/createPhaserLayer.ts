@@ -49,6 +49,9 @@ export async function createPhaserLayer(backend: BackendLayer) {
   function destroySpriteObject(id: string | number) {
     const sprite = spriteRegistry.get(id);
     if (!sprite) return;
+    sprite.off("pointerdown");
+    sprite.off("pointerover");
+    sprite.off("pointerout");
     sprite.destroy(true);
     spriteRegistry.delete(id);
   }
