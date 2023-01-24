@@ -2,7 +2,6 @@ import {
   EntityID,
   EntityIndex,
   getComponentValue,
-  getComponentValueStrict,
   Has,
   HasValue,
   removeComponent,
@@ -54,8 +53,8 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
   if (!actionsExecuted) {
     cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[ship] })])].sort(
       (a, b) =>
-        ((180 + getComponentValueStrict(Rotation, a).value) % 360) -
-        ((180 + getComponentValueStrict(Rotation, b).value) % 360)
+        ((180 + (getComponentValue(Rotation, a)?.value || 0)) % 360) -
+        ((180 + (getComponentValue(Rotation, b)?.value || 0)) % 360)
     );
 
     actions = Object.keys(ActionType)
@@ -66,8 +65,8 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
       ...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[ship] }), Has(ExecutedCannon)]),
     ].sort(
       (a, b) =>
-        ((180 + getComponentValueStrict(Rotation, a).value) % 360) -
-        ((180 + getComponentValueStrict(Rotation, b).value) % 360)
+        ((180 + (getComponentValue(Rotation, a)?.value || 0)) % 360) -
+        ((180 + (getComponentValue(Rotation, b)?.value || 0)) % 360)
     );
     actions = (getComponentValue(ExecutedActions, ship)?.value || []).filter(
       (a) => !isNaN(a) && ![ActionType.None, ActionType.Load, ActionType.Fire].includes(a)

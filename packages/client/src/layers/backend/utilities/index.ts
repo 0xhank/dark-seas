@@ -15,7 +15,7 @@ import {
 import { Coord } from "@latticexyz/utils";
 import { Howl } from "howler";
 import { Action, ActionType, Move } from "../../../types";
-import { inWorld } from "../../../utils/distance";
+import { distance, inWorld } from "../../../utils/distance";
 import { getFiringArea, getSternLocation, inFiringArea } from "../../../utils/trig";
 import { NetworkLayer } from "../../network";
 import { BackendComponents } from "../createBackendComponents";
@@ -29,7 +29,7 @@ export async function createBackendUtilities(
   const {
     world,
     utils: { getPlayerEntity, getGameConfig },
-    components: { Ship, OwnedBy, Range, Position, Rotation, Length },
+    components: { Ship, OwnedBy, Range, Position, Rotation, Length, Firepower },
     network: { connectedAddress },
   } = network;
 
@@ -117,6 +117,27 @@ export async function createBackendUtilities(
     });
 
     return shipEntities;
+  }
+
+  function getBaseHitChance(distance: number, firepower: number) {
+    return (50 * Math.exp(-0.008 * distance) * firepower) / 100;
+  }
+
+  function getDamageLikelihood(cannonEntity: EntityIndex, target: EntityIndex) {
+    const shipID = getComponentValue(OwnedBy, cannonEntity)?.value;
+    if (!shipID) return;
+    const shipEntity = world.entityToIndex.get(shipID);
+    if (!shipEntity) return;
+
+    const shipPosition = getComponentValueStrict(Position, shipEntity);
+    const targetPosition = getComponentValueStrict(Position, target);
+    const dist = distance(shipPosition, targetPosition);
+
+    const firepower = getComponentValueStrict(Firepower, cannonEntity).value;
+    const baseHitChance = getBaseHitChance(dist, firepower);
+
+    const format = (n: number) => Math.min(100, Math.round(n));
+    return { 3: format(baseHitChance), 2: format(baseHitChance * 1.7), 1: format(baseHitChance * 4.5) };
   }
 
   function getPlayerShipsWithActions(player?: EntityIndex): Action[] {
@@ -269,6 +290,7 @@ export async function createBackendUtilities(
     outOfBounds,
     isWhirlpool,
     clearComponent,
+    getDamageLikelihood,
     playSound,
     handleNewActionsCannon,
     handleNewActionsSpecial,

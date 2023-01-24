@@ -20,7 +20,7 @@ const JoinGameContainer = ({ layers }: { layers: Layers }) => {
   const [y, setY] = useState("");
 
   const findSpawnButtonDisabled = playerName.length === 0 || x == undefined || y == undefined;
-  const spawnAction = [...runQuery([Has(Action)])].find((i) => world.entities[i].includes("spawn"));
+  const spawnAction = [...runQuery([Has(Action)])].length > 0;
   return (
     <div
       style={{
