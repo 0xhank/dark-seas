@@ -49,6 +49,8 @@ export async function createPhaserLayer(backend: BackendLayer) {
   function destroySpriteObject(id: string | number) {
     const sprite = spriteRegistry.get(id);
     if (!sprite) return;
+    sprite.disableInteractive();
+
     sprite.off("pointerdown");
     sprite.off("pointerover");
     sprite.off("pointerout");
@@ -58,8 +60,8 @@ export async function createPhaserLayer(backend: BackendLayer) {
 
   function getGroupObject(id: string | number, clear = false, s?: Phaser.Scene): Phaser.GameObjects.Group {
     const scene = s || scenes.Main.phaserScene;
+    if (clear) destroyGroupObject(id);
     const group = polygonRegistry.get(id);
-    if (clear) group?.clear(true, true);
     if (group) return group;
 
     const newGroup = scene.add.group();
@@ -70,6 +72,14 @@ export async function createPhaserLayer(backend: BackendLayer) {
   function destroyGroupObject(id: string | number) {
     const group = polygonRegistry.get(id);
     if (!group) return;
+
+    group.getChildren().forEach((child) => {
+      child.disableInteractive();
+
+      child.off("pointerdown");
+      child.off("pointerover");
+      child.off("pointerout");
+    });
     group.destroy(true, true);
     polygonRegistry.delete(id);
   }

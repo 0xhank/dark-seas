@@ -20,6 +20,7 @@ import { setupDevSystems } from "./setup";
 import { createFaucetService, GodID } from "@latticexyz/network";
 import { Coord } from "@latticexyz/utils";
 import { BigNumber, BigNumberish, utils } from "ethers";
+import { ActionStruct } from "../../../../contracts/types/ethers-contracts/ActionSystem";
 import { MoveStruct } from "../../../../contracts/types/ethers-contracts/MoveSystem";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../../../contracts/types/SystemTypes";
@@ -230,7 +231,15 @@ export async function createNetworkLayer(config: GameConfig) {
     systemCallStreams,
     startSync,
     network,
-    utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn, secondsUntilNextPhase },
+    utils: {
+      getGameConfig,
+      getPlayerEntity,
+      getPhase,
+      getGamePhaseAt,
+      getTurn,
+      secondsUntilNextPhase,
+      bigNumToEntityID,
+    },
     api: { revealMove, submitActions, spawnPlayer, commitMove },
     dev: setupDevSystems(world, encoders, systems),
   };

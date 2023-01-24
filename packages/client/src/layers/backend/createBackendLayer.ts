@@ -29,7 +29,7 @@ export async function createBackendLayer(network: NetworkLayer) {
 
   // UTILITIES
 
-  const utils = await createBackendUtilities(network, components);
+  const utils = await createBackendUtilities(network, components, GodEntityIndex);
 
   // --- SYSTEMS --------------------------------------------------------------
   const actions = createActionSystem(world, network.txReduced$);

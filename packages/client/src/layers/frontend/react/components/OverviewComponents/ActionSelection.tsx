@@ -27,7 +27,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
         ExecutedCannon,
         DamagedCannonsLocal,
       },
-      utils: { checkActionPossible },
+      utils: { checkActionPossible, handleNewActionsCannon, handleNewActionsSpecial },
       godIndex,
     },
     network: {
@@ -123,6 +123,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
             selected={selected}
             disabled={disabled}
             executed={actionsExecuted}
+            specialEntity={ship}
             key={`actionOption-${action}`}
             actionType={action}
             handleClick={handleNewActionsSpecial}
@@ -171,47 +172,6 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
         <Sub>{subtitle}</Sub>
       </OptionButton>
     );
-  }
-
-  function handleNewActionsCannon(action: ActionType, cannonEntity: EntityIndex) {
-    const actions = structuredClone(selectedActions);
-    const entityID = world.entities[cannonEntity];
-    const index = actions.specialEntities.indexOf(entityID);
-
-    // couldn't find the cannon
-    if (index == -1) {
-      const unusedSlot = selectedActions.actionTypes.indexOf(ActionType.None);
-      if (unusedSlot == -1) return;
-      actions.actionTypes[unusedSlot] = action;
-      actions.specialEntities[unusedSlot] = entityID;
-    } else {
-      actions.actionTypes[index] = ActionType.None;
-      actions.specialEntities[index] = "0" as EntityID;
-    }
-    setComponent(SelectedActions, ship, {
-      actionTypes: actions.actionTypes,
-      specialEntities: actions.specialEntities,
-    });
-    setComponent(SelectedShip, godIndex, { value: ship });
-  }
-
-  function handleNewActionsSpecial(action: ActionType, cannonEntity: EntityIndex) {
-    const actions = structuredClone(selectedActions);
-    const index = actions.actionTypes.indexOf(action);
-    if (index == -1) {
-      const unusedSlot = actions.actionTypes.indexOf(ActionType.None);
-      if (unusedSlot == -1) return;
-      actions.actionTypes[unusedSlot] = action;
-      actions.specialEntities[unusedSlot] = "0" as EntityID;
-    } else {
-      actions.actionTypes[index] = ActionType.None;
-      actions.specialEntities[index] = "0" as EntityID;
-    }
-    setComponent(SelectedActions, ship, {
-      actionTypes: actions.actionTypes,
-      specialEntities: actions.specialEntities,
-    });
-    setComponent(SelectedShip, godIndex, { value: ship });
   }
 };
 
