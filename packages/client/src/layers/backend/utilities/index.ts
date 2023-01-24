@@ -171,7 +171,6 @@ export async function createBackendUtilities(network: NetworkLayer, components: 
     const depth = perlin(coord.x + perlinSeed, coord.y + perlinSeed, 0, denom);
     const ret = depth * 100 < 26;
     outOfBoundsMap.set(coordStr, ret);
-    console.log("ret:", ret, coord);
 
     return ret;
   }
