@@ -14,7 +14,7 @@ import {
 } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
 import { getShipSprite } from "../../../../utils/ships";
-import { getShipMidpoint, getSternLocation } from "../../../../utils/trig";
+import { getMidpoint, getSternLocation } from "../../../../utils/trig";
 import { Category } from "../../../backend/sound/library";
 import { Animations, MOVE_LENGTH, RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
@@ -176,7 +176,7 @@ export function createShipSystem(phaser: PhaserLayer) {
     const length = getComponentValueStrict(Length, shipEntity).value;
 
     if (outOfBounds(position) || outOfBounds(getSternLocation(position, rotation, length))) {
-      const midpoint = getMidpoint(shipEntity);
+      const midpoint = getShipMidpoint(shipEntity);
       const healthLocal = getComponentValueStrict(HealthLocal, shipEntity).value;
       setComponent(HealthLocal, shipEntity, { value: healthLocal - 1 });
       const explosionId = `explosion-move-${shipEntity}`;
@@ -198,11 +198,11 @@ export function createShipSystem(phaser: PhaserLayer) {
     object.setPosition(coord.x, coord.y);
   }
 
-  function getMidpoint(shipEntity: EntityIndex) {
+  function getShipMidpoint(shipEntity: EntityIndex) {
     const position = getComponentValueStrict(Position, shipEntity);
     const rotation = getComponentValue(Rotation, shipEntity)?.value || 0;
     const length = getComponentValue(Length, shipEntity)?.value || 10;
-    const midpoint = getShipMidpoint(position, rotation, length);
+    const midpoint = getMidpoint(position, rotation, length);
 
     return tileCoordToPixelCoord(midpoint, posWidth, posHeight);
   }

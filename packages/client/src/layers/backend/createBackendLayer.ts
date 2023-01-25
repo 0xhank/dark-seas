@@ -44,14 +44,12 @@ export async function createBackendLayer(network: NetworkLayer) {
   };
   // --- CONTEXT --------------------------------------------------------------------
   const context = {
-    world,
+    ...network,
     actions,
     api,
     utils: { ...network.utils, ...utils },
     components: { ...network.components, ...components },
     godIndex: GodEntityIndex,
-    systemCallStreams: network.systemCallStreams,
-    network: network.network,
   };
 
   // --- SYSTEMS --------------------------------------------------------------------

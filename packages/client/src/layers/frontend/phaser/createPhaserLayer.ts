@@ -86,9 +86,7 @@ export async function createPhaserLayer(backend: BackendLayer) {
 
   // --- LAYER CONTEXT --------------------------------------------------------------
   const context = {
-    world,
-    godIndex: backend.godIndex,
-    actions: backend.actions,
+    ...backend,
     components: { ...components, ...backend.components },
     api: {
       ...backend.api,
@@ -97,7 +95,6 @@ export async function createPhaserLayer(backend: BackendLayer) {
     utils: { ...backend.utils, getSpriteObject, getGroupObject, destroySpriteObject, destroyGroupObject },
     game,
     scene: { ...scenes.Main, posWidth: POS_WIDTH, posHeight: POS_HEIGHT },
-    network: backend.network,
   };
 
   // --- SYSTEMS --------------------------------------------------------------------

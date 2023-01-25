@@ -16,7 +16,7 @@ export function getPositionByVector(
   return { x: Math.round(x), y: Math.round(y) };
 }
 
-export function getShipMidpoint(origin: Coord, rotation: number, length: number): Coord {
+export function getMidpoint(origin: Coord, rotation: number, length: number): Coord {
   return getPositionByVector(origin, rotation, length / 2, 180);
 }
 

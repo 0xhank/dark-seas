@@ -9,7 +9,7 @@ import {
 } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
 import { distance } from "../../../../utils/distance";
-import { getShipMidpoint } from "../../../../utils/trig";
+import { getMidpoint } from "../../../../utils/trig";
 import { Category } from "../../../backend/sound/library";
 import { Animations, CANNON_SHOT_DELAY, CANNON_SPEED, RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
@@ -61,7 +61,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
 
     const shipEntity = world.getEntityIndexStrict(getComponentValueStrict(OwnedBy, cannonEntity).value);
 
-    const start = getMidpoint(shipEntity);
+    const start = getShipMidpoint(shipEntity);
     attacks.forEach((attack, i) => {
       for (let j = 0; j < NUM_CANNONBALLS; j++) {
         fireCannon(start, cannonEntity, attack, i * NUM_CANNONBALLS + j, j < attack.damage);
@@ -149,16 +149,16 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     }
     destroySpriteObject(spriteId);
   }
-  function getMidpoint(shipEntity: EntityIndex) {
+  function getShipMidpoint(shipEntity: EntityIndex) {
     const position = getComponentValueStrict(Position, shipEntity);
     const rotation = getComponentValue(Rotation, shipEntity)?.value || 0;
     const length = getComponentValue(Length, shipEntity)?.value || 10;
-    const midpoint = getShipMidpoint(position, rotation, length);
+    const midpoint = getMidpoint(position, rotation, length);
 
     return tileCoordToPixelCoord(midpoint, posWidth, posHeight);
   }
   function getCannonEnd(targetEntity: EntityIndex, hit: boolean): Coord {
-    const targetCenter = getMidpoint(targetEntity);
+    const targetCenter = getShipMidpoint(targetEntity);
     const length = getComponentValueStrict(Length, targetEntity).value;
     const targetWidth = length / (1.5 * SHIP_RATIO);
 

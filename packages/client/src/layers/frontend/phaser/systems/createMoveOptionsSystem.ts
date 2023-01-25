@@ -19,7 +19,7 @@ export function createMoveOptionsSystem(phaser: PhaserLayer) {
   const {
     world,
     components: { Position, Rotation, SailPosition, MoveCard, Speed, SelectedShip, SelectedMove, HoveredMove },
-    utils: { destroySpriteObject, getPhase, isMyShip },
+    utils: { destroySpriteObject, getPhase },
     godIndex,
   } = phaser;
   /* ---------------------------------------------- Move Options update ------------------------------------------- */

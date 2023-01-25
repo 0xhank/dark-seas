@@ -146,13 +146,9 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
   });
 
   defineExitSystem(world, [Has(SelectedShip)], () => {
-    clearCannons();
-  });
-
-  function clearCannons() {
     destroyGroupObject("selectedActions");
     destroyGroupObject("hoveredFiringArea");
-  }
+  });
 
   function renderCannons(shipEntity: EntityIndex) {
     const groupId = "selectedActions";
