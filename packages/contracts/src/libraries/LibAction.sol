@@ -22,7 +22,7 @@ import "./LibVector.sol";
 
 library LibAction {
   /**
-   * @notice  executes all actions corresponding to the input action
+   * @notice  executes submitted action
    * @param   components  world components
    * @param   action  set of actions to execute
    */
