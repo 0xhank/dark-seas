@@ -24,6 +24,9 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
       SailPositionLocal,
       DamagedCannonsLocal,
       SelectedShip,
+      HealthBackend,
+      SelectedActions,
+      HoveredAction,
     },
     utils: { isMyShip, clearComponent, bigNumToEntityID },
     systemCallStreams,
@@ -67,7 +70,11 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
       const shipEntity = world.entityToIndex.get(bigNumToEntityID(action.shipEntity));
       if (!shipEntity) return;
       // iterate through ship actions
-      if (isMyShip(shipEntity)) clearComponent(SelectedShip);
+      if (isMyShip(shipEntity)) {
+        clearComponent(SelectedShip);
+        clearComponent(SelectedActions);
+        clearComponent(HoveredAction);
+      }
 
       const executedActions = action.actionTypes.map((a, i) => {
         const actionType = a as ActionType;
@@ -118,12 +125,14 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
   function encodeExecutedShot(targets: EntityIndex[], shipUpdates: Map<string, ComponentValue>) {
     const damage: number[] = [];
     const specialDamage: number[] = [];
+
     targets.forEach((target) => {
       const healthKey = `${target}-Health`;
-      const oldHealth = getComponentValueStrict(HealthLocal, target).value;
+      const oldHealth = getComponentValueStrict(HealthBackend, target).value;
       const newHealth = shipUpdates.get(healthKey)?.value as number | undefined;
-      shipUpdates.delete(healthKey);
-      damage.push(oldHealth - (newHealth || oldHealth));
+      const damageDealt = Math.min(3, oldHealth - (newHealth || oldHealth));
+      setComponent(HealthBackend, target, { value: oldHealth - damageDealt });
+      damage.push(damageDealt);
 
       const fireKey = `${target}-OnFire`;
       const damagedCannonsKey = `${target}-DamagedCannons`;

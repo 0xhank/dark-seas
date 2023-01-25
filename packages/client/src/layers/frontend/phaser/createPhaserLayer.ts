@@ -72,7 +72,6 @@ export async function createPhaserLayer(backend: BackendLayer) {
   function destroyGroupObject(id: string | number) {
     const group = polygonRegistry.get(id);
     if (!group) return;
-
     group.getChildren().forEach((child) => {
       child.disableInteractive();
 
@@ -95,6 +94,7 @@ export async function createPhaserLayer(backend: BackendLayer) {
     utils: { ...backend.utils, getSpriteObject, getGroupObject, destroySpriteObject, destroyGroupObject },
     game,
     scene: { ...scenes.Main, posWidth: POS_WIDTH, posHeight: POS_HEIGHT },
+    scenes,
   };
 
   // --- SYSTEMS --------------------------------------------------------------------
