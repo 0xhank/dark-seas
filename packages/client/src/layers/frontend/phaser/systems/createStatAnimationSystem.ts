@@ -2,6 +2,7 @@ import { tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
 import {
   defineComponentSystem,
   defineUpdateSystem,
+  EntityIndex,
   getComponentValueStrict,
   Has,
   HasValue,
@@ -20,7 +21,7 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
     components: { Position, Rotation, Length, Cannon, OwnedBy, HealthLocal, OnFireLocal, DamagedCannonsLocal },
     scene: { phaserScene, posWidth, posHeight },
 
-    utils: { getSpriteObject, destroySpriteObject, getGroupObject },
+    utils: { getSpriteObject, destroySpriteObject, getGroupObject, destroyGroupObject },
   } = layer;
 
   // ON FIRE UPDATES
@@ -105,9 +106,13 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
 
     // exit or enter
     if (update.value[0] == undefined || update.value[1] == undefined) return;
-
     const improvement = update.value[0].value - update.value[1].value < 0;
     if (improvement && update.value[0].value !== 0) return;
+
+    flashCannons(shipEntity, improvement ? colors.greenHex : colors.blackHex);
+  });
+
+  async function flashCannons(shipEntity: EntityIndex, tint: number) {
     const groupId = `flash-cannons-${shipEntity}`;
     const group = getGroupObject(groupId, true);
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
@@ -118,27 +123,30 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
       const position = getComponentValueStrict(Position, shipEntity);
       const length = getComponentValueStrict(Length, shipEntity).value;
       const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-      const rangeColor = { tint: improvement ? colors.greenHex : colors.blackHex, alpha: 0.3 };
+      const rangeColor = { tint, alpha: 0.5 };
       renderFiringArea(layer, group, position, rotation, length, cannonEntity, rangeColor);
     });
 
     phaserScene.tweens.add({
       targets: group.getChildren(),
       props: {
-        alpha: 0.3,
+        alpha: {
+          from: 0,
+          to: 0.6,
+        },
       },
-      ease: Phaser.Math.Easing.Sine.Out,
+      ease: Phaser.Math.Easing.Linear,
       duration: duration,
       repeat: repeat,
       yoyo: true,
     });
 
     phaserScene.time.addEvent({
-      delay: duration * 3,
+      delay: duration * 4,
       callback: function () {
-        group.clear(true, true);
+        destroyGroupObject(groupId);
       },
       callbackScope: phaserScene,
     });
-  });
+  }
 }
