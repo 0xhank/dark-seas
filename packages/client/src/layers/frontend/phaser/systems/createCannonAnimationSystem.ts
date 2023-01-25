@@ -9,7 +9,7 @@ import {
 } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
 import { distance } from "../../../../utils/distance";
-import { getShipMidpoint } from "../../../../utils/trig";
+import { getMidpoint } from "../../../../utils/trig";
 import { Category } from "../../../backend/sound/library";
 import { Animations, CANNON_SHOT_DELAY, CANNON_SPEED, RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
@@ -24,19 +24,20 @@ type Attack = {
 export function createCannonAnimationSystem(phaser: PhaserLayer) {
   const {
     world,
-    parentLayers: {
-      network: {
-        components: { Position, Rotation, Length, Cannon, OwnedBy, Range, Ship },
-      },
-      backend: {
-        utils: { playSound },
-        components: { ExecutedShots, HealthLocal, Targeted, OnFireLocal, DamagedCannonsLocal, SailPositionLocal },
-      },
+    scene: { config, posHeight, phaserScene, posWidth },
+    components: {
+      Position,
+      Rotation,
+      Length,
+      OwnedBy,
+      ExecutedShots,
+      HealthLocal,
+      Targeted,
+      OnFireLocal,
+      DamagedCannonsLocal,
+      SailPositionLocal,
     },
-    scenes: {
-      Main: { config, positions, phaserScene },
-    },
-    utils: { getSpriteObject, getGroupObject, destroySpriteObject, destroyGroupObject },
+    utils: { getSpriteObject, getGroupObject, destroySpriteObject, destroyGroupObject, playSound },
   } = phaser;
 
   const NUM_CANNONBALLS = 3;
@@ -60,7 +61,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
 
     const shipEntity = world.getEntityIndexStrict(getComponentValueStrict(OwnedBy, cannonEntity).value);
 
-    const start = getMidpoint(shipEntity);
+    const start = getShipMidpoint(shipEntity);
     attacks.forEach((attack, i) => {
       for (let j = 0; j < NUM_CANNONBALLS; j++) {
         fireCannon(start, cannonEntity, attack, i * NUM_CANNONBALLS + j, j < attack.damage);
@@ -148,16 +149,16 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     }
     destroySpriteObject(spriteId);
   }
-  function getMidpoint(shipEntity: EntityIndex) {
+  function getShipMidpoint(shipEntity: EntityIndex) {
     const position = getComponentValueStrict(Position, shipEntity);
     const rotation = getComponentValue(Rotation, shipEntity)?.value || 0;
     const length = getComponentValue(Length, shipEntity)?.value || 10;
-    const midpoint = getShipMidpoint(position, rotation, length);
+    const midpoint = getMidpoint(position, rotation, length);
 
-    return tileCoordToPixelCoord(midpoint, positions.posWidth, positions.posHeight);
+    return tileCoordToPixelCoord(midpoint, posWidth, posHeight);
   }
   function getCannonEnd(targetEntity: EntityIndex, hit: boolean): Coord {
-    const targetCenter = getMidpoint(targetEntity);
+    const targetCenter = getShipMidpoint(targetEntity);
     const length = getComponentValueStrict(Length, targetEntity).value;
     const targetWidth = length / (1.5 * SHIP_RATIO);
 
@@ -171,10 +172,10 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
 
       getGroupObject("circle").add(circle);
 
-      return { x: targetCenter.x + randX * positions.posHeight, y: targetCenter.y + randY * positions.posHeight };
+      return { x: targetCenter.x + randX * posHeight, y: targetCenter.y + randY * posHeight };
     }
 
-    const missDistance = (length * positions.posHeight) / 2;
+    const missDistance = (length * posHeight) / 2;
     const missArea = 40;
     const randX = Math.round(Math.random() * missArea + missDistance);
     const randY = Math.round(Math.random() * missArea + missDistance);

@@ -17,18 +17,9 @@ import { renderFiringArea } from "./renderShip";
 export function createStatAnimationSystem(layer: PhaserLayer) {
   const {
     world,
+    components: { Position, Rotation, Length, Cannon, OwnedBy, HealthLocal, OnFireLocal, DamagedCannonsLocal },
+    scene: { phaserScene, posWidth, posHeight },
 
-    parentLayers: {
-      network: {
-        components: { Position, Rotation, Length, Cannon, OwnedBy },
-      },
-      backend: {
-        components: { HealthLocal, OnFireLocal, DamagedCannonsLocal },
-      },
-    },
-    scenes: {
-      Main: { phaserScene, positions },
-    },
     utils: { getSpriteObject, destroySpriteObject, getGroupObject },
   } = layer;
 
@@ -52,7 +43,7 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
       const spriteId = `${update.entity}-fire-${i}`;
       const object = getSpriteObject(spriteId);
 
-      const { x, y } = tileCoordToPixelCoord(fireLocations[i], positions.posWidth, positions.posHeight);
+      const { x, y } = tileCoordToPixelCoord(fireLocations[i], posWidth, posHeight);
       object.setAlpha(0);
 
       setTimeout(() => {
@@ -82,7 +73,7 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
       const spriteId = `${update.entity}-fire-${i}`;
       const object = getSpriteObject(spriteId);
 
-      const coord = tileCoordToPixelCoord(fireLocations[i], positions.posWidth, positions.posHeight);
+      const coord = tileCoordToPixelCoord(fireLocations[i], posWidth, posHeight);
 
       moveFire(object, coord);
     }

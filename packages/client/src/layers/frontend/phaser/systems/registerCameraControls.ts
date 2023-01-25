@@ -4,9 +4,7 @@ import { PhaserLayer } from "../types";
 
 export function registerCameraControls(layer: PhaserLayer) {
   const {
-    scenes: {
-      Main: { input, camera, phaserScene },
-    },
+    scene: { input, camera, phaserScene },
     api: {
       mapInteraction: { mapInteractionEnabled },
     },

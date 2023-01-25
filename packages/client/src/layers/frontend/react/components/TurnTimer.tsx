@@ -38,6 +38,7 @@ export function registerTurnTimer() {
           const phase = getPhase(DELAY);
           const turn = getTurn(DELAY);
           const playerEntity = getPlayerEntity();
+
           const secsLeft = secondsUntilNextPhase(DELAY) || 0;
 
           const phaseLength =
@@ -46,40 +47,29 @@ export function registerTurnTimer() {
               : phase == Phase.Reveal
               ? gameConfig.revealPhaseLength
               : gameConfig.actionPhaseLength;
+          if (!playerEntity || !phaseLength) return null;
 
-          return {
-            phaseLength,
-            EncodedCommitment,
-            LastAction,
-            secsLeft,
-            phase,
-            turn,
-            godIndex,
-            playSound,
-            playerEntity,
-          };
+          let str = null;
+          if (phase == Phase.Commit) {
+            str = <Text secsLeft={secsLeft}>Choose your moves</Text>;
+            if (secsLeft < 6 && !getComponentValue(EncodedCommitment, godIndex)) {
+              playSound("tick", Category.UI);
+            }
+          } else if (phase == Phase.Reveal) str = <PulsingText>Waiting for Players to Reveal Moves...</PulsingText>;
+          else if (phase == Phase.Action) {
+            str = <Text secsLeft={secsLeft}>Choose 2 actions per ship</Text>;
+            const lastAction = getComponentValue(LastAction, playerEntity)?.value;
+
+            if (secsLeft < 6 && lastAction !== turn) {
+              playSound("tick", Category.UI);
+            }
+          }
+
+          return { phase, phaseLength, secsLeft, str };
         })
       );
     },
-    ({ phaseLength, secsLeft, phase, turn, playSound, playerEntity, EncodedCommitment, LastAction, godIndex }) => {
-      if (!playerEntity || !phaseLength) return null;
-
-      let str = null;
-      if (phase == Phase.Commit) {
-        str = <Text secsLeft={secsLeft}>Choose your moves</Text>;
-        if (secsLeft < 6 && !getComponentValue(EncodedCommitment, godIndex)) {
-          playSound("tick", Category.UI);
-        }
-      } else if (phase == Phase.Reveal) str = <PulsingText>Waiting for Players to Reveal Moves...</PulsingText>;
-      else if (phase == Phase.Action) {
-        str = <Text secsLeft={secsLeft}>Choose 2 actions per ship</Text>;
-        const lastAction = getComponentValue(LastAction, playerEntity)?.value;
-
-        if (secsLeft < 6 && lastAction !== turn) {
-          playSound("tick", Category.UI);
-        }
-      }
-
+    ({ phase, phaseLength, secsLeft, str }) => {
       return (
         <OuterContainer>
           {phase == Phase.Commit || phase == Phase.Action ? (

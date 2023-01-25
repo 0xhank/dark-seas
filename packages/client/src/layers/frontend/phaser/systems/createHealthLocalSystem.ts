@@ -15,20 +15,22 @@ import { PhaserLayer } from "../types";
 export function createHealthLocalSystem(phaser: PhaserLayer) {
   const {
     world,
-    parentLayers: {
-      network: {
-        components: { Health, OwnedBy, OnFire, DamagedCannons, SailPosition },
-        utils: { getPlayerEntity },
-      },
-      backend: {
-        components: { HealthLocal, OnFireLocal, SelectedShip, HoveredShip, DamagedCannonsLocal, SailPositionLocal },
-        godIndex,
-      },
+    components: {
+      HealthLocal,
+      OnFireLocal,
+      SelectedShip,
+      HoveredShip,
+      DamagedCannonsLocal,
+      SailPositionLocal,
+      Health,
+      OwnedBy,
+      OnFire,
+      DamagedCannons,
+      SailPosition,
     },
-    utils: { getSpriteObject },
-    scenes: {
-      Main: { config },
-    },
+    utils: { getSpriteObject, getPlayerEntity },
+    scene: { config },
+    godIndex,
   } = phaser;
 
   defineEnterSystem(world, [Has(Health), Not(HealthLocal)], ({ entity, value }) => {

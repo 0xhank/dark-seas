@@ -79,10 +79,6 @@ library LibMove {
   }
 
   /**
-
-
-   */
-  /**
    * @notice  moves a ship
    * @param   components  world components
    * @param   move  move to execute
@@ -146,6 +142,12 @@ library LibMove {
     rotationComponent.set(move.shipEntity, rotation);
   }
 
+  /**
+   * @notice  checks if the given position is out of bounds
+   * @param   components  world components
+   * @param   position  position to check if out of bounds
+   * @return  bool  is out of bounds
+   */
   function outOfBounds(IUint256Component components, Coord memory position) internal returns (bool) {
     if (!LibVector.inWorld(components, position)) return true;
 

@@ -9,7 +9,7 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import styled from "styled-components";
-import { ActionImg, ActionNames, ActionType, Layers } from "../../../../../types";
+import { ActionImg, ActionNames, ActionType } from "../../../../../types";
 import { isBroadside } from "../../../../../utils/trig";
 import { DELAY } from "../../../constants";
 import { Img, OptionButton } from "../../styles/global";

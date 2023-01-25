@@ -14,7 +14,7 @@ import {
 } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
 import { getShipSprite } from "../../../../utils/ships";
-import { getShipMidpoint, getSternLocation } from "../../../../utils/trig";
+import { getMidpoint, getSternLocation } from "../../../../utils/trig";
 import { Category } from "../../../backend/sound/library";
 import { Animations, MOVE_LENGTH, RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
@@ -22,31 +22,24 @@ import { PhaserLayer } from "../types";
 export function createShipSystem(phaser: PhaserLayer) {
   const {
     world,
-    scenes: {
-      Main: { config, camera },
+    scene: { config, camera, posWidth, posHeight },
+    components: {
+      SelectedShip,
+      SelectedMove,
+      HoveredShip,
+      HealthLocal,
+      OnFireLocal,
+      DamagedCannonsLocal,
+      SailPositionLocal,
+      Position,
+      Length,
+      Rotation,
+      OwnedBy,
+      OnFire,
+      DamagedCannons,
+      SailPosition,
     },
-    parentLayers: {
-      network: {
-        components: { Position, Length, Rotation, OwnedBy, OnFire, DamagedCannons, SailPosition },
-        utils: { getPlayerEntity },
-      },
-      backend: {
-        components: {
-          SelectedShip,
-          SelectedMove,
-          HoveredShip,
-          HealthLocal,
-          OnFireLocal,
-          DamagedCannonsLocal,
-          SailPositionLocal,
-        },
-        utils: { outOfBounds, playSound },
-      },
-    },
-    scenes: {
-      Main: { positions },
-    },
-    utils: { getSpriteObject, destroySpriteObject, destroyGroupObject },
+    utils: { getSpriteObject, destroySpriteObject, destroyGroupObject, getPlayerEntity, outOfBounds, playSound },
   } = phaser;
 
   const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
@@ -90,18 +83,17 @@ export function createShipSystem(phaser: PhaserLayer) {
         object.on("pointerout", () => removeComponent(HoveredShip, GodEntityIndex));
       }
 
-      const shipLength = length * positions.posWidth * 1.25;
+      const shipLength = length * posWidth * 1.25;
       const shipWidth = shipLength / SHIP_RATIO;
       object.setDisplaySize(shipWidth, shipLength);
       object.setOrigin(0.5, 0.92);
 
-      const { x, y } = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
+      const { x, y } = tileCoordToPixelCoord(position, posWidth, posHeight);
 
       object.setAngle((rotation - 90) % 360);
       object.setPosition(x, y);
 
-      if (playerEntity == ownerEntity)
-        camera.centerOn(position.x * positions.posWidth, position.y * positions.posHeight + 400);
+      if (playerEntity == ownerEntity) camera.centerOn(position.x * posWidth, position.y * posHeight + 400);
 
       const onFire = getComponentValue(OnFire, shipEntity)?.value || 0;
       setComponent(OnFireLocal, shipEntity, { value: onFire });
@@ -119,7 +111,7 @@ export function createShipSystem(phaser: PhaserLayer) {
     const length = update.value[0].value;
     const object = getSpriteObject(update.entity);
 
-    const shipLength = length * positions.posWidth * 1.25;
+    const shipLength = length * posWidth * 1.25;
     const shipWidth = shipLength / SHIP_RATIO;
     object.setDisplaySize(shipWidth, shipLength);
     object.setOrigin(0.5, 0.92);
@@ -155,7 +147,7 @@ export function createShipSystem(phaser: PhaserLayer) {
   });
 
   async function move(shipEntity: EntityIndex, object: Phaser.GameObjects.Sprite, position: Coord, rotation: number) {
-    const coord = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
+    const coord = tileCoordToPixelCoord(position, posWidth, posHeight);
 
     await tween({
       targets: object,
@@ -184,7 +176,7 @@ export function createShipSystem(phaser: PhaserLayer) {
     const length = getComponentValueStrict(Length, shipEntity).value;
 
     if (outOfBounds(position) || outOfBounds(getSternLocation(position, rotation, length))) {
-      const midpoint = getMidpoint(shipEntity);
+      const midpoint = getShipMidpoint(shipEntity);
       const healthLocal = getComponentValueStrict(HealthLocal, shipEntity).value;
       setComponent(HealthLocal, shipEntity, { value: healthLocal - 1 });
       const explosionId = `explosion-move-${shipEntity}`;
@@ -206,12 +198,12 @@ export function createShipSystem(phaser: PhaserLayer) {
     object.setPosition(coord.x, coord.y);
   }
 
-  function getMidpoint(shipEntity: EntityIndex) {
+  function getShipMidpoint(shipEntity: EntityIndex) {
     const position = getComponentValueStrict(Position, shipEntity);
     const rotation = getComponentValue(Rotation, shipEntity)?.value || 0;
     const length = getComponentValue(Length, shipEntity)?.value || 10;
-    const midpoint = getShipMidpoint(position, rotation, length);
+    const midpoint = getMidpoint(position, rotation, length);
 
-    return tileCoordToPixelCoord(midpoint, positions.posWidth, positions.posHeight);
+    return tileCoordToPixelCoord(midpoint, posWidth, posHeight);
   }
 }

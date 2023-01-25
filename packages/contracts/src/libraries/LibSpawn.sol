@@ -177,6 +177,16 @@ library LibSpawn {
     spawnCannon(components, world, shipEntity, 15, 65, 100);
   }
 
+  /**
+   * @notice  spawns a cannon on the shipEntity provided
+   * @param   components  world components
+   * @param   world  in which components reside
+   * @param   shipEntity  ship that owns this cannon
+   * @param   rotation  of cannon in relation to ship's bow
+   * @param   firepower  determines the likelihood of a hit from this ship
+   * @param   range  distance the ship can shoot
+   * @return  cannonEntity  entity id of the created cannon
+   */
   function spawnCannon(
     IUint256Component components,
     IWorld world,

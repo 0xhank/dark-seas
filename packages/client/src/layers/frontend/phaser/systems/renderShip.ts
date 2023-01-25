@@ -19,17 +19,8 @@ export function renderShip(
 ) {
   const {
     world,
-    parentLayers: {
-      network: {
-        components: { Length },
-      },
-      backend: {
-        components: { HealthLocal },
-      },
-    },
-    scenes: {
-      Main: { config, positions },
-    },
+    components: { Length, HealthLocal },
+    scene: { config, posWidth, posHeight },
     utils: { getSpriteObject },
   } = phaser;
 
@@ -44,12 +35,12 @@ export function renderShip(
   // @ts-expect-error doesnt recognize a sprite as a number
   const sprite = config.sprites[spriteAsset];
 
-  const { x, y } = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
+  const { x, y } = tileCoordToPixelCoord(position, posWidth, posHeight);
 
   object.setTexture(sprite.assetKey, sprite.frame);
 
   object.setAngle((rotation - 90) % 360);
-  const shipLength = length * positions.posWidth * 1.25;
+  const shipLength = length * posWidth * 1.25;
   const shipWidth = shipLength / SHIP_RATIO;
   object.setOrigin(0.5, 0.92);
   object.setDisplaySize(shipWidth, shipLength);
@@ -69,21 +60,15 @@ export function getFiringAreaPixels(
   cannonEntity: EntityIndex
 ) {
   const {
-    parentLayers: {
-      network: {
-        components: { Range, Rotation },
-      },
-    },
-    scenes: {
-      Main: { positions },
-    },
+    components: { Range, Rotation },
+    scene: { posWidth, posHeight },
   } = phaser;
-  const range = (getComponentValue(Range, cannonEntity)?.value || 0) * positions.posHeight;
+  const range = (getComponentValue(Range, cannonEntity)?.value || 0) * posHeight;
 
-  const pixelPosition = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
+  const pixelPosition = tileCoordToPixelCoord(position, posWidth, posHeight);
   const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
 
-  return getFiringArea(pixelPosition, range, length * positions.posHeight, rotation, cannonRotation);
+  return getFiringArea(pixelPosition, range, length * posHeight, rotation, cannonRotation);
 }
 
 export function renderFiringArea(
@@ -96,7 +81,7 @@ export function renderFiringArea(
   fill: { tint: number; alpha: number } | undefined = undefined,
   stroke: { tint: number; alpha: number } | undefined = undefined
 ) {
-  const { phaserScene } = phaser.scenes.Main;
+  const { phaserScene } = phaser.scene;
 
   const firingArea = getFiringAreaPixels(phaser, position, rotation, length, cannonEntity);
   const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, colors.whiteHex, 0.3);
@@ -129,16 +114,14 @@ export function renderCircle(
   alpha = 1
 ) {
   const {
-    scenes: {
-      Main: { phaserScene, positions },
-    },
+    scene: { phaserScene, posWidth, posHeight },
   } = phaser;
-  const circleWidth = length * positions.posWidth * 1.5;
+  const circleWidth = length * posWidth * 1.5;
   const circleHeight = circleWidth / SHIP_RATIO;
 
   const circle = phaserScene.add.ellipse(
-    position.x * positions.posHeight,
-    position.y * positions.posHeight,
+    position.x * posHeight,
+    position.y * posHeight,
     circleWidth,
     circleHeight,
     colors.goldHex,

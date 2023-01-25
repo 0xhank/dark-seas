@@ -8,19 +8,11 @@ import { PhaserLayer } from "../types";
 export function createTileSystem(phaser: PhaserLayer) {
   const {
     world,
-    parentLayers: {
-      network: {
-        components: { GameConfig },
-      },
-      backend: {
-        utils: { isWhirlpool },
-      },
-    },
-    scenes: {
-      Main: {
-        positions,
-        maps: { Main },
-      },
+    components: { GameConfig },
+    utils: { isWhirlpool },
+    scene: {
+      posHeight,
+      maps: { Main },
     },
   } = phaser;
 
@@ -31,7 +23,7 @@ export function createTileSystem(phaser: PhaserLayer) {
     const worldSize = gameConfig.worldSize;
     const perlinSeed = Number(gameConfig.perlinSeed);
 
-    const adjustment = TILE_HEIGHT / positions.posHeight;
+    const adjustment = TILE_HEIGHT / posHeight;
 
     for (let i = -worldSize; i < worldSize; i += adjustment) {
       for (let j = -worldSize; j < worldSize; j += adjustment) {

@@ -4,9 +4,6 @@ import { BackendLayer, TxType } from "../types";
 
 export function createSuccessfulMoveSystem(layer: BackendLayer) {
   const {
-    parentLayers: {
-      network: { systemCallStreams },
-    },
     world,
     components: { EncodedCommitment, CommittedMove },
     actions: { Action },

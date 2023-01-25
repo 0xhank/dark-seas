@@ -6,18 +6,12 @@ import { registerCameraControls } from "./registerCameraControls";
 export function createInputSystem(phaser: PhaserLayer) {
   const {
     world,
-    parentLayers: {
-      backend: {
-        godIndex,
-        components: { SelectedShip },
-      },
-    },
-    scenes: {
-      Main: {
-        input,
-        maps: {
-          Main: { tileWidth, tileHeight },
-        },
+    components: { SelectedShip },
+    godIndex,
+    scene: {
+      input,
+      maps: {
+        Main: { tileWidth, tileHeight },
       },
     },
   } = phaser;

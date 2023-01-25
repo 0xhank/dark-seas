@@ -20,18 +20,21 @@ import { getRangeTintAlpha, renderFiringArea } from "./renderShip";
 export function createActionSelectionSystem(phaser: PhaserLayer) {
   const {
     world,
-    parentLayers: {
-      network: {
-        components: { Position, Length, Rotation, Loaded, Cannon, OwnedBy },
-        utils: { getPhase },
-      },
-      backend: {
-        utils: { getTargetedShips, isMyShip, handleNewActionsCannon },
-        components: { SelectedActions, SelectedShip, HoveredAction, Targeted, DamagedCannonsLocal },
-        godIndex,
-      },
+    components: {
+      Position,
+      Length,
+      Rotation,
+      Loaded,
+      Cannon,
+      OwnedBy,
+      SelectedActions,
+      SelectedShip,
+      HoveredAction,
+      Targeted,
+      DamagedCannonsLocal,
     },
-    utils: { getGroupObject, destroyGroupObject },
+    godIndex,
+    utils: { getGroupObject, destroyGroupObject, getPhase, getTargetedShips, isMyShip, handleNewActionsCannon },
   } = phaser;
 
   defineComponentSystem(world, HoveredAction, ({ value }) => {
@@ -143,13 +146,9 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
   });
 
   defineExitSystem(world, [Has(SelectedShip)], () => {
-    clearCannons();
-  });
-
-  function clearCannons() {
     destroyGroupObject("selectedActions");
     destroyGroupObject("hoveredFiringArea");
-  }
+  });
 
   function renderCannons(shipEntity: EntityIndex) {
     const groupId = "selectedActions";
