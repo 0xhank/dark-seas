@@ -38,6 +38,7 @@ export function createBackendComponents(world: World) {
       id: "LeaderboardOpen",
     }),
     HealthLocal: defineNumberComponent(world, { id: "HealthLocal" }),
+    HealthBackend: defineNumberComponent(world, { id: "HealthBackend" }),
     OnFireLocal: defineNumberComponent(world, { id: "OnFireLocal" }),
     DamagedCannonsLocal: defineNumberComponent(world, { id: "DamagedCannonsLocal" }),
     SailPositionLocal: defineNumberComponent(world, { id: "SailPositionLocal" }),

@@ -27,6 +27,7 @@ export function createHealthLocalSystem(phaser: PhaserLayer) {
       OnFire,
       DamagedCannons,
       SailPosition,
+      HealthBackend,
     },
     utils: { getSpriteObject, getPlayerEntity },
     scene: { config },
@@ -37,6 +38,7 @@ export function createHealthLocalSystem(phaser: PhaserLayer) {
     const health = value[0]?.value as number | undefined;
     if (health == undefined) return;
     setComponent(HealthLocal, entity, { value: health });
+    setComponent(HealthBackend, entity, { value: health });
   });
 
   defineEnterSystem(world, [Has(OnFire), Not(OnFireLocal)], ({ entity, value }) => {
