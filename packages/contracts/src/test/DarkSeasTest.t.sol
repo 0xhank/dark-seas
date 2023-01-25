@@ -10,6 +10,7 @@ import { Deploy } from "./Deploy.sol";
 // Components
 import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
+import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 
 import "../libraries/LibTurn.sol";
 import "../libraries/LibSpawn.sol";
@@ -33,6 +34,7 @@ contract DarkSeasTest is MudTest {
 
     if (!LibUtils.playerIdExists(components, playerEntity)) LibSpawn.createPlayerEntity(components, spawner);
     shipEntity = LibSpawn.spawnBattleship(components, world, playerEntity, position, rotation);
+    OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(playerEntity, playerEntity);
 
     LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 0);
     LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 0);

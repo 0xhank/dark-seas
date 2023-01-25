@@ -73,6 +73,10 @@
         "KillsComponent"
       ]
     },
-    { "name": "CommitSystem", "writeAccess": ["CommitmentComponent"] }
+    { "name": "CommitSystem", "writeAccess": ["CommitmentComponent"] },
+    {
+      "name": "ChangeControllerSystem",
+      "writeAccess": ["LastMoveComponent", "LastActionComponent", "OwnedByComponent", "PlayerComponent"]
+    }
   ]
 }
