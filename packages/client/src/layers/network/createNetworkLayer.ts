@@ -205,7 +205,9 @@ export async function createNetworkLayer(config: GameConfig) {
 
   function spawnPlayer(name: string) {
     const location: Coord = { x: 0, y: 0 };
-    systems["ds.system.PlayerSpawn"].executeTyped(name, location);
+    const connectedAddress = network.connectedAddress.get();
+    if (!connectedAddress) return;
+    systems["ds.system.PlayerSpawn"].executeTyped(connectedAddress, name, location);
   }
 
   function revealMove(moves: MoveStruct[], salt: number) {

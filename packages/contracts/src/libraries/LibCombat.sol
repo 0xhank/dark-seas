@@ -118,7 +118,6 @@ library LibCombat {
     uint256 cannonEntity,
     uint256[] memory targetEntities
   ) private {
-    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
     uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
     // get firing area of ship
     Coord[3] memory firingRange = getFiringAreaPivot(components, shipEntity, cannonEntity);
@@ -149,7 +148,6 @@ library LibCombat {
     uint256 cannonEntity,
     uint256[] memory targetEntities
   ) private {
-    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
     uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
 
     // get firing area of ship

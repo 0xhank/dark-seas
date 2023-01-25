@@ -92,6 +92,7 @@ library LibMove {
     MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
     PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
     RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
+    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
     SailPositionComponent sailPositionComponent = SailPositionComponent(
       getAddressById(components, SailPositionComponentID)
     );
@@ -102,7 +103,7 @@ library LibMove {
     );
 
     require(
-      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(move.shipEntity) == playerEntity,
+      ownedByComponent.getValue(move.shipEntity) == ownedByComponent.getValue(playerEntity),
       "MoveSystem: you don't own this ship"
     );
     require(moveCardComponent.has(move.moveCardEntity), "MoveSystem: invalid move card entity id");

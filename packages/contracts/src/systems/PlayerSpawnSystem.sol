@@ -6,6 +6,7 @@ import "solecs/System.sol";
 import { getAddressById } from "solecs/utils.sol";
 // Components
 import { NameComponent, ID as NameComponentID } from "../components/NameComponent.sol";
+import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 
 // Types
 import { Coord } from "../libraries/DSTypes.sol";
@@ -22,17 +23,27 @@ contract PlayerSpawnSystem is System {
   function execute(bytes memory arguments) public returns (bytes memory) {
     require(!LibUtils.playerAddrExists(components, msg.sender), "PlayerSpawnSystem: player has already spawned");
 
-    (string memory name, Coord memory location) = abi.decode(arguments, (string, Coord));
+    (address controller, string memory name, Coord memory location) = abi.decode(arguments, (address, string, Coord));
     require(bytes(name).length > 0, "PlayerSpawnSystem: name is blank");
 
+    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
     // create entity for player and name it
     uint256 playerEntity = LibSpawn.createPlayerEntity(components, msg.sender);
+
+    uint256 controllerEntity = playerEntity;
+    if (msg.sender != controller) controllerEntity = LibSpawn.createPlayerEntity(components, controller);
+
+    ownedByComponent.set(controllerEntity, playerEntity);
     NameComponent(getAddressById(components, NameComponentID)).set(playerEntity, name);
 
     LibSpawn.spawn(world, components, playerEntity, location);
   }
 
-  function executeTyped(string calldata name, Coord calldata location) public returns (bytes memory) {
-    return execute(abi.encode(name, location));
+  function executeTyped(
+    address controller,
+    string calldata name,
+    Coord calldata location
+  ) public returns (bytes memory) {
+    return execute(abi.encode(controller, name, location));
   }
 }

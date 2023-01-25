@@ -44,6 +44,8 @@ library LibSpawn {
     uint32 playerId = uint32(LibUtils.getExistingPlayers(components).length + 1);
 
     PlayerComponent(getAddressById(components, PlayerComponentID)).set(playerEntity, playerId);
+    LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 0);
+    LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 0);
 
     return playerEntity;
   }
@@ -99,9 +101,6 @@ library LibSpawn {
     spawnBattleship(components, world, playerEntity, startingLocation, rotation);
     startingLocation.x += 20;
     spawnDestroyer(components, world, playerEntity, startingLocation, rotation);
-
-    LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 0);
-    LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 0);
   }
 
   /**

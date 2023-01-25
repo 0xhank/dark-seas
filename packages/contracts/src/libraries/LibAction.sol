@@ -29,13 +29,13 @@ library LibAction {
   function executeActions(IUint256Component components, Action memory action) public {
     // iterate through each action of each ship
     uint256 cannonEntity1;
+    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
     for (uint256 i = 0; i < 2; i++) {
       ActionType actionType = action.actionTypes[i];
       bytes memory metadata = action.metadata[i];
       if (actionType == ActionType.None) continue;
       require(
-        OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(action.shipEntity) ==
-          addressToEntity(msg.sender),
+        ownedByComponent.getValue(action.shipEntity) == ownedByComponent.getValue(addressToEntity(msg.sender)),
         "ActionSystem: you don't own this ship"
       );
 
