@@ -122,7 +122,6 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
             selected={selected}
             disabled={disabled}
             executed={actionsExecuted}
-            specialEntity={ship}
             key={`actionOption-${action}`}
             actionType={action}
             handleClick={handleNewActionsSpecial}

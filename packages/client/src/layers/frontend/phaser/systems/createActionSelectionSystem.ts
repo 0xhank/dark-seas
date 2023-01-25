@@ -78,6 +78,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     const objectId = "hoveredFiringArea";
 
     destroyGroupObject(objectId);
+    if (cannonEntity == 0) return;
     getTargetedShips(cannonEntity).forEach((entity) => {
       const targetedValue = getComponentValue(Targeted, entity)?.value || 0;
       if (!targetedValue) return;
