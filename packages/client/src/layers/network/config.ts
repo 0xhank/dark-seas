@@ -9,6 +9,7 @@ export type GameConfig = {
   checkpointUrl?: string;
   devMode: boolean;
   initialBlockNumber: number;
+  burnerPrivateKey: string | null;
 };
 
 export const getNetworkConfig: (networkConfig: GameConfig) => SetupContractConfig = (config) => ({

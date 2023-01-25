@@ -19,8 +19,7 @@ export function registerTurnTimer() {
     (layers) => {
       const {
         network: {
-          network: { clock },
-          utils: { getGameConfig, getPhase, secondsUntilNextPhase, getPlayerEntity, getTurn },
+          utils: { getGameConfig, getPhase, secondsUntilNextPhase, getPlayerEntity, getTurn, activeNetwork },
           components: { LastAction },
         },
         backend: {
@@ -30,7 +29,7 @@ export function registerTurnTimer() {
         },
       } = layers;
 
-      return merge(clock.time$, EncodedCommitment.update$, LastAction.update$).pipe(
+      return merge(activeNetwork().clock.time$, EncodedCommitment.update$, LastAction.update$).pipe(
         map(() => {
           const gameConfig = getGameConfig();
           if (!gameConfig) return;

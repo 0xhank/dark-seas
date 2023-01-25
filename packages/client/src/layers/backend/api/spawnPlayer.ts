@@ -2,10 +2,15 @@ import { EntityID, hasComponent } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
 import { NetworkLayer } from "../../network";
 
-export function spawnPlayer(network: NetworkLayer, actions: ActionSystem, name: string) {
+export function spawnPlayer(
+  network: NetworkLayer,
+  actions: ActionSystem,
+  name: string,
+  burnerPrivateKey: string | undefined
+) {
   const {
     components: { Player },
-    network: { connectedAddress },
+    utils: { activeNetwork },
     world,
   } = network;
 
@@ -15,7 +20,7 @@ export function spawnPlayer(network: NetworkLayer, actions: ActionSystem, name: 
     id: actionId,
     components: { Player },
     requirement: ({ Player }) => {
-      const address = connectedAddress.get();
+      const address = activeNetwork().connectedAddress.get();
       if (!address) {
         console.warn(prefix, "No address connected");
         actions.cancel(actionId);
@@ -35,7 +40,7 @@ export function spawnPlayer(network: NetworkLayer, actions: ActionSystem, name: 
     updates: () => [],
     execute: () => {
       console.log("spawning");
-      return network.api.spawnPlayer(name);
+      return network.api.spawnPlayer(name, burnerPrivateKey);
     },
   });
 }

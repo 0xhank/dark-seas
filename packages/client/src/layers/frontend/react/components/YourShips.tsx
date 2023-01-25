@@ -48,8 +48,7 @@ export function registerYourShips() {
             Loaded,
             Speed,
           },
-          network: { connectedAddress, clock },
-          utils: { getPlayerEntity, getPhase, getTurn },
+          utils: { getPlayerEntity, getPhase, getTurn, activeNetwork },
         },
         backend: {
           actions: { Action },
@@ -71,7 +70,7 @@ export function registerYourShips() {
       } = layers;
 
       return merge(
-        clock.time$,
+        activeNetwork().clock.time$,
         MoveCard.update$,
         SelectedMove.update$,
         SelectedShip.update$,
@@ -101,7 +100,7 @@ export function registerYourShips() {
 
           if (phase == undefined || currentTurn == undefined) return null;
 
-          const playerEntity = getPlayerEntity(connectedAddress.get());
+          const playerEntity = getPlayerEntity(activeNetwork().connectedAddress.get());
           if (!playerEntity || !getComponentValue(Player, playerEntity)) return null;
 
           const lastMove = getComponentValue(LastMove, playerEntity)?.value;

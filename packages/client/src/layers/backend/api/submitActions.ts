@@ -14,8 +14,7 @@ export function submitActions(
 ) {
   const {
     components: { OwnedBy },
-    network: { connectedAddress },
-    utils: { getPlayerEntity },
+    utils: { getPlayerEntity, activeNetwork },
     world,
   } = network;
 
@@ -25,7 +24,7 @@ export function submitActions(
     id: actionId,
     components: { OwnedBy },
     requirement: ({ OwnedBy }) => {
-      const playerEntity = getPlayerEntity(connectedAddress.get());
+      const playerEntity = getPlayerEntity(activeNetwork().connectedAddress.get());
       if (shipActions.length == 0 || playerEntity == null) {
         actions.cancel(actionId);
         return null;
@@ -39,7 +38,7 @@ export function submitActions(
           return;
         }
 
-        if (shipOwner !== connectedAddress.get()) {
+        if (shipOwner !== activeNetwork().connectedAddress.get()) {
           return;
         }
 

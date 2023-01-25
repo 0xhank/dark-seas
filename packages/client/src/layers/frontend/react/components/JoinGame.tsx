@@ -1,5 +1,6 @@
 import { EntityID, Has, hasComponent, runQuery } from "@latticexyz/recs";
 import { computedToStream } from "@latticexyz/utils";
+import { utils, Wallet } from "ethers";
 import { useState } from "react";
 import { map, merge } from "rxjs";
 import { registerUIComponent } from "../engine";
@@ -17,8 +18,8 @@ export function registerJoinGame() {
     (layers) => {
       const {
         network: {
-          network: { connectedAddress },
           components: { Player, OwnedBy },
+          utils: { activeNetwork },
           world,
         },
         backend: {
@@ -27,8 +28,13 @@ export function registerJoinGame() {
         },
       } = layers;
 
-      return merge(computedToStream(connectedAddress), Player.update$, OwnedBy.update$, Action.update$).pipe(
-        map(() => connectedAddress.get()),
+      return merge(
+        computedToStream(activeNetwork().connectedAddress),
+        Player.update$,
+        OwnedBy.update$,
+        Action.update$
+      ).pipe(
+        map(() => activeNetwork().connectedAddress.get()),
         map((address) => {
           if (!address) return;
 
@@ -48,8 +54,15 @@ export function registerJoinGame() {
     },
     ({ spawnAction, spawnPlayer }) => {
       const [playerName, setPlayerName] = useState("");
-      const findSpawnButtonDisabled = playerName.length === 0;
+      const [useBurner, setUseBurner] = useState(false);
+      const [burnerPrivateKey, setBurnerPrivateKey] = useState("");
 
+      const invalidPrivateKey = useBurner && !utils.isHexString(burnerPrivateKey, 32);
+      const findSpawnButtonDisabled = playerName.length === 0 || invalidPrivateKey;
+
+      const handleRandomize = () => {
+        setBurnerPrivateKey(Wallet.createRandom().privateKey);
+      };
       return (
         <div
           style={{
@@ -83,6 +96,18 @@ export function registerJoinGame() {
                 if (e.target.value.length < 15) setPlayerName(e.target.value);
               }}
             ></Input>
+            <Input type={"checkbox"} checked={useBurner} onChange={() => setUseBurner(!useBurner)} />
+            <div style={{ display: useBurner ? "block" : "none" }}>
+              <Input
+                type={"text"}
+                onChange={(e) => {
+                  setBurnerPrivateKey(e.target.value);
+                }}
+                placeholder="create burner account"
+                value={burnerPrivateKey}
+              ></Input>
+              <Input type="button" onClick={handleRandomize} />
+            </div>
             {!spawnAction ? (
               <Button
                 isSelected
@@ -92,7 +117,7 @@ export function registerJoinGame() {
                   flex: 1,
                 }}
                 onClick={() => {
-                  spawnPlayer(playerName);
+                  spawnPlayer(playerName, useBurner ? burnerPrivateKey : undefined);
                 }}
               >
                 Register

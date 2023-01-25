@@ -12,8 +12,7 @@ import ShipDamage from "./ShipDamage";
 export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
   const {
     network: {
-      utils: { getPlayerEntity, getTurn },
-      network: { connectedAddress },
+      utils: { getPlayerEntity, getTurn, activeNetwork },
       components: { MaxHealth, Rotation, OwnedBy, Name, Length, LastAction },
     },
     backend: {
@@ -21,7 +20,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
     },
   } = layers;
 
-  const playerEntity = getPlayerEntity(connectedAddress.get());
+  const playerEntity = getPlayerEntity(activeNetwork().connectedAddress.get());
   const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, ship).value);
   if (!ownerEntity || !playerEntity) return null;
 

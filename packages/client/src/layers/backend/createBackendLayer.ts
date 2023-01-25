@@ -36,7 +36,8 @@ export async function createBackendLayer(network: NetworkLayer) {
 
   // --- API ------------------------------------------------------------------------
   const api = {
-    spawnPlayer: (name: string) => spawnPlayer(network, actions, name),
+    spawnPlayer: (name: string, burnerPrivateKey: string | undefined) =>
+      spawnPlayer(network, actions, name, burnerPrivateKey),
     commitMove: (moves: Move[]) => commitMove(network, actions, moves),
     revealMove: (encoding: string) => revealMove(network, actions, encoding),
     submitActions: (actionsToSubmit: Action[]) =>

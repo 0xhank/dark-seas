@@ -3,10 +3,13 @@ import {
   defineComponent,
   EntityID,
   EntityIndex,
+  getComponentEntities,
   getComponentValue,
   hasComponent,
   Type,
 } from "@latticexyz/recs";
+import { defaultAbiCoder as abi } from "ethers/lib/utils";
+
 import {
   defineBoolComponent,
   defineCoordComponent,
@@ -14,17 +17,17 @@ import {
   defineStringComponent,
   setupMUDNetwork,
 } from "@latticexyz/std-client";
-import { defineLoadingStateComponent } from "./components";
 import { setupDevSystems } from "./setup";
 
-import { createFaucetService, GodID } from "@latticexyz/network";
-import { Coord } from "@latticexyz/utils";
-import { BigNumber, BigNumberish, utils } from "ethers";
+import { createFaucetService, createNetwork, GodID, Network } from "@latticexyz/network";
+import { Coord, keccak256 } from "@latticexyz/utils";
+import { BigNumber, BigNumberish, utils, Wallet } from "ethers";
 import { ActionStruct } from "../../../../contracts/types/ethers-contracts/ActionSystem";
 import { MoveStruct } from "../../../../contracts/types/ethers-contracts/MoveSystem";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../../../contracts/types/SystemTypes";
 import { Phase } from "../../types";
+import { defineLoadingStateComponent } from "./components/LoadingStateComponent";
 import { defineMoveCardComponent } from "./components/MoveCardComponent";
 import { GameConfig, getNetworkConfig } from "./config";
 
@@ -89,21 +92,30 @@ export async function createNetworkLayer(config: GameConfig) {
   };
 
   // --- SETUP ----------------------------------------------------------------------
-  const { txQueue, systems, txReduced$, network, startSync, encoders, systemCallStreams } = await setupMUDNetwork<
-    typeof components,
-    SystemTypes
-  >(getNetworkConfig(config), world, components, SystemAbis, { fetchSystemCalls: true });
+  const {
+    txQueue,
+    systems,
+    txReduced$,
+    network: ownerNetwork,
+    startSync,
+    encoders,
+    systemCallStreams,
+  } = await setupMUDNetwork<typeof components, SystemTypes>(getNetworkConfig(config), world, components, SystemAbis, {
+    fetchSystemCalls: true,
+  });
+
+  let network: Network | undefined = await createBurnerNetwork(config.burnerPrivateKey);
 
   // Faucet setup
   const faucetUrl = "https://faucet.testnet-mud-services.linfra.xyz";
 
   if (!config.devMode) {
     const faucet = createFaucetService(faucetUrl);
-    const address = network.connectedAddress.get();
+    const address = activeNetwork().connectedAddress.get();
     console.info("[Dev Faucet]: Player Address -> ", address);
 
     const requestDrip = async () => {
-      const balance = await network.signer.get()?.getBalance();
+      const balance = await activeNetwork().signer.get()?.getBalance();
       console.info(`[Dev Faucet]: Player Balance -> ${balance}`);
       const playerIsBroke = balance?.lte(utils.parseEther(".5"));
       console.info(`[Dev Faucet]: Player is broke -> ${playerIsBroke}`);
@@ -123,6 +135,21 @@ export async function createNetworkLayer(config: GameConfig) {
 
   // --- UTILITIES ------------------------------------------------------------------
 
+  function activeNetwork() {
+    return network || ownerNetwork;
+  }
+  async function createBurnerNetwork(privateKey: string | null) {
+    if (!privateKey) return;
+    console.log("createburnernetwork private key:", privateKey);
+    const burnerConfig = {
+      ...config,
+      privateKey,
+    };
+    localStorage.setItem("burnerWallet", privateKey);
+
+    return await createNetwork(getNetworkConfig(burnerConfig));
+  }
+
   function bigNumToEntityID(bigNum: BigNumberish): EntityID {
     return BigNumber.from(bigNum).toHexString() as EntityID;
   }
@@ -135,7 +162,7 @@ export async function createNetworkLayer(config: GameConfig) {
   };
 
   function getPlayerEntity(address?: string): EntityIndex | undefined {
-    if (!address) address = network.connectedAddress.get();
+    if (!address) address = activeNetwork().connectedAddress.get();
     if (!address) return;
     const playerEntity = world.entityToIndex.get(address as EntityID);
     if (playerEntity == null || !hasComponent(components.Player, playerEntity)) return;
@@ -144,7 +171,7 @@ export async function createNetworkLayer(config: GameConfig) {
   }
 
   function getPhase(delay = 0): Phase | undefined {
-    const time = Math.floor(network.clock.currentTime / 1000) + delay;
+    const time = Math.floor(activeNetwork().clock.currentTime / 1000) + delay;
     const gamePhase = getGamePhaseAt(time);
     return gamePhase;
   }
@@ -163,7 +190,7 @@ export async function createNetworkLayer(config: GameConfig) {
   }
 
   function getTurn(delay = 0): number | undefined {
-    const time = Math.floor(network.clock.currentTime / 1000) + delay;
+    const time = Math.floor(activeNetwork().clock.currentTime / 1000) + delay;
     const gameTurn = getGameTurnAt(time);
     return gameTurn;
   }
@@ -183,7 +210,7 @@ export async function createNetworkLayer(config: GameConfig) {
 
     if (!gameConfig || phase == undefined) return;
 
-    const gameLength = Math.floor(network.clock.currentTime / 1000) + delay - parseInt(gameConfig.startTime);
+    const gameLength = Math.floor(activeNetwork().clock.currentTime / 1000) + delay - parseInt(gameConfig.startTime);
     const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;
     const secondsIntoTurn = gameLength % turnLength;
 
@@ -203,10 +230,21 @@ export async function createNetworkLayer(config: GameConfig) {
     systems["ds.system.Commit"].executeTyped(commitment);
   }
 
-  function spawnPlayer(name: string) {
+  async function spawnPlayer(name: string, burnerPrivateKey: string | undefined) {
     const location: Coord = { x: 0, y: 0 };
-    const connectedAddress = network.connectedAddress.get();
+
+    let connectedAddress;
+    if (burnerPrivateKey) {
+      const wallet = new Wallet(burnerPrivateKey);
+      connectedAddress = wallet.address;
+      network = await createBurnerNetwork(burnerPrivateKey);
+      window.network.network = network;
+    } else {
+      ownerNetwork.connectedAddress.get();
+    }
     if (!connectedAddress) return;
+
+    console.log("burneraddress:", connectedAddress);
     systems["ds.system.PlayerSpawn"].executeTyped(connectedAddress, name, location);
   }
 
@@ -223,6 +261,17 @@ export async function createNetworkLayer(config: GameConfig) {
     });
   }
 
+  function loadCannons() {
+    const cannons = [...getComponentEntities(components.Cannon)];
+    cannons.forEach((cannonEntity) =>
+      systems["ds.system.ComponentDev"].executeTyped(
+        keccak256("ds.component.Loaded"),
+        world.entities[cannonEntity],
+        abi.encode(["bool"], [true])
+      )
+    );
+  }
+
   // --- CONTEXT --------------------------------------------------------------------
   const context = {
     world,
@@ -233,6 +282,7 @@ export async function createNetworkLayer(config: GameConfig) {
     systemCallStreams,
     startSync,
     network,
+    ownerNetwork,
     utils: {
       getGameConfig,
       getPlayerEntity,
@@ -241,8 +291,9 @@ export async function createNetworkLayer(config: GameConfig) {
       getTurn,
       secondsUntilNextPhase,
       bigNumToEntityID,
+      activeNetwork,
     },
-    api: { revealMove, submitActions, spawnPlayer, commitMove },
+    api: { revealMove, submitActions, spawnPlayer, commitMove, loadCannons, createBurnerNetwork },
     dev: setupDevSystems(world, encoders, systems),
   };
 

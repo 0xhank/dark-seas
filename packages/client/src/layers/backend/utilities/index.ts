@@ -28,9 +28,8 @@ export async function createBackendUtilities(
 ) {
   const {
     world,
-    utils: { getPlayerEntity, getGameConfig },
+    utils: { getPlayerEntity, getGameConfig, activeNetwork },
     components: { Ship, OwnedBy, Range, Position, Rotation, Length, Firepower },
-    network: { connectedAddress },
   } = network;
 
   const perlin = await createPerlin();
@@ -41,7 +40,7 @@ export async function createBackendUtilities(
 
   function isMyShip(shipEntity: EntityIndex): boolean {
     const owner = getComponentValue(OwnedBy, shipEntity)?.value;
-    const myAddress = connectedAddress.get();
+    const myAddress = activeNetwork().connectedAddress.get();
     if (!owner || !myAddress) return false;
     return owner == myAddress;
   }
@@ -65,7 +64,7 @@ export async function createBackendUtilities(
   }
 
   function getPlayerShips(player?: EntityIndex) {
-    if (!player) player = getPlayerEntity(connectedAddress.get());
+    if (!player) player = getPlayerEntity(activeNetwork().connectedAddress.get());
     if (!player) return;
     const ships = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[player] })])];
     if (ships.length == 0) return;
@@ -73,7 +72,7 @@ export async function createBackendUtilities(
     return ships;
   }
   function getPlayerShipsWithMoves(player?: EntityIndex): Move[] | undefined {
-    if (!player) player = getPlayerEntity(connectedAddress.get());
+    if (!player) player = getPlayerEntity(activeNetwork().connectedAddress.get());
     if (!player) return;
     const ships = [...runQuery([HasValue(OwnedBy, { value: world.entities[player] }), Has(components.SelectedMove)])];
     if (ships.length == 0) return;
@@ -92,7 +91,7 @@ export async function createBackendUtilities(
     if (!shipID) return [];
     const shipEntity = world.entityToIndex.get(shipID);
 
-    const address = connectedAddress.get() as EntityID;
+    const address = activeNetwork().connectedAddress.get() as EntityID;
     if (!address || !shipEntity) return [];
 
     const length = getComponentValueStrict(Length, shipEntity).value;
@@ -141,7 +140,7 @@ export async function createBackendUtilities(
   }
 
   function getPlayerShipsWithActions(player?: EntityIndex): Action[] {
-    if (!player) player = getPlayerEntity(connectedAddress.get());
+    if (!player) player = getPlayerEntity(activeNetwork().connectedAddress.get());
     if (!player) return [];
     const ships = [
       ...runQuery([HasValue(OwnedBy, { value: world.entities[player] }), Has(components.SelectedActions)]),

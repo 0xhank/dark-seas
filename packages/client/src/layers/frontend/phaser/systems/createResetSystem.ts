@@ -22,7 +22,6 @@ export function createResetSystem(phaser: PhaserLayer) {
       MoveCard,
     },
     api: { commitMove, revealMove, submitActions },
-    network: { clock },
     utils: {
       destroySpriteObject,
       destroyGroupObject,
@@ -35,10 +34,11 @@ export function createResetSystem(phaser: PhaserLayer) {
       getPlayerShipsWithActions,
       getPlayerShips,
       clearComponent,
+      activeNetwork,
     },
   } = phaser;
 
-  defineRxSystem(world, clock.time$, () => {
+  defineRxSystem(world, activeNetwork().clock.time$, () => {
     const phase = getPhase(DELAY);
     const turn = getTurn(DELAY);
     const gameConfig = getGameConfig();

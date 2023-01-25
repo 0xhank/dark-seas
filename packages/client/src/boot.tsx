@@ -7,6 +7,7 @@ import { createPhaserLayer as createPhaserLayerImport } from "./layers/frontend/
 import { registerUIComponents as registerUIComponentsImport } from "./layers/frontend/react/components";
 import { Engine as EngineImport } from "./layers/frontend/react/engine/Engine";
 import { createNetworkLayer as createNetworkLayerImport } from "./layers/network";
+import { GameConfig } from "./layers/network/config";
 import { Layers } from "./types";
 import { Time } from "./utils/time";
 
@@ -32,20 +33,23 @@ async function bootGame() {
 
     const params = new URLSearchParams(window.location.search);
     const worldAddress = params.get("worldAddress");
-    let privateKey = params.get("burnerWalletPrivateKey");
+    let privateKey = params.get("privateKey");
     const chainId = Number(params.get("chainId")) || 31337;
     const jsonRpc = params.get("rpc") ?? "http://localhost:8545";
     const wsRpc = params.get("wsRpc") ?? "ws://localhost:8545";
     const checkpointUrl = params.get("checkpoint") || undefined;
     const devMode = params.get("dev") === "true";
     const initialBlockNumber = Number(params.get("initialBlockNumber")) || 0;
-
+    let burnerPrivateKey = params.get("burnerWalletPrivateKey");
     if (!privateKey) {
-      privateKey = localStorage.getItem("burnerWallet") || Wallet.createRandom().privateKey;
-      localStorage.setItem("burnerWallet", privateKey);
+      privateKey = localStorage.getItem("playerWallet") || Wallet.createRandom().privateKey;
+      localStorage.setItem("playerWallet", privateKey);
+    }
+    if (!burnerPrivateKey) {
+      burnerPrivateKey = localStorage.getItem("burnerWallet");
     }
 
-    let networkLayerConfig;
+    let networkLayerConfig: GameConfig | undefined;
     if (worldAddress && privateKey && chainId && jsonRpc) {
       networkLayerConfig = {
         worldAddress,
@@ -56,6 +60,7 @@ async function bootGame() {
         checkpointUrl,
         devMode,
         initialBlockNumber,
+        burnerPrivateKey,
       };
     }
 

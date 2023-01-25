@@ -21,8 +21,7 @@ export function registerTopBar() {
       const {
         network: {
           components: { Name },
-          network: { connectedAddress },
-          utils: { getPlayerEntity },
+          utils: { getPlayerEntity, activeNetwork },
         },
         backend: {
           godIndex,
@@ -35,7 +34,7 @@ export function registerTopBar() {
           const dir: number = 0;
           const speed: number = 0;
 
-          const playerEntity = getPlayerEntity(connectedAddress.get());
+          const playerEntity = getPlayerEntity(activeNetwork().connectedAddress.get());
           const name = playerEntity ? getComponentValue(Name, playerEntity)?.value : undefined;
           const openLeaderboard = () => setComponent(LeaderboardOpen, godIndex, { value: true });
 
