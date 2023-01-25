@@ -162,6 +162,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     cannonEntities.forEach((cannonEntity) => {
       const loaded = getComponentValue(Loaded, cannonEntity);
       const cannonSelected = selectedActions?.specialEntities.includes(world.entities[cannonEntity]);
+      const cannotAdd = selectedActions?.actionTypes.every((action, i) => action !== ActionType.None);
 
       const position = getComponentValueStrict(Position, shipEntity);
       const length = getComponentValueStrict(Length, shipEntity).value;
@@ -170,7 +171,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
       const firingPolygon = renderFiringArea(phaser, activeGroup, position, rotation, length, cannonEntity, rangeColor);
       const actionType = loaded ? ActionType.Fire : ActionType.Load;
 
-      if (damagedCannons || !myShip) return;
+      if (damagedCannons || !myShip || (cannotAdd && !cannonSelected)) return;
       firingPolygon.setInteractive(firingPolygon.geom, Phaser.Geom.Polygon.Contains);
       firingPolygon.on("pointerdown", () => handleNewActionsCannon(actionType, cannonEntity));
       firingPolygon.on("pointerover", () =>

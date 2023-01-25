@@ -144,14 +144,14 @@ export function getRangeTintAlpha(loaded: boolean, selected: boolean, damaged: b
 
   // Loaded
   if (loaded) {
-    fill = { tint: colors.goldHex, alpha: 0.5 };
+    fill = { tint: colors.goldHex, alpha: 0.4 };
   }
   //SELECTED
   if (selected) {
     //Unloaded
-    fill = { tint: colors.goldHex, alpha: 0.5 };
+    fill = { tint: colors.goldHex, alpha: 0.7 };
     //Loaded
-    if (loaded) fill = { tint: colors.cannonReadyHex, alpha: 0.5 };
+    if (loaded) fill = { tint: colors.cannonReadyHex, alpha: 0.7 };
   }
   return fill;
 }
