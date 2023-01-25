@@ -17,16 +17,16 @@ import {
 import { defineLoadingStateComponent } from "./components";
 import { setupDevSystems } from "./setup";
 
-import { GodID } from "@latticexyz/network";
-import { Coord, keccak256 } from "@latticexyz/utils";
-import { defaultAbiCoder as abi } from "ethers/lib/utils";
+import { createFaucetService, GodID } from "@latticexyz/network";
+import { Coord } from "@latticexyz/utils";
+import { BigNumber, BigNumberish, utils } from "ethers";
+import { ActionStruct } from "../../../../contracts/types/ethers-contracts/ActionSystem";
+import { MoveStruct } from "../../../../contracts/types/ethers-contracts/MoveSystem";
 import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../../../contracts/types/SystemTypes";
-import { Action, Move, Phase } from "../../types";
+import { Phase } from "../../types";
 import { defineMoveCardComponent } from "./components/MoveCardComponent";
-import { defineWindComponent } from "./components/WindComponent";
 import { GameConfig, getNetworkConfig } from "./config";
-import { GAS_LIMIT } from "./constants";
 
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -47,18 +47,19 @@ export async function createNetworkLayer(config: GameConfig) {
         commitPhaseLength: Type.Number,
         revealPhaseLength: Type.Number,
         actionPhaseLength: Type.Number,
-        worldRadius: Type.Number,
+        worldSize: Type.Number,
+        perlinSeed: Type.String,
       },
       { id: "GameConfig", metadata: { contractId: "ds.component.GameConfig" } }
     ),
     LoadingState: defineLoadingStateComponent(world),
-    Wind: defineWindComponent(world),
     MoveCard: defineMoveCardComponent(world),
     Position: defineCoordComponent(world, { id: "Position", metadata: { contractId: "ds.component.Position" } }),
     Rotation: defineNumberComponent(world, { id: "Rotation", metadata: { contractId: "ds.component.Rotation" } }),
     Length: defineNumberComponent(world, { id: "Length", metadata: { contractId: "ds.component.Length" } }),
     Range: defineNumberComponent(world, { id: "Range", metadata: { contractId: "ds.component.Range" } }),
     Health: defineNumberComponent(world, { id: "Health", metadata: { contractId: "ds.component.Health" } }),
+    MaxHealth: defineNumberComponent(world, { id: "MaxHealth", metadata: { contractId: "ds.component.MaxHealth" } }),
     Ship: defineBoolComponent(world, { id: "Ship", metadata: { contractId: "ds.component.Ship" } }),
     SailPosition: defineNumberComponent(world, {
       id: "SailPosition",
@@ -82,15 +83,50 @@ export async function createNetworkLayer(config: GameConfig) {
     Commitment: defineStringComponent(world, { id: "Commitment", metadata: { contractId: "ds.component.Commitment" } }),
     Cannon: defineBoolComponent(world, { id: "Cannon", metadata: { contractId: "ds.component.Cannon" } }),
     Loaded: defineBoolComponent(world, { id: "Loaded", metadata: { contractId: "ds.component.Loaded" } }),
+    Speed: defineNumberComponent(world, { id: "Speed", metadata: { contractId: "ds.component.Speed" } }),
+    Kills: defineNumberComponent(world, { id: "Kills", metadata: { contractId: "ds.component.Kills" } }),
+    LastHit: defineNumberComponent(world, { id: "LastHit", metadata: { contractId: "ds.component.LastHit" } }),
   };
 
   // --- SETUP ----------------------------------------------------------------------
-  const { txQueue, systems, txReduced$, network, startSync, encoders } = await setupMUDNetwork<
+  const { txQueue, systems, txReduced$, network, startSync, encoders, systemCallStreams } = await setupMUDNetwork<
     typeof components,
     SystemTypes
-  >(getNetworkConfig(config), world, components, SystemAbis);
+  >(getNetworkConfig(config), world, components, SystemAbis, { fetchSystemCalls: true });
+
+  // Faucet setup
+  const faucetUrl = "https://faucet.testnet-mud-services.linfra.xyz";
+
+  if (!config.devMode) {
+    const faucet = createFaucetService(faucetUrl);
+    const address = network.connectedAddress.get();
+    console.info("[Dev Faucet]: Player Address -> ", address);
+
+    const requestDrip = async () => {
+      const balance = await network.signer.get()?.getBalance();
+      console.info(`[Dev Faucet]: Player Balance -> ${balance}`);
+      const playerIsBroke = balance?.lte(utils.parseEther(".5"));
+      console.info(`[Dev Faucet]: Player is broke -> ${playerIsBroke}`);
+      if (playerIsBroke) {
+        console.info("[Dev Faucet]: Dripping funds to player");
+        // Double drip
+        address && (await faucet?.dripDev({ address })) && (await faucet?.dripDev({ address }));
+        address && (await faucet?.dripDev({ address })) && (await faucet?.dripDev({ address }));
+        address && (await faucet?.dripDev({ address })) && (await faucet?.dripDev({ address }));
+      }
+    };
+
+    requestDrip();
+    // Request a drip every 20 seconds
+    setInterval(requestDrip, 5000);
+  }
 
   // --- UTILITIES ------------------------------------------------------------------
+
+  function bigNumToEntityID(bigNum: BigNumberish): EntityID {
+    return BigNumber.from(bigNum).toHexString() as EntityID;
+  }
+
   const getGameConfig = () => {
     const godEntityIndex = world.entityToIndex.get(GodID);
     if (godEntityIndex == null) return;
@@ -164,39 +200,25 @@ export async function createNetworkLayer(config: GameConfig) {
   // --- API ------------------------------------------------------------------------
 
   function commitMove(commitment: string) {
-    systems["ds.system.Commit"].executeTyped(commitment, {
-      gasLimit: GAS_LIMIT,
-    });
+    systems["ds.system.Commit"].executeTyped(commitment);
   }
 
   function spawnPlayer(name: string) {
-    const location: Coord = { x: Math.round(Math.random() * 300000), y: Math.round(Math.random() * 300000) };
-    systems["ds.system.PlayerSpawn"].executeTyped(name, location, {
-      gasLimit: GAS_LIMIT,
-    });
+    const location: Coord = { x: 0, y: 0 };
+    systems["ds.system.PlayerSpawn"].executeTyped(name, location);
   }
 
-  function revealMove(moves: Move[], salt: number) {
+  function revealMove(moves: MoveStruct[], salt: number) {
     systems["ds.system.Move"].executeTyped(moves, salt, {
-      gasLimit: GAS_LIMIT,
+      gasLimit: 5_000_000,
     });
   }
 
-  function submitActions(actions: Action[]) {
+  function submitActions(actions: ActionStruct[]) {
     console.log("submitting actions:", actions);
     systems["ds.system.Action"].executeTyped(actions, {
-      gasLimit: GAS_LIMIT,
+      gasLimit: 10_000_000,
     });
-  }
-
-  function setOnFire(ship: EntityIndex) {
-    const componentId = keccak256("ds.component.OnFire");
-    systems["ds.system.ComponentDev"].executeTyped(componentId, world.entities[ship], abi.encode(["bool"], [true]));
-  }
-
-  function damageCannons(ship: EntityIndex) {
-    const componentId = keccak256("ds.component.DamagedCannons");
-    systems["ds.system.ComponentDev"].executeTyped(componentId, world.entities[ship], abi.encode(["uint32"], [2]));
   }
 
   // --- CONTEXT --------------------------------------------------------------------
@@ -206,10 +228,19 @@ export async function createNetworkLayer(config: GameConfig) {
     txQueue,
     systems,
     txReduced$,
+    systemCallStreams,
     startSync,
     network,
-    utils: { getGameConfig, getPlayerEntity, getPhase, getGamePhaseAt, getTurn, secondsUntilNextPhase },
-    api: { revealMove, submitActions, spawnPlayer, commitMove, setOnFire, damageCannons },
+    utils: {
+      getGameConfig,
+      getPlayerEntity,
+      getPhase,
+      getGamePhaseAt,
+      getTurn,
+      secondsUntilNextPhase,
+      bigNumToEntityID,
+    },
+    api: { revealMove, submitActions, spawnPlayer, commitMove },
     dev: setupDevSystems(world, encoders, systems),
   };
 

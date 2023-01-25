@@ -6,11 +6,10 @@
     "LengthComponent",
     "RangeComponent",
     "HealthComponent",
+    "MaxHealthComponent",
     "ShipComponent",
     "SailPositionComponent",
-    "WindComponent",
     "OnFireComponent",
-    "CrewCountComponent",
     "DamagedCannonsComponent",
     "FirepowerComponent",
     "GameConfigComponent",
@@ -21,41 +20,34 @@
     "PlayerComponent",
     "CommitmentComponent",
     "LoadedComponent",
-    "CannonComponent"
+    "CannonComponent",
+    "SpeedComponent",
+    "KillsComponent",
+    "LastHitComponent"
   ],
   "systems": [
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
     {
-      "name": "ShipSpawnSystem",
+      "name": "MoveSystem",
       "writeAccess": [
         "PositionComponent",
         "RotationComponent",
-        "LengthComponent",
-        "RangeComponent",
-        "HealthComponent",
-        "ShipComponent",
-        "SailPositionComponent",
-        "CrewCountComponent",
-        "FirepowerComponent",
         "LastMoveComponent",
-        "LastActionComponent",
-        "OwnedByComponent",
-        "PlayerComponent",
-        "LoadedComponent",
-        "CannonComponent"
+        "HealthComponent",
+        "SailPositionComponent"
       ]
     },
-    { "name": "MoveSystem", "writeAccess": ["PositionComponent", "RotationComponent", "LastMoveComponent"] },
     {
       "name": "ActionSystem",
       "writeAccess": [
         "HealthComponent",
         "OnFireComponent",
         "DamagedCannonsComponent",
-        "CrewCountComponent",
         "SailPositionComponent",
         "LastActionComponent",
-        "LoadedComponent"
+        "LoadedComponent",
+        "KillsComponent",
+        "LastHitComponent"
       ]
     },
     { "name": "ComponentDevSystem", "writeAccess": ["*"] },
@@ -67,16 +59,18 @@
         "LengthComponent",
         "RangeComponent",
         "HealthComponent",
+        "MaxHealthComponent",
         "ShipComponent",
         "SailPositionComponent",
-        "CrewCountComponent",
         "FirepowerComponent",
         "LastMoveComponent",
         "LastActionComponent",
         "OwnedByComponent",
         "PlayerComponent",
         "NameComponent",
-        "CannonComponent"
+        "CannonComponent",
+        "SpeedComponent",
+        "KillsComponent"
       ]
     },
     { "name": "CommitSystem", "writeAccess": ["CommitmentComponent"] }

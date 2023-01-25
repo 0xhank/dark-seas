@@ -55,10 +55,12 @@ const LeftSide = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  border: 1px solid ${colors.gold};
+  border-right: none;
 `;
 
 const RightSide = styled.div<{ updating?: boolean }>`
-  background: ${({ updating }) => (updating ? colors.green : colors.thickGlass)};
+  background: ${({ updating }) => (updating ? colors.greenGlass : colors.thickGlass)};
   border-radius: 0 12px 12px 0;
   padding: 6px;
   display: flex;
@@ -67,6 +69,8 @@ const RightSide = styled.div<{ updating?: boolean }>`
   font-size: 1.5rem;
   color: ${colors.darkBrown};
   line-height: 2.5rem;
+  border: 1px solid ${colors.gold};
+  border-left: none;
 
   @media (max-width: 1500px) {
     line-height: 1.5rem;

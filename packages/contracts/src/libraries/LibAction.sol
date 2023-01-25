@@ -12,9 +12,6 @@ import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../com
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
-import { CannonComponent, ID as CannonComponentID } from "../components/CannonComponent.sol";
-import { LoadedComponent, ID as LoadedComponentID } from "../components/LoadedComponent.sol";
-
 // Types
 import { Coord, Side, Action, ActionType } from "../libraries/DSTypes.sol";
 
@@ -25,15 +22,16 @@ import "./LibVector.sol";
 
 library LibAction {
   /**
-   * @notice  executes all actions corresponding to the input action
+   * @notice  executes submitted action
    * @param   components  world components
    * @param   action  set of actions to execute
    */
   function executeActions(IUint256Component components, Action memory action) public {
     // iterate through each action of each ship
+    uint256 cannonEntity1;
     for (uint256 i = 0; i < 2; i++) {
       ActionType actionType = action.actionTypes[i];
-      uint256 specialEntity = action.specialEntities[i];
+      bytes memory metadata = action.metadata[i];
       if (actionType == ActionType.None) continue;
       require(
         OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(action.shipEntity) ==
@@ -46,16 +44,21 @@ library LibAction {
         "ActionSystem: Entity must be a ship"
       );
 
-      // ensure action hasn't already been made
-      if (i == 1) {
-        if (actionType == ActionType.Fire || actionType == ActionType.Load)
-          require(specialEntity != action.specialEntities[0], "ActionSystem: cannon already acted");
-        else require(action.actionTypes[0] != actionType, "ActionSystem: action already used");
+      // todo: fix ensure action hasn't already been made
+      if (i == 1 && actionType != ActionType.Fire && actionType != ActionType.Load) {
+        require(action.actionTypes[0] != actionType, "ActionSystem: action already used");
       }
       if (actionType == ActionType.Load) {
-        load(components, action.shipEntity, specialEntity);
+        uint256 cannonEntity = abi.decode(metadata, (uint256));
+        if (i == 0) cannonEntity1 = cannonEntity;
+        else require(cannonEntity != cannonEntity1, "ActionSystem: cannon already acted");
+
+        LibCombat.load(components, action.shipEntity, cannonEntity);
       } else if (actionType == ActionType.Fire) {
-        attack(components, action.shipEntity, specialEntity);
+        (uint256 cannonEntity, uint256[] memory targetEntities) = abi.decode(metadata, (uint256, uint256[]));
+        if (i == 0) cannonEntity1 = cannonEntity;
+        else require(cannonEntity != cannonEntity1, "ActionSystem: cannon already acted");
+        LibCombat.attack(components, action.shipEntity, cannonEntity, targetEntities);
       } else if (actionType == ActionType.RaiseSail) {
         raiseSail(components, action.shipEntity);
       } else if (actionType == ActionType.LowerSail) {
@@ -87,152 +90,19 @@ library LibAction {
     // if ship has a damaged mast, reduce hull health by 1
     if (onFireComponent.has(shipEntity)) {
       uint32 health = healthComponent.getValue(shipEntity);
-      if (health <= 1) healthComponent.set(shipEntity, 0);
-      else healthComponent.set(shipEntity, health - 1);
-    }
-  }
+      if (health == 0) return;
+      else if (health == 1) {
+        healthComponent.set(shipEntity, 0);
 
-  /**
-   * @notice  loads the given cannon
-   * @param   components  world components
-   * @param   shipEntity  ship controlling cannon
-   * @param   cannonEntity  cannon to load
-   */
-  function load(
-    IUint256Component components,
-    uint256 shipEntity,
-    uint256 cannonEntity
-  ) private {
-    if (DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).has(shipEntity)) return;
+        LastHitComponent lastHitComponent = LastHitComponent(getAddressById(components, LastHitComponentID));
+        if (!lastHitComponent.has(shipEntity)) return;
+        uint256 lastAttacker = lastHitComponent.getValue(shipEntity);
 
-    require(
-      CannonComponent(getAddressById(components, CannonComponentID)).has(cannonEntity),
-      "load: entity not a cannon"
-    );
+        KillsComponent killsComponent = KillsComponent(getAddressById(components, KillsComponentID));
 
-    require(
-      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(cannonEntity) == shipEntity,
-      "load: cannon not owned by ship"
-    );
-
-    LoadedComponent loadedComponent = LoadedComponent(getAddressById(components, LoadedComponentID));
-
-    require(!loadedComponent.has(cannonEntity), "attack: cannon already loaded");
-    loadedComponent.set(cannonEntity);
-  }
-
-  /**
-   * @notice  fires the given cannon
-   * @param   components  world components
-   * @param   shipEntity  ship controlling cannon
-   * @param   cannonEntity  cannon to load
-   */
-  function attack(
-    IUint256Component components,
-    uint256 shipEntity,
-    uint256 cannonEntity
-  ) public {
-    if (DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).has(shipEntity)) return;
-
-    require(
-      CannonComponent(getAddressById(components, CannonComponentID)).has(cannonEntity),
-      "attack: entity not a cannon"
-    );
-
-    require(
-      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(cannonEntity) == shipEntity,
-      "attack: cannon not owned by ship"
-    );
-
-    LoadedComponent loadedComponent = LoadedComponent(getAddressById(components, LoadedComponentID));
-
-    require(loadedComponent.has(cannonEntity), "attack: cannon not loaded");
-    uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
-    if (!LibCombat.isBroadside(cannonRotation)) {
-      attackPivot(components, shipEntity, cannonEntity);
-    } else {
-      attackBroadside(components, shipEntity, cannonEntity);
-    }
-    loadedComponent.remove(cannonEntity);
-  }
-
-  /**
-   * @notice  attacks all enemies in forward arc of ship
-   * @dev     todo: how can i combine this with attackSide despite different number of vertices in range?
-   * @param   components  world components
-   * @param   shipEntity  entity performing an attack
-   * @param   cannonEntity  .
-   */
-  function attackPivot(
-    IUint256Component components,
-    uint256 shipEntity,
-    uint256 cannonEntity
-  ) public {
-    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
-    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
-    // get firing area of ship
-    Coord[3] memory firingRange = LibCombat.getFiringAreaPivot(components, shipEntity, cannonEntity);
-
-    (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
-
-    uint256 owner = ownedByComponent.getValue(shipEntity);
-
-    // iterate through each ship, checking if it can be fired on
-    // 1. is not the current ship, 2. is not owned by attacker, 3. is within firing range
-    for (uint256 i = 0; i < shipEntities.length; i++) {
-      if (shipEntities[i] == shipEntity) continue;
-      if (owner == ownedByComponent.getValue(shipEntities[i])) continue;
-
-      (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
-      uint256 distance;
-      if (LibVector.withinPolygon3(firingRange, aft)) {
-        distance = LibVector.distance(firingRange[0], aft);
-        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
-      } else if (LibVector.withinPolygon3(firingRange, stern)) {
-        distance = LibVector.distance(firingRange[0], stern);
-        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
-      }
-    }
-  }
-
-  /**
-   * @notice  attacks all enemies on given side of ship
-   * @dev     todo: i plan to change this to reqiure inclusion of both an attacker and defender, saving gas and improving ux
-   * @param   components  world components
-   * @param   shipEntity  entity performing an attack
-   * @param   cannonEntity  .
-   */
-  function attackBroadside(
-    IUint256Component components,
-    uint256 shipEntity,
-    uint256 cannonEntity
-  ) public {
-    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
-    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
-
-    // get firing area of ship
-    Coord[4] memory firingRange = LibCombat.getFiringAreaBroadside(components, shipEntity, cannonEntity);
-
-    (uint256[] memory shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
-
-    uint256 owner = ownedByComponent.getValue(shipEntity);
-
-    // iterate through each ship, checking if it can be fired on
-    // 1. is not the current ship, 2. is not owned by attacker, 3. is within firing range
-    for (uint256 i = 0; i < shipEntities.length; i++) {
-      if (shipEntities[i] == shipEntity) continue;
-      if (owner == ownedByComponent.getValue(shipEntities[i])) continue;
-
-      (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntities[i]);
-
-      uint256 distance;
-      if (LibVector.withinPolygon4(firingRange, aft)) {
-        distance = LibVector.distance(firingRange[0], aft);
-        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
-      } else if (LibVector.withinPolygon4(firingRange, stern)) {
-        distance = LibVector.distance(firingRange[0], stern);
-        LibCombat.damageEnemy(components, shipEntity, shipEntities[i], distance, firepower);
-      }
+        uint32 prevKills = killsComponent.getValue(lastAttacker);
+        killsComponent.set(lastAttacker, prevKills + 1);
+      } else healthComponent.set(shipEntity, health - 1);
     }
   }
 

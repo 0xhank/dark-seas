@@ -15,6 +15,8 @@ export type Action = {
   specialEntities: [EntityID, EntityID];
 };
 
+export type ActionWithTargets = Action & { targets: [EntityID[] | undefined, EntityID[] | undefined] };
+
 export type Move = {
   shipEntity: EntityID;
   moveCardEntity: EntityID;
@@ -78,11 +80,6 @@ export const SailPositionNames: Record<number, string> = {
 export type MoveCard = {
   distance: number;
   rotation: number;
-  direction: number;
-};
-
-export type Wind = {
-  speed: number;
   direction: number;
 };
 

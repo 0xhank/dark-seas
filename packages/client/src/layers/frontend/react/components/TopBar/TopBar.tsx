@@ -1,9 +1,8 @@
-import { GodID } from "@latticexyz/network";
-import { EntityIndex, getComponentValue } from "@latticexyz/recs";
-import { useState } from "react";
+import { getComponentValue, setComponent } from "@latticexyz/recs";
 import { map, merge, of } from "rxjs";
 import styled from "styled-components";
 import { registerUIComponent } from "../../engine";
+import { Button, colors } from "../../styles/global";
 import { Compass } from "./Compass";
 
 export function registerTopBar() {
@@ -21,43 +20,45 @@ export function registerTopBar() {
     (layers) => {
       const {
         network: {
-          world,
-          components: { Wind, Name },
+          components: { Name },
           network: { connectedAddress },
           utils: { getPlayerEntity },
         },
+        backend: {
+          godIndex,
+          components: { LeaderboardOpen },
+        },
       } = layers;
 
-      return merge(of(0), Wind.update$, Name.update$).pipe(
+      return merge(of(0), Name.update$).pipe(
         map(() => {
+          const dir: number = 0;
+          const speed: number = 0;
+
+          const playerEntity = getPlayerEntity(connectedAddress.get());
+          const name = playerEntity ? getComponentValue(Name, playerEntity)?.value : undefined;
+          const openLeaderboard = () => setComponent(LeaderboardOpen, godIndex, { value: true });
+
+          if (!name) return null;
           return {
-            Wind,
-            Name,
-            world,
-            connectedAddress,
-            getPlayerEntity,
+            name,
+            dir,
+            speed,
+            openLeaderboard,
           };
         })
       );
     },
-    ({ Wind, Name, world, connectedAddress, getPlayerEntity }) => {
-      const manyYearsAgo = 1000 * 60 * 60 * 24 * 265 * 322;
-      const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
-
-      const [date, setDate] = useState<Date>(new Date(Date.now() - manyYearsAgo));
-      const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
-      const dir: number = Wind.values.direction.get(GodEntityIndex) || 0;
-      const speed: number = Wind.values.speed.get(GodEntityIndex) || 0;
-
-      const playerEntity = getPlayerEntity(connectedAddress.get());
-      const name = playerEntity ? getComponentValue(Name, playerEntity)?.value : undefined;
-      if (!name) return null;
+    ({ name, dir, speed, openLeaderboard }) => {
       return (
         <TopBarContainer>
           <Compass direction={dir} speed={speed} />
-          <div style={{ display: "flex", flexDirection: "column", textAlign: "left" }}>
+          <div style={{ display: "flex", flexDirection: "column", textAlign: "left", gap: "8px" }}>
             <span style={{ fontWeight: "bolder", fontSize: "1.5rem", lineHeight: "2rem" }}>Captain {name}'s Log</span>
-            <span>{date.toLocaleDateString("en-UK", options as any)}</span>
+            <Button onClick={openLeaderboard} style={{ width: "40px", background: colors.thickGlass }}>
+              {" "}
+              <img src={"/icons/podium.svg"} style={{ width: "100%" }} />
+            </Button>
           </div>
         </TopBarContainer>
       );

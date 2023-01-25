@@ -1,6 +1,8 @@
+import { getComponentValue } from "@latticexyz/recs";
 import { map, merge } from "rxjs";
 import styled, { keyframes } from "styled-components";
 import { Phase } from "../../../../types";
+import { Category } from "../../../backend/sound/library";
 import { DELAY } from "../../constants";
 import { registerUIComponent } from "../engine";
 import { colors } from "../styles/global";
@@ -16,16 +18,27 @@ export function registerTurnTimer() {
     },
     (layers) => {
       const {
-        network: { clock },
-        utils: { getGameConfig, getPhase, secondsUntilNextPhase },
-      } = layers.network;
+        network: {
+          network: { clock },
+          utils: { getGameConfig, getPhase, secondsUntilNextPhase, getPlayerEntity, getTurn },
+          components: { LastAction },
+        },
+        backend: {
+          utils: { playSound },
+          components: { EncodedCommitment },
+          godIndex,
+        },
+      } = layers;
 
-      return merge(clock.time$).pipe(
+      return merge(clock.time$, EncodedCommitment.update$, LastAction.update$).pipe(
         map(() => {
           const gameConfig = getGameConfig();
           if (!gameConfig) return;
 
           const phase = getPhase(DELAY);
+          const turn = getTurn(DELAY);
+          const playerEntity = getPlayerEntity();
+
           const secsLeft = secondsUntilNextPhase(DELAY) || 0;
 
           const phaseLength =
@@ -34,23 +47,29 @@ export function registerTurnTimer() {
               : phase == Phase.Reveal
               ? gameConfig.revealPhaseLength
               : gameConfig.actionPhaseLength;
+          if (!playerEntity || !phaseLength) return null;
 
-          return {
-            phaseLength,
-            secsLeft,
-            phase,
-          };
+          let str = null;
+          if (phase == Phase.Commit) {
+            str = <Text secsLeft={secsLeft}>Choose your moves</Text>;
+            if (secsLeft < 6 && !getComponentValue(EncodedCommitment, godIndex)) {
+              playSound("tick", Category.UI);
+            }
+          } else if (phase == Phase.Reveal) str = <PulsingText>Waiting for Players to Reveal Moves...</PulsingText>;
+          else if (phase == Phase.Action) {
+            str = <Text secsLeft={secsLeft}>Choose 2 actions per ship</Text>;
+            const lastAction = getComponentValue(LastAction, playerEntity)?.value;
+
+            if (secsLeft < 6 && lastAction !== turn) {
+              playSound("tick", Category.UI);
+            }
+          }
+
+          return { phase, phaseLength, secsLeft, str };
         })
       );
     },
-    ({ phaseLength, secsLeft, phase }) => {
-      if (!phaseLength) return null;
-
-      let str = null;
-      if (phase == Phase.Commit) str = <Text secsLeft={secsLeft}>Choose your moves</Text>;
-      else if (phase == Phase.Reveal) str = <PulsingText>Waiting for Players to Reveal Moves...</PulsingText>;
-      else if (phase == Phase.Action) str = <Text secsLeft={secsLeft}>Choose 2 actions per ship</Text>;
-
+    ({ phase, phaseLength, secsLeft, str }) => {
       return (
         <OuterContainer>
           {phase == Phase.Commit || phase == Phase.Action ? (
@@ -117,7 +136,7 @@ const ProgressBar = styled.div<{ phaseLength: number; secsLeft: number }>`
   left: 0;
   height: 30px;
   transition: width 1s linear;
-  background-color: ${({ secsLeft }) => (secsLeft < 5 ? colors.red : colors.gold)};
-  width: ${({ phaseLength, secsLeft }) => `calc(100% * ${(phaseLength - secsLeft) / phaseLength})`};
+  background-color: ${({ secsLeft }) => (secsLeft > 5 ? colors.gold : colors.red)};
+  width: ${({ phaseLength, secsLeft }) => `calc(100% * ${(phaseLength - secsLeft + 1) / phaseLength})`};
   border-radius: 6px;
 `;

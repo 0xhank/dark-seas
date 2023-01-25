@@ -4,7 +4,6 @@ pragma solidity >=0.8.0;
 // External
 import "solecs/System.sol";
 import { getAddressById } from "solecs/utils.sol";
-
 // Components
 import { NameComponent, ID as NameComponentID } from "../components/NameComponent.sol";
 

@@ -11,8 +11,8 @@ Multiplayer naval battle simulation game on blockchain. Built with <a href = htt
 
 - Ensure requirements are met
 - Clone the repository
-- Run `yarn` to install dependencies and prepare workspaces
-- Run `yarn start` to spin up an anvil local blockchain, deploy smart contracts, and launch a locally hosted client server.
+- Run `yarn && yarn prepare` to install dependencies and prepare workspaces
+- Run `yarn dev` to spin up an anvil local blockchain, deploy smart contracts, and launch a locally hosted client server.
 
 # Local Development
 

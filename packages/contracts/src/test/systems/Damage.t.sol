@@ -7,7 +7,6 @@ import "../DarkSeasTest.t.sol";
 // Systems
 import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
 import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.sol";
-import { ShipSpawnSystem, ID as ShipSpawnSystemID } from "../../systems/ShipSpawnSystem.sol";
 import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/ComponentDevSystem.sol";
 import { CommitSystem, ID as CommitSystemID } from "../../systems/CommitSystem.sol";
 
@@ -30,20 +29,21 @@ contract DamageTest is DarkSeasTest {
 
   SailPositionComponent sailPositionComponent;
   ActionSystem actionSystem;
-  ShipSpawnSystem shipSpawnSystem;
   ComponentDevSystem componentDevSystem;
 
   Action[] actions;
   Move[] moves;
 
-  function testDamagedCannonsEffect() public {
+  bytes none = abi.encode(0);
+
+  function testDamagedCannonsEffect() public prank(deployer) {
     setup();
     DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
       getAddressById(components, DamagedCannonsComponentID)
     );
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
-    uint256 attackerEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
-    uint256 defenderEntity = shipSpawnSystem.executeTyped(Coord({ x: 9, y: 25 }), 0);
+    uint256 attackerEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
+    uint256 defenderEntity = spawnShip(Coord({ x: 9, y: 25 }), 0, deployer);
     uint32 origHealth = healthComponent.getValue(defenderEntity);
 
     componentDevSystem.executeTyped(DamagedCannonsComponentID, attackerEntity, abi.encode(2));
@@ -52,7 +52,7 @@ contract DamageTest is DarkSeasTest {
     Action memory action = Action({
       shipEntity: attackerEntity,
       actionTypes: [ActionType.RepairCannons, ActionType.None],
-      specialEntities: [uint256(0), uint256(0)]
+      metadata: [none, none]
     });
     actions.push(action);
 
@@ -63,9 +63,9 @@ contract DamageTest is DarkSeasTest {
     assertEq(damagedCannonsComponent.getValue(attackerEntity), 1);
   }
 
-  function testFireEffect() public {
+  function testFireEffect() public prank(deployer) {
     setup();
-    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
+    uint256 shipEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
 
     OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
 
@@ -82,7 +82,7 @@ contract DamageTest is DarkSeasTest {
     Action memory action = Action({
       shipEntity: shipEntity,
       actionTypes: [ActionType.ExtinguishFire, ActionType.None],
-      specialEntities: [uint256(0), uint256(0)]
+      metadata: [none, none]
     });
     actions.push(action);
 
@@ -93,7 +93,7 @@ contract DamageTest is DarkSeasTest {
     assertEq(healthComponent.getValue(shipEntity), health - 1);
   }
 
-  function testDamagedSailEffect() public {
+  function testDamagedSailEffect() public prank(deployer) {
     setup();
 
     PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
@@ -101,7 +101,7 @@ contract DamageTest is DarkSeasTest {
 
     uint256 moveStraightEntity = uint256(keccak256("ds.prototype.moveEntity1"));
 
-    uint256 shipEntity = shipSpawnSystem.executeTyped(Coord({ x: 0, y: 0 }), 350);
+    uint256 shipEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
 
     Coord memory position = positionComponent.getValue(shipEntity);
     uint32 rotation = rotationComponent.getValue(shipEntity);
@@ -126,7 +126,6 @@ contract DamageTest is DarkSeasTest {
 
   function setup() internal {
     actionSystem = ActionSystem(system(ActionSystemID));
-    shipSpawnSystem = ShipSpawnSystem(system(ShipSpawnSystemID));
     componentDevSystem = ComponentDevSystem(system(ComponentDevSystemID));
     sailPositionComponent = SailPositionComponent(getAddressById(components, SailPositionComponentID));
     delete moves;

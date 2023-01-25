@@ -4,11 +4,6 @@ import "std-contracts/components/CoordComponent.sol";
 
 uint256 constant GodID = uint256(0x060D);
 
-struct Wind {
-  uint32 speed;
-  uint32 direction;
-}
-
 struct MoveCard {
   uint32 distance;
   uint32 direction;
@@ -18,7 +13,7 @@ struct MoveCard {
 struct Action {
   uint256 shipEntity;
   ActionType[2] actionTypes;
-  uint256[2] specialEntities;
+  bytes[2] metadata;
 }
 
 struct Move {
@@ -56,5 +51,6 @@ struct GameConfig {
   uint32 commitPhaseLength;
   uint32 revealPhaseLength;
   uint32 actionPhaseLength;
-  uint32 worldRadius;
+  uint32 worldSize;
+  int128 perlinSeed;
 }

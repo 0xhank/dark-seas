@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 // External
 import { getAddressById } from "solecs/utils.sol";
 import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
+import { Perlin } from "noise/Perlin.sol";
 
 // Components
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
@@ -14,60 +15,38 @@ import { SailPositionComponent, ID as SailPositionComponentID } from "../compone
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
-import { CrewCountComponent, ID as CrewCountComponentID } from "../components/CrewCountComponent.sol";
+import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedComponent.sol";
+import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
+import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
-import { MoveCard, Move, Wind, Coord } from "./DSTypes.sol";
+import { MoveCard, Move, Coord, GodID, GameConfig } from "./DSTypes.sol";
 
 // Libraries
 import "../libraries/LibVector.sol";
+import "../libraries/LibCombat.sol";
+import "../libraries/LibUtils.sol";
 import "trig/src/Trigonometry.sol";
 
 library LibMove {
-  /**
-   * @notice  calculates boost from wind
-   * @param   wind  current wind direction and intensity
-   * @param   rotation  of selected ship
-   * @return  int32  effect of wind
-   */
-  function windBoost(Wind memory wind, uint32 rotation) public pure returns (int32) {
-    uint32 rotationDiff = wind.direction > rotation ? wind.direction - rotation : rotation - wind.direction;
-    int32 windSpeed = int32(wind.speed);
-    if (rotationDiff > 120 && rotationDiff <= 240) return -windSpeed;
-    if (rotationDiff < 80 || rotationDiff > 280) return windSpeed;
-    return 0;
-  }
-
-  /**
-   * @notice  calculates modified move card based on wind
-   * @dev  if boost is 0, +-0% else if 10, +- 25% else if 20 , +-50%
-   * @param   moveCard  original move card
-   * @param   rotation  of selected ship
-   * @param   wind  current wind direction and intensity
-   * @return  MoveCard  updated move card
-   */
-  function getMoveWithWind(
-    MoveCard memory moveCard,
-    uint32 rotation,
-    Wind memory wind
-  ) public pure returns (MoveCard memory) {
-    int32 _windBoost = (windBoost(wind, rotation) * 100) / 40;
-    return getMoveWithBuff(moveCard, uint32(_windBoost + 100));
-  }
-
   /**
    * @notice  calculates modified move card based on sail position
    * @param   moveCard  original move card
    * @param   sailPosition ship's current sail position
    * @return  MoveCard  updated move card
    */
-  function getMoveWithSails(MoveCard memory moveCard, uint32 sailPosition) public pure returns (MoveCard memory) {
+  function getMoveWithSails(
+    MoveCard memory moveCard,
+    uint32 shipSpeed,
+    uint32 sailPosition
+  ) public pure returns (MoveCard memory) {
+    moveCard.distance = (moveCard.distance * shipSpeed) / 100;
     if (sailPosition == 2) {
       return getMoveWithBuff(moveCard, 100);
     }
 
     if (sailPosition == 1) {
-      return getMoveWithBuff(moveCard, 50);
+      return getMoveWithBuff(moveCard, 70);
     }
 
     return MoveCard(0, 0, 0);
@@ -86,48 +65,40 @@ library LibMove {
     moveCard.distance = (moveCard.distance * buff) / 100;
 
     if (moveCard.rotation > 180) {
-      moveCard.rotation = 360 - (((360 - moveCard.rotation) * buff) / 100);
+      moveCard.rotation = 360 - (((360 - moveCard.rotation) * 100) / buff);
     } else {
-      moveCard.rotation = (moveCard.rotation * buff) / 100;
+      moveCard.rotation = (moveCard.rotation * 100) / buff;
     }
 
     if (moveCard.direction > 180) {
-      moveCard.direction = 360 - (((360 - moveCard.direction) * buff) / 100);
+      moveCard.direction = 360 - (((360 - moveCard.direction) * 100) / buff);
     } else {
-      moveCard.direction = (moveCard.direction * buff) / 100;
+      moveCard.direction = (moveCard.direction * 100) / buff;
     }
     return moveCard;
   }
 
   /**
-
-
-   */
-  /**
    * @notice  moves a ship
    * @param   components  world components
    * @param   move  move to execute
    * @param   playerEntity  owner of ship
-   * @param   wind  direction and intensity of wind
    */
   function moveShip(
     IUint256Component components,
     Move memory move,
-    uint256 playerEntity,
-    Wind memory wind
+    uint256 playerEntity
   ) public {
     MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
     PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
     RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
+    SailPositionComponent sailPositionComponent = SailPositionComponent(
+      getAddressById(components, SailPositionComponentID)
+    );
 
     require(
       HealthComponent(getAddressById(components, HealthComponentID)).getValue(move.shipEntity) > 0,
       "MoveSystem: ship is sunk"
-    );
-
-    require(
-      CrewCountComponent(getAddressById(components, CrewCountComponentID)).getValue(move.shipEntity) > 0,
-      "MoveSystem: ship has no crew"
     );
 
     require(
@@ -140,25 +111,54 @@ library LibMove {
       "MoveSystem: invalid ship entity id"
     );
 
-    // calculate move card with wind and sail modifiers
+    // calculate move card with  sail modifiers
     MoveCard memory moveCard = moveCardComponent.getValue(move.moveCardEntity);
 
     Coord memory position = positionComponent.getValue(move.shipEntity);
     uint32 rotation = rotationComponent.getValue(move.shipEntity);
 
-    moveCard = getMoveWithWind(moveCard, rotation, wind);
-
     moveCard = getMoveWithSails(
       moveCard,
-      SailPositionComponent(getAddressById(components, SailPositionComponentID)).getValue(move.shipEntity)
+      SpeedComponent(getAddressById(components, SpeedComponentID)).getValue(move.shipEntity),
+      sailPositionComponent.getValue(move.shipEntity)
     );
 
     position = LibVector.getPositionByVector(position, rotation, moveCard.distance, moveCard.direction);
 
-    require(LibVector.inWorldRadius(components, position), "MoveSystem: move out of bounds");
     rotation = (rotation + moveCard.rotation) % 360;
 
+    if (outOfBounds(components, position)) {
+      LibCombat.damageHull(components, 1, move.shipEntity);
+      sailPositionComponent.set(move.shipEntity, 0);
+    } else {
+      uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(move.shipEntity);
+      Coord memory sternPosition = LibVector.getSternLocation(position, rotation, length);
+      if (outOfBounds(components, sternPosition)) {
+        LibCombat.damageHull(components, 1, move.shipEntity);
+        sailPositionComponent.set(move.shipEntity, 0);
+      }
+    }
     positionComponent.set(move.shipEntity, position);
     rotationComponent.set(move.shipEntity, rotation);
+  }
+
+  /**
+   * @notice  checks if the given position is out of bounds
+   * @param   components  world components
+   * @param   position  position to check if out of bounds
+   * @return  bool  is out of bounds
+   */
+  function outOfBounds(IUint256Component components, Coord memory position) internal returns (bool) {
+    if (!LibVector.inWorld(components, position)) return true;
+
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+    int128 denom = 50;
+    int128 depth = Perlin.noise2d(position.x + gameConfig.perlinSeed, position.y + gameConfig.perlinSeed, denom, 64);
+
+    depth = int128(Math.muli(depth, 100));
+
+    return depth < 26;
   }
 }

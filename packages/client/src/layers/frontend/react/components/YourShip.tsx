@@ -1,4 +1,3 @@
-import { GodID } from "@latticexyz/network";
 import {
   EntityIndex,
   getComponentValue,
@@ -29,31 +28,26 @@ export const YourShip = ({
 }) => {
   const {
     network: {
-      components: { Position, Health },
-      world,
+      components: { Position },
     },
     backend: {
-      components: { SelectedShip, HoveredShip },
+      components: { SelectedShip, HoveredShip, HealthLocal },
+      godIndex,
     },
     phaser: {
-      scenes: {
-        Main: { camera },
-      },
-      positions,
+      scene: { camera, posWidth, posHeight },
     },
   } = layers;
 
   const selectShip = (ship: EntityIndex, position: Coord) => {
-    camera.centerOn(position.x * positions.posWidth, position.y * positions.posHeight + 400);
+    camera.centerOn(position.x * posWidth, position.y * posHeight + 400);
 
-    setComponent(SelectedShip, GodEntityIndex, { value: ship });
+    setComponent(SelectedShip, godIndex, { value: ship });
   };
 
-  const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
-
   const position = getComponentValueStrict(Position, ship);
-  const health = getComponentValueStrict(Health, ship).value;
-  const hoveredShip = getComponentValue(HoveredShip, GodEntityIndex)?.value;
+  const health = getComponentValue(HealthLocal, ship)?.value;
+  const hoveredShip = getComponentValue(HoveredShip, godIndex)?.value;
   const isSelected = selectedShip == ship;
   const isHovered = hoveredShip == ship;
   const shipColor = getColorStr(ship);
@@ -70,8 +64,8 @@ export const YourShip = ({
   return (
     <YourShipContainer
       onClick={() => health !== 0 && selectShip(ship, position)}
-      onMouseEnter={() => setComponent(HoveredShip, GodEntityIndex, { value: ship })}
-      onMouseLeave={() => removeComponent(HoveredShip, GodEntityIndex)}
+      onMouseEnter={() => setComponent(HoveredShip, godIndex, { value: ship })}
+      onMouseLeave={() => removeComponent(HoveredShip, godIndex)}
       isSelected={isSelected}
       isHovered={isHovered}
       shipColor={shipColor}
@@ -122,7 +116,9 @@ const YourShipContainer = styled(InternalContainer)<{
   cursor: pointer;
   box-shadow: ${({ isSelected, shipColor }) => `inset 0px 0px 0px ${isSelected ? "5px" : "0px"} ${colors.white}`};
   background: ${({ isSelected, isHovered, shipColor }) =>
-    `${color(shipColor).alpha(isSelected || isHovered ? 0.5 : 0.25)}`};
+    `${color(shipColor)
+      .lighten(0.1)
+      .alpha(isSelected || isHovered ? 0.8 : 0.7)}`};
   padding-bottom: 5px;
 `;
 

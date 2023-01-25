@@ -1,6 +1,6 @@
 import { GodID } from "@latticexyz/network";
 import { Coord, tileCoordToPixelCoord } from "@latticexyz/phaserx";
-import { EntityIndex, getComponentValueStrict } from "@latticexyz/recs";
+import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
 import { getShipSprite } from "../../../../utils/ships";
 import { getFiringArea } from "../../../../utils/trig";
@@ -19,48 +19,56 @@ export function renderShip(
 ) {
   const {
     world,
-    parentLayers: {
-      network: {
-        components: { Length, Health },
-      },
-    },
-    scenes: {
-      Main: { objectPool, config },
-    },
-    positions,
+    components: { Length, HealthLocal },
+    scene: { config, posWidth, posHeight },
+    utils: { getSpriteObject },
   } = phaser;
 
   const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
-  const object = objectPool.get(objectId, "Sprite");
+  const object = getSpriteObject(objectId);
 
   const length = getComponentValueStrict(Length, shipEntity).value;
-  const health = getComponentValueStrict(Health, shipEntity).value;
+  const health = getComponentValueStrict(HealthLocal, shipEntity).value;
 
   const spriteAsset: Sprites = getShipSprite(GodEntityIndex, health, true);
   // @ts-expect-error doesnt recognize a sprite as a number
   const sprite = config.sprites[spriteAsset];
 
-  const { x, y } = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
+  const { x, y } = tileCoordToPixelCoord(position, posWidth, posHeight);
 
-  object.setComponent({
-    id: `projection-${shipEntity}`,
-    once: async (gameObject) => {
-      gameObject.setTexture(sprite.assetKey, sprite.frame);
+  object.setTexture(sprite.assetKey, sprite.frame);
 
-      gameObject.setAngle((rotation - 90) % 360);
-      const shipLength = length * positions.posWidth * 1.25;
-      const shipWidth = shipLength / SHIP_RATIO;
-      gameObject.setOrigin(0.5, 0.92);
-      gameObject.setDisplaySize(shipWidth, shipLength);
-      gameObject.setPosition(x, y);
-      gameObject.setAlpha(alpha);
-      gameObject.setTint(tint);
-      gameObject.setDepth(RenderDepth.Foreground5);
-    },
-  });
+  object.setAngle((rotation - 90) % 360);
+  const shipLength = length * posWidth * 1.25;
+  const shipWidth = shipLength / SHIP_RATIO;
+  object.setOrigin(0.5, 0.92);
+  object.setDisplaySize(shipWidth, shipLength);
+  object.setPosition(x, y);
+  object.setAlpha(alpha);
+  object.setTint(tint);
+  object.setDepth(RenderDepth.Foreground5);
 
   return object;
+}
+
+export function getFiringAreaPixels(
+  phaser: PhaserLayer,
+  position: Coord,
+  rotation: number,
+  length: number,
+  cannonEntity: EntityIndex
+) {
+  const {
+    components: { Range, Rotation },
+    scene: { posWidth, posHeight },
+  } = phaser;
+  const range = (getComponentValue(Range, cannonEntity)?.value || 0) * posHeight;
+
+  const pixelPosition = tileCoordToPixelCoord(position, posWidth, posHeight);
+  const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
+
+  return getFiringArea(pixelPosition, range, length * posHeight, rotation, cannonRotation);
 }
 
 export function renderFiringArea(
@@ -73,28 +81,17 @@ export function renderFiringArea(
   fill: { tint: number; alpha: number } | undefined = undefined,
   stroke: { tint: number; alpha: number } | undefined = undefined
 ) {
-  const {
-    parentLayers: {
-      network: {
-        components: { Range, Rotation },
-      },
-    },
-    scenes: {
-      Main: { phaserScene },
-    },
-    positions,
-  } = phaser;
+  const { phaserScene } = phaser.scene;
 
-  const pixelPosition = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
-
-  const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
-  const range = getComponentValueStrict(Range, cannonEntity).value * positions.posHeight;
-
-  const firingArea = getFiringArea(pixelPosition, range, length * positions.posHeight, rotation, cannonRotation);
-
-  const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, colors.whiteHex, 0.1);
+  const firingArea = getFiringAreaPixels(phaser, position, rotation, length, cannonEntity);
+  const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, colors.whiteHex, 0.3);
   firingPolygon.setDisplayOrigin(0);
-  firingPolygon.setDepth(RenderDepth.Foreground5);
+  firingPolygon.setDepth(RenderDepth.Foreground6);
+
+  const geomPolygon = new Phaser.Geom.Polygon(
+    firingArea.reduce((prev: number[], coord) => [...prev, coord.x, coord.y], [])
+  );
+
   if (fill) {
     firingPolygon.setFillStyle(fill.tint, fill.alpha);
   }
@@ -103,6 +100,8 @@ export function renderFiringArea(
   }
 
   group.add(firingPolygon, true);
+
+  return firingPolygon;
 }
 
 export function renderCircle(
@@ -115,17 +114,14 @@ export function renderCircle(
   alpha = 1
 ) {
   const {
-    scenes: {
-      Main: { phaserScene },
-    },
-    positions,
+    scene: { phaserScene, posWidth, posHeight },
   } = phaser;
-  const circleWidth = length * positions.posWidth * 1.5;
+  const circleWidth = length * posWidth * 1.5;
   const circleHeight = circleWidth / SHIP_RATIO;
 
   const circle = phaserScene.add.ellipse(
-    position.x * positions.posHeight,
-    position.y * positions.posHeight,
+    position.x * posHeight,
+    position.y * posHeight,
     circleWidth,
     circleHeight,
     colors.goldHex,
@@ -138,4 +134,24 @@ export function renderCircle(
   circle.setFillStyle(tint, alpha);
 
   group.add(circle, true);
+}
+
+export function getRangeTintAlpha(loaded: boolean, selected: boolean, damaged: boolean) {
+  if (damaged) return { tint: colors.blackHex, alpha: 0.2 };
+  //UNSELECTED
+  // Unloaded
+  let fill = { tint: colors.whiteHex, alpha: 0.2 };
+
+  // Loaded
+  if (loaded) {
+    fill = { tint: colors.goldHex, alpha: 0.5 };
+  }
+  //SELECTED
+  if (selected) {
+    //Unloaded
+    fill = { tint: colors.goldHex, alpha: 0.5 };
+    //Loaded
+    if (loaded) fill = { tint: colors.cannonReadyHex, alpha: 0.5 };
+  }
+  return fill;
 }

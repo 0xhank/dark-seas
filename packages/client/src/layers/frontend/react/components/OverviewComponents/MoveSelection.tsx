@@ -8,29 +8,21 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import styled from "styled-components";
-import { Layers } from "../../../../../types";
-import { getFinalMoveCard, getFinalPosition } from "../../../../../utils/directions";
-import { inRange } from "../../../../../utils/distance";
+import { getFinalPosition } from "../../../../../utils/directions";
 import { Img, OptionButton } from "../../styles/global";
 import { arrowImg } from "../../types";
 
 export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
   const {
     world,
-    utils: { getGameConfig },
-    components: { Wind, MoveCard, Rotation, SailPosition, Position },
+    components: { MoveCard, Rotation, SailPosition, Position, Speed },
   } = layers.network;
 
   const {
     components: { SelectedMove, SelectedShip, HoveredMove },
   } = layers.backend;
 
-  const worldRadius = getGameConfig()?.worldRadius;
-  if (!worldRadius) return null;
-
   const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
-
-  const wind = getComponentValueStrict(Wind, GodEntityIndex);
 
   const selectedMove = getComponentValue(SelectedMove, ship as EntityIndex);
 
@@ -38,6 +30,7 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
 
   const rotation = getComponentValueStrict(Rotation, ship).value;
   const sailPosition = getComponentValueStrict(SailPosition, ship).value;
+  const speed = getComponentValue(Speed, ship)?.value || 0;
 
   if (sailPosition == 0) {
     return <SpecialText>Cannot move with torn sails!</SpecialText>;
@@ -45,27 +38,22 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
   const sortedMoveEntities = moveEntities.sort(
     (a, b) =>
       ((180 + getComponentValueStrict(MoveCard, a).rotation) % 360) -
-      (180 + (getComponentValueStrict(MoveCard, b).rotation % 360))
+      ((180 + getComponentValueStrict(MoveCard, b).rotation) % 360)
   );
 
   return (
     <>
       {sortedMoveEntities.map((entity) => {
         let moveCard = getComponentValueStrict(MoveCard, entity);
-        moveCard = getFinalMoveCard(moveCard, rotation, sailPosition, wind);
         const position = getComponentValueStrict(Position, ship);
+        const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
+
         const isSelected = selectedMove && selectedMove.value == entity;
 
         const imageUrl = arrowImg(moveCard.rotation);
 
-        const disabled = !inRange(
-          getFinalPosition(moveCard, position, rotation, sailPosition, wind).finalPosition,
-          { x: 0, y: 0 },
-          worldRadius
-        );
         return (
           <OptionButton
-            disabled={disabled}
             isSelected={isSelected}
             key={`move-selection-${entity}`}
             onMouseEnter={() => setComponent(HoveredMove, GodEntityIndex, { moveCardEntity: entity, shipEntity: ship })}

@@ -1,0 +1,10 @@
+{
+  "chainId": 4242,
+  "chainBlockTime": 1,
+  "chainGasLimit": 100000000,
+  "rpc": "https://follower.testnet-chain.linfra.xyz/",
+  "wsRpc": "wss://follower.testnet-chain.linfra.xyz",
+  "faucet": "https://faucet.testnet-mud-services.linfra.xyz",
+  "snapshot": "https://ecs-snapshot.testnet-mud-services.linfra.xyz",
+  "dev": "false"
+}

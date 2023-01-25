@@ -8,3 +8,5 @@ ds-test/=../../node_modules/ds-test/src/
 solmate/=../../node_modules/@rari-capital/solmate/src/
 forge-std/=../../node_modules/forge-std/src/
 trig/=../../node_modules/solidity-trigonometry/
+noise/=../../node_modules/@latticexyz/noise/contracts/
+abdk-libraries-solidity=../../node_modules/abdk-libraries-solidity

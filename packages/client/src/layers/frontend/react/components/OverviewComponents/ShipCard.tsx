@@ -2,6 +2,7 @@ import { EntityIndex, getComponentValue, getComponentValueStrict } from "@lattic
 import styled from "styled-components";
 import { ActionType, Layers } from "../../../../../types";
 import { getShipSprite, ShipImages } from "../../../../../utils/ships";
+import { DELAY } from "../../../constants";
 import { BoxImage } from "../../styles/global";
 import { ShipAttributeTypes } from "../../types";
 import HullHealth from "./HullHealth";
@@ -11,12 +12,12 @@ import ShipDamage from "./ShipDamage";
 export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
   const {
     network: {
-      utils: { getPlayerEntity },
+      utils: { getPlayerEntity, getTurn },
       network: { connectedAddress },
-      components: { Health, SailPosition, DamagedCannons, OnFire, Rotation, OwnedBy, Name },
+      components: { MaxHealth, Rotation, OwnedBy, Name, Length, LastAction },
     },
     backend: {
-      components: { SelectedActions },
+      components: { SelectedActions, HealthLocal, OnFireLocal, SailPositionLocal, DamagedCannonsLocal },
     },
   } = layers;
 
@@ -24,26 +25,32 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
   const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, ship).value);
   if (!ownerEntity || !playerEntity) return null;
 
-  const sailPosition = getComponentValueStrict(SailPosition, ship).value;
+  const sailPosition = getComponentValueStrict(SailPositionLocal, ship).value;
   const rotation = getComponentValueStrict(Rotation, ship).value;
-  const health = getComponentValueStrict(Health, ship).value;
-  const onFire = getComponentValue(OnFire, ship)?.value;
-  const damagedCannons = getComponentValue(DamagedCannons, ship)?.value;
+  const health = getComponentValue(HealthLocal, ship)?.value || 0;
+  const maxHealth = getComponentValue(MaxHealth, ship)?.value || 0;
+  const onFire = getComponentValue(OnFireLocal, ship)?.value;
+  const damagedCannons = getComponentValue(DamagedCannonsLocal, ship)?.value;
   const ownerName = getComponentValue(Name, ownerEntity)?.value;
   const selectedActions = getComponentValue(SelectedActions, ship);
+  const length = getComponentValue(Length, ship)?.value || 10;
+  const lastAction = getComponentValue(LastAction, playerEntity)?.value;
+  const currentTurn = getTurn(DELAY);
+  const actionsExecuted = currentTurn == lastAction;
+  const updates = actionsExecuted ? undefined : selectedActions?.actionTypes;
 
-  const updates = new Set(selectedActions?.actionTypes);
-
-  const updatedSailPosition = updates.has(ActionType.LowerSail)
+  const updatedSailPosition = updates?.includes(ActionType.LowerSail)
     ? sailPosition - 1
-    : updates.has(ActionType.RaiseSail)
+    : updates?.includes(ActionType.RaiseSail)
     ? sailPosition + 1
     : sailPosition;
+
+  const name = maxHealth < 12 ? "The Weasel" : "Big Bertha";
 
   return (
     <div style={{ display: "flex", borderRadius: "6px", width: "100%" }}>
       <BoxContainer>
-        <span style={{ fontSize: "1.5rem", lineHeight: "1.5rem" }}>HMS {ship}</span>
+        <span style={{ fontSize: "1.5rem", lineHeight: "1.5rem" }}>{name}</span>
         {playerEntity !== ownerEntity && <span>{ownerName}</span>}
         <BoxImage>
           <img
@@ -56,13 +63,13 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
               margin: "auto",
               transform: `rotate(${rotation - 90}deg) translate(-50%,-50%)`,
               transformOrigin: `top left`,
-              maxWidth: "50px",
+              maxWidth: `${(50 * length) / 10}px`,
             }}
           />
         </BoxImage>
       </BoxContainer>
-      <div style={{ flex: 3, display: "flex", flexDirection: "column", minWidth: 0 }}>
-        <HullHealth health={health} />
+      <div style={{ flex: 3, display: "flex", flexDirection: "column", minWidth: 0, marginLeft: "3px" }}>
+        <HullHealth health={health} maxHealth={maxHealth} />
         <div style={{ display: "flex", width: "100%", flexWrap: "wrap" }}>
           <ShipAttribute
             attributeType={ShipAttributeTypes.Sails}
@@ -72,17 +79,17 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
         </div>
         {health !== 0 && (
           <div style={{ display: "flex", gap: "8px" }}>
-            {damagedCannons && (
+            {damagedCannons !== undefined && (
               <ShipDamage
                 message="cannons broken"
                 amountLeft={damagedCannons}
-                fixing={updates.has(ActionType.RepairCannons)}
+                fixing={updates?.includes(ActionType.RepairCannons)}
               />
             )}
-            {onFire && (
-              <ShipDamage message="on fire" amountLeft={onFire} fixing={updates.has(ActionType.ExtinguishFire)} />
+            {onFire !== undefined && (
+              <ShipDamage message="on fire" amountLeft={onFire} fixing={updates?.includes(ActionType.ExtinguishFire)} />
             )}
-            {sailPosition == 0 && <ShipDamage message="sails torn" fixing={updates.has(ActionType.RepairSail)} />}
+            {sailPosition == 0 && <ShipDamage message="sails torn" fixing={updates?.includes(ActionType.RepairSail)} />}
           </div>
         )}
       </div>
@@ -97,6 +104,7 @@ const BoxContainer = styled.div`
   position: relative;
   max-width: 12rem;
   min-width: 8rem;
+  padding-top: 6px;
 
   @media (max-width: 1500px) {
     max-width: 10rem;

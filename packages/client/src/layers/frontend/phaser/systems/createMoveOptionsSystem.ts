@@ -1,15 +1,15 @@
 import {
+  defineComponentSystem,
   defineExitSystem,
-  defineSystem,
   EntityIndex,
   getComponentEntities,
   getComponentValueStrict,
   Has,
-  UpdateType,
+  removeComponent,
+  setComponent,
 } from "@latticexyz/recs";
 import { Phase } from "../../../../types";
 import { getFinalPosition } from "../../../../utils/directions";
-import { getColorNum } from "../../../../utils/procgen";
 import { DELAY } from "../../constants";
 import { colors } from "../../react/styles/global";
 import { PhaserLayer } from "../types";
@@ -18,48 +18,43 @@ import { renderShip } from "./renderShip";
 export function createMoveOptionsSystem(phaser: PhaserLayer) {
   const {
     world,
-    parentLayers: {
-      network: {
-        components: { Wind, Position, Rotation, SailPosition, MoveCard },
-        utils: { getPhase },
-      },
-      backend: {
-        components: { HoveredShip },
-        utils: { isMyShip },
-        godIndex,
-      },
-    },
-    scenes: {
-      Main: { objectPool },
-    },
+    components: { Position, Rotation, SailPosition, MoveCard, Speed, SelectedShip, SelectedMove, HoveredMove },
+    utils: { destroySpriteObject, getPhase },
+    godIndex,
   } = phaser;
   /* ---------------------------------------------- Move Options update ------------------------------------------- */
-  defineSystem(world, [Has(HoveredShip)], (update) => {
-    if (update.type == UpdateType.Exit) return;
-
-    if (getPhase(DELAY) !== Phase.Commit) return;
-    const shipEntity = getComponentValueStrict(HoveredShip, godIndex).value as EntityIndex;
+  defineComponentSystem(world, SelectedShip, (update) => {
+    const shipEntity = update.value[0]?.value as EntityIndex | undefined;
+    if (!shipEntity) return;
+    const phase: Phase | undefined = getPhase(DELAY);
+    if (phase != Phase.Commit) return;
 
     const moveCardEntities = [...getComponentEntities(MoveCard)];
-
+    const position = getComponentValueStrict(Position, shipEntity);
+    const rotation = getComponentValueStrict(Rotation, shipEntity).value;
+    const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
+    const speed = getComponentValueStrict(Speed, shipEntity).value;
     moveCardEntities.map((moveCardEntity) => {
       const moveCard = getComponentValueStrict(MoveCard, moveCardEntity);
-      const position = getComponentValueStrict(Position, shipEntity);
-      const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-      const wind = getComponentValueStrict(Wind, godIndex);
-      const sailPosition = getComponentValueStrict(SailPosition, shipEntity).value;
-      const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, sailPosition, wind);
-      const shipColor = isMyShip(shipEntity) ? getColorNum(shipEntity) : colors.whiteHex;
+
+      const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
+      const shipColor = colors.whiteHex;
 
       const objectId = `optionGhost-${moveCardEntity}`;
-      renderShip(phaser, shipEntity, objectId, finalPosition, finalRotation, shipColor, 0.3);
+      destroySpriteObject(objectId);
+      const shipObject = renderShip(phaser, shipEntity, objectId, finalPosition, finalRotation, shipColor, 0.3);
+      shipObject.setInteractive();
+      shipObject.on("pointerdown", () => setComponent(SelectedMove, shipEntity, { value: moveCardEntity }));
+      shipObject.on("pointerover", () => setComponent(HoveredMove, godIndex, { shipEntity, moveCardEntity }));
+      shipObject.on("pointerout", () => removeComponent(HoveredMove, godIndex));
     });
   });
 
-  defineExitSystem(world, [Has(HoveredShip)], (update) => {
+  defineExitSystem(world, [Has(SelectedShip)], () => {
     [...getComponentEntities(MoveCard)].forEach((moveCardEntity) => {
       const objectId = `optionGhost-${moveCardEntity}`;
-      objectPool.remove(objectId);
+
+      destroySpriteObject(objectId);
     });
   });
 }
