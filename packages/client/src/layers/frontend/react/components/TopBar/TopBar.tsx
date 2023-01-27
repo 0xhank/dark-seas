@@ -21,11 +21,12 @@ export function registerTopBar() {
       const {
         network: {
           components: { Name },
-          utils: { getPlayerEntity, activeNetwork },
+          utils: { getPlayerEntity },
         },
         backend: {
           godIndex,
           components: { LeaderboardOpen },
+          ownerNetwork: { connectedAddress: ownerAddress },
         },
       } = layers;
 
@@ -34,8 +35,10 @@ export function registerTopBar() {
           const dir: number = 0;
           const speed: number = 0;
 
-          const playerEntity = getPlayerEntity(activeNetwork().connectedAddress.get());
-          const name = playerEntity ? getComponentValue(Name, playerEntity)?.value : undefined;
+          const address = ownerAddress.get();
+          if (!address) return null;
+          const ownerEntity = getPlayerEntity(address);
+          const name = ownerEntity ? getComponentValue(Name, ownerEntity)?.value : undefined;
           const openLeaderboard = () => setComponent(LeaderboardOpen, godIndex, { value: true });
 
           if (!name) return null;

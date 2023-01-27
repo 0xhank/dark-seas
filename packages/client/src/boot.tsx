@@ -46,7 +46,7 @@ async function bootGame() {
       localStorage.setItem("playerWallet", privateKey);
     }
     if (!burnerPrivateKey) {
-      burnerPrivateKey = localStorage.getItem("burnerWallet");
+      burnerPrivateKey = localStorage.getItem(`burnerWallet-${worldAddress}`);
     }
 
     let networkLayerConfig: GameConfig | undefined;

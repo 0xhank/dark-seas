@@ -49,6 +49,7 @@ export function registerYourShips() {
             Speed,
           },
           utils: { getPlayerEntity, getPhase, getTurn, activeNetwork },
+          ownerNetwork: { connectedAddress: ownerAddress },
         },
         backend: {
           actions: { Action },
@@ -100,8 +101,9 @@ export function registerYourShips() {
 
           if (phase == undefined || currentTurn == undefined) return null;
 
-          const playerEntity = getPlayerEntity(activeNetwork().connectedAddress.get());
-          if (!playerEntity || !getComponentValue(Player, playerEntity)) return null;
+          const playerEntity = getPlayerEntity();
+          const ownerEntity = getPlayerEntity(ownerAddress.get());
+          if (!playerEntity || !ownerEntity || !getComponentValue(Player, playerEntity)) return null;
 
           const lastMove = getComponentValue(LastMove, playerEntity)?.value;
           const lastAction = getComponentValue(LastAction, playerEntity)?.value;
@@ -110,7 +112,7 @@ export function registerYourShips() {
 
           const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
 
-          const yourShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
+          const yourShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[ownerEntity] })])];
 
           const selectedMoves = [...getComponentEntities(SelectedMove)];
           const selectedActions = [...getComponentEntities(SelectedActions)].map((entity) =>

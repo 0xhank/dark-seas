@@ -139,15 +139,21 @@ export async function createNetworkLayer(config: GameConfig) {
     return network || ownerNetwork;
   }
   async function createBurnerNetwork(privateKey: string | null) {
-    if (!privateKey) return;
-    console.log("createburnernetwork private key:", privateKey);
+    if (!privateKey || config.devMode) return;
     const burnerConfig = {
       ...config,
       privateKey,
     };
-    localStorage.setItem("burnerWallet", privateKey);
+    localStorage.setItem(`burnerWallet-${config.worldAddress}`, privateKey);
+    const network = await createNetwork(getNetworkConfig(burnerConfig));
 
-    return await createNetwork(getNetworkConfig(burnerConfig));
+    const signer = network.signer.get();
+    if (!signer) return;
+
+    systems["ds.system.Action"].connect(signer);
+    systems["ds.system.Commit"].connect(signer);
+    systems["ds.system.Move"].connect(signer);
+    return network;
   }
 
   function bigNumToEntityID(bigNum: BigNumberish): EntityID {
@@ -224,10 +230,17 @@ export async function createNetworkLayer(config: GameConfig) {
     return phaseEnd - secondsIntoTurn;
   }
 
+  function getBurnerAddress() {
+    if (!network) return;
+    return network.connectedAddress.get();
+  }
+
   // --- API ------------------------------------------------------------------------
 
   function commitMove(commitment: string) {
-    systems["ds.system.Commit"].executeTyped(commitment);
+    const from = network?.connectedAddress.get() || ownerNetwork.connectedAddress.get();
+    if (!from) return;
+    systems["ds.system.Commit"].executeTyped(commitment, { from });
   }
 
   async function spawnPlayer(name: string, burnerPrivateKey: string | undefined) {
@@ -243,21 +256,27 @@ export async function createNetworkLayer(config: GameConfig) {
       ownerNetwork.connectedAddress.get();
     }
     if (!connectedAddress) return;
+    console.log("hello");
 
-    console.log("burneraddress:", connectedAddress);
     systems["ds.system.PlayerSpawn"].executeTyped(connectedAddress, name, location);
   }
 
   function revealMove(moves: MoveStruct[], salt: number) {
+    const from = network?.connectedAddress.get() || ownerNetwork.connectedAddress.get();
+
     systems["ds.system.Move"].executeTyped(moves, salt, {
       gasLimit: 5_000_000,
+      from,
     });
   }
 
   function submitActions(actions: ActionStruct[]) {
+    const from = network?.connectedAddress.get() || ownerNetwork.connectedAddress.get();
+
     console.log("submitting actions:", actions);
     systems["ds.system.Action"].executeTyped(actions, {
       gasLimit: 10_000_000,
+      from,
     });
   }
 
