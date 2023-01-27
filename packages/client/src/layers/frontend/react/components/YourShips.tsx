@@ -1,4 +1,3 @@
-import { GodID } from "@latticexyz/network";
 import {
   EntityIndex,
   getComponentEntities,
@@ -52,6 +51,7 @@ export function registerYourShips() {
           utils: { getPlayerEntity, getPhase, getTurn },
         },
         backend: {
+          godEntity,
           actions: { Action },
           components: {
             SelectedShip,
@@ -107,9 +107,7 @@ export function registerYourShips() {
           const lastMove = getComponentValue(LastMove, playerEntity)?.value;
           const lastAction = getComponentValue(LastAction, playerEntity)?.value;
 
-          const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
-
-          const selectedShip = getComponentValue(SelectedShip, GodEntityIndex)?.value as EntityIndex | undefined;
+          const selectedShip = getComponentValue(SelectedShip, godEntity)?.value as EntityIndex | undefined;
 
           const yourShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
 
@@ -142,12 +140,12 @@ export function registerYourShips() {
           };
 
           const handleSubmitExecute = () => {
-            const encoding = getComponentValue(EncodedCommitment, GodEntityIndex)?.value;
+            const encoding = getComponentValue(EncodedCommitment, godEntity)?.value;
             if (encoding) revealMove(encoding);
           };
 
           const RevealButtons = () => {
-            const encodedCommitment = getComponentValue(EncodedCommitment, GodEntityIndex)?.value;
+            const encodedCommitment = getComponentValue(EncodedCommitment, godEntity)?.value;
 
             if (lastMove == currentTurn)
               return <Success background={colors.greenGlass}>Move reveal successful!</Success>;
@@ -167,7 +165,7 @@ export function registerYourShips() {
             });
 
             const msg = "Confirm Moves";
-            const committedMoves = getComponentValue(EncodedCommitment, GodEntityIndex)?.value;
+            const committedMoves = getComponentValue(EncodedCommitment, godEntity)?.value;
 
             if (movesComplete && committedMoves) {
               return <Success background="hsla(120, 100%, 50%, .5)">Moves Successful!</Success>;
@@ -186,7 +184,7 @@ export function registerYourShips() {
                   noGoldBorder
                   onClick={() => {
                     yourShips.map((entity) => removeComponent(SelectedMove, entity));
-                    removeComponent(SelectedShip, GodEntityIndex);
+                    removeComponent(SelectedShip, godEntity);
                   }}
                   style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}
                 >
@@ -214,7 +212,7 @@ export function registerYourShips() {
                     noGoldBorder
                     onClick={() => {
                       yourShips.map((entity) => removeComponent(SelectedActions, entity));
-                      removeComponent(SelectedShip, GodEntityIndex);
+                      removeComponent(SelectedShip, godEntity);
                     }}
                     style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}
                   >

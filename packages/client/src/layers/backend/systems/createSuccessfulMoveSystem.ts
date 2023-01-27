@@ -7,7 +7,7 @@ export function createSuccessfulMoveSystem(layer: BackendLayer) {
     world,
     components: { EncodedCommitment, CommittedMove },
     actions: { Action },
-    godIndex,
+    godEntity,
   } = layer;
 
   defineComponentSystem(world, Action, ({ value }) => {
@@ -18,7 +18,7 @@ export function createSuccessfulMoveSystem(layer: BackendLayer) {
     if (type !== TxType.Commit) return;
 
     const { moves, encoding } = metadata as { moves: Move[]; encoding: string };
-    setComponent(EncodedCommitment, godIndex, { value: encoding });
+    setComponent(EncodedCommitment, godEntity, { value: encoding });
 
     moves.map((move) => {
       const shipEntity = world.entityToIndex.get(move.shipEntity);

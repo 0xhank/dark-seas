@@ -34,7 +34,7 @@ export function registerLeaderboard() {
         },
         backend: {
           components: { LeaderboardOpen, HealthLocal },
-          godIndex,
+          godEntity,
         },
       } = layers;
 
@@ -45,9 +45,9 @@ export function registerLeaderboard() {
         LeaderboardOpen.update$
       ).pipe(
         map(() => {
-          const show = !!getComponentValue(LeaderboardOpen, godIndex)?.value;
+          const show = !!getComponentValue(LeaderboardOpen, godEntity)?.value;
           const close = () => {
-            setComponent(LeaderboardOpen, godIndex, { value: false });
+            setComponent(LeaderboardOpen, godEntity, { value: false });
           };
           const getPlayersAndShips = () => {
             let players: PlayerData[] = [];

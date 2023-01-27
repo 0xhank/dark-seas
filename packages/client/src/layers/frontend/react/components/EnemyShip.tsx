@@ -29,7 +29,7 @@ export function registerEnemyShip() {
             DamagedCannonsLocal: DamagedCannons,
             SailPositionLocal: SailPosition,
           },
-          godIndex,
+          godEntity,
           utils: { isMyShip },
         },
       } = layers;
@@ -50,7 +50,7 @@ export function registerEnemyShip() {
         Player.update$
       ).pipe(
         map(() => {
-          const ship = getComponentValue(HoveredShip, godIndex)?.value as EntityIndex | undefined;
+          const ship = getComponentValue(HoveredShip, godEntity)?.value as EntityIndex | undefined;
           if (!ship) return null;
 
           if (isMyShip(ship)) return null;

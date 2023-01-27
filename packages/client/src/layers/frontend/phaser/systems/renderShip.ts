@@ -1,4 +1,3 @@
-import { GodID } from "@latticexyz/network";
 import { Coord, tileCoordToPixelCoord } from "@latticexyz/phaserx";
 import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
@@ -18,20 +17,18 @@ export function renderShip(
   alpha = 1
 ) {
   const {
-    world,
     components: { Length, HealthLocal },
     scene: { config, posWidth, posHeight },
     utils: { getSpriteObject },
+    godEntity,
   } = phaser;
-
-  const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
   const object = getSpriteObject(objectId);
 
   const length = getComponentValueStrict(Length, shipEntity).value;
   const health = getComponentValueStrict(HealthLocal, shipEntity).value;
 
-  const spriteAsset: Sprites = getShipSprite(GodEntityIndex, health, true);
+  const spriteAsset: Sprites = getShipSprite(godEntity, health, true);
   // @ts-expect-error doesnt recognize a sprite as a number
   const sprite = config.sprites[spriteAsset];
 
