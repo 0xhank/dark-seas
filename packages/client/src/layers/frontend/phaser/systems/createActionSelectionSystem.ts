@@ -60,14 +60,6 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     const strokeFill = { tint: loaded ? colors.cannonReadyHex : colors.goldHex, alpha: 0.5 };
 
     renderFiringArea(phaser, hoveredGroup, position, rotation, length, cannonEntity, undefined, strokeFill);
-
-    // make targeted ships red
-
-    if (actionType != ActionType.Fire) return;
-    getTargetedShips(cannonEntity).forEach((entity) => {
-      const targetedValue = getComponentValue(Targeted, entity)?.value || 0;
-      setComponent(Targeted, entity, { value: targetedValue + 1 });
-    });
   });
 
   defineExitSystem(world, [Has(HoveredAction)], (update) => {
@@ -78,21 +70,17 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
     const objectId = "hoveredFiringArea";
 
     destroyGroupObject(objectId);
-    if (cannonEntity == 0) return;
-    getTargetedShips(cannonEntity).forEach((entity) => {
-      const targetedValue = getComponentValue(Targeted, entity)?.value || 0;
-      if (!targetedValue) return;
-      setComponent(Targeted, entity, { value: targetedValue - 1 });
-    });
   });
 
   defineComponentSystem(world, SelectedActions, ({ value, entity: shipEntity }) => {
-    const diff = getDiff(value[1], value[0]);
+    const cannonSelected = isCannonSelected(value[1], value[0]);
 
-    if (diff) {
-      getTargetedShips(diff.entity).forEach((entity) => {
+    if (cannonSelected) {
+      getTargetedShips(cannonSelected.entity).forEach((entity) => {
         const targetedValue = getComponentValue(Targeted, entity)?.value || 0;
-        setComponent(Targeted, entity, { value: diff.added ? targetedValue + 1 : Math.max(0, targetedValue - 1) });
+        setComponent(Targeted, entity, {
+          value: cannonSelected.added ? targetedValue + 1 : Math.max(0, targetedValue - 1),
+        });
       });
     }
 
@@ -101,7 +89,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
 
   // this is probably the worst code ive ever written
   // finds the added or deleted cannon with Fire action type
-  function getDiff(
+  function isCannonSelected(
     oldActions: { specialEntities: EntityID[]; actionTypes: ActionType[] } | undefined,
     newActions: { specialEntities: EntityID[]; actionTypes: ActionType[] } | undefined
   ): { entity: EntityIndex; added: boolean } | undefined {
