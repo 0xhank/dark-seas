@@ -31,8 +31,6 @@ export function createBorderSystem(phaser: PhaserLayer) {
 
     camera.phaserCamera.setBounds(minX, minY, maxX - minX, maxY - minY);
 
-    console.log(`base: ${minX}, ${minY}, ${width}, ${height}`);
-    console.log(`base coords: ${minX}, ${minY}, ${-minX}, ${-minY}`);
     setComponent(MapBounds, godIndex, { left: minX, top: minY, right: maxX, bottom: maxY });
   });
 }

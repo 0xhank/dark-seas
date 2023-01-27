@@ -18,8 +18,6 @@ export function createConstrainCameraSystem(layer: PhaserLayer) {
     const pixelY = position.y * posHeight;
 
     const bufferPixels = 800;
-
-    console.log(`pixels: ${pixelX}, ${pixelY}`);
     let boundsChanged = false;
     if (pixelX > bounds.right - bufferPixels) {
       boundsChanged = true;
