@@ -17,23 +17,23 @@ export function createConstrainCameraSystem(layer: PhaserLayer) {
     const pixelX = position.x * posWidth;
     const pixelY = position.y * posHeight;
 
-    const bufferPixels = 300;
+    const bufferPixels = 800;
 
     console.log(`pixels: ${pixelX}, ${pixelY}`);
     let boundsChanged = false;
-    if (pixelX > bounds.right) {
+    if (pixelX > bounds.right - bufferPixels) {
       boundsChanged = true;
       bounds.right = pixelX + bufferPixels;
     }
-    if (pixelY > bounds.bottom) {
+    if (pixelY > bounds.bottom - bufferPixels) {
       boundsChanged = true;
       bounds.bottom = pixelY + bufferPixels;
     }
-    if (pixelX < bounds.left) {
+    if (pixelX < bounds.left + bufferPixels) {
       boundsChanged = true;
       bounds.left = pixelX - bufferPixels;
     }
-    if (pixelY < bounds.top) {
+    if (pixelY < bounds.top + bufferPixels) {
       boundsChanged = true;
       bounds.top = pixelY - bufferPixels;
     }
