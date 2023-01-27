@@ -28,6 +28,7 @@ export function createShipSystem(phaser: PhaserLayer) {
       SelectedMove,
       HoveredShip,
       HealthLocal,
+      HealthBackend,
       OnFireLocal,
       DamagedCannonsLocal,
       SailPositionLocal,
@@ -179,6 +180,8 @@ export function createShipSystem(phaser: PhaserLayer) {
       const midpoint = getShipMidpoint(shipEntity);
       const healthLocal = getComponentValueStrict(HealthLocal, shipEntity).value;
       setComponent(HealthLocal, shipEntity, { value: healthLocal - 1 });
+      setComponent(HealthBackend, shipEntity, { value: healthLocal - 1 });
+
       const explosionId = `explosion-move-${shipEntity}`;
       const explosion = getSpriteObject(explosionId);
       explosion.setOrigin(0.5, 0.5);

@@ -1,7 +1,6 @@
 import { pixelCoordToTileCoord } from "@latticexyz/phaserx";
 import { removeComponent } from "@latticexyz/recs";
 import { PhaserLayer } from "../types";
-import { registerCameraControls } from "./registerCameraControls";
 
 export function createInputSystem(phaser: PhaserLayer) {
   const {
@@ -32,6 +31,4 @@ export function createInputSystem(phaser: PhaserLayer) {
   );
 
   world.registerDisposer(() => clickSub?.unsubscribe());
-
-  registerCameraControls(phaser);
 }

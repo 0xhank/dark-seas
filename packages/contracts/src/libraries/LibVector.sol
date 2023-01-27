@@ -156,11 +156,13 @@ library LibVector {
    * @return  bool  is within radius?
    */
   function inWorld(IUint256Component components, Coord memory position) public view returns (bool) {
-    uint32 worldSize = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).worldSize;
-
+    uint32 worldHeight = GameConfigComponent(getAddressById(components, GameConfigComponentID))
+      .getValue(GodID)
+      .worldSize;
+    uint32 worldWidth = (worldHeight * 16) / 9;
     if (position.x < 0) position.x = 0 - position.x;
     if (position.y < 0) position.y = 0 - position.y;
 
-    return uint32(position.x) < worldSize && uint32(position.y) < worldSize;
+    return uint32(position.x) < worldWidth && uint32(position.y) < worldHeight;
   }
 }
