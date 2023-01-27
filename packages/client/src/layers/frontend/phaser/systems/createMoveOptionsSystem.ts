@@ -20,7 +20,7 @@ export function createMoveOptionsSystem(phaser: PhaserLayer) {
     world,
     components: { Position, Rotation, SailPosition, MoveCard, Speed, SelectedShip, SelectedMove, HoveredMove },
     utils: { destroySpriteObject, getPhase, isMyShip },
-    godIndex,
+    godEntity,
   } = phaser;
   /* ---------------------------------------------- Move Options update ------------------------------------------- */
   defineComponentSystem(world, SelectedShip, (update) => {
@@ -46,8 +46,8 @@ export function createMoveOptionsSystem(phaser: PhaserLayer) {
       if (!isMyShip(shipEntity)) return;
       shipObject.setInteractive();
       shipObject.on("pointerdown", () => setComponent(SelectedMove, shipEntity, { value: moveCardEntity }));
-      shipObject.on("pointerover", () => setComponent(HoveredMove, godIndex, { shipEntity, moveCardEntity }));
-      shipObject.on("pointerout", () => removeComponent(HoveredMove, godIndex));
+      shipObject.on("pointerover", () => setComponent(HoveredMove, godEntity, { shipEntity, moveCardEntity }));
+      shipObject.on("pointerout", () => removeComponent(HoveredMove, godEntity));
     });
   });
 

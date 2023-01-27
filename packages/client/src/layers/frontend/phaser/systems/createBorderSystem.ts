@@ -6,7 +6,7 @@ import { PhaserLayer } from "../types";
 export function createBorderSystem(phaser: PhaserLayer) {
   const {
     world,
-    godIndex,
+    godEntity,
     components: { GameConfig, MapBounds },
     scene: { phaserScene, posHeight, posWidth, camera },
     utils: { getGroupObject },
@@ -31,6 +31,6 @@ export function createBorderSystem(phaser: PhaserLayer) {
 
     camera.phaserCamera.setBounds(minX, minY, maxX - minX, maxY - minY);
 
-    setComponent(MapBounds, godIndex, { left: minX, top: minY, right: maxX, bottom: maxY });
+    setComponent(MapBounds, godEntity, { left: minX, top: minY, right: maxX, bottom: maxY });
   });
 }

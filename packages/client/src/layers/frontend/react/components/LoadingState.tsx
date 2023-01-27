@@ -1,4 +1,4 @@
-import { GodID, SyncState } from "@latticexyz/network";
+import { SyncState } from "@latticexyz/network";
 import { getComponentValue } from "@latticexyz/recs";
 import { concat, map } from "rxjs";
 import { BootScreen, registerUIComponent } from "../engine";
@@ -18,19 +18,21 @@ export function registerLoadingState() {
         world,
       } = layers.network;
 
+      const { godEntity } = layers.backend;
+
       return concat([1], LoadingState.update$).pipe(
-        map(() => ({
-          LoadingState,
-          world,
-        }))
+        map(() => {
+          const loadingState = godEntity == null ? null : getComponentValue(LoadingState, godEntity);
+
+          return {
+            loadingState,
+          };
+        })
       );
     },
 
     // TODO: flash implies some check isnt being executed properly
-    ({ LoadingState, world }) => {
-      const GodEntityIndex = world.entityToIndex.get(GodID);
-
-      const loadingState = GodEntityIndex == null ? null : getComponentValue(LoadingState, GodEntityIndex);
+    ({ loadingState }) => {
       if (loadingState == null) {
         return <BootScreen initialOpacity={1}>Connecting</BootScreen>;
       }

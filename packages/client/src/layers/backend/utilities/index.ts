@@ -24,7 +24,7 @@ import { Category, soundLibrary } from "../sound/library";
 export async function createBackendUtilities(
   network: NetworkLayer,
   components: BackendComponents,
-  godIndex: EntityIndex
+  godEntity: EntityIndex
 ) {
   const {
     world,
@@ -245,7 +245,7 @@ export async function createBackendUtilities(
       actionTypes: actions.actionTypes,
       specialEntities: actions.specialEntities,
     });
-    setComponent(components.SelectedShip, godIndex, { value: shipEntity });
+    setComponent(components.SelectedShip, godEntity, { value: shipEntity });
   }
 
   function handleNewActionsCannon(action: ActionType, cannonEntity: EntityIndex) {
@@ -275,7 +275,7 @@ export async function createBackendUtilities(
       actionTypes: actions.actionTypes,
       specialEntities: actions.specialEntities,
     });
-    setComponent(components.SelectedShip, godIndex, { value: shipEntity });
+    setComponent(components.SelectedShip, godEntity, { value: shipEntity });
   }
 
   startEnvironmentSoundSystem();

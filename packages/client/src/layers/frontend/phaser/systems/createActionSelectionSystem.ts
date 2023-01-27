@@ -33,7 +33,7 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
       Targeted,
       DamagedCannonsLocal,
     },
-    godIndex,
+    godEntity,
     utils: { getGroupObject, destroyGroupObject, getPhase, getTargetedShips, isMyShip, handleNewActionsCannon },
   } = phaser;
 
@@ -163,9 +163,9 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
       firingPolygon.setInteractive(firingPolygon.geom, Phaser.Geom.Polygon.Contains);
       firingPolygon.on("pointerdown", () => handleNewActionsCannon(actionType, cannonEntity));
       firingPolygon.on("pointerover", () =>
-        setComponent(HoveredAction, godIndex, { shipEntity, actionType, specialEntity: cannonEntity })
+        setComponent(HoveredAction, godEntity, { shipEntity, actionType, specialEntity: cannonEntity })
       );
-      firingPolygon.on("pointerout", () => removeComponent(HoveredAction, godIndex));
+      firingPolygon.on("pointerout", () => removeComponent(HoveredAction, godEntity));
     });
   }
 }

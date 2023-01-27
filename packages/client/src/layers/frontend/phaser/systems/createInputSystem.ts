@@ -15,7 +15,7 @@ export function createInputSystem(phaser: PhaserLayer) {
     world,
     components: { SelectedShip, Position, OwnedBy },
     utils: { getPlayerEntity },
-    godIndex,
+    godEntity,
     scene: {
       input,
       camera,
@@ -54,7 +54,7 @@ export function createInputSystem(phaser: PhaserLayer) {
   input.onKeyPress(
     (keys) => keys.has("ESC"),
     () => {
-      removeComponent(SelectedShip, godIndex);
+      removeComponent(SelectedShip, godEntity);
     }
   );
 
@@ -64,7 +64,7 @@ export function createInputSystem(phaser: PhaserLayer) {
       () => {
         const shipEntity = shipKeyRegistry.get(key);
         if (!shipEntity) return;
-        setComponent(SelectedShip, godIndex, { value: shipEntity });
+        setComponent(SelectedShip, godEntity, { value: shipEntity });
         const position = getComponentValue(Position, shipEntity);
         if (!position) return;
         camera.centerOn(position.x * posWidth, position.y * posHeight + 400);
@@ -73,7 +73,7 @@ export function createInputSystem(phaser: PhaserLayer) {
   }
 
   input.rightClick$.subscribe((p) => {
-    removeComponent(SelectedShip, godIndex);
+    removeComponent(SelectedShip, godEntity);
   });
 
   world.registerDisposer(() => clickSub?.unsubscribe());

@@ -32,7 +32,7 @@ export const YourShip = ({
     },
     backend: {
       components: { SelectedShip, HoveredShip, HealthLocal },
-      godIndex,
+      godEntity,
     },
     phaser: {
       scene: { camera, posWidth, posHeight },
@@ -42,12 +42,12 @@ export const YourShip = ({
   const selectShip = (ship: EntityIndex, position: Coord) => {
     camera.centerOn(position.x * posWidth, position.y * posHeight + 400);
 
-    setComponent(SelectedShip, godIndex, { value: ship });
+    setComponent(SelectedShip, godEntity, { value: ship });
   };
 
   const position = getComponentValueStrict(Position, ship);
   const health = getComponentValue(HealthLocal, ship)?.value;
-  const hoveredShip = getComponentValue(HoveredShip, godIndex)?.value;
+  const hoveredShip = getComponentValue(HoveredShip, godEntity)?.value;
   const isSelected = selectedShip == ship;
   const isHovered = hoveredShip == ship;
   const shipColor = getColorStr(ship);
@@ -64,8 +64,8 @@ export const YourShip = ({
   return (
     <YourShipContainer
       onClick={() => health !== 0 && selectShip(ship, position)}
-      onMouseEnter={() => setComponent(HoveredShip, godIndex, { value: ship })}
-      onMouseLeave={() => removeComponent(HoveredShip, godIndex)}
+      onMouseEnter={() => setComponent(HoveredShip, godEntity, { value: ship })}
+      onMouseLeave={() => removeComponent(HoveredShip, godEntity)}
       isSelected={isSelected}
       isHovered={isHovered}
       shipColor={shipColor}

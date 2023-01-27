@@ -26,7 +26,7 @@ export function registerTurnTimer() {
         backend: {
           utils: { playSound },
           components: { EncodedCommitment },
-          godIndex,
+          godEntity,
         },
       } = layers;
 
@@ -52,7 +52,7 @@ export function registerTurnTimer() {
           let str = null;
           if (phase == Phase.Commit) {
             str = <Text secsLeft={secsLeft}>Choose your moves</Text>;
-            if (secsLeft < 6 && !getComponentValue(EncodedCommitment, godIndex)) {
+            if (secsLeft < 6 && !getComponentValue(EncodedCommitment, godEntity)) {
               playSound("tick", Category.UI);
             }
           } else if (phase == Phase.Reveal) str = <PulsingText>Waiting for Players to Reveal Moves...</PulsingText>;

@@ -10,7 +10,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
       world,
       components: { SelectedActions, HoveredAction, ExecutedActions },
       utils: { checkActionPossible, handleNewActionsSpecial },
-      godIndex,
+      godEntity,
     },
     network: {
       components: { LastAction },
@@ -91,8 +91,8 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
         isSelected={selected}
         disabled={disabled && !selected}
         confirmed={executed}
-        onMouseEnter={() => setComponent(HoveredAction, godIndex, { shipEntity: ship, actionType, specialEntity })}
-        onMouseLeave={() => removeComponent(HoveredAction, godIndex)}
+        onMouseEnter={() => setComponent(HoveredAction, godEntity, { shipEntity: ship, actionType, specialEntity })}
+        onMouseLeave={() => removeComponent(HoveredAction, godEntity)}
         onClick={(e) => {
           e.stopPropagation();
           handleClick(actionType, specialEntity || ship);

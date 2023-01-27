@@ -25,7 +25,7 @@ export function registerTopBar() {
           utils: { getPlayerEntity },
         },
         backend: {
-          godIndex,
+          godEntity,
           components: { LeaderboardOpen },
         },
       } = layers;
@@ -37,7 +37,7 @@ export function registerTopBar() {
 
           const playerEntity = getPlayerEntity(connectedAddress.get());
           const name = playerEntity ? getComponentValue(Name, playerEntity)?.value : undefined;
-          const openLeaderboard = () => setComponent(LeaderboardOpen, godIndex, { value: true });
+          const openLeaderboard = () => setComponent(LeaderboardOpen, godEntity, { value: true });
 
           if (!name) return null;
           return {

@@ -1,4 +1,3 @@
-import { GodID } from "@latticexyz/network";
 import { Coord, tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
 import {
   defineComponentSystem,
@@ -22,6 +21,7 @@ import { PhaserLayer } from "../types";
 export function createShipSystem(phaser: PhaserLayer) {
   const {
     world,
+    godEntity,
     scene: { config, camera, posWidth, posHeight },
     components: {
       SelectedShip,
@@ -42,8 +42,6 @@ export function createShipSystem(phaser: PhaserLayer) {
     },
     utils: { getSpriteObject, destroySpriteObject, destroyGroupObject, getPlayerEntity, outOfBounds, playSound },
   } = phaser;
-
-  const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
   defineEnterSystem(
     world,
@@ -79,9 +77,9 @@ export function createShipSystem(phaser: PhaserLayer) {
         object.disableInteractive();
       } else {
         object.setInteractive();
-        object.on("pointerdown", () => setComponent(SelectedShip, GodEntityIndex, { value: shipEntity }));
-        object.on("pointerover", () => setComponent(HoveredShip, GodEntityIndex, { value: shipEntity }));
-        object.on("pointerout", () => removeComponent(HoveredShip, GodEntityIndex));
+        object.on("pointerdown", () => setComponent(SelectedShip, godEntity, { value: shipEntity }));
+        object.on("pointerover", () => setComponent(HoveredShip, godEntity, { value: shipEntity }));
+        object.on("pointerout", () => removeComponent(HoveredShip, godEntity));
       }
 
       const shipLength = length * posWidth * 1.25;
@@ -135,8 +133,8 @@ export function createShipSystem(phaser: PhaserLayer) {
     destroyGroupObject(`projection-${update.entity}`);
     destroySpriteObject(`projection-${update.entity}`);
     removeComponent(SelectedMove, update.entity);
-    if (update.entity == getComponentValue(SelectedShip, GodEntityIndex)?.value) {
-      removeComponent(SelectedShip, GodEntityIndex);
+    if (update.entity == getComponentValue(SelectedShip, godEntity)?.value) {
+      removeComponent(SelectedShip, godEntity);
     }
 
     const rotation = getComponentValueStrict(Rotation, update.entity).value;

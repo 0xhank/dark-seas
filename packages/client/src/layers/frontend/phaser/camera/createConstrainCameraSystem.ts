@@ -5,13 +5,13 @@ export function createConstrainCameraSystem(layer: PhaserLayer) {
   const {
     world,
     components: { MapBounds, Position },
-    godIndex,
+    godEntity,
     scene: { camera, posWidth, posHeight },
   } = layer;
 
   defineComponentSystem(world, Position, ({ value: [position] }) => {
     if (!position) return;
-    const bounds = getComponentValue(MapBounds, godIndex);
+    const bounds = getComponentValue(MapBounds, godEntity);
     if (!bounds) return;
 
     const pixelX = position.x * posWidth;
@@ -41,7 +41,7 @@ export function createConstrainCameraSystem(layer: PhaserLayer) {
 
     camera.phaserCamera.setBounds(bounds.left, bounds.top, bounds.right - bounds.left, bounds.bottom - bounds.top);
 
-    setComponent(MapBounds, godIndex, {
+    setComponent(MapBounds, godEntity, {
       top: bounds.top,
       bottom: bounds.bottom,
       left: bounds.left,
