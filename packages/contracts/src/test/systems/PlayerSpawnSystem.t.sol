@@ -11,6 +11,7 @@ import { PlayerSpawnSystem, ID as PlayerSpawnSystemID } from "../../systems/Play
 // Components
 import { NameComponent, ID as NameComponentID } from "../../components/NameComponent.sol";
 import { ShipComponent, ID as ShipComponentID } from "../../components/ShipComponent.sol";
+import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 
 // Types
 import { Coord } from "../../libraries/DSTypes.sol";
@@ -23,6 +24,19 @@ contract PlayerSpawnTest is DarkSeasTest {
 
   PlayerSpawnSystem playerSpawnSystem;
   NameComponent nameComponent;
+
+  function testRevertTooLate() public prank(deployer) {
+    setup();
+
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+
+    vm.warp(gameConfig.startTime + gameConfig.entryCutoff);
+
+    vm.expectRevert(bytes("PlayerSpawnSystem: entry period has ended"));
+    playerSpawnSystem.executeTyped("Jamaican me crazy", Coord(1, 1));
+  }
 
   function testSpawn() public prank(deployer) {
     setup();
