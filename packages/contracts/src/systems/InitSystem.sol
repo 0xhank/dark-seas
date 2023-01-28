@@ -30,7 +30,8 @@ contract InitSystem is System {
         revealPhaseLength: 9,
         actionPhaseLength: 23,
         worldSize: 150,
-        perlinSeed: 420
+        perlinSeed: 420,
+        entryCutoff: 60 * 15 // 15 minutes
       })
     );
 

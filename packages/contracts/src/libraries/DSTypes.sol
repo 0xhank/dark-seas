@@ -53,4 +53,6 @@ struct GameConfig {
   uint32 actionPhaseLength;
   uint32 worldSize;
   int128 perlinSeed;
+  // Amount of time for players to enter game
+  uint256 entryCutoff;
 }
