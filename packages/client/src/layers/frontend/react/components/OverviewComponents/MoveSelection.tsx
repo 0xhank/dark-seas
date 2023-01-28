@@ -12,7 +12,7 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
 
   if (sailPosition == 0) {
     return <SpecialText>Cannot move with torn sails!</SpecialText>;
-  } else return null;
+  } else return <SpecialText>Select a move</SpecialText>;
 };
 
 const SpecialText = styled.span`
