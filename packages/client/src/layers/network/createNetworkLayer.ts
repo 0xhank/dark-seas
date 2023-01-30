@@ -50,6 +50,7 @@ export async function createNetworkLayer(config: GameConfig) {
         worldSize: Type.Number,
         perlinSeed: Type.String,
         entryCutoff: Type.String,
+        buyin: Type.String,
       },
       { id: "GameConfig", metadata: { contractId: "ds.component.GameConfig" } }
     ),
