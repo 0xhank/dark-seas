@@ -24,7 +24,7 @@ export function registerYourShips() {
     "YourShips",
     // grid location
     {
-      rowStart: 9,
+      rowStart: 8,
       rowEnd: 13,
       colStart: 1,
       colEnd: 13,
@@ -255,15 +255,23 @@ export function registerYourShips() {
       const { layers, yourShips, selectedShip, phase, ConfirmButtons } = props;
 
       return (
-        <Container style={{ justifyContent: "flex-end" }}>
-          <InternalContainer style={{ gap: "24px", height: "auto", padding: "0", background: "transparent" }}>
-            <MoveButtons>
-              {yourShips.map((ship) => (
-                <YourShip key={`ship-${ship}`} layers={layers} ship={ship} selectedShip={selectedShip} phase={phase} />
-              ))}
-            </MoveButtons>
-            <ConfirmButtons />
-          </InternalContainer>
+        <Container style={{ justifyContent: "flex-end", padding: "0" }}>
+          <div style={{ width: "100vw", height: "100%", background: colors.darkBrown, borderRadius: "20px 20px 0 0" }}>
+            <InternalContainer style={{ gap: "24px", height: "100%", background: "transparent" }}>
+              <MoveButtons>
+                {yourShips.map((ship) => (
+                  <YourShip
+                    key={`ship-${ship}`}
+                    layers={layers}
+                    ship={ship}
+                    selectedShip={selectedShip}
+                    phase={phase}
+                  />
+                ))}
+              </MoveButtons>
+              <ConfirmButtons />
+            </InternalContainer>
+          </div>
         </Container>
       );
     }
@@ -295,10 +303,4 @@ const ConfirmButtonsContainer = styled.div`
   justify-content: center;
   flex-direction: column;
   gap: 5px;
-`;
-
-const Instructions = styled.div`
-  font-size: 1.25rem;
-  line-height: 1.25rem;
-  // text-align: left;
 `;
