@@ -12,6 +12,7 @@ import { PlayerSpawnSystem, ID as PlayerSpawnSystemID } from "../../systems/Play
 import { NameComponent, ID as NameComponentID } from "../../components/NameComponent.sol";
 import { ShipComponent, ID as ShipComponentID } from "../../components/ShipComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
+import { BootyComponent, ID as BootyComponentID } from "../../components/BootyComponent.sol";
 
 // Types
 import { Coord } from "../../libraries/DSTypes.sol";
@@ -40,12 +41,12 @@ contract PlayerSpawnTest is DarkSeasTest {
 
   function testSpawn() public prank(deployer) {
     setup();
-
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+    BootyComponent bootyComponent = BootyComponent(getAddressById(components, BootyComponentID));
     uint256 playerEntity = addressToEntity(deployer);
 
-    console.log("player entity in spawn test:", playerEntity);
-    console.log("msg sender in spawn test:", msg.sender);
-    console.log("deployer in spawn test:", deployer);
     playerSpawnSystem.executeTyped("Jamaican me crazy", Coord(1, 1));
 
     (uint256[] memory entities, ) = LibUtils.getEntityWith(components, ShipComponentID);
@@ -53,10 +54,10 @@ contract PlayerSpawnTest is DarkSeasTest {
     assertEq(entities.length, 2, "incorrect number of ships");
 
     bool hasName = nameComponent.has(playerEntity);
-
-    (entities, ) = LibUtils.getEntityWith(components, NameComponentID);
     for (uint256 i = 0; i < entities.length; i++) {
-      console.log("i:", entities[i]);
+      uint256 shipBooty = bootyComponent.getValue(entities[i]);
+
+      assertEq(shipBooty, gameConfig.buyin);
     }
 
     assertTrue(hasName, "player name not stored");

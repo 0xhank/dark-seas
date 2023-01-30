@@ -86,7 +86,8 @@ export async function createNetworkLayer(config: GameConfig) {
     Loaded: defineBoolComponent(world, { id: "Loaded", metadata: { contractId: "ds.component.Loaded" } }),
     Speed: defineNumberComponent(world, { id: "Speed", metadata: { contractId: "ds.component.Speed" } }),
     Kills: defineNumberComponent(world, { id: "Kills", metadata: { contractId: "ds.component.Kills" } }),
-    LastHit: defineNumberComponent(world, { id: "LastHit", metadata: { contractId: "ds.component.LastHit" } }),
+    LastHit: defineStringComponent(world, { id: "LastHit", metadata: { contractId: "ds.component.LastHit" } }),
+    Booty: defineStringComponent(world, { id: "Booty", metadata: { contractId: "ds.component.Booty" } }),
   };
 
   // --- SETUP ----------------------------------------------------------------------
