@@ -107,10 +107,10 @@ export function registerLeaderboard() {
           onMouseEnter={(e) => e.stopPropagation()}
         >
           <LeaderboardContainer onClick={(e) => e.stopPropagation()}>
-            <PlayerTable theadData={["", "", "Booty", "Kills", "Health"]} tbodyData={players} />
+            <PlayerTable theadData={["", "", "Booty", "Health"]} tbodyData={players} />
           </LeaderboardContainer>
           <LeaderboardContainer onClick={(e) => e.stopPropagation()}>
-            <ShipTable theadData={["", "Booty", "Health", "Kills", "Owner"]} tbodyData={ships} />
+            <ShipTable theadData={["", "Booty", "Health", "Owner"]} tbodyData={ships} />
           </LeaderboardContainer>
         </Container>
       );
@@ -144,17 +144,6 @@ const TableHeadItem = ({ item }: { item: string }) => {
   return <td title={item}>{item}</td>;
 };
 
-function sortData(data: { booty: number; health: number }[]) {
-  return data.sort((a, b) => {
-    if (!a) return 1;
-    if (!b) return -1;
-
-    const booty = b.booty - a.booty;
-    if (booty !== 0) return booty;
-
-    return b.health - a.health;
-  });
-}
 const ShipTable = ({ theadData, tbodyData }: { theadData: string[]; tbodyData: (ShipData | undefined)[] }) => {
   return (
     <TableContainer>
@@ -171,11 +160,14 @@ const ShipTable = ({ theadData, tbodyData }: { theadData: string[]; tbodyData: (
         <tbody>
           {tbodyData
             .sort((a, b) => {
-              if (!a) return 1;
-              if (!b) return -1;
+              if (!a || a.health == 0) return 1;
+              if (!b || b.health == 0) return -1;
 
-              const kills = b.kills - a.kills;
-              if (kills !== 0) return kills;
+              if (a.health == 0 && b.health !== 0) return 1;
+              if (a.health !== 0 && b.health == 0) return -1;
+
+              const booty = b.booty - a.booty;
+              if (booty !== 0) return booty;
 
               return b.health - a.health;
             })
@@ -195,7 +187,6 @@ const ShipTableRow = ({ data }: { data: ShipData }) => {
       <td>{data.booty}</td>
 
       <td>{data.health}</td>
-      <td>{data.kills}</td>
 
       <td>{data.owner}</td>
     </tr>
@@ -220,8 +211,10 @@ const PlayerTable = ({ theadData, tbodyData }: { theadData: string[]; tbodyData:
               if (!a) return 1;
               if (!b) return -1;
 
-              const kills = b.kills - a.kills;
-              if (kills !== 0) return kills;
+              if (a.health == 0 && b.health !== 0) return 1;
+              if (a.health !== 0 && b.health == 0) return -1;
+              const booty = b.booty - a.booty;
+              if (booty !== 0) return booty;
 
               return b.health - a.health;
             })
@@ -240,7 +233,6 @@ const PlayerTableRow = ({ data, index }: { data: PlayerData; index: number }) =>
       <td>{index + 1}</td>
       <td>{data.name}</td>
       <td>{data.booty}</td>
-      <td>{data.kills}</td>
       <td>{data.health}</td>
     </tr>
   );
