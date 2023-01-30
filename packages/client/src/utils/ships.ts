@@ -1,8 +1,33 @@
 import { EntityIndex } from "@latticexyz/recs";
+import { adjectives, nouns } from "../layers/backend/utilities/wordlist";
 import { Sprites } from "../types";
 
+const nameRegistry = new Map<EntityIndex, string>();
 export function getShipName(shipEntity: EntityIndex) {
-  return "The Big Ship";
+  const value = nameRegistry.get(shipEntity);
+  if (value) return value;
+
+  const hash = getHash(shipEntity);
+  console.log("hash:", hash);
+  const adjective = adjectives[hash % adjectives.length];
+  const newHash = getHash(hash);
+  const noun = nouns[newHash % nouns.length];
+  console.log("noun:", hash);
+
+  const name = cap(adjective) + " " + cap(noun);
+  nameRegistry.set(shipEntity, name);
+  return name;
+}
+
+function cap(string: string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function getHash(a: number) {
+  let t = (a += 0x6d2b79f5);
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return (t ^ (t >>> 14)) >>> 0;
 }
 export function getShipSprite(ownerEntity: EntityIndex, health: number, mine: boolean): Sprites {
   // return config.sprites[Sprites.ShipWhite];

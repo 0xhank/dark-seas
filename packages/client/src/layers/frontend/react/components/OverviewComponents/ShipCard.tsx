@@ -52,7 +52,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
   return (
     <div style={{ display: "flex", borderRadius: "6px", width: "100%" }}>
       <BoxContainer>
-        <span style={{ fontSize: "1.5rem", lineHeight: "1.5rem" }}>{name}</span>
+        <span style={{ fontSize: "1.5rem", lineHeight: "2.1rem" }}>{name}</span>
         {playerEntity !== ownerEntity && <span>{ownerName}</span>}
         <BoxImage>
           <img
@@ -65,7 +65,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
               margin: "auto",
               transform: `rotate(${rotation - 90}deg) translate(-50%,-50%)`,
               transformOrigin: `top left`,
-              maxWidth: `${(50 * length) / 10}px`,
+              maxWidth: `${3.5 * length}px`,
             }}
           />
         </BoxImage>

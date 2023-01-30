@@ -188,7 +188,8 @@ export const Input = styled.input`
 
 export const BoxImage = styled.div`
   position: relative;
-  max-width: 100%;
+  width: 70%;
+  margin: auto;
   padding-top: 6px;
   :before {
     content: "";
