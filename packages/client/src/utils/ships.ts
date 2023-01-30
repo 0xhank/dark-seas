@@ -1,6 +1,9 @@
 import { EntityIndex } from "@latticexyz/recs";
 import { Sprites } from "../types";
 
+export function getShipName(shipEntity: EntityIndex) {
+  return "The Big Ship";
+}
 export function getShipSprite(ownerEntity: EntityIndex, health: number, mine: boolean): Sprites {
   // return config.sprites[Sprites.ShipWhite];
   if (mine) {

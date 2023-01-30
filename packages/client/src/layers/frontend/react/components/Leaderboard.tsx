@@ -1,13 +1,15 @@
 import { EntityIndex, getComponentEntities, getComponentValue, setComponent } from "@latticexyz/recs";
 import { map, merge } from "rxjs";
 import styled from "styled-components";
+import { getShipName } from "../../../../utils/ships";
 import { registerUIComponent } from "../engine";
 import { colors, Container } from "../styles/global";
 
 type ShipData = {
-  shipEntity: EntityIndex;
+  name: string;
   health: number;
   kills: number;
+  booty: number;
   owner: string;
 };
 
@@ -16,6 +18,7 @@ type PlayerData = {
   name: string;
   health: number;
   kills: number;
+  booty: number;
 };
 export function registerLeaderboard() {
   registerUIComponent(
@@ -30,7 +33,7 @@ export function registerLeaderboard() {
       const {
         network: {
           world,
-          components: { Kills, OwnedBy, Ship, Name },
+          components: { Kills, OwnedBy, Ship, Name, Booty },
         },
         backend: {
           components: { LeaderboardOpen, HealthLocal },
@@ -38,12 +41,7 @@ export function registerLeaderboard() {
         },
       } = layers;
 
-      return merge(
-        // OwnedBy.update$,
-        HealthLocal.update$,
-        Kills.update$,
-        LeaderboardOpen.update$
-      ).pipe(
+      return merge(Booty.update$, HealthLocal.update$, Kills.update$, LeaderboardOpen.update$).pipe(
         map(() => {
           const show = !!getComponentValue(LeaderboardOpen, godEntity)?.value;
           const close = () => {
@@ -56,14 +54,15 @@ export function registerLeaderboard() {
             [...getComponentEntities(Ship)].forEach((shipEntity) => {
               const health = getComponentValue(HealthLocal, shipEntity)?.value;
               const kills = getComponentValue(Kills, shipEntity)?.value;
+              const bootyString = getComponentValue(Booty, shipEntity)?.value;
               const ownerId = getComponentValue(OwnedBy, shipEntity)?.value;
 
               if (!ownerId) return;
               const owner = world.entityToIndex.get(ownerId);
               if (!owner) return;
               const name = getComponentValue(Name, owner)?.value;
-              if (health == undefined || kills == undefined || name == undefined) return;
-
+              if (health == undefined || kills == undefined || name == undefined || bootyString == undefined) return;
+              const booty = Number(bootyString);
               const player = players.find((player) => player.playerEntity == owner);
 
               if (!player) {
@@ -72,6 +71,7 @@ export function registerLeaderboard() {
                   name,
                   health,
                   kills,
+                  booty,
                 });
               } else {
                 player.health += health;
@@ -79,10 +79,11 @@ export function registerLeaderboard() {
               }
 
               ships.push({
-                shipEntity,
+                name: getShipName(shipEntity),
                 health,
                 kills,
                 owner: name,
+                booty,
               });
             });
             return { players, ships };
@@ -106,10 +107,10 @@ export function registerLeaderboard() {
           onMouseEnter={(e) => e.stopPropagation()}
         >
           <LeaderboardContainer onClick={(e) => e.stopPropagation()}>
-            <PlayerTable theadData={["Rank", "Name", "Kills", "Health"]} tbodyData={players} />
+            <PlayerTable theadData={["", "", "Booty", "Kills", "Health"]} tbodyData={players} />
           </LeaderboardContainer>
           <LeaderboardContainer onClick={(e) => e.stopPropagation()}>
-            <ShipTable theadData={["ID", "Kills", "Health", "Owner"]} tbodyData={ships} />
+            <ShipTable theadData={["", "Booty", "Health", "Kills", "Owner"]} tbodyData={ships} />
           </LeaderboardContainer>
         </Container>
       );
@@ -143,6 +144,17 @@ const TableHeadItem = ({ item }: { item: string }) => {
   return <td title={item}>{item}</td>;
 };
 
+function sortData(data: { booty: number; health: number }[]) {
+  return data.sort((a, b) => {
+    if (!a) return 1;
+    if (!b) return -1;
+
+    const booty = b.booty - a.booty;
+    if (booty !== 0) return booty;
+
+    return b.health - a.health;
+  });
+}
 const ShipTable = ({ theadData, tbodyData }: { theadData: string[]; tbodyData: (ShipData | undefined)[] }) => {
   return (
     <TableContainer>
@@ -167,9 +179,9 @@ const ShipTable = ({ theadData, tbodyData }: { theadData: string[]; tbodyData: (
 
               return b.health - a.health;
             })
-            .map((item) => {
+            .map((item, i) => {
               if (!item) return null;
-              return <ShipTableRow key={`item ${item.shipEntity}`} data={item} />;
+              return <ShipTableRow key={`ship ${i}`} data={item} />;
             })}
         </tbody>
       </table>
@@ -179,9 +191,12 @@ const ShipTable = ({ theadData, tbodyData }: { theadData: string[]; tbodyData: (
 const ShipTableRow = ({ data }: { data: ShipData }) => {
   return (
     <tr>
-      <td>{data.shipEntity}</td>
-      <td>{data.kills}</td>
+      <td>{data.name}</td>
+      <td>{data.booty}</td>
+
       <td>{data.health}</td>
+      <td>{data.kills}</td>
+
       <td>{data.owner}</td>
     </tr>
   );
@@ -224,6 +239,7 @@ const PlayerTableRow = ({ data, index }: { data: PlayerData; index: number }) =>
     <tr>
       <td>{index + 1}</td>
       <td>{data.name}</td>
+      <td>{data.booty}</td>
       <td>{data.kills}</td>
       <td>{data.health}</td>
     </tr>
