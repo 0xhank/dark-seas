@@ -1,7 +1,7 @@
 import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import styled from "styled-components";
 import { ActionType, Layers } from "../../../../../types";
-import { getShipSprite, ShipImages } from "../../../../../utils/ships";
+import { getShipName, getShipSprite, ShipImages } from "../../../../../utils/ships";
 import { DELAY } from "../../../constants";
 import { BoxImage } from "../../styles/global";
 import { ShipAttributeTypes } from "../../types";
@@ -14,7 +14,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
     network: {
       utils: { getPlayerEntity, getTurn },
       network: { connectedAddress },
-      components: { MaxHealth, Rotation, OwnedBy, Name, Length, LastAction },
+      components: { MaxHealth, Rotation, OwnedBy, Name, Length, LastAction, Booty },
     },
     backend: {
       components: { SelectedActions, HealthLocal, OnFireLocal, SailPositionLocal, DamagedCannonsLocal },
@@ -36,6 +36,8 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
   const length = getComponentValue(Length, ship)?.value || 10;
   const lastAction = getComponentValue(LastAction, playerEntity)?.value;
   const currentTurn = getTurn(DELAY);
+  const booty = getComponentValue(Booty, ship)?.value;
+
   const actionsExecuted = currentTurn == lastAction;
   const updates = actionsExecuted ? undefined : selectedActions?.actionTypes;
 
@@ -45,7 +47,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
     ? sailPosition + 1
     : sailPosition;
 
-  const name = maxHealth < 12 ? "The Weasel" : "Big Bertha";
+  const name = getShipName(ship);
 
   return (
     <div style={{ display: "flex", borderRadius: "6px", width: "100%" }}>
@@ -76,6 +78,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
             attribute={updatedSailPosition}
             updating={updatedSailPosition !== sailPosition}
           />
+          <ShipAttribute attributeType={ShipAttributeTypes.Booty} attribute={booty ? Number(booty) : undefined} />
         </div>
         {health !== 0 && (
           <div style={{ display: "flex", gap: "8px" }}>

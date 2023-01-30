@@ -22,6 +22,7 @@ import { KillsComponent, ID as KillsComponentID } from "../components/KillsCompo
 import { LastHitComponent, ID as LastHitComponentID } from "../components/LastHitComponent.sol";
 import { CannonComponent, ID as CannonComponentID } from "../components/CannonComponent.sol";
 import { LoadedComponent, ID as LoadedComponentID } from "../components/LoadedComponent.sol";
+import { BootyComponent, ID as BootyComponentID } from "../components/BootyComponent.sol";
 
 // Types
 import { Side, Coord } from "../libraries/DSTypes.sol";
@@ -192,23 +193,12 @@ library LibCombat {
 
     // perform hull damage
     uint32 hullDamage = getHullDamage(baseHitChance, r);
-
-    bool dead = damageHull(components, hullDamage, defenderEntity);
     if (hullDamage == 0) return;
 
     LastHitComponent(getAddressById(components, LastHitComponentID)).set(defenderEntity, attackerEntity);
-    if (dead) {
-      KillsComponent killsComponent = KillsComponent(getAddressById(components, KillsComponentID));
-      HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
-      uint32 prevKills = killsComponent.getValue(attackerEntity);
-      killsComponent.set(attackerEntity, prevKills + 1);
+    bool dead = damageHull(components, hullDamage, defenderEntity);
 
-      uint32 maxHealth = MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).getValue(attackerEntity);
-      uint32 health = healthComponent.getValue(attackerEntity);
-      if (health + 2 >= maxHealth) healthComponent.set(attackerEntity, maxHealth);
-      else healthComponent.set(attackerEntity, health + 2);
-      return;
-    }
+    if (dead) return;
 
     // perform special damage
     if (getSpecialChance(baseHitChance, hullDamage, r, 0)) {
@@ -238,12 +228,43 @@ library LibCombat {
     uint32 health = healthComponent.getValue(shipEntity);
 
     if (health <= damage) {
-      healthComponent.set(shipEntity, 0);
+      uint256 attackerEntity = LastHitComponent(getAddressById(components, LastHitComponentID)).getValue(shipEntity);
+
+      killEnemy(components, attackerEntity, shipEntity);
       return true;
     }
 
     healthComponent.set(shipEntity, health - damage);
     return false;
+  }
+
+  function killEnemy(
+    IUint256Component components,
+    uint256 attackerEntity,
+    uint256 shipEntity
+  ) private {
+    KillsComponent killsComponent = KillsComponent(getAddressById(components, KillsComponentID));
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    BootyComponent bootyComponent = BootyComponent(getAddressById(components, BootyComponentID));
+    healthComponent.set(shipEntity, 0);
+
+    // update ship kills
+    uint32 prevKills = killsComponent.getValue(attackerEntity);
+    killsComponent.set(attackerEntity, prevKills + 1);
+
+    // remove booty from sunk ship -> add half to attacking ship and half to attacking player
+    uint256 booty = bootyComponent.getValue(shipEntity);
+    bootyComponent.set(shipEntity, 0);
+    uint256 oldBooty = bootyComponent.getValue(attackerEntity);
+    bootyComponent.set(attackerEntity, oldBooty + booty / 2);
+    uint256 ownerEntity = OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(attackerEntity);
+    oldBooty = bootyComponent.getValue(ownerEntity);
+    bootyComponent.set(ownerEntity, oldBooty + booty / 2);
+
+    uint32 maxHealth = MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).getValue(attackerEntity);
+    uint32 health = healthComponent.getValue(attackerEntity);
+    if (health + 2 >= maxHealth) healthComponent.set(attackerEntity, maxHealth);
+    else healthComponent.set(attackerEntity, health + 2);
   }
 
   /*************************************************** UTILITIES **************************************************** */

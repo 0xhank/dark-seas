@@ -31,7 +31,7 @@ const WarningContainer = styled(Container)<{ removing?: boolean }>`
   color: ${colors.white};
   padding: 0.5rem;
   flex-direction: row;
-  border-radius: 1rem;
+  border-radius: 6px;
   width: auto;
   text-transform: uppercase;
   gap: 0.5rem;

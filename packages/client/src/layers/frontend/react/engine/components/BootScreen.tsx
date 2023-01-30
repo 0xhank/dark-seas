@@ -25,7 +25,6 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   justify-items: center;
-  transition: all 2s ease;
   grid-gap: 16px;
   z-index: 500;
   pointer-events: all;
