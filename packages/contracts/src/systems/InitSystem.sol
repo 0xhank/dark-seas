@@ -31,7 +31,8 @@ contract InitSystem is System {
         actionPhaseLength: 23,
         worldSize: 150,
         perlinSeed: 420,
-        entryCutoff: 60 * 15 // 15 minutes
+        entryCutoff: 60 * 15, // 15 minutes,
+        buyin: 1000
       })
     );
 
