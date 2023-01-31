@@ -202,6 +202,8 @@ export async function createBackendUtilities(
   }
 
   const soundRegistry = new Map<string, Howl>();
+  const musicRegistry = new Map<string, Howl>();
+
   function playSound(id: string, category: Category, loop = false, fade?: number) {
     console.log("volume:", soundLibrary[category][id].volume);
     const volume = getComponentValueStrict(components.Volume, godEntity).value;
@@ -243,6 +245,34 @@ export async function createBackendUtilities(
     setComponent(components.Volume, godEntity, { value: volume });
 
     playSound("ocean", Category.Ambience, true);
+  }
+
+  function playMusic(vol?: number) {
+    if (vol !== undefined) {
+      localStorage.setItem("music-volume", `${vol}`);
+    }
+    const volumeStr = localStorage.getItem("music-volume");
+    const volume = vol || volumeStr ? Number(volumeStr) : 1;
+    setComponent(components.Volume, 1 as EntityIndex, { value: volume });
+
+    const music = new Howl({
+      src: [soundLibrary[Category.Music]["sailing"].src],
+      volume: volume,
+      preload: true,
+      loop: true,
+    });
+
+    music.volume();
+    music.play();
+    musicRegistry.set("base", music);
+  }
+
+  function muteMusic() {
+    [...musicRegistry.values()].forEach((entry) => {
+      entry.pause();
+    });
+    setComponent(components.Volume, 1 as EntityIndex, { value: 0 });
+    localStorage.setItem("music-volume", "0");
   }
 
   function handleNewActionsSpecial(action: ActionType, shipEntity: EntityIndex) {
@@ -300,6 +330,7 @@ export async function createBackendUtilities(
   }
 
   startEnvironmentSoundSystem();
+  playMusic();
 
   return {
     checkActionPossible,
@@ -317,5 +348,7 @@ export async function createBackendUtilities(
     handleNewActionsSpecial,
     muteSfx,
     unmuteSfx,
+    playMusic,
+    muteMusic,
   };
 }
