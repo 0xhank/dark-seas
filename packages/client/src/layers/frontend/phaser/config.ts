@@ -194,7 +194,7 @@ export const phaserConfig = {
     pinchSpeed: 0.5,
     wheelSpeed: 0,
     maxZoom: 2,
-    minZoom: 0.33,
+    minZoom: 0.4,
   }),
   cullingChunkSize: TILE_HEIGHT * 16,
 };

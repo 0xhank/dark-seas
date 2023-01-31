@@ -24,7 +24,7 @@ export function registerYourShips() {
     "YourShips",
     // grid location
     {
-      rowStart: 8,
+      rowStart: 9,
       rowEnd: 13,
       colStart: 1,
       colEnd: 13,
