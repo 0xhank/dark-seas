@@ -23,11 +23,7 @@ export type SoundAsset = {
   [key: string]: Sound;
 };
 
-type soundLibrary = {
-  [index in Category]: SoundAsset;
-};
-
-export const soundLibrary = {
+export const soundLibrary: { [index in Category]: SoundAsset } = {
   [Category.Ambience]: ambience,
   [Category.Action]: action,
   [Category.Move]: move,

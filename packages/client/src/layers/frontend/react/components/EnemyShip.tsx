@@ -10,8 +10,8 @@ export function registerEnemyShip() {
     "EnemyShip",
     // grid location
     {
-      rowStart: 1,
-      rowEnd: 4,
+      rowStart: 2,
+      rowEnd: 5,
       colStart: 10,
       colEnd: 13,
     },

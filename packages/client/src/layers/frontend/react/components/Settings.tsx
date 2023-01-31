@@ -50,8 +50,8 @@ export function registerSettings() {
 
 const SettingsContainer = styled.div`
   position: fixed;
-  right: 20;
-  top: 20;
+  right: 12;
+  top: 12;
   bottom: 0;
   display: flex;
   align-items: center;

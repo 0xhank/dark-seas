@@ -52,7 +52,7 @@ export function registerTopBar() {
       return (
         <TopBarContainer>
           <div style={{ display: "flex", flexDirection: "column", textAlign: "left", gap: "8px" }}>
-            <span style={{ fontWeight: "bolder", fontSize: "1.5rem", lineHeight: "2rem" }}>Captain {name}'s Log</span>
+            <span style={{ fontWeight: "bolder", fontSize: "1.5rem", lineHeight: "2rem" }}>Captain {name}</span>
             <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
               <Button onClick={openLeaderboard} style={{ width: "40px", background: colors.thickGlass }}>
                 <img src={"/icons/podium.svg"} style={{ width: "100%" }} />
@@ -68,8 +68,8 @@ export function registerTopBar() {
 
 const TopBarContainer = styled.div`
   position: absolute;
-  left: 20;
-  top: 20;
+  left: 12;
+  top: 12;
   bottom: 0;
   display: flex;
   align-items: center;

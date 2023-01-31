@@ -256,7 +256,7 @@ export function registerYourShips() {
 
       return (
         <Container style={{ justifyContent: "flex-end", padding: "0" }}>
-          <div style={{ width: "100vw", height: "100%", background: colors.darkBrown, borderRadius: "20px 20px 0 0" }}>
+          <div style={{ width: "100vw", height: "auto", background: colors.darkBrown, borderRadius: "20px 20px 0 0" }}>
             <InternalContainer style={{ gap: "24px", height: "100%", background: "transparent" }}>
               <MoveButtons>
                 {yourShips.map((ship) => (
