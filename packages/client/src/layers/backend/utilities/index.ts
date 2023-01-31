@@ -201,10 +201,13 @@ export async function createBackendUtilities(
     return ret;
   }
 
+  const soundRegistry = new Map<string, Howl>();
   function playSound(id: string, category: Category, loop = false, fade?: number) {
+    console.log("volume:", soundLibrary[category][id].volume);
+    const volume = getComponentValueStrict(components.Volume, godEntity).value;
     const sound = new Howl({
       src: [soundLibrary[category][id].src],
-      volume: soundLibrary[category][id].volume,
+      volume: soundLibrary[category][id].volume * volume,
       preload: true,
       loop: loop,
     });
@@ -217,10 +220,28 @@ export async function createBackendUtilities(
     } else {
       sound.play();
     }
+    soundRegistry.set(id, sound);
     return sound;
   }
 
+  function unmuteSfx() {
+    setComponent(components.Volume, godEntity, { value: 1 });
+    localStorage.setItem("volume", "1");
+    playSound("ocean", Category.Ambience, true);
+  }
+  function muteSfx() {
+    [...soundRegistry.values()].forEach((entry) => {
+      entry.pause();
+    });
+    setComponent(components.Volume, godEntity, { value: 0 });
+    localStorage.setItem("volume", "0");
+  }
+
   function startEnvironmentSoundSystem() {
+    const volumeStr = localStorage.getItem("volume");
+    const volume = volumeStr ? Number(volumeStr) : 1;
+    setComponent(components.Volume, godEntity, { value: volume });
+
     playSound("ocean", Category.Ambience, true);
   }
 
@@ -294,5 +315,7 @@ export async function createBackendUtilities(
     playSound,
     handleNewActionsCannon,
     handleNewActionsSpecial,
+    muteSfx,
+    unmuteSfx,
   };
 }

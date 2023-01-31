@@ -9,27 +9,27 @@ export const ui: SoundAsset = {
   },
   hover: {
     src: "/sounds/ui/button-hover.mp3",
-    volume: FULL_VOLUME,
+    volume: 0.5,
   },
   success: {
     src: "/sounds/ui/success.mp3",
-    volume: FULL_VOLUME,
+    volume: 0.5,
   },
   button_hover: {
     src: "/sounds/ui/button-hover.mp3",
-    volume: FULL_VOLUME,
+    volume: 0.5,
   },
   success_notif: {
     src: "/sounds/ui/success-notif.wav",
-    volume: QUIET_VOLUME,
+    volume: 0.1,
   },
   fail_notif: {
     src: "sounds/ui/fail-notif.wav",
-    volume: QUIET_VOLUME,
+    volume: 0.1,
   },
   tick: {
     src: "sounds/ui/tick.wav",
-    volume: FULL_VOLUME,
+    volume: 0.7,
   },
   reset: {
     src: "sounds/ui/reset.wav",
