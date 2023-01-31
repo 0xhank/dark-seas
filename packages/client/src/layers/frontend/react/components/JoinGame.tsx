@@ -51,9 +51,7 @@ export function registerJoinGame() {
           if (!gameConfig) return;
           const closeTime = Number(gameConfig.startTime) + Number(gameConfig.entryCutoff);
           const entryWindowClosed = closeTime <= clock.currentTime / 1000;
-          console.log("game config", Number(gameConfig.startTime) + Number(gameConfig.entryCutoff));
-          console.log("current time:", clock.currentTime / 1000);
-          console.log("entry window closed:", entryWindowClosed);
+
           return {
             spawnAction,
             spawnPlayer,

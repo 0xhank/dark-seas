@@ -205,7 +205,6 @@ export async function createBackendUtilities(
   const musicRegistry = new Map<string, Howl>();
 
   function playSound(id: string, category: Category, loop = false, fade?: number) {
-    console.log("volume:", soundLibrary[category][id].volume);
     const volume = getComponentValueStrict(components.Volume, godEntity).value;
     const sound = new Howl({
       src: [soundLibrary[category][id].src],

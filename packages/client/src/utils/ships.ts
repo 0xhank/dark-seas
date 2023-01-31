@@ -8,11 +8,9 @@ export function getShipName(shipEntity: EntityIndex) {
   if (value) return value;
 
   const hash = getHash(shipEntity);
-  console.log("hash:", hash);
   const adjective = adjectives[hash % adjectives.length];
   const newHash = getHash(hash);
   const noun = nouns[newHash % nouns.length];
-  console.log("noun:", hash);
 
   const name = cap(adjective) + " " + cap(noun);
   nameRegistry.set(shipEntity, name);
@@ -30,7 +28,6 @@ function getHash(a: number) {
   return (t ^ (t >>> 14)) >>> 0;
 }
 export function getShipSprite(ownerEntity: EntityIndex, health: number, mine: boolean): Sprites {
-  // return config.sprites[Sprites.ShipWhite];
   if (mine) {
     if (health > 7) return Sprites.ShipWhite;
     else if (health > 4) return Sprites.ShipWhiteMinor;
@@ -70,7 +67,7 @@ export function getShipSprite(ownerEntity: EntityIndex, health: number, mine: bo
 }
 
 export function getShipColor(src: number): ShipColors {
-  return src % 5;
+  return getHash(src) % 5;
 }
 
 export enum ShipColors {
