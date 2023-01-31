@@ -153,7 +153,7 @@ const ShipTable = ({ theadData, tbodyData }: { theadData: string[]; tbodyData: (
         <thead>
           <tr>
             {theadData.map((h) => {
-              return <TableHeadItem key={h} item={h} />;
+              return <TableHeadItem key={`ship-header-${h}`} item={h} />;
             })}
           </tr>
         </thead>
@@ -173,7 +173,7 @@ const ShipTable = ({ theadData, tbodyData }: { theadData: string[]; tbodyData: (
             })
             .map((item, i) => {
               if (!item) return null;
-              return <ShipTableRow key={`ship ${i}`} data={item} />;
+              return <ShipTableRow key={`ship-item-${i}`} data={item} />;
             })}
         </tbody>
       </table>
@@ -201,7 +201,7 @@ const PlayerTable = ({ theadData, tbodyData }: { theadData: string[]; tbodyData:
         <thead>
           <tr>
             {theadData.map((h) => {
-              return <TableHeadItem key={h} item={h} />;
+              return <TableHeadItem key={`player-header-${h}`} item={h} />;
             })}
           </tr>
         </thead>
@@ -220,7 +220,7 @@ const PlayerTable = ({ theadData, tbodyData }: { theadData: string[]; tbodyData:
             })
             .map((item, i) => {
               if (!item) return null;
-              return <PlayerTableRow key={`item ${item.playerEntity}`} data={item} index={i} />;
+              return <PlayerTableRow key={`player-item-${item.playerEntity}`} data={item} index={i} />;
             })}
         </tbody>
       </table>

@@ -16,5 +16,8 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
 };
 
 const SpecialText = styled.span`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-size: 2rem;
 `;

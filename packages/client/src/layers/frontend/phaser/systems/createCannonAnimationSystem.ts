@@ -121,10 +121,9 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
       playSound("impact_ship_1", Category.Combat);
 
       explosion.play(Animations.Explosion);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      explosion.on(`animationcomplete`, () => {
-        destroySpriteObject(explosionId);
-      });
+      destroySpriteObject(explosionId);
     } else {
       playSound("impact_water_1", Category.Combat);
 
@@ -149,6 +148,7 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     }
     destroySpriteObject(spriteId);
   }
+
   function getShipMidpoint(shipEntity: EntityIndex) {
     const position = getComponentValueStrict(Position, shipEntity);
     const rotation = getComponentValue(Rotation, shipEntity)?.value || 0;
