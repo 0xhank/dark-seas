@@ -34,8 +34,8 @@ export function createBackendComponents(world: World) {
     ExecutedActions: defineComponent(world, { value: Type.NumberArray }, { id: "ExecutedActions" }),
     ExecutedCannon: defineBoolComponent(world, { id: "ExecutedLoad" }),
 
-    LeaderboardOpen: defineBoolComponent(world, {
-      id: "LeaderboardOpen",
+    ModalOpen: defineNumberComponent(world, {
+      id: "ModalOpen",
     }),
     HealthLocal: defineNumberComponent(world, { id: "HealthLocal" }),
     HealthBackend: defineNumberComponent(world, { id: "HealthBackend" }),

@@ -1,6 +1,7 @@
-import { EntityIndex, getComponentEntities, getComponentValue, setComponent } from "@latticexyz/recs";
+import { EntityIndex, getComponentEntities, getComponentValue } from "@latticexyz/recs";
 import { map, merge } from "rxjs";
 import styled from "styled-components";
+import { ModalType } from "../../../../types";
 import { getShipName } from "../../../../utils/ships";
 import { registerUIComponent } from "../engine";
 import { colors, Container } from "../styles/global";
@@ -20,7 +21,7 @@ type PlayerData = {
   kills: number;
   booty: number;
 };
-export function registerLeaderboard() {
+export function registerModal() {
   registerUIComponent(
     "Leaderboard",
     {
@@ -36,16 +37,17 @@ export function registerLeaderboard() {
           components: { Kills, OwnedBy, Ship, Name, Booty },
         },
         backend: {
-          components: { LeaderboardOpen, HealthLocal },
+          components: { ModalOpen, HealthLocal },
+          utils: { clearComponent },
           godEntity,
         },
       } = layers;
 
-      return merge(Booty.update$, HealthLocal.update$, Kills.update$, LeaderboardOpen.update$).pipe(
+      return merge(Booty.update$, HealthLocal.update$, Kills.update$, ModalOpen.update$).pipe(
         map(() => {
-          const show = !!getComponentValue(LeaderboardOpen, godEntity)?.value;
+          const show = getComponentValue(ModalOpen, godEntity)?.value;
           const close = () => {
-            setComponent(LeaderboardOpen, godEntity, { value: false });
+            clearComponent(ModalOpen);
           };
           const getPlayersAndShips = () => {
             let players: PlayerData[] = [];
@@ -98,20 +100,30 @@ export function registerLeaderboard() {
       );
     },
     ({ show, getPlayersAndShips, close }) => {
-      if (!show) return null;
-      const { ships, players } = getPlayersAndShips();
+      if (show == undefined) return null;
+      let content = null;
+      if (show == ModalType.LEADERBOARD) {
+        const { ships, players } = getPlayersAndShips();
+        content = (
+          <>
+            <LeaderboardContainer onClick={(e) => e.stopPropagation()}>
+              <PlayerTable theadData={["", "", "Booty", "Health"]} tbodyData={players} />
+            </LeaderboardContainer>
+            <LeaderboardContainer onClick={(e) => e.stopPropagation()}>
+              <ShipTable theadData={["", "Booty", "Health", "Owner"]} tbodyData={ships} />
+            </LeaderboardContainer>
+          </>
+        );
+      } else if (show == ModalType.TUTORIAL) {
+        content = null;
+      }
       return (
         <Container
           style={{ flexDirection: "row", background: "hsla(0, 0%, 0%, 0.6", zIndex: 9999, gap: "20px" }}
           onClick={close}
           onMouseEnter={(e) => e.stopPropagation()}
         >
-          <LeaderboardContainer onClick={(e) => e.stopPropagation()}>
-            <PlayerTable theadData={["", "", "Booty", "Health"]} tbodyData={players} />
-          </LeaderboardContainer>
-          <LeaderboardContainer onClick={(e) => e.stopPropagation()}>
-            <ShipTable theadData={["", "Booty", "Health", "Owner"]} tbodyData={ships} />
-          </LeaderboardContainer>
+          {content}
         </Container>
       );
     }
