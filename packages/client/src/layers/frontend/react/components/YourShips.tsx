@@ -146,12 +146,14 @@ export function registerYourShips() {
             getComponentValueStrict(SelectedActions, entity)
           );
 
+          const tooEarly = getPhase() !== phase;
           const disabled =
-            phase == Phase.Commit
+            tooEarly ||
+            (phase == Phase.Commit
               ? selectedMoves.length == 0
               : !actionsExecuted &&
                 (selectedActions.length == 0 ||
-                  selectedActions.every((arr) => arr.actionTypes.every((elem) => elem == ActionType.None)));
+                  selectedActions.every((arr) => arr.actionTypes.every((elem) => elem == ActionType.None))));
 
           const actionExecuting = !![...runQuery([Has(Action)])].find((entity) => {
             const state = getComponentValueStrict(Action, entity).state;
