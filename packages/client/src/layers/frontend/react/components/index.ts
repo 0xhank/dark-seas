@@ -10,8 +10,6 @@ import { registerYourShips } from "./YourShips";
 
 export function registerUIComponents() {
   registerLeaderboard();
-
-  registerLoadingState();
   // registerComponentBrowser();
   // registerActionQueue();
   registerSettings();
@@ -21,4 +19,7 @@ export function registerUIComponents() {
   registerTurnTimer();
   registerJoinGame();
   registerDamageChance();
+
+  // ALWAYS LAST
+  registerLoadingState();
 }

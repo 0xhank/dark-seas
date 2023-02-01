@@ -119,7 +119,7 @@ const YourShipContainer = styled(InternalContainer)<{
       .lighten(0.1)
       .alpha(isSelected || isHovered ? 0.8 : 0.7)}`};
   padding-bottom: 5px;
-  max-width: 800px;
+  min-width: 500px;
 `;
 
 const SpecialText = styled.span`
