@@ -112,7 +112,6 @@ const YourShipContainer = styled(InternalContainer)<{
   justify-content: space-between;
   min-width: 0;
   flex: 1;
-  height: auto;
   cursor: pointer;
   box-shadow: ${({ isSelected, shipColor }) => `inset 0px 0px 0px ${isSelected ? "5px" : "0px"} ${colors.white}`};
   background: ${({ isSelected, isHovered, shipColor }) =>
@@ -120,6 +119,7 @@ const YourShipContainer = styled(InternalContainer)<{
       .lighten(0.1)
       .alpha(isSelected || isHovered ? 0.8 : 0.7)}`};
   padding-bottom: 5px;
+  max-width: 800px;
 `;
 
 const SpecialText = styled.span`

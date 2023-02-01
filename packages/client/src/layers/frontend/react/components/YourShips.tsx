@@ -5,6 +5,7 @@ import {
   getComponentValueStrict,
   Has,
   HasValue,
+  NotValue,
   removeComponent,
   runQuery,
 } from "@latticexyz/recs";
@@ -109,7 +110,13 @@ export function registerYourShips() {
 
           const selectedShip = getComponentValue(SelectedShip, godEntity)?.value as EntityIndex | undefined;
 
-          const yourShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
+          const yourShips = [
+            ...runQuery([
+              Has(Ship),
+              HasValue(OwnedBy, { value: world.entities[playerEntity] }),
+              NotValue(HealthLocal, { value: 0 }),
+            ]),
+          ];
 
           const selectedMoves = [...getComponentEntities(SelectedMove)];
           const selectedActions = [...getComponentEntities(SelectedActions)].map((entity) =>
@@ -151,7 +158,7 @@ export function registerYourShips() {
               return <Success background={colors.greenGlass}>Move reveal successful!</Success>;
             if (!encodedCommitment) return <Success background={colors.glass}>No moves to reveal</Success>;
             return (
-              <ConfirmButton style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmitExecute}>
+              <ConfirmButton style={{ fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmitExecute}>
                 Reveal Moves
               </ConfirmButton>
             );
@@ -237,7 +244,7 @@ export function registerYourShips() {
             else if (phase == Phase.Commit) content = <CommitButtons />;
             else if (phase == Phase.Action) content = <ActionButtons />;
 
-            return <ConfirmButtonsContainer>{content}</ConfirmButtonsContainer>;
+            return <ConfirmButtonsContainer disabled={disabled}>{content}</ConfirmButtonsContainer>;
           };
 
           return {
@@ -255,23 +262,27 @@ export function registerYourShips() {
       const { layers, yourShips, selectedShip, phase, ConfirmButtons } = props;
 
       return (
-        <Container style={{ justifyContent: "flex-end", padding: "0" }}>
+        <Container style={{ justifyContent: "flex-end", padding: "0", position: "relative" }}>
           <div style={{ width: "100vw", height: "auto", background: colors.darkBrown, borderRadius: "20px 20px 0 0" }}>
             <InternalContainer style={{ gap: "24px", height: "100%", background: "transparent" }}>
               <MoveButtons>
-                {yourShips.map((ship) => (
-                  <YourShip
-                    key={`ship-${ship}`}
-                    layers={layers}
-                    ship={ship}
-                    selectedShip={selectedShip}
-                    phase={phase}
-                  />
-                ))}
+                {yourShips.length == 0 ? (
+                  <span style={{ color: colors.white, fontSize: "2rem" }}>You have no ships!</span>
+                ) : (
+                  yourShips.map((ship) => (
+                    <YourShip
+                      key={`ship-${ship}`}
+                      layers={layers}
+                      ship={ship}
+                      selectedShip={selectedShip}
+                      phase={phase}
+                    />
+                  ))
+                )}
               </MoveButtons>
-              <ConfirmButtons />
             </InternalContainer>
           </div>
+          <ConfirmButtons />
         </Container>
       );
     }
@@ -291,16 +302,25 @@ const Success = styled.div<{ background: string }>`
 const MoveButtons = styled.div`
   flex: 5;
   display: flex;
+  justify-content: center;
+  align-items: center;
   gap: 8px;
   font-size: 1rem;
   font-weight: 700;
-  max-width: 90%;
 `;
 
-const ConfirmButtonsContainer = styled.div`
-  flex: 1;
+const ConfirmButtonsContainer = styled.div<{ disabled: boolean }>`
+  position: absolute;
+  margin: 0 auto;
+  top: 0;
+  z-index: -1;
   display: flex;
-  justify-content: center;
-  flex-direction: column;
-  gap: 5px;
+  gap: 6px;
+  background: ${colors.darkBrown};
+  border-radius: 6px;
+  transform: ${({ disabled }) => `translateY(${disabled ? "6px" : "calc(-48px - 100%)"}`});
+  transition: transform 1s ease-out;
+  width: 150px;
+
+  padding: 6px;
 `;
