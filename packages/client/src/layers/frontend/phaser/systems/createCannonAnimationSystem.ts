@@ -165,13 +165,6 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     if (hit) {
       const randX = Math.random() * targetWidth * 2 - targetWidth;
       const randY = Math.random() * targetWidth * 2 - targetWidth;
-
-      const circle = phaserScene.add.circle(targetCenter.x, targetCenter.y, targetWidth);
-      circle.setFillStyle(0xffffff);
-      circle.setDepth(RenderDepth.Background1);
-
-      getGroupObject("circle").add(circle);
-
       return { x: targetCenter.x + randX * posHeight, y: targetCenter.y + randY * posHeight };
     }
 
