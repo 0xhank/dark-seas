@@ -145,15 +145,21 @@ export function registerYourShips() {
           const selectedActions = [...getComponentEntities(SelectedActions)].map((entity) =>
             getComponentValueStrict(SelectedActions, entity)
           );
+          const encodedCommitment = getComponentValue(EncodedCommitment, godEntity)?.value;
 
           const tooEarly = getPhase() !== phase;
-          const disabled =
-            tooEarly ||
-            (phase == Phase.Commit
-              ? selectedMoves.length == 0
-              : !actionsExecuted &&
-                (selectedActions.length == 0 ||
-                  selectedActions.every((arr) => arr.actionTypes.every((elem) => elem == ActionType.None))));
+
+          let cannotAct = false;
+          if (phase == Phase.Commit && selectedMoves.length == 0) cannotAct = true;
+          else if (phase == Phase.Reveal && !encodedCommitment) cannotAct = true;
+          else if (
+            phase == Phase.Action &&
+            !actionsExecuted &&
+            (selectedActions.length == 0 ||
+              selectedActions.every((arr) => arr.actionTypes.every((elem) => elem == ActionType.None)))
+          )
+            cannotAct = true;
+          const disabled = tooEarly || cannotAct;
 
           const actionExecuting = !![...runQuery([Has(Action)])].find((entity) => {
             const state = getComponentValueStrict(Action, entity).state;
@@ -162,7 +168,6 @@ export function registerYourShips() {
             if (state == ActionState.WaitingForTxEvents) return true;
             return false;
           });
-          const encodedCommitment = getComponentValue(EncodedCommitment, godEntity)?.value;
 
           const movesComplete = yourShips.every((ship) => {
             const committedMove = getComponentValue(CommittedMove, ship)?.value;
@@ -218,7 +223,10 @@ export function registerYourShips() {
         if (moved) return <Success background={colors.greenGlass}>Move reveal successful!</Success>;
         if (!encodedCommitment) return <Success background={colors.glass}>No moves to reveal</Success>;
         return (
-          <ConfirmButton style={{ fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmitExecute}>
+          <ConfirmButton
+            style={{ width: "100%", fontSize: "1rem", lineHeight: "1.25rem" }}
+            onClick={handleSubmitExecute}
+          >
             Reveal Moves
           </ConfirmButton>
         );

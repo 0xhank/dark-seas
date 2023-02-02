@@ -164,7 +164,7 @@ export const phaserConfig = {
           startFrame: 0,
           endFrame: 2,
           frameRate: 4,
-          repeat: -1,
+          repeat: 2,
           prefix: "explosion/",
           suffix: ".png",
         },

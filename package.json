@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/0xhank/dark-seas.git"
   },
-  "private": false,
+  "private": true,
   "workspaces": {
     "packages": [
       "packages/*"
@@ -39,6 +39,7 @@
     "dev:contracts": "yarn workspace contracts run dev",
     "deploy:prod": "yarn workspace contracts run deploy:prod",
     "test": "yarn workspace contracts run test",
+    "deploy:prod": "yarn workspace contracts run deploy:prod",
     "commit": "cz",
     "prettier:check": "prettier --check 'src/**/*.ts'",
     "prettier": "prettier --write 'packages/**/*.ts'",

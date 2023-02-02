@@ -7,7 +7,6 @@ export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIn
     components: { SailPosition },
   } = layers.network;
 
-  const {} = layers.backend;
   const sailPosition = getComponentValueStrict(SailPosition, ship).value;
 
   if (sailPosition == 0) {
