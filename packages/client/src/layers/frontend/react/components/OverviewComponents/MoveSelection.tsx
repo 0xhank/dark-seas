@@ -1,86 +1,22 @@
-import { GodID } from "@latticexyz/network";
-import {
-  EntityIndex,
-  getComponentEntities,
-  getComponentValue,
-  getComponentValueStrict,
-  removeComponent,
-  setComponent,
-} from "@latticexyz/recs";
+import { EntityIndex, getComponentValueStrict } from "@latticexyz/recs";
 import styled from "styled-components";
-import { getFinalPosition } from "../../../../../utils/directions";
-import { Img, OptionButton } from "../../styles/global";
-import { arrowImg } from "../../types";
+import { Layers } from "../../../../../types";
 
 export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
   const {
-    world,
-    components: { MoveCard, Rotation, SailPosition, Position, Speed },
+    components: { SailPosition },
   } = layers.network;
 
-  const {
-    components: { SelectedMove, SelectedShip, HoveredMove },
-  } = layers.backend;
-
-  const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
-
-  const selectedMove = getComponentValue(SelectedMove, ship as EntityIndex);
-
-  const moveEntities = [...getComponentEntities(MoveCard)];
-
-  const rotation = getComponentValueStrict(Rotation, ship).value;
   const sailPosition = getComponentValueStrict(SailPosition, ship).value;
-  const speed = getComponentValue(Speed, ship)?.value || 0;
 
   if (sailPosition == 0) {
     return <SpecialText>Cannot move with torn sails!</SpecialText>;
-  }
-  const sortedMoveEntities = moveEntities.sort(
-    (a, b) =>
-      ((180 + getComponentValueStrict(MoveCard, a).rotation) % 360) -
-      ((180 + getComponentValueStrict(MoveCard, b).rotation) % 360)
-  );
-
-  return (
-    <>
-      {sortedMoveEntities.map((entity) => {
-        let moveCard = getComponentValueStrict(MoveCard, entity);
-        const position = getComponentValueStrict(Position, ship);
-        const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
-
-        const isSelected = selectedMove && selectedMove.value == entity;
-
-        const imageUrl = arrowImg(moveCard.rotation);
-
-        return (
-          <OptionButton
-            isSelected={isSelected}
-            key={`move-selection-${entity}`}
-            onMouseEnter={() => setComponent(HoveredMove, GodEntityIndex, { moveCardEntity: entity, shipEntity: ship })}
-            onMouseLeave={() => removeComponent(HoveredMove, GodEntityIndex)}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (isSelected) removeComponent(SelectedMove, ship);
-              else {
-                setComponent(SelectedShip, GodEntityIndex, { value: ship });
-                setComponent(SelectedMove, ship, { value: entity });
-              }
-            }}
-          >
-            <Img src={imageUrl} style={{ transform: `rotate(${rotation + 90}deg)` }} />
-            <Sub>{Math.round(moveCard.distance)}M</Sub>
-          </OptionButton>
-        );
-      })}
-    </>
-  );
+  } else return <SpecialText>Select a move</SpecialText>;
 };
 
 const SpecialText = styled.span`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-size: 2rem;
-`;
-
-const Sub = styled.p`
-  line-height: 1rem;
-  font-size: 0.8rem;
 `;

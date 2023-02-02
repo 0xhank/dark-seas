@@ -32,7 +32,7 @@ contract DarkSeasTest is MudTest {
     uint256 playerEntity = addressToEntity(spawner);
 
     if (!LibUtils.playerIdExists(components, playerEntity)) LibSpawn.createPlayerEntity(components, spawner);
-    shipEntity = LibSpawn.spawnBattleship(components, world, playerEntity, position, rotation);
+    shipEntity = LibSpawn.spawnBattleship(components, world, playerEntity, position, rotation, 1000);
 
     LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 0);
     LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 0);

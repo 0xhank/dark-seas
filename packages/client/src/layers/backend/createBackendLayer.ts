@@ -49,7 +49,7 @@ export async function createBackendLayer(network: NetworkLayer) {
     api,
     utils: { ...network.utils, ...utils },
     components: { ...network.components, ...components },
-    godIndex: GodEntityIndex,
+    godEntity: GodEntityIndex,
   };
 
   // --- SYSTEMS --------------------------------------------------------------------

@@ -139,7 +139,7 @@ contract MoveSystemTest is DarkSeasTest {
   function testOutOfBounds() public prank(deployer) {
     setup();
     uint32 worldSize = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).worldSize;
-    uint256 shipEntity = spawnShip(Coord(int32(worldSize), 0), 0, deployer);
+    uint256 shipEntity = spawnShip(Coord(0, int32(worldSize)), 90, deployer);
     uint256 moveStraightEntity = uint256(keccak256("ds.prototype.moveEntity1"));
 
     moves.push(Move({ moveCardEntity: moveStraightEntity, shipEntity: shipEntity }));

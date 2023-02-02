@@ -1,7 +1,8 @@
-import { EntityID, Has, hasComponent, runQuery } from "@latticexyz/recs";
+import { EntityID, getComponentValue, Has, hasComponent, runQuery, setComponent } from "@latticexyz/recs";
 import { computedToStream } from "@latticexyz/utils";
 import { useState } from "react";
 import { map, merge } from "rxjs";
+import { ModalType } from "../../../../types";
 import { registerUIComponent } from "../engine";
 import { Button, colors, Input } from "../styles/global";
 
@@ -17,17 +18,25 @@ export function registerJoinGame() {
     (layers) => {
       const {
         network: {
-          network: { connectedAddress },
-          components: { Player, OwnedBy },
+          network: { connectedAddress, clock },
+          components: { Player, OwnedBy, GameConfig },
           world,
         },
         backend: {
+          components: { ModalOpen },
           actions: { Action },
           api: { spawnPlayer },
+          godEntity,
         },
       } = layers;
 
-      return merge(computedToStream(connectedAddress), Player.update$, OwnedBy.update$, Action.update$).pipe(
+      return merge(
+        clock.time$,
+        computedToStream(connectedAddress),
+        Player.update$,
+        OwnedBy.update$,
+        Action.update$
+      ).pipe(
         map(() => connectedAddress.get()),
         map((address) => {
           if (!address) return;
@@ -39,16 +48,25 @@ export function registerJoinGame() {
           }
 
           const spawnAction = [...runQuery([Has(Action)])].length > 0;
+
+          const gameConfig = getComponentValue(GameConfig, godEntity);
+          if (!gameConfig) return;
+          const closeTime = Number(gameConfig.startTime) + Number(gameConfig.entryCutoff);
+          const entryWindowClosed = closeTime <= clock.currentTime / 1000;
+
+          const openTutorial = () => setComponent(ModalOpen, godEntity, { value: ModalType.TUTORIAL });
           return {
             spawnAction,
             spawnPlayer,
+            entryWindowClosed,
+            openTutorial,
           };
         })
       );
     },
-    ({ spawnAction, spawnPlayer }) => {
+    ({ spawnAction, spawnPlayer, entryWindowClosed, openTutorial }) => {
       const [playerName, setPlayerName] = useState("");
-      const findSpawnButtonDisabled = playerName.length === 0;
+      const findSpawnButtonDisabled = playerName.length === 0 || entryWindowClosed;
 
       return (
         <div
@@ -83,6 +101,9 @@ export function registerJoinGame() {
                 if (e.target.value.length < 15) setPlayerName(e.target.value);
               }}
             ></Input>
+            {entryWindowClosed && (
+              <h1 style={{ color: colors.red, textAlign: "center" }}>Registration window closed!</h1>
+            )}
             {!spawnAction ? (
               <Button
                 isSelected
@@ -108,6 +129,7 @@ export function registerJoinGame() {
                 Spawning...
               </Button>
             )}
+            <Button onClick={openTutorial}>How to Play</Button>
           </div>
         </div>
       );

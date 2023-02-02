@@ -11,8 +11,8 @@ contract GameConfigComponent is Component {
   constructor(address world) Component(world, ID) {}
 
   function getSchema() public pure override returns (string[] memory keys, LibTypes.SchemaValue[] memory values) {
-    keys = new string[](6);
-    values = new LibTypes.SchemaValue[](6);
+    keys = new string[](8);
+    values = new LibTypes.SchemaValue[](8);
 
     keys[0] = "startTime";
     values[0] = LibTypes.SchemaValue.UINT256;
@@ -31,6 +31,12 @@ contract GameConfigComponent is Component {
 
     keys[5] = "perlinSeed";
     values[5] = LibTypes.SchemaValue.INT128;
+
+    keys[6] = "entryCutoff";
+    values[6] = LibTypes.SchemaValue.UINT256;
+
+    keys[7] = "buyin";
+    values[7] = LibTypes.SchemaValue.UINT256;
   }
 
   function set(uint256 entity, GameConfig calldata config) public {
@@ -44,9 +50,21 @@ contract GameConfigComponent is Component {
       uint32 revealPhaseLength,
       uint32 actionPhaseLength,
       uint32 worldSize,
-      int128 perlinSeed
-    ) = abi.decode(getRawValue(entity), (uint256, uint32, uint32, uint32, uint32, int128));
-    return GameConfig(startTime, commitPhaseLength, revealPhaseLength, actionPhaseLength, worldSize, perlinSeed);
+      int128 perlinSeed,
+      uint256 entryCutoff,
+      uint256 buyin
+    ) = abi.decode(getRawValue(entity), (uint256, uint32, uint32, uint32, uint32, int128, uint256, uint256));
+    return
+      GameConfig(
+        startTime,
+        commitPhaseLength,
+        revealPhaseLength,
+        actionPhaseLength,
+        worldSize,
+        perlinSeed,
+        entryCutoff,
+        buyin
+      );
   }
 
   function getEntitiesWithValue(GameConfig calldata config) public view returns (uint256[] memory) {
@@ -61,7 +79,9 @@ contract GameConfigComponent is Component {
         config.revealPhaseLength,
         config.actionPhaseLength,
         config.worldSize,
-        config.perlinSeed
+        config.perlinSeed,
+        config.entryCutoff,
+        config.buyin
       );
   }
 }

@@ -1,6 +1,7 @@
 import { createPhaserEngine } from "@latticexyz/phaserx";
-import { namespaceWorld } from "@latticexyz/recs";
+import { defineComponent, namespaceWorld, Type } from "@latticexyz/recs";
 import { BackendLayer } from "../../backend";
+import { createCamera } from "./camera";
 import { phaserConfig } from "./config";
 import { POS_HEIGHT, POS_WIDTH } from "./constants";
 import { createPhaserSystems } from "./systems";
@@ -13,7 +14,14 @@ export async function createPhaserLayer(backend: BackendLayer) {
   const world = namespaceWorld(backend.world, "phaser");
 
   // --- COMPONENTS -----------------------------------------------------------------
-  const components = {};
+  const components = {
+    MapBounds: defineComponent(world, {
+      top: Type.Number,
+      right: Type.Number,
+      bottom: Type.Number,
+      left: Type.Number,
+    }),
+  };
 
   // --- PHASER ENGINE SETUP --------------------------------------------------------
   const { game, scenes, dispose: disposePhaser } = await createPhaserEngine(phaserConfig);
@@ -72,7 +80,6 @@ export async function createPhaserLayer(backend: BackendLayer) {
   function destroyGroupObject(id: string | number) {
     const group = polygonRegistry.get(id);
     if (!group) return;
-
     group.getChildren().forEach((child) => {
       child.disableInteractive();
 
@@ -95,10 +102,12 @@ export async function createPhaserLayer(backend: BackendLayer) {
     utils: { ...backend.utils, getSpriteObject, getGroupObject, destroySpriteObject, destroyGroupObject },
     game,
     scene: { ...scenes.Main, posWidth: POS_WIDTH, posHeight: POS_HEIGHT },
+    scenes,
   };
 
   // --- SYSTEMS --------------------------------------------------------------------
   createPhaserSystems(context);
+  createCamera(context, phaserConfig);
 
   return context;
 }

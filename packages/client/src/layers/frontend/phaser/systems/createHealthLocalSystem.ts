@@ -27,16 +27,18 @@ export function createHealthLocalSystem(phaser: PhaserLayer) {
       OnFire,
       DamagedCannons,
       SailPosition,
+      HealthBackend,
     },
     utils: { getSpriteObject, getPlayerEntity },
     scene: { config },
-    godIndex,
+    godEntity,
   } = phaser;
 
   defineEnterSystem(world, [Has(Health), Not(HealthLocal)], ({ entity, value }) => {
     const health = value[0]?.value as number | undefined;
     if (health == undefined) return;
     setComponent(HealthLocal, entity, { value: health });
+    setComponent(HealthBackend, entity, { value: health });
   });
 
   defineEnterSystem(world, [Has(OnFire), Not(OnFireLocal)], ({ entity, value }) => {
@@ -92,9 +94,9 @@ export function createHealthLocalSystem(phaser: PhaserLayer) {
       shipObject.off("pointerover");
       shipObject.off("pointerout");
 
-      shipObject.on("pointerdown", () => setComponent(SelectedShip, godIndex, { value: update.entity }));
-      shipObject.on("pointerover", () => setComponent(HoveredShip, godIndex, { value: update.entity }));
-      shipObject.on("pointerout", () => removeComponent(HoveredShip, godIndex));
+      shipObject.on("pointerdown", () => setComponent(SelectedShip, godEntity, { value: update.entity }));
+      shipObject.on("pointerover", () => setComponent(HoveredShip, godEntity, { value: update.entity }));
+      shipObject.on("pointerout", () => removeComponent(HoveredShip, godEntity));
     }
   });
 }

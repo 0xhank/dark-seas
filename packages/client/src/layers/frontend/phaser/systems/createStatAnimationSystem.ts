@@ -2,6 +2,7 @@ import { tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
 import {
   defineComponentSystem,
   defineUpdateSystem,
+  EntityIndex,
   getComponentValueStrict,
   Has,
   HasValue,
@@ -9,8 +10,9 @@ import {
 } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
 import { getSternLocation, midpoint } from "../../../../utils/trig";
+import { Category } from "../../../backend/sound/library";
 import { colors } from "../../react/styles/global";
-import { Animations, MOVE_LENGTH, RenderDepth } from "../constants";
+import { Animations, CANNON_SHOT_DELAY, MOVE_LENGTH, RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";
 import { renderFiringArea } from "./renderShip";
 
@@ -20,7 +22,7 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
     components: { Position, Rotation, Length, Cannon, OwnedBy, HealthLocal, OnFireLocal, DamagedCannonsLocal },
     scene: { phaserScene, posWidth, posHeight },
 
-    utils: { getSpriteObject, destroySpriteObject, getGroupObject },
+    utils: { getSpriteObject, destroySpriteObject, getGroupObject, destroyGroupObject, isMyShip, playSound },
   } = layer;
 
   // ON FIRE UPDATES
@@ -89,15 +91,57 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
     object.setPosition(coord.x, coord.y);
   }
 
-  defineUpdateSystem(world, [Has(HealthLocal)], (update) => {
-    if (update.value[0]?.value !== 0) return;
+  defineUpdateSystem(world, [Has(HealthLocal)], ({ entity: shipEntity, value: [newComponent, oldComponent] }) => {
+    if (!newComponent?.value || !oldComponent?.value) return;
+
+    if (newComponent.value > oldComponent.value) {
+      flashGreen(shipEntity);
+    }
+
+    if (newComponent?.value !== 0) return;
 
     for (let i = 0; i < 4; i++) {
-      const spriteId = `${update.entity}-fire-${i}`;
+      const spriteId = `${shipEntity}-fire-${i}`;
       destroySpriteObject(spriteId);
     }
   });
 
+  async function flashGreen(shipEntity: EntityIndex) {
+    const object = getSpriteObject(shipEntity);
+    const delay = 500;
+
+    phaserScene.time.addEvent({
+      delay: CANNON_SHOT_DELAY,
+      callback: function () {
+        object.setTint(colors.greenHex);
+        if (isMyShip(shipEntity)) playSound("success_notif", Category.UI);
+      },
+      callbackScope: phaserScene,
+    });
+
+    phaserScene.time.addEvent({
+      delay: delay + CANNON_SHOT_DELAY,
+      callback: function () {
+        object.clearTint();
+      },
+      callbackScope: phaserScene,
+    });
+    phaserScene.time.addEvent({
+      delay: delay * 2 + CANNON_SHOT_DELAY,
+      callback: function () {
+        object.setTint(colors.greenHex);
+      },
+      callbackScope: phaserScene,
+    });
+
+    phaserScene.time.addEvent({
+      delay: delay * 3 + CANNON_SHOT_DELAY,
+      callback: function () {
+        object.clearTint();
+      },
+      callbackScope: phaserScene,
+    });
+  }
   // BROKEN CANNON UPDATES
 
   defineComponentSystem(world, DamagedCannonsLocal, (update) => {
@@ -105,9 +149,13 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
 
     // exit or enter
     if (update.value[0] == undefined || update.value[1] == undefined) return;
-
     const improvement = update.value[0].value - update.value[1].value < 0;
     if (improvement && update.value[0].value !== 0) return;
+
+    flashCannons(shipEntity, improvement ? colors.greenHex : colors.blackHex);
+  });
+
+  async function flashCannons(shipEntity: EntityIndex, tint: number) {
     const groupId = `flash-cannons-${shipEntity}`;
     const group = getGroupObject(groupId, true);
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
@@ -118,27 +166,30 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
       const position = getComponentValueStrict(Position, shipEntity);
       const length = getComponentValueStrict(Length, shipEntity).value;
       const rotation = getComponentValueStrict(Rotation, shipEntity).value;
-      const rangeColor = { tint: improvement ? colors.greenHex : colors.blackHex, alpha: 0.3 };
+      const rangeColor = { tint, alpha: 0.5 };
       renderFiringArea(layer, group, position, rotation, length, cannonEntity, rangeColor);
     });
 
     phaserScene.tweens.add({
       targets: group.getChildren(),
       props: {
-        alpha: 0.3,
+        alpha: {
+          from: 0,
+          to: 0.6,
+        },
       },
-      ease: Phaser.Math.Easing.Sine.Out,
+      ease: Phaser.Math.Easing.Linear,
       duration: duration,
       repeat: repeat,
       yoyo: true,
     });
 
     phaserScene.time.addEvent({
-      delay: duration * 3,
+      delay: duration * 4,
       callback: function () {
-        group.clear(true, true);
+        destroyGroupObject(groupId);
       },
       callbackScope: phaserScene,
     });
-  });
+  }
 }

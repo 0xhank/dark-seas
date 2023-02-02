@@ -6,9 +6,10 @@ import "solecs/System.sol";
 import { getAddressById } from "solecs/utils.sol";
 // Components
 import { NameComponent, ID as NameComponentID } from "../components/NameComponent.sol";
+import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
-import { Coord } from "../libraries/DSTypes.sol";
+import { Coord, GameConfig, GodID } from "../libraries/DSTypes.sol";
 
 // Libraries
 import "../libraries/LibUtils.sol";
@@ -20,6 +21,13 @@ contract PlayerSpawnSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+    require(
+      block.timestamp < gameConfig.startTime + gameConfig.entryCutoff,
+      "PlayerSpawnSystem: entry period has ended"
+    );
     require(!LibUtils.playerAddrExists(components, msg.sender), "PlayerSpawnSystem: player has already spawned");
 
     (string memory name, Coord memory location) = abi.decode(arguments, (string, Coord));

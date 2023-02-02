@@ -1,9 +1,9 @@
-import { getComponentValue, setComponent } from "@latticexyz/recs";
-import { map, merge, of } from "rxjs";
+import { getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
+import { map, merge } from "rxjs";
 import styled from "styled-components";
 import { registerUIComponent } from "../../engine";
-import { Button, colors } from "../../styles/global";
-import { Compass } from "./Compass";
+import { ShipAttributeTypes } from "../../types";
+import ShipAttribute from "../OverviewComponents/ShipAttribute";
 
 export function registerTopBar() {
   registerUIComponent(
@@ -20,45 +20,35 @@ export function registerTopBar() {
     (layers) => {
       const {
         network: {
-          components: { Name },
+          components: { Name, Booty },
           network: { connectedAddress },
           utils: { getPlayerEntity },
         },
-        backend: {
-          godIndex,
-          components: { LeaderboardOpen },
-        },
       } = layers;
 
-      return merge(of(0), Name.update$).pipe(
+      return merge(Name.update$, Booty.update$).pipe(
         map(() => {
-          const dir: number = 0;
-          const speed: number = 0;
-
           const playerEntity = getPlayerEntity(connectedAddress.get());
+          if (!playerEntity) return;
+          const booty = Number(getComponentValueStrict(Booty, playerEntity).value);
           const name = playerEntity ? getComponentValue(Name, playerEntity)?.value : undefined;
-          const openLeaderboard = () => setComponent(LeaderboardOpen, godIndex, { value: true });
 
           if (!name) return null;
           return {
             name,
-            dir,
-            speed,
-            openLeaderboard,
+            booty,
           };
         })
       );
     },
-    ({ name, dir, speed, openLeaderboard }) => {
+    ({ name, booty }) => {
       return (
         <TopBarContainer>
-          <Compass direction={dir} speed={speed} />
-          <div style={{ display: "flex", flexDirection: "column", textAlign: "left", gap: "8px" }}>
-            <span style={{ fontWeight: "bolder", fontSize: "1.5rem", lineHeight: "2rem" }}>Captain {name}'s Log</span>
-            <Button onClick={openLeaderboard} style={{ width: "40px", background: colors.thickGlass }}>
-              {" "}
-              <img src={"/icons/podium.svg"} style={{ width: "100%" }} />
-            </Button>
+          <div style={{ display: "flex", flexDirection: "column", textAlign: "left", gap: "12px" }}>
+            <span style={{ fontWeight: "bolder", fontSize: "1.5rem", lineHeight: "2rem" }}>Captain {name}</span>
+            <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "6px" }}>
+              <ShipAttribute attributeType={ShipAttributeTypes.Booty} attribute={booty} />
+            </div>
           </div>
         </TopBarContainer>
       );
@@ -68,8 +58,8 @@ export function registerTopBar() {
 
 const TopBarContainer = styled.div`
   position: absolute;
-  left: 20;
-  top: 20;
+  left: 12;
+  top: 12;
   bottom: 0;
   display: flex;
   align-items: center;

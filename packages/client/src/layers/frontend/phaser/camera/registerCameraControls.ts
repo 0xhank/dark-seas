@@ -1,8 +1,9 @@
+import { PhaserEngineConfig, ScenesConfig } from "@latticexyz/phaserx/dist/types";
 import { filterNullish } from "@latticexyz/utils";
 import { filter, fromEvent, interval, map, merge, scan, Subscription, throttleTime } from "rxjs";
 import { PhaserLayer } from "../types";
 
-export function registerCameraControls(layer: PhaserLayer) {
+export function registerCameraControls<S extends ScenesConfig>(layer: PhaserLayer, config: PhaserEngineConfig<S>) {
   const {
     scene: { input, camera, phaserScene },
     api: {
@@ -31,8 +32,8 @@ export function registerCameraControls(layer: PhaserLayer) {
       const zoom = camera.phaserCamera.zoom;
       const zoomScale = deltaY < 0 ? 1.08 : 0.92;
       const newZoom = zoom * zoomScale; // deltaY>0 means we scrolled down
-      if (deltaY >= 0 && newZoom < 0.25) return;
-      if (deltaY <= 0 && newZoom > 2) return;
+      if (deltaY >= 0 && newZoom < config.cameraConfig.minZoom) return;
+      if (deltaY <= 0 && newZoom > config.cameraConfig.maxZoom) return;
 
       const mouseX = pointer.x;
       const mouseY = pointer.y;
@@ -49,15 +50,6 @@ export function registerCameraControls(layer: PhaserLayer) {
       const scrollY = camera.phaserCamera.y + pixelsDifferenceY * sideRatioY;
       // camera.setScroll(scrollX, scrollY);
       camera.setZoom(newZoom);
-    }
-  );
-
-  input.onKeyPress(
-    (keys) => keys.has("F"),
-    () => {
-      const isFullscreen = !!document.fullscreenElement;
-      const body = document.getElementsByTagName("body")[0];
-      isFullscreen ? document.exitFullscreen() : body.requestFullscreen({ navigationUI: "hide" });
     }
   );
 
