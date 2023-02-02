@@ -11,15 +11,15 @@ export const ui: SoundAsset = {
     src: "/sounds/ui/button-hover.mp3",
     volume: 0.5,
   },
-  success: {
-    src: "/sounds/ui/success.mp3",
+  success_notif: {
+    src: "/sounds/ui/success.wav",
     volume: 0.5,
   },
   button_hover: {
     src: "/sounds/ui/button-hover.mp3",
     volume: 0.5,
   },
-  success_notif: {
+  success: {
     src: "/sounds/ui/success-notif.wav",
     volume: 0.1,
   },

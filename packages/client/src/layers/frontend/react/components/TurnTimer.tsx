@@ -13,7 +13,7 @@ export function registerTurnTimer() {
     {
       rowStart: 1,
       rowEnd: 1,
-      colStart: 6,
+      colStart: 5,
       colEnd: 9,
     },
     (layers) => {
