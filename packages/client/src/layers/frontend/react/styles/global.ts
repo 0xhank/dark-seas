@@ -5,6 +5,7 @@ const lightGold = "hsl(45,100%,60%)";
 const gold = "hsl(45,100%,54.1%)";
 const darkGold = "hsl(45,100%,31%)";
 const lightBrown = "hsl(30,46.9%,48%)";
+const brown = "hsl(30,100%,35%)";
 const darkBrown = "hsl(28,100%,21%)";
 const white = "hsl(0,0%,100%)";
 const black = "hsl(0,0%,0%)";
@@ -36,6 +37,7 @@ export const colors = {
   gold,
   lightGold,
   lightBrown,
+  brown,
   darkBrown,
   white,
   black,
