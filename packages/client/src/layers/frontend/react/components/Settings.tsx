@@ -1,6 +1,7 @@
-import { EntityIndex, getComponentValue } from "@latticexyz/recs";
+import { EntityIndex, getComponentValue, setComponent } from "@latticexyz/recs";
 import { map, merge, of } from "rxjs";
 import styled from "styled-components";
+import { ModalType } from "../../../../types";
 import { registerUIComponent } from "../engine";
 import { Button, Img } from "../styles/global";
 
@@ -19,29 +20,39 @@ export function registerSettings() {
     (layers) => {
       const {
         backend: {
-          utils: { muteSfx, unmuteSfx, playMusic, muteMusic, playSound },
+          utils: { muteSfx, unmuteSfx, playMusic, muteMusic },
         },
         phaser: {
-          components: { Volume },
+          components: { Volume, ModalOpen },
           godEntity,
         },
       } = layers;
 
       return merge(of(0), Volume.update$).pipe(
         map(() => {
+          const openLeaderboard = () => setComponent(ModalOpen, godEntity, { value: ModalType.LEADERBOARD });
+          const openTutorial = () => setComponent(ModalOpen, godEntity, { value: ModalType.TUTORIAL });
+
           const volume = getComponentValue(Volume, godEntity)?.value || 0;
           const musicVolume = getComponentValue(Volume, 1 as EntityIndex)?.value || 0;
-          return { volume, musicVolume, muteSfx, unmuteSfx, playMusic, muteMusic };
+          return { volume, musicVolume, muteSfx, unmuteSfx, playMusic, muteMusic, openLeaderboard, openTutorial };
         })
       );
     },
-    ({ volume, musicVolume, muteSfx, unmuteSfx, playMusic, muteMusic }) => (
+    ({ volume, musicVolume, muteSfx, unmuteSfx, playMusic, muteMusic, openLeaderboard, openTutorial }) => (
       <SettingsContainer>
+        <Button onClick={openLeaderboard} style={{ width: "40px" }}>
+          <Img src={"/icons/podium.svg"} />
+        </Button>
         <Button onClick={volume ? muteSfx : unmuteSfx} style={{ width: "40px", height: "40px" }}>
-          <Img src={volume ? "/icons/mute.svg" : "/icons/unmute.svg"}></Img>
+          <Img src={volume ? "/icons/unmute.svg" : "/icons/mute.svg"}></Img>
         </Button>
         <Button onClick={() => (musicVolume ? muteMusic() : playMusic(1))} style={{ width: "40px", height: "40px" }}>
-          <Img src={musicVolume ? "/icons/mute-music.svg" : "/icons/unmute-music.svg"}></Img>
+          <Img src={musicVolume ? "/icons/unmute-music.svg" : "/icons/mute-music.svg"}></Img>
+        </Button>
+
+        <Button onClick={openTutorial} style={{ width: "40px" }}>
+          <Img src={"/icons/help.svg"} />
         </Button>
       </SettingsContainer>
     )
@@ -56,7 +67,7 @@ const SettingsContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-  z-index: 999;
+  z-index: 499;
   height: fit-content;
   // margin-top: auto;
   // margin-bottom: auto;
