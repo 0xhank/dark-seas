@@ -36,7 +36,10 @@ export function Tutorial() {
         <TutorialImg src="/img/tutorial/ship_stats.png"></TutorialImg>
         <div style={{ display: "flex", width: "80%", gap: "6px" }}>
           <P>If your ship takes special damage, repair it from the status bar.</P>
-          <TutorialImg src="/img/tutorial/special_actions.png" style={{ width: "40%" }}></TutorialImg>
+          <TutorialImg
+            src="/img/tutorial/special_actions.png"
+            style={{ width: "40%", height: "fit-content" }}
+          ></TutorialImg>
         </div>
       </SpecialActionContainer>
     </TutorialContainer>
