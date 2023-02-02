@@ -9,6 +9,6 @@ export const move: SoundAsset = {
   },
   whoosh: {
     src: "/sounds/move/whoosh.wav",
-    volume: FULL_VOLUME,
+    volume: BASE_VOLUME,
   },
 };

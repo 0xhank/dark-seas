@@ -53,15 +53,6 @@ export function registerCameraControls<S extends ScenesConfig>(layer: PhaserLaye
     }
   );
 
-  input.onKeyPress(
-    (keys) => keys.has("F"),
-    () => {
-      const isFullscreen = !!document.fullscreenElement;
-      const body = document.getElementsByTagName("body")[0];
-      isFullscreen ? document.exitFullscreen() : body.requestFullscreen({ navigationUI: "hide" });
-    }
-  );
-
   const getCameraMovementFromPointerPosition = (event: MouseEvent) => {
     const cameraMovement = { x: 0, y: 0 };
     if (event.clientX < EDGE_PIXEL_SIZE) cameraMovement.x = -1;

@@ -201,10 +201,14 @@ export async function createBackendUtilities(
     return ret;
   }
 
+  const soundRegistry = new Map<string, Howl>();
+  const musicRegistry = new Map<string, Howl>();
+
   function playSound(id: string, category: Category, loop = false, fade?: number) {
+    const volume = getComponentValueStrict(components.Volume, godEntity).value;
     const sound = new Howl({
       src: [soundLibrary[category][id].src],
-      volume: soundLibrary[category][id].volume,
+      volume: soundLibrary[category][id].volume * volume,
       preload: true,
       loop: loop,
     });
@@ -217,11 +221,57 @@ export async function createBackendUtilities(
     } else {
       sound.play();
     }
+    soundRegistry.set(id, sound);
     return sound;
   }
 
-  function startEnvironmentSoundSystem() {
+  function unmuteSfx() {
+    setComponent(components.Volume, godEntity, { value: 1 });
+    localStorage.setItem("volume", "1");
     playSound("ocean", Category.Ambience, true);
+  }
+  function muteSfx() {
+    [...soundRegistry.values()].forEach((entry) => {
+      entry.pause();
+    });
+    setComponent(components.Volume, godEntity, { value: 0 });
+    localStorage.setItem("volume", "0");
+  }
+
+  function startEnvironmentSoundSystem() {
+    const volumeStr = localStorage.getItem("volume");
+    const volume = volumeStr ? Number(volumeStr) : 1;
+    setComponent(components.Volume, godEntity, { value: volume });
+
+    playSound("ocean", Category.Ambience, true);
+  }
+
+  function playMusic(vol?: number) {
+    if (vol !== undefined) {
+      localStorage.setItem("music-volume", `${vol}`);
+    }
+    const volumeStr = localStorage.getItem("music-volume");
+    const volume = vol || volumeStr ? Number(volumeStr) : 1;
+    setComponent(components.Volume, 1 as EntityIndex, { value: volume });
+
+    const music = new Howl({
+      src: [soundLibrary[Category.Music]["sailing"].src],
+      volume: volume,
+      preload: true,
+      loop: true,
+    });
+
+    music.volume();
+    music.play();
+    musicRegistry.set("base", music);
+  }
+
+  function muteMusic() {
+    [...musicRegistry.values()].forEach((entry) => {
+      entry.pause();
+    });
+    setComponent(components.Volume, 1 as EntityIndex, { value: 0 });
+    localStorage.setItem("music-volume", "0");
   }
 
   function handleNewActionsSpecial(action: ActionType, shipEntity: EntityIndex) {
@@ -279,6 +329,7 @@ export async function createBackendUtilities(
   }
 
   startEnvironmentSoundSystem();
+  playMusic();
 
   return {
     checkActionPossible,
@@ -294,5 +345,9 @@ export async function createBackendUtilities(
     playSound,
     handleNewActionsCannon,
     handleNewActionsSpecial,
+    muteSfx,
+    unmuteSfx,
+    playMusic,
+    muteMusic,
   };
 }

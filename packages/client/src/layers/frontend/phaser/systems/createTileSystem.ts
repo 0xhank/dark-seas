@@ -33,7 +33,6 @@ export function createTileSystem(phaser: PhaserLayer) {
         if (!inWorld(coord, worldHeight)) continue;
         const tile = getWhirlpoolTile(coord, perlinSeed, adjustment);
         if (tile) {
-          // console.log("placing whirlpool at,", coord.x, coord.y);
           Main.putTileAt(adjustedCoord, tile, "Foreground");
 
           continue;

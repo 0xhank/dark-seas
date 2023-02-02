@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg fill="#000000" width="800px" height="800px" viewBox="0 0 24 24" id="music-disable" data-name="Flat Line"
+    xmlns="http://www.w3.org/2000/svg" class="icon flat-line">
+    <circle id="secondary" cx="9.5" cy="17.5" r="3.5" style="fill: rgb(44, 169, 188); stroke-width: 2;"></circle>
+    <path id="primary" d="M13,17.5V3a25.84,25.84,0,0,0,3.44,3c1.66,1.07,1.91,2.76,1.15,5"
+        style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;">
+    </path>
+    <circle id="primary-2" data-name="primary" cx="9.5" cy="17.5" r="3.5"
+        style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;">
+    </circle>
+    <line id="primary-3" data-name="primary" x1="19" y1="21" x2="5" y2="3"
+        style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;">
+    </line>
+</svg>

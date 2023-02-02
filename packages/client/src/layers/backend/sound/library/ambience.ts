@@ -5,6 +5,6 @@ const FULL_VOLUME = 1;
 export const ambience: SoundAsset = {
   ocean: {
     src: "/sounds/ambience/ocean_waves.wav",
-    volume: BASE_VOLUME,
+    volume: 0.3,
   },
 };
