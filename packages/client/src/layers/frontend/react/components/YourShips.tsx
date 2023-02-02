@@ -5,7 +5,7 @@ import {
   getComponentValueStrict,
   Has,
   HasValue,
-  removeComponent,
+  NotValue,
   runQuery,
 } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
@@ -15,7 +15,7 @@ import { ActionType, Phase } from "../../../../types";
 import { Category } from "../../../backend/sound/library";
 import { DELAY } from "../../constants";
 import { registerUIComponent } from "../engine";
-import { colors, ConfirmButton, Container, InternalContainer } from "../styles/global";
+import { colors, ConfirmButton, Container } from "../styles/global";
 import { YourShip } from "./YourShip";
 
 export function registerYourShips() {
@@ -64,11 +64,34 @@ export function registerYourShips() {
             OnFireLocal: OnFire,
             DamagedCannonsLocal: DamagedCannons,
             SailPositionLocal: SailPosition,
+            ExecutedActions,
           },
           api: { commitMove, revealMove, submitActions },
-          utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, playSound },
+          utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, playSound, clearComponent },
         },
       } = layers;
+
+      const handleSubmitActions = () => {
+        const shipsAndActions = getPlayerShipsWithActions();
+        if (!shipsAndActions) return;
+        playSound("click", Category.UI);
+
+        submitActions(shipsAndActions);
+      };
+
+      const handleSubmitCommitment = () => {
+        const shipsAndMoves = getPlayerShipsWithMoves();
+        if (!shipsAndMoves) return;
+
+        playSound("click", Category.UI);
+
+        commitMove(shipsAndMoves);
+      };
+
+      const handleSubmitExecute = () => {
+        const encoding = getComponentValue(EncodedCommitment, godEntity)?.value;
+        if (encoding) revealMove(encoding);
+      };
 
       return merge(
         clock.time$,
@@ -104,166 +127,166 @@ export function registerYourShips() {
           const playerEntity = getPlayerEntity(connectedAddress.get());
           if (!playerEntity || !getComponentValue(Player, playerEntity)) return null;
 
-          const lastMove = getComponentValue(LastMove, playerEntity)?.value;
-          const lastAction = getComponentValue(LastAction, playerEntity)?.value;
+          const moved = getComponentValue(LastMove, playerEntity)?.value == currentTurn;
+          const acted = getComponentValue(LastAction, playerEntity)?.value == currentTurn;
 
           const selectedShip = getComponentValue(SelectedShip, godEntity)?.value as EntityIndex | undefined;
 
-          const yourShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
+          const yourShips = [
+            ...runQuery([
+              Has(Ship),
+              HasValue(OwnedBy, { value: world.entities[playerEntity] }),
+              NotValue(HealthLocal, { value: 0 }),
+            ]),
+          ];
 
           const selectedMoves = [...getComponentEntities(SelectedMove)];
+          const actionsExecuted = [...getComponentEntities(ExecutedActions)].length > 0;
           const selectedActions = [...getComponentEntities(SelectedActions)].map((entity) =>
             getComponentValueStrict(SelectedActions, entity)
           );
 
+          const tooEarly = getPhase() !== phase;
           const disabled =
-            phase == Phase.Commit
+            tooEarly ||
+            (phase == Phase.Commit
               ? selectedMoves.length == 0
-              : selectedActions.length == 0 ||
-                selectedActions.every((arr) => arr.actionTypes.every((elem) => elem == ActionType.None));
+              : !actionsExecuted &&
+                (selectedActions.length == 0 ||
+                  selectedActions.every((arr) => arr.actionTypes.every((elem) => elem == ActionType.None))));
 
-          const handleSubmitActions = () => {
-            const shipsAndActions = getPlayerShipsWithActions();
-            if (!shipsAndActions) return;
-            playSound("click", Category.UI);
+          const actionExecuting = !![...runQuery([Has(Action)])].find((entity) => {
+            const state = getComponentValueStrict(Action, entity).state;
+            if (state == ActionState.Requested) return true;
+            if (state == ActionState.Executing) return true;
+            if (state == ActionState.WaitingForTxEvents) return true;
+            return false;
+          });
+          const encodedCommitment = getComponentValue(EncodedCommitment, godEntity)?.value;
 
-            submitActions(shipsAndActions);
-          };
+          const movesComplete = yourShips.every((ship) => {
+            const committedMove = getComponentValue(CommittedMove, ship)?.value;
+            const selectedMove = getComponentValue(SelectedMove, ship)?.value;
+            return committedMove == selectedMove;
+          });
 
-          const handleSubmitCommitment = () => {
-            const shipsAndMoves = getPlayerShipsWithMoves();
-            if (!shipsAndMoves) return;
+          const removeActions = () => clearComponent(SelectedActions);
 
-            playSound("click", Category.UI);
-
-            commitMove(shipsAndMoves);
-          };
-
-          const handleSubmitExecute = () => {
-            const encoding = getComponentValue(EncodedCommitment, godEntity)?.value;
-            if (encoding) revealMove(encoding);
-          };
-
-          const RevealButtons = () => {
-            const encodedCommitment = getComponentValue(EncodedCommitment, godEntity)?.value;
-
-            if (lastMove == currentTurn)
-              return <Success background={colors.greenGlass}>Move reveal successful!</Success>;
-            if (!encodedCommitment) return <Success background={colors.glass}>No moves to reveal</Success>;
-            return (
-              <ConfirmButton style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmitExecute}>
-                Reveal Moves
-              </ConfirmButton>
-            );
-          };
-
-          const CommitButtons = () => {
-            const movesComplete = yourShips.every((ship) => {
-              const committedMove = getComponentValue(CommittedMove, ship)?.value;
-              const selectedMove = getComponentValue(SelectedMove, ship)?.value;
-              return committedMove == selectedMove;
-            });
-
-            const msg = "Confirm Moves";
-            const committedMoves = getComponentValue(EncodedCommitment, godEntity)?.value;
-
-            if (movesComplete && committedMoves) {
-              return <Success background="hsla(120, 100%, 50%, .5)">Moves Successful!</Success>;
-            }
-            return (
-              <>
-                <ConfirmButton
-                  disabled={disabled}
-                  style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }}
-                  onClick={handleSubmitCommitment}
-                >
-                  {msg}
-                </ConfirmButton>
-                <ConfirmButton
-                  disabled={disabled}
-                  noGoldBorder
-                  onClick={() => {
-                    yourShips.map((entity) => removeComponent(SelectedMove, entity));
-                    removeComponent(SelectedShip, godEntity);
-                  }}
-                  style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}
-                >
-                  Clear
-                </ConfirmButton>
-              </>
-            );
-          };
-
-          const ActionButtons = () => {
-            if (lastAction == currentTurn) {
-              return <Success background="hsla(120, 100%, 50%, .5)">Actions Successful</Success>;
-            } else {
-              return (
-                <>
-                  <ConfirmButton
-                    disabled={disabled}
-                    style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }}
-                    onClick={handleSubmitActions}
-                  >
-                    Submit Actions
-                  </ConfirmButton>
-                  <ConfirmButton
-                    disabled={disabled}
-                    noGoldBorder
-                    onClick={() => {
-                      yourShips.map((entity) => removeComponent(SelectedActions, entity));
-                      removeComponent(SelectedShip, godEntity);
-                    }}
-                    style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}
-                  >
-                    Clear
-                  </ConfirmButton>
-                </>
-              );
-            }
-          };
-
-          const ConfirmButtons = () => {
-            let content: JSX.Element | null = null;
-            const actionExecuting = !![...runQuery([Has(Action)])].find((entity) => {
-              const state = getComponentValueStrict(Action, entity).state;
-              if (state == ActionState.Requested) return true;
-              if (state == ActionState.Executing) return true;
-              if (state == ActionState.WaitingForTxEvents) return true;
-              return false;
-            });
-            if (actionExecuting) content = <Success background={colors.waiting}>Executing...</Success>;
-            else if (phase == Phase.Reveal) content = <RevealButtons />;
-            else if (phase == Phase.Commit) content = <CommitButtons />;
-            else if (phase == Phase.Action) content = <ActionButtons />;
-
-            return <ConfirmButtonsContainer>{content}</ConfirmButtonsContainer>;
-          };
+          const removeMoves = () => clearComponent(SelectedMove);
 
           return {
             layers,
             yourShips,
             selectedShip,
             phase,
-            ConfirmButtons,
+            actionExecuting,
+            encodedCommitment,
+            movesComplete,
+            handleSubmitExecute,
+            moved,
+            acted,
+            disabled,
+            handleSubmitCommitment,
+            handleSubmitActions,
+            removeActions,
+            removeMoves,
           };
         })
       );
     },
     // render
     (props) => {
-      const { layers, yourShips, selectedShip, phase, ConfirmButtons } = props;
+      const {
+        layers,
+        yourShips,
+        selectedShip,
+        phase,
+        moved,
+        acted,
+        disabled,
+        handleSubmitCommitment,
+        handleSubmitActions,
+        actionExecuting,
+        encodedCommitment,
+        movesComplete,
+        handleSubmitExecute,
+        removeActions,
+        removeMoves,
+      } = props;
+
+      const RevealButtons = () => {
+        if (moved) return <Success background={colors.greenGlass}>Move reveal successful!</Success>;
+        if (!encodedCommitment) return <Success background={colors.glass}>No moves to reveal</Success>;
+        return (
+          <ConfirmButton style={{ fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmitExecute}>
+            Reveal Moves
+          </ConfirmButton>
+        );
+      };
+
+      const CommitButtons = () => {
+        const msg = "Confirm Moves";
+
+        if (movesComplete && encodedCommitment) {
+          return <Success background="hsla(120, 100%, 50%, .5)">Moves Successful!</Success>;
+        }
+        return (
+          <>
+            <ConfirmButton
+              style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }}
+              onClick={handleSubmitCommitment}
+            >
+              {msg}
+            </ConfirmButton>
+            <ConfirmButton
+              noGoldBorder
+              onClick={removeMoves}
+              style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}
+            >
+              Clear
+            </ConfirmButton>
+          </>
+        );
+      };
+
+      const ActionButtons = () => {
+        if (acted) {
+          return <Success background="hsla(120, 100%, 50%, .5)">Actions Successful</Success>;
+        } else {
+          return (
+            <>
+              <ConfirmButton style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmitActions}>
+                Submit Actions
+              </ConfirmButton>
+              <ConfirmButton
+                noGoldBorder
+                onClick={removeActions}
+                style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}
+              >
+                Clear
+              </ConfirmButton>
+            </>
+          );
+        }
+      };
+      let content = null;
+      if (actionExecuting) content = <Success background={colors.waiting}>Executing...</Success>;
+      else if (phase == Phase.Reveal) content = <RevealButtons />;
+      else if (phase == Phase.Commit) content = <CommitButtons />;
+      else if (phase == Phase.Action) content = <ActionButtons />;
 
       return (
-        <Container style={{ justifyContent: "flex-end" }}>
-          <InternalContainer style={{ gap: "24px", height: "auto", padding: "0", background: "transparent" }}>
-            <MoveButtons>
-              {yourShips.map((ship) => (
+        <Container style={{ justifyContent: "flex-end", padding: "0" }}>
+          <MoveButtons>
+            {yourShips.length == 0 ? (
+              <span style={{ color: colors.white, fontSize: "2rem" }}>You have no ships!</span>
+            ) : (
+              yourShips.map((ship) => (
                 <YourShip key={`ship-${ship}`} layers={layers} ship={ship} selectedShip={selectedShip} phase={phase} />
-              ))}
-            </MoveButtons>
-            <ConfirmButtons />
-          </InternalContainer>
+              ))
+            )}
+            <ConfirmButtonsContainer hide={disabled}>{disabled ? null : content}</ConfirmButtonsContainer>
+          </MoveButtons>
         </Container>
       );
     }
@@ -271,34 +294,39 @@ export function registerYourShips() {
 }
 
 const Success = styled.div<{ background: string }>`
-  background: ${({ background }) => background};
   color: ${colors.white};
   border-radius: 6px;
   width: 100%;
-  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
 `;
 const MoveButtons = styled.div`
-  flex: 5;
-  display: flex;
-  gap: 8px;
-  font-size: 1rem;
-  font-weight: 700;
-  max-width: 90%;
-`;
-
-const ConfirmButtonsContainer = styled.div`
-  flex: 1;
+  height: auto;
+  background: ${colors.darkBrown};
+  border-radius: 20px 20px 0 0;
+  position: relative;
   display: flex;
   justify-content: center;
-  flex-direction: column;
-  gap: 5px;
+  max-width: 100vw;
+  gap: 12px;
+  padding: 12px;
+  font-weight: 700;
 `;
 
-const Instructions = styled.div`
-  font-size: 1.25rem;
-  line-height: 1.25rem;
-  // text-align: left;
+const ConfirmButtonsContainer = styled.div<{ hide: boolean }>`
+  position: absolute;
+  margin: 0 auto;
+  top: 6px;
+  z-index: -1;
+  display: flex;
+  gap: 6px;
+  background: ${colors.darkBrown};
+  min-height: 70px;
+  border-radius: 6px 6px 0 0;
+  transform: ${({ hide }) => (hide ? "translateY(0)" : "translateY(-70px)")};
+  transition: all 0.2s ease-out;
+  width: 500px;
+
+  padding: 6px;
 `;

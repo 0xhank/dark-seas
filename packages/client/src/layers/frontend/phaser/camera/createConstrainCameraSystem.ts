@@ -36,9 +36,6 @@ export function createConstrainCameraSystem(layer: PhaserLayer) {
       bounds.top = pixelY - bufferPixels;
     }
     if (!boundsChanged) return;
-    console.log(`new boundaries: ${bounds.left}, ${bounds.top}, ${bounds.right}, ${bounds.bottom}`);
-    console.log(`base: ${bounds.left}, ${bounds.top}, ${bounds.right - bounds.left}, ${bounds.bottom - bounds.top}`);
-
     camera.phaserCamera.setBounds(bounds.left, bounds.top, bounds.right - bounds.left, bounds.bottom - bounds.top);
 
     setComponent(MapBounds, godEntity, {

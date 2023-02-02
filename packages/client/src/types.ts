@@ -122,3 +122,8 @@ export enum Sprites {
   ShipBlueMajor,
   ShipBlueMinor,
 }
+
+export enum ModalType {
+  LEADERBOARD,
+  TUTORIAL,
+}

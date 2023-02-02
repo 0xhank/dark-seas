@@ -1,7 +1,8 @@
-import { EntityID, getComponentValue, Has, hasComponent, runQuery } from "@latticexyz/recs";
+import { EntityID, getComponentValue, Has, hasComponent, runQuery, setComponent } from "@latticexyz/recs";
 import { computedToStream } from "@latticexyz/utils";
 import { useState } from "react";
 import { map, merge } from "rxjs";
+import { ModalType } from "../../../../types";
 import { registerUIComponent } from "../engine";
 import { Button, colors, Input } from "../styles/global";
 
@@ -22,6 +23,7 @@ export function registerJoinGame() {
           world,
         },
         backend: {
+          components: { ModalOpen },
           actions: { Action },
           api: { spawnPlayer },
           godEntity,
@@ -51,18 +53,18 @@ export function registerJoinGame() {
           if (!gameConfig) return;
           const closeTime = Number(gameConfig.startTime) + Number(gameConfig.entryCutoff);
           const entryWindowClosed = closeTime <= clock.currentTime / 1000;
-          console.log("game config", Number(gameConfig.startTime) + Number(gameConfig.entryCutoff));
-          console.log("current time:", clock.currentTime / 1000);
-          console.log("entry window closed:", entryWindowClosed);
+
+          const openTutorial = () => setComponent(ModalOpen, godEntity, { value: ModalType.TUTORIAL });
           return {
             spawnAction,
             spawnPlayer,
             entryWindowClosed,
+            openTutorial,
           };
         })
       );
     },
-    ({ spawnAction, spawnPlayer, entryWindowClosed }) => {
+    ({ spawnAction, spawnPlayer, entryWindowClosed, openTutorial }) => {
       const [playerName, setPlayerName] = useState("");
       const findSpawnButtonDisabled = playerName.length === 0 || entryWindowClosed;
 
@@ -127,6 +129,7 @@ export function registerJoinGame() {
                 Spawning...
               </Button>
             )}
+            <Button onClick={openTutorial}>How to Play</Button>
           </div>
         </div>
       );

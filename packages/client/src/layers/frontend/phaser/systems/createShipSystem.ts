@@ -189,9 +189,9 @@ export function createShipSystem(phaser: PhaserLayer) {
 
       explosion.play(Animations.Explosion);
 
-      explosion.on(`animationcomplete`, () => {
-        destroySpriteObject(explosionId);
-      });
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      destroySpriteObject(explosionId);
       setComponent(SailPositionLocal, shipEntity, { value: 0 });
     }
 

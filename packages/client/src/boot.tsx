@@ -65,7 +65,7 @@ async function bootGame() {
     if (!layers.backend) layers.backend = await createBackendLayer(layers.network);
     if (!layers.phaser) layers.phaser = await createPhaserLayer(layers.backend);
 
-    window.network = layers.network;
+    (window as any).network = layers.network;
     // Sync global time with phaser clock
     Time.time.setPacemaker((setTimestamp) => {
       layers.phaser?.game.events.on("poststep", (time: number) => {

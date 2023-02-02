@@ -33,15 +33,13 @@ export function registerLoadingState() {
 
     // TODO: flash implies some check isnt being executed properly
     ({ loadingState }) => {
-      if (loadingState == null) {
-        return <BootScreen initialOpacity={1}>Connecting</BootScreen>;
-      }
-
-      if (loadingState.state !== SyncState.LIVE) {
-        return <BootScreen initialOpacity={1}>{loadingState.msg}</BootScreen>;
-      }
-
-      return null;
+      if (loadingState?.state == SyncState.LIVE) return null;
+      const progression = loadingState?.msg.includes("block number") ? 0 : loadingState?.percentage || 0;
+      return (
+        <BootScreen initialOpacity={1} progression={progression}>
+          {loadingState?.msg}
+        </BootScreen>
+      );
     }
   );
 }

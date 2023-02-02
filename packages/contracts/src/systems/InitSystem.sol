@@ -26,7 +26,7 @@ contract InitSystem is System {
       GodID,
       GameConfig({
         startTime: block.timestamp,
-        commitPhaseLength: 18,
+        commitPhaseLength: 30,
         revealPhaseLength: 9,
         actionPhaseLength: 23,
         worldSize: 150,
