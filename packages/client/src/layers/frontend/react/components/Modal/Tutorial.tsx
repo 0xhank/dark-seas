@@ -58,7 +58,7 @@ const H1 = styled.h1`
 const H2 = styled.h1`
   font-size: 2rem;
   line-height: 3rem;
-  color: ${colors.white};
+  color: ${colors.lightGray};
 `;
 
 const H3 = styled.h1`
@@ -108,7 +108,6 @@ const SubHeader = styled.div`
   grid-row-start: 3;
   grid-row-end: 4;
   border-top: 1px solid ${colors.brown};
-  border-bottom: 1px solid ${colors.brown};
   padding: 6px;
 `;
 
@@ -117,7 +116,6 @@ const MoveOptionContainer = styled.div`
   grid-column-end: 3;
   grid-row-start: 4;
   grid-row-end: 12;
-  border-right: 1px solid ${colors.brown};
   padding: 6px;
   display: flex;
   flex-direction: column;
@@ -142,6 +140,7 @@ const CannonActionContainer = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 6px;
+  border-right: 1px solid ${colors.brown};
 
   gap: 1rem;
 `;
