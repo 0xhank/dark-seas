@@ -33,7 +33,9 @@ import "./LibUtils.sol";
 import { ABDKMath64x64 as Math } from "abdk-libraries-solidity/ABDKMath64x64.sol";
 
 library LibCombat {
-  /**
+  /***************************************************** LOAD **************************************************** */
+
+  /**a
    * @notice  loads the given cannon
    * @param   components  world components
    * @param   shipEntity  ship controlling cannon
@@ -238,6 +240,12 @@ library LibCombat {
     return false;
   }
 
+  /**
+   * @notice  kills enemy and rewards the attacker
+   * @param   components  world components
+   * @param   attackerEntity  ship that attacked
+   * @param   shipEntity  ship that got killed
+   */
   function killEnemy(
     IUint256Component components,
     uint256 attackerEntity,
