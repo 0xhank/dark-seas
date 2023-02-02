@@ -52,9 +52,7 @@ export function createProjectionSystem(phaser: PhaserLayer) {
 
     const groupId = `projection-${shipEntity}`;
 
-    console.log(`update: ${shipEntity}, ${type}`);
     if (type == UpdateType.Exit) {
-      console.log("removing ship");
       destroySpriteObject(groupId);
       return;
     }

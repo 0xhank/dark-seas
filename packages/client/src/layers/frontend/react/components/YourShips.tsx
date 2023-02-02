@@ -154,6 +154,7 @@ export function registerYourShips() {
           else if (phase == Phase.Reveal && !encodedCommitment) cannotAct = true;
           else if (
             phase == Phase.Action &&
+            !actionsExecuted &&
             (selectedActions.length == 0 ||
               selectedActions.every((arr) => arr.actionTypes.every((elem) => elem == ActionType.None)))
           )

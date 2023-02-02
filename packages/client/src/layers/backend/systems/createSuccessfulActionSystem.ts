@@ -65,7 +65,6 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
       shipUpdates.set(key, update.value);
     });
 
-    console.log(shipUpdates);
     // iterate through ships
     rawActions.forEach((action) => {
       const shipEntity = world.entityToIndex.get(bigNumToEntityID(action.shipEntity));
