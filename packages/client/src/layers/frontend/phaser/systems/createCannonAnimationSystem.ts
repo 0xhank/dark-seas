@@ -105,8 +105,6 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     });
 
     if (hit) {
-      const healthLocal = getComponentValueStrict(HealthLocal, attack.target).value;
-      setComponent(HealthLocal, attack.target, { value: healthLocal - 1 });
       object.setAlpha(0);
 
       if (attack.onFire) setComponent(OnFireLocal, attack.target, { value: 1 });
@@ -114,16 +112,11 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
       if (attack.toreSail) setComponent(SailPositionLocal, attack.target, { value: 0 });
 
       const explosionId = `explosion-${cannonEntity}-${shotIndex}`;
-      const explosion = getSpriteObject(explosionId);
-      explosion.setOrigin(0.5, 0.5);
-      explosion.setPosition(end.x, end.y);
-      explosion.setDepth(RenderDepth.UI5);
-      playSound("impact_ship_1", Category.Combat);
+      explode(explosionId, end);
 
-      explosion.play(Animations.Explosion);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      destroySpriteObject(explosionId);
+      const healthLocal = getComponentValueStrict(HealthLocal, attack.target).value;
+      if (healthLocal == 1) playDeathAnimation(attack.target);
+      setComponent(HealthLocal, attack.target, { value: healthLocal - 1 });
     } else {
       playSound("impact_water_1", Category.Combat);
 
@@ -147,6 +140,38 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
       destroyGroupObject(textId);
     }
     destroySpriteObject(spriteId);
+  }
+
+  function playDeathAnimation(shipEntity: EntityIndex) {
+    const shipMidpoint = getShipMidpoint(shipEntity);
+    const length = getComponentValueStrict(Length, shipEntity).value;
+    const width = length / (1.5 * SHIP_RATIO);
+
+    for (let i = 0; i < 20; i++) {
+      const explosionId = `deathexplosion-${shipEntity}-${i}`;
+
+      const randX = Math.random() * width * 2 - width;
+      const randY = Math.random() * width * 2 - width;
+      const end = { x: shipMidpoint.x + randX * posHeight, y: shipMidpoint.y + randY * posHeight };
+
+      explode(explosionId, end, i * 100);
+    }
+  }
+
+  async function explode(explosionId: string, location: Coord, delay?: number) {
+    if (delay) {
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+    const explosion = getSpriteObject(explosionId);
+    explosion.setOrigin(0.5, 0.5);
+    playSound("impact_ship_1", Category.Combat);
+    explosion.setPosition(location.x, location.y);
+    explosion.setDepth(RenderDepth.UI5);
+    explosion.play(Animations.Explosion);
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    destroySpriteObject(explosionId);
   }
 
   function getShipMidpoint(shipEntity: EntityIndex) {
