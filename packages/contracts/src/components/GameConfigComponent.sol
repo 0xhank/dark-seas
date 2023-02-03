@@ -11,8 +11,8 @@ contract GameConfigComponent is Component {
   constructor(address world) Component(world, ID) {}
 
   function getSchema() public pure override returns (string[] memory keys, LibTypes.SchemaValue[] memory values) {
-    keys = new string[](9);
-    values = new LibTypes.SchemaValue[](9);
+    keys = new string[](10);
+    values = new LibTypes.SchemaValue[](10);
 
     keys[0] = "startTime";
     values[0] = LibTypes.SchemaValue.UINT256;
@@ -40,6 +40,9 @@ contract GameConfigComponent is Component {
 
     keys[8] = "buyin";
     values[8] = LibTypes.SchemaValue.UINT256;
+
+    keys[9] = "respawnAllowed";
+    values[9] = LibTypes.SchemaValue.BOOL;
   }
 
   function set(uint256 entity, GameConfig calldata config) public {
@@ -56,8 +59,12 @@ contract GameConfigComponent is Component {
       int128 perlinSeed,
       uint256[] memory shipPrototypes,
       uint256 entryCutoff,
-      uint256 buyin
-    ) = abi.decode(getRawValue(entity), (uint256, uint32, uint32, uint32, uint32, int128, uint256[], uint256, uint256));
+      uint256 buyin,
+      bool respawnAllowed
+    ) = abi.decode(
+        getRawValue(entity),
+        (uint256, uint32, uint32, uint32, uint32, int128, uint256[], uint256, uint256, bool)
+      );
     return
       GameConfig(
         startTime,
@@ -68,7 +75,8 @@ contract GameConfigComponent is Component {
         perlinSeed,
         shipPrototypes,
         entryCutoff,
-        buyin
+        buyin,
+        respawnAllowed
       );
   }
 
@@ -87,7 +95,8 @@ contract GameConfigComponent is Component {
         config.perlinSeed,
         config.shipPrototypes,
         config.entryCutoff,
-        config.buyin
+        config.buyin,
+        config.respawnAllowed
       );
   }
 }

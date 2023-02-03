@@ -5,7 +5,6 @@ import {
   getComponentValueStrict,
   Has,
   HasValue,
-  NotValue,
   runQuery,
   setComponent,
 } from "@latticexyz/recs";
@@ -15,7 +14,7 @@ import { ActionType, ModalType, Phase } from "../../../../types";
 import { Category } from "../../../backend/sound/library";
 import { DELAY } from "../../constants";
 import { registerUIComponent } from "../engine";
-import { colors, ConfirmButton, Container } from "../styles/global";
+import { Button, colors, ConfirmButton, Container } from "../styles/global";
 import { YourShip } from "./YourShip";
 
 export function registerYourShips() {
@@ -64,11 +63,10 @@ export function registerYourShips() {
             OnFireLocal: OnFire,
             DamagedCannonsLocal: DamagedCannons,
             SailPositionLocal: SailPosition,
-            ExecutedActions,
             ModalOpen,
           },
-          api: { commitMove, revealMove, submitActions },
-          utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, playSound, clearComponent },
+          api: { commitMove, revealMove, submitActions, respawn: apiRespawn },
+          utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, playSound, clearComponent, getGameConfig },
         },
       } = layers;
 
@@ -131,13 +129,11 @@ export function registerYourShips() {
 
           const selectedShip = getComponentValue(SelectedShip, godEntity)?.value as EntityIndex | undefined;
 
-          const yourShips = [
-            ...runQuery([
-              Has(Ship),
-              HasValue(OwnedBy, { value: world.entities[playerEntity] }),
-              NotValue(HealthLocal, { value: 0 }),
-            ]),
-          ];
+          const allYourShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
+
+          const yourShips = allYourShips.filter((ship) => getComponentValue(HealthLocal, ship)?.value);
+
+          const respawn = () => apiRespawn(allYourShips);
 
           const encodedCommitment = getComponentValue(EncodedCommitment, godEntity)?.value;
 
@@ -166,7 +162,7 @@ export function registerYourShips() {
 
           const showExecuting = txExecuting && !acted;
 
-          const disabled = tooEarly || cannotAct;
+          const disabled = tooEarly || cannotAct || yourShips.length == 0;
 
           const movesComplete = yourShips.every((ship) => {
             const committedMove = getComponentValue(CommittedMove, ship)?.value;
@@ -181,6 +177,8 @@ export function registerYourShips() {
           const isOpen = !!getComponentValue(ModalOpen, ModalType.BOTTOM_BAR)?.value;
 
           const toggleOpen = () => setComponent(ModalOpen, ModalType.BOTTOM_BAR, { value: !isOpen });
+
+          const respawnAllowed = !!getGameConfig()?.respawnAllowed;
           return {
             layers,
             yourShips,
@@ -189,6 +187,7 @@ export function registerYourShips() {
             showExecuting,
             encodedCommitment,
             movesComplete,
+            respawnAllowed,
             handleSubmitExecute,
             acted,
             disabled,
@@ -198,6 +197,7 @@ export function registerYourShips() {
             removeMoves,
             isOpen,
             toggleOpen,
+            respawn,
           };
         })
       );
@@ -276,7 +276,10 @@ export function registerYourShips() {
           <MoveButtons isOpen={props.isOpen}>
             <OpenCloseButton onClick={props.toggleOpen}>{props.isOpen ? "hide" : "show"}</OpenCloseButton>
             {props.yourShips.length == 0 ? (
-              <span style={{ color: colors.white, fontSize: "2rem" }}>You have no ships!</span>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span style={{ color: colors.white, fontSize: "2rem" }}>You have no ships!</span>
+                {props.respawnAllowed && <Button onClick={props.respawn}>Respawn</Button>}
+              </div>
             ) : (
               props.yourShips.map((ship) => (
                 <YourShip
@@ -311,6 +314,7 @@ const MoveButtons = styled.div<{ isOpen: boolean }>`
   position: relative;
   display: flex;
   justify-content: center;
+  min-width: 500px;
   max-width: 100vw;
   gap: 12px;
   padding: 12px;
