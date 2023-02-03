@@ -26,7 +26,7 @@ contract RespawnSystem is System {
       GodID
     );
     require(block.timestamp < gameConfig.startTime + gameConfig.entryCutoff, "RespawnSystem: entry period has ended");
-    require(LibUtils.playerAddrExists(components, msg.sender), "PlayerSpawnSystem: player has not already spawned");
+    require(LibUtils.playerAddrExists(components, msg.sender), "RespawnSystem: player has not already spawned");
 
     require(gameConfig.respawnAllowed, "RespawnSystem: respawn not activated");
 
