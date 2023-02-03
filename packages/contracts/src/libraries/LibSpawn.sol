@@ -157,7 +157,9 @@ library LibSpawn {
     LengthComponent(getAddressById(components, LengthComponentID)).set(shipEntity, shipPrototype.length);
     HealthComponent(getAddressById(components, HealthComponentID)).set(shipEntity, shipPrototype.maxHealth);
     MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).set(shipEntity, shipPrototype.maxHealth);
-
+    KillsComponent(getAddressById(components, KillsComponentID)).set(shipEntity, 0);
+    BootyComponent(getAddressById(components, BootyComponentID)).set(shipEntity, startingBooty);
+    LastHitComponent(getAddressById(components, LastHitComponentID)).set(shipEntity, GodID);
     for (uint256 i = 0; i < shipPrototype.cannons.length; i++) {
       spawnCannon(
         components,

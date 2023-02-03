@@ -43,7 +43,9 @@ contract DarkSeasTest is MudTest {
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
     OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(shipEntity, playerEntity);
     SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, 110);
-
+    KillsComponent(getAddressById(components, KillsComponentID)).set(shipEntity, 0);
+    BootyComponent(getAddressById(components, BootyComponentID)).set(shipEntity, 500);
+    LastHitComponent(getAddressById(components, LastHitComponentID)).set(shipEntity, GodID);
     LibSpawn.spawnCannon(components, world, shipEntity, 90, 40, 100);
     LibSpawn.spawnCannon(components, world, shipEntity, 270, 40, 100);
     LibSpawn.spawnCannon(components, world, shipEntity, 0, 40, 100);
