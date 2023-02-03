@@ -57,6 +57,7 @@ struct GameConfig {
   // Amount of time for players to enter game
   uint256 entryCutoff;
   uint256 buyin;
+  bool respawnAllowed;
 }
 
 struct ShipPrototype {

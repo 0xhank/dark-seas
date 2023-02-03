@@ -40,6 +40,9 @@ contract GameConfigComponent is Component {
 
     keys[8] = "buyin";
     values[8] = LibTypes.SchemaValue.UINT256;
+
+    keys[9] = "respawnAllowed";
+    values[9] = LibTypes.SchemaValue.BOOL;
   }
 
   function set(uint256 entity, GameConfig calldata config) public {
@@ -56,8 +59,12 @@ contract GameConfigComponent is Component {
       int128 perlinSeed,
       uint256[] memory shipPrototypes,
       uint256 entryCutoff,
-      uint256 buyin
-    ) = abi.decode(getRawValue(entity), (uint256, uint32, uint32, uint32, uint32, int128, uint256[], uint256, uint256));
+      uint256 buyin,
+      bool respawnAllowed
+    ) = abi.decode(
+        getRawValue(entity),
+        (uint256, uint32, uint32, uint32, uint32, int128, uint256[], uint256, uint256, bool)
+      );
     return
       GameConfig(
         startTime,
@@ -68,7 +75,8 @@ contract GameConfigComponent is Component {
         perlinSeed,
         shipPrototypes,
         entryCutoff,
-        buyin
+        buyin,
+        respawnAllowed
       );
   }
 
@@ -87,7 +95,8 @@ contract GameConfigComponent is Component {
         config.perlinSeed,
         config.shipPrototypes,
         config.entryCutoff,
-        config.buyin
+        config.buyin,
+        config.respawnAllowed
       );
   }
 }

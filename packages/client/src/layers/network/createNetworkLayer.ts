@@ -52,6 +52,7 @@ export async function createNetworkLayer(config: GameConfig) {
         shipPrototypes: Type.StringArray,
         entryCutoff: Type.String,
         buyin: Type.String,
+        respawnAllowed: Type.Boolean,
       },
       { id: "GameConfig", metadata: { contractId: "ds.component.GameConfig" } }
     ),
