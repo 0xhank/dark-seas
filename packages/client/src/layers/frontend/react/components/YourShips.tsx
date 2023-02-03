@@ -8,7 +8,6 @@ import {
   NotValue,
   runQuery,
 } from "@latticexyz/recs";
-import { ActionState } from "@latticexyz/std-client";
 import { map, merge } from "rxjs";
 import styled from "styled-components";
 import { ActionType, Phase } from "../../../../types";
@@ -127,9 +126,6 @@ export function registerYourShips() {
           const playerEntity = getPlayerEntity(connectedAddress.get());
           if (!playerEntity || !getComponentValue(Player, playerEntity)) return null;
 
-          const moved = getComponentValue(LastMove, playerEntity)?.value == currentTurn;
-          const acted = getComponentValue(LastAction, playerEntity)?.value == currentTurn;
-
           const selectedShip = getComponentValue(SelectedShip, godEntity)?.value as EntityIndex | undefined;
 
           const yourShips = [
@@ -140,34 +136,34 @@ export function registerYourShips() {
             ]),
           ];
 
-          const selectedMoves = [...getComponentEntities(SelectedMove)];
-          const actionsExecuted = [...getComponentEntities(ExecutedActions)].length > 0;
-          const selectedActions = [...getComponentEntities(SelectedActions)].map((entity) =>
-            getComponentValueStrict(SelectedActions, entity)
-          );
           const encodedCommitment = getComponentValue(EncodedCommitment, godEntity)?.value;
 
           const tooEarly = getPhase() !== phase;
 
+          const txExecuting = [...runQuery([Has(Action)])].length > 0;
           let cannotAct = false;
-          if (phase == Phase.Commit && selectedMoves.length == 0) cannotAct = true;
-          else if (phase == Phase.Reveal && !encodedCommitment) cannotAct = true;
-          else if (
-            phase == Phase.Action &&
-            !actionsExecuted &&
-            (selectedActions.length == 0 ||
-              selectedActions.every((arr) => arr.actionTypes.every((elem) => elem == ActionType.None)))
-          )
-            cannotAct = true;
-          const disabled = tooEarly || cannotAct;
+          let acted = false;
+          if (phase == Phase.Commit) {
+            const selectedMoves = [...getComponentEntities(SelectedMove)];
 
-          const actionExecuting = !![...runQuery([Has(Action)])].find((entity) => {
-            const state = getComponentValueStrict(Action, entity).state;
-            if (state == ActionState.Requested) return true;
-            if (state == ActionState.Executing) return true;
-            if (state == ActionState.WaitingForTxEvents) return true;
-            return false;
-          });
+            acted = [...getComponentEntities(ExecutedActions)].length > 0;
+            cannotAct = selectedMoves.length == 0;
+          } else if (phase == Phase.Reveal) {
+            acted = getComponentValue(LastMove, playerEntity)?.value == currentTurn;
+          } else if (phase == Phase.Action) {
+            const selectedActions = [...getComponentEntities(SelectedActions)].map((entity) =>
+              getComponentValueStrict(SelectedActions, entity)
+            );
+            acted = getComponentValue(LastAction, playerEntity)?.value == currentTurn;
+            cannotAct =
+              !acted &&
+              (selectedActions.length == 0 ||
+                selectedActions.every((arr) => arr.actionTypes.every((elem) => elem == ActionType.None)));
+          }
+
+          const showExecuting = txExecuting && !acted;
+
+          const disabled = tooEarly || cannotAct;
 
           const movesComplete = yourShips.every((ship) => {
             const committedMove = getComponentValue(CommittedMove, ship)?.value;
@@ -184,11 +180,10 @@ export function registerYourShips() {
             yourShips,
             selectedShip,
             phase,
-            actionExecuting,
+            showExecuting,
             encodedCommitment,
             movesComplete,
             handleSubmitExecute,
-            moved,
             acted,
             disabled,
             handleSubmitCommitment,
@@ -206,12 +201,11 @@ export function registerYourShips() {
         yourShips,
         selectedShip,
         phase,
-        moved,
         acted,
         disabled,
         handleSubmitCommitment,
         handleSubmitActions,
-        actionExecuting,
+        showExecuting,
         encodedCommitment,
         movesComplete,
         handleSubmitExecute,
@@ -220,7 +214,7 @@ export function registerYourShips() {
       } = props;
 
       const RevealButtons = () => {
-        if (moved) return <Success background={colors.greenGlass}>Move reveal successful!</Success>;
+        if (acted) return <Success background={colors.greenGlass}>Move reveal successful!</Success>;
         if (!encodedCommitment) return <Success background={colors.glass}>No moves to reveal</Success>;
         return (
           <ConfirmButton
@@ -278,7 +272,7 @@ export function registerYourShips() {
         }
       };
       let content = null;
-      if (actionExecuting) content = <Success background={colors.waiting}>Executing...</Success>;
+      if (showExecuting) content = <Success background={colors.waiting}>Executing...</Success>;
       else if (phase == Phase.Reveal) content = <RevealButtons />;
       else if (phase == Phase.Commit) content = <CommitButtons />;
       else if (phase == Phase.Action) content = <ActionButtons />;
