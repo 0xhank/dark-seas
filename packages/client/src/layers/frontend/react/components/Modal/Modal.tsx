@@ -47,7 +47,8 @@ export function registerModal() {
 
       return merge(Booty.update$, HealthLocal.update$, Kills.update$, ModalOpen.update$).pipe(
         map(() => {
-          const show = getComponentValue(ModalOpen, godEntity)?.value;
+          const showTutorial = getComponentValue(ModalOpen, ModalType.TUTORIAL)?.value;
+          const showLeaderboard = getComponentValue(ModalOpen, ModalType.LEADERBOARD)?.value;
           const close = () => {
             clearComponent(ModalOpen);
           };
@@ -95,21 +96,22 @@ export function registerModal() {
 
           return {
             getPlayersAndShips,
-            show,
+            showTutorial,
+            showLeaderboard,
             close,
           };
         })
       );
     },
-    ({ show, getPlayersAndShips, close }) => {
-      if (show == undefined) return null;
+    ({ showTutorial, showLeaderboard, getPlayersAndShips, close }) => {
       let content = null;
-      if (show == ModalType.LEADERBOARD) {
+      if (showLeaderboard) {
         const { ships, players } = getPlayersAndShips();
         content = <Leaderboard ships={ships} players={players} />;
-      } else if (show == ModalType.TUTORIAL) {
+      } else if (showTutorial) {
         content = <Tutorial />;
       }
+      if (!content) return null;
       return (
         <Container
           style={{ flexDirection: "row", background: "hsla(0, 0%, 0%, 0.6", zIndex: 9999, gap: "20px" }}

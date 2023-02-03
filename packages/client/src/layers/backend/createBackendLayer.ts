@@ -1,9 +1,9 @@
 import { GodID } from "@latticexyz/network";
 
-import { EntityIndex, namespaceWorld } from "@latticexyz/recs";
+import { EntityIndex, namespaceWorld, setComponent } from "@latticexyz/recs";
 import { createActionSystem } from "@latticexyz/std-client";
 
-import { Action, Move } from "../../types";
+import { Action, ModalType, Move } from "../../types";
 import { NetworkLayer } from "../network";
 import { commitMove } from "./api/commitMove";
 import { revealMove } from "./api/revealMove";
@@ -24,8 +24,8 @@ export async function createBackendLayer(network: NetworkLayer) {
 
   // --- COMPONENTS -----------------------------------------------------------------
   const components = createBackendComponents(world);
-
   // --- SETUP ----------------------------------------------------------------------
+  setComponent(components.ModalOpen, ModalType.BOTTOM_BAR, { value: true });
 
   // UTILITIES
 
