@@ -1,4 +1,4 @@
-import { EntityIndex, getComponentEntities, getComponentValue } from "@latticexyz/recs";
+import { EntityIndex, getComponentEntities, getComponentValue, removeComponent } from "@latticexyz/recs";
 import { map, merge } from "rxjs";
 import { ModalType } from "../../../../../types";
 import { getShipName } from "../../../../../utils/ships";
@@ -47,10 +47,11 @@ export function registerModal() {
 
       return merge(Booty.update$, HealthLocal.update$, Kills.update$, ModalOpen.update$).pipe(
         map(() => {
-          const showTutorial = getComponentValue(ModalOpen, ModalType.TUTORIAL)?.value;
-          const showLeaderboard = getComponentValue(ModalOpen, ModalType.LEADERBOARD)?.value;
+          const showTutorial = !!getComponentValue(ModalOpen, ModalType.TUTORIAL)?.value;
+          const showLeaderboard = !!getComponentValue(ModalOpen, ModalType.LEADERBOARD)?.value;
           const close = () => {
-            clearComponent(ModalOpen);
+            removeComponent(ModalOpen, ModalType.TUTORIAL);
+            removeComponent(ModalOpen, ModalType.LEADERBOARD);
           };
           const getPlayersAndShips = () => {
             let players: PlayerData[] = [];
