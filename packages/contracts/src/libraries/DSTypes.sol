@@ -53,7 +53,21 @@ struct GameConfig {
   uint32 actionPhaseLength;
   uint32 worldSize;
   int128 perlinSeed;
+  uint256[] shipPrototypes;
   // Amount of time for players to enter game
   uint256 entryCutoff;
   uint256 buyin;
+}
+
+struct ShipPrototype {
+  uint32 length;
+  uint32 maxHealth;
+  uint32 speed;
+  CannonPrototype[] cannons;
+}
+
+struct CannonPrototype {
+  uint32 rotation;
+  uint32 firepower;
+  uint32 range;
 }

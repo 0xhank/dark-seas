@@ -1,4 +1,4 @@
-import { EntityID, getComponentValue, Has, hasComponent, runQuery, setComponent } from "@latticexyz/recs";
+import { getComponentValue, Has, runQuery, setComponent } from "@latticexyz/recs";
 import { computedToStream } from "@latticexyz/utils";
 import { useState } from "react";
 import { map, merge } from "rxjs";
@@ -26,6 +26,7 @@ export function registerJoinGame() {
           components: { ModalOpen },
           actions: { Action },
           api: { spawnPlayer },
+          utils: { getPlayerEntity },
           godEntity,
         },
       } = layers;
@@ -37,24 +38,18 @@ export function registerJoinGame() {
         OwnedBy.update$,
         Action.update$
       ).pipe(
-        map(() => connectedAddress.get()),
-        map((address) => {
-          if (!address) return;
-
-          const playerEntity = world.entityToIndex.get(address as EntityID);
-
-          if (playerEntity != undefined) {
-            if (hasComponent(Player, playerEntity)) return;
-          }
+        map(() => {
+          const playerEntity = getPlayerEntity();
+          if (playerEntity) return;
+          const gameConfig = getComponentValue(GameConfig, godEntity);
+          if (!gameConfig) return;
 
           const spawnAction = [...runQuery([Has(Action)])].length > 0;
 
-          const gameConfig = getComponentValue(GameConfig, godEntity);
-          if (!gameConfig) return;
           const closeTime = Number(gameConfig.startTime) + Number(gameConfig.entryCutoff);
           const entryWindowClosed = closeTime <= clock.currentTime / 1000;
 
-          const openTutorial = () => setComponent(ModalOpen, godEntity, { value: ModalType.TUTORIAL });
+          const openTutorial = () => setComponent(ModalOpen, ModalType.TUTORIAL, { value: true });
           return {
             spawnAction,
             spawnPlayer,

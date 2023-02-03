@@ -22,6 +22,7 @@
     "LoadedComponent",
     "CannonComponent",
     "SpeedComponent",
+    "ShipPrototypeComponent",
     "KillsComponent",
     "LastHitComponent",
     "BootyComponent"

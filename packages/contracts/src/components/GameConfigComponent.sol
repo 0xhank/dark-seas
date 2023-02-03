@@ -11,8 +11,8 @@ contract GameConfigComponent is Component {
   constructor(address world) Component(world, ID) {}
 
   function getSchema() public pure override returns (string[] memory keys, LibTypes.SchemaValue[] memory values) {
-    keys = new string[](8);
-    values = new LibTypes.SchemaValue[](8);
+    keys = new string[](9);
+    values = new LibTypes.SchemaValue[](9);
 
     keys[0] = "startTime";
     values[0] = LibTypes.SchemaValue.UINT256;
@@ -32,11 +32,14 @@ contract GameConfigComponent is Component {
     keys[5] = "perlinSeed";
     values[5] = LibTypes.SchemaValue.INT128;
 
-    keys[6] = "entryCutoff";
-    values[6] = LibTypes.SchemaValue.UINT256;
+    keys[6] = "shipPrototypes";
+    values[6] = LibTypes.SchemaValue.UINT256_ARRAY;
 
-    keys[7] = "buyin";
+    keys[7] = "entryCutoff";
     values[7] = LibTypes.SchemaValue.UINT256;
+
+    keys[8] = "buyin";
+    values[8] = LibTypes.SchemaValue.UINT256;
   }
 
   function set(uint256 entity, GameConfig calldata config) public {
@@ -51,9 +54,10 @@ contract GameConfigComponent is Component {
       uint32 actionPhaseLength,
       uint32 worldSize,
       int128 perlinSeed,
+      uint256[] memory shipPrototypes,
       uint256 entryCutoff,
       uint256 buyin
-    ) = abi.decode(getRawValue(entity), (uint256, uint32, uint32, uint32, uint32, int128, uint256, uint256));
+    ) = abi.decode(getRawValue(entity), (uint256, uint32, uint32, uint32, uint32, int128, uint256[], uint256, uint256));
     return
       GameConfig(
         startTime,
@@ -62,6 +66,7 @@ contract GameConfigComponent is Component {
         actionPhaseLength,
         worldSize,
         perlinSeed,
+        shipPrototypes,
         entryCutoff,
         buyin
       );
@@ -80,6 +85,7 @@ contract GameConfigComponent is Component {
         config.actionPhaseLength,
         config.worldSize,
         config.perlinSeed,
+        config.shipPrototypes,
         config.entryCutoff,
         config.buyin
       );

@@ -27,7 +27,7 @@ export function createBorderSystem(phaser: PhaserLayer) {
     const minX = -width / 2;
     const minY = -height / 2;
     const maxX = width / 2;
-    const maxY = height / 2 + 1000;
+    const maxY = height / 2;
 
     camera.phaserCamera.setBounds(minX, minY, maxX - minX, maxY - minY);
 
