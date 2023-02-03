@@ -29,21 +29,21 @@ contract InitSystem is System {
 
     CannonPrototype memory cannon1 = CannonPrototype({ rotation: 90, firepower: 65, range: 60 });
     CannonPrototype memory cannon2 = CannonPrototype({ rotation: 270, firepower: 65, range: 60 });
-    CannonPrototype memory cannon3 = CannonPrototype({ rotation: 345, firepower: 65, range: 50 });
-    CannonPrototype memory cannon4 = CannonPrototype({ rotation: 15, firepower: 65, range: 50 });
+    CannonPrototype memory cannon3 = CannonPrototype({ rotation: 345, firepower: 50, range: 50 });
+    CannonPrototype memory cannon4 = CannonPrototype({ rotation: 15, firepower: 50, range: 50 });
 
     cannons.push(cannon1);
     cannons.push(cannon2);
     cannons.push(cannon3);
     cannons.push(cannon4);
 
-    ShipPrototype memory shipPrototype = ShipPrototype({ length: 15, maxHealth: 15, speed: 90, cannons: cannons });
+    ShipPrototype memory shipPrototype = ShipPrototype({ length: 13, maxHealth: 10, speed: 90, cannons: cannons });
 
     uint256 shipEntity = LibCreateShip.createShip(components, shipPrototype);
     shipEntities.push(shipEntity);
 
-    cannon1 = CannonPrototype({ rotation: 90, firepower: 40, range: 100 });
-    cannon2 = CannonPrototype({ rotation: 270, firepower: 40, range: 100 });
+    cannon1 = CannonPrototype({ rotation: 90, firepower: 50, range: 100 });
+    cannon2 = CannonPrototype({ rotation: 270, firepower: 50, range: 100 });
     cannon3 = CannonPrototype({ rotation: 0, firepower: 40, range: 100 });
     delete cannons;
 
