@@ -61,7 +61,7 @@ contract InitSystem is System {
         commitPhaseLength: 30,
         revealPhaseLength: 9,
         actionPhaseLength: 23,
-        worldSize: 75,
+        worldSize: 120,
         perlinSeed: 420,
         shipPrototypes: shipEntities,
         entryCutoff: 60 * 60 * 15, // 15 hours,

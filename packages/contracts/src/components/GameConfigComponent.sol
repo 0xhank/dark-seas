@@ -11,8 +11,8 @@ contract GameConfigComponent is Component {
   constructor(address world) Component(world, ID) {}
 
   function getSchema() public pure override returns (string[] memory keys, LibTypes.SchemaValue[] memory values) {
-    keys = new string[](9);
-    values = new LibTypes.SchemaValue[](9);
+    keys = new string[](10);
+    values = new LibTypes.SchemaValue[](10);
 
     keys[0] = "startTime";
     values[0] = LibTypes.SchemaValue.UINT256;

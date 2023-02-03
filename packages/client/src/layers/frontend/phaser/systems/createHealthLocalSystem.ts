@@ -1,6 +1,7 @@
 import {
   defineComponentSystem,
   defineEnterSystem,
+  defineSystem,
   getComponentValue,
   Has,
   Not,
@@ -34,9 +35,10 @@ export function createHealthLocalSystem(phaser: PhaserLayer) {
     godEntity,
   } = phaser;
 
-  defineEnterSystem(world, [Has(Health), Not(HealthLocal)], ({ entity, value }) => {
+  defineSystem(world, [Has(Health)], ({ entity, value }) => {
     const health = value[0]?.value as number | undefined;
-    if (health == undefined) return;
+    const oldHealth = value[1]?.value as number | undefined;
+    if (health == undefined || !!oldHealth) return;
     setComponent(HealthLocal, entity, { value: health });
     setComponent(HealthBackend, entity, { value: health });
   });

@@ -212,13 +212,18 @@ export async function createNetworkLayer(config: GameConfig) {
 
   // --- API ------------------------------------------------------------------------
 
-  function commitMove(commitment: string) {
-    systems["ds.system.Commit"].executeTyped(commitment);
-  }
-
   function spawnPlayer(name: string) {
     const location: Coord = { x: 0, y: 0 };
     systems["ds.system.PlayerSpawn"].executeTyped(name, location);
+  }
+
+  function respawn(ships: EntityID[]) {
+    console.log("ships:", ships);
+    systems["ds.system.Respawn"].executeTyped(ships);
+  }
+
+  function commitMove(commitment: string) {
+    systems["ds.system.Commit"].executeTyped(commitment);
   }
 
   function revealMove(moves: MoveStruct[], salt: number) {
@@ -253,7 +258,7 @@ export async function createNetworkLayer(config: GameConfig) {
       secondsUntilNextPhase,
       bigNumToEntityID,
     },
-    api: { revealMove, submitActions, spawnPlayer, commitMove },
+    api: { revealMove, submitActions, spawnPlayer, commitMove, respawn },
     dev: setupDevSystems(world, encoders, systems),
   };
 
