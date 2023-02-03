@@ -27,6 +27,8 @@ import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedCompo
 import { ShipPrototypeComponent, ID as ShipPrototypeComponentID } from "../components/ShipPrototypeComponent.sol";
 import { KillsComponent, ID as KillsComponentID } from "../components/KillsComponent.sol";
 import { BootyComponent, ID as BootyComponentID } from "../components/BootyComponent.sol";
+import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireComponent.sol";
+import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../components/DamagedCannonsComponent.sol";
 
 // Types
 import { Coord, GodID, ShipPrototype, GameConfig } from "./DSTypes.sol";
@@ -170,6 +172,25 @@ library LibSpawn {
         shipPrototype.cannons[i].range
       );
     }
+  }
+
+  function respawnShip(
+    IUint256Component components,
+    uint256 shipEntity,
+    Coord memory position,
+    uint32 rotation,
+    uint256 booty
+  ) internal {
+    PositionComponent(getAddressById(components, PositionComponentID)).set(shipEntity, position);
+    RotationComponent(getAddressById(components, RotationComponentID)).set(shipEntity, rotation);
+    SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
+
+    uint32 maxHealth = MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).getValue(shipEntity);
+    HealthComponent(getAddressById(components, HealthComponentID)).set(shipEntity, maxHealth);
+    KillsComponent(getAddressById(components, KillsComponentID)).set(shipEntity, 0);
+    BootyComponent(getAddressById(components, BootyComponentID)).set(shipEntity, booty);
+    OnFireComponent(getAddressById(components, OnFireComponentID)).remove(shipEntity);
+    DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).remove(shipEntity);
   }
 
   /**

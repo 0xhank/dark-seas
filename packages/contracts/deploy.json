@@ -79,6 +79,19 @@
         "BootyComponent"
       ]
     },
+    {
+      "name": "RespawnSystem",
+      "writeAccess": [
+        "PositionComponent",
+        "RotationComponent",
+        "HealthComponent",
+        "SailPositionComponent",
+        "KillsComponent",
+        "BootyComponent",
+        "OnFireComponent",
+        "DamagedCannonsComponent"
+      ]
+    },
     { "name": "CommitSystem", "writeAccess": ["CommitmentComponent"] }
   ]
 }
