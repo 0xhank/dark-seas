@@ -13,7 +13,7 @@ struct MoveCard {
 struct Action {
   uint256 shipEntity;
   ActionType[2] actionTypes;
-  uint256[2] specialEntities;
+  bytes[2] metadata;
 }
 
 struct Move {
@@ -51,9 +51,12 @@ struct GameConfig {
   uint32 commitPhaseLength;
   uint32 revealPhaseLength;
   uint32 actionPhaseLength;
-  uint32 worldRadius;
+  uint32 worldSize;
   int128 perlinSeed;
   uint256[] shipPrototypes;
+  // Amount of time for players to enter game
+  uint256 entryCutoff;
+  uint256 buyin;
 }
 
 struct ShipPrototype {

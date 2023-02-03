@@ -38,6 +38,8 @@ import { CommitmentComponent, ID as CommitmentComponentID } from "components/Com
 import { LoadedComponent, ID as LoadedComponentID } from "components/LoadedComponent.sol";
 import { CannonComponent, ID as CannonComponentID } from "components/CannonComponent.sol";
 import { SpeedComponent, ID as SpeedComponentID } from "components/SpeedComponent.sol";
+import { KillsComponent, ID as KillsComponentID } from "components/KillsComponent.sol";
+import { LastHitComponent, ID as LastHitComponentID } from "components/LastHitComponent.sol";
 
 // Systems (requires 'systems=...' remapping in project's remappings.txt)
 import { InitSystem, ID as InitSystemID } from "systems/InitSystem.sol";
@@ -159,6 +161,14 @@ library LibDeploy {
       console.log("Deploying SpeedComponent");
       comp = new SpeedComponent(address(result.world));
       console.log(address(comp));
+
+      console.log("Deploying KillsComponent");
+      comp = new KillsComponent(address(result.world));
+      console.log(address(comp));
+
+      console.log("Deploying LastHitComponent");
+      comp = new LastHitComponent(address(result.world));
+      console.log(address(comp));
     }
 
     // Deploy systems
@@ -208,6 +218,8 @@ library LibDeploy {
     authorizeWriter(components, LoadedComponentID, address(system));
     authorizeWriter(components, CannonComponentID, address(system));
     authorizeWriter(components, SpeedComponentID, address(system));
+    authorizeWriter(components, KillsComponentID, address(system));
+    authorizeWriter(components, LastHitComponentID, address(system));
     if (init) system.execute(new bytes(0));
     console.log(address(system));
 
@@ -229,6 +241,8 @@ library LibDeploy {
     authorizeWriter(components, SailPositionComponentID, address(system));
     authorizeWriter(components, LastActionComponentID, address(system));
     authorizeWriter(components, LoadedComponentID, address(system));
+    authorizeWriter(components, KillsComponentID, address(system));
+    authorizeWriter(components, LastHitComponentID, address(system));
     console.log(address(system));
 
     console.log("Deploying ComponentDevSystem");
@@ -256,6 +270,8 @@ library LibDeploy {
     authorizeWriter(components, LoadedComponentID, address(system));
     authorizeWriter(components, CannonComponentID, address(system));
     authorizeWriter(components, SpeedComponentID, address(system));
+    authorizeWriter(components, KillsComponentID, address(system));
+    authorizeWriter(components, LastHitComponentID, address(system));
     console.log(address(system));
 
     console.log("Deploying PlayerSpawnSystem");
@@ -277,6 +293,7 @@ library LibDeploy {
     authorizeWriter(components, NameComponentID, address(system));
     authorizeWriter(components, CannonComponentID, address(system));
     authorizeWriter(components, SpeedComponentID, address(system));
+    authorizeWriter(components, KillsComponentID, address(system));
     console.log(address(system));
 
     console.log("Deploying CommitSystem");

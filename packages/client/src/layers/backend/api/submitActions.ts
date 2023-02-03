@@ -1,10 +1,17 @@
-import { EntityID, getComponentValue } from "@latticexyz/recs";
+import { EntityID, EntityIndex, getComponentValue } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
+import { defaultAbiCoder as abi } from "ethers/lib/utils";
+import { ActionStruct } from "../../../../../contracts/types/ethers-contracts/ActionSystem";
 import { Action, ActionType } from "../../../types";
 import { NetworkLayer } from "../../network";
 import { TxType } from "../types";
 
-export function submitActions(network: NetworkLayer, actions: ActionSystem, shipActions: Action[]) {
+export function submitActions(
+  network: NetworkLayer,
+  actions: ActionSystem,
+  getTargetedShips: (cannonEntity: EntityIndex) => EntityIndex[],
+  shipActions: Action[]
+) {
   const {
     components: { OwnedBy },
     network: { connectedAddress },
@@ -24,27 +31,49 @@ export function submitActions(network: NetworkLayer, actions: ActionSystem, ship
         return null;
       }
 
-      for (const action of shipActions) {
+      const shipStruct: ActionStruct[] = [];
+      shipActions.forEach((action) => {
         if (action.actionTypes.every((elem) => elem == ActionType.None)) return null;
         const shipOwner = getComponentValue(OwnedBy, world.getEntityIndexStrict(action.shipEntity))?.value;
         if (shipOwner == null) {
-          console.warn(prefix, "Entity has no owner");
-          actions.cancel(actionId);
-          return null;
+          return;
         }
 
         if (shipOwner !== connectedAddress.get()) {
-          console.warn(prefix, "Can only move entities you own", shipOwner, connectedAddress.get());
-          actions.cancel(actionId);
-          return null;
+          return;
         }
-      }
 
-      return shipActions;
+        const metadata = action.actionTypes.map((actionType, i) => {
+          const specialEntity = action.specialEntities[i];
+          if (actionType == ActionType.Load) return abi.encode(["uint256"], [specialEntity]);
+          if (actionType == ActionType.Fire) {
+            const cannonEntity = world.entityToIndex.get(specialEntity);
+            if (!cannonEntity) return "";
+            const targetedShips = getTargetedShips(cannonEntity);
+            return abi.encode(
+              ["uint256", "uint256[]"],
+              [action.specialEntities[i], targetedShips.map((ship) => world.entities[ship])]
+            );
+          } else return abi.encode(["uint256"], [0]);
+        });
+
+        shipStruct.push({
+          shipEntity: action.shipEntity,
+          actionTypes: action.actionTypes,
+          metadata: [metadata[0], metadata[1]] as [string, string],
+        });
+      });
+
+      if (shipStruct.length == 0) {
+        console.log("no actions submitted");
+        actions.cancel(actionId);
+        return null;
+      }
+      return shipStruct;
     },
     updates: () => [],
-    execute: (shipActions) => {
-      network.api.submitActions(shipActions);
+    execute: (actions) => {
+      network.api.submitActions(actions);
     },
     metadata: {
       type: TxType.Action,

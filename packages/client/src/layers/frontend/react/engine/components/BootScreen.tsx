@@ -1,13 +1,14 @@
 import React from "react";
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
 import { colors } from "../../styles/global";
 
-export const BootScreen: React.FC<{ initialOpacity?: number }> = ({ children, initialOpacity }) => {
+export const BootScreen: React.FC<{ initialOpacity?: number; progression: number }> = ({ progression }) => {
   return (
     <Container>
-      <Img src="/img/ds-ship.png" style={{ transform: "rotate(270deg)" }}></Img>
-      <div style={{ fontSize: "2rem" }}>Dark Seas</div>
-      <div>{<>&nbsp;</>}</div>
+      <div>
+        <Img src="/img/ds-ship.png" progression={progression}></Img>
+        <div style={{ fontSize: "2rem" }}>Dark Seas</div>
+      </div>
     </Container>
   );
 };
@@ -25,43 +26,13 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   justify-items: center;
-  transition: all 2s ease;
   grid-gap: 16px;
   z-index: 500;
+x
   pointer-events: all;
   color: white;
 `;
 
-const pulse = keyframes`
-	0% {
-		transform: rotate(250deg)  translate(0, -200px);
-	}
-
-	25% {
-		transform: rotate(270deg) translate(10px, -100px);
-	}
-
-	50% {
-		transform: rotate(290deg) translate(0, 0px);
-		box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-	}
-
-  75% {
-		transform: rotate(270deg) translate(-10px, 100px);
-	}
-
-  100% {
-		transform: rotate(250deg) translate(0px, 200px);
-		box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-	}
-
-
-`;
-
-const Img = styled.img`
-  transform: rotate(270deg);
-  animation-name: ${pulse};
-  animation-duration: 4s;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
+const Img = styled.img<{ progression: number }>`
+  transform: ${({ progression }) => `translateX(calc(2 * (${progression}px - 50px)))`} rotate(270deg);
 `;

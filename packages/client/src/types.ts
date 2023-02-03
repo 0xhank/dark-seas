@@ -15,6 +15,8 @@ export type Action = {
   specialEntities: [EntityID, EntityID];
 };
 
+export type ActionWithTargets = Action & { targets: [EntityID[] | undefined, EntityID[] | undefined] };
+
 export type Move = {
   shipEntity: EntityID;
   moveCardEntity: EntityID;
@@ -119,4 +121,9 @@ export enum Sprites {
   ShipBlueDead,
   ShipBlueMajor,
   ShipBlueMinor,
+}
+
+export enum ModalType {
+  LEADERBOARD,
+  TUTORIAL,
 }

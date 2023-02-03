@@ -20,10 +20,13 @@ import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponen
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { FirepowerComponent, ID as FirepowerComponentID } from "../components/FirepowerComponent.sol";
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
+import { LastHitComponent, ID as LastHitComponentID } from "../components/LastHitComponent.sol";
 import { CannonComponent, ID as CannonComponentID } from "../components/CannonComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedComponent.sol";
 import { ShipPrototypeComponent, ID as ShipPrototypeComponentID } from "../components/ShipPrototypeComponent.sol";
+import { KillsComponent, ID as KillsComponentID } from "../components/KillsComponent.sol";
+import { BootyComponent, ID as BootyComponentID } from "../components/BootyComponent.sol";
 
 // Types
 import { Coord, GodID, ShipPrototype, GameConfig } from "./DSTypes.sol";
@@ -45,6 +48,9 @@ library LibSpawn {
 
     PlayerComponent(getAddressById(components, PlayerComponentID)).set(playerEntity, playerId);
 
+    LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 0);
+    LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 0);
+    BootyComponent(getAddressById(components, BootyComponentID)).set(playerEntity, 0);
     return playerEntity;
   }
 
@@ -55,11 +61,9 @@ library LibSpawn {
    * @return  Coord  randomly generated location
    */
   function getRandomLocation(IUint256Component components, uint256 r) public view returns (Coord memory) {
-    uint256 worldRadius = GameConfigComponent(getAddressById(components, GameConfigComponentID))
-      .getValue(GodID)
-      .worldRadius;
+    uint32 worldSize = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).worldSize;
 
-    uint32 distance = uint32(LibUtils.getByteUInt(r, 14, 0) % (worldRadius - 70));
+    uint32 distance = worldSize - 40;
     uint32 rotation = uint32(LibUtils.getByteUInt(r, 14, 14) % 360);
 
     Coord memory location = LibVector.getPositionByVector(Coord(0, 0), 0, distance, rotation);
@@ -95,6 +99,7 @@ library LibSpawn {
     Coord memory startingLocation
   ) public {
     uint256 nonce = uint256(keccak256(abi.encode(startingLocation)));
+    uint256 buyin = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).buyin;
     startingLocation = getRandomLocation(components, LibUtils.randomness(playerEntity, nonce));
 
     uint32 rotation = pointKindaTowardsTheCenter(startingLocation);
@@ -104,7 +109,7 @@ library LibSpawn {
       .shipPrototypes;
 
     for (uint256 i = 0; i < shipPrototypeEntities.length; i++) {
-      spawnShip(components, world, playerEntity, startingLocation, rotation, shipPrototypeEntities[i]);
+      spawnShip(components, world, playerEntity, startingLocation, rotation, shipPrototypeEntities[i], buyin);
       startingLocation = Coord(startingLocation.x + 20, startingLocation.y);
     }
 
@@ -127,7 +132,8 @@ library LibSpawn {
     uint256 playerEntity,
     Coord memory location,
     uint32 rotation,
-    uint256 shipPrototypeEntity
+    uint256 shipPrototypeEntity,
+    uint256 startingBooty
   ) internal returns (uint256 shipEntity) {
     ShipPrototypeComponent shipPrototypeComponent = ShipPrototypeComponent(
       getAddressById(components, ShipPrototypeComponentID)
@@ -164,6 +170,16 @@ library LibSpawn {
     }
   }
 
+  /**
+   * @notice  spawns a cannon on the shipEntity provided
+   * @param   components  world components
+   * @param   world  in which components reside
+   * @param   shipEntity  ship that owns this cannon
+   * @param   rotation  of cannon in relation to ship's bow
+   * @param   firepower  determines the likelihood of a hit from this ship
+   * @param   range  distance the ship can shoot
+   * @return  cannonEntity  entity id of the created cannon
+   */
   function spawnCannon(
     IUint256Component components,
     IWorld world,

@@ -8,13 +8,9 @@ import { TxType } from "../types";
 export function commitMove(network: NetworkLayer, actions: ActionSystem, moves: Move[]) {
   const {
     components: { OwnedBy, GameConfig, MoveCard },
-    network: { connectedAddress },
-    utils: { getPlayerEntity },
-    world,
   } = network;
 
   // Entity must be owned by the player
-  const prefix = "Commit Move:";
   const actionId = `commitMove ${Date.now()}` as EntityID;
   actions.add({
     id: actionId,

@@ -1,111 +1,10 @@
-import { EntityID, Has, hasComponent, runQuery } from "@latticexyz/recs";
+import { EntityID, getComponentValue, Has, hasComponent, runQuery, setComponent } from "@latticexyz/recs";
 import { computedToStream } from "@latticexyz/utils";
 import { useState } from "react";
 import { map, merge } from "rxjs";
-import { Layers } from "../../../../types";
+import { ModalType } from "../../../../types";
 import { registerUIComponent } from "../engine";
 import { Button, colors, Input } from "../styles/global";
-
-const JoinGameContainer = ({ layers }: { layers: Layers }) => {
-  const {
-    backend: {
-      world,
-      api: { spawnPlayer },
-      actions: { Action },
-    },
-  } = layers;
-
-  const [playerName, setPlayerName] = useState("");
-  const [x, setX] = useState("");
-  const [y, setY] = useState("");
-
-  const findSpawnButtonDisabled = playerName.length === 0 || x == undefined || y == undefined;
-  const spawnAction = [...runQuery([Has(Action)])].find((i) => world.entities[i].includes("spawn"));
-  return (
-    <div
-      style={{
-        background: colors.glass,
-        color: colors.darkBrown,
-        display: "flex",
-        flexDirection: "column",
-        pointerEvents: "all",
-        borderRadius: "6px",
-      }}
-    >
-      <h1 style={{ fontSize: "2.5rem", margin: "auto" }}>Name Your Captain</h1>
-
-      <div
-        style={{
-          height: "100%",
-          color: "#d07e1a",
-          padding: "12px",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-around",
-          gap: "12px",
-        }}
-      >
-        <Input
-          style={{ flex: 2, textAlign: "center" }}
-          type={"text"}
-          placeholder="Name..."
-          value={playerName}
-          onChange={(e) => {
-            if (e.target.value.length < 15) setPlayerName(e.target.value);
-          }}
-        ></Input>
-        {/* <div style={{ display: "flex", gap: "8px" }}>
-          <Input
-            style={{ flex: 2, textAlign: "center" }}
-            type={"number"}
-            placeholder="X..."
-            value={x}
-            onChange={(e) => {
-              if (isNaN(Number(e.target.value))) return;
-              if (e.target.value.length < 15) setX(e.target.value);
-            }}
-          ></Input>
-          <Input
-            style={{ flex: 2, textAlign: "center" }}
-            type={"text"}
-            placeholder="Y..."
-            value={y}
-            onChange={(e) => {
-              if (isNaN(Number(e.target.value))) return;
-              if (e.target.value.length < 15) setY(e.target.value);
-            }}
-          ></Input>
-        </div> */}
-        {!spawnAction ? (
-          <Button
-            isSelected
-            disabled={findSpawnButtonDisabled}
-            style={{
-              fontSize: "1.5rem",
-              flex: 1,
-            }}
-            onClick={() => {
-              if (x == undefined || y == undefined) return;
-              spawnPlayer(playerName);
-            }}
-          >
-            Register
-          </Button>
-        ) : (
-          <Button
-            disabled
-            style={{
-              fontSize: "1.5rem",
-              flex: 1,
-            }}
-          >
-            Spawning...
-          </Button>
-        )}
-      </div>
-    </div>
-  );
-};
 
 export function registerJoinGame() {
   registerUIComponent(
@@ -119,16 +18,25 @@ export function registerJoinGame() {
     (layers) => {
       const {
         network: {
-          network: { connectedAddress },
-          components: { Player, OwnedBy },
+          network: { connectedAddress, clock },
+          components: { Player, OwnedBy, GameConfig },
           world,
         },
         backend: {
+          components: { ModalOpen },
           actions: { Action },
+          api: { spawnPlayer },
+          godEntity,
         },
       } = layers;
 
-      return merge(computedToStream(connectedAddress), Player.update$, OwnedBy.update$, Action.update$).pipe(
+      return merge(
+        clock.time$,
+        computedToStream(connectedAddress),
+        Player.update$,
+        OwnedBy.update$,
+        Action.update$
+      ).pipe(
         map(() => connectedAddress.get()),
         map((address) => {
           if (!address) return;
@@ -138,15 +46,93 @@ export function registerJoinGame() {
           if (playerEntity != undefined) {
             if (hasComponent(Player, playerEntity)) return;
           }
+
+          const spawnAction = [...runQuery([Has(Action)])].length > 0;
+
+          const gameConfig = getComponentValue(GameConfig, godEntity);
+          if (!gameConfig) return;
+          const closeTime = Number(gameConfig.startTime) + Number(gameConfig.entryCutoff);
+          const entryWindowClosed = closeTime <= clock.currentTime / 1000;
+
+          const openTutorial = () => setComponent(ModalOpen, godEntity, { value: ModalType.TUTORIAL });
           return {
-            layers,
-            playerEntity,
+            spawnAction,
+            spawnPlayer,
+            entryWindowClosed,
+            openTutorial,
           };
         })
       );
     },
-    (props) => {
-      return <JoinGameContainer {...props} />;
+    ({ spawnAction, spawnPlayer, entryWindowClosed, openTutorial }) => {
+      const [playerName, setPlayerName] = useState("");
+      const findSpawnButtonDisabled = playerName.length === 0 || entryWindowClosed;
+
+      return (
+        <div
+          style={{
+            background: colors.glass,
+            color: colors.darkBrown,
+            display: "flex",
+            flexDirection: "column",
+            pointerEvents: "all",
+            borderRadius: "6px",
+          }}
+        >
+          <h1 style={{ fontSize: "2.5rem", margin: "auto" }}>Name Your Captain</h1>
+
+          <div
+            style={{
+              height: "100%",
+              color: "#d07e1a",
+              padding: "12px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-around",
+              gap: "12px",
+            }}
+          >
+            <Input
+              style={{ flex: 2, textAlign: "center" }}
+              type={"text"}
+              placeholder="Name..."
+              value={playerName}
+              onChange={(e) => {
+                if (e.target.value.length < 15) setPlayerName(e.target.value);
+              }}
+            ></Input>
+            {entryWindowClosed && (
+              <h1 style={{ color: colors.red, textAlign: "center" }}>Registration window closed!</h1>
+            )}
+            {!spawnAction ? (
+              <Button
+                isSelected
+                disabled={findSpawnButtonDisabled}
+                style={{
+                  fontSize: "1.5rem",
+                  flex: 1,
+                }}
+                onClick={() => {
+                  spawnPlayer(playerName);
+                }}
+              >
+                Register
+              </Button>
+            ) : (
+              <Button
+                disabled
+                style={{
+                  fontSize: "1.5rem",
+                  flex: 1,
+                }}
+              >
+                Spawning...
+              </Button>
+            )}
+            <Button onClick={openTutorial}>How to Play</Button>
+          </div>
+        </div>
+      );
     }
   );
 }

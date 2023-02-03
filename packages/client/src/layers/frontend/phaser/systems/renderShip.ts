@@ -1,6 +1,5 @@
-import { GodID } from "@latticexyz/network";
 import { Coord, tileCoordToPixelCoord } from "@latticexyz/phaserx";
-import { EntityIndex, getComponentValueStrict } from "@latticexyz/recs";
+import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
 import { getShipSprite } from "../../../../utils/ships";
 import { getFiringArea } from "../../../../utils/trig";
@@ -18,47 +17,34 @@ export function renderShip(
   alpha = 1
 ) {
   const {
-    world,
-    parentLayers: {
-      network: {
-        components: { Length, Health },
-      },
-    },
-    scenes: {
-      Main: { objectPool, config },
-    },
-    positions,
+    components: { Length, HealthLocal },
+    scene: { config, posWidth, posHeight },
+    utils: { getSpriteObject },
+    godEntity,
   } = phaser;
 
-  const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
-
-  const object = objectPool.get(objectId, "Sprite");
+  const object = getSpriteObject(objectId);
 
   const length = getComponentValueStrict(Length, shipEntity).value;
-  const health = getComponentValueStrict(Health, shipEntity).value;
+  const health = getComponentValueStrict(HealthLocal, shipEntity).value;
 
-  const spriteAsset: Sprites = getShipSprite(GodEntityIndex, health, true);
+  const spriteAsset: Sprites = getShipSprite(godEntity, health, true);
   // @ts-expect-error doesnt recognize a sprite as a number
   const sprite = config.sprites[spriteAsset];
 
-  const { x, y } = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
+  const { x, y } = tileCoordToPixelCoord(position, posWidth, posHeight);
 
-  object.setComponent({
-    id: `projection-${shipEntity}`,
-    once: async (gameObject) => {
-      gameObject.setTexture(sprite.assetKey, sprite.frame);
+  object.setTexture(sprite.assetKey, sprite.frame);
 
-      gameObject.setAngle((rotation - 90) % 360);
-      const shipLength = length * positions.posWidth * 1.25;
-      const shipWidth = shipLength / SHIP_RATIO;
-      gameObject.setOrigin(0.5, 0.92);
-      gameObject.setDisplaySize(shipWidth, shipLength);
-      gameObject.setPosition(x, y);
-      gameObject.setAlpha(alpha);
-      gameObject.setTint(tint);
-      gameObject.setDepth(RenderDepth.Foreground5);
-    },
-  });
+  object.setAngle((rotation - 90) % 360);
+  const shipLength = length * posWidth * 1.25;
+  const shipWidth = shipLength / SHIP_RATIO;
+  object.setOrigin(0.5, 0.92);
+  object.setDisplaySize(shipWidth, shipLength);
+  object.setPosition(x, y);
+  object.setAlpha(alpha);
+  object.setTint(tint);
+  object.setDepth(RenderDepth.Foreground5);
 
   return object;
 }
@@ -71,19 +57,15 @@ export function getFiringAreaPixels(
   cannonEntity: EntityIndex
 ) {
   const {
-    parentLayers: {
-      network: {
-        components: { Range, Rotation },
-      },
-    },
-    positions,
+    components: { Range, Rotation },
+    scene: { posWidth, posHeight },
   } = phaser;
-  const range = getComponentValueStrict(Range, cannonEntity).value * positions.posHeight;
+  const range = (getComponentValue(Range, cannonEntity)?.value || 0) * posHeight;
 
-  const pixelPosition = tileCoordToPixelCoord(position, positions.posWidth, positions.posHeight);
+  const pixelPosition = tileCoordToPixelCoord(position, posWidth, posHeight);
   const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
 
-  return getFiringArea(pixelPosition, range, length * positions.posHeight, rotation, cannonRotation);
+  return getFiringArea(pixelPosition, range, length * posHeight, rotation, cannonRotation);
 }
 
 export function renderFiringArea(
@@ -96,12 +78,17 @@ export function renderFiringArea(
   fill: { tint: number; alpha: number } | undefined = undefined,
   stroke: { tint: number; alpha: number } | undefined = undefined
 ) {
-  const { phaserScene } = phaser.scenes.Main;
+  const { phaserScene } = phaser.scene;
 
   const firingArea = getFiringAreaPixels(phaser, position, rotation, length, cannonEntity);
-  const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, colors.whiteHex, 0.1);
+  const firingPolygon = phaserScene.add.polygon(undefined, undefined, firingArea, colors.whiteHex, 0.3);
   firingPolygon.setDisplayOrigin(0);
   firingPolygon.setDepth(RenderDepth.Foreground6);
+
+  const geomPolygon = new Phaser.Geom.Polygon(
+    firingArea.reduce((prev: number[], coord) => [...prev, coord.x, coord.y], [])
+  );
+
   if (fill) {
     firingPolygon.setFillStyle(fill.tint, fill.alpha);
   }
@@ -110,6 +97,8 @@ export function renderFiringArea(
   }
 
   group.add(firingPolygon, true);
+
+  return firingPolygon;
 }
 
 export function renderCircle(
@@ -122,17 +111,14 @@ export function renderCircle(
   alpha = 1
 ) {
   const {
-    scenes: {
-      Main: { phaserScene },
-    },
-    positions,
+    scene: { phaserScene, posWidth, posHeight },
   } = phaser;
-  const circleWidth = length * positions.posWidth * 1.5;
+  const circleWidth = length * posWidth * 1.5;
   const circleHeight = circleWidth / SHIP_RATIO;
 
   const circle = phaserScene.add.ellipse(
-    position.x * positions.posHeight,
-    position.y * positions.posHeight,
+    position.x * posHeight,
+    position.y * posHeight,
     circleWidth,
     circleHeight,
     colors.goldHex,
@@ -155,14 +141,14 @@ export function getRangeTintAlpha(loaded: boolean, selected: boolean, damaged: b
 
   // Loaded
   if (loaded) {
-    fill = { tint: colors.goldHex, alpha: 0.5 };
+    fill = { tint: colors.goldHex, alpha: 0.4 };
   }
   //SELECTED
   if (selected) {
     //Unloaded
-    fill = { tint: colors.goldHex, alpha: 0.5 };
+    fill = { tint: colors.goldHex, alpha: 0.7 };
     //Loaded
-    if (loaded) fill = { tint: colors.cannonReadyHex, alpha: 0.5 };
+    if (loaded) fill = { tint: colors.cannonReadyHex, alpha: 0.7 };
   }
   return fill;
 }

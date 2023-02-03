@@ -1,26 +1,47 @@
-import { pixelCoordToTileCoord } from "@latticexyz/phaserx";
-import { removeComponent } from "@latticexyz/recs";
+import { Key, pixelCoordToTileCoord } from "@latticexyz/phaserx";
+import {
+  defineEnterSystem,
+  EntityIndex,
+  getComponentValue,
+  getComponentValueStrict,
+  Has,
+  removeComponent,
+  setComponent,
+} from "@latticexyz/recs";
 import { PhaserLayer } from "../types";
-import { registerCameraControls } from "./registerCameraControls";
 
 export function createInputSystem(phaser: PhaserLayer) {
   const {
     world,
-    parentLayers: {
-      backend: {
-        godIndex,
-        components: { SelectedShip },
-      },
-    },
-    scenes: {
-      Main: {
-        input,
-        maps: {
-          Main: { tileWidth, tileHeight },
-        },
+    components: { SelectedShip, Position, OwnedBy },
+    utils: { getPlayerEntity },
+    godEntity,
+    scene: {
+      input,
+      camera,
+      posWidth,
+      posHeight,
+      maps: {
+        Main: { tileWidth, tileHeight },
       },
     },
   } = phaser;
+
+  const shipKeyRegistry = new Map<Key, EntityIndex>();
+  const NumberKeyNames: Key[] = ["ONE", "TWO", "THREE", "FOUR", "FIVE"];
+
+  defineEnterSystem(world, [Has(Position), Has(OwnedBy)], ({ entity }) => {
+    const owner = getComponentValueStrict(OwnedBy, entity).value;
+    const playerEntity = getPlayerEntity();
+    if (!playerEntity) return;
+    if (owner != world.entities[playerEntity]) return;
+
+    console.log("setting shortcut for", entity);
+    for (let i = 0; i < 5; i++) {
+      const ship = shipKeyRegistry.has(NumberKeyNames[i]);
+      if (!ship) return shipKeyRegistry.set(NumberKeyNames[i], entity);
+    }
+  });
 
   const clickSub = input.click$.subscribe((p) => {
     const pointer = p as Phaser.Input.Pointer;
@@ -33,11 +54,27 @@ export function createInputSystem(phaser: PhaserLayer) {
   input.onKeyPress(
     (keys) => keys.has("ESC"),
     () => {
-      removeComponent(SelectedShip, godIndex);
+      removeComponent(SelectedShip, godEntity);
     }
   );
 
-  world.registerDisposer(() => clickSub?.unsubscribe());
+  for (const key of NumberKeyNames) {
+    input.onKeyPress(
+      (keys) => keys.has(key),
+      () => {
+        const shipEntity = shipKeyRegistry.get(key);
+        if (!shipEntity) return;
+        setComponent(SelectedShip, godEntity, { value: shipEntity });
+        const position = getComponentValue(Position, shipEntity);
+        if (!position) return;
+        camera.centerOn(position.x * posWidth, position.y * posHeight + 400);
+      }
+    );
+  }
 
-  registerCameraControls(phaser);
+  input.rightClick$.subscribe((p) => {
+    removeComponent(SelectedShip, godEntity);
+  });
+
+  world.registerDisposer(() => clickSub?.unsubscribe());
 }

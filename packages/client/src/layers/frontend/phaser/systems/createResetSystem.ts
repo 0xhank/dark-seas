@@ -6,32 +6,36 @@ import { PhaserLayer } from "../types";
 export function createResetSystem(phaser: PhaserLayer) {
   const {
     world,
-    parentLayers: {
-      network: {
-        components: { LastMove, LastAction, MoveCard },
-        utils: { getPlayerEntity, getPhase, getGameConfig, getTurn, secondsUntilNextPhase },
-        network: { clock },
-      },
-      backend: {
-        components: {
-          SelectedMove,
-          SelectedActions,
-          EncodedCommitment,
-          CommittedMove,
-          ExecutedActions,
-          HoveredMove,
-          HoveredAction,
-          Targeted,
-        },
-        api: { commitMove, revealMove, submitActions },
-        utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, getPlayerShips, clearComponent },
-        godIndex,
-      },
+    godEntity,
+    components: {
+      SelectedMove,
+      SelectedActions,
+      EncodedCommitment,
+      CommittedMove,
+      HoveredMove,
+      HoveredAction,
+      Targeted,
+      ExecutedActions,
+      ExecutedCannon,
+      LastMove,
+      LastAction,
+      MoveCard,
     },
-    scenes: {
-      Main: { objectPool },
+    api: { commitMove, revealMove, submitActions },
+    network: { clock },
+    utils: {
+      destroySpriteObject,
+      destroyGroupObject,
+      getPlayerEntity,
+      getPhase,
+      getGameConfig,
+      getTurn,
+      secondsUntilNextPhase,
+      getPlayerShipsWithMoves,
+      getPlayerShipsWithActions,
+      getPlayerShips,
+      clearComponent,
     },
-    polygonRegistry,
   } = phaser;
 
   defineRxSystem(world, clock.time$, () => {
@@ -52,19 +56,21 @@ export function createResetSystem(phaser: PhaserLayer) {
       // START OF PHASE
       if (timeToNextPhase == gameConfig.commitPhaseLength) {
         getPlayerShips()?.map((ship) => {
-          objectPool.remove(`projection-${ship}`);
-          polygonRegistry.get(`rangeGroup-${ship}`)?.clear(true, true);
-          clearComponent(SelectedActions);
-          clearComponent(ExecutedActions);
-          clearComponent(HoveredAction);
-          clearComponent(Targeted);
+          destroySpriteObject(`projection-${ship}`);
+          destroyGroupObject(`projection-${ship}`);
         });
-        polygonRegistry.get("selectedActions")?.clear(true, true);
+        destroyGroupObject("selectedActions");
+        destroyGroupObject("hoveredFiringArea");
+        clearComponent(SelectedActions);
+        clearComponent(HoveredAction);
+        clearComponent(ExecutedActions);
+        clearComponent(ExecutedCannon);
+        clearComponent(Targeted);
       }
 
       // END OF PHASE
       if (timeToNextPhase == 1) {
-        const encodedCommitment = getComponentValue(EncodedCommitment, godIndex)?.value;
+        const encodedCommitment = getComponentValue(EncodedCommitment, godEntity)?.value;
         if (encodedCommitment) return;
         const shipsAndMoves = getPlayerShipsWithMoves();
         if (!shipsAndMoves) return;
@@ -75,24 +81,26 @@ export function createResetSystem(phaser: PhaserLayer) {
     // START OF PHASE: reveal moves
     // note: contract-side this occurs during the commit phase
     if (phase == Phase.Reveal) {
+      if (timeToNextPhase == gameConfig.revealPhaseLength - 3) {
+        const encoding = getComponentValue(EncodedCommitment, godEntity)?.value;
+        if (encoding) revealMove(encoding);
+      }
       if (timeToNextPhase !== gameConfig.revealPhaseLength) return;
 
       [...getComponentEntities(MoveCard)].forEach((moveCardEntity) => {
         const objectId = `optionGhost-${moveCardEntity}`;
-        objectPool.remove(objectId);
+        destroySpriteObject(objectId);
       });
       const lastMove = getComponentValue(LastMove, playerEntity)?.value;
       if (lastMove == turn) return;
-      const encoding = getComponentValue(EncodedCommitment, godIndex)?.value;
-      if (encoding) revealMove(encoding);
 
       // clear projected ship
-      const hoveredShip = getComponentValue(HoveredMove, godIndex)?.shipEntity;
+      const hoveredShip = getComponentValue(HoveredMove, godEntity)?.shipEntity;
       if (hoveredShip) {
         const hoverId = `hoverGhost-${hoveredShip}`;
 
-        objectPool.remove(hoverId);
-        polygonRegistry.get(hoverId)?.clear(true, true);
+        destroySpriteObject(hoverId);
+        destroyGroupObject(hoverId);
       }
     }
 

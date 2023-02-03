@@ -164,7 +164,7 @@ export const phaserConfig = {
           startFrame: 0,
           endFrame: 2,
           frameRate: 4,
-          repeat: -1,
+          repeat: 2,
           prefix: "explosion/",
           suffix: ".png",
         },
@@ -194,7 +194,7 @@ export const phaserConfig = {
     pinchSpeed: 0.5,
     wheelSpeed: 0,
     maxZoom: 2,
-    minZoom: 0.25,
+    minZoom: 0.4,
   }),
   cullingChunkSize: TILE_HEIGHT * 16,
 };

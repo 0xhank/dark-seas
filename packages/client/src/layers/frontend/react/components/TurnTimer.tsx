@@ -13,7 +13,7 @@ export function registerTurnTimer() {
     {
       rowStart: 1,
       rowEnd: 1,
-      colStart: 6,
+      colStart: 5,
       colEnd: 9,
     },
     (layers) => {
@@ -26,7 +26,7 @@ export function registerTurnTimer() {
         backend: {
           utils: { playSound },
           components: { EncodedCommitment },
-          godIndex,
+          godEntity,
         },
       } = layers;
 
@@ -38,6 +38,7 @@ export function registerTurnTimer() {
           const phase = getPhase(DELAY);
           const turn = getTurn(DELAY);
           const playerEntity = getPlayerEntity();
+
           const secsLeft = secondsUntilNextPhase(DELAY) || 0;
 
           const phaseLength =
@@ -46,40 +47,29 @@ export function registerTurnTimer() {
               : phase == Phase.Reveal
               ? gameConfig.revealPhaseLength
               : gameConfig.actionPhaseLength;
+          if (!playerEntity || !phaseLength) return null;
 
-          return {
-            phaseLength,
-            EncodedCommitment,
-            LastAction,
-            secsLeft,
-            phase,
-            turn,
-            godIndex,
-            playSound,
-            playerEntity,
-          };
+          let str = null;
+          if (phase == Phase.Commit) {
+            str = <Text secsLeft={secsLeft}>Choose your moves</Text>;
+            if (secsLeft < 6 && !getComponentValue(EncodedCommitment, godEntity)) {
+              playSound("tick", Category.UI);
+            }
+          } else if (phase == Phase.Reveal) str = <PulsingText>Waiting for Players to Reveal Moves...</PulsingText>;
+          else if (phase == Phase.Action) {
+            str = <Text secsLeft={secsLeft}>Choose 2 actions per ship</Text>;
+            const lastAction = getComponentValue(LastAction, playerEntity)?.value;
+
+            if (secsLeft < 6 && lastAction !== turn) {
+              playSound("tick", Category.UI);
+            }
+          }
+
+          return { phase, phaseLength, secsLeft, str };
         })
       );
     },
-    ({ phaseLength, secsLeft, phase, turn, playSound, playerEntity, EncodedCommitment, LastAction, godIndex }) => {
-      if (!playerEntity || !phaseLength) return null;
-
-      let str = null;
-      if (phase == Phase.Commit) {
-        str = <Text secsLeft={secsLeft}>Choose your moves</Text>;
-        if (secsLeft < 6 && !getComponentValue(EncodedCommitment, godIndex)) {
-          playSound("tick", Category.UI);
-        }
-      } else if (phase == Phase.Reveal) str = <PulsingText>Waiting for Players to Reveal Moves...</PulsingText>;
-      else if (phase == Phase.Action) {
-        str = <Text secsLeft={secsLeft}>Choose 2 actions per ship</Text>;
-        const lastAction = getComponentValue(LastAction, playerEntity)?.value;
-
-        if (secsLeft < 6 && lastAction !== turn) {
-          playSound("tick", Category.UI);
-        }
-      }
-
+    ({ phase, phaseLength, secsLeft, str }) => {
       return (
         <OuterContainer>
           {phase == Phase.Commit || phase == Phase.Action ? (
@@ -97,7 +87,7 @@ export function registerTurnTimer() {
 }
 
 const OuterContainer = styled.div`
-  top: 20px;
+  top: 12px;
   left: 50%;
   transform: translate(-50%, 0);
 
@@ -111,7 +101,7 @@ const InternalContainer = styled.div`
   align-items: center;
   background: ${colors.glass};
   border-radius: 6px;
-  height: 30px;
+  height: 40px;
 `;
 
 const Text = styled.div<{ secsLeft?: number }>`
@@ -144,9 +134,9 @@ const ProgressBar = styled.div<{ phaseLength: number; secsLeft: number }>`
   position: absolute;
   top: 0;
   left: 0;
-  height: 30px;
+  height: 40px;
   transition: width 1s linear;
   background-color: ${({ secsLeft }) => (secsLeft > 5 ? colors.gold : colors.red)};
-  width: ${({ phaseLength, secsLeft }) => `calc(100% * ${(phaseLength - secsLeft) / phaseLength})`};
+  width: ${({ phaseLength, secsLeft }) => `calc(100% * ${(phaseLength - secsLeft + 1) / phaseLength})`};
   border-radius: 6px;
 `;

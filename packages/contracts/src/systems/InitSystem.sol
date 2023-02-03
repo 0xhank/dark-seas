@@ -58,12 +58,14 @@ contract InitSystem is System {
       GodID,
       GameConfig({
         startTime: block.timestamp,
-        commitPhaseLength: 25,
-        revealPhaseLength: 10,
-        actionPhaseLength: 25,
-        worldRadius: 400,
-        perlinSeed: 69,
-        shipPrototypes: shipEntities
+        commitPhaseLength: 30,
+        revealPhaseLength: 9,
+        actionPhaseLength: 23,
+        worldSize: 150,
+        perlinSeed: 420,
+        shipPrototypes: shipEntities,
+        entryCutoff: 60 * 60 * 15, // 15 hours,
+        buyin: 1000
       })
     );
 

@@ -29,6 +29,8 @@ contract RepairActionTest is DarkSeasTest {
 
   Action[] actions;
 
+  bytes none = abi.encode(0);
+
   function testExtinguishFire() public prank(deployer) {
     setup();
     OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
@@ -46,7 +48,7 @@ contract RepairActionTest is DarkSeasTest {
     Action memory action = Action({
       shipEntity: shipEntity,
       actionTypes: [ActionType.ExtinguishFire, ActionType.None],
-      specialEntities: [uint256(0), uint256(0)]
+      metadata: [none, none]
     });
     actions.push(action);
     actionSystem.executeTyped(actions);
@@ -67,7 +69,7 @@ contract RepairActionTest is DarkSeasTest {
     Action memory action = Action({
       shipEntity: shipEntity,
       actionTypes: [ActionType.RepairSail, ActionType.None],
-      specialEntities: [uint256(0), uint256(0)]
+      metadata: [none, none]
     });
     actions.push(action);
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
@@ -91,7 +93,7 @@ contract RepairActionTest is DarkSeasTest {
     Action memory action = Action({
       shipEntity: shipEntity,
       actionTypes: [ActionType.RepairCannons, ActionType.None],
-      specialEntities: [uint256(0), uint256(0)]
+      metadata: [none, none]
     });
     actions.push(action);
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));

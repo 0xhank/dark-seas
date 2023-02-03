@@ -138,10 +138,8 @@ contract MoveSystemTest is DarkSeasTest {
 
   function testOutOfBounds() public prank(deployer) {
     setup();
-    uint32 worldRadius = GameConfigComponent(getAddressById(components, GameConfigComponentID))
-      .getValue(GodID)
-      .worldRadius;
-    uint256 shipEntity = spawnShip(Coord(int32(worldRadius), 0), 0, deployer);
+    uint32 worldSize = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).worldSize;
+    uint256 shipEntity = spawnShip(Coord(0, int32(worldSize)), 90, deployer);
     uint256 moveStraightEntity = uint256(keccak256("ds.prototype.moveEntity1"));
 
     moves.push(Move({ moveCardEntity: moveStraightEntity, shipEntity: shipEntity }));
@@ -282,7 +280,7 @@ contract MoveSystemTest is DarkSeasTest {
     moveCard.direction = 315;
 
     sailPosition = 1;
-    uint32 debuff = 60;
+    uint32 debuff = 70;
     newMoveCard = LibMove.getMoveWithSails(moveCard, 100, sailPosition);
     assertEq(newMoveCard.distance, (moveCard.distance * debuff) / 100, "closed sails distance failed");
     assertEq(newMoveCard.rotation, 360 - (((360 - moveCard.rotation) * 100) / debuff), "closed sails rotation failed");
