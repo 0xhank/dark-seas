@@ -66,7 +66,11 @@ contract InitSystem is System {
         shipPrototypes: shipEntities,
         entryCutoffTurns: 60, // entry is closed after the 60th turn (~1 hour)
         buyin: 1000,
-        respawnAllowed: true
+        respawnAllowed: true,
+        // Calculation: Every turn, the world shrinks by gameConfig.shrinkrate / 100.
+        // If shrink rate is 100, the world will shrink by 1 each turn.
+        // Shrinking starts once entry is cutoff and ends when the world size is 50.
+        shrinkRate: 100
       })
     );
 

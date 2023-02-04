@@ -53,6 +53,7 @@ export async function createNetworkLayer(config: GameConfig) {
         entryCutoffTurns: Type.Number,
         buyin: Type.String,
         respawnAllowed: Type.Boolean,
+        shrinkRate: Type.Number,
       },
       { id: "GameConfig", metadata: { contractId: "ds.component.GameConfig" } }
     ),

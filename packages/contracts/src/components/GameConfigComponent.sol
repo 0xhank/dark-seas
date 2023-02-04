@@ -11,8 +11,8 @@ contract GameConfigComponent is Component {
   constructor(address world) Component(world, ID) {}
 
   function getSchema() public pure override returns (string[] memory keys, LibTypes.SchemaValue[] memory values) {
-    keys = new string[](10);
-    values = new LibTypes.SchemaValue[](10);
+    keys = new string[](11);
+    values = new LibTypes.SchemaValue[](11);
 
     keys[0] = "startTime";
     values[0] = LibTypes.SchemaValue.UINT256;
@@ -43,6 +43,9 @@ contract GameConfigComponent is Component {
 
     keys[9] = "respawnAllowed";
     values[9] = LibTypes.SchemaValue.BOOL;
+
+    keys[10] = "shrinkRate";
+    values[10] = LibTypes.SchemaValue.UINT32;
   }
 
   function set(uint256 entity, GameConfig calldata config) public {
@@ -60,24 +63,26 @@ contract GameConfigComponent is Component {
       uint256[] memory shipPrototypes,
       uint32 entryCutoffTurns,
       uint256 buyin,
-      bool respawnAllowed
+      bool respawnAllowed,
+      uint32 shrinkRate
     ) = abi.decode(
         getRawValue(entity),
-        (uint256, uint32, uint32, uint32, uint32, int128, uint256[], uint32, uint256, bool)
+        (uint256, uint32, uint32, uint32, uint32, int128, uint256[], uint32, uint256, bool, uint32)
       );
     return
-      GameConfig(
-        startTime,
-        commitPhaseLength,
-        revealPhaseLength,
-        actionPhaseLength,
-        worldSize,
-        perlinSeed,
-        shipPrototypes,
-        entryCutoffTurns,
-        buyin,
-        respawnAllowed
-      );
+      GameConfig({
+        startTime: startTime,
+        commitPhaseLength: commitPhaseLength,
+        revealPhaseLength: revealPhaseLength,
+        actionPhaseLength: actionPhaseLength,
+        worldSize: worldSize,
+        perlinSeed: perlinSeed,
+        shipPrototypes: shipPrototypes,
+        entryCutoffTurns: entryCutoffTurns,
+        buyin: buyin,
+        respawnAllowed: respawnAllowed,
+        shrinkRate: shrinkRate
+      });
   }
 
   function getEntitiesWithValue(GameConfig calldata config) public view returns (uint256[] memory) {
@@ -96,7 +101,8 @@ contract GameConfigComponent is Component {
         config.shipPrototypes,
         config.entryCutoffTurns,
         config.buyin,
-        config.respawnAllowed
+        config.respawnAllowed,
+        config.shrinkRate
       );
   }
 }
