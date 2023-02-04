@@ -196,6 +196,6 @@ library LibVector {
 
     depth = int128(Math.muli(depth, 100));
 
-    return depth < 26;
+    return depth < 33;
   }
 }

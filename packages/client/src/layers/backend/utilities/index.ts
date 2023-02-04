@@ -221,7 +221,7 @@ export async function createBackendUtilities(
     if (retrievedVal != undefined) return retrievedVal;
     const denom = 50;
     const depth = perlin(coord.x + perlinSeed, coord.y + perlinSeed, 0, denom);
-    const ret = depth * 100 < 28;
+    const ret = depth * 100 < 33;
     whirlpoolMap.set(coordStr, ret);
 
     return ret;
