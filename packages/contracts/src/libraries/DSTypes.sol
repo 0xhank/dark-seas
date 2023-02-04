@@ -55,7 +55,7 @@ struct GameConfig {
   int128 perlinSeed;
   uint256[] shipPrototypes;
   // Amount of time for players to enter game
-  uint256 entryCutoff;
+  uint32 entryCutoffTurns;
   uint256 buyin;
   bool respawnAllowed;
 }

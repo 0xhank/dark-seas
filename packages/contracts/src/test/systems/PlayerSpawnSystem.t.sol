@@ -15,7 +15,7 @@ import { GameConfigComponent, ID as GameConfigComponentID } from "../../componen
 import { BootyComponent, ID as BootyComponentID } from "../../components/BootyComponent.sol";
 
 // Types
-import { Coord } from "../../libraries/DSTypes.sol";
+import { Coord, Phase } from "../../libraries/DSTypes.sol";
 
 // Internal
 import "../../libraries/LibUtils.sol";
@@ -33,7 +33,7 @@ contract PlayerSpawnTest is DarkSeasTest {
       GodID
     );
 
-    vm.warp(gameConfig.startTime + gameConfig.entryCutoff);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, gameConfig.entryCutoffTurns + 1, Phase.Commit));
 
     vm.expectRevert(bytes("PlayerSpawnSystem: entry period has ended"));
     playerSpawnSystem.executeTyped("Jamaican me crazy", Coord(1, 1));

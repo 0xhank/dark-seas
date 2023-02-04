@@ -64,7 +64,7 @@ contract InitSystem is System {
         worldSize: 120,
         perlinSeed: 420,
         shipPrototypes: shipEntities,
-        entryCutoff: 60 * 60 * 15, // 15 hours,
+        entryCutoffTurns: 60, // entry is closed after the 60th turn (~1 hour)
         buyin: 1000,
         respawnAllowed: true
       })

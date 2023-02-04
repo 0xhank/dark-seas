@@ -50,7 +50,7 @@ export async function createNetworkLayer(config: GameConfig) {
         worldSize: Type.Number,
         perlinSeed: Type.String,
         shipPrototypes: Type.StringArray,
-        entryCutoff: Type.String,
+        entryCutoffTurns: Type.Number,
         buyin: Type.String,
         respawnAllowed: Type.Boolean,
       },

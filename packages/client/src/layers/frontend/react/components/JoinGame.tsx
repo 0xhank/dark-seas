@@ -26,7 +26,7 @@ export function registerJoinGame() {
           components: { ModalOpen },
           actions: { Action },
           api: { spawnPlayer },
-          utils: { getPlayerEntity },
+          utils: { getPlayerEntity, getTurn },
           godEntity,
         },
       } = layers;
@@ -46,8 +46,8 @@ export function registerJoinGame() {
 
           const spawnAction = [...runQuery([Has(Action)])].length > 0;
 
-          const closeTime = Number(gameConfig.startTime) + Number(gameConfig.entryCutoff);
-          const entryWindowClosed = closeTime <= clock.currentTime / 1000;
+          const turn = getTurn() || 0;
+          const entryWindowClosed = turn > gameConfig.entryCutoffTurns;
 
           const openTutorial = () => setComponent(ModalOpen, ModalType.TUTORIAL, { value: true });
           return {

@@ -35,8 +35,8 @@ contract GameConfigComponent is Component {
     keys[6] = "shipPrototypes";
     values[6] = LibTypes.SchemaValue.UINT256_ARRAY;
 
-    keys[7] = "entryCutoff";
-    values[7] = LibTypes.SchemaValue.UINT256;
+    keys[7] = "entryCutoffTurns";
+    values[7] = LibTypes.SchemaValue.UINT32;
 
     keys[8] = "buyin";
     values[8] = LibTypes.SchemaValue.UINT256;
@@ -58,12 +58,12 @@ contract GameConfigComponent is Component {
       uint32 worldSize,
       int128 perlinSeed,
       uint256[] memory shipPrototypes,
-      uint256 entryCutoff,
+      uint32 entryCutoffTurns,
       uint256 buyin,
       bool respawnAllowed
     ) = abi.decode(
         getRawValue(entity),
-        (uint256, uint32, uint32, uint32, uint32, int128, uint256[], uint256, uint256, bool)
+        (uint256, uint32, uint32, uint32, uint32, int128, uint256[], uint32, uint256, bool)
       );
     return
       GameConfig(
@@ -74,7 +74,7 @@ contract GameConfigComponent is Component {
         worldSize,
         perlinSeed,
         shipPrototypes,
-        entryCutoff,
+        entryCutoffTurns,
         buyin,
         respawnAllowed
       );
@@ -94,7 +94,7 @@ contract GameConfigComponent is Component {
         config.worldSize,
         config.perlinSeed,
         config.shipPrototypes,
-        config.entryCutoff,
+        config.entryCutoffTurns,
         config.buyin,
         config.respawnAllowed
       );
