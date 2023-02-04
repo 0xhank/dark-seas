@@ -9,7 +9,7 @@ export function registerCameraControls<S extends ScenesConfig>(layer: PhaserLaye
     api: {
       mapInteraction: { mapInteractionEnabled },
     },
-    utils: { getGameConfig },
+    utils: { getWorldDimsAtTurn },
   } = layer;
 
   const EDGE_SCROLL_SPEED = 8;
@@ -34,14 +34,13 @@ export function registerCameraControls<S extends ScenesConfig>(layer: PhaserLaye
       const zoomScale = deltaY < 0 ? 1.08 : 0.92;
       const newZoom = zoom * zoomScale; // deltaY>0 means we scrolled down
 
-      const width = camera.phaserCamera.displayWidth;
+      const useHeight = camera.phaserCamera.displayWidth / camera.phaserCamera.displayHeight < 16 / 9;
+      const currDisplayDim = useHeight ? camera.phaserCamera.displayHeight : camera.phaserCamera.displayWidth;
+      const newDisplayDim = currDisplayDim * (deltaY < 0 ? 0.92 : 1.08);
+      const worldDims = getWorldDimsAtTurn();
 
-      const worldSize = getGameConfig()?.worldSize;
-      if (!worldSize) return;
-
-      const maxWidth = (worldSize * posWidth * 2 * 16) / 9;
-      console.log("max width:", maxWidth, "width:", width);
-      if (deltaY >= 0 && (newZoom < config.cameraConfig.minZoom || maxWidth <= width)) return;
+      const maxDim = useHeight ? worldDims.height : worldDims.width * posWidth * 2;
+      if (deltaY >= 0 && (newZoom < config.cameraConfig.minZoom || maxDim <= newDisplayDim)) return;
       if (deltaY <= 0 && newZoom > config.cameraConfig.maxZoom) return;
 
       camera.setZoom(newZoom);

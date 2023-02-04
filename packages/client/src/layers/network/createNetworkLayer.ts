@@ -191,6 +191,17 @@ export async function createNetworkLayer(config: GameConfig) {
     return Math.floor(timeElapsed / turnLength);
   }
 
+  function secondsIntoTurn(delay = 0) {
+    const gameConfig = getGameConfig();
+    const phase = getPhase(delay);
+
+    if (!gameConfig || phase == undefined) return;
+
+    const gameLength = Math.floor(network.clock.currentTime / 1000) + delay - parseInt(gameConfig.startTime);
+    const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;
+    return gameLength % turnLength;
+  }
+
   function secondsUntilNextPhase(delay = 0) {
     const gameConfig = getGameConfig();
     const phase = getPhase(delay);
@@ -257,6 +268,7 @@ export async function createNetworkLayer(config: GameConfig) {
       getGamePhaseAt,
       getTurn,
       secondsUntilNextPhase,
+      secondsIntoTurn,
       bigNumToEntityID,
     },
     api: { revealMove, submitActions, spawnPlayer, commitMove, respawn },
