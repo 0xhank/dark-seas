@@ -37,7 +37,8 @@
         "LastMoveComponent",
         "HealthComponent",
         "SailPositionComponent",
-        "BootyComponent"
+        "BootyComponent",
+        "LengthComponent"
       ]
     },
     {
@@ -51,7 +52,8 @@
         "LoadedComponent",
         "KillsComponent",
         "LastHitComponent",
-        "BootyComponent"
+        "BootyComponent",
+        "LengthComponent"
       ]
     },
     { "name": "ComponentDevSystem", "writeAccess": ["*"] },

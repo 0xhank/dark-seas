@@ -30,7 +30,7 @@ export async function createBackendUtilities(
   const {
     world,
     utils: { getPlayerEntity, getGameConfig, getTurn },
-    components: { Ship, OwnedBy, Range, Position, Rotation, Length, Firepower },
+    components: { Ship, OwnedBy, Range, Position, Rotation, Length, Firepower, Kills },
     network: { connectedAddress },
   } = network;
 
@@ -109,8 +109,7 @@ export async function createBackendUtilities(
       const enemyRotation = getComponentValueStrict(Rotation, targetEntity).value;
       const enemyLength = getComponentValueStrict(Length, targetEntity).value;
       const sternPosition = getSternLocation(enemyPosition, enemyRotation, enemyLength);
-      const range = getComponentValueStrict(Range, cannonEntity).value;
-
+      const range = getCannonRange(cannonEntity);
       const firingArea = getFiringArea(shipPosition, range, length, shipRotation, cannonRotation);
 
       const toTarget = inFiringArea(firingArea, enemyPosition) || inFiringArea(firingArea, sternPosition);
@@ -134,8 +133,9 @@ export async function createBackendUtilities(
     const targetPosition = getComponentValueStrict(Position, target);
     const dist = distance(shipPosition, targetPosition);
 
-    const firepower = getComponentValueStrict(Firepower, cannonEntity).value;
-    const baseHitChance = getBaseHitChance(dist, firepower);
+    const firepower = getCannonFirepower(cannonEntity);
+    const kills = getComponentValueStrict(Kills, shipEntity).value;
+    const baseHitChance = getBaseHitChance(dist, firepower * (1 + kills / 10));
 
     const format = (n: number) => Math.min(100, Math.round(n));
     return { 3: format(baseHitChance), 2: format(baseHitChance * 1.7), 1: format(baseHitChance * 4.5) };
@@ -174,6 +174,34 @@ export async function createBackendUtilities(
         },
       ];
     }, []);
+  }
+
+  function getCannonOwner(cannonEntity: EntityIndex) {
+    const shipID = getComponentValue(OwnedBy, cannonEntity)?.value;
+    if (!shipID) return;
+    const shipEntity = world.entityToIndex.get(shipID);
+    if (!shipEntity) return;
+    return shipEntity;
+  }
+
+  function getCannonRange(cannonEntity: EntityIndex) {
+    const range = getComponentValue(Range, cannonEntity)?.value;
+    const shipEntity = getCannonOwner(cannonEntity);
+    if (!shipEntity) return 0;
+    const kills = getComponentValue(Kills, shipEntity)?.value;
+    if (range == undefined || kills == undefined) return 0;
+
+    return range * (1 + kills / 10);
+  }
+
+  function getCannonFirepower(cannonEntity: EntityIndex) {
+    const firepower = getComponentValue(Firepower, cannonEntity)?.value;
+    const shipEntity = getCannonOwner(cannonEntity);
+    if (!shipEntity) return 0;
+    const kills = getComponentValue(Kills, shipEntity)?.value;
+    if (firepower == undefined || kills == undefined) return 0;
+
+    return firepower * (1 + kills / 10);
   }
 
   const whirlpoolMap = new Map<string, boolean>();
@@ -363,6 +391,8 @@ export async function createBackendUtilities(
     getPlayerShipsWithMoves,
     getPlayerShipsWithActions,
     getTargetedShips,
+    getCannonRange,
+    getCannonFirepower,
     isMyShip,
     outOfBounds,
     isWhirlpool,

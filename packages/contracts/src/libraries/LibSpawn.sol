@@ -183,6 +183,7 @@ library LibSpawn {
   ) internal {
     PositionComponent(getAddressById(components, PositionComponentID)).set(shipEntity, position);
     RotationComponent(getAddressById(components, RotationComponentID)).set(shipEntity, rotation);
+    LengthComponent(getAddressById(components, LengthComponentID)).set(shipEntity, 10);
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
 
     uint32 maxHealth = MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).getValue(shipEntity);
