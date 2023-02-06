@@ -123,6 +123,9 @@ library LibCombat {
   ) private {
     OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
     uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
+    uint32 kills = KillsComponent(getAddressById(components, KillsComponentID)).getValue(shipEntity);
+    firepower = (firepower * (10 + kills)) / 10;
+
     // get firing area of ship
     Coord[3] memory firingRange = getFiringAreaPivot(components, shipEntity, cannonEntity);
 
@@ -154,6 +157,8 @@ library LibCombat {
   ) private {
     OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
     uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
+    uint32 kills = KillsComponent(getAddressById(components, KillsComponentID)).getValue(shipEntity);
+    firepower = (firepower * (10 + kills)) / 10;
 
     // get firing area of ship
     Coord[4] memory firingRange = getFiringAreaBroadside(components, shipEntity, cannonEntity);
@@ -190,7 +195,6 @@ library LibCombat {
   ) public {
     uint256 baseHitChance = getBaseHitChance(distance, firepower);
 
-    // todo: make randomness more robust
     uint256 r = LibUtils.randomness(attackerEntity, defenderEntity);
 
     // perform hull damage
@@ -254,11 +258,17 @@ library LibCombat {
     KillsComponent killsComponent = KillsComponent(getAddressById(components, KillsComponentID));
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
     BootyComponent bootyComponent = BootyComponent(getAddressById(components, BootyComponentID));
+    LengthComponent lengthComponent = LengthComponent(getAddressById(components, LengthComponentID));
+
     healthComponent.set(shipEntity, 0);
 
     // update ship kills
     uint32 prevKills = killsComponent.getValue(attackerEntity);
     killsComponent.set(attackerEntity, prevKills + 1);
+
+    // update ship length
+    uint32 prevLength = lengthComponent.getValue(attackerEntity);
+    lengthComponent.set(attackerEntity, prevLength + 2);
 
     // remove booty from sunk ship -> add half to attacking ship and half to attacking player
     uint256 booty = bootyComponent.getValue(shipEntity);
@@ -271,8 +281,8 @@ library LibCombat {
 
     uint32 maxHealth = MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).getValue(attackerEntity);
     uint32 health = healthComponent.getValue(attackerEntity);
-    if (health + 2 >= maxHealth) healthComponent.set(attackerEntity, maxHealth);
-    else healthComponent.set(attackerEntity, health + 2);
+    if (health + 1 >= maxHealth) healthComponent.set(attackerEntity, maxHealth);
+    else healthComponent.set(attackerEntity, health + 1);
   }
 
   /*************************************************** UTILITIES **************************************************** */

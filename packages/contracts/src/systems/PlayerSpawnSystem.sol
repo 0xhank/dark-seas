@@ -14,6 +14,7 @@ import { Coord, GameConfig, GodID } from "../libraries/DSTypes.sol";
 // Libraries
 import "../libraries/LibUtils.sol";
 import "../libraries/LibSpawn.sol";
+import "../libraries/LibTurn.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.PlayerSpawn"));
 
@@ -25,7 +26,7 @@ contract PlayerSpawnSystem is System {
       GodID
     );
     require(
-      block.timestamp < gameConfig.startTime + gameConfig.entryCutoff,
+      LibTurn.getCurrentTurn(components) <= gameConfig.entryCutoffTurns,
       "PlayerSpawnSystem: entry period has ended"
     );
     require(!LibUtils.playerAddrExists(components, msg.sender), "PlayerSpawnSystem: player has already spawned");

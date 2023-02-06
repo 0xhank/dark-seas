@@ -15,6 +15,7 @@ import { Coord, GameConfig, GodID } from "../libraries/DSTypes.sol";
 // Libraries
 import "../libraries/LibUtils.sol";
 import "../libraries/LibSpawn.sol";
+import "../libraries/LibTurn.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Respawn"));
 
@@ -25,10 +26,10 @@ contract RespawnSystem is System {
     GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
       GodID
     );
-    require(block.timestamp < gameConfig.startTime + gameConfig.entryCutoff, "RespawnSystem: entry period has ended");
-    require(LibUtils.playerAddrExists(components, msg.sender), "RespawnSystem: player has not already spawned");
-
     require(gameConfig.respawnAllowed, "RespawnSystem: respawn not activated");
+
+    require(LibTurn.getCurrentTurn(components) <= gameConfig.entryCutoffTurns, "RespawnSystem: entry period has ended");
+    require(LibUtils.playerAddrExists(components, msg.sender), "RespawnSystem: player has not already spawned");
 
     uint256 playerEntity = addressToEntity(msg.sender);
     uint256[] memory shipEntities = abi.decode(arguments, (uint256[]));

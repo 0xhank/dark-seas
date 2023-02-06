@@ -110,10 +110,24 @@ export function createShipSystem(phaser: PhaserLayer) {
     const length = update.value[0].value;
     const object = getSpriteObject(update.entity);
 
-    const shipLength = length * posWidth * 1.25;
-    const shipWidth = shipLength / SHIP_RATIO;
-    object.setDisplaySize(shipWidth, shipLength);
-    object.setOrigin(0.5, 0.92);
+    const oldLength = object.displayHeight;
+    const newLength = length * posWidth * 1.25;
+    const oldScale = object.scale;
+
+    const shipWidth = newLength / SHIP_RATIO;
+
+    tween({
+      targets: object,
+      duration: 2000,
+      delay: 1000,
+      props: {
+        scale: (newLength / oldLength) * oldScale,
+      },
+      onComplete: () => {
+        object.setDisplaySize(shipWidth, newLength);
+        object.setOrigin(0.5, 0.92);
+      },
+    });
   });
 
   // Position and Rotation updates
