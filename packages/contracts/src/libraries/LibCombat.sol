@@ -195,7 +195,6 @@ library LibCombat {
   ) public {
     uint256 baseHitChance = getBaseHitChance(distance, firepower);
 
-    // todo: make randomness more robust
     uint256 r = LibUtils.randomness(attackerEntity, defenderEntity);
 
     // perform hull damage

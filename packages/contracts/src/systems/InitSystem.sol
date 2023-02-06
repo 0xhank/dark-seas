@@ -20,47 +20,42 @@ import "../libraries/LibCreateShip.sol";
 contract InitSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
-  uint256[] shipEntities;
-  CannonPrototype[] cannons;
-
   function execute(bytes memory arguments) public returns (bytes memory) {
     MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
     GameConfigComponent gameConfigComponent = GameConfigComponent(getAddressById(components, GameConfigComponentID));
 
-    CannonPrototype memory cannon1 = CannonPrototype({ rotation: 90, firepower: 65, range: 60 });
-    CannonPrototype memory cannon2 = CannonPrototype({ rotation: 270, firepower: 65, range: 60 });
-    CannonPrototype memory cannon3 = CannonPrototype({ rotation: 345, firepower: 50, range: 50 });
-    CannonPrototype memory cannon4 = CannonPrototype({ rotation: 15, firepower: 50, range: 50 });
+    uint256[] memory shipEntities = new uint256[](2);
+    CannonPrototype[] memory cannonEntities1 = new CannonPrototype[](4);
+    cannonEntities1[0] = CannonPrototype({ rotation: 90, firepower: 65, range: 60 });
+    cannonEntities1[1] = CannonPrototype({ rotation: 270, firepower: 65, range: 60 });
+    cannonEntities1[2] = CannonPrototype({ rotation: 345, firepower: 50, range: 50 });
+    cannonEntities1[3] = CannonPrototype({ rotation: 15, firepower: 50, range: 50 });
 
-    cannons.push(cannon1);
-    cannons.push(cannon2);
-    cannons.push(cannon3);
-    cannons.push(cannon4);
+    ShipPrototype memory shipPrototype = ShipPrototype({
+      length: 13,
+      maxHealth: 10,
+      speed: 90,
+      cannons: cannonEntities1
+    });
 
-    ShipPrototype memory shipPrototype = ShipPrototype({ length: 13, maxHealth: 10, speed: 90, cannons: cannons });
+    shipEntities[0] = LibCreateShip.createShip(components, shipPrototype);
 
-    uint256 shipEntity = LibCreateShip.createShip(components, shipPrototype);
-    shipEntities.push(shipEntity);
+    CannonPrototype[] memory cannonEntities2 = new CannonPrototype[](3);
+    cannonEntities2[0] = CannonPrototype({ rotation: 90, firepower: 50, range: 100 });
+    cannonEntities2[1] = CannonPrototype({ rotation: 270, firepower: 50, range: 100 });
+    cannonEntities2[2] = CannonPrototype({ rotation: 0, firepower: 40, range: 100 });
 
-    cannon1 = CannonPrototype({ rotation: 90, firepower: 50, range: 100 });
-    cannon2 = CannonPrototype({ rotation: 270, firepower: 50, range: 100 });
-    cannon3 = CannonPrototype({ rotation: 0, firepower: 40, range: 100 });
-    delete cannons;
+    shipPrototype = ShipPrototype({ length: 10, maxHealth: 10, speed: 110, cannons: cannonEntities2 });
 
-    cannons.push(cannon1);
-    cannons.push(cannon2);
-    cannons.push(cannon3);
-    shipPrototype = ShipPrototype({ length: 10, maxHealth: 10, speed: 110, cannons: cannons });
+    shipEntities[1] = LibCreateShip.createShip(components, shipPrototype);
 
-    shipEntity = LibCreateShip.createShip(components, shipPrototype);
-    shipEntities.push(shipEntity);
     gameConfigComponent.set(
       GodID,
       GameConfig({
         startTime: block.timestamp,
-        commitPhaseLength: 30,
+        commitPhaseLength: 22,
         revealPhaseLength: 9,
-        actionPhaseLength: 23,
+        actionPhaseLength: 22,
         worldSize: 120,
         perlinSeed: 420,
         shipPrototypes: shipEntities,
@@ -70,7 +65,7 @@ contract InitSystem is System {
         // Calculation: Every turn, the world shrinks by gameConfig.shrinkrate / 100.
         // If shrink rate is 100, the world will shrink by 1 each turn.
         // Shrinking starts once entry is cutoff and ends when the world size is 50.
-        shrinkRate: 100
+        shrinkRate: 0
       })
     );
 

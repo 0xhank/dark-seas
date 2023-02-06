@@ -127,6 +127,8 @@ export function registerYourShips() {
           const playerEntity = getPlayerEntity(connectedAddress.get());
           if (!playerEntity || !getComponentValue(Player, playerEntity)) return null;
 
+          const respawnAllowed = !!getGameConfig()?.respawnAllowed;
+
           const selectedShip = getComponentValue(SelectedShip, godEntity)?.value as EntityIndex | undefined;
 
           const allYourShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
@@ -142,9 +144,10 @@ export function registerYourShips() {
           const txExecuting = [...runQuery([Has(Action)])].length > 0;
           let cannotAct = false;
           let acted = false;
+          let someShipUnselected = false;
           if (phase == Phase.Commit) {
             const selectedMoves = [...getComponentEntities(SelectedMove)];
-
+            someShipUnselected = selectedMoves.length != yourShips.length;
             acted = encodedCommitment !== undefined;
             cannotAct = selectedMoves.length == 0;
           } else if (phase == Phase.Reveal) {
@@ -154,6 +157,7 @@ export function registerYourShips() {
               getComponentValueStrict(SelectedActions, entity)
             );
             acted = getComponentValue(LastAction, playerEntity)?.value == currentTurn;
+            someShipUnselected = selectedActions.length != yourShips.length;
             cannotAct =
               !acted &&
               (selectedActions.length == 0 ||
@@ -178,9 +182,9 @@ export function registerYourShips() {
 
           const toggleOpen = () => setComponent(ModalOpen, ModalType.BOTTOM_BAR, { value: !isOpen });
 
-          const respawnAllowed = !!getGameConfig()?.respawnAllowed;
           return {
             layers,
+            isOpen,
             yourShips,
             selectedShip,
             phase,
@@ -188,14 +192,14 @@ export function registerYourShips() {
             encodedCommitment,
             movesComplete,
             respawnAllowed,
-            handleSubmitExecute,
             acted,
             disabled,
+            someShipUnselected,
             handleSubmitCommitment,
+            handleSubmitExecute,
             handleSubmitActions,
             removeActions,
             removeMoves,
-            isOpen,
             toggleOpen,
             respawn,
           };
@@ -205,8 +209,8 @@ export function registerYourShips() {
     // render
     (props) => {
       const RevealButtons = () => {
-        if (props.acted) return <Success background={colors.greenGlass}>Move reveal successful!</Success>;
-        if (!props.encodedCommitment) return <Success background={colors.glass}>No moves to reveal</Success>;
+        if (props.acted) return <Success>Move reveal successful!</Success>;
+        if (!props.encodedCommitment) return <Success>No moves to reveal</Success>;
         return (
           <ConfirmButton
             style={{ width: "100%", fontSize: "1rem", lineHeight: "1.25rem" }}
@@ -218,10 +222,8 @@ export function registerYourShips() {
       };
 
       const CommitButtons = () => {
-        const msg = "Confirm Moves";
-
         if (props.movesComplete && props.encodedCommitment) {
-          return <Success background="hsla(120, 100%, 50%, .5)">Moves Successful!</Success>;
+          return <Success>Moves Successful!</Success>;
         }
         return (
           <>
@@ -229,7 +231,12 @@ export function registerYourShips() {
               style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }}
               onClick={props.handleSubmitCommitment}
             >
-              {msg}
+              Confirm Moves
+              {props.someShipUnselected && (
+                <p style={{ color: colors.darkerGray, fontSize: "0.75rem" }}>
+                  You haven't selected a move for one of your ships!
+                </p>
+              )}
             </ConfirmButton>
             <ConfirmButton
               noGoldBorder
@@ -244,7 +251,7 @@ export function registerYourShips() {
 
       const ActionButtons = () => {
         if (props.acted) {
-          return <Success background="hsla(120, 100%, 50%, .5)">Actions Successful</Success>;
+          return <Success>Actions Successful</Success>;
         } else {
           return (
             <>
@@ -252,7 +259,12 @@ export function registerYourShips() {
                 style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }}
                 onClick={props.handleSubmitActions}
               >
-                Submit Actions
+                <p>Submit Actions</p>
+                {props.someShipUnselected && (
+                  <p style={{ color: colors.darkerGray, fontSize: "0.75rem" }}>
+                    You haven't selected actions for one of your ships!
+                  </p>
+                )}
               </ConfirmButton>
               <ConfirmButton
                 noGoldBorder
@@ -266,7 +278,7 @@ export function registerYourShips() {
         }
       };
       let content = null;
-      if (props.showExecuting) content = <Success background={colors.waiting}>Executing...</Success>;
+      if (props.showExecuting) content = <Success>Executing...</Success>;
       else if (props.phase == Phase.Reveal) content = <RevealButtons />;
       else if (props.phase == Phase.Commit) content = <CommitButtons />;
       else if (props.phase == Phase.Action) content = <ActionButtons />;
@@ -299,7 +311,7 @@ export function registerYourShips() {
   );
 }
 
-const Success = styled.div<{ background: string }>`
+const Success = styled.div`
   color: ${colors.gold};
   border-radius: 6px;
   width: 100%;
@@ -307,6 +319,7 @@ const Success = styled.div<{ background: string }>`
   justify-content: center;
   align-items: center;
 `;
+
 const MoveButtons = styled.div<{ isOpen: boolean }>`
   height: auto;
   background: ${colors.darkBrown};
