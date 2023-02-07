@@ -9,7 +9,7 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import styled from "styled-components";
-import { ActionImg, ActionNames, ActionType } from "../../../../../types";
+import { ActionImg, ActionNames, ActionType, Layers } from "../../../../../types";
 import { isBroadside } from "../../../../../utils/trig";
 import { DELAY } from "../../../constants";
 import { Img, OptionButton } from "../../styles/global";
@@ -18,16 +18,9 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
   const {
     backend: {
       world,
-      components: {
-        SelectedActions,
-        SelectedShip,
-        HoveredAction,
-        ExecutedActions,
-        ExecutedCannon,
-        DamagedCannonsLocal,
-      },
+      components: { SelectedActions, HoveredAction, ExecutedActions, ExecutedCannon, DamagedCannonsLocal },
       utils: { checkActionPossible, handleNewActionsCannon, handleNewActionsSpecial },
-      godIndex,
+      godEntity,
     },
     network: {
       components: { OwnedBy, Cannon, Rotation, Loaded, LastAction },
@@ -116,7 +109,7 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
 
       {actions.map((action) => {
         if (isNaN(action)) return null;
-        const selected = !actionsExecuted && selectedActions.actionTypes.find((a) => a == action) != undefined;
+        const selected = !actionsExecuted && selectedActions.actionTypes.includes(action);
         return (
           <ActionButton
             selected={selected}
@@ -159,11 +152,11 @@ export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: Entity
         isSelected={selected}
         disabled={disabled && !selected}
         confirmed={executed}
-        onMouseEnter={() => setComponent(HoveredAction, godIndex, { shipEntity: ship, actionType, specialEntity })}
-        onMouseLeave={() => removeComponent(HoveredAction, godIndex)}
+        onMouseEnter={() => setComponent(HoveredAction, godEntity, { shipEntity: ship, actionType, specialEntity })}
+        onMouseLeave={() => removeComponent(HoveredAction, godEntity)}
         onClick={(e) => {
           e.stopPropagation();
-          handleClick(actionType, specialEntity);
+          handleClick(actionType, specialEntity || ship);
         }}
       >
         <Img src={image} style={{ height: "70%", transform: `rotate(${imgRotation}deg)` }} />

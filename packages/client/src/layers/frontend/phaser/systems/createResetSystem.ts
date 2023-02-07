@@ -6,7 +6,7 @@ import { PhaserLayer } from "../types";
 export function createResetSystem(phaser: PhaserLayer) {
   const {
     world,
-    godIndex,
+    godEntity,
     components: {
       SelectedMove,
       SelectedActions,
@@ -70,7 +70,7 @@ export function createResetSystem(phaser: PhaserLayer) {
 
       // END OF PHASE
       if (timeToNextPhase == 1) {
-        const encodedCommitment = getComponentValue(EncodedCommitment, godIndex)?.value;
+        const encodedCommitment = getComponentValue(EncodedCommitment, godEntity)?.value;
         if (encodedCommitment) return;
         const shipsAndMoves = getPlayerShipsWithMoves();
         if (!shipsAndMoves) return;
@@ -82,7 +82,7 @@ export function createResetSystem(phaser: PhaserLayer) {
     // note: contract-side this occurs during the commit phase
     if (phase == Phase.Reveal) {
       if (timeToNextPhase == gameConfig.revealPhaseLength - 3) {
-        const encoding = getComponentValue(EncodedCommitment, godIndex)?.value;
+        const encoding = getComponentValue(EncodedCommitment, godEntity)?.value;
         if (encoding) revealMove(encoding);
       }
       if (timeToNextPhase !== gameConfig.revealPhaseLength) return;
@@ -95,7 +95,7 @@ export function createResetSystem(phaser: PhaserLayer) {
       if (lastMove == turn) return;
 
       // clear projected ship
-      const hoveredShip = getComponentValue(HoveredMove, godIndex)?.shipEntity;
+      const hoveredShip = getComponentValue(HoveredMove, godEntity)?.shipEntity;
       if (hoveredShip) {
         const hoverId = `hoverGhost-${hoveredShip}`;
 

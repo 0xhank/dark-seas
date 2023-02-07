@@ -29,7 +29,7 @@ export function registerDamageChance() {
         backend: {
           components: { HoveredAction },
           utils: { getTargetedShips, getDamageLikelihood },
-          godIndex,
+          godEntity,
         },
         phaser: {
           scene: { camera },
@@ -39,7 +39,7 @@ export function registerDamageChance() {
 
       return merge(HoveredAction.update$, camera.worldView$, camera.zoom$).pipe(
         map(() => {
-          const hoveredAction = getComponentValue(HoveredAction, godIndex);
+          const hoveredAction = getComponentValue(HoveredAction, godEntity);
 
           if (!hoveredAction) return;
           const cannonEntity = hoveredAction.specialEntity as EntityIndex;

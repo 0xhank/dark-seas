@@ -11,8 +11,8 @@ contract GameConfigComponent is Component {
   constructor(address world) Component(world, ID) {}
 
   function getSchema() public pure override returns (string[] memory keys, LibTypes.SchemaValue[] memory values) {
-    keys = new string[](6);
-    values = new LibTypes.SchemaValue[](6);
+    keys = new string[](11);
+    values = new LibTypes.SchemaValue[](11);
 
     keys[0] = "startTime";
     values[0] = LibTypes.SchemaValue.UINT256;
@@ -31,6 +31,21 @@ contract GameConfigComponent is Component {
 
     keys[5] = "perlinSeed";
     values[5] = LibTypes.SchemaValue.INT128;
+
+    keys[6] = "shipPrototypes";
+    values[6] = LibTypes.SchemaValue.UINT256_ARRAY;
+
+    keys[7] = "entryCutoffTurns";
+    values[7] = LibTypes.SchemaValue.UINT32;
+
+    keys[8] = "buyin";
+    values[8] = LibTypes.SchemaValue.UINT256;
+
+    keys[9] = "respawnAllowed";
+    values[9] = LibTypes.SchemaValue.BOOL;
+
+    keys[10] = "shrinkRate";
+    values[10] = LibTypes.SchemaValue.UINT32;
   }
 
   function set(uint256 entity, GameConfig calldata config) public {
@@ -44,9 +59,30 @@ contract GameConfigComponent is Component {
       uint32 revealPhaseLength,
       uint32 actionPhaseLength,
       uint32 worldSize,
-      int128 perlinSeed
-    ) = abi.decode(getRawValue(entity), (uint256, uint32, uint32, uint32, uint32, int128));
-    return GameConfig(startTime, commitPhaseLength, revealPhaseLength, actionPhaseLength, worldSize, perlinSeed);
+      int128 perlinSeed,
+      uint256[] memory shipPrototypes,
+      uint32 entryCutoffTurns,
+      uint256 buyin,
+      bool respawnAllowed,
+      uint32 shrinkRate
+    ) = abi.decode(
+        getRawValue(entity),
+        (uint256, uint32, uint32, uint32, uint32, int128, uint256[], uint32, uint256, bool, uint32)
+      );
+    return
+      GameConfig({
+        startTime: startTime,
+        commitPhaseLength: commitPhaseLength,
+        revealPhaseLength: revealPhaseLength,
+        actionPhaseLength: actionPhaseLength,
+        worldSize: worldSize,
+        perlinSeed: perlinSeed,
+        shipPrototypes: shipPrototypes,
+        entryCutoffTurns: entryCutoffTurns,
+        buyin: buyin,
+        respawnAllowed: respawnAllowed,
+        shrinkRate: shrinkRate
+      });
   }
 
   function getEntitiesWithValue(GameConfig calldata config) public view returns (uint256[] memory) {
@@ -61,7 +97,12 @@ contract GameConfigComponent is Component {
         config.revealPhaseLength,
         config.actionPhaseLength,
         config.worldSize,
-        config.perlinSeed
+        config.perlinSeed,
+        config.shipPrototypes,
+        config.entryCutoffTurns,
+        config.buyin,
+        config.respawnAllowed,
+        config.shrinkRate
       );
   }
 }

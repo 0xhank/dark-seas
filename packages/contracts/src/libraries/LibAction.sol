@@ -44,6 +44,11 @@ library LibAction {
         "ActionSystem: Entity must be a ship"
       );
 
+      require(
+        HealthComponent(getAddressById(components, HealthComponentID)).getValue(action.shipEntity) > 0,
+        "ActionSystem: Entity is dead"
+      );
+
       // todo: fix ensure action hasn't already been made
       if (i == 1 && actionType != ActionType.Fire && actionType != ActionType.Load) {
         require(action.actionTypes[0] != actionType, "ActionSystem: action already used");

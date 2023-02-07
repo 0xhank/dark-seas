@@ -45,13 +45,17 @@ export function createProjectionSystem(phaser: PhaserLayer) {
     destroySpriteObject(groupId);
   });
 
-  defineSystem(world, [Has(SelectedMove)], ({ entity: shipEntity, type }) => {
+  defineSystem(world, [Has(SelectedMove)], ({ entity: shipEntity, type, value: [newMoveEntity, oldMoveentity] }) => {
     const phase: Phase | undefined = getPhase(DELAY);
 
     if (phase == undefined || phase == Phase.Action) return;
 
-    if (type == UpdateType.Exit) return;
     const groupId = `projection-${shipEntity}`;
+
+    if (type == UpdateType.Exit) {
+      destroySpriteObject(groupId);
+      return;
+    }
 
     const moveCardEntity = getComponentValue(SelectedMove, shipEntity);
     if (!moveCardEntity) return;

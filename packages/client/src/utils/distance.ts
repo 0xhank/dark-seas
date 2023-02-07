@@ -7,7 +7,3 @@ export function distance(a: Coord, b: Coord): number {
 export function inRange(a: Coord, b: Coord, range: number): boolean {
   return (a.x - b.x) ** 2 + (a.y - b.y) ** 2 <= range ** 2;
 }
-
-export function inWorld(a: Coord, size: number): boolean {
-  return Math.abs(a.x) < size && Math.abs(a.y) < size;
-}

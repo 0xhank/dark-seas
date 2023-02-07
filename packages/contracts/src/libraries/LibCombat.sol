@@ -22,6 +22,7 @@ import { KillsComponent, ID as KillsComponentID } from "../components/KillsCompo
 import { LastHitComponent, ID as LastHitComponentID } from "../components/LastHitComponent.sol";
 import { CannonComponent, ID as CannonComponentID } from "../components/CannonComponent.sol";
 import { LoadedComponent, ID as LoadedComponentID } from "../components/LoadedComponent.sol";
+import { BootyComponent, ID as BootyComponentID } from "../components/BootyComponent.sol";
 
 // Types
 import { Side, Coord } from "../libraries/DSTypes.sol";
@@ -32,7 +33,9 @@ import "./LibUtils.sol";
 import { ABDKMath64x64 as Math } from "abdk-libraries-solidity/ABDKMath64x64.sol";
 
 library LibCombat {
-  /**
+  /***************************************************** LOAD **************************************************** */
+
+  /**a
    * @notice  loads the given cannon
    * @param   components  world components
    * @param   shipEntity  ship controlling cannon
@@ -119,6 +122,9 @@ library LibCombat {
     uint256[] memory targetEntities
   ) private {
     uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
+    uint32 kills = KillsComponent(getAddressById(components, KillsComponentID)).getValue(shipEntity);
+    firepower = (firepower * (10 + kills)) / 10;
+
     // get firing area of ship
     Coord[3] memory firingRange = getFiringAreaPivot(components, shipEntity, cannonEntity);
 
@@ -149,6 +155,8 @@ library LibCombat {
     uint256[] memory targetEntities
   ) private {
     uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
+    uint32 kills = KillsComponent(getAddressById(components, KillsComponentID)).getValue(shipEntity);
+    firepower = (firepower * (10 + kills)) / 10;
 
     // get firing area of ship
     Coord[4] memory firingRange = getFiringAreaBroadside(components, shipEntity, cannonEntity);
@@ -185,28 +193,16 @@ library LibCombat {
   ) public {
     uint256 baseHitChance = getBaseHitChance(distance, firepower);
 
-    // todo: make randomness more robust
     uint256 r = LibUtils.randomness(attackerEntity, defenderEntity);
 
     // perform hull damage
     uint32 hullDamage = getHullDamage(baseHitChance, r);
-
-    bool dead = damageHull(components, hullDamage, defenderEntity);
     if (hullDamage == 0) return;
 
     LastHitComponent(getAddressById(components, LastHitComponentID)).set(defenderEntity, attackerEntity);
-    if (dead) {
-      KillsComponent killsComponent = KillsComponent(getAddressById(components, KillsComponentID));
-      HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
-      uint32 prevKills = killsComponent.getValue(attackerEntity);
-      killsComponent.set(attackerEntity, prevKills + 1);
+    bool dead = damageHull(components, hullDamage, defenderEntity);
 
-      uint32 maxHealth = MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).getValue(attackerEntity);
-      uint32 health = healthComponent.getValue(attackerEntity);
-      if (health + 2 >= maxHealth) healthComponent.set(attackerEntity, maxHealth);
-      else healthComponent.set(attackerEntity, health + 2);
-      return;
-    }
+    if (dead) return;
 
     // perform special damage
     if (getSpecialChance(baseHitChance, hullDamage, r, 0)) {
@@ -236,12 +232,55 @@ library LibCombat {
     uint32 health = healthComponent.getValue(shipEntity);
 
     if (health <= damage) {
-      healthComponent.set(shipEntity, 0);
+      uint256 attackerEntity = LastHitComponent(getAddressById(components, LastHitComponentID)).getValue(shipEntity);
+
+      killEnemy(components, attackerEntity, shipEntity);
       return true;
     }
 
     healthComponent.set(shipEntity, health - damage);
     return false;
+  }
+
+  /**
+   * @notice  kills enemy and rewards the attacker
+   * @param   components  world components
+   * @param   attackerEntity  ship that attacked
+   * @param   shipEntity  ship that got killed
+   */
+  function killEnemy(
+    IUint256Component components,
+    uint256 attackerEntity,
+    uint256 shipEntity
+  ) private {
+    KillsComponent killsComponent = KillsComponent(getAddressById(components, KillsComponentID));
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    BootyComponent bootyComponent = BootyComponent(getAddressById(components, BootyComponentID));
+    LengthComponent lengthComponent = LengthComponent(getAddressById(components, LengthComponentID));
+
+    healthComponent.set(shipEntity, 0);
+
+    // update ship kills
+    uint32 prevKills = killsComponent.getValue(attackerEntity);
+    killsComponent.set(attackerEntity, prevKills + 1);
+
+    // update ship length
+    uint32 prevLength = lengthComponent.getValue(attackerEntity);
+    lengthComponent.set(attackerEntity, prevLength + 2);
+
+    // remove booty from sunk ship -> add half to attacking ship and half to attacking player
+    uint256 booty = bootyComponent.getValue(shipEntity);
+    bootyComponent.set(shipEntity, 0);
+    uint256 oldBooty = bootyComponent.getValue(attackerEntity);
+    bootyComponent.set(attackerEntity, oldBooty + booty / 2);
+    uint256 ownerEntity = OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(attackerEntity);
+    oldBooty = bootyComponent.getValue(ownerEntity);
+    bootyComponent.set(ownerEntity, oldBooty + booty / 2);
+
+    uint32 maxHealth = MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).getValue(attackerEntity);
+    uint32 health = healthComponent.getValue(attackerEntity);
+    if (health + 1 >= maxHealth) healthComponent.set(attackerEntity, maxHealth);
+    else healthComponent.set(attackerEntity, health + 1);
   }
 
   /*************************************************** UTILITIES **************************************************** */

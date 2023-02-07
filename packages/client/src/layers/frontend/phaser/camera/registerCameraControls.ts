@@ -1,13 +1,15 @@
+import { PhaserEngineConfig, ScenesConfig } from "@latticexyz/phaserx/dist/types";
 import { filterNullish } from "@latticexyz/utils";
 import { filter, fromEvent, interval, map, merge, scan, Subscription, throttleTime } from "rxjs";
 import { PhaserLayer } from "../types";
 
-export function registerCameraControls(layer: PhaserLayer) {
+export function registerCameraControls<S extends ScenesConfig>(layer: PhaserLayer, config: PhaserEngineConfig<S>) {
   const {
-    scene: { input, camera, phaserScene },
+    scene: { input, camera, phaserScene, posWidth },
     api: {
       mapInteraction: { mapInteractionEnabled },
     },
+    utils: { getWorldDimsAtTurn },
   } = layer;
 
   const EDGE_SCROLL_SPEED = 8;
@@ -31,33 +33,17 @@ export function registerCameraControls(layer: PhaserLayer) {
       const zoom = camera.phaserCamera.zoom;
       const zoomScale = deltaY < 0 ? 1.08 : 0.92;
       const newZoom = zoom * zoomScale; // deltaY>0 means we scrolled down
-      if (deltaY >= 0 && newZoom < 0.25) return;
-      if (deltaY <= 0 && newZoom > 2) return;
 
-      const mouseX = pointer.x;
-      const mouseY = pointer.y;
+      const useHeight = camera.phaserCamera.displayWidth / camera.phaserCamera.displayHeight < 16 / 9;
+      const currDisplayDim = useHeight ? camera.phaserCamera.displayHeight : camera.phaserCamera.displayWidth;
+      const newDisplayDim = currDisplayDim * (deltaY < 0 ? 0.92 : 1.08);
+      const worldDims = getWorldDimsAtTurn();
 
-      const viewWidth = camera.phaserCamera.width;
-      const viewHeight = camera.phaserCamera.height;
+      const maxDim = useHeight ? worldDims.height : worldDims.width * posWidth * 2;
+      if (deltaY >= 0 && (newZoom < config.cameraConfig.minZoom || maxDim <= newDisplayDim)) return;
+      if (deltaY <= 0 && newZoom > config.cameraConfig.maxZoom) return;
 
-      const pixelsDifferenceW = viewWidth / zoom - viewWidth / newZoom;
-      const sideRatioX = (mouseX - viewWidth / 2) / viewWidth;
-      const scrollX = camera.phaserCamera.x + pixelsDifferenceW * sideRatioX;
-
-      const pixelsDifferenceY = viewHeight / zoom - viewHeight / newZoom;
-      const sideRatioY = (mouseY - viewHeight / 2) / viewHeight;
-      const scrollY = camera.phaserCamera.y + pixelsDifferenceY * sideRatioY;
-      // camera.setScroll(scrollX, scrollY);
       camera.setZoom(newZoom);
-    }
-  );
-
-  input.onKeyPress(
-    (keys) => keys.has("F"),
-    () => {
-      const isFullscreen = !!document.fullscreenElement;
-      const body = document.getElementsByTagName("body")[0];
-      isFullscreen ? document.exitFullscreen() : body.requestFullscreen({ navigationUI: "hide" });
     }
   );
 

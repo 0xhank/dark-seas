@@ -1,6 +1,7 @@
 import { createPhaserEngine } from "@latticexyz/phaserx";
-import { namespaceWorld } from "@latticexyz/recs";
+import { defineComponent, namespaceWorld, Type } from "@latticexyz/recs";
 import { BackendLayer } from "../../backend";
+import { createCamera } from "./camera";
 import { phaserConfig } from "./config";
 import { POS_HEIGHT, POS_WIDTH } from "./constants";
 import { createPhaserSystems } from "./systems";
@@ -13,7 +14,14 @@ export async function createPhaserLayer(backend: BackendLayer) {
   const world = namespaceWorld(backend.world, "phaser");
 
   // --- COMPONENTS -----------------------------------------------------------------
-  const components = {};
+  const components = {
+    MapBounds: defineComponent(world, {
+      top: Type.Number,
+      right: Type.Number,
+      bottom: Type.Number,
+      left: Type.Number,
+    }),
+  };
 
   // --- PHASER ENGINE SETUP --------------------------------------------------------
   const { game, scenes, dispose: disposePhaser } = await createPhaserEngine(phaserConfig);
@@ -99,6 +107,7 @@ export async function createPhaserLayer(backend: BackendLayer) {
 
   // --- SYSTEMS --------------------------------------------------------------------
   createPhaserSystems(context);
+  createCamera(context, phaserConfig);
 
   return context;
 }

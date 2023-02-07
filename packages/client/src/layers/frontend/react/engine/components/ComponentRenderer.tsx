@@ -59,7 +59,13 @@ export const ComponentRenderer: React.FC = observer(() => {
   if (!layers) return null;
 
   return (
-    <UIGrid onMouseDown={(e) => e.stopPropagation()}>
+    <UIGrid
+      onMouseDown={(e) => e.stopPropagation()}
+      onMouseUp={(e) => e.stopPropagation()}
+      onMouseMove={(e) => e.stopPropagation()}
+      onMouseEnter={(e) => e.stopPropagation()}
+      onMouseOver={(e) => e.stopPropagation()}
+    >
       {filterNullishValues(
         // Iterate through all registered UIComponents
         // and return those whose requirements are fulfilled

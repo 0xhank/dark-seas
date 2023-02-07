@@ -9,13 +9,16 @@ export default function ShipAttribute({
   updating,
 }: {
   attributeType: ShipAttributeTypes;
-  attribute: number;
+  attribute: number | undefined;
   updating?: boolean;
 }) {
+  if (attribute == undefined) return null;
   let source = "";
   if (attributeType == ShipAttributeTypes.Sails) {
     if (attribute == SailPositions.Torn) source = "/icons/broken-sail.svg";
     else source = "/icons/sail.svg";
+  } else if (attributeType == ShipAttributeTypes.Booty) {
+    source = "/icons/booty.svg";
   }
 
   return (
@@ -24,7 +27,7 @@ export default function ShipAttribute({
         <AttributeImg src={source} alt={`attribute-${attributeType}`} />
       </LeftSide>
       <RightSide updating={updating} style={{ fontSize: `${attribute.toString().length > 2 ? "1rem" : "1.25rem"}` }}>
-        {SailPositions[attribute]}
+        {attributeType == ShipAttributeTypes.Sails ? SailPositions[attribute] : attribute}
       </RightSide>
     </AttributeContainer>
   );
@@ -50,18 +53,19 @@ const AttributeContainer = styled(Container)`
 
 const LeftSide = styled.div`
   background: ${colors.lightBrown};
-  border-radius: 12px 0 0 12px;
+  border-radius: 6px 0 0 6px;
   padding: 6px;
   display: flex;
   justify-content: center;
   align-items: center;
   border: 1px solid ${colors.gold};
   border-right: none;
+  height: 40px;
 `;
 
 const RightSide = styled.div<{ updating?: boolean }>`
   background: ${({ updating }) => (updating ? colors.greenGlass : colors.thickGlass)};
-  border-radius: 0 12px 12px 0;
+  border-radius: 0 6px 6px 0;
   padding: 6px;
   display: flex;
   justify-content: center;
@@ -75,4 +79,5 @@ const RightSide = styled.div<{ updating?: boolean }>`
   @media (max-width: 1500px) {
     line-height: 1.5rem;
   }
+  height: 40px;
 `;

@@ -7,13 +7,15 @@ import { getAddressById } from "solecs/utils.sol";
 // Components
 import { NameComponent, ID as NameComponentID } from "../components/NameComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
+import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
-import { Coord } from "../libraries/DSTypes.sol";
+import { Coord, GameConfig, GodID } from "../libraries/DSTypes.sol";
 
 // Libraries
 import "../libraries/LibUtils.sol";
 import "../libraries/LibSpawn.sol";
+import "../libraries/LibTurn.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.PlayerSpawn"));
 
@@ -21,6 +23,13 @@ contract PlayerSpawnSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+    require(
+      LibTurn.getCurrentTurn(components) <= gameConfig.entryCutoffTurns,
+      "PlayerSpawnSystem: entry period has ended"
+    );
     require(!LibUtils.playerAddrExists(components, msg.sender), "PlayerSpawnSystem: player has already spawned");
 
     (address controller, string memory name, Coord memory location) = abi.decode(arguments, (address, string, Coord));

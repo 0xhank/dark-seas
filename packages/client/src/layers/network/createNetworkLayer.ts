@@ -52,6 +52,11 @@ export async function createNetworkLayer(config: GameConfig) {
         actionPhaseLength: Type.Number,
         worldSize: Type.Number,
         perlinSeed: Type.String,
+        shipPrototypes: Type.StringArray,
+        entryCutoffTurns: Type.Number,
+        buyin: Type.String,
+        respawnAllowed: Type.Boolean,
+        shrinkRate: Type.Number,
       },
       { id: "GameConfig", metadata: { contractId: "ds.component.GameConfig" } }
     ),
@@ -87,8 +92,17 @@ export async function createNetworkLayer(config: GameConfig) {
     Cannon: defineBoolComponent(world, { id: "Cannon", metadata: { contractId: "ds.component.Cannon" } }),
     Loaded: defineBoolComponent(world, { id: "Loaded", metadata: { contractId: "ds.component.Loaded" } }),
     Speed: defineNumberComponent(world, { id: "Speed", metadata: { contractId: "ds.component.Speed" } }),
+    ShipPrototype: defineComponent(
+      world,
+      { value: Type.String },
+      {
+        id: "ShipPrototype",
+        metadata: { contractId: "ds.component.ShipPrototype" },
+      }
+    ),
     Kills: defineNumberComponent(world, { id: "Kills", metadata: { contractId: "ds.component.Kills" } }),
-    LastHit: defineNumberComponent(world, { id: "LastHit", metadata: { contractId: "ds.component.LastHit" } }),
+    LastHit: defineStringComponent(world, { id: "LastHit", metadata: { contractId: "ds.component.LastHit" } }),
+    Booty: defineStringComponent(world, { id: "Booty", metadata: { contractId: "ds.component.Booty" } }),
   };
 
   // --- SETUP ----------------------------------------------------------------------
@@ -210,6 +224,17 @@ export async function createNetworkLayer(config: GameConfig) {
     return Math.floor(timeElapsed / turnLength);
   }
 
+  function secondsIntoTurn(delay = 0) {
+    const gameConfig = getGameConfig();
+    const phase = getPhase(delay);
+
+    if (!gameConfig || phase == undefined) return;
+
+    const gameLength = Math.floor(network.clock.currentTime / 1000) + delay - parseInt(gameConfig.startTime);
+    const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;
+    return gameLength % turnLength;
+  }
+
   function secondsUntilNextPhase(delay = 0) {
     const gameConfig = getGameConfig();
     const phase = getPhase(delay);
@@ -237,12 +262,6 @@ export async function createNetworkLayer(config: GameConfig) {
 
   // --- API ------------------------------------------------------------------------
 
-  function commitMove(commitment: string) {
-    const from = network?.connectedAddress.get() || ownerNetwork.connectedAddress.get();
-    if (!from) return;
-    systems["ds.system.Commit"].executeTyped(commitment, { from });
-  }
-
   async function spawnPlayer(name: string, burnerPrivateKey: string | undefined) {
     const location: Coord = { x: 0, y: 0 };
 
@@ -259,6 +278,15 @@ export async function createNetworkLayer(config: GameConfig) {
     console.log("hello");
 
     systems["ds.system.PlayerSpawn"].executeTyped(connectedAddress, name, location);
+  }
+
+  function respawn(ships: EntityID[]) {
+    console.log("ships:", ships);
+    systems["ds.system.Respawn"].executeTyped(ships);
+  }
+
+  function commitMove(commitment: string) {
+    systems["ds.system.Commit"].executeTyped(commitment);
   }
 
   function revealMove(moves: MoveStruct[], salt: number) {
@@ -309,10 +337,11 @@ export async function createNetworkLayer(config: GameConfig) {
       getGamePhaseAt,
       getTurn,
       secondsUntilNextPhase,
+      secondsIntoTurn,
       bigNumToEntityID,
       activeNetwork,
     },
-    api: { revealMove, submitActions, spawnPlayer, commitMove, loadCannons, createBurnerNetwork },
+    api: { revealMove, submitActions, spawnPlayer, commitMove, loadCannons, respawn, createBurnerNetwork },
     dev: setupDevSystems(world, encoders, systems),
   };
 

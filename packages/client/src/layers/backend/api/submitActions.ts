@@ -69,7 +69,6 @@ export function submitActions(
         actions.cancel(actionId);
         return null;
       }
-      console.log("ships:", shipStruct);
       return shipStruct;
     },
     updates: () => [],

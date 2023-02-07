@@ -1,4 +1,3 @@
-import { GodID } from "@latticexyz/network";
 import { Coord, tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
 import {
   defineComponentSystem,
@@ -22,12 +21,14 @@ import { PhaserLayer } from "../types";
 export function createShipSystem(phaser: PhaserLayer) {
   const {
     world,
+    godEntity,
     scene: { config, camera, posWidth, posHeight },
     components: {
       SelectedShip,
       SelectedMove,
       HoveredShip,
       HealthLocal,
+      HealthBackend,
       OnFireLocal,
       DamagedCannonsLocal,
       SailPositionLocal,
@@ -41,8 +42,6 @@ export function createShipSystem(phaser: PhaserLayer) {
     },
     utils: { getSpriteObject, destroySpriteObject, destroyGroupObject, getPlayerEntity, outOfBounds, playSound },
   } = phaser;
-
-  const GodEntityIndex: EntityIndex = world.entityToIndex.get(GodID) || (0 as EntityIndex);
 
   defineEnterSystem(
     world,
@@ -78,9 +77,9 @@ export function createShipSystem(phaser: PhaserLayer) {
         object.disableInteractive();
       } else {
         object.setInteractive();
-        object.on("pointerdown", () => setComponent(SelectedShip, GodEntityIndex, { value: shipEntity }));
-        object.on("pointerover", () => setComponent(HoveredShip, GodEntityIndex, { value: shipEntity }));
-        object.on("pointerout", () => removeComponent(HoveredShip, GodEntityIndex));
+        object.on("pointerdown", () => setComponent(SelectedShip, godEntity, { value: shipEntity }));
+        object.on("pointerover", () => setComponent(HoveredShip, godEntity, { value: shipEntity }));
+        object.on("pointerout", () => removeComponent(HoveredShip, godEntity));
       }
 
       const shipLength = length * posWidth * 1.25;
@@ -111,10 +110,24 @@ export function createShipSystem(phaser: PhaserLayer) {
     const length = update.value[0].value;
     const object = getSpriteObject(update.entity);
 
-    const shipLength = length * posWidth * 1.25;
-    const shipWidth = shipLength / SHIP_RATIO;
-    object.setDisplaySize(shipWidth, shipLength);
-    object.setOrigin(0.5, 0.92);
+    const oldLength = object.displayHeight;
+    const newLength = length * posWidth * 1.25;
+    const oldScale = object.scale;
+
+    const shipWidth = newLength / SHIP_RATIO;
+
+    tween({
+      targets: object,
+      duration: 2000,
+      delay: 1000,
+      props: {
+        scale: (newLength / oldLength) * oldScale,
+      },
+      onComplete: () => {
+        object.setDisplaySize(shipWidth, newLength);
+        object.setOrigin(0.5, 0.92);
+      },
+    });
   });
 
   // Position and Rotation updates
@@ -134,8 +147,8 @@ export function createShipSystem(phaser: PhaserLayer) {
     destroyGroupObject(`projection-${update.entity}`);
     destroySpriteObject(`projection-${update.entity}`);
     removeComponent(SelectedMove, update.entity);
-    if (update.entity == getComponentValue(SelectedShip, GodEntityIndex)?.value) {
-      removeComponent(SelectedShip, GodEntityIndex);
+    if (update.entity == getComponentValue(SelectedShip, godEntity)?.value) {
+      removeComponent(SelectedShip, godEntity);
     }
 
     const rotation = getComponentValueStrict(Rotation, update.entity).value;
@@ -179,6 +192,8 @@ export function createShipSystem(phaser: PhaserLayer) {
       const midpoint = getShipMidpoint(shipEntity);
       const healthLocal = getComponentValueStrict(HealthLocal, shipEntity).value;
       setComponent(HealthLocal, shipEntity, { value: healthLocal - 1 });
+      setComponent(HealthBackend, shipEntity, { value: healthLocal - 1 });
+
       const explosionId = `explosion-move-${shipEntity}`;
       const explosion = getSpriteObject(explosionId);
       explosion.setOrigin(0.5, 0.5);
@@ -188,9 +203,9 @@ export function createShipSystem(phaser: PhaserLayer) {
 
       explosion.play(Animations.Explosion);
 
-      explosion.on(`animationcomplete`, () => {
-        destroySpriteObject(explosionId);
-      });
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      destroySpriteObject(explosionId);
       setComponent(SailPositionLocal, shipEntity, { value: 0 });
     }
 

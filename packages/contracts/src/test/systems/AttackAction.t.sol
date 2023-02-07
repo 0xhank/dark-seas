@@ -12,6 +12,9 @@ import { CommitSystem, ID as CommitSystemID } from "../../systems/CommitSystem.s
 // Components
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
 import { FirepowerComponent, ID as FirepowerComponentID } from "../../components/FirepowerComponent.sol";
+import { BootyComponent, ID as BootyComponentID } from "../../components/BootyComponent.sol";
+import { KillsComponent, ID as KillsComponentID } from "../../components/KillsComponent.sol";
+import { OwnedByComponent, ID as OwnedByComponentID } from "../../components/OwnedByComponent.sol";
 
 // Libraries
 import "../../libraries/LibVector.sol";
@@ -218,8 +221,38 @@ contract AttackActionTest is DarkSeasTest {
     uint32 newHealth = healthComponent.getValue(defenderEntity);
 
     uint32 ehd = expectedHealthDecrease(attackerEntity, cannonEntity, defenderEntity);
-    console.log("expected health decrease:", ehd);
     assertEq(newHealth, origHealth - ehd);
+  }
+
+  function testKill() public prank(deployer) {
+    setup();
+    KillsComponent killsComponent = KillsComponent(getAddressById(components, KillsComponentID));
+    BootyComponent bootyComponent = BootyComponent(getAddressById(components, BootyComponentID));
+    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+
+    uint256 attackerEntity = spawnShip(Coord({ x: 0, y: 0 }), 0, deployer);
+    uint256 ownerEntity = ownedByComponent.getValue(attackerEntity);
+    uint256 defenderEntity = spawnShip(Coord({ x: 20, y: 0 }), 180, alice);
+
+    uint256 attackerBooty = bootyComponent.getValue(attackerEntity);
+    uint256 defenderBooty = bootyComponent.getValue(defenderEntity);
+    uint256 ownerBooty = bootyComponent.getValue(ownerEntity);
+
+    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, attackerEntity, 0, 50, 80);
+
+    healthComponent.set(defenderEntity, 1);
+    healthComponent.set(attackerEntity, 1);
+
+    loadAndFireCannon(attackerEntity, cannonEntity, defenderEntity, 1);
+
+    assertEq(healthComponent.getValue(defenderEntity), 0);
+    assertEq(killsComponent.getValue(attackerEntity), 1);
+    assertEq(bootyComponent.getValue(defenderEntity), 0);
+    assertEq(bootyComponent.getValue(attackerEntity), attackerBooty + defenderBooty / 2);
+
+    assertEq(bootyComponent.getValue(ownerEntity), ownerBooty + defenderBooty / 2);
+    assertEq(healthComponent.getValue(attackerEntity), 2);
   }
 
   /**
@@ -241,7 +274,9 @@ contract AttackActionTest is DarkSeasTest {
     uint256 cannonEntity,
     uint256 defenderEntity
   ) public view returns (uint32) {
+    uint32 kills = KillsComponent(getAddressById(components, KillsComponentID)).getValue(attackerEntity);
     uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
+    firepower = (firepower * (kills + 10)) / 10;
     uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
     Coord memory attackerPosition = PositionComponent(getAddressById(components, PositionComponentID)).getValue(
       attackerEntity

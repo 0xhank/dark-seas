@@ -83,9 +83,11 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
       });
       setComponent(ExecutedActions, shipEntity, { value: executedActions });
       //TODO: animate this
-      if (shipUpdates.get(`${shipEntity}-Health`)) {
-        const oldHealth = getComponentValueStrict(HealthLocal, shipEntity).value || 1;
-        setComponent(HealthLocal, shipEntity, { value: oldHealth - 1 });
+
+      const shipNewHealth = shipUpdates.get(`${shipEntity}-Health`)?.value as number | undefined;
+      if (shipNewHealth) {
+        setComponent(HealthLocal, shipEntity, { value: shipNewHealth });
+        setComponent(HealthBackend, shipEntity, { value: shipNewHealth });
       }
     });
   });
@@ -130,7 +132,8 @@ export function createSuccessfulActionSystem(layer: BackendLayer) {
       const healthKey = `${target}-Health`;
       const oldHealth = getComponentValueStrict(HealthBackend, target).value;
       const newHealth = shipUpdates.get(healthKey)?.value as number | undefined;
-      const damageDealt = Math.min(3, oldHealth - (newHealth || oldHealth));
+
+      const damageDealt = Math.min(3, oldHealth - (newHealth == undefined ? oldHealth : newHealth));
       setComponent(HealthBackend, target, { value: oldHealth - damageDealt });
       damage.push(damageDealt);
 

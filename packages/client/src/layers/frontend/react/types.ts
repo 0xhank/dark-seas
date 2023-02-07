@@ -13,6 +13,7 @@ export enum Arrows {
 
 export enum ShipAttributeTypes {
   Sails,
+  Booty,
 }
 
 export function arrowImg(rotation: number) {
