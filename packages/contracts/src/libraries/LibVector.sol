@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
+import { console } from "forge-std/console.sol";
 
 // External
 import { getAddressById } from "solecs/utils.sol";
@@ -163,12 +164,13 @@ library LibVector {
     );
 
     uint32 worldHeight = getWorldHeightAtTurn(gameConfig, LibTurn.getCurrentTurn(components));
-
+    int32 x = position.x;
+    int32 y = position.y;
     uint32 worldWidth = (worldHeight * 16) / 9;
-    if (position.x < 0) position.x = 0 - position.x;
-    if (position.y < 0) position.y = 0 - position.y;
+    if (x < 0) x = 0 - x;
+    if (y < 0) y = 0 - y;
 
-    return uint32(position.x) < worldWidth && uint32(position.y) < worldHeight;
+    return uint32(x) < worldWidth && uint32(y) < worldHeight;
   }
 
   function getWorldHeightAtTurn(GameConfig memory gameConfig, uint32 turn) internal pure returns (uint32) {
