@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
+import { console } from "forge-std/console.sol";
 
 // External
 import { getAddressById } from "solecs/utils.sol";
@@ -163,12 +164,41 @@ library LibVector {
     );
 
     uint32 worldHeight = getWorldHeightAtTurn(gameConfig, LibTurn.getCurrentTurn(components));
-
+    int32 x = position.x;
+    int32 y = position.y;
     uint32 worldWidth = (worldHeight * 16) / 9;
-    if (position.x < 0) position.x = 0 - position.x;
-    if (position.y < 0) position.y = 0 - position.y;
+    if (x < 0) x = 0 - x;
+    if (y < 0) y = 0 - y;
 
-    return uint32(position.x) < worldWidth && uint32(position.y) < worldHeight;
+    return uint32(x) < worldWidth && uint32(y) < worldHeight;
+  }
+
+  function getWorldHeightAtTurn(GameConfig memory gameConfig, uint32 turn) internal pure returns (uint32) {
+    if (turn <= gameConfig.entryCutoffTurns || gameConfig.shrinkRate == 0) return gameConfig.worldSize;
+    uint32 turnsAfterCutoff = turn - gameConfig.entryCutoffTurns;
+    int64 finalSize = int32(gameConfig.worldSize) -
+      Math.toInt(Math.mul(Math.divu(gameConfig.shrinkRate, 100), Math.fromUInt(turnsAfterCutoff)));
+    return finalSize < 50 ? 50 : uint32(int32(finalSize));
+  }
+
+  /**
+   * @notice  checks if the given position is out of bounds
+   * @param   components  world components
+   * @param   position  position to check if out of bounds
+   * @return  bool  is out of bounds
+   */
+  function outOfBounds(IUint256Component components, Coord memory position) internal returns (bool) {
+    if (!inWorld(components, position)) return true;
+
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+    int128 denom = 50;
+    int128 depth = Perlin.noise2d(position.x + gameConfig.perlinSeed, position.y + gameConfig.perlinSeed, denom, 64);
+
+    depth = int128(Math.muli(depth, 100));
+
+    return depth < 33;
   }
 
   function getWorldHeightAtTurn(GameConfig memory gameConfig, uint32 turn) internal pure returns (uint32) {
