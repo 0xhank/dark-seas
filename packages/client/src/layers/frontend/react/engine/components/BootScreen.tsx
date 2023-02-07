@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { colors } from "../../styles/global";
+import { BackgroundImg, colors } from "../../styles/global";
 
 export const BootScreen: React.FC<{ initialOpacity?: number; progression: number }> = ({ progression }) => {
   return (
@@ -35,21 +35,6 @@ export const BootScreen: React.FC<{ initialOpacity?: number; progression: number
   );
 };
 
-const BackgroundImg = styled.div`
-  position: fixed;
-  left: 0;
-  right: 0;
-  z-index: 500;
-  display: block;
-  background-image: url("https://i.imgur.com/lL6tQfy.png");
-  background-image: url(img/ds-background.jpg);
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center center;
-  width: 100vw;
-  height: 100vh;
-  filter: blur(5px) saturate(40%);
-`;
 const Logo = styled.img`
   height: 75%;
 `;
