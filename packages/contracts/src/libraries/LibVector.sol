@@ -200,4 +200,32 @@ library LibVector {
 
     return depth < 33;
   }
+
+  function getWorldHeightAtTurn(GameConfig memory gameConfig, uint32 turn) internal pure returns (uint32) {
+    if (turn <= gameConfig.entryCutoffTurns || gameConfig.shrinkRate == 0) return gameConfig.worldSize;
+    uint32 turnsAfterCutoff = turn - gameConfig.entryCutoffTurns;
+    int64 finalSize = int32(gameConfig.worldSize) -
+      Math.toInt(Math.mul(Math.divu(gameConfig.shrinkRate, 100), Math.fromUInt(turnsAfterCutoff)));
+    return finalSize < 50 ? 50 : uint32(int32(finalSize));
+  }
+
+  /**
+   * @notice  checks if the given position is out of bounds
+   * @param   components  world components
+   * @param   position  position to check if out of bounds
+   * @return  bool  is out of bounds
+   */
+  function outOfBounds(IUint256Component components, Coord memory position) internal returns (bool) {
+    if (!inWorld(components, position)) return true;
+
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+    int128 denom = 50;
+    int128 depth = Perlin.noise2d(position.x + gameConfig.perlinSeed, position.y + gameConfig.perlinSeed, denom, 64);
+
+    depth = int128(Math.muli(depth, 100));
+
+    return depth < 33;
+  }
 }
