@@ -82,16 +82,16 @@ export const Container = styled.div`
 
 export const BackgroundImg = styled.div`
   position: fixed;
-  left: 0;
-  top: 0;
+  left: -25;
+  top: -25;
   z-index: 500;
   display: block;
   background-image: url(img/ds-background.jpg);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
-  width: 100vw;
-  height: 100vh;
+  width: calc(100vw + 50px);
+  height: calc(100vh + 50px);
   filter: blur(5px) saturate(40%);
 `;
 
