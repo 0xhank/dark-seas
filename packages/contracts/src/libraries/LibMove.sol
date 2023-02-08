@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 // External
 import { getAddressById } from "solecs/utils.sol";
 import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
+import { Perlin } from "noise/Perlin.sol";
 
 // Components
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
@@ -137,5 +138,25 @@ library LibMove {
     }
     positionComponent.set(move.shipEntity, position);
     rotationComponent.set(move.shipEntity, rotation);
+  }
+
+  /**
+   * @notice  checks if the given position is out of bounds
+   * @param   components  world components
+   * @param   position  position to check if out of bounds
+   * @return  bool  is out of bounds
+   */
+  function outOfBounds(IUint256Component components, Coord memory position) internal returns (bool) {
+    if (!LibVector.inWorld(components, position)) return true;
+
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+    int128 denom = 50;
+    int128 depth = Perlin.noise2d(position.x + gameConfig.perlinSeed, position.y + gameConfig.perlinSeed, denom, 64);
+
+    depth = int128(Math.muli(depth, 100));
+
+    return depth < 26;
   }
 }
