@@ -5,7 +5,7 @@ import { getAddressById } from "solecs/utils.sol";
 
 import { ShipPrototypeComponent, ID as ShipPrototypeComponentID } from "../components/ShipPrototypeComponent.sol";
 
-import { ShipPrototype, CannonPrototype } from "../libraries/DSTypes.sol";
+import { ShipPrototype } from "../libraries/DSTypes.sol";
 
 library LibCreateShip {
   function createShip(IUint256Component components, ShipPrototype memory shipPrototype)

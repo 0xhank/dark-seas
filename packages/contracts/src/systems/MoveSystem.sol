@@ -7,8 +7,6 @@ import { IWorld } from "solecs/interfaces/IWorld.sol";
 import { getAddressById, getSystemAddressById, addressToEntity } from "solecs/utils.sol";
 
 // Components
-import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
-import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
 import { CommitmentComponent, ID as CommitmentComponentID } from "../components/CommitmentComponent.sol";
 

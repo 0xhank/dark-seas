@@ -80,6 +80,21 @@ export const Container = styled.div`
   z-index: 5;
 `;
 
+export const BackgroundImg = styled.div`
+  position: fixed;
+  left: -25;
+  top: -25;
+  z-index: 500;
+  display: block;
+  background-image: url(img/ds-background.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  width: calc(100vw + 50px);
+  height: calc(100vh + 50px);
+  filter: blur(5px) saturate(40%);
+`;
+
 export const Button = styled.button<{ isSelected?: boolean; noGoldBorder?: boolean }>`
   display: flex;
   justify-content: center;

@@ -58,7 +58,7 @@ contract PlayerSpawnTest is DarkSeasTest {
 
     (uint256[] memory entities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
-    assertEq(entities.length, 2, "incorrect number of ships");
+    assertEq(entities.length, gameConfig.shipPrototypes.length, "incorrect number of ships");
 
     bool hasName = nameComponent.has(playerEntity);
     for (uint256 i = 0; i < entities.length; i++) {
@@ -137,5 +137,10 @@ contract PlayerSpawnTest is DarkSeasTest {
     moveSystem = MoveSystem(system(MoveSystemID));
     commitSystem = CommitSystem(system(CommitSystemID));
     delete moves;
+    GameConfigComponent gameConfigComponent = GameConfigComponent(getAddressById(components, GameConfigComponentID));
+    GameConfig memory gameConfig = gameConfigComponent.getValue(GodID);
+    gameConfig.respawnAllowed = true;
+
+    gameConfigComponent.set(GodID, gameConfig);
   }
 }
