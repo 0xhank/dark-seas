@@ -29,10 +29,7 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
   defineComponentSystem(world, OnFireLocal, (update) => {
     if (!update.value[0]) return;
     if (update.value[0].value == 0) {
-      for (let i = 0; i < 4; i++) {
-        const spriteId = `${update.entity}-fire-${i}`;
-        destroySpriteObject(spriteId);
-      }
+      destroyFire(update.entity);
       return;
     }
     const position = getComponentValueStrict(Position, update.entity);
@@ -91,7 +88,18 @@ export function createStatAnimationSystem(layer: PhaserLayer) {
     object.setPosition(coord.x, coord.y);
   }
 
+  function destroyFire(shipEntity: EntityIndex) {
+    for (let i = 0; i < 4; i++) {
+      const spriteId = `${shipEntity}-fire-${i}`;
+      destroySpriteObject(spriteId);
+    }
+  }
+
   defineUpdateSystem(world, [Has(HealthLocal)], ({ entity: shipEntity, value: [newComponent, oldComponent] }) => {
+    if (newComponent?.value == 0) {
+      destroyFire(shipEntity);
+    }
+
     if (!newComponent?.value || !oldComponent?.value) return;
 
     if (newComponent.value > oldComponent.value) {
