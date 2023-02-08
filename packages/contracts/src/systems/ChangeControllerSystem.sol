@@ -28,8 +28,6 @@ contract ChangeControllerSystem is System {
 
     OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
 
-    LastActionComponent lastActionComponent = LastActionComponent(getAddressById(components, LastActionComponentID));
-    LastMoveComponent lastMoveComponent = LastMoveComponent(getAddressById(components, LastMoveComponentID));
     // create entity for player and name it
     uint256 playerEntity = addressToEntity(msg.sender);
     require(LibUtils.playerIdExists(components, playerEntity), "ChangeControllerSystem: player does not exist");
@@ -41,12 +39,6 @@ contract ChangeControllerSystem is System {
     );
 
     uint256 newControllerEntity = addressToEntity(newController);
-    if (!LibUtils.playerIdExists(components, newControllerEntity)) {
-      newControllerEntity = LibSpawn.createPlayerEntity(components, newController);
-    }
-
-    lastActionComponent.set(newControllerEntity, lastActionComponent.getValue(oldControllerEntity));
-    lastMoveComponent.set(newControllerEntity, lastMoveComponent.getValue(oldControllerEntity));
 
     ownedByComponent.remove(oldControllerEntity);
     ownedByComponent.set(newControllerEntity, playerEntity);

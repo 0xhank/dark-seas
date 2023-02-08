@@ -31,7 +31,7 @@ contract RespawnSystem is System {
     require(LibTurn.getCurrentTurn(components) <= gameConfig.entryCutoffTurns, "RespawnSystem: entry period has ended");
     require(LibUtils.playerAddrExists(components, msg.sender), "RespawnSystem: player has not already spawned");
 
-    uint256 playerEntity = addressToEntity(msg.sender);
+    uint256 playerEntity = LibUtils.getSenderOwner(components);
     uint256[] memory shipEntities = abi.decode(arguments, (uint256[]));
     require(shipEntities.length > 0, "RespawnSystem: no ships to respawn");
 

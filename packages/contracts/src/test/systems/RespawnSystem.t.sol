@@ -96,7 +96,7 @@ contract RespawnTest is DarkSeasTest {
   function setup() internal returns (uint256[] memory shipEntities) {
     PlayerSpawnSystem playerSpawnSystem = PlayerSpawnSystem(system(PlayerSpawnSystemID));
     respawnSystem = RespawnSystem(system(RespawnSystemID));
-    playerSpawnSystem.executeTyped("Jamaican me crazy", Coord(1, 1));
+    playerSpawnSystem.executeTyped(deployer, "Jamaican me crazy", Coord(1, 1));
     GameConfigComponent gameConfigComponent = GameConfigComponent(getAddressById(components, GameConfigComponentID));
     GameConfig memory gameConfig = gameConfigComponent.getValue(GodID);
     gameConfig.respawnAllowed = true;

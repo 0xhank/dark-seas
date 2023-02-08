@@ -75,8 +75,9 @@ contract PlayerSpawnTest is DarkSeasTest {
   }
 
   function testAccess() public {
+    vm.startPrank(deployer);
     setup();
-
+    vm.stopPrank();
     uint256 playerEntity = addressToEntity(msg.sender);
     playerSpawnSystem.executeTyped(deployer, "Jamaican me crazy", Coord(1, 1));
 
@@ -101,6 +102,8 @@ contract PlayerSpawnTest is DarkSeasTest {
     // move as msg sender
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Commit));
     commitment = uint256(keccak256(abi.encode(moves, 69)));
+
+    vm.expectRevert();
     commitSystem.executeTyped(commitment);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Reveal));

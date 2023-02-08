@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 // External
 import "solecs/System.sol";
 import { IWorld } from "solecs/interfaces/IWorld.sol";
-import { getAddressById, addressToEntity } from "solecs/utils.sol";
+import { getAddressById } from "solecs/utils.sol";
 
 // Components
 import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
@@ -25,7 +25,7 @@ contract ActionSystem is System {
   function execute(bytes memory arguments) public returns (bytes memory) {
     Action[] memory actions = abi.decode(arguments, (Action[]));
 
-    uint256 playerEntity = addressToEntity(msg.sender);
+    uint256 playerEntity = LibUtils.getSenderOwner(components);
 
     require(LibUtils.playerIdExists(components, playerEntity), "ActionSystem: player does not exist");
 
@@ -33,17 +33,14 @@ contract ActionSystem is System {
     require(LibTurn.getCurrentPhase(components) == Phase.Action, "ActionSystem: incorrect turn phase");
 
     uint32 currentTurn = LibTurn.getCurrentTurn(components);
-    require(
-      lastActionComponent.getValue(addressToEntity(msg.sender)) < currentTurn,
-      "ActionSystem: already acted this turn"
-    );
+    require(lastActionComponent.getValue(playerEntity) < currentTurn, "ActionSystem: already acted this turn");
     lastActionComponent.set(playerEntity, currentTurn);
     // iterate through each ship
     for (uint256 i = 0; i < actions.length; i++) {
       for (uint256 j = 0; j < i; j++) {
         require(actions[i].shipEntity != actions[j].shipEntity, "ActionSystem: duplicated ships");
       }
-      LibAction.executeActions(components, actions[i]);
+      LibAction.executeActions(components, actions[i], playerEntity);
     }
   }
 

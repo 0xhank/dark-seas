@@ -54,6 +54,8 @@ contract ChangeControllerTest is DarkSeasTest {
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Commit));
 
     commitment = uint256(keccak256(abi.encode(moves, 69)));
+    vm.expectRevert();
+
     commitSystem.executeTyped(commitment);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Reveal));
@@ -63,7 +65,7 @@ contract ChangeControllerTest is DarkSeasTest {
 
     vm.stopPrank();
 
-    // move as alice
+    // // move as alice
     vm.startPrank(alice);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 3, Phase.Commit));

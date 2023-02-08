@@ -17,6 +17,7 @@ import { Action, ActionType } from "../libraries/DSTypes.sol";
 
 // Libraries
 import "./LibCombat.sol";
+import "./LibUtils.sol";
 
 library LibAction {
   /**
@@ -24,7 +25,11 @@ library LibAction {
    * @param   components  world components
    * @param   action  set of actions to execute
    */
-  function executeActions(IUint256Component components, Action memory action) public {
+  function executeActions(
+    IUint256Component components,
+    Action memory action,
+    uint256 playerEntity
+  ) public {
     // iterate through each action of each ship
     uint256 cannonEntity1;
     OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
@@ -32,10 +37,7 @@ library LibAction {
       ActionType actionType = action.actionTypes[i];
       bytes memory metadata = action.metadata[i];
       if (actionType == ActionType.None) continue;
-      require(
-        ownedByComponent.getValue(action.shipEntity) == ownedByComponent.getValue(addressToEntity(msg.sender)),
-        "ActionSystem: you don't own this ship"
-      );
+      require(ownedByComponent.getValue(action.shipEntity) == playerEntity, "ActionSystem: you don't own this ship");
 
       require(
         ShipComponent(getAddressById(components, ShipComponentID)).has(action.shipEntity),

@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 // External
 import "solecs/System.sol";
-import { getAddressById } from "solecs/utils.sol";
+import { getAddressById, addressToEntity } from "solecs/utils.sol";
 // Components
 import { NameComponent, ID as NameComponentID } from "../components/NameComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
@@ -39,8 +39,7 @@ contract PlayerSpawnSystem is System {
     // create entity for player and name it
     uint256 playerEntity = LibSpawn.createPlayerEntity(components, msg.sender);
 
-    uint256 controllerEntity = playerEntity;
-    if (msg.sender != controller) controllerEntity = LibSpawn.createPlayerEntity(components, controller);
+    uint256 controllerEntity = addressToEntity(controller);
 
     ownedByComponent.set(controllerEntity, playerEntity);
     NameComponent(getAddressById(components, NameComponentID)).set(playerEntity, name);

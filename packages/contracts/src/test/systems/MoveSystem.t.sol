@@ -106,12 +106,12 @@ contract MoveSystemTest is DarkSeasTest {
     moveSystem.executeTyped(moves, 69);
   }
 
-  function testRevertNotPlayer() public prank(deployer) {
+  function testRevertNotOwned() public prank(deployer) {
     setup();
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Commit));
     uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
-    vm.expectRevert(bytes("MoveSystem: player does not exist"));
+    vm.expectRevert(bytes("player not owned by anyone"));
     commitSystem.executeTyped(commitment);
   }
 

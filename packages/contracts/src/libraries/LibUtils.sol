@@ -9,8 +9,16 @@ import { IComponent } from "solecs/interfaces/IComponent.sol";
 
 // Components
 import { PlayerComponent, ID as PlayerComponentID } from "../components/PlayerComponent.sol";
+import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 
 library LibUtils {
+  function getSenderOwner(IUint256Component components) internal view returns (uint256) {
+    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
+    uint256 controllerEntity = addressToEntity(msg.sender);
+    require(ownedByComponent.has(controllerEntity), "player not owned by anyone");
+    return ownedByComponent.getValue(controllerEntity);
+  }
+
   /**
    * @notice  retrieves an entity with a given component
    * @param   components   holds all components in the world

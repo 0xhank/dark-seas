@@ -21,7 +21,7 @@ contract MoveSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
-    uint256 playerEntity = addressToEntity(msg.sender);
+    uint256 playerEntity = LibUtils.getSenderOwner(components);
 
     require(
       uint256(keccak256(arguments)) ==

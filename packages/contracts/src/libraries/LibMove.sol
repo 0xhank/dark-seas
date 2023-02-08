@@ -100,10 +100,7 @@ library LibMove {
       "MoveSystem: ship is sunk"
     );
 
-    require(
-      ownedByComponent.getValue(move.shipEntity) == ownedByComponent.getValue(playerEntity),
-      "MoveSystem: you don't own this ship"
-    );
+    require(ownedByComponent.getValue(move.shipEntity) == playerEntity, "MoveSystem: you don't own this ship");
     require(moveCardComponent.has(move.moveCardEntity), "MoveSystem: invalid move card entity id");
     require(
       ShipComponent(getAddressById(components, ShipComponentID)).has(move.shipEntity),

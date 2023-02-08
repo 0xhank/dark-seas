@@ -38,14 +38,14 @@ contract AttackActionTest is DarkSeasTest {
 
   bytes none = abi.encode(0);
 
-  function testRevertNotPlayer() public prank(deployer) {
+  function testRevertNotController() public prank(deployer) {
     setup();
 
-    vm.expectRevert(bytes("ActionSystem: player does not exist"));
+    vm.expectRevert(bytes("player not owned by anyone"));
     actionSystem.executeTyped(actions);
   }
 
-  function testRevertNotOwner() public prank(deployer) {
+  function testRevertNotShipOwner() public prank(deployer) {
     setup();
 
     uint256 shipEntity = spawnShip(Coord(0, 0), 0, alice);

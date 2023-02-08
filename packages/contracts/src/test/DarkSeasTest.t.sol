@@ -57,8 +57,10 @@ contract DarkSeasTest is MudTest {
     uint32 rotation,
     address spawner
   ) internal returns (uint256 shipEntity) {
-    uint256 playerEntity = addressToEntity(spawner);
+    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
 
+    uint256 playerEntity = addressToEntity(spawner);
+    ownedByComponent.set(playerEntity, playerEntity);
     if (!LibUtils.playerIdExists(components, playerEntity)) LibSpawn.createPlayerEntity(components, spawner);
 
     shipEntity = spawnBattleship(components, world, playerEntity, position, rotation);
