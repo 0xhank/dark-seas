@@ -11,7 +11,7 @@ export function createBorderSystem(phaser: PhaserLayer) {
     components: { GameConfig, MapBounds },
     scene: { phaserScene, posHeight, posWidth, camera },
     utils: { getGroupObject, secondsIntoTurn, getWorldDimsAtTurn, getTurn },
-    network: { clock },
+    ownerNetwork: { clock },
   } = phaser;
 
   defineComponentSystem(world, GameConfig, (update) => {

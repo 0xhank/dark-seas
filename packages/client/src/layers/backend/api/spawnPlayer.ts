@@ -1,5 +1,6 @@
 import { EntityID, hasComponent } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
+import { Wallet } from "ethers";
 import { NetworkLayer } from "../../network";
 
 export function spawnPlayer(
@@ -10,7 +11,8 @@ export function spawnPlayer(
 ) {
   const {
     components: { Player },
-    utils: { activeNetwork },
+    utils: { activeNetwork, createBurnerNetwork },
+    ownerNetwork,
     world,
   } = network;
 
@@ -19,12 +21,12 @@ export function spawnPlayer(
   actions.add({
     id: actionId,
     components: { Player },
-    requirement: ({ Player }) => {
+    requirement: async ({ Player }) => {
       const address = activeNetwork().connectedAddress.get();
       if (!address) {
         console.warn(prefix, "No address connected");
         actions.cancel(actionId);
-        return;
+        return null;
       }
 
       const playerEntity = world.entityToIndex.get(address as EntityID);
@@ -35,12 +37,27 @@ export function spawnPlayer(
         return null;
       }
 
-      return true;
+      let connectedAddress;
+      if (burnerPrivateKey) {
+        const wallet = new Wallet(burnerPrivateKey);
+        connectedAddress = wallet.address;
+        await createBurnerNetwork(burnerPrivateKey);
+      } else {
+        connectedAddress = ownerNetwork.connectedAddress.get();
+      }
+      if (!connectedAddress) return null;
+
+      return connectedAddress;
     },
     updates: () => [],
-    execute: () => {
-      console.log("spawning");
-      return network.api.spawnPlayer(name, burnerPrivateKey);
+    execute: (addressPromise: Promise<string | null>) => {
+      addressPromise.then((address) => {
+        if (!address) {
+          return;
+        }
+        console.log("spawning", address);
+        return network.api.spawnPlayer(name, address);
+      });
     },
   });
 }

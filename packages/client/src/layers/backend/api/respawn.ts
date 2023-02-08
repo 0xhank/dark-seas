@@ -6,7 +6,6 @@ export function respawn(network: NetworkLayer, actions: ActionSystem, shipEntiti
   const {
     world,
     components: { OwnedBy },
-    network: { connectedAddress },
     api: { respawn },
   } = network;
   const actionId = `respawn ${Math.random()}` as EntityID;
@@ -17,13 +16,11 @@ export function respawn(network: NetworkLayer, actions: ActionSystem, shipEntiti
     requirement: ({ OwnedBy }) => {
       shipEntities.every((shipEntity) => {
         const owner = getComponentValue(OwnedBy, shipEntity)?.value;
-        const myAddress = connectedAddress.get();
-        if (!owner || !myAddress) return false;
+        if (!owner) return false;
         return true;
       });
 
       const shipIds = shipEntities.map((shipEntity) => world.entities[shipEntity]);
-      console.log("ship ids:", shipIds);
       return shipIds;
     },
     updates: () => [],

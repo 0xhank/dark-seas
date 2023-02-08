@@ -43,6 +43,7 @@ async function bootGame() {
     let burnerPrivateKey = params.get("burnerWalletPrivateKey");
     if (!privateKey) {
       privateKey = localStorage.getItem("playerWallet") || Wallet.createRandom().privateKey;
+      // privateKey = Wallet.createRandom().privateKey;
       localStorage.setItem("playerWallet", privateKey);
     }
     if (!burnerPrivateKey) {
