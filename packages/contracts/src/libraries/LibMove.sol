@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 // External
 import { getAddressById } from "solecs/utils.sol";
 import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
+import { Perlin } from "noise/Perlin.sol";
 
 // Components
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
@@ -11,15 +12,13 @@ import { PositionComponent, ID as PositionComponentID } from "../components/Posi
 import { MoveCardComponent, ID as MoveCardComponentID } from "../components/MoveCardComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
-import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedComponent.sol";
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
-import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
-import { MoveCard, Move, Coord, GodID, GameConfig } from "./DSTypes.sol";
+import { MoveCard, Move, Coord } from "./DSTypes.sol";
 
 // Libraries
 import "../libraries/LibVector.sol";
@@ -139,5 +138,25 @@ library LibMove {
     }
     positionComponent.set(move.shipEntity, position);
     rotationComponent.set(move.shipEntity, rotation);
+  }
+
+  /**
+   * @notice  checks if the given position is out of bounds
+   * @param   components  world components
+   * @param   position  position to check if out of bounds
+   * @return  bool  is out of bounds
+   */
+  function outOfBounds(IUint256Component components, Coord memory position) internal returns (bool) {
+    if (!LibVector.inWorld(components, position)) return true;
+
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+    int128 denom = 50;
+    int128 depth = Perlin.noise2d(position.x + gameConfig.perlinSeed, position.y + gameConfig.perlinSeed, denom, 64);
+
+    depth = int128(Math.muli(depth, 100));
+
+    return depth < 26;
   }
 }

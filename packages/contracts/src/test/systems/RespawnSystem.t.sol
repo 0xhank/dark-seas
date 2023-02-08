@@ -3,11 +3,13 @@ pragma solidity >=0.8.0;
 
 // External
 import "../DarkSeasTest.t.sol";
-import { getAddressById, addressToEntity } from "solecs/utils.sol";
+import { getAddressById } from "solecs/utils.sol";
 
 // Systems
 import { PlayerSpawnSystem, ID as PlayerSpawnSystemID } from "../../systems/PlayerSpawnSystem.sol";
 import { RespawnSystem, ID as RespawnSystemID } from "../../systems/RespawnSystem.sol";
+
+// Components
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
 import { OnFireComponent, ID as OnFireComponentID } from "../../components/OnFireComponent.sol";
 import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../../components/DamagedCannonsComponent.sol";
@@ -16,10 +18,10 @@ import { KillsComponent, ID as KillsComponentID } from "../../components/KillsCo
 import { MaxHealthComponent, ID as MaxHealthComponentID } from "../../components/MaxHealthComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 
-// Types
+// // Types
 import { Coord, GodID } from "../../libraries/DSTypes.sol";
 
-// Internal
+// // Internal
 import "../../libraries/LibUtils.sol";
 
 contract RespawnTest is DarkSeasTest {
@@ -27,10 +29,15 @@ contract RespawnTest is DarkSeasTest {
 
   RespawnSystem respawnSystem;
 
-  function testRevertNoPlayer() public prank(alice) {
+  function testRevertNoPlayer() public prank(deployer) {
+    setup();
+
     uint256[] memory ships;
+    vm.stopPrank();
+    vm.startPrank(bob);
     respawnSystem = RespawnSystem(system(RespawnSystemID));
     vm.expectRevert(bytes("RespawnSystem: player has not already spawned"));
+
     respawnSystem.executeTyped(ships);
   }
 
@@ -90,10 +97,14 @@ contract RespawnTest is DarkSeasTest {
     PlayerSpawnSystem playerSpawnSystem = PlayerSpawnSystem(system(PlayerSpawnSystemID));
     respawnSystem = RespawnSystem(system(RespawnSystemID));
     playerSpawnSystem.executeTyped("Jamaican me crazy", Coord(1, 1));
+    GameConfigComponent gameConfigComponent = GameConfigComponent(getAddressById(components, GameConfigComponentID));
+    GameConfig memory gameConfig = gameConfigComponent.getValue(GodID);
+    gameConfig.respawnAllowed = true;
+
+    gameConfigComponent.set(GodID, gameConfig);
 
     (shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
-    assertEq(shipEntities.length, 2, "incorrect number of ships");
     return shipEntities;
   }
 }

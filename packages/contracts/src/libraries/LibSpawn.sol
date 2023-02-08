@@ -151,6 +151,7 @@ library LibSpawn {
     shipEntity = world.getUniqueEntityId();
     ShipComponent(getAddressById(components, ShipComponentID)).set(shipEntity);
 
+    uint32 maxHealth = 10;
     PositionComponent(getAddressById(components, PositionComponentID)).set(shipEntity, location);
     RotationComponent(getAddressById(components, RotationComponentID)).set(shipEntity, rotation);
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);

@@ -13,12 +13,10 @@ import { SailPositionComponent, ID as SailPositionComponentID } from "../compone
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 // Types
-import { Coord, Side, Action, ActionType } from "../libraries/DSTypes.sol";
+import { Action, ActionType } from "../libraries/DSTypes.sol";
 
 // Libraries
 import "./LibCombat.sol";
-import "./LibUtils.sol";
-import "./LibVector.sol";
 
 library LibAction {
   /**

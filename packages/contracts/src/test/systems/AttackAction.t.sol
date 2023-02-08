@@ -23,7 +23,7 @@ import "../../libraries/LibTurn.sol";
 import "../../libraries/LibUtils.sol";
 import "../../libraries/LibSpawn.sol";
 
-import { Side, Coord, Action, ActionType, Move } from "../../libraries/DSTypes.sol";
+import { Coord, Action, ActionType, Move } from "../../libraries/DSTypes.sol";
 
 contract AttackActionTest is DarkSeasTest {
   constructor() DarkSeasTest(new Deploy()) {}

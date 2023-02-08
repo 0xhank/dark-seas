@@ -25,7 +25,7 @@ import { LoadedComponent, ID as LoadedComponentID } from "../components/LoadedCo
 import { BootyComponent, ID as BootyComponentID } from "../components/BootyComponent.sol";
 
 // Types
-import { Side, Coord } from "../libraries/DSTypes.sol";
+import { Coord } from "../libraries/DSTypes.sol";
 
 // Libraries
 import "./LibVector.sol";
