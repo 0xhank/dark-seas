@@ -8,7 +8,7 @@ import "../DarkSeasTest.t.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 
 // Types
-import { Side, Coord, GodID } from "../../libraries/DSTypes.sol";
+import { Coord, GodID } from "../../libraries/DSTypes.sol";
 
 // Libraries
 import "../../libraries/LibVector.sol";

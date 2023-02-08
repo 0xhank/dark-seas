@@ -11,15 +11,13 @@ import { PositionComponent, ID as PositionComponentID } from "../components/Posi
 import { MoveCardComponent, ID as MoveCardComponentID } from "../components/MoveCardComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
-import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedComponent.sol";
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
-import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
-import { MoveCard, Move, Coord, GodID, GameConfig } from "./DSTypes.sol";
+import { MoveCard, Move, Coord } from "./DSTypes.sol";
 
 // Libraries
 import "../libraries/LibVector.sol";

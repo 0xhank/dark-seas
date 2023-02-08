@@ -12,10 +12,9 @@ import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/Co
 import { OnFireComponent, ID as OnFireComponentID } from "../../components/OnFireComponent.sol";
 import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../../components/DamagedCannonsComponent.sol";
 import { SailPositionComponent, ID as SailPositionComponentID } from "../../components/SailPositionComponent.sol";
-import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 
 // Types
-import { Action, ActionType, Coord, GameConfig, GodID } from "../../libraries/DSTypes.sol";
+import { Action, ActionType, Coord } from "../../libraries/DSTypes.sol";
 
 // Internal
 import "../../libraries/LibTurn.sol";
