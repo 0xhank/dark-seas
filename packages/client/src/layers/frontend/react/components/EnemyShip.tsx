@@ -4,10 +4,10 @@ import { registerUIComponent } from "../engine";
 import { Container, InternalContainer } from "../styles/global";
 import { ShipCard } from "./OverviewComponents/ShipCard";
 
-export function registerHoveredShip() {
+export function registerEnemyShip() {
   registerUIComponent(
     // name
-    "HoveredShip",
+    "EnemyShip",
     // grid location
     {
       rowStart: 2,
@@ -30,6 +30,7 @@ export function registerHoveredShip() {
             SailPositionLocal: SailPosition,
           },
           godEntity,
+          utils: { isMyShip },
         },
       } = layers;
 
@@ -51,6 +52,8 @@ export function registerHoveredShip() {
         map(() => {
           const ship = getComponentValue(HoveredShip, godEntity)?.value as EntityIndex | undefined;
           if (!ship) return null;
+
+          if (isMyShip(ship)) return null;
           return {
             layers,
             ship,

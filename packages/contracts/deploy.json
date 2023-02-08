@@ -22,7 +22,6 @@
     "LoadedComponent",
     "CannonComponent",
     "SpeedComponent",
-    "ShipPrototypeComponent",
     "KillsComponent",
     "LastHitComponent",
     "BootyComponent"
@@ -37,8 +36,7 @@
         "LastMoveComponent",
         "HealthComponent",
         "SailPositionComponent",
-        "BootyComponent",
-        "LengthComponent"
+        "BootyComponent"
       ]
     },
     {
@@ -52,8 +50,7 @@
         "LoadedComponent",
         "KillsComponent",
         "LastHitComponent",
-        "BootyComponent",
-        "LengthComponent"
+        "BootyComponent"
       ]
     },
     { "name": "ComponentDevSystem", "writeAccess": ["*"] },
@@ -79,20 +76,6 @@
         "SpeedComponent",
         "KillsComponent",
         "BootyComponent"
-      ]
-    },
-    {
-      "name": "RespawnSystem",
-      "writeAccess": [
-        "PositionComponent",
-        "RotationComponent",
-        "HealthComponent",
-        "SailPositionComponent",
-        "KillsComponent",
-        "BootyComponent",
-        "OnFireComponent",
-        "DamagedCannonsComponent",
-        "LengthComponent"
       ]
     },
     { "name": "CommitSystem", "writeAccess": ["CommitmentComponent"] }

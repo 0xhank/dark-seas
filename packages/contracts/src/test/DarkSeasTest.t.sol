@@ -24,33 +24,6 @@ contract DarkSeasTest is MudTest {
     vm.stopPrank();
   }
 
-  function spawnBattleship(
-    IUint256Component components,
-    IWorld world,
-    uint256 playerEntity,
-    Coord memory location,
-    uint32 rotation
-  ) private returns (uint256 shipEntity) {
-    shipEntity = world.getUniqueEntityId();
-    ShipComponent(getAddressById(components, ShipComponentID)).set(shipEntity);
-
-    uint32 maxHealth = 10;
-    PositionComponent(getAddressById(components, PositionComponentID)).set(shipEntity, location);
-    RotationComponent(getAddressById(components, RotationComponentID)).set(shipEntity, rotation);
-    LengthComponent(getAddressById(components, LengthComponentID)).set(shipEntity, 10);
-    HealthComponent(getAddressById(components, HealthComponentID)).set(shipEntity, maxHealth);
-    MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).set(shipEntity, maxHealth);
-    SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
-    OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(shipEntity, playerEntity);
-    SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, 110);
-    KillsComponent(getAddressById(components, KillsComponentID)).set(shipEntity, 0);
-    BootyComponent(getAddressById(components, BootyComponentID)).set(shipEntity, 500);
-    LastHitComponent(getAddressById(components, LastHitComponentID)).set(shipEntity, GodID);
-    LibSpawn.spawnCannon(components, world, shipEntity, 90, 40, 100);
-    LibSpawn.spawnCannon(components, world, shipEntity, 270, 40, 100);
-    LibSpawn.spawnCannon(components, world, shipEntity, 0, 40, 100);
-  }
-
   function spawnShip(
     Coord memory position,
     uint32 rotation,
@@ -59,8 +32,7 @@ contract DarkSeasTest is MudTest {
     uint256 playerEntity = addressToEntity(spawner);
 
     if (!LibUtils.playerIdExists(components, playerEntity)) LibSpawn.createPlayerEntity(components, spawner);
-
-    shipEntity = spawnBattleship(components, world, playerEntity, position, rotation);
+    shipEntity = LibSpawn.spawnBattleship(components, world, playerEntity, position, rotation, 1000);
 
     LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 0);
     LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 0);

@@ -125,8 +125,6 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
   }
 
   defineComponentSystem(world, SelectedShip, (update) => {
-    destroyGroupObject("selectedActions");
-
     const shipEntity = update.value[0]?.value as EntityIndex | undefined;
     if (!shipEntity) return;
     const phase: Phase | undefined = getPhase(DELAY);

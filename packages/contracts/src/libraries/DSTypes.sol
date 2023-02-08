@@ -32,6 +32,12 @@ enum ActionType {
   RepairSail
 }
 
+enum Side {
+  Forward,
+  Right,
+  Left
+}
+
 enum Phase {
   Commit,
   Reveal,
@@ -47,26 +53,7 @@ struct GameConfig {
   uint32 actionPhaseLength;
   uint32 worldSize;
   int128 perlinSeed;
-  uint256[] shipPrototypes;
-  // Number of turns before registration is blocked
-  uint32 entryCutoffTurns;
+  // Amount of time for players to enter game
+  uint256 entryCutoff;
   uint256 buyin;
-  bool respawnAllowed;
-  // Calculation: Every turn, the world shrinks by gameConfig.shrinkrate / 100.
-  // If shrink rate is 100, the world will shrink by 1 each turn.
-  // Shrinking starts once entry is cutoff and ends when the world size is 50.
-  uint32 shrinkRate;
-}
-
-struct ShipPrototype {
-  uint32 length;
-  uint32 maxHealth;
-  uint32 speed;
-  CannonPrototype[] cannons;
-}
-
-struct CannonPrototype {
-  uint32 rotation;
-  uint32 firepower;
-  uint32 range;
 }

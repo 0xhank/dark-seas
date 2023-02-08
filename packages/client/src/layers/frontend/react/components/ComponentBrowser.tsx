@@ -15,23 +15,15 @@ export function registerComponentBrowser() {
       const {
         network: { world, dev },
       } = layers;
-
-      const hackedLayers = {
-        ...layers,
-        network: { ...layers.network, components: {} },
-        backend: { ...layers.backend, components: {} },
-      };
       return (
-        <div style={{ display: "none" }}>
-          <Browser
-            world={world}
-            entities={world.entities}
-            layers={hackedLayers}
-            devHighlightComponent={dev.DevHighlightComponent}
-            hoverHighlightComponent={dev.HoverHighlightComponent}
-            setContractComponentValue={dev.setContractComponentValue}
-          />
-        </div>
+        <Browser
+          world={world}
+          entities={world.entities}
+          layers={layers}
+          devHighlightComponent={dev.DevHighlightComponent}
+          hoverHighlightComponent={dev.HoverHighlightComponent}
+          setContractComponentValue={dev.setContractComponentValue}
+        />
       );
     }
   );
