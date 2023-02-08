@@ -313,7 +313,7 @@ library LibCombat {
     uint256 odds = (LibUtils.getByteUInt(randomSeed, 14, 0) * 10000) / 16384;
     if (odds <= baseHitChance) return 3;
     if (odds <= (baseHitChance * 170) / 100) return 2;
-    if (odds <= (baseHitChance * 450) / 100) return 1;
+    if (odds <= (baseHitChance * 650) / 100) return 1;
     return 0;
   }
 
