@@ -8,7 +8,7 @@ export function registerHoveredShip() {
   registerUIComponent(
     // name
     "HoveredShip",
-    // grid location
+    // grid position
     {
       rowStart: 2,
       rowEnd: 5,

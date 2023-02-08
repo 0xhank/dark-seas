@@ -21,7 +21,7 @@ export function registerYourShips() {
   registerUIComponent(
     // name
     "YourShips",
-    // grid location
+    // grid position
     {
       rowStart: 9,
       rowEnd: 13,

@@ -158,14 +158,14 @@ export function createCannonAnimationSystem(phaser: PhaserLayer) {
     }
   }
 
-  async function explode(explosionId: string, location: Coord, delay?: number) {
+  async function explode(explosionId: string, position: Coord, delay?: number) {
     if (delay) {
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
     const explosion = getSpriteObject(explosionId);
     explosion.setOrigin(0.5, 0.5);
     playSound("impact_ship_1", Category.Combat);
-    explosion.setPosition(location.x, location.y);
+    explosion.setPosition(position.x, position.y);
     explosion.setDepth(RenderDepth.UI5);
     explosion.play(Animations.Explosion);
 

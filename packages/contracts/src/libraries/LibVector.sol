@@ -29,7 +29,7 @@ library LibVector {
    * @param   initialRotation  starting rotation
    * @param   _distance  distance to move
    * @param   direction  direction to move
-   * @return  Coord  final location
+   * @return  Coord  final position
    */
   function getPositionByVector(
     Coord memory initialPosition,
@@ -83,11 +83,11 @@ library LibVector {
   }
 
   /**
-   * @notice  calculates stern location based on length and bow position
+   * @notice  calculates stern position based on length and bow position
    * @param   originPosition  bow position
    * @param   rotation  ship rotation
    * @param   length  ship length
-   * @return  Coord  stern location
+   * @return  Coord  stern position
    */
   function getSternLocation(
     Coord memory originPosition,

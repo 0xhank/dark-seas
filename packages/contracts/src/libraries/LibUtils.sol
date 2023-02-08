@@ -37,7 +37,7 @@ library LibUtils {
    * @notice  masks a bit string based on length and shift
    * @param   _b  bit string to mask
    * @param   length  length in bits of return bit string
-   * @param   shift  starting location of mask
+   * @param   shift  starting position of mask
    * @return  _byteUInt masked bit string
    */
   function getByteUInt(

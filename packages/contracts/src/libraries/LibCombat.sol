@@ -340,7 +340,7 @@ library LibCombat {
   }
 
   /**
-   * @notice  calculates the location of three points comprising a triangular firing area
+   * @notice  calculates the position of three points comprising a triangular firing area
    * @param   components  world components
    * @param   shipEntity  attacking ship entity
    * @return  Coord[3]  points comprising firing area
@@ -378,7 +378,7 @@ library LibCombat {
   }
 
   /**
-   * @notice  calculates the location of four points comprising a quadrilateral firing area
+   * @notice  calculates the position of four points comprising a quadrilateral firing area
    * @dev     .
    * @param   components  world components
    * @param   shipEntity  attacking ship entity
