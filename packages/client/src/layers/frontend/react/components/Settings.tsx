@@ -30,8 +30,8 @@ export function registerSettings() {
 
       return merge(of(0), Volume.update$).pipe(
         map(() => {
-          const openLeaderboard = () => setComponent(ModalOpen, ModalType.LEADERBOARD, { value: true });
-          const openTutorial = () => setComponent(ModalOpen, ModalType.TUTORIAL, { value: true });
+          const openLeaderboard = () => setComponent(ModalOpen, godEntity, { value: ModalType.LEADERBOARD });
+          const openTutorial = () => setComponent(ModalOpen, godEntity, { value: ModalType.TUTORIAL });
 
           const volume = getComponentValue(Volume, godEntity)?.value || 0;
           const musicVolume = getComponentValue(Volume, 1 as EntityIndex)?.value || 0;

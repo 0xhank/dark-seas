@@ -1,4 +1,4 @@
-import { getComponentValue } from "@latticexyz/recs";
+import { getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { map, merge } from "rxjs";
 import styled from "styled-components";
 import { registerUIComponent } from "../../engine";
@@ -30,7 +30,7 @@ export function registerTopBar() {
         map(() => {
           const playerEntity = getPlayerEntity(connectedAddress.get());
           if (!playerEntity) return;
-          const booty = Number(getComponentValue(Booty, playerEntity)?.value);
+          const booty = Number(getComponentValueStrict(Booty, playerEntity).value);
           const name = playerEntity ? getComponentValue(Name, playerEntity)?.value : undefined;
 
           if (!name) return null;
@@ -47,9 +47,7 @@ export function registerTopBar() {
           <div style={{ display: "flex", flexDirection: "column", textAlign: "left", gap: "12px" }}>
             <span style={{ fontWeight: "bolder", fontSize: "1.5rem", lineHeight: "2rem" }}>Captain {name}</span>
             <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "6px" }}>
-              {booty !== undefined && !isNaN(Number(booty)) && (
-                <ShipAttribute attributeType={ShipAttributeTypes.Booty} attribute={Number(booty)} />
-              )}
+              <ShipAttribute attributeType={ShipAttributeTypes.Booty} attribute={booty} />
             </div>
           </div>
         </TopBarContainer>

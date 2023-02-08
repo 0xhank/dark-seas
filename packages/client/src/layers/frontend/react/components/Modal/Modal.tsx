@@ -1,4 +1,4 @@
-import { EntityIndex, getComponentEntities, getComponentValue, removeComponent } from "@latticexyz/recs";
+import { EntityIndex, getComponentEntities, getComponentValue } from "@latticexyz/recs";
 import { map, merge } from "rxjs";
 import { ModalType } from "../../../../../types";
 import { getShipName } from "../../../../../utils/ships";
@@ -47,11 +47,9 @@ export function registerModal() {
 
       return merge(Booty.update$, HealthLocal.update$, Kills.update$, ModalOpen.update$).pipe(
         map(() => {
-          const showTutorial = !!getComponentValue(ModalOpen, ModalType.TUTORIAL)?.value;
-          const showLeaderboard = !!getComponentValue(ModalOpen, ModalType.LEADERBOARD)?.value;
+          const show = getComponentValue(ModalOpen, godEntity)?.value;
           const close = () => {
-            removeComponent(ModalOpen, ModalType.TUTORIAL);
-            removeComponent(ModalOpen, ModalType.LEADERBOARD);
+            clearComponent(ModalOpen);
           };
           const getPlayersAndShips = () => {
             let players: PlayerData[] = [];
@@ -97,22 +95,21 @@ export function registerModal() {
 
           return {
             getPlayersAndShips,
-            showTutorial,
-            showLeaderboard,
+            show,
             close,
           };
         })
       );
     },
-    ({ showTutorial, showLeaderboard, getPlayersAndShips, close }) => {
+    ({ show, getPlayersAndShips, close }) => {
+      if (show == undefined) return null;
       let content = null;
-      if (showLeaderboard) {
+      if (show == ModalType.LEADERBOARD) {
         const { ships, players } = getPlayersAndShips();
         content = <Leaderboard ships={ships} players={players} />;
-      } else if (showTutorial) {
+      } else if (show == ModalType.TUTORIAL) {
         content = <Tutorial />;
       }
-      if (!content) return null;
       return (
         <Container
           style={{ flexDirection: "row", background: "hsla(0, 0%, 0%, 0.6", zIndex: 9999, gap: "20px" }}

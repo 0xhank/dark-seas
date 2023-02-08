@@ -3,6 +3,7 @@ pragma solidity >=0.8.0;
 
 // External
 import "../DarkSeasTest.t.sol";
+import { addressToEntity } from "solecs/utils.sol";
 import { Perlin } from "noise/Perlin.sol";
 
 // Systems

@@ -15,9 +15,8 @@ import {
 import { Coord } from "@latticexyz/utils";
 import { Howl } from "howler";
 import { Action, ActionType, Move } from "../../../types";
-import { distance } from "../../../utils/distance";
+import { distance, inWorld } from "../../../utils/distance";
 import { getFiringArea, getSternLocation, inFiringArea } from "../../../utils/trig";
-import { DELAY } from "../../frontend/constants";
 import { NetworkLayer } from "../../network";
 import { BackendComponents } from "../createBackendComponents";
 import { Category, soundLibrary } from "../sound/library";
@@ -29,8 +28,8 @@ export async function createBackendUtilities(
 ) {
   const {
     world,
-    utils: { getPlayerEntity, getGameConfig, getTurn },
-    components: { Ship, OwnedBy, Range, Position, Rotation, Length, Firepower, Kills },
+    utils: { getPlayerEntity, getGameConfig },
+    components: { Ship, OwnedBy, Range, Position, Rotation, Length, Firepower },
     network: { connectedAddress },
   } = network;
 
@@ -109,7 +108,8 @@ export async function createBackendUtilities(
       const enemyRotation = getComponentValueStrict(Rotation, targetEntity).value;
       const enemyLength = getComponentValueStrict(Length, targetEntity).value;
       const sternPosition = getSternLocation(enemyPosition, enemyRotation, enemyLength);
-      const range = getCannonRange(cannonEntity);
+      const range = getComponentValueStrict(Range, cannonEntity).value;
+
       const firingArea = getFiringArea(shipPosition, range, length, shipRotation, cannonRotation);
 
       const toTarget = inFiringArea(firingArea, enemyPosition) || inFiringArea(firingArea, sternPosition);
@@ -133,9 +133,8 @@ export async function createBackendUtilities(
     const targetPosition = getComponentValueStrict(Position, target);
     const dist = distance(shipPosition, targetPosition);
 
-    const firepower = getCannonFirepower(cannonEntity);
-    const kills = getComponentValueStrict(Kills, shipEntity).value;
-    const baseHitChance = getBaseHitChance(dist, firepower * (1 + kills / 10));
+    const firepower = getComponentValueStrict(Firepower, cannonEntity).value;
+    const baseHitChance = getBaseHitChance(dist, firepower);
 
     const format = (n: number) => Math.min(100, Math.round(n));
     return { 3: format(baseHitChance), 2: format(baseHitChance * 1.7), 1: format(baseHitChance * 4.5) };
@@ -176,66 +175,13 @@ export async function createBackendUtilities(
     }, []);
   }
 
-  function getCannonOwner(cannonEntity: EntityIndex) {
-    const shipID = getComponentValue(OwnedBy, cannonEntity)?.value;
-    if (!shipID) return;
-    const shipEntity = world.entityToIndex.get(shipID);
-    if (!shipEntity) return;
-    return shipEntity;
-  }
-
-  function getCannonRange(cannonEntity: EntityIndex) {
-    const range = getComponentValue(Range, cannonEntity)?.value;
-    const shipEntity = getCannonOwner(cannonEntity);
-    if (!shipEntity) return 0;
-    const kills = getComponentValue(Kills, shipEntity)?.value;
-    if (range == undefined || kills == undefined) return 0;
-
-    return range * (1 + kills / 10);
-  }
-
-  function getCannonFirepower(cannonEntity: EntityIndex) {
-    const firepower = getComponentValue(Firepower, cannonEntity)?.value;
-    const shipEntity = getCannonOwner(cannonEntity);
-    if (!shipEntity) return 0;
-    const kills = getComponentValue(Kills, shipEntity)?.value;
-    if (firepower == undefined || kills == undefined) return 0;
-
-    return firepower * (1 + kills / 10);
-  }
-
-  const whirlpoolMap = new Map<string, boolean>();
-
-  function getWorldHeightAtTurn(turn: number): number {
-    const gameConfig = getGameConfig();
-    if (!gameConfig) return 0;
-    if (turn <= gameConfig.entryCutoffTurns || gameConfig.shrinkRate == 0) return gameConfig.worldSize;
-    const turnsAfterCutoff = turn - gameConfig.entryCutoffTurns;
-    const finalSize = gameConfig.worldSize - (gameConfig.shrinkRate / 100) * turnsAfterCutoff;
-
-    return finalSize < 50 ? 50 : Math.ceil(finalSize);
-  }
-
-  function getWorldDimsAtTurn(turn?: number) {
-    const theTurn = turn == undefined ? getTurn(DELAY) || 0 : turn;
-    const height = getWorldHeightAtTurn(theTurn);
-
-    return { height, width: (height * 16) / 9 };
-  }
-
-  function inWorld(a: Coord): boolean {
-    const turn = getTurn(DELAY);
-    if (turn == undefined) return false;
-    const dims = getWorldDimsAtTurn(turn);
-
-    return Math.abs(a.x) < dims.width && Math.abs(a.y) < dims.height;
-  }
+  const outOfBoundsMap = new Map<string, boolean>();
 
   function outOfBounds(position: Coord) {
     const gameConfig = getGameConfig();
     if (!gameConfig) return false;
 
-    if (!inWorld(position)) return true;
+    if (!inWorld(position, gameConfig.worldSize)) return true;
 
     const whirlpool = isWhirlpool(position, Number(gameConfig.perlinSeed));
     if (whirlpool) return true;
@@ -244,13 +190,13 @@ export async function createBackendUtilities(
 
   function isWhirlpool(coord: Coord, perlinSeed: number): boolean {
     const coordStr = `${coord.x}-${coord.y}`;
-    const retrievedVal = whirlpoolMap.get(coordStr);
+    const retrievedVal = outOfBoundsMap.get(coordStr);
 
     if (retrievedVal != undefined) return retrievedVal;
     const denom = 50;
     const depth = perlin(coord.x + perlinSeed, coord.y + perlinSeed, 0, denom);
-    const ret = depth * 100 < 33;
-    whirlpoolMap.set(coordStr, ret);
+    const ret = depth * 100 < 26;
+    outOfBoundsMap.set(coordStr, ret);
 
     return ret;
   }
@@ -391,8 +337,6 @@ export async function createBackendUtilities(
     getPlayerShipsWithMoves,
     getPlayerShipsWithActions,
     getTargetedShips,
-    getCannonRange,
-    getCannonFirepower,
     isMyShip,
     outOfBounds,
     isWhirlpool,
@@ -405,7 +349,5 @@ export async function createBackendUtilities(
     unmuteSfx,
     playMusic,
     muteMusic,
-    inWorld,
-    getWorldDimsAtTurn,
   };
 }

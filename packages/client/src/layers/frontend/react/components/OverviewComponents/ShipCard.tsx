@@ -23,7 +23,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
 
   const playerEntity = getPlayerEntity(connectedAddress.get());
   const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, ship).value);
-  if (!ownerEntity) return null;
+  if (!ownerEntity || !playerEntity) return null;
 
   const sailPosition = getComponentValueStrict(SailPositionLocal, ship).value;
   const rotation = getComponentValueStrict(Rotation, ship).value;
@@ -34,14 +34,11 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
   const ownerName = getComponentValue(Name, ownerEntity)?.value;
   const selectedActions = getComponentValue(SelectedActions, ship);
   const length = getComponentValue(Length, ship)?.value || 10;
+  const lastAction = getComponentValue(LastAction, playerEntity)?.value;
   const currentTurn = getTurn(DELAY);
   const booty = getComponentValue(Booty, ship)?.value;
 
-  let actionsExecuted = false;
-  if (playerEntity) {
-    const lastAction = getComponentValue(LastAction, playerEntity)?.value;
-    actionsExecuted = currentTurn == lastAction;
-  }
+  const actionsExecuted = currentTurn == lastAction;
   const updates = actionsExecuted ? undefined : selectedActions?.actionTypes;
 
   const updatedSailPosition = updates?.includes(ActionType.LowerSail)

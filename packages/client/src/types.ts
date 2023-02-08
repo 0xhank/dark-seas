@@ -1,4 +1,4 @@
-import { EntityID, EntityIndex } from "@latticexyz/recs";
+import { EntityID } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
 import { boot } from "./boot";
 import { BackendLayer } from "./layers/backend";
@@ -123,8 +123,7 @@ export enum Sprites {
   ShipBlueMinor,
 }
 
-export const ModalType = {
-  LEADERBOARD: 0 as EntityIndex,
-  TUTORIAL: 1 as EntityIndex,
-  BOTTOM_BAR: 2 as EntityIndex,
-};
+export enum ModalType {
+  LEADERBOARD,
+  TUTORIAL,
+}

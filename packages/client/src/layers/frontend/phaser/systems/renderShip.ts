@@ -1,5 +1,5 @@
 import { Coord, tileCoordToPixelCoord } from "@latticexyz/phaserx";
-import { EntityIndex, getComponentValueStrict } from "@latticexyz/recs";
+import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
 import { getShipSprite } from "../../../../utils/ships";
 import { getFiringArea } from "../../../../utils/trig";
@@ -19,7 +19,7 @@ export function renderShip(
   const {
     components: { Length, HealthLocal },
     scene: { config, posWidth, posHeight },
-    utils: { getSpriteObject, getCannonRange },
+    utils: { getSpriteObject },
     godEntity,
   } = phaser;
 
@@ -59,9 +59,8 @@ export function getFiringAreaPixels(
   const {
     components: { Range, Rotation },
     scene: { posWidth, posHeight },
-    utils: { getCannonRange },
   } = phaser;
-  const range = getCannonRange(cannonEntity) * posHeight;
+  const range = (getComponentValue(Range, cannonEntity)?.value || 0) * posHeight;
 
   const pixelPosition = tileCoordToPixelCoord(position, posWidth, posHeight);
   const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
