@@ -57,7 +57,9 @@ library LibUtils {
    * @return  r  random value
    */
   function randomness(uint256 r1, uint256 r2) public view returns (uint256 r) {
-    r = uint256(keccak256(abi.encodePacked(r1, r2, block.timestamp, block.number)));
+    r = uint256(
+      keccak256(abi.encodePacked(r1, r2, block.timestamp, blockhash(block.number - 1), block.difficulty, block.number))
+    );
   }
 
   /**

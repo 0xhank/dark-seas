@@ -13,12 +13,10 @@ import { SailPositionComponent, ID as SailPositionComponentID } from "../compone
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 // Types
-import { Coord, Side, Action, ActionType } from "../libraries/DSTypes.sol";
+import { Action, ActionType } from "../libraries/DSTypes.sol";
 
 // Libraries
 import "./LibCombat.sol";
-import "./LibUtils.sol";
-import "./LibVector.sol";
 
 library LibAction {
   /**
@@ -42,6 +40,11 @@ library LibAction {
       require(
         ShipComponent(getAddressById(components, ShipComponentID)).has(action.shipEntity),
         "ActionSystem: Entity must be a ship"
+      );
+
+      require(
+        HealthComponent(getAddressById(components, HealthComponentID)).getValue(action.shipEntity) > 0,
+        "ActionSystem: Entity is dead"
       );
 
       // todo: fix ensure action hasn't already been made

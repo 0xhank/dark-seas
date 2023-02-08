@@ -5,9 +5,10 @@ pragma solidity >=0.8.0;
 import "../DarkSeasTest.t.sol";
 
 // Systems
+import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 
 // Types
-import { Side, Coord } from "../../libraries/DSTypes.sol";
+import { Coord, GodID } from "../../libraries/DSTypes.sol";
 
 // Libraries
 import "../../libraries/LibVector.sol";
@@ -141,5 +142,28 @@ contract LibVectorTest is DarkSeasTest {
     uint256 initialGas = gasleft();
     LibVector.distance(a, b);
     console.log("sqrt gas used:", initialGas - gasleft());
+  }
+
+  function testShrinkingWorld() public prank(deployer) {
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+
+    gameConfig.entryCutoffTurns = 0;
+    gameConfig.worldSize = 100;
+
+    gameConfig.shrinkRate = 100;
+    assertEq(LibVector.getWorldHeightAtTurn(gameConfig, 1), 99, "shrinkrate 100 failed");
+    assertEq(LibVector.getWorldHeightAtTurn(gameConfig, 99), 50, "shrinkrate 100 min failed");
+
+    gameConfig.shrinkRate = 200;
+    assertEq(LibVector.getWorldHeightAtTurn(gameConfig, 1), 98, "shrinkrate 200 failed");
+    assertEq(LibVector.getWorldHeightAtTurn(gameConfig, 2), 96, "testShrink 200 failed");
+    assertEq(LibVector.getWorldHeightAtTurn(gameConfig, 99), 50, "shrinkrate 200 min failed");
+
+    gameConfig.shrinkRate = 50;
+    assertEq(LibVector.getWorldHeightAtTurn(gameConfig, 1), 100, "shrinkrate 50 failed");
+    assertEq(LibVector.getWorldHeightAtTurn(gameConfig, 2), 99, "testShrink 50 failed");
+    assertEq(LibVector.getWorldHeightAtTurn(gameConfig, 102), 50, "shrinkrate 50 min failed");
   }
 }

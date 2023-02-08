@@ -15,7 +15,7 @@ import { GameConfigComponent, ID as GameConfigComponentID } from "../../componen
 import { BootyComponent, ID as BootyComponentID } from "../../components/BootyComponent.sol";
 
 // Types
-import { Coord } from "../../libraries/DSTypes.sol";
+import { Coord, Phase } from "../../libraries/DSTypes.sol";
 
 // Internal
 import "../../libraries/LibUtils.sol";
@@ -33,7 +33,7 @@ contract PlayerSpawnTest is DarkSeasTest {
       GodID
     );
 
-    vm.warp(gameConfig.startTime + gameConfig.entryCutoff);
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, gameConfig.entryCutoffTurns + 1, Phase.Commit));
 
     vm.expectRevert(bytes("PlayerSpawnSystem: entry period has ended"));
     playerSpawnSystem.executeTyped("Jamaican me crazy", Coord(1, 1));
@@ -51,7 +51,7 @@ contract PlayerSpawnTest is DarkSeasTest {
 
     (uint256[] memory entities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
-    assertEq(entities.length, 2, "incorrect number of ships");
+    assertEq(entities.length, gameConfig.shipPrototypes.length, "incorrect number of ships");
 
     bool hasName = nameComponent.has(playerEntity);
     for (uint256 i = 0; i < entities.length; i++) {
@@ -74,5 +74,10 @@ contract PlayerSpawnTest is DarkSeasTest {
   function setup() internal {
     playerSpawnSystem = PlayerSpawnSystem(system(PlayerSpawnSystemID));
     nameComponent = NameComponent(getAddressById(components, NameComponentID));
+    GameConfigComponent gameConfigComponent = GameConfigComponent(getAddressById(components, GameConfigComponentID));
+    GameConfig memory gameConfig = gameConfigComponent.getValue(GodID);
+    gameConfig.respawnAllowed = true;
+
+    gameConfigComponent.set(GodID, gameConfig);
   }
 }

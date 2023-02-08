@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 // External
 import { getAddressById } from "solecs/utils.sol";
 import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
+import { Perlin } from "noise/Perlin.sol";
 
 // Components
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
@@ -13,10 +14,11 @@ import { RotationComponent, ID as RotationComponentID } from "../components/Rota
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
-import { Coord, GodID } from "../libraries/DSTypes.sol";
+import { Coord, GodID, GameConfig } from "../libraries/DSTypes.sol";
 
 // Libraries
 import { ABDKMath64x64 as Math } from "abdk-libraries-solidity/ABDKMath64x64.sol";
+import "./LibTurn.sol";
 import "trig/src/Trigonometry.sol";
 
 library LibVector {
@@ -156,13 +158,45 @@ library LibVector {
    * @return  bool  is within radius?
    */
   function inWorld(IUint256Component components, Coord memory position) public view returns (bool) {
-    uint32 worldHeight = GameConfigComponent(getAddressById(components, GameConfigComponentID))
-      .getValue(GodID)
-      .worldSize;
-    uint32 worldWidth = (worldHeight * 16) / 9;
-    if (position.x < 0) position.x = 0 - position.x;
-    if (position.y < 0) position.y = 0 - position.y;
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
 
-    return uint32(position.x) < worldWidth && uint32(position.y) < worldHeight;
+    uint32 worldHeight = getWorldHeightAtTurn(gameConfig, LibTurn.getCurrentTurn(components));
+    int32 x = position.x;
+    int32 y = position.y;
+    uint32 worldWidth = (worldHeight * 16) / 9;
+    if (x < 0) x = 0 - x;
+    if (y < 0) y = 0 - y;
+
+    return uint32(x) < worldWidth && uint32(y) < worldHeight;
+  }
+
+  function getWorldHeightAtTurn(GameConfig memory gameConfig, uint32 turn) internal pure returns (uint32) {
+    if (turn <= gameConfig.entryCutoffTurns || gameConfig.shrinkRate == 0) return gameConfig.worldSize;
+    uint32 turnsAfterCutoff = turn - gameConfig.entryCutoffTurns;
+    int64 finalSize = int32(gameConfig.worldSize) -
+      Math.toInt(Math.mul(Math.divu(gameConfig.shrinkRate, 100), Math.fromUInt(turnsAfterCutoff)));
+    return finalSize < 50 ? 50 : uint32(int32(finalSize));
+  }
+
+  /**
+   * @notice  checks if the given position is out of bounds
+   * @param   components  world components
+   * @param   position  position to check if out of bounds
+   * @return  bool  is out of bounds
+   */
+  function outOfBounds(IUint256Component components, Coord memory position) internal returns (bool) {
+    if (!inWorld(components, position)) return true;
+
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+    int128 denom = 50;
+    int128 depth = Perlin.noise2d(position.x + gameConfig.perlinSeed, position.y + gameConfig.perlinSeed, denom, 64);
+
+    depth = int128(Math.muli(depth, 100));
+
+    return depth < 33;
   }
 }

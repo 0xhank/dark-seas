@@ -1,11 +1,12 @@
 import { GodID } from "@latticexyz/network";
 
-import { EntityIndex, namespaceWorld } from "@latticexyz/recs";
+import { EntityIndex, namespaceWorld, setComponent } from "@latticexyz/recs";
 import { createActionSystem } from "@latticexyz/std-client";
 
-import { Action, Move } from "../../types";
+import { Action, ModalType, Move } from "../../types";
 import { NetworkLayer } from "../network";
 import { commitMove } from "./api/commitMove";
+import { respawn } from "./api/respawn";
 import { revealMove } from "./api/revealMove";
 import { spawnPlayer } from "./api/spawnPlayer";
 import { submitActions } from "./api/submitActions";
@@ -24,8 +25,8 @@ export async function createBackendLayer(network: NetworkLayer) {
 
   // --- COMPONENTS -----------------------------------------------------------------
   const components = createBackendComponents(world);
-
   // --- SETUP ----------------------------------------------------------------------
+  setComponent(components.ModalOpen, ModalType.BOTTOM_BAR, { value: true });
 
   // UTILITIES
 
@@ -37,6 +38,7 @@ export async function createBackendLayer(network: NetworkLayer) {
   // --- API ------------------------------------------------------------------------
   const api = {
     spawnPlayer: (name: string) => spawnPlayer(network, actions, name),
+    respawn: (ships: EntityIndex[]) => respawn(network, actions, ships),
     commitMove: (moves: Move[]) => commitMove(network, actions, moves),
     revealMove: (encoding: string) => revealMove(network, actions, encoding),
     submitActions: (actionsToSubmit: Action[]) =>
