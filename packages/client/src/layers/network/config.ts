@@ -1,3 +1,4 @@
+import { ExternalProvider } from "@ethersproject/providers";
 import { SetupContractConfig } from "@latticexyz/std-client";
 
 export type GameConfig = {
@@ -10,6 +11,7 @@ export type GameConfig = {
   devMode: boolean;
   initialBlockNumber: number;
   burnerPrivateKey: string | null;
+  externalProvider?: ExternalProvider;
 };
 
 export const getNetworkConfig: (networkConfig: GameConfig) => SetupContractConfig = (config) => ({
@@ -22,6 +24,7 @@ export const getNetworkConfig: (networkConfig: GameConfig) => SetupContractConfi
     jsonRpcUrl: config.jsonRpc,
     wsRpcUrl: config.wsRpc,
     chainId: config.chainId,
+    externalProvider: config.externalProvider,
     options: {
       batch: false,
     },
