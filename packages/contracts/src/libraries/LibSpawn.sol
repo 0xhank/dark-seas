@@ -65,9 +65,8 @@ library LibSpawn {
   function getRandomPosition(IUint256Component components, uint256 r) public view returns (Coord memory) {
     uint32 worldSize = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).worldSize;
 
-    uint32 bufferedDistance = worldSize - 5;
+    uint32 bufferedDistance = worldSize - 50;
     uint32 rotation = uint32(LibUtils.getByteUInt(r, 14, 14) % 360);
-
     Coord memory position = LibVector.getPositionByVector(Coord(0, 0), 0, bufferedDistance, rotation);
 
     if (rotation < 90 || rotation >= 270) position.x = (position.x * 16) / 9;
