@@ -23,7 +23,7 @@ import "../../libraries/LibTurn.sol";
 import "../../libraries/LibUtils.sol";
 import "../../libraries/LibSpawn.sol";
 
-import { Side, Coord, Action, ActionType, Move } from "../../libraries/DSTypes.sol";
+import { Coord, Action, ActionType, Move } from "../../libraries/DSTypes.sol";
 
 contract AttackActionTest is DarkSeasTest {
   constructor() DarkSeasTest(new Deploy()) {}
@@ -221,7 +221,6 @@ contract AttackActionTest is DarkSeasTest {
     uint32 newHealth = healthComponent.getValue(defenderEntity);
 
     uint32 ehd = expectedHealthDecrease(attackerEntity, cannonEntity, defenderEntity);
-    console.log("expected health decrease:", ehd);
     assertEq(newHealth, origHealth - ehd);
   }
 
@@ -253,7 +252,7 @@ contract AttackActionTest is DarkSeasTest {
     assertEq(bootyComponent.getValue(attackerEntity), attackerBooty + defenderBooty / 2);
 
     assertEq(bootyComponent.getValue(ownerEntity), ownerBooty + defenderBooty / 2);
-    assertEq(healthComponent.getValue(attackerEntity), 3);
+    assertEq(healthComponent.getValue(attackerEntity), 2);
   }
 
   /**
@@ -275,7 +274,9 @@ contract AttackActionTest is DarkSeasTest {
     uint256 cannonEntity,
     uint256 defenderEntity
   ) public view returns (uint32) {
+    uint32 kills = KillsComponent(getAddressById(components, KillsComponentID)).getValue(attackerEntity);
     uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
+    firepower = (firepower * (kills + 10)) / 10;
     uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
     Coord memory attackerPosition = PositionComponent(getAddressById(components, PositionComponentID)).getValue(
       attackerEntity

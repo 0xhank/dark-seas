@@ -1,6 +1,5 @@
 import { defineComponentSystem } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
-import { inWorld } from "../../../../utils/distance";
 import { DSTileset } from "../assets/tilesets/dsTilesheet";
 import { TILE_HEIGHT } from "../constants";
 import { PhaserLayer } from "../types";
@@ -9,7 +8,7 @@ export function createTileSystem(phaser: PhaserLayer) {
   const {
     world,
     components: { GameConfig },
-    utils: { isWhirlpool },
+    utils: { isWhirlpool, inWorld },
     scene: {
       posHeight,
       maps: { Main },
@@ -30,7 +29,7 @@ export function createTileSystem(phaser: PhaserLayer) {
       for (let j = -worldHeight; j < worldHeight; j += adjustment) {
         const coord = { x: i, y: j };
         const adjustedCoord = { x: Math.floor(i / adjustment), y: Math.floor(j / adjustment) };
-        if (!inWorld(coord, worldHeight)) continue;
+        if (!inWorld(coord)) continue;
         const tile = getWhirlpoolTile(coord, perlinSeed, adjustment);
         if (tile) {
           Main.putTileAt(adjustedCoord, tile, "Foreground");

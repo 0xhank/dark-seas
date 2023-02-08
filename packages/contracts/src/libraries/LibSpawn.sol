@@ -24,15 +24,18 @@ import { LastHitComponent, ID as LastHitComponentID } from "../components/LastHi
 import { CannonComponent, ID as CannonComponentID } from "../components/CannonComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedComponent.sol";
+import { ShipPrototypeComponent, ID as ShipPrototypeComponentID } from "../components/ShipPrototypeComponent.sol";
 import { KillsComponent, ID as KillsComponentID } from "../components/KillsComponent.sol";
 import { BootyComponent, ID as BootyComponentID } from "../components/BootyComponent.sol";
+import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireComponent.sol";
+import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../components/DamagedCannonsComponent.sol";
 
 // Types
-import { Coord, GodID } from "../libraries/DSTypes.sol";
+import { Coord, GodID, ShipPrototype, GameConfig } from "./DSTypes.sol";
 
 // Libraries
-import "../libraries/LibUtils.sol";
-import "../libraries/LibVector.sol";
+import "./LibUtils.sol";
+import "./LibVector.sol";
 
 library LibSpawn {
   /**
@@ -102,9 +105,18 @@ library LibSpawn {
     startingLocation = getRandomLocation(components, LibUtils.randomness(playerEntity, nonce));
 
     uint32 rotation = pointKindaTowardsTheCenter(startingLocation);
-    spawnBattleship(components, world, playerEntity, startingLocation, rotation, buyin);
-    startingLocation.x += 20;
-    spawnDestroyer(components, world, playerEntity, startingLocation, rotation, buyin);
+
+    uint256[] memory shipPrototypeEntities = GameConfigComponent(getAddressById(components, GameConfigComponentID))
+      .getValue(GodID)
+      .shipPrototypes;
+
+    for (uint256 i = 0; i < shipPrototypeEntities.length; i++) {
+      spawnShip(components, world, playerEntity, startingLocation, rotation, shipPrototypeEntities[i], buyin);
+      startingLocation = Coord(startingLocation.x + 20, startingLocation.y);
+    }
+
+    LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 0);
+    LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 0);
   }
 
   /**
@@ -116,73 +128,71 @@ library LibSpawn {
    * @param   location  starting location of ship
    * @param   rotation  starting rotation of ship
    */
-  function spawnBattleship(
+  function spawnShip(
     IUint256Component components,
     IWorld world,
     uint256 playerEntity,
     Coord memory location,
     uint32 rotation,
+    uint256 shipPrototypeEntity,
     uint256 startingBooty
   ) internal returns (uint256 shipEntity) {
+    ShipPrototypeComponent shipPrototypeComponent = ShipPrototypeComponent(
+      getAddressById(components, ShipPrototypeComponentID)
+    );
+
+    require(shipPrototypeComponent.has(shipPrototypeEntity), "spawnShip: ship prototype does not exist");
+
+    ShipPrototype memory shipPrototype = abi.decode(
+      shipPrototypeComponent.getValue(shipPrototypeEntity),
+      (ShipPrototype)
+    );
+
     shipEntity = world.getUniqueEntityId();
     ShipComponent(getAddressById(components, ShipComponentID)).set(shipEntity);
 
     uint32 maxHealth = 10;
     PositionComponent(getAddressById(components, PositionComponentID)).set(shipEntity, location);
     RotationComponent(getAddressById(components, RotationComponentID)).set(shipEntity, rotation);
-    LengthComponent(getAddressById(components, LengthComponentID)).set(shipEntity, 10);
-    HealthComponent(getAddressById(components, HealthComponentID)).set(shipEntity, maxHealth);
-    MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).set(shipEntity, maxHealth);
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
     OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(shipEntity, playerEntity);
-    SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, 110);
+    SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, shipPrototype.speed);
+    LengthComponent(getAddressById(components, LengthComponentID)).set(shipEntity, shipPrototype.length);
+    HealthComponent(getAddressById(components, HealthComponentID)).set(shipEntity, shipPrototype.maxHealth);
+    MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).set(shipEntity, shipPrototype.maxHealth);
     KillsComponent(getAddressById(components, KillsComponentID)).set(shipEntity, 0);
     BootyComponent(getAddressById(components, BootyComponentID)).set(shipEntity, startingBooty);
     LastHitComponent(getAddressById(components, LastHitComponentID)).set(shipEntity, GodID);
-    spawnCannon(components, world, shipEntity, 90, 40, 90);
-    spawnCannon(components, world, shipEntity, 270, 40, 90);
-    spawnCannon(components, world, shipEntity, 0, 40, 90);
+    for (uint256 i = 0; i < shipPrototype.cannons.length; i++) {
+      spawnCannon(
+        components,
+        world,
+        shipEntity,
+        shipPrototype.cannons[i].rotation,
+        shipPrototype.cannons[i].firepower,
+        shipPrototype.cannons[i].range
+      );
+    }
   }
 
-  /**
-   * @notice  spawns a basic ship type
-   * @dev todo: move this to shipPrototype and create a couple options for ships
-   * @param   components  creates a ship
-   * @param   world  world
-   * @param   playerEntity  entity id of ship's owner
-   * @param   location  starting location of ship
-   * @param   rotation  starting rotation of ship
-   */
-  function spawnDestroyer(
+  function respawnShip(
     IUint256Component components,
-    IWorld world,
-    uint256 playerEntity,
-    Coord memory location,
+    uint256 shipEntity,
+    Coord memory position,
     uint32 rotation,
-    uint256 startingBooty
-  ) internal returns (uint256 shipEntity) {
-    shipEntity = world.getUniqueEntityId();
-    uint32 maxHealth = 15;
-
-    ShipComponent(getAddressById(components, ShipComponentID)).set(shipEntity);
-
-    PositionComponent(getAddressById(components, PositionComponentID)).set(shipEntity, location);
+    uint256 booty
+  ) internal {
+    PositionComponent(getAddressById(components, PositionComponentID)).set(shipEntity, position);
     RotationComponent(getAddressById(components, RotationComponentID)).set(shipEntity, rotation);
-    LengthComponent(getAddressById(components, LengthComponentID)).set(shipEntity, 13);
-    HealthComponent(getAddressById(components, HealthComponentID)).set(shipEntity, maxHealth);
-    MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).set(shipEntity, maxHealth);
-
+    LengthComponent(getAddressById(components, LengthComponentID)).set(shipEntity, 10);
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
-    OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(shipEntity, playerEntity);
-    SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, 85);
-    KillsComponent(getAddressById(components, KillsComponentID)).set(shipEntity, 0);
-    BootyComponent(getAddressById(components, BootyComponentID)).set(shipEntity, startingBooty);
-    LastHitComponent(getAddressById(components, LastHitComponentID)).set(shipEntity, GodID);
 
-    spawnCannon(components, world, shipEntity, 90, 65, 100);
-    spawnCannon(components, world, shipEntity, 270, 65, 100);
-    spawnCannon(components, world, shipEntity, 345, 65, 100);
-    spawnCannon(components, world, shipEntity, 15, 65, 100);
+    uint32 maxHealth = MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).getValue(shipEntity);
+    HealthComponent(getAddressById(components, HealthComponentID)).set(shipEntity, maxHealth);
+    KillsComponent(getAddressById(components, KillsComponentID)).set(shipEntity, 0);
+    BootyComponent(getAddressById(components, BootyComponentID)).set(shipEntity, booty);
+    OnFireComponent(getAddressById(components, OnFireComponentID)).remove(shipEntity);
+    DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).remove(shipEntity);
   }
 
   /**

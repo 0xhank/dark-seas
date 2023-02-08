@@ -7,21 +7,12 @@ import { IWorld } from "solecs/interfaces/IWorld.sol";
 import { getAddressById, getSystemAddressById, addressToEntity } from "solecs/utils.sol";
 
 // Components
-import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
-import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
-import { MoveCardComponent, ID as MoveCardComponentID } from "../components/MoveCardComponent.sol";
-import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
-import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
-import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
-import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { CommitmentComponent, ID as CommitmentComponentID } from "../components/CommitmentComponent.sol";
 
-import { GodID, MoveCard, Phase, Move } from "../libraries/DSTypes.sol";
-import "../libraries/LibVector.sol";
+import { Phase, Move } from "../libraries/DSTypes.sol";
 import "../libraries/LibMove.sol";
 import "../libraries/LibTurn.sol";
-import "../libraries/LibSpawn.sol";
 import "../libraries/LibUtils.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Move"));
