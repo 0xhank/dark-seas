@@ -47,6 +47,12 @@ export async function createBackendUtilities(
     return owner == myAddress;
   }
 
+  function getShipOwner(shipEntity: EntityIndex) {
+    const owner = getComponentValue(OwnedBy, shipEntity)?.value;
+    if (!owner) return;
+    return world.entityToIndex.get(owner);
+  }
+
   function checkActionPossible(action: ActionType, ship: EntityIndex): boolean {
     if (isNaN(action)) return false;
     if (action == ActionType.None) return false;
@@ -407,5 +413,6 @@ export async function createBackendUtilities(
     muteMusic,
     inWorld,
     getWorldDimsAtTurn,
+    getShipOwner,
   };
 }

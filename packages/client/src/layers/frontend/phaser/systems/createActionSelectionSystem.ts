@@ -32,9 +32,20 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
       HoveredAction,
       Targeted,
       DamagedCannonsLocal,
+      LastAction,
     },
     godEntity,
-    utils: { getGroupObject, destroyGroupObject, getPhase, getTargetedShips, isMyShip, handleNewActionsCannon },
+    utils: {
+      getGroupObject,
+      getShipOwner,
+      getTurn,
+      destroyGroupObject,
+      getPhase,
+      getTargetedShips,
+      isMyShip,
+      handleNewActionsCannon,
+      getPlayerEntity,
+    },
   } = phaser;
 
   defineComponentSystem(world, HoveredAction, ({ value }) => {
@@ -161,7 +172,11 @@ export function createActionSelectionSystem(phaser: PhaserLayer) {
       const firingPolygon = renderFiringArea(phaser, activeGroup, position, rotation, length, cannonEntity, rangeColor);
       const actionType = loaded ? ActionType.Fire : ActionType.Load;
 
-      if (damagedCannons || !myShip || (cannotAdd && !cannonSelected)) return;
+      const shipOwner = getShipOwner(shipEntity);
+      const currentTurn = getTurn();
+      if (!shipOwner) return;
+      const acted = getComponentValue(LastAction, shipOwner)?.value == currentTurn;
+      if (damagedCannons || !myShip || acted || (cannotAdd && !cannonSelected)) return;
       firingPolygon.setInteractive(firingPolygon.geom, Phaser.Geom.Polygon.Contains);
       firingPolygon.on("pointerdown", () => handleNewActionsCannon(actionType, cannonEntity));
       firingPolygon.on("pointerover", () =>
