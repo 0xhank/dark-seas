@@ -128,7 +128,7 @@ library LibSpawn {
    * @param   location  starting location of ship
    * @param   rotation  starting rotation of ship
    */
-  function spawnBattleship(
+  function spawnShip(
     IUint256Component components,
     IWorld world,
     uint256 playerEntity,
