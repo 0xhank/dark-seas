@@ -1,6 +1,6 @@
 import { registerComponentBrowser } from "./ComponentBrowser";
 import { registerDamageChance } from "./DamageChance";
-import { registerEnemyShip } from "./EnemyShip";
+import { registerHoveredShip } from "./HoveredShip";
 import { registerJoinGame } from "./JoinGame";
 import { registerLoadingState } from "./LoadingState";
 import { registerModal } from "./Modal/Modal";
@@ -15,7 +15,7 @@ export function registerUIComponents() {
   // registerActionQueue();
   registerSettings();
   registerTopBar();
-  registerEnemyShip();
+  registerHoveredShip();
   registerYourShips();
   registerTurnTimer();
   registerJoinGame();

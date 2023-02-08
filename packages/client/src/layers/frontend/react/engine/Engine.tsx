@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { Layers } from "../../../../types";
-import { colors } from "../styles/global";
+import { BackgroundImg } from "../styles/global";
 import { MainWindow } from "./components";
 import { EngineContext, LayerContext } from "./context";
 import { EngineStore } from "./store";
@@ -19,12 +19,7 @@ export const Engine: React.FC<{
     setLayers.current = (layers: Layers) => _setLayers(layers);
   }, []);
 
-  if (!mounted || !layers)
-    return (
-      <div
-        style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", background: colors.blueGradient }}
-      ></div>
-    );
+  if (!mounted || !layers) return <BackgroundImg />;
 
   return (
     <LayerContext.Provider value={layers}>
