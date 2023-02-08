@@ -35,7 +35,7 @@ contract RespawnSystem is System {
     uint256[] memory shipEntities = abi.decode(arguments, (uint256[]));
     require(shipEntities.length > 0, "RespawnSystem: no ships to respawn");
 
-    Coord memory position = LibSpawn.getRandomLocation(components, LibUtils.randomness(playerEntity, shipEntities[0]));
+    Coord memory position = LibSpawn.getRandomPosition(components, LibUtils.randomness(playerEntity, shipEntities[0]));
     uint32 rotation = LibSpawn.pointKindaTowardsTheCenter(position);
 
     for (uint256 i = 0; i < shipEntities.length; i++) {

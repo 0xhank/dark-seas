@@ -53,7 +53,7 @@ contract LibCombatTest is DarkSeasTest {
     uint256 threeDamage = (16384 * 999) / uint256(10000);
     uint256 twoDamage = (16384 * 1699) / uint256(10000);
     uint256 oneDamage = (16384 * 3499) / uint256(10000);
-    uint256 zeroDamage = (16384 * 5501) / uint256(10000);
+    uint256 zeroDamage = (16384 * 8001) / uint256(10000);
 
     assertEq(LibCombat.getHullDamage(baseHitChance, threeDamage), 3, "hull 3 failed");
     assertEq(LibCombat.getHullDamage(baseHitChance, twoDamage), 2, "hull 2 failed");
