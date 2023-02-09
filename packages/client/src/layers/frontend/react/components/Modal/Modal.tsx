@@ -1,5 +1,6 @@
 import { EntityIndex, getComponentEntities, getComponentValue, removeComponent } from "@latticexyz/recs";
 import { map, merge } from "rxjs";
+import { world } from "../../../../../mud/world";
 import { ModalType } from "../../../../../types";
 import { getShipName } from "../../../../../utils/ships";
 import { registerUIComponent } from "../../engine";
@@ -32,18 +33,10 @@ export function registerModal() {
       colStart: 1,
       colEnd: 13,
     },
-    (layers) => {
+    (mud) => {
       const {
-        network: {
-          world,
-          components: { Kills, OwnedBy, Ship, Name, Booty },
-        },
-        backend: {
-          components: { ModalOpen, HealthLocal },
-          utils: { clearComponent },
-          godEntity,
-        },
-      } = layers;
+        components: { Kills, OwnedBy, Ship, Name, Booty, HealthLocal, ModalOpen },
+      } = mud;
 
       return merge(Booty.update$, HealthLocal.update$, Kills.update$, ModalOpen.update$).pipe(
         map(() => {

@@ -1,13 +1,5 @@
 import { EntityID, EntityIndex } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
-import { boot } from "./boot";
-import { BackendLayer } from "./layers/backend";
-import { PhaserLayer } from "./layers/frontend/phaser";
-import { NetworkLayer } from "./layers/network";
-
-export type DSWindow = Awaited<ReturnType<typeof boot>>;
-
-export type Layers = { network: NetworkLayer; backend: BackendLayer; phaser: PhaserLayer };
 
 export type Action = {
   shipEntity: EntityID;

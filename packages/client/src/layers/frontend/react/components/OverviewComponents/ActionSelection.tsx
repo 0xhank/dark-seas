@@ -9,12 +9,12 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import styled from "styled-components";
-import { ActionImg, ActionNames, ActionType, Layers } from "../../../../../types";
+import { ActionImg, ActionNames, ActionType } from "../../../../../types";
 import { isBroadside } from "../../../../../utils/trig";
 import { DELAY } from "../../../constants";
 import { Img, OptionButton } from "../../styles/global";
 
-export const ActionSelection = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
+export const ActionSelection = ({ layers, ship }: { ship: EntityIndex }) => {
   const {
     backend: {
       world,

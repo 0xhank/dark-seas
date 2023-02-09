@@ -13,12 +13,10 @@ export function registerActionQueue() {
       colStart: 1,
       colEnd: 3,
     },
-    (layers) => {
+    (mud) => {
       const {
-        backend: {
-          actions: { Action },
-        },
-      } = layers;
+        actions: { Action },
+      } = mud;
 
       return Action.update$.pipe(
         map(() => ({
