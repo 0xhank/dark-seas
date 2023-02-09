@@ -11,10 +11,10 @@ import {
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
+import { Category } from "../../../../sound";
 import { Sprites } from "../../../../types";
 import { getShipSprite } from "../../../../utils/ships";
 import { getMidpoint, getSternLocation } from "../../../../utils/trig";
-import { Category } from "../../../backend/sound/library";
 import { Animations, MOVE_LENGTH, RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
 

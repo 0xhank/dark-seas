@@ -38,8 +38,10 @@ import { CommitmentComponent, ID as CommitmentComponentID } from "components/Com
 import { LoadedComponent, ID as LoadedComponentID } from "components/LoadedComponent.sol";
 import { CannonComponent, ID as CannonComponentID } from "components/CannonComponent.sol";
 import { SpeedComponent, ID as SpeedComponentID } from "components/SpeedComponent.sol";
+import { ShipPrototypeComponent, ID as ShipPrototypeComponentID } from "components/ShipPrototypeComponent.sol";
 import { KillsComponent, ID as KillsComponentID } from "components/KillsComponent.sol";
 import { LastHitComponent, ID as LastHitComponentID } from "components/LastHitComponent.sol";
+import { BootyComponent, ID as BootyComponentID } from "components/BootyComponent.sol";
 
 // Systems (requires 'systems=...' remapping in project's remappings.txt)
 import { InitSystem, ID as InitSystemID } from "systems/InitSystem.sol";
@@ -47,6 +49,7 @@ import { MoveSystem, ID as MoveSystemID } from "systems/MoveSystem.sol";
 import { ActionSystem, ID as ActionSystemID } from "systems/ActionSystem.sol";
 import { ComponentDevSystem, ID as ComponentDevSystemID } from "systems/ComponentDevSystem.sol";
 import { PlayerSpawnSystem, ID as PlayerSpawnSystemID } from "systems/PlayerSpawnSystem.sol";
+import { RespawnSystem, ID as RespawnSystemID } from "systems/RespawnSystem.sol";
 import { CommitSystem, ID as CommitSystemID } from "systems/CommitSystem.sol";
 
 struct DeployResult {
@@ -162,12 +165,20 @@ library LibDeploy {
       comp = new SpeedComponent(address(result.world));
       console.log(address(comp));
 
+      console.log("Deploying ShipPrototypeComponent");
+      comp = new ShipPrototypeComponent(address(result.world));
+      console.log(address(comp));
+
       console.log("Deploying KillsComponent");
       comp = new KillsComponent(address(result.world));
       console.log(address(comp));
 
       console.log("Deploying LastHitComponent");
       comp = new LastHitComponent(address(result.world));
+      console.log(address(comp));
+
+      console.log("Deploying BootyComponent");
+      comp = new BootyComponent(address(result.world));
       console.log(address(comp));
     }
 
@@ -218,8 +229,10 @@ library LibDeploy {
     authorizeWriter(components, LoadedComponentID, address(system));
     authorizeWriter(components, CannonComponentID, address(system));
     authorizeWriter(components, SpeedComponentID, address(system));
+    authorizeWriter(components, ShipPrototypeComponentID, address(system));
     authorizeWriter(components, KillsComponentID, address(system));
     authorizeWriter(components, LastHitComponentID, address(system));
+    authorizeWriter(components, BootyComponentID, address(system));
     if (init) system.execute(new bytes(0));
     console.log(address(system));
 
@@ -230,6 +243,9 @@ library LibDeploy {
     authorizeWriter(components, RotationComponentID, address(system));
     authorizeWriter(components, LastMoveComponentID, address(system));
     authorizeWriter(components, HealthComponentID, address(system));
+    authorizeWriter(components, SailPositionComponentID, address(system));
+    authorizeWriter(components, BootyComponentID, address(system));
+    authorizeWriter(components, LengthComponentID, address(system));
     console.log(address(system));
 
     console.log("Deploying ActionSystem");
@@ -243,6 +259,8 @@ library LibDeploy {
     authorizeWriter(components, LoadedComponentID, address(system));
     authorizeWriter(components, KillsComponentID, address(system));
     authorizeWriter(components, LastHitComponentID, address(system));
+    authorizeWriter(components, BootyComponentID, address(system));
+    authorizeWriter(components, LengthComponentID, address(system));
     console.log(address(system));
 
     console.log("Deploying ComponentDevSystem");
@@ -270,8 +288,10 @@ library LibDeploy {
     authorizeWriter(components, LoadedComponentID, address(system));
     authorizeWriter(components, CannonComponentID, address(system));
     authorizeWriter(components, SpeedComponentID, address(system));
+    authorizeWriter(components, ShipPrototypeComponentID, address(system));
     authorizeWriter(components, KillsComponentID, address(system));
     authorizeWriter(components, LastHitComponentID, address(system));
+    authorizeWriter(components, BootyComponentID, address(system));
     console.log(address(system));
 
     console.log("Deploying PlayerSpawnSystem");
@@ -288,12 +308,28 @@ library LibDeploy {
     authorizeWriter(components, FirepowerComponentID, address(system));
     authorizeWriter(components, LastMoveComponentID, address(system));
     authorizeWriter(components, LastActionComponentID, address(system));
+    authorizeWriter(components, LastHitComponentID, address(system));
     authorizeWriter(components, OwnedByComponentID, address(system));
     authorizeWriter(components, PlayerComponentID, address(system));
     authorizeWriter(components, NameComponentID, address(system));
     authorizeWriter(components, CannonComponentID, address(system));
     authorizeWriter(components, SpeedComponentID, address(system));
     authorizeWriter(components, KillsComponentID, address(system));
+    authorizeWriter(components, BootyComponentID, address(system));
+    console.log(address(system));
+
+    console.log("Deploying RespawnSystem");
+    system = new RespawnSystem(world, address(components));
+    world.registerSystem(address(system), RespawnSystemID);
+    authorizeWriter(components, PositionComponentID, address(system));
+    authorizeWriter(components, RotationComponentID, address(system));
+    authorizeWriter(components, HealthComponentID, address(system));
+    authorizeWriter(components, SailPositionComponentID, address(system));
+    authorizeWriter(components, KillsComponentID, address(system));
+    authorizeWriter(components, BootyComponentID, address(system));
+    authorizeWriter(components, OnFireComponentID, address(system));
+    authorizeWriter(components, DamagedCannonsComponentID, address(system));
+    authorizeWriter(components, LengthComponentID, address(system));
     console.log(address(system));
 
     console.log("Deploying CommitSystem");

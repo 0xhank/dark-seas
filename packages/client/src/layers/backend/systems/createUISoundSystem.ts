@@ -1,10 +1,10 @@
 import { defineComponentSystem, defineSystem, EntityID, Has, Not } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
-import { ActionType } from "../../../types";
-import { Category } from "../sound/library";
-import { BackendLayer, TxType } from "../types";
+import { useMUD } from "../../../MUDContext";
+import { Category } from "../../../sound";
+import { ActionType, TxType } from "../../../types";
 
-export function createUISoundSystem(backend: BackendLayer) {
+export function createUISoundSystem() {
   const {
     utils: { playSound },
     world,
@@ -19,7 +19,7 @@ export function createUISoundSystem(backend: BackendLayer) {
       Position,
     },
     actions: { Action },
-  } = backend;
+  } = useMUD();
 
   defineComponentSystem(world, Action, ({ value }) => {
     const newAction = value[0];

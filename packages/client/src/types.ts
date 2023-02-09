@@ -128,3 +128,9 @@ export const ModalType = {
   TUTORIAL: 1 as EntityIndex,
   BOTTOM_BAR: 2 as EntityIndex,
 };
+
+export enum TxType {
+  Action,
+  Commit,
+  Reveal,
+}

@@ -1,7 +1,6 @@
 import { SoundAsset } from ".";
 
 const BASE_VOLUME = 0.5;
-const FULL_VOLUME = 1;
 export const combat: SoundAsset = {
   impact_water_1: {
     src: "/sounds/combat/Impact_Cannon_OnWater_01.wav",

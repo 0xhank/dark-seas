@@ -9,8 +9,8 @@ import {
   runQuery,
 } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
+import { Category } from "../../../../sound";
 import { getSternLocation, midpoint } from "../../../../utils/trig";
-import { Category } from "../../../backend/sound/library";
 import { colors } from "../../react/styles/global";
 import { Animations, CANNON_SHOT_DELAY, MOVE_LENGTH, RenderDepth } from "../constants";
 import { PhaserLayer } from "../types";

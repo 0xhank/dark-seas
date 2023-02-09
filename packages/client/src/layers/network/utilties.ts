@@ -1,3 +1,4 @@
+import { Clock } from "@latticexyz/network";
 import { createPerlin } from "@latticexyz/noise";
 import {
   Component,
@@ -6,6 +7,7 @@ import {
   getComponentValue,
   getComponentValueStrict,
   Has,
+  hasComponent,
   HasValue,
   NotValue,
   removeComponent,
@@ -13,38 +15,113 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
+import { BigNumber, BigNumberish } from "ethers";
 import { Howl } from "howler";
-import { Action, ActionType, Move } from "../../../types";
-import { distance } from "../../../utils/distance";
-import { getFiringArea, getSternLocation, inFiringArea } from "../../../utils/trig";
-import { DELAY } from "../../frontend/constants";
-import { NetworkLayer } from "../../network";
-import { BackendComponents } from "../createBackendComponents";
-import { Category, soundLibrary } from "../sound/library";
+import { Category, soundLibrary } from "../../sound";
+import { Action, ActionType, Move, Phase } from "../../types";
+import { distance } from "../../utils/distance";
+import { getFiringArea, getSternLocation, inFiringArea } from "../../utils/trig";
+import { DELAY } from "../frontend/constants";
+import { clientComponents, components } from "./components";
+import { world } from "./world";
 
-export async function createBackendUtilities(
-  network: NetworkLayer,
-  components: BackendComponents,
-  godEntity: EntityIndex
+export async function createUtilities(
+  godEntity: EntityIndex,
+  playerEntity: EntityIndex,
+  playerAddress: string,
+  clock: Clock
 ) {
-  const {
-    world,
-    utils: { getPlayerEntity, getGameConfig, getTurn },
-    components: { Ship, OwnedBy, Range, Position, Rotation, Length, Firepower, Kills },
-    network: { connectedAddress },
-  } = network;
-
   const perlin = await createPerlin();
+
+  function bigNumToEntityID(bigNum: BigNumberish): EntityID {
+    return BigNumber.from(bigNum).toHexString() as EntityID;
+  }
+
+  const getGameConfig = () => {
+    return getComponentValue(components.GameConfig, godEntity);
+  };
+
+  function getPlayerEntity(address?: string): EntityIndex | undefined {
+    if (!address) address = playerAddress;
+    if (!address) return;
+    if (!hasComponent(components.Player, playerEntity)) return;
+
+    return playerEntity;
+  }
+
+  function getPhase(delay = 0): Phase | undefined {
+    const time = Math.floor(clock.currentTime / 1000) + delay;
+    const gamePhase = getGamePhaseAt(time);
+    return gamePhase;
+  }
+
+  function getGamePhaseAt(timeInSeconds: number): Phase | undefined {
+    const gameConfig = getGameConfig();
+    if (!gameConfig) return undefined;
+    const timeElapsed = timeInSeconds - parseInt(gameConfig.startTime);
+    const gameLength = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
+
+    const secondsIntoTurn = timeElapsed % gameLength;
+
+    if (secondsIntoTurn < gameConfig.commitPhaseLength) return Phase.Commit;
+    if (secondsIntoTurn < gameConfig.commitPhaseLength + gameConfig.revealPhaseLength) return Phase.Reveal;
+    return Phase.Action;
+  }
+
+  function getTurn(delay = 0): number | undefined {
+    const time = Math.floor(clock.currentTime / 1000) + delay;
+    const gameTurn = getGameTurnAt(time);
+    return gameTurn;
+  }
+
+  function getGameTurnAt(timeInSeconds: number): number | undefined {
+    const gameConfig = getGameConfig();
+    if (!gameConfig) return undefined;
+    const timeElapsed = timeInSeconds - parseInt(gameConfig.startTime);
+    const turnLength = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
+
+    return Math.floor(timeElapsed / turnLength);
+  }
+
+  function secondsIntoTurn(delay = 0) {
+    const gameConfig = getGameConfig();
+    const phase = getPhase(delay);
+
+    if (!gameConfig || phase == undefined) return;
+
+    const gameLength = Math.floor(clock.currentTime / 1000) + delay - parseInt(gameConfig.startTime);
+    const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;
+    return gameLength % turnLength;
+  }
+
+  function secondsUntilNextPhase(delay = 0) {
+    const gameConfig = getGameConfig();
+    const phase = getPhase(delay);
+
+    if (!gameConfig || phase == undefined) return;
+
+    const gameLength = Math.floor(clock.currentTime / 1000) + delay - parseInt(gameConfig.startTime);
+    const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;
+    const secondsIntoTurn = gameLength % turnLength;
+
+    const phaseEnd =
+      phase == Phase.Commit
+        ? gameConfig.commitPhaseLength
+        : phase == Phase.Reveal
+        ? gameConfig.commitPhaseLength + gameConfig.revealPhaseLength
+        : turnLength;
+
+    return phaseEnd - secondsIntoTurn;
+  }
 
   function clearComponent(component: Component) {
     [...component.entities()].forEach((entity) => removeComponent(component, entity));
   }
 
   function isMyShip(shipEntity: EntityIndex): boolean {
-    const owner = getComponentValue(OwnedBy, shipEntity)?.value;
-    const myAddress = connectedAddress.get();
-    if (!owner || !myAddress) return false;
-    return owner == myAddress;
+    const owner = getComponentValue(components.OwnedBy, shipEntity)?.value;
+    if (!owner) return false;
+    return owner == playerAddress;
   }
 
   function checkActionPossible(action: ActionType, ship: EntityIndex): boolean {
@@ -52,12 +129,13 @@ export async function createBackendUtilities(
     if (action == ActionType.None) return false;
     if (action == ActionType.Fire) return false;
     if (action == ActionType.Load) return false;
-    if (action == ActionType.ExtinguishFire && !getComponentValue(components.OnFireLocal, ship)?.value) return false;
-
-    if (action == ActionType.RepairCannons && !getComponentValue(components.DamagedCannonsLocal, ship)?.value)
+    if (action == ActionType.ExtinguishFire && !getComponentValue(clientComponents.OnFireLocal, ship)?.value)
       return false;
 
-    const sailPosition = getComponentValueStrict(components.SailPositionLocal, ship).value;
+    if (action == ActionType.RepairCannons && !getComponentValue(clientComponents.DamagedCannonsLocal, ship)?.value)
+      return false;
+
+    const sailPosition = getComponentValueStrict(clientComponents.SailPositionLocal, ship).value;
     if (action == ActionType.LowerSail && sailPosition != 2) return false;
     if (action == ActionType.RaiseSail && sailPosition != 1) return false;
     if (action == ActionType.RepairSail && sailPosition > 0) return false;
@@ -66,20 +144,27 @@ export async function createBackendUtilities(
   }
 
   function getPlayerShips(player?: EntityIndex) {
-    if (!player) player = getPlayerEntity(connectedAddress.get());
+    if (!player) player = getPlayerEntity();
     if (!player) return;
-    const ships = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[player] })])];
+    const ships = [
+      ...runQuery([Has(components.Ship), HasValue(components.OwnedBy, { value: world.entities[player] })]),
+    ];
     if (ships.length == 0) return;
 
     return ships;
   }
   function getPlayerShipsWithMoves(player?: EntityIndex): Move[] | undefined {
-    if (!player) player = getPlayerEntity(connectedAddress.get());
+    if (!player) player = getPlayerEntity();
     if (!player) return;
-    const ships = [...runQuery([HasValue(OwnedBy, { value: world.entities[player] }), Has(components.SelectedMove)])];
+    const ships = [
+      ...runQuery([
+        HasValue(components.OwnedBy, { value: world.entities[player] }),
+        Has(clientComponents.SelectedMove),
+      ]),
+    ];
     if (ships.length == 0) return;
     const moves = ships.map((ship) => {
-      const move = getComponentValueStrict(components.SelectedMove, ship).value as EntityIndex;
+      const move = getComponentValueStrict(clientComponents.SelectedMove, ship).value as EntityIndex;
       return {
         shipEntity: world.entities[ship],
         moveCardEntity: world.entities[move],
@@ -89,25 +174,26 @@ export async function createBackendUtilities(
   }
 
   function getTargetedShips(cannonEntity: EntityIndex): EntityIndex[] {
-    const shipID = getComponentValue(OwnedBy, cannonEntity)?.value;
+    const shipID = getComponentValue(components.OwnedBy, cannonEntity)?.value;
     if (!shipID) return [];
     const shipEntity = world.entityToIndex.get(shipID);
 
-    const address = connectedAddress.get() as EntityID;
-    if (!address || !shipEntity) return [];
+    if (!shipEntity) return [];
 
-    const length = getComponentValueStrict(Length, shipEntity).value;
-    const shipPosition = getComponentValueStrict(Position, shipEntity);
-    const shipRotation = getComponentValueStrict(Rotation, shipEntity).value;
-    const cannonRotation = getComponentValueStrict(Rotation, cannonEntity).value;
-
-    const shipEntities = [...runQuery([Has(Ship), NotValue(OwnedBy, { value: address })])].filter((targetEntity) => {
+    const length = getComponentValueStrict(components.Length, shipEntity).value;
+    const shipPosition = getComponentValueStrict(components.Position, shipEntity);
+    const shipRotation = getComponentValueStrict(components.Rotation, shipEntity).value;
+    const cannonRotation = getComponentValueStrict(components.Rotation, cannonEntity).value;
+    const playerEntityID = world.entities[playerEntity];
+    const shipEntities = [
+      ...runQuery([Has(components.Ship), NotValue(components.OwnedBy, { value: playerEntityID })]),
+    ].filter((targetEntity) => {
       if (targetEntity == shipEntity) return false;
-      if (getComponentValue(components.HealthLocal, targetEntity)?.value == 0) return false;
+      if (getComponentValue(clientComponents.HealthLocal, targetEntity)?.value == 0) return false;
 
-      const enemyPosition = getComponentValueStrict(Position, targetEntity);
-      const enemyRotation = getComponentValueStrict(Rotation, targetEntity).value;
-      const enemyLength = getComponentValueStrict(Length, targetEntity).value;
+      const enemyPosition = getComponentValueStrict(components.Position, targetEntity);
+      const enemyRotation = getComponentValueStrict(components.Rotation, targetEntity).value;
+      const enemyLength = getComponentValueStrict(components.Length, targetEntity).value;
       const sternPosition = getSternLocation(enemyPosition, enemyRotation, enemyLength);
       const range = getCannonRange(cannonEntity);
       const firingArea = getFiringArea(shipPosition, range, length, shipRotation, cannonRotation);
@@ -124,17 +210,17 @@ export async function createBackendUtilities(
   }
 
   function getDamageLikelihood(cannonEntity: EntityIndex, target: EntityIndex) {
-    const shipID = getComponentValue(OwnedBy, cannonEntity)?.value;
+    const shipID = getComponentValue(components.OwnedBy, cannonEntity)?.value;
     if (!shipID) return;
     const shipEntity = world.entityToIndex.get(shipID);
     if (!shipEntity) return;
 
-    const shipPosition = getComponentValueStrict(Position, shipEntity);
-    const targetPosition = getComponentValueStrict(Position, target);
+    const shipPosition = getComponentValueStrict(components.Position, shipEntity);
+    const targetPosition = getComponentValueStrict(components.Position, target);
     const dist = distance(shipPosition, targetPosition);
 
     const firepower = getCannonFirepower(cannonEntity);
-    const kills = getComponentValueStrict(Kills, shipEntity).value;
+    const kills = getComponentValueStrict(components.Kills, shipEntity).value;
     const baseHitChance = getBaseHitChance(dist, firepower * (1 + kills / 10));
 
     const format = (n: number) => Math.min(100, Math.round(n));
@@ -142,15 +228,18 @@ export async function createBackendUtilities(
   }
 
   function getPlayerShipsWithActions(player?: EntityIndex): Action[] {
-    if (!player) player = getPlayerEntity(connectedAddress.get());
+    if (!player) player = playerEntity;
     if (!player) return [];
     const ships = [
-      ...runQuery([HasValue(OwnedBy, { value: world.entities[player] }), Has(components.SelectedActions)]),
+      ...runQuery([
+        HasValue(components.OwnedBy, { value: world.entities[player] }),
+        Has(clientComponents.SelectedActions),
+      ]),
     ];
     if (ships.length == 0) return [];
 
     return ships.reduce((prevActions: Action[], ship: EntityIndex) => {
-      const actions = getComponentValueStrict(components.SelectedActions, ship);
+      const actions = getComponentValueStrict(clientComponents.SelectedActions, ship);
       const actionTypes = actions.actionTypes;
       if (actionTypes.length == 0) return prevActions;
       if (actionTypes.every((actionType) => actionType == ActionType.None)) return prevActions;
@@ -177,7 +266,7 @@ export async function createBackendUtilities(
   }
 
   function getCannonOwner(cannonEntity: EntityIndex) {
-    const shipID = getComponentValue(OwnedBy, cannonEntity)?.value;
+    const shipID = getComponentValue(components.OwnedBy, cannonEntity)?.value;
     if (!shipID) return;
     const shipEntity = world.entityToIndex.get(shipID);
     if (!shipEntity) return;
@@ -185,20 +274,20 @@ export async function createBackendUtilities(
   }
 
   function getCannonRange(cannonEntity: EntityIndex) {
-    const range = getComponentValue(Range, cannonEntity)?.value;
+    const range = getComponentValue(components.Range, cannonEntity)?.value;
     const shipEntity = getCannonOwner(cannonEntity);
     if (!shipEntity) return 0;
-    const kills = getComponentValue(Kills, shipEntity)?.value;
+    const kills = getComponentValue(components.Kills, shipEntity)?.value;
     if (range == undefined || kills == undefined) return 0;
 
     return range * (1 + kills / 10);
   }
 
   function getCannonFirepower(cannonEntity: EntityIndex) {
-    const firepower = getComponentValue(Firepower, cannonEntity)?.value;
+    const firepower = getComponentValue(components.Firepower, cannonEntity)?.value;
     const shipEntity = getCannonOwner(cannonEntity);
     if (!shipEntity) return 0;
-    const kills = getComponentValue(Kills, shipEntity)?.value;
+    const kills = getComponentValue(components.Kills, shipEntity)?.value;
     if (firepower == undefined || kills == undefined) return 0;
 
     return firepower * (1 + kills / 10);
@@ -259,7 +348,7 @@ export async function createBackendUtilities(
   const musicRegistry = new Map<string, Howl>();
 
   function playSound(id: string, category: Category, loop = false, fade?: number) {
-    const volume = getComponentValueStrict(components.Volume, godEntity).value;
+    const volume = getComponentValueStrict(clientComponents.Volume, godEntity).value;
     const sound = new Howl({
       src: [soundLibrary[category][id].src],
       volume: soundLibrary[category][id].volume * volume,
@@ -280,7 +369,7 @@ export async function createBackendUtilities(
   }
 
   function unmuteSfx() {
-    setComponent(components.Volume, godEntity, { value: 1 });
+    setComponent(clientComponents.Volume, godEntity, { value: 1 });
     localStorage.setItem("volume", "1");
     playSound("ocean", Category.Ambience, true);
   }
@@ -288,14 +377,14 @@ export async function createBackendUtilities(
     [...soundRegistry.values()].forEach((entry) => {
       entry.pause();
     });
-    setComponent(components.Volume, godEntity, { value: 0 });
+    setComponent(clientComponents.Volume, godEntity, { value: 0 });
     localStorage.setItem("volume", "0");
   }
 
   function startEnvironmentSoundSystem() {
     const volumeStr = localStorage.getItem("volume");
     const volume = volumeStr ? Number(volumeStr) : 1;
-    setComponent(components.Volume, godEntity, { value: volume });
+    setComponent(clientComponents.Volume, godEntity, { value: volume });
 
     playSound("ocean", Category.Ambience, true);
   }
@@ -306,7 +395,7 @@ export async function createBackendUtilities(
     }
     const volumeStr = localStorage.getItem("music-volume");
     const volume = vol || volumeStr ? Number(volumeStr) : 1;
-    setComponent(components.Volume, 1 as EntityIndex, { value: volume });
+    setComponent(clientComponents.Volume, 1 as EntityIndex, { value: volume });
 
     const music = new Howl({
       src: [soundLibrary[Category.Music]["sailing"].src],
@@ -324,12 +413,12 @@ export async function createBackendUtilities(
     [...musicRegistry.values()].forEach((entry) => {
       entry.pause();
     });
-    setComponent(components.Volume, 1 as EntityIndex, { value: 0 });
+    setComponent(clientComponents.Volume, 1 as EntityIndex, { value: 0 });
     localStorage.setItem("music-volume", "0");
   }
 
   function handleNewActionsSpecial(action: ActionType, shipEntity: EntityIndex) {
-    const selectedActions = getComponentValue(components.SelectedActions, shipEntity) || {
+    const selectedActions = getComponentValue(clientComponents.SelectedActions, shipEntity) || {
       actionTypes: [ActionType.None, ActionType.None],
       specialEntities: ["0" as EntityID, "0" as EntityID],
     };
@@ -345,19 +434,19 @@ export async function createBackendUtilities(
       actions.actionTypes[index] = ActionType.None;
       actions.specialEntities[index] = "0" as EntityID;
     }
-    setComponent(components.SelectedActions, shipEntity, {
+    setComponent(clientComponents.SelectedActions, shipEntity, {
       actionTypes: actions.actionTypes,
       specialEntities: actions.specialEntities,
     });
-    setComponent(components.SelectedShip, godEntity, { value: shipEntity });
+    setComponent(clientComponents.SelectedShip, godEntity, { value: shipEntity });
   }
 
   function handleNewActionsCannon(action: ActionType, cannonEntity: EntityIndex) {
-    const shipID = getComponentValueStrict(OwnedBy, cannonEntity).value;
+    const shipID = getComponentValueStrict(components.OwnedBy, cannonEntity).value;
     if (!shipID) return;
     const shipEntity = world.entityToIndex.get(shipID);
     if (!shipEntity) return;
-    const selectedActions = getComponentValue(components.SelectedActions, shipEntity) || {
+    const selectedActions = getComponentValue(clientComponents.SelectedActions, shipEntity) || {
       actionTypes: [ActionType.None, ActionType.None],
       specialEntities: ["0" as EntityID, "0" as EntityID],
     };
@@ -375,17 +464,25 @@ export async function createBackendUtilities(
       actions.actionTypes[index] = ActionType.None;
       actions.specialEntities[index] = "0" as EntityID;
     }
-    setComponent(components.SelectedActions, shipEntity, {
+    setComponent(clientComponents.SelectedActions, shipEntity, {
       actionTypes: actions.actionTypes,
       specialEntities: actions.specialEntities,
     });
-    setComponent(components.SelectedShip, godEntity, { value: shipEntity });
+    setComponent(clientComponents.SelectedShip, godEntity, { value: shipEntity });
   }
 
   startEnvironmentSoundSystem();
   playMusic();
 
   return {
+    getGameConfig,
+    getPlayerEntity,
+    getPhase,
+    getGamePhaseAt,
+    getTurn,
+    secondsUntilNextPhase,
+    secondsIntoTurn,
+    bigNumToEntityID,
     checkActionPossible,
     getPlayerShips,
     getPlayerShipsWithMoves,

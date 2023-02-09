@@ -1,8 +1,8 @@
 import { getComponentValue } from "@latticexyz/recs";
 import { map, merge } from "rxjs";
 import styled, { keyframes } from "styled-components";
+import { Category } from "../../../../sound";
 import { Phase } from "../../../../types";
-import { Category } from "../../../backend/sound/library";
 import { DELAY } from "../../constants";
 import { registerUIComponent } from "../engine";
 import { colors } from "../styles/global";

@@ -7,10 +7,10 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
+import { Category } from "../../../../sound";
 import { Sprites } from "../../../../types";
 import { distance } from "../../../../utils/distance";
 import { getMidpoint } from "../../../../utils/trig";
-import { Category } from "../../../backend/sound/library";
 import { Animations, CANNON_SHOT_DELAY, CANNON_SPEED, RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
 

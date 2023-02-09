@@ -1,17 +1,16 @@
+import { TxQueue } from "@latticexyz/network";
 import { EntityID } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
 import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
-import { Move } from "../../../types";
-import { NetworkLayer } from "../../network";
-import { TxType } from "../types";
+import { SystemTypes } from "../../../contracts/types/SystemTypes";
+import { components } from "../layers/network/components";
+import { Move, TxType } from "../types";
 
-export function commitMove(network: NetworkLayer, actions: ActionSystem, moves: Move[]) {
-  const {
-    components: { OwnedBy, GameConfig, MoveCard },
-  } = network;
-
+export function commitMove(systems: TxQueue<SystemTypes>, actions: ActionSystem, moves: Move[], override?: boolean) {
+  const { OwnedBy, GameConfig, MoveCard } = components;
   // Entity must be owned by the player
   const actionId = `commitMove ${Date.now()}` as EntityID;
+  override;
   actions.add({
     id: actionId,
     components: { OwnedBy, GameConfig, MoveCard },
@@ -20,8 +19,7 @@ export function commitMove(network: NetworkLayer, actions: ActionSystem, moves: 
     },
     updates: () => [],
     execute: (encoding: string) => {
-      console.log("committing", encoding);
-      network.api.commitMove(keccak256(encoding));
+      systems["ds.system.Commit"].executeTyped(keccak256(encoding));
     },
     metadata: {
       type: TxType.Commit,
