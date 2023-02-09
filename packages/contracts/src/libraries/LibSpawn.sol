@@ -63,15 +63,23 @@ library LibSpawn {
    * @return  Coord  randomly generated position
    */
   function getRandomPosition(IUint256Component components, uint256 r) public view returns (Coord memory) {
-    uint32 worldSize = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).worldSize;
-
-    uint32 bufferedDistance = worldSize - 50;
-    uint32 rotation = uint32(LibUtils.getByteUInt(r, 14, 14) % 360);
-    Coord memory position = LibVector.getPositionByVector(Coord(0, 0), 0, bufferedDistance, rotation);
-
-    if (rotation < 90 || rotation >= 270) position.x = (position.x * 16) / 9;
-    else position.x = (position.x * 9) / 16;
-    return position;
+    uint32 worldHeight = GameConfigComponent(getAddressById(components, GameConfigComponentID))
+      .getValue(GodID)
+      .worldSize;
+    uint32 worldWidth = (worldHeight * 16) / 9;
+    bool useWidth = r % 2 == 1;
+    uint256 y = 0;
+    uint256 x = 0;
+    if (useWidth) {
+      x = (LibUtils.getByteUInt(r, 14, 14) % worldWidth) - 40;
+      y = worldHeight - 40;
+    } else {
+      x = worldWidth - 40;
+      y = (LibUtils.getByteUInt(r, 14, 14) % worldHeight) - 40;
+    }
+    int32 retY = r % 4 < 2 ? int32(uint32(y)) : 0 - int32(uint32(y));
+    int32 retX = r % 8 < 4 ? int32(uint32(x)) : 0 - int32(uint32(x));
+    return Coord(retX, retY);
   }
 
   /**
@@ -101,7 +109,7 @@ library LibSpawn {
     uint256 playerEntity,
     Coord memory startingPosition
   ) public {
-    uint256 nonce = uint256(keccak256(abi.encode(startingPosition)));
+    uint256 nonce = uint256(keccak256(abi.encode(startingPosition, playerEntity)));
     uint256 buyin = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).buyin;
     startingPosition = getRandomPosition(components, LibUtils.randomness(playerEntity, nonce));
 
