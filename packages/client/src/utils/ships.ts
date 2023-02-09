@@ -1,6 +1,6 @@
 import { EntityIndex } from "@latticexyz/recs";
-import { adjectives, nouns } from "../layers/backend/utilities/wordlist";
 import { Sprites } from "../types";
+import { adjectives, nouns } from "../wordlist";
 
 const nameRegistry = new Map<EntityIndex, string>();
 export function getShipName(shipEntity: EntityIndex) {

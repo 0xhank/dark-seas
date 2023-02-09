@@ -4,8 +4,8 @@ import { ActionSystem } from "@latticexyz/std-client";
 import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { ActionStruct } from "../../../contracts/types/ethers-contracts/ActionSystem";
 import { SystemTypes } from "../../../contracts/types/SystemTypes";
-import { components } from "../layers/network/components";
-import { world } from "../layers/network/world";
+import { components } from "../mud/components";
+import { world } from "../mud/world";
 import { Action, ActionType, TxType } from "../types";
 
 export function submitActions(

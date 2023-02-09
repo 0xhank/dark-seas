@@ -2,15 +2,17 @@ import { EntityID, setComponent } from "@latticexyz/recs";
 import { setupMUDNetwork } from "@latticexyz/std-client";
 
 import { createFaucetService, GodID } from "@latticexyz/network";
+import { createPhaserEngine } from "@latticexyz/phaserx";
 import { createActionSystem } from "@latticexyz/std-client";
 import { ethers } from "ethers";
 import { SystemAbis } from "../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../contracts/types/SystemTypes";
 import { commitMoveAction, respawnAction, revealMoveAction, spawnPlayerAction, submitActionsAction } from "./api";
-import { clientComponents, components } from "./layers/network/components";
-import { config } from "./layers/network/config";
-import { createUtilities } from "./layers/network/utilties";
-import { world } from "./layers/network/world";
+import { phaserConfig } from "./layers/frontend/phaser/config";
+import { clientComponents, components } from "./mud/components";
+import { config } from "./mud/config";
+import { createUtilities } from "./mud/utilties";
+import { world } from "./mud/world";
 import { Action, ModalType, Move } from "./types";
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -22,7 +24,6 @@ export type SetupResult = Awaited<ReturnType<typeof setupMUD>>;
 export async function setupMUD() {
   const result = await setupMUDNetwork<typeof components, SystemTypes>(config, world, components, SystemAbis);
   const { systems, network, systemCallStreams, txReduced$ } = result;
-
   result.startSync();
 
   // For LoadingState updates
@@ -37,6 +38,9 @@ export async function setupMUD() {
 
   // Faucet setup
   const faucetUrl = "https://faucet.testnet-mud-services.linfra.xyz";
+
+  const { game, scenes, dispose: disposePhaser } = await createPhaserEngine(phaserConfig);
+  world.registerDisposer(disposePhaser);
 
   if (!config.devMode) {
     const faucet = createFaucetService(faucetUrl);
@@ -65,7 +69,7 @@ export async function setupMUD() {
   // --- UTILITIES ------------------------------------------------------------------
 
   const actions = createActionSystem(world, txReduced$);
-  const utils = await createUtilities(godEntity, playerEntity, playerAddress, network.clock);
+  const utils = await createUtilities(godEntity, playerEntity, playerAddress, network.clock, scenes.Main.phaserScene);
   // --- API ------------------------------------------------------------------------
 
   function spawnPlayer(name: string, override?: boolean) {
@@ -80,8 +84,8 @@ export async function setupMUD() {
     commitMoveAction(systems, actions, moves, override);
   }
 
-  function revealMove(moves: Move[], salt: number, override?: boolean) {
-    revealMoveAction(systems, actions, moves, salt, override);
+  function revealMove(encoding: string, override?: boolean) {
+    revealMoveAction(systems, actions, playerEntity, encoding, override);
   }
 
   function submitActions(playerActions: Action[], override?: boolean) {
@@ -97,6 +101,7 @@ export async function setupMUD() {
     playerAddress,
     playerEntityId,
     playerEntity,
+    network,
     components: {
       ...result.components,
       ...clientComponents,
@@ -104,6 +109,7 @@ export async function setupMUD() {
     api: { revealMove, submitActions, spawnPlayer, commitMove, respawn },
     utils,
     actions,
+    scene: scenes.Main,
   };
 
   setComponent(clientComponents.ModalOpen, ModalType.BOTTOM_BAR, { value: true });

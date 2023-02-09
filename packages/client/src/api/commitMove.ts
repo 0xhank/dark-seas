@@ -3,7 +3,7 @@ import { EntityID } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
 import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
 import { SystemTypes } from "../../../contracts/types/SystemTypes";
-import { components } from "../layers/network/components";
+import { components } from "../mud/components";
 import { Move, TxType } from "../types";
 
 export function commitMove(systems: TxQueue<SystemTypes>, actions: ActionSystem, moves: Move[], override?: boolean) {

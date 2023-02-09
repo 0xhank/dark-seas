@@ -2,8 +2,8 @@ import { TxQueue } from "@latticexyz/network";
 import { EntityID, EntityIndex, getComponentValue } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
 import { SystemTypes } from "../../../contracts/types/SystemTypes";
-import { components } from "../layers/network/components";
-import { world } from "../layers/network/world";
+import { components } from "../mud/components";
+import { world } from "../mud/world";
 
 export function respawn(
   systems: TxQueue<SystemTypes>,
