@@ -1,6 +1,6 @@
 import { EntityID, EntityIndex } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
-
+export const DELAY = 5;
 export type Action = {
   shipEntity: EntityID;
   actionTypes: [ActionType, ActionType];
