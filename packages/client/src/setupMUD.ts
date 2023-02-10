@@ -89,7 +89,7 @@ export async function setupMUD() {
   }
 
   function submitActions(playerActions: Action[], override?: boolean) {
-    submitActionsAction(systems, actions, playerActions, override);
+    submitActionsAction(systems, actions, utils.getTargetedShips, playerActions, override);
   }
 
   // --- CONTEXT --------------------------------------------------------------------

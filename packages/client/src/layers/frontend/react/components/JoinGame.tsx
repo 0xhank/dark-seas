@@ -21,10 +21,7 @@ export function JoinGame() {
   const gameConfig = useComponentValue(GameConfig, godEntity);
 
   const playerEntity = getPlayerEntity();
-  console.log("player entity:", playerEntity);
   const playerExists = useComponentValue(Player, playerEntity || (0 as EntityIndex), { value: false }).value;
-
-  console.log("player exists:", playerExists);
   if (!gameConfig || playerExists) return null;
 
   const spawnAction = [...runQuery([Has(Action)])].length > 0;
