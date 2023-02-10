@@ -17,6 +17,7 @@ import {
 import { Coord } from "@latticexyz/utils";
 import { BigNumber, BigNumberish } from "ethers";
 import { Howl } from "howler";
+import { sprites } from "../phaser/config";
 import { POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../phaser/constants";
 import { colors } from "../react/styles/global";
 import { Category, soundLibrary } from "../sound";
@@ -533,8 +534,8 @@ export async function createUtilities(
     const health = getComponentValueStrict(clientComponents.HealthLocal, shipEntity).value;
 
     const spriteAsset: Sprites = getShipSprite(godEntity, health, true);
-    // @ts-expect-error doesnt recognize a sprite as a number
-    const sprite = config.sprites[spriteAsset];
+
+    const sprite = sprites[spriteAsset];
 
     const { x, y } = tileCoordToPixelCoord(position, POS_WIDTH, POS_HEIGHT);
 

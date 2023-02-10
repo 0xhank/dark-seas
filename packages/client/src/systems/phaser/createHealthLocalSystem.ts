@@ -8,6 +8,7 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
+import { sprites } from "../../phaser/config";
 import { RenderDepth } from "../../phaser/constants";
 import { SetupResult } from "../../setupMUD";
 import { Sprites } from "../../types";
@@ -72,7 +73,7 @@ export function createHealthLocalSystem(MUD: SetupResult) {
 
     const spriteAsset: Sprites = getShipSprite(ownerEntity, health, playerEntity == ownerEntity);
 
-    const sprite = config.sprites[spriteAsset];
+    const sprite = sprites[spriteAsset];
 
     shipObject.setTexture(sprite.assetKey, sprite.frame);
 

@@ -11,6 +11,7 @@ import {
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
+import { sprites } from "../../phaser/config";
 import { Animations, MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../../phaser/constants";
 import { SetupResult } from "../../setupMUD";
 import { Category } from "../../sound";
@@ -58,7 +59,7 @@ export function createShipSystem(MUD: SetupResult) {
       const playerEntity = getPlayerEntity();
       const object = getSpriteObject(shipEntity);
       const spriteAsset: Sprites = getShipSprite(ownerEntity, health, playerEntity == ownerEntity);
-      const sprite = config.sprites[spriteAsset];
+      const sprite = sprites[spriteAsset];
 
       object.setTexture(sprite.assetKey, sprite.frame);
 
