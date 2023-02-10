@@ -1,8 +1,8 @@
 import { defineComponentSystem } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
-import { DSTileset } from "../../layers/frontend/phaser/assets/tilesets/dsTilesheet";
-import { POS_HEIGHT, TILE_HEIGHT } from "../../layers/frontend/phaser/constants";
 import { useMUD } from "../../MUDContext";
+import { DSTileset } from "../../phaser/assets/tilesets/dsTilesheet";
+import { POS_HEIGHT, TILE_HEIGHT } from "../../phaser/constants";
 
 export function createTileSystem() {
   const {

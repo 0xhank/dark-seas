@@ -23,10 +23,10 @@ export function registerYourShips() {
     "YourShips",
     // grid location
     {
-      rowStart: 9,
-      rowEnd: 13,
-      colStart: 1,
-      colEnd: 13,
+      gridRowStart: 9,
+      gridRowEnd: 13,
+      gridColumnStart: 1,
+      gridColumnEnd: 13,
     },
     // requirement
     (layers) => {

@@ -1,7 +1,7 @@
 import { TxQueue } from "@latticexyz/network";
-import { EntityID, EntityIndex, getComponentValue } from "@latticexyz/recs";
+import { EntityID } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
-import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
+import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { SystemTypes } from "../../../contracts/types/SystemTypes";
 import { components } from "../mud/components";
 import { TxType } from "../types";
@@ -9,7 +9,6 @@ import { TxType } from "../types";
 export function revealMove(
   systems: TxQueue<SystemTypes>,
   actions: ActionSystem,
-  playerEntity: EntityIndex,
   encodedCommitment: string,
   override?: boolean
 ) {
@@ -23,22 +22,18 @@ export function revealMove(
     components: { Commitment },
     requirement: ({ Commitment }) => {
       if (!override) {
-        const commitment = getComponentValue(Commitment, playerEntity)?.value;
-
-        if (!commitment) {
-          console.warn(prefix, "no commitment submitted");
-          actions.cancel(actionId);
-
-          return null;
-        }
-
-        const hash = keccak256(encodedCommitment);
-        if (commitment != hash) {
-          console.warn(prefix, "commitment does not match stored committed moves");
-          actions.cancel(actionId);
-
-          return null;
-        }
+        // const commitment = getComponentValue(Commitment, playerEntity)?.value;
+        // if (!commitment) {
+        //   console.warn(prefix, "no commitment submitted");
+        //   actions.cancel(actionId);
+        //   return null;
+        // }
+        // const hash = keccak256(encodedCommitment);
+        // if (commitment != hash) {
+        //   console.warn(prefix, "commitment does not match stored committed moves");
+        //   actions.cancel(actionId);
+        //   return null;
+        // }
       }
 
       const [moves, salt] = abi.decode(

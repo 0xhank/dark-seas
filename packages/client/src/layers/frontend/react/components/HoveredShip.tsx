@@ -10,10 +10,10 @@ export function registerHoveredShip() {
     "HoveredShip",
     // grid location
     {
-      rowStart: 2,
-      rowEnd: 5,
-      colStart: 10,
-      colEnd: 13,
+      gridRowStart: 2,
+      gridRowEnd: 5,
+      gridColumnStart: 10,
+      gridColumnEnd: 13,
     },
     // requirement
     (layers) => {

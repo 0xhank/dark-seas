@@ -1,88 +1,74 @@
+import { useObservableValue } from "@latticexyz/react";
 import { getComponentValue } from "@latticexyz/recs";
-import { map, merge } from "rxjs";
 import styled, { keyframes } from "styled-components";
+import { useMUD } from "../../../../MUDContext";
 import { Category } from "../../../../sound";
 import { Phase } from "../../../../types";
 import { DELAY } from "../../constants";
-import { registerUIComponent } from "../engine";
+import { Cell } from "../engine/components";
 import { colors } from "../styles/global";
 
-export function registerTurnTimer() {
-  registerUIComponent(
-    "TurnTimer",
-    {
-      rowStart: 1,
-      rowEnd: 1,
-      colStart: 5,
-      colEnd: 9,
-    },
-    (layers) => {
-      const {
-        network: {
-          network: { clock },
-          utils: { getGameConfig, getPhase, secondsUntilNextPhase, getPlayerEntity, getTurn },
-          components: { LastAction },
-        },
-        backend: {
-          utils: { playSound },
-          components: { EncodedCommitment },
-          godEntity,
-        },
-      } = layers;
+const gridConfig = { gridRowStart: 1, gridRowEnd: 1, gridColumnStart: 5, gridColumnEnd: 9 };
 
-      return merge(clock.time$, EncodedCommitment.update$, LastAction.update$).pipe(
-        map(() => {
-          const gameConfig = getGameConfig();
-          if (!gameConfig) return;
+export function TurnTimer() {
+  const {
+    network: { clock },
+    utils: { getGameConfig, getPhase, secondsUntilNextPhase, getPlayerEntity, getTurn },
+    components: { LastAction },
 
-          const phase = getPhase(DELAY);
-          const turn = getTurn(DELAY);
-          const playerEntity = getPlayerEntity();
+    utils: { playSound },
+    components: { EncodedCommitment },
+    godEntity,
+  } = useMUD();
 
-          const secsLeft = secondsUntilNextPhase(DELAY) || 0;
+  const time = useObservableValue(clock.time$);
+  const gameConfig = getGameConfig();
+  if (!gameConfig) return null;
 
-          const phaseLength =
-            phase == Phase.Commit
-              ? gameConfig.commitPhaseLength
-              : phase == Phase.Reveal
-              ? gameConfig.revealPhaseLength
-              : gameConfig.actionPhaseLength;
-          if (!playerEntity || !phaseLength) return null;
+  const phase = getPhase(DELAY);
+  const turn = getTurn(DELAY);
+  const playerEntity = getPlayerEntity();
 
-          let str = null;
-          if (phase == Phase.Commit) {
-            str = <Text secsLeft={secsLeft}>Choose your moves</Text>;
-            if (secsLeft < 6 && !getComponentValue(EncodedCommitment, godEntity)) {
-              playSound("tick", Category.UI);
-            }
-          } else if (phase == Phase.Reveal) str = <PulsingText>Waiting for Players to Reveal Moves...</PulsingText>;
-          else if (phase == Phase.Action) {
-            str = <Text secsLeft={secsLeft}>Choose 2 actions per ship</Text>;
-            const lastAction = getComponentValue(LastAction, playerEntity)?.value;
+  const secsLeft = secondsUntilNextPhase(DELAY) || 0;
 
-            if (secsLeft < 6 && lastAction !== turn) {
-              playSound("tick", Category.UI);
-            }
-          }
+  const phaseLength =
+    phase == Phase.Commit
+      ? gameConfig.commitPhaseLength
+      : phase == Phase.Reveal
+      ? gameConfig.revealPhaseLength
+      : gameConfig.actionPhaseLength;
 
-          return { phase, phaseLength, secsLeft, str };
-        })
-      );
-    },
-    ({ phase, phaseLength, secsLeft, str }) => {
-      return (
-        <OuterContainer>
-          {phase == Phase.Commit || phase == Phase.Action ? (
-            <InternalContainer>
-              {str}
-              <ProgressBar phaseLength={phaseLength} secsLeft={secsLeft} />
-            </InternalContainer>
-          ) : (
-            str
-          )}
-        </OuterContainer>
-      );
+  if (!playerEntity || !phaseLength) return null;
+
+  let str = null;
+  if (phase == Phase.Commit) {
+    str = <Text secsLeft={secsLeft}>Choose your moves</Text>;
+    if (secsLeft < 6 && !getComponentValue(EncodedCommitment, godEntity)) {
+      playSound("tick", Category.UI);
     }
+  } else if (phase == Phase.Reveal) str = <PulsingText>Waiting for Players to Reveal Moves...</PulsingText>;
+  else if (phase == Phase.Action) {
+    str = <Text secsLeft={secsLeft}>Choose 2 actions per ship</Text>;
+    const lastAction = getComponentValue(LastAction, playerEntity)?.value;
+
+    if (secsLeft < 6 && lastAction !== turn) {
+      playSound("tick", Category.UI);
+    }
+  }
+
+  return (
+    <Cell style={gridConfig}>
+      <OuterContainer>
+        {phase == Phase.Commit || phase == Phase.Action ? (
+          <InternalContainer>
+            {str}
+            <ProgressBar phaseLength={phaseLength} secsLeft={secsLeft} />
+          </InternalContainer>
+        ) : (
+          str
+        )}
+      </OuterContainer>
+    </Cell>
   );
 }
 

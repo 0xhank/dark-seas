@@ -1,9 +1,8 @@
 import { EntityIndex, getComponentValue } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
-import { map, merge } from "rxjs";
 import styled from "styled-components";
-import { registerUIComponent } from "../engine";
-import { colors } from "../styles/global";
+import { useMUD } from "../../../../MUDContext";
+import { colors, Container } from "../styles/global";
 
 type ShipData = {
   location: Coord;
@@ -12,93 +11,73 @@ type ShipData = {
   3: number;
 };
 
+const gridConfig = {
+  gridRowStart: 1,
+  gridRowEnd: 13,
+  gridColumnStart: 1,
+  gridColumnEnd: 13,
+};
+
 export function registerDamageChance() {
-  registerUIComponent(
-    "DamageChance",
-    {
-      rowStart: 1,
-      rowEnd: 13,
-      colStart: 1,
-      colEnd: 13,
-    },
-    (layers) => {
-      const {
-        network: {
-          components: { Loaded },
-        },
-        backend: {
-          components: { HoveredAction },
-          utils: { getTargetedShips, getDamageLikelihood },
-          godEntity,
-        },
-        phaser: {
-          scene: { camera },
-          utils: { getSpriteObject },
-        },
-      } = layers;
+  const {
+    components: { Loaded, HoveredAction },
+    utils: { getTargetedShips, getDamageLikelihood, getSpriteObject },
+    godEntity,
+    scene: { camera },
+  } = useMUD();
 
-      return merge(HoveredAction.update$, camera.worldView$, camera.zoom$).pipe(
-        map(() => {
-          const hoveredAction = getComponentValue(HoveredAction, godEntity);
+  const hoveredAction = getComponentValue(HoveredAction, godEntity);
 
-          if (!hoveredAction) return;
-          const cannonEntity = hoveredAction.specialEntity as EntityIndex;
+  if (!hoveredAction) return null;
+  const cannonEntity = hoveredAction.specialEntity as EntityIndex;
 
-          if (!cannonEntity) return;
+  if (!cannonEntity) return null;
 
-          if (!getComponentValue(Loaded, cannonEntity)?.value) return;
-          const cam = camera.phaserCamera;
+  if (!getComponentValue(Loaded, cannonEntity)?.value) return null;
+  const cam = camera.phaserCamera;
 
-          const data = getTargetedShips(hoveredAction.specialEntity as EntityIndex).reduce((curr: ShipData[], ship) => {
-            const shipObject = getSpriteObject(ship);
+  const data = getTargetedShips(hoveredAction.specialEntity as EntityIndex).reduce((curr: ShipData[], ship) => {
+    const shipObject = getSpriteObject(ship);
 
-            const x = Math.round(((shipObject.x - cam.worldView.x) * cam.zoom) / 2);
-            const y = Math.round(((shipObject.y - cam.worldView.y) * cam.zoom) / 2);
+    const x = Math.round(((shipObject.x - cam.worldView.x) * cam.zoom) / 2);
+    const y = Math.round(((shipObject.y - cam.worldView.y) * cam.zoom) / 2);
 
-            const location = { x, y };
-            const hitChances = getDamageLikelihood(cannonEntity, ship);
-            if (!hitChances) return curr;
-            return [...curr, { location, ...hitChances }];
-          }, []);
+    const location = { x, y };
+    const hitChances = getDamageLikelihood(cannonEntity, ship);
+    if (!hitChances) return curr;
+    return [...curr, { location, ...hitChances }];
+  }, []);
 
-          return {
-            data,
-            zoom: cam.zoom,
-          };
-        })
-      );
-    },
-    ({ data, zoom }) => {
-      const prefix = "/img/explosions/explosion";
-      const width = zoom * 100;
-      const fontSize = zoom;
-      const borderRadius = zoom * 6;
-      return (
-        <div style={{ width: "100%", height: "100%", position: "relative" }}>
-          {data.map((ship) => {
-            return (
-              <DamageContainer
-                top={ship.location.y}
-                left={ship.location.x}
-                width={width}
-                borderRadius={borderRadius}
-                key={`ship-${ship.location.x}-${ship.location.y}`}
-              >
-                <StatContainer fontSize={fontSize}>
-                  <img src={prefix + "1.png"} /> {ship[1]}%
-                </StatContainer>
-                <StatContainer fontSize={fontSize}>
-                  <img src={prefix + "2.png"} /> {ship[2]}%
-                </StatContainer>
-                <StatContainer fontSize={fontSize}>
-                  <img src={prefix + "3.png"} /> {ship[3]}%
-                </StatContainer>
-              </DamageContainer>
-            );
-          })}
-        </div>
-      );
-    }
+  const prefix = "/img/explosions/explosion";
+  const width = cam.zoom * 100;
+  const fontSize = cam.zoom;
+  const borderRadius = cam.zoom * 6;
+  return (
+    <Container style={gridConfig}>
+      <div style={{ width: "100%", height: "100%", position: "relative" }}>
+        {data.map((ship) => {
+          return (
+            <DamageContainer
+              top={ship.location.y}
+              left={ship.location.x}
+              width={width}
+              borderRadius={borderRadius}
+              key={`ship-${ship.location.x}-${ship.location.y}`}
+            >
+              <StatContainer fontSize={fontSize}>
+                <img src={prefix + "1.png"} /> {ship[1]}%
+              </StatContainer>
+              <StatContainer fontSize={fontSize}>
+                <img src={prefix + "2.png"} /> {ship[2]}%
+              </StatContainer>
+              <StatContainer fontSize={fontSize}>
+                <img src={prefix + "3.png"} /> {ship[3]}%
+              </StatContainer>
+            </DamageContainer>
+          );
+        })}
+      </div>
+    </Container>
   );
 }
 

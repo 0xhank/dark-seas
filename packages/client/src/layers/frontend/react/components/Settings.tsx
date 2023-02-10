@@ -11,10 +11,10 @@ export function registerSettings() {
     "Settings",
     // grid location
     {
-      rowStart: 1,
-      rowEnd: 3,
-      colStart: 1,
-      colEnd: 5,
+      gridRowStart: 1,
+      gridRowEnd: 3,
+      gridColumnStart: 1,
+      gridColumnEnd: 5,
     },
     // requirement
     (layers) => {

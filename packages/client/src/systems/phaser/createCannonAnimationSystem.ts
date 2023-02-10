@@ -7,6 +7,7 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
+import { useMUD } from "../../MUDContext";
 import {
   Animations,
   CANNON_SHOT_DELAY,
@@ -15,8 +16,7 @@ import {
   POS_WIDTH,
   RenderDepth,
   SHIP_RATIO,
-} from "../../layers/frontend/phaser/constants";
-import { useMUD } from "../../MUDContext";
+} from "../../phaser/constants";
 import { Category } from "../../sound";
 import { Sprites } from "../../types";
 import { distance } from "../../utils/distance";

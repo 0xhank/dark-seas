@@ -8,7 +8,6 @@ import {
   getComponentValue,
   getComponentValueStrict,
   Has,
-  hasComponent,
   HasValue,
   NotValue,
   removeComponent,
@@ -19,8 +18,8 @@ import { Coord } from "@latticexyz/utils";
 import { BigNumber, BigNumberish } from "ethers";
 import { Howl } from "howler";
 import { DELAY } from "../layers/frontend/constants";
-import { POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../layers/frontend/phaser/constants";
 import { colors } from "../layers/frontend/react/styles/global";
+import { POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../phaser/constants";
 import { Category, soundLibrary } from "../sound";
 import { Action, ActionType, Move, Phase, Sprites } from "../types";
 import { distance } from "../utils/distance";
@@ -31,7 +30,6 @@ import { polygonRegistry, spriteRegistry, world } from "./world";
 
 export async function createUtilities(
   godEntity: EntityIndex,
-  playerEntity: EntityIndex,
   playerAddress: string,
   clock: Clock,
   mainScene: Phaser.Scene
@@ -48,9 +46,7 @@ export async function createUtilities(
 
   function getPlayerEntity(address?: string): EntityIndex | undefined {
     if (!address) address = playerAddress;
-    if (!address) return;
-    if (!hasComponent(components.Player, playerEntity)) return;
-
+    const playerEntity = world.entityToIndex.get(address as EntityID);
     return playerEntity;
   }
 
@@ -180,7 +176,8 @@ export async function createUtilities(
 
   function getTargetedShips(cannonEntity: EntityIndex): EntityIndex[] {
     const shipID = getComponentValue(components.OwnedBy, cannonEntity)?.value;
-    if (!shipID) return [];
+    const playerEntity = getPlayerEntity();
+    if (!shipID || !playerEntity) return [];
     const shipEntity = world.entityToIndex.get(shipID);
 
     if (!shipEntity) return [];
@@ -233,7 +230,7 @@ export async function createUtilities(
   }
 
   function getPlayerShipsWithActions(player?: EntityIndex): Action[] {
-    if (!player) player = playerEntity;
+    if (!player) player = getPlayerEntity();
     if (!player) return [];
     const ships = [
       ...runQuery([

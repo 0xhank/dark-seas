@@ -8,11 +8,11 @@ import { ethers } from "ethers";
 import { SystemAbis } from "../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../contracts/types/SystemTypes";
 import { commitMoveAction, respawnAction, revealMoveAction, spawnPlayerAction, submitActionsAction } from "./api";
-import { phaserConfig } from "./layers/frontend/phaser/config";
 import { clientComponents, components } from "./mud/components";
 import { config } from "./mud/config";
 import { createUtilities } from "./mud/utilties";
 import { world } from "./mud/world";
+import { phaserConfig } from "./phaser/config";
 import { Action, ModalType, Move } from "./types";
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -34,7 +34,6 @@ export async function setupMUD() {
   if (!playerAddress) throw new Error("Not connected");
 
   const playerEntityId = playerAddress as EntityID;
-  const playerEntity = world.registerEntity({ id: playerEntityId });
 
   // Faucet setup
   const faucetUrl = "https://faucet.testnet-mud-services.linfra.xyz";
@@ -69,10 +68,11 @@ export async function setupMUD() {
   // --- UTILITIES ------------------------------------------------------------------
 
   const actions = createActionSystem(world, txReduced$);
-  const utils = await createUtilities(godEntity, playerEntity, playerAddress, network.clock, scenes.Main.phaserScene);
+  const utils = await createUtilities(godEntity, playerAddress, network.clock, scenes.Main.phaserScene);
   // --- API ------------------------------------------------------------------------
 
   function spawnPlayer(name: string, override?: boolean) {
+    console.log("spawning");
     spawnPlayerAction(systems, actions, name, override);
   }
 
@@ -85,7 +85,7 @@ export async function setupMUD() {
   }
 
   function revealMove(encoding: string, override?: boolean) {
-    revealMoveAction(systems, actions, playerEntity, encoding, override);
+    revealMoveAction(systems, actions, encoding, override);
   }
 
   function submitActions(playerActions: Action[], override?: boolean) {
@@ -100,7 +100,6 @@ export async function setupMUD() {
     godEntity,
     playerAddress,
     playerEntityId,
-    playerEntity,
     network,
     components: {
       ...result.components,

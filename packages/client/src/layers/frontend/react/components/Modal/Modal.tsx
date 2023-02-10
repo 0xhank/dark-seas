@@ -28,10 +28,10 @@ export function registerModal() {
   registerUIComponent(
     "Leaderboard",
     {
-      rowStart: 1,
-      rowEnd: 13,
-      colStart: 1,
-      colEnd: 13,
+      gridRowStart: 1,
+      gridRowEnd: 13,
+      gridColumnStart: 1,
+      gridColumnEnd: 13,
     },
     (mud) => {
       const {

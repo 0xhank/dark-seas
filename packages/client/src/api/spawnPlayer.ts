@@ -10,10 +10,10 @@ export function spawnPlayer(systems: TxQueue<SystemTypes>, actions: ActionSystem
     id: actionId,
     components: {},
     requirement: () => {
-      override;
+      return name;
     },
     updates: () => [],
-    execute: () => {
+    execute: (name: string) => {
       console.log("spawning");
       const location: Coord = { x: 0, y: 0 };
       systems["ds.system.PlayerSpawn"].executeTyped(name, location);

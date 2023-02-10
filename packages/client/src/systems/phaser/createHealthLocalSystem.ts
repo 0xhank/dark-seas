@@ -8,8 +8,8 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
-import { RenderDepth } from "../../layers/frontend/phaser/constants";
 import { useMUD } from "../../MUDContext";
+import { RenderDepth } from "../../phaser/constants";
 import { Sprites } from "../../types";
 import { getShipSprite } from "../../utils/ships";
 
@@ -72,7 +72,6 @@ export function createHealthLocalSystem() {
 
     const spriteAsset: Sprites = getShipSprite(ownerEntity, health, playerEntity == ownerEntity);
 
-    // @ts-expect-error doesnt recognize a sprite as a number
     const sprite = config.sprites[spriteAsset];
 
     shipObject.setTexture(sprite.assetKey, sprite.frame);

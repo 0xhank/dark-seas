@@ -8,8 +8,8 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
-import { POS_HEIGHT, POS_WIDTH } from "../../layers/frontend/phaser/constants";
 import { useMUD } from "../../MUDContext";
+import { POS_HEIGHT, POS_WIDTH } from "../../phaser/constants";
 
 export function createInputSystem() {
   const {

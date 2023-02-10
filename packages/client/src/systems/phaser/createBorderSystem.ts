@@ -1,8 +1,8 @@
 import { defineComponentSystem, defineRxSystem, setComponent } from "@latticexyz/recs";
 import { DELAY } from "../../layers/frontend/constants";
-import { POS_HEIGHT, POS_WIDTH, RenderDepth } from "../../layers/frontend/phaser/constants";
 import { colors } from "../../layers/frontend/react/styles/global";
 import { useMUD } from "../../MUDContext";
+import { POS_HEIGHT, POS_WIDTH, RenderDepth } from "../../phaser/constants";
 
 export function createBorderSystem() {
   const {

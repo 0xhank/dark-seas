@@ -11,15 +11,8 @@ import {
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
-import {
-  Animations,
-  MOVE_LENGTH,
-  POS_HEIGHT,
-  POS_WIDTH,
-  RenderDepth,
-  SHIP_RATIO,
-} from "../../layers/frontend/phaser/constants";
 import { useMUD } from "../../MUDContext";
+import { Animations, MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../../phaser/constants";
 import { Category } from "../../sound";
 import { Sprites } from "../../types";
 import { getShipSprite } from "../../utils/ships";
@@ -65,7 +58,6 @@ export function createShipSystem() {
       const playerEntity = getPlayerEntity();
       const object = getSpriteObject(shipEntity);
       const spriteAsset: Sprites = getShipSprite(ownerEntity, health, playerEntity == ownerEntity);
-      // @ts-expect-error doesnt recognize a sprite as a number
       const sprite = config.sprites[spriteAsset];
 
       object.setTexture(sprite.assetKey, sprite.frame);

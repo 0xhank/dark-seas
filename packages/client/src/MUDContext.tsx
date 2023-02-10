@@ -13,7 +13,7 @@ export const MUDProvider = ({ children, ...value }: Props) => {
   return <MUDContext.Provider value={value}>{children}</MUDContext.Provider>;
 };
 
-export const useMUD = () => {
+export const useMUD = (): SetupResult => {
   const value = useContext(MUDContext);
   if (!value) throw new Error("Must be used within a MUDProvider");
   return value;

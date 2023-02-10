@@ -23,15 +23,15 @@ const UIGrid = styled.div`
 `;
 
 const UIComponentContainer: React.FC<{ gridConfig: GridConfiguration }> = React.memo(({ children, gridConfig }) => {
-  const { colStart, colEnd, rowStart, rowEnd } = gridConfig;
+  const { gridColumnStart, gridColumnEnd, gridRowStart, gridRowEnd } = gridConfig;
 
   return (
     <Cell
       style={{
-        gridRowStart: rowStart,
-        gridRowEnd: rowEnd,
-        gridColumnStart: colStart,
-        gridColumnEnd: colEnd,
+        gridRowStart: gridRowStart,
+        gridRowEnd: gridRowEnd,
+        gridColumnStart: gridColumnStart,
+        gridColumnEnd: gridColumnEnd,
       }}
     >
       {children}
