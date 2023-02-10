@@ -93,7 +93,7 @@ contract DamageTest is DarkSeasTest {
     assertEq(healthComponent.getValue(shipEntity), health - 1);
   }
 
-  function testFireDeath() public prank(deployer) {
+  function testFireDeathNoAttacker() public prank(deployer) {
     setup();
     uint256 shipEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
     OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));

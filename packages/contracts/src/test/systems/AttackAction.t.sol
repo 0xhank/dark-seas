@@ -8,6 +8,7 @@ import "../DarkSeasTest.t.sol";
 import { MoveSystem, ID as MoveSystemID } from "../../systems/MoveSystem.sol";
 import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.sol";
 import { CommitSystem, ID as CommitSystemID } from "../../systems/CommitSystem.sol";
+import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/ComponentDevSystem.sol";
 
 // Components
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
@@ -253,6 +254,44 @@ contract AttackActionTest is DarkSeasTest {
 
     assertEq(bootyComponent.getValue(ownerEntity), ownerBooty + defenderBooty / 2);
     assertEq(healthComponent.getValue(attackerEntity), 2);
+  }
+
+  function testFireDeathPriorAttacker() public prank(deployer) {
+    setup();
+    KillsComponent killsComponent = KillsComponent(getAddressById(components, KillsComponentID));
+    BootyComponent bootyComponent = BootyComponent(getAddressById(components, BootyComponentID));
+    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    uint256 attackerEntity = spawnShip(Coord({ x: 0, y: 0 }), 0, deployer);
+    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, attackerEntity, 0, 50, 80);
+
+    uint256 defenderEntity = spawnShip(Coord({ x: 20, y: 0 }), 180, alice);
+
+    loadAndFireCannon(attackerEntity, cannonEntity, defenderEntity, 1);
+
+    ComponentDevSystem(system(ComponentDevSystemID)).executeTyped(HealthComponentID, defenderEntity, abi.encode(1));
+    ComponentDevSystem(system(ComponentDevSystemID)).executeTyped(OnFireComponentID, defenderEntity, abi.encode(2));
+
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 69, Phase.Action));
+    uint256 attackerBooty = bootyComponent.getValue(attackerEntity);
+    uint256 defenderBooty = bootyComponent.getValue(defenderEntity);
+    uint256 ownerBooty = bootyComponent.getValue(addressToEntity(deployer));
+    vm.stopPrank();
+    vm.startPrank(alice);
+    Action memory action = Action({
+      shipEntity: defenderEntity,
+      actionTypes: [ActionType.None, ActionType.None],
+      metadata: [none, none]
+    });
+    actions.push(action);
+
+    actionSystem.executeTyped(actions);
+
+    assertEq(healthComponent.getValue(defenderEntity), 0);
+    assertEq(killsComponent.getValue(attackerEntity), 1);
+    assertEq(bootyComponent.getValue(defenderEntity), 0);
+    assertEq(bootyComponent.getValue(attackerEntity), attackerBooty + defenderBooty / 2);
+    assertEq(bootyComponent.getValue(addressToEntity(deployer)), ownerBooty + defenderBooty / 2);
   }
 
   /**
