@@ -1,13 +1,14 @@
-import { EntityIndex, getComponentValueStrict } from "@latticexyz/recs";
+import { useComponentValue } from "@latticexyz/react";
+import { EntityIndex } from "@latticexyz/recs";
 import styled from "styled-components";
-import { Layers } from "../../../../../types";
+import { useMUD } from "../../../../../MUDContext";
 
-export const MoveSelection = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
+export const MoveSelection = ({ shipEntity }: { shipEntity: EntityIndex }) => {
   const {
     components: { SailPosition },
-  } = layers.network;
+  } = useMUD();
 
-  const sailPosition = getComponentValueStrict(SailPosition, ship).value;
+  const sailPosition = useComponentValue(SailPosition, shipEntity, { value: 0 }).value;
 
   if (sailPosition == 0) {
     return <SpecialText>Cannot move with torn sails!</SpecialText>;

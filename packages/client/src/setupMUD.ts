@@ -1,4 +1,4 @@
-import { EntityID, setComponent } from "@latticexyz/recs";
+import { EntityID, EntityIndex } from "@latticexyz/recs";
 import { setupMUDNetwork } from "@latticexyz/std-client";
 
 import { createFaucetService, GodID } from "@latticexyz/network";
@@ -10,10 +10,10 @@ import { SystemTypes } from "../../contracts/types/SystemTypes";
 import { commitMoveAction, respawnAction, revealMoveAction, spawnPlayerAction, submitActionsAction } from "./api";
 import { clientComponents, components } from "./mud/components";
 import { config } from "./mud/config";
-import { createUtilities } from "./mud/utilties";
+import { createUtilities } from "./mud/utilities";
 import { world } from "./mud/world";
 import { phaserConfig } from "./phaser/config";
-import { Action, ModalType, Move } from "./types";
+import { Action, Move } from "./types";
 /**
  * The Network layer is the lowest layer in the client architecture.
  * Its purpose is to synchronize the client components with the contract components.
@@ -35,6 +35,7 @@ export async function setupMUD() {
 
   const playerEntityId = playerAddress as EntityID;
 
+  const initialPlayerEntity = world.entityToIndex.get(playerEntityId);
   // Faucet setup
   const faucetUrl = "https://faucet.testnet-mud-services.linfra.xyz";
 
@@ -76,7 +77,7 @@ export async function setupMUD() {
     spawnPlayerAction(systems, actions, name, override);
   }
 
-  function respawn(ships: EntityID[], override?: boolean) {
+  function respawn(ships: EntityIndex[], override?: boolean) {
     respawnAction(systems, actions, ships, override);
   }
 
@@ -99,6 +100,7 @@ export async function setupMUD() {
     godEntityId: GodID,
     godEntity,
     playerAddress,
+    initialPlayerEntity,
     playerEntityId,
     network,
     components: {
@@ -110,8 +112,6 @@ export async function setupMUD() {
     actions,
     scene: scenes.Main,
   };
-
-  setComponent(clientComponents.ModalOpen, ModalType.BOTTOM_BAR, { value: true });
 
   return context;
 }

@@ -1,74 +1,61 @@
-import {
-  EntityIndex,
-  getComponentValue,
-  getComponentValueStrict,
-  removeComponent,
-  setComponent,
-} from "@latticexyz/recs";
-import { Coord } from "@latticexyz/utils";
+import { useComponentValue } from "@latticexyz/react";
+import { EntityIndex, removeComponent, setComponent } from "@latticexyz/recs";
 import color from "color";
 import styled from "styled-components";
-import { Layers, Phase } from "../../../../types";
+import { useMUD } from "../../../../MUDContext";
+import { Phase } from "../../../../types";
 import { colors, InternalContainer } from "../styles/global";
 import { ActionSelection } from "./OverviewComponents/ActionSelection";
 import { MoveSelection } from "./OverviewComponents/MoveSelection";
 import { ShipCard } from "./OverviewComponents/ShipCard";
 
 export const YourShip = ({
-  layers,
-  ship,
+  shipEntity,
   selectedShip,
   phase,
 }: {
-  layers: Layers;
-  ship: EntityIndex;
+  shipEntity: EntityIndex;
   selectedShip: EntityIndex | undefined;
   phase: Phase;
 }) => {
   const {
-    network: {
-      components: { Position },
-    },
-    backend: {
-      components: { SelectedShip, HoveredShip, HealthLocal },
-      godEntity,
-    },
-    phaser: {
-      scene: { camera, POS_WIDTH, POS_HEIGHT },
-    },
-  } = layers;
+    components: { Position, SelectedShip, HoveredShip, HealthLocal },
+    godEntity,
+    scene: { camera },
+    utils: { getSpriteObject },
+  } = useMUD();
 
-  const selectShip = (ship: EntityIndex, position: Coord) => {
-    camera.centerOn(position.x * POS_WIDTH, position.y * POS_HEIGHT + 400);
+  const selectShip = (shipEntity: EntityIndex) => {
+    const shipObject = getSpriteObject(`shipEntity`);
 
-    setComponent(SelectedShip, godEntity, { value: ship });
+    camera.centerOn(shipObject.x, shipObject.y + 400);
+
+    setComponent(SelectedShip, godEntity, { value: shipEntity });
   };
-
-  const position = getComponentValueStrict(Position, ship);
-  const health = getComponentValue(HealthLocal, ship)?.value;
-  const hoveredShip = getComponentValue(HoveredShip, godEntity)?.value;
-  const isSelected = selectedShip == ship;
-  const isHovered = hoveredShip == ship;
+  const health = useComponentValue(HealthLocal, shipEntity)?.value;
+  const hoveredShip = useComponentValue(HoveredShip, godEntity)?.value;
+  const isSelected = selectedShip == shipEntity;
+  const isHovered = hoveredShip == shipEntity;
 
   let selectionContent = null;
 
   if (health == 0) {
-    selectionContent = <SpecialText>This ship is sunk!</SpecialText>;
+    selectionContent = <SpecialText>This shipEntity is sunk!</SpecialText>;
   } else if (phase == Phase.Commit) {
-    selectionContent = <MoveSelection ship={ship} layers={layers} />;
+    selectionContent = <MoveSelection shipEntity={shipEntity} />;
   } else if (phase == Phase.Action) {
-    selectionContent = <ActionSelection ship={ship} layers={layers} />;
+    selectionContent = <ActionSelection shipEntity={shipEntity} />;
   }
   return (
     <YourShipContainer
-      onClick={() => health !== 0 && selectShip(ship, position)}
-      onMouseEnter={() => setComponent(HoveredShip, godEntity, { value: ship })}
+      onClick={() => health !== 0 && selectShip(shipEntity)}
+      onMouseEnter={() => setComponent(HoveredShip, godEntity, { value: shipEntity })}
       onMouseLeave={() => removeComponent(HoveredShip, godEntity)}
       isSelected={isSelected}
       isHovered={isHovered}
-      key={`move-selection-${ship}`}
+      key={`move-selection-${shipEntity}`}
     >
-      <ShipCard layers={layers} ship={ship} />
+      <ShipCard shipEntity={shipEntity} />
       <MoveButtons>{selectionContent}</MoveButtons>
     </YourShipContainer>
   );

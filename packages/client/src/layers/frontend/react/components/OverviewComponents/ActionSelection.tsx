@@ -1,3 +1,4 @@
+import { useComponentValue } from "@latticexyz/react";
 import {
   EntityID,
   EntityIndex,
@@ -9,72 +10,78 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import styled from "styled-components";
+import { world } from "../../../../../mud/world";
+import { useMUD } from "../../../../../MUDContext";
 import { ActionImg, ActionNames, ActionType } from "../../../../../types";
 import { isBroadside } from "../../../../../utils/trig";
 import { DELAY } from "../../../constants";
 import { Img, OptionButton } from "../../styles/global";
 
-export const ActionSelection = ({ layers, ship }: { ship: EntityIndex }) => {
+export const ActionSelection = ({ shipEntity }: { shipEntity: EntityIndex }) => {
   const {
-    backend: {
-      world,
-      components: { SelectedActions, HoveredAction, ExecutedActions, ExecutedCannon, DamagedCannonsLocal },
-      utils: { checkActionPossible, handleNewActionsCannon, handleNewActionsSpecial },
-      godEntity,
+    components: {
+      SelectedActions,
+      HoveredAction,
+      ExecutedActions,
+      ExecutedCannon,
+      DamagedCannonsLocal,
+      OwnedBy,
+      Cannon,
+      Rotation,
+      Loaded,
+      LastAction,
     },
-    network: {
-      components: { OwnedBy, Cannon, Rotation, Loaded, LastAction },
-      utils: { getPlayerEntity, getTurn },
-    },
-  } = layers;
+    utils: { checkActionPossible, handleNewActionsCannon, handleNewActionsSpecial, getPlayerEntity, getTurn },
+    godEntity,
+  } = useMUD();
 
   const playerEntity = getPlayerEntity();
   if (!playerEntity) return null;
 
-  const selectedActions = getComponentValue(SelectedActions, ship) || {
+  const selectedActions = useComponentValue(SelectedActions, shipEntity) || {
     actionTypes: [ActionType.None, ActionType.None],
     specialEntities: ["0" as EntityID, "0" as EntityID],
   };
 
-  const lastAction = getComponentValue(LastAction, playerEntity)?.value;
+  const lastAction = useComponentValue(LastAction, playerEntity)?.value;
   const currentTurn = getTurn(DELAY);
   const actionsExecuted = currentTurn == lastAction;
-
+  const executedActions = useComponentValue(ExecutedActions, shipEntity, { value: [] }).value;
   let cannonEntities: EntityIndex[] = [];
   let actions: ActionType[] = [];
 
   if (!actionsExecuted) {
-    cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[ship] })])].sort(
+    cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])].sort(
       (a, b) =>
         ((180 + (getComponentValue(Rotation, a)?.value || 0)) % 360) -
-        ((180 + (getComponentValue(Rotation, b)?.value || 0)) % 360)
+        ((180 + (getComponentValue(Rotation, a)?.value || 0)) % 360)
     );
 
     actions = Object.keys(ActionType)
       .map((action) => Number(action))
-      .filter((a) => checkActionPossible(a, ship));
+      .filter((a) => checkActionPossible(a, shipEntity));
   } else {
     cannonEntities = [
-      ...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[ship] }), Has(ExecutedCannon)]),
+      ...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] }), Has(ExecutedCannon)]),
     ].sort(
       (a, b) =>
         ((180 + (getComponentValue(Rotation, a)?.value || 0)) % 360) -
         ((180 + (getComponentValue(Rotation, b)?.value || 0)) % 360)
     );
-    actions = (getComponentValue(ExecutedActions, ship)?.value || []).filter(
+    actions = executedActions.filter(
       (a) => !isNaN(a) && ![ActionType.None, ActionType.Load, ActionType.Fire].includes(a)
     );
   }
 
   const allActionsUsed = selectedActions.actionTypes.every((a) => a !== ActionType.None);
   const disabled = actionsExecuted || allActionsUsed;
-  const damagedCannons = (getComponentValue(DamagedCannonsLocal, ship)?.value || 0) > 0;
+  const damagedCannons = useComponentValue(DamagedCannonsLocal, shipEntity, { value: 0 }).value > 0;
   return (
     <>
       {!damagedCannons &&
         cannonEntities.map((cannonEntity) => {
-          const loaded = getComponentValue(Loaded, cannonEntity)?.value;
-          const cannonRotation = getComponentValue(Rotation, cannonEntity)?.value || 0;
+          const loaded = useComponentValue(Loaded, cannonEntity)?.value;
+          const cannonRotation = useComponentValue(Rotation, cannonEntity, { value: 0 }).value;
 
           const selected = !actionsExecuted && selectedActions.specialEntities.includes(world.entities[cannonEntity]);
           const key = `cannonOption-${cannonEntity}`;
@@ -152,11 +159,13 @@ export const ActionSelection = ({ layers, ship }: { ship: EntityIndex }) => {
         isSelected={selected}
         disabled={disabled && !selected}
         confirmed={executed}
-        onMouseEnter={() => setComponent(HoveredAction, godEntity, { shipEntity: ship, actionType, specialEntity })}
+        onMouseEnter={() =>
+          setComponent(HoveredAction, godEntity, { shipEntity: shipEntity, actionType, specialEntity })
+        }
         onMouseLeave={() => removeComponent(HoveredAction, godEntity)}
         onClick={(e) => {
           e.stopPropagation();
-          handleClick(actionType, specialEntity || ship);
+          handleClick(actionType, specialEntity || shipEntity);
         }}
       >
         <Img src={image} style={{ height: "70%", transform: `rotate(${imgRotation}deg)` }} />
