@@ -1,14 +1,14 @@
 import { defineComponentSystem, getComponentValue, setComponent } from "@latticexyz/recs";
-import { POS_HEIGHT, POS_WIDTH } from "../../../layers/frontend/phaser/constants";
-import { useMUD } from "../../../MUDContext";
+import { POS_HEIGHT, POS_WIDTH } from "../../../phaser/constants";
+import { SetupResult } from "../../../setupMUD";
 
-export function createConstrainCameraSystem() {
+export function createConstrainCameraSystem(MUD: SetupResult) {
   const {
     world,
     components: { MapBounds, Position },
     godEntity,
     scene: { camera },
-  } = useMUD();
+  } = MUD;
 
   defineComponentSystem(world, Position, ({ value: [position] }) => {
     if (!position) return;

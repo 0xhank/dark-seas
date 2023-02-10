@@ -1,15 +1,15 @@
 import { filterNullish } from "@latticexyz/utils";
 import { filter, fromEvent, interval, map, merge, scan, Subscription, throttleTime } from "rxjs";
-import { phaserConfig } from "../../../layers/frontend/phaser/config";
-import { POS_HEIGHT } from "../../../layers/frontend/phaser/constants";
-import { useMUD } from "../../../MUDContext";
+import { phaserConfig } from "../../../phaser/config";
+import { POS_HEIGHT } from "../../../phaser/constants";
+import { SetupResult } from "../../../setupMUD";
 
-export function registerCameraControls() {
+export function registerCameraControls(MUD: SetupResult) {
   const {
     scene: { input, camera, phaserScene },
 
     utils: { getWorldDimsAtTurn },
-  } = useMUD();
+  } = MUD;
 
   const EDGE_SCROLL_SPEED = 8;
   const EDGE_PIXEL_SIZE = 60;

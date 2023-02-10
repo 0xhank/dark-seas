@@ -1,4 +1,5 @@
 import { SetupResult } from "../../setupMUD";
+import { createCamera } from "./camera";
 import { createActionSelectionSystem } from "./createActionSelectionSystem";
 import { createBorderSystem } from "./createBorderSystem";
 import { createCannonAnimationSystem } from "./createCannonAnimationSystem";
@@ -26,4 +27,5 @@ export function createPhaserSystems(MUD: SetupResult) {
   createCannonAnimationSystem(MUD);
   createTileSystem(MUD);
   createHealthLocalSystem(MUD);
+  createCamera(MUD);
 }
