@@ -8,12 +8,12 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
-import { useMUD } from "../../MUDContext";
 import { RenderDepth } from "../../phaser/constants";
+import { SetupResult } from "../../setupMUD";
 import { Sprites } from "../../types";
 import { getShipSprite } from "../../utils/ships";
 
-export function createHealthLocalSystem() {
+export function createHealthLocalSystem(MUD: SetupResult) {
   const {
     world,
     components: {
@@ -33,7 +33,7 @@ export function createHealthLocalSystem() {
     utils: { getSpriteObject, getPlayerEntity },
     scene: { config },
     godEntity,
-  } = useMUD();
+  } = MUD;
 
   defineSystem(world, [Has(Health)], ({ entity, value }) => {
     const health = value[0]?.value as number | undefined;

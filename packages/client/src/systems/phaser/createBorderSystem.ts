@@ -1,10 +1,10 @@
 import { defineComponentSystem, defineRxSystem, setComponent } from "@latticexyz/recs";
-import { DELAY } from "../../layers/frontend/constants";
-import { colors } from "../../layers/frontend/react/styles/global";
-import { useMUD } from "../../MUDContext";
 import { POS_HEIGHT, POS_WIDTH, RenderDepth } from "../../phaser/constants";
+import { colors } from "../../react/styles/global";
+import { SetupResult } from "../../setupMUD";
+import { DELAY } from "../../types";
 
-export function createBorderSystem() {
+export function createBorderSystem(MUD: SetupResult) {
   const {
     world,
     godEntity,
@@ -12,7 +12,7 @@ export function createBorderSystem() {
     scene: { phaserScene, camera },
     utils: { getGroupObject, secondsIntoTurn, getWorldDimsAtTurn, getTurn },
     network: { clock },
-  } = useMUD();
+  } = MUD;
 
   defineComponentSystem(world, GameConfig, (update) => {
     const dims = getWorldDimsAtTurn();

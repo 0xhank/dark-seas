@@ -1,10 +1,10 @@
 import { useComponentValue } from "@latticexyz/react";
 import { Has, runQuery, setComponent } from "@latticexyz/recs";
 import { useState } from "react";
-import { useMUD } from "../../../../MUDContext";
-import { ModalType } from "../../../../types";
-import { Cell } from "../engine/components";
+import { useMUD } from "../../MUDContext";
+import { ModalType } from "../../types";
 import { Button, colors, Input } from "../styles/global";
+import { Cell } from "./Cell";
 
 const gridConfig = { gridColumnStart: 5, gridColumnEnd: 9, gridRowStart: 4, gridRowEnd: 9 };
 export function JoinGame() {

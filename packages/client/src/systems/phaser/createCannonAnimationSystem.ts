@@ -7,7 +7,6 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
-import { useMUD } from "../../MUDContext";
 import {
   Animations,
   CANNON_SHOT_DELAY,
@@ -17,6 +16,7 @@ import {
   RenderDepth,
   SHIP_RATIO,
 } from "../../phaser/constants";
+import { SetupResult } from "../../setupMUD";
 import { Category } from "../../sound";
 import { Sprites } from "../../types";
 import { distance } from "../../utils/distance";
@@ -29,7 +29,7 @@ type Attack = {
   damagedCannons: boolean;
   toreSail: boolean;
 };
-export function createCannonAnimationSystem() {
+export function createCannonAnimationSystem(MUD: SetupResult) {
   const {
     world,
     scene: { config, phaserScene },
@@ -46,7 +46,7 @@ export function createCannonAnimationSystem() {
       SailPositionLocal,
     },
     utils: { getSpriteObject, getGroupObject, destroySpriteObject, destroyGroupObject, playSound },
-  } = useMUD();
+  } = MUD;
 
   const NUM_CANNONBALLS = 3;
 

@@ -1,14 +1,13 @@
 import { defineComponentSystem } from "@latticexyz/recs";
-import { colors } from "../../layers/frontend/react/styles/global";
-import { useMUD } from "../../MUDContext";
+import { colors } from "../../react/styles/global";
+import { SetupResult } from "../../setupMUD";
 
-export function createTargetedSystem() {
+export function createTargetedSystem(MUD: SetupResult) {
   const {
     world,
     components: { Targeted },
-
     utils: { getSpriteObject },
-  } = useMUD();
+  } = MUD;
 
   defineComponentSystem(world, Targeted, (update) => {
     const targetedShip = getSpriteObject(update.entity);

@@ -1,7 +1,7 @@
 import { EntityIndex, getComponentValue } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
 import styled from "styled-components";
-import { useMUD } from "../../../../MUDContext";
+import { useMUD } from "../../MUDContext";
 import { colors, Container } from "../styles/global";
 
 type ShipData = {

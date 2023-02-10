@@ -11,16 +11,15 @@ import {
   runQuery,
   setComponent,
 } from "@latticexyz/recs";
-import { DELAY } from "../../layers/frontend/constants";
-import { colors } from "../../layers/frontend/react/styles/global";
-import { useMUD } from "../../MUDContext";
-import { ActionType, Phase } from "../../types";
+import { world } from "../../mud/world";
+import { colors } from "../../react/styles/global";
+import { SetupResult } from "../../setupMUD";
+import { ActionType, DELAY, Phase } from "../../types";
 
 import { getRangeTintAlpha } from "./renderShip";
 
-export function createActionSelectionSystem() {
+export function createActionSelectionSystem(MUD: SetupResult) {
   const {
-    world,
     components: {
       Position,
       Length,
@@ -44,7 +43,7 @@ export function createActionSelectionSystem() {
       handleNewActionsCannon,
       renderFiringArea,
     },
-  } = useMUD();
+  } = MUD;
 
   defineComponentSystem(world, HoveredAction, ({ value }) => {
     const hoveredAction = value[0];

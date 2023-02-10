@@ -11,14 +11,14 @@ import {
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
-import { useMUD } from "../../MUDContext";
 import { Animations, MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../../phaser/constants";
+import { SetupResult } from "../../setupMUD";
 import { Category } from "../../sound";
 import { Sprites } from "../../types";
 import { getShipSprite } from "../../utils/ships";
 import { getMidpoint, getSternLocation } from "../../utils/trig";
 
-export function createShipSystem() {
+export function createShipSystem(MUD: SetupResult) {
   const {
     world,
     godEntity,
@@ -41,7 +41,7 @@ export function createShipSystem() {
       SailPosition,
     },
     utils: { getSpriteObject, destroySpriteObject, destroyGroupObject, getPlayerEntity, outOfBounds, playSound },
-  } = useMUD();
+  } = MUD;
 
   defineEnterSystem(
     world,

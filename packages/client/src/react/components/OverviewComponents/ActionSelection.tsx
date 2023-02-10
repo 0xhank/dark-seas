@@ -10,12 +10,11 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import styled from "styled-components";
-import { world } from "../../../../../mud/world";
-import { useMUD } from "../../../../../MUDContext";
-import { usePlayer } from "../../../../../PlayerContext";
-import { ActionImg, ActionNames, ActionType } from "../../../../../types";
-import { isBroadside } from "../../../../../utils/trig";
-import { DELAY } from "../../../constants";
+import { world } from "../../../mud/world";
+import { useMUD } from "../../../MUDContext";
+import { usePlayer } from "../../../PlayerContext";
+import { ActionImg, ActionNames, ActionType, DELAY } from "../../../types";
+import { isBroadside } from "../../../utils/trig";
 import { Img, OptionButton } from "../../styles/global";
 
 export const ActionSelection = ({ shipEntity }: { shipEntity: EntityIndex }) => {

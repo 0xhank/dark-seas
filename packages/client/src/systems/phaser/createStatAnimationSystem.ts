@@ -9,13 +9,13 @@ import {
   runQuery,
 } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
-import { colors } from "../../layers/frontend/react/styles/global";
-import { useMUD } from "../../MUDContext";
 import { Animations, CANNON_SHOT_DELAY, MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth } from "../../phaser/constants";
+import { colors } from "../../react/styles/global";
+import { SetupResult } from "../../setupMUD";
 import { Category } from "../../sound";
 import { getSternLocation, midpoint } from "../../utils/trig";
 
-export function createStatAnimationSystem() {
+export function createStatAnimationSystem(MUD: SetupResult) {
   const {
     world,
     components: { Position, Rotation, Length, Cannon, OwnedBy, HealthLocal, OnFireLocal, DamagedCannonsLocal },
@@ -30,7 +30,7 @@ export function createStatAnimationSystem() {
       playSound,
       renderFiringArea,
     },
-  } = useMUD();
+  } = MUD;
 
   // ON FIRE UPDATES
   defineComponentSystem(world, OnFireLocal, (update) => {

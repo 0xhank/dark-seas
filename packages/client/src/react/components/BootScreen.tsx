@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { BackgroundImg, colors } from "../../styles/global";
+import { BackgroundImg, colors } from "../styles/global";
 
 export const BootScreen: React.FC<{ initialOpacity?: number; progression: number }> = ({ progression }) => {
   return (

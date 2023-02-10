@@ -1,12 +1,12 @@
 import { defineRxSystem, EntityID, setComponent } from "@latticexyz/recs";
-import { useMUD } from "../../MUDContext";
+import { SetupResult } from "../../setupMUD";
 
-export function createSuccessfulRespawnSystem() {
+export function createSuccessfulRespawnSystem(MUD: SetupResult) {
   const {
     world,
     components: { HealthLocal, HealthBackend, Health },
     systemCallStreams,
-  } = useMUD();
+  } = MUD;
 
   defineRxSystem(world, systemCallStreams["ds.system.Respawn"], (systemCall) => {
     const { args, systemId, updates } = systemCall;

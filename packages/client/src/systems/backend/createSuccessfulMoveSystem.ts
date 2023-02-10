@@ -1,14 +1,14 @@
 import { defineComponentSystem, setComponent } from "@latticexyz/recs";
-import { useMUD } from "../../MUDContext";
+import { SetupResult } from "../../setupMUD";
 import { Move, TxType } from "../../types";
 
-export function createSuccessfulMoveSystem() {
+export function createSuccessfulMoveSystem(MUD: SetupResult) {
   const {
     world,
     components: { EncodedCommitment, CommittedMove },
     actions: { Action },
     godEntity,
-  } = useMUD();
+  } = MUD;
 
   defineComponentSystem(world, Action, ({ value }) => {
     const newAction = value[0];

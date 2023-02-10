@@ -1,11 +1,11 @@
 import { useComponentValue } from "@latticexyz/react";
 import { getComponentEntities } from "@latticexyz/recs";
 import styled from "styled-components";
-import { world } from "../../../../../mud/world";
-import { useMUD } from "../../../../../MUDContext";
-import { getShipName } from "../../../../../utils/ships";
+import { world } from "../../../mud/world";
+import { useMUD } from "../../../MUDContext";
+import { getShipName } from "../../../utils/ships";
 import { colors } from "../../styles/global";
-import { PlayerData, ShipData } from "./Modal";
+import { PlayerData, ShipData } from "../Modal";
 
 export function Leaderboard() {
   const {

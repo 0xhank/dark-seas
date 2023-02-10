@@ -1,8 +1,8 @@
 import { useComponentValue } from "@latticexyz/react";
 import styled from "styled-components";
-import { useMUD } from "../../../../MUDContext";
-import { Cell } from "../engine/components";
+import { useMUD } from "../../MUDContext";
 import { ShipAttributeTypes } from "../types";
+import { Cell } from "./Cell";
 import ShipAttribute from "./OverviewComponents/ShipAttribute";
 
 const gridConfig = { gridRowStart: 1, gridRowEnd: 3, gridColumnStart: 1, gridColumnEnd: 5 };

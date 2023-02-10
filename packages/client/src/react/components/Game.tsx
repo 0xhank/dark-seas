@@ -2,12 +2,12 @@ import { SyncState } from "@latticexyz/network";
 import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex } from "@latticexyz/recs";
 import styled from "styled-components";
-import { useMUD } from "../../../../MUDContext";
-import { PlayerProvider } from "../../../../PlayerContext";
-import { BootScreen } from "../engine";
+import { useMUD } from "../../MUDContext";
+import { PlayerProvider } from "../../PlayerContext";
+import { BootScreen } from "./BootScreen";
 import { HoveredShip } from "./HoveredShip";
 import { JoinGame } from "./JoinGame";
-import { Modal } from "./Modal/Modal";
+import { Modal } from "./Modal";
 import { Settings } from "./Settings";
 import { TopBar } from "./TopBar";
 import { TurnTimer } from "./TurnTimer";
@@ -17,16 +17,16 @@ export function Game() {
   const {
     components: { LoadingState, Player },
     godEntity,
-    playerAddress,
     utils: { getPlayerEntity },
   } = useMUD();
+
   const loadingState = useComponentValue(LoadingState, godEntity, {
     state: SyncState.CONNECTING,
     msg: "Connecting",
     percentage: 0,
   });
   const playerEntity = getPlayerEntity();
-  useComponentValue(Player, playerEntity || (0 as EntityIndex), { value: false }).value;
+  useComponentValue(Player, playerEntity || (0 as EntityIndex), { value: 0 }).value;
   if (loadingState.state !== SyncState.LIVE) return <BootScreen progression={loadingState.percentage as number} />;
 
   return (

@@ -1,13 +1,12 @@
 import { useObservableValue } from "@latticexyz/react";
 import { getComponentValue } from "@latticexyz/recs";
 import styled, { keyframes } from "styled-components";
-import { useMUD } from "../../../../MUDContext";
-import { usePlayer } from "../../../../PlayerContext";
-import { Category } from "../../../../sound";
-import { Phase } from "../../../../types";
-import { DELAY } from "../../constants";
-import { Cell } from "../engine/components";
+import { useMUD } from "../../MUDContext";
+import { usePlayer } from "../../PlayerContext";
+import { Category } from "../../sound";
+import { DELAY, Phase } from "../../types";
 import { colors } from "../styles/global";
+import { Cell } from "./Cell";
 
 const gridConfig = { gridRowStart: 1, gridRowEnd: 1, gridColumnStart: 5, gridColumnEnd: 9 };
 

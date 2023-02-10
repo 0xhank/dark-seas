@@ -1,11 +1,10 @@
 import { useComponentValue } from "@latticexyz/react";
 import { EntityID, EntityIndex } from "@latticexyz/recs";
 import styled from "styled-components";
-import { useMUD } from "../../../../../MUDContext";
-import { usePlayer } from "../../../../../PlayerContext";
-import { ActionType } from "../../../../../types";
-import { getShipName, getShipSprite, ShipImages } from "../../../../../utils/ships";
-import { DELAY } from "../../../constants";
+import { useMUD } from "../../../MUDContext";
+import { usePlayer } from "../../../PlayerContext";
+import { ActionType, DELAY } from "../../../types";
+import { getShipName, getShipSprite, ShipImages } from "../../../utils/ships";
 import { BoxImage } from "../../styles/global";
 import { ShipAttributeTypes } from "../../types";
 import HullHealth from "./HullHealth";

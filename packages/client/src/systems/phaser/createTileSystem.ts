@@ -1,10 +1,10 @@
 import { defineComponentSystem } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
-import { useMUD } from "../../MUDContext";
 import { DSTileset } from "../../phaser/assets/tilesets/dsTilesheet";
 import { POS_HEIGHT, TILE_HEIGHT } from "../../phaser/constants";
+import { SetupResult } from "../../setupMUD";
 
-export function createTileSystem() {
+export function createTileSystem(MUD: SetupResult) {
   const {
     world,
     components: { GameConfig },
@@ -12,7 +12,7 @@ export function createTileSystem() {
     scene: {
       maps: { Main },
     },
-  } = useMUD();
+  } = MUD;
 
   defineComponentSystem(world, GameConfig, (update) => {
     const gameConfig = update.value[0];

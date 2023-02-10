@@ -17,11 +17,10 @@ import {
 import { Coord } from "@latticexyz/utils";
 import { BigNumber, BigNumberish } from "ethers";
 import { Howl } from "howler";
-import { DELAY } from "../layers/frontend/constants";
-import { colors } from "../layers/frontend/react/styles/global";
 import { POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../phaser/constants";
+import { colors } from "../react/styles/global";
 import { Category, soundLibrary } from "../sound";
-import { Action, ActionType, Move, Phase, Sprites } from "../types";
+import { Action, ActionType, DELAY, Move, Phase, Sprites } from "../types";
 import { distance } from "../utils/distance";
 import { getShipSprite } from "../utils/ships";
 import { getFiringArea, getSternLocation, inFiringArea } from "../utils/trig";

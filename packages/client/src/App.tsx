@@ -1,9 +1,22 @@
-import { Game } from "./layers/frontend/react/components/Game";
-import { createBackendSystems } from "./systems/backend";
-import { createPhaserSystems } from "./systems/phaser";
+import { useEffect, useState } from "react";
+import { MUDProvider } from "./MUDContext";
+import { Game } from "./react/components/Game";
+import { BackgroundImg } from "./react/styles/global";
+import { setupMUD, SetupResult } from "./setupMUD";
 
 export const App = () => {
-  createBackendSystems();
-  createPhaserSystems();
-  return <Game />;
+  const [MUD, setMUD] = useState<SetupResult>();
+  useEffect(() => {
+    setupMUD().then((result) => {
+      setMUD(result);
+    });
+  }, []);
+
+  if (MUD)
+    return (
+      <MUDProvider {...MUD}>
+        <Game />
+      </MUDProvider>
+    );
+  return <BackgroundImg />;
 };

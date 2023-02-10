@@ -1,7 +1,8 @@
 import { getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
 import { ActionState, ActionStateString } from "@latticexyz/std-client";
-import { useMUD } from "../../../../MUDContext";
+import { useMUD } from "../../MUDContext";
 import { Container } from "../styles/global";
+import { Cell } from "./Cell";
 
 const gridConfig = {
   gridRowStart: 4,
@@ -15,17 +16,19 @@ export function ActionQueue() {
     actions: { Action },
   } = useMUD();
   return (
-    <Container style={gridConfig}>
-      <p>Actions:</p>
-      {[...getComponentEntities(Action)].map((e) => {
-        const actionData = getComponentValueStrict(Action, e);
-        const state = ActionStateString[actionData.state as ActionState];
-        return (
-          <p key={`action${e}`}>
-            {Action.world.entities[e]}: {state}
-          </p>
-        );
-      })}
-    </Container>
+    <Cell style={gridConfig}>
+      <Container>
+        <p>Actions:</p>
+        {[...getComponentEntities(Action)].map((e) => {
+          const actionData = getComponentValueStrict(Action, e);
+          const state = ActionStateString[actionData.state as ActionState];
+          return (
+            <p key={`action${e}`}>
+              {Action.world.entities[e]}: {state}
+            </p>
+          );
+        })}
+      </Container>
+    </Cell>
   );
 }

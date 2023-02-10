@@ -1,13 +1,13 @@
 import { defineComponentSystem, defineUpdateSystem, EntityIndex, getComponentValueStrict, Has } from "@latticexyz/recs";
-import { colors } from "../../layers/frontend/react/styles/global";
-import { useMUD } from "../../MUDContext";
+import { colors } from "../../react/styles/global";
+import { SetupResult } from "../../setupMUD";
 
-export function createShipCircleSystem() {
+export function createShipCircleSystem(MUD: SetupResult) {
   const {
     world,
     components: { Position, Length, Rotation, SelectedShip, HoveredShip },
     utils: { getGroupObject, destroyGroupObject, isMyShip, renderCircle },
-  } = useMUD();
+  } = MUD;
 
   defineComponentSystem(world, SelectedShip, (update) => {
     const shipEntity = update.value[0]?.value as EntityIndex | undefined;

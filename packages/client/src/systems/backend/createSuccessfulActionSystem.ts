@@ -9,10 +9,10 @@ import {
 import { BigNumber } from "ethers";
 import { BytesLike, defaultAbiCoder as abi } from "ethers/lib/utils";
 import { ActionStruct } from "../../../../contracts/types/ethers-contracts/ActionSystem";
-import { useMUD } from "../../MUDContext";
+import { SetupResult } from "../../setupMUD";
 import { ActionType } from "../../types";
 
-export function createSuccessfulActionSystem() {
+export function createSuccessfulActionSystem(MUD: SetupResult) {
   const {
     world,
     components: {
@@ -30,7 +30,7 @@ export function createSuccessfulActionSystem() {
     },
     utils: { isMyShip, clearComponent, bigNumToEntityID },
     systemCallStreams,
-  } = useMUD();
+  } = MUD;
 
   function parseLoadAction(action: BytesLike) {
     const [cannonEntity] = abi.decode(["uint256"], action);

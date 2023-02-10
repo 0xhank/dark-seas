@@ -1,10 +1,10 @@
 import { defineComponentSystem, defineSystem, EntityID, Has, Not } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
-import { useMUD } from "../../MUDContext";
+import { SetupResult } from "../../setupMUD";
 import { Category } from "../../sound";
 import { ActionType, TxType } from "../../types";
 
-export function createUISoundSystem() {
+export function createUISoundSystem(MUD: SetupResult) {
   const {
     utils: { playSound },
     world,
@@ -19,7 +19,7 @@ export function createUISoundSystem() {
       Position,
     },
     actions: { Action },
-  } = useMUD();
+  } = MUD;
 
   defineComponentSystem(world, Action, ({ value }) => {
     const newAction = value[0];

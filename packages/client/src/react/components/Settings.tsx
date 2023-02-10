@@ -1,10 +1,10 @@
 import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex, setComponent } from "@latticexyz/recs";
 import styled from "styled-components";
-import { useMUD } from "../../../../MUDContext";
-import { ModalType } from "../../../../types";
-import { Cell } from "../engine/components";
+import { useMUD } from "../../MUDContext";
+import { ModalType } from "../../types";
 import { Button, Img } from "../styles/global";
+import { Cell } from "./Cell";
 
 const gridConfig = {
   gridRowStart: 1,

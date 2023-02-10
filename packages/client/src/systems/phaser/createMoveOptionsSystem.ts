@@ -9,19 +9,18 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
-import { DELAY } from "../../layers/frontend/constants";
-import { colors } from "../../layers/frontend/react/styles/global";
-import { useMUD } from "../../MUDContext";
-import { Phase } from "../../types";
+import { colors } from "../../react/styles/global";
+import { SetupResult } from "../../setupMUD";
+import { DELAY, Phase } from "../../types";
 import { getFinalPosition } from "../../utils/directions";
 
-export function createMoveOptionsSystem() {
+export function createMoveOptionsSystem(MUD: SetupResult) {
   const {
     world,
     components: { Position, Rotation, SailPosition, MoveCard, Speed, SelectedShip, SelectedMove, HoveredMove },
     utils: { destroySpriteObject, getPhase, isMyShip, renderShip },
     godEntity,
-  } = useMUD();
+  } = MUD;
   /* ---------------------------------------------- Move Options update ------------------------------------------- */
 
   defineComponentSystem(world, SelectedMove, ({ entity: shipEntity }) => {

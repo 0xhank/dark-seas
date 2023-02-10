@@ -8,10 +8,10 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
-import { useMUD } from "../../MUDContext";
 import { POS_HEIGHT, POS_WIDTH } from "../../phaser/constants";
+import { SetupResult } from "../../setupMUD";
 
-export function createInputSystem() {
+export function createInputSystem(MUD: SetupResult) {
   const {
     world,
     components: { SelectedShip, Position, OwnedBy },
@@ -24,7 +24,7 @@ export function createInputSystem() {
         Main: { tileWidth, tileHeight },
       },
     },
-  } = useMUD();
+  } = MUD;
 
   const shipKeyRegistry = new Map<Key, EntityIndex>();
   const NumberKeyNames: Key[] = ["ONE", "TWO", "THREE", "FOUR", "FIVE"];

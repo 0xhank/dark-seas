@@ -1,9 +1,8 @@
 import { defineRxSystem, getComponentEntities, getComponentValue } from "@latticexyz/recs";
-import { DELAY } from "../../layers/frontend/constants";
-import { useMUD } from "../../MUDContext";
-import { Phase } from "../../types";
+import { SetupResult } from "../../setupMUD";
+import { DELAY, Phase } from "../../types";
 
-export function createResetSystem() {
+export function createResetSystem(MUD: SetupResult) {
   const {
     world,
     godEntity,
@@ -36,7 +35,7 @@ export function createResetSystem() {
       getPlayerShips,
       clearComponent,
     },
-  } = useMUD();
+  } = MUD;
 
   defineRxSystem(world, clock.time$, () => {
     const phase = getPhase(DELAY);

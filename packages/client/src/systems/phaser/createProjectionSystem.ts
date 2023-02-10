@@ -10,15 +10,14 @@ import {
   runQuery,
   UpdateType,
 } from "@latticexyz/recs";
-import { DELAY } from "../../layers/frontend/constants";
-import { colors } from "../../layers/frontend/react/styles/global";
-import { useMUD } from "../../MUDContext";
-import { Phase } from "../../types";
+import { colors } from "../../react/styles/global";
+import { SetupResult } from "../../setupMUD";
+import { DELAY, Phase } from "../../types";
 import { getFinalPosition } from "../../utils/directions";
 import { getSternLocation } from "../../utils/trig";
 import { getRangeTintAlpha } from "./renderShip";
 
-export function createProjectionSystem() {
+export function createProjectionSystem(MUD: SetupResult) {
   const {
     world,
     components: {
@@ -44,7 +43,7 @@ export function createProjectionSystem() {
       renderShip,
       renderFiringArea,
     },
-  } = useMUD();
+  } = MUD;
 
   /* --------------------------------------------- Selected Move update --------------------------------------------- */
   defineExitSystem(world, [Has(SelectedMove)], ({ entity: shipEntity }) => {

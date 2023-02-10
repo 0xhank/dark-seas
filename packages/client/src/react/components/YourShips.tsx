@@ -10,14 +10,13 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import styled from "styled-components";
-import { world } from "../../../../mud/world";
-import { useMUD } from "../../../../MUDContext";
-import { usePlayer } from "../../../../PlayerContext";
-import { Category } from "../../../../sound";
-import { ActionType, ModalType, Phase } from "../../../../types";
-import { DELAY } from "../../constants";
-import { Cell } from "../engine/components";
+import { world } from "../../mud/world";
+import { useMUD } from "../../MUDContext";
+import { usePlayer } from "../../PlayerContext";
+import { Category } from "../../sound";
+import { ActionType, DELAY, ModalType, Phase } from "../../types";
 import { Button, colors, ConfirmButton, Container } from "../styles/global";
+import { Cell } from "./Cell";
 import { YourShip } from "./YourShip";
 
 const gridConfig = { gridRowStart: 9, gridRowEnd: 13, gridColumnStart: 1, gridColumnEnd: 13 };
@@ -105,7 +104,6 @@ export function YourShips() {
     );
     acted = getComponentValue(LastAction, playerEntity)?.value == currentTurn;
     someShipUnselected = selectedActions.length != yourShips.length;
-    console.log("selectedActions", selectedActions);
     cannotAct =
       !acted &&
       (selectedActions.length == 0 ||
