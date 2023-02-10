@@ -1,6 +1,7 @@
 import { SyncState } from "@latticexyz/network";
 import { useComponentValue } from "@latticexyz/react";
 import styled from "styled-components";
+import { HoveredShip } from "./layers/frontend/react/components/HoveredShip";
 import { JoinGame } from "./layers/frontend/react/components/JoinGame";
 import { Modal } from "./layers/frontend/react/components/Modal/Modal";
 import { Settings } from "./layers/frontend/react/components/Settings";
@@ -44,6 +45,8 @@ export const App = () => {
           <TopBar />
           <Settings />
           <Modal />
+
+          <HoveredShip />
         </UIGrid>
       )}
     </>

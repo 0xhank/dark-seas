@@ -1,6 +1,8 @@
-import { EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
+import { useComponentValue } from "@latticexyz/react";
+import { EntityID, EntityIndex } from "@latticexyz/recs";
 import styled from "styled-components";
-import { ActionType, Layers } from "../../../../../types";
+import { useMUD } from "../../../../../MUDContext";
+import { ActionType } from "../../../../../types";
 import { getShipName, getShipSprite, ShipImages } from "../../../../../utils/ships";
 import { DELAY } from "../../../constants";
 import { BoxImage } from "../../styles/global";
@@ -9,37 +11,45 @@ import HullHealth from "./HullHealth";
 import ShipAttribute from "./ShipAttribute";
 import ShipDamage from "./ShipDamage";
 
-export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }) => {
+export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
   const {
-    network: {
-      utils: { getPlayerEntity, getTurn },
-      network: { connectedAddress },
-      components: { MaxHealth, Rotation, OwnedBy, Name, Length, LastAction, Booty },
+    utils: { getPlayerEntity, getTurn },
+    components: {
+      MaxHealth,
+      Rotation,
+      OwnedBy,
+      Name,
+      Length,
+      LastAction,
+      Booty,
+      SelectedActions,
+      HealthLocal,
+      OnFireLocal,
+      SailPositionLocal,
+      DamagedCannonsLocal,
     },
-    backend: {
-      components: { SelectedActions, HealthLocal, OnFireLocal, SailPositionLocal, DamagedCannonsLocal },
-    },
-  } = layers;
+  } = useMUD();
 
-  const playerEntity = getPlayerEntity(connectedAddress.get());
-  const ownerEntity = getPlayerEntity(getComponentValueStrict(OwnedBy, ship).value);
+  const playerEntity = getPlayerEntity();
+  const fakeOwner = "0" as EntityID;
+  const ownerEntity = getPlayerEntity(useComponentValue(OwnedBy, shipEntity, { value: fakeOwner }).value);
   if (!ownerEntity) return null;
 
-  const sailPosition = getComponentValueStrict(SailPositionLocal, ship).value;
-  const rotation = getComponentValueStrict(Rotation, ship).value;
-  const health = getComponentValue(HealthLocal, ship)?.value || 0;
-  const maxHealth = getComponentValue(MaxHealth, ship)?.value || 0;
-  const onFire = getComponentValue(OnFireLocal, ship)?.value;
-  const damagedCannons = getComponentValue(DamagedCannonsLocal, ship)?.value;
-  const ownerName = getComponentValue(Name, ownerEntity)?.value;
-  const selectedActions = getComponentValue(SelectedActions, ship);
-  const length = getComponentValue(Length, ship)?.value || 10;
+  const sailPosition = useComponentValue(SailPositionLocal, shipEntity, { value: 2 }).value;
+  const rotation = useComponentValue(Rotation, shipEntity, { value: 0 }).value;
+  const health = useComponentValue(HealthLocal, shipEntity, { value: 0 })?.value || 0;
+  const maxHealth = useComponentValue(MaxHealth, shipEntity, { value: 0 })?.value || 0;
+  const onFire = useComponentValue(OnFireLocal, shipEntity, { value: 0 })?.value;
+  const damagedCannons = useComponentValue(DamagedCannonsLocal, shipEntity, { value: 0 })?.value;
+  const ownerName = useComponentValue(Name, ownerEntity, { value: fakeOwner })?.value;
+  const selectedActions = useComponentValue(SelectedActions, shipEntity);
+  const length = useComponentValue(Length, shipEntity)?.value || 10;
   const currentTurn = getTurn(DELAY);
-  const booty = getComponentValue(Booty, ship)?.value;
+  const booty = useComponentValue(Booty, shipEntity)?.value;
 
   let actionsExecuted = false;
   if (playerEntity) {
-    const lastAction = getComponentValue(LastAction, playerEntity)?.value;
+    const lastAction = useComponentValue(LastAction, playerEntity)?.value;
     actionsExecuted = currentTurn == lastAction;
   }
   const updates = actionsExecuted ? undefined : selectedActions?.actionTypes;
@@ -50,7 +60,7 @@ export const ShipCard = ({ layers, ship }: { layers: Layers; ship: EntityIndex }
     ? sailPosition + 1
     : sailPosition;
 
-  const name = getShipName(ship);
+  const name = getShipName(shipEntity);
 
   return (
     <div style={{ display: "flex", borderRadius: "6px", width: "100%" }}>
