@@ -12,6 +12,7 @@ import {
 import styled from "styled-components";
 import { world } from "../../../../mud/world";
 import { useMUD } from "../../../../MUDContext";
+import { usePlayer } from "../../../../PlayerContext";
 import { Category } from "../../../../sound";
 import { ActionType, ModalType, Phase } from "../../../../types";
 import { DELAY } from "../../constants";
@@ -71,10 +72,7 @@ export function YourShips() {
   const phase: Phase | undefined = getPhase(DELAY);
   const currentTurn = getTurn();
 
-  if (phase == undefined || currentTurn == undefined) return null;
-
-  const playerEntity = getPlayerEntity();
-  if (!playerEntity || !useComponentValue(Player, playerEntity)) return null;
+  const playerEntity = usePlayer();
 
   const respawnAllowed = !!getGameConfig()?.respawnAllowed;
 

@@ -1,8 +1,9 @@
 import { SyncState } from "@latticexyz/network";
 import { useComponentValue } from "@latticexyz/react";
-import { useState } from "react";
+import { EntityIndex } from "@latticexyz/recs";
 import styled from "styled-components";
 import { useMUD } from "../../../../MUDContext";
+import { PlayerProvider } from "../../../../PlayerContext";
 import { BootScreen } from "../engine";
 import { HoveredShip } from "./HoveredShip";
 import { JoinGame } from "./JoinGame";
@@ -14,16 +15,18 @@ import { YourShips } from "./YourShips";
 
 export function Game() {
   const {
-    components: { LoadingState },
+    components: { LoadingState, Player },
     godEntity,
-    initialPlayerEntity,
+    playerAddress,
+    utils: { getPlayerEntity },
   } = useMUD();
-  const [playerEntity, setPlayerEntity] = useState(initialPlayerEntity);
   const loadingState = useComponentValue(LoadingState, godEntity, {
     state: SyncState.CONNECTING,
     msg: "Connecting",
     percentage: 0,
   });
+  const playerEntity = getPlayerEntity();
+  useComponentValue(Player, playerEntity || (0 as EntityIndex), { value: false }).value;
   if (loadingState.state !== SyncState.LIVE) return <BootScreen progression={loadingState.percentage as number} />;
 
   return (
@@ -35,14 +38,14 @@ export function Game() {
       onMouseOver={(e) => e.stopPropagation()}
     >
       {playerEntity ? (
-        <>
+        <PlayerProvider value={playerEntity}>
           <TurnTimer />
           <TopBar />
           <Settings />
           <Modal />
           <HoveredShip />
           <YourShips />
-        </>
+        </PlayerProvider>
       ) : (
         <JoinGame />
       )}

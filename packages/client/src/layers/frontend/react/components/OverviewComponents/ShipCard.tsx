@@ -2,6 +2,7 @@ import { useComponentValue } from "@latticexyz/react";
 import { EntityID, EntityIndex } from "@latticexyz/recs";
 import styled from "styled-components";
 import { useMUD } from "../../../../../MUDContext";
+import { usePlayer } from "../../../../../PlayerContext";
 import { ActionType } from "../../../../../types";
 import { getShipName, getShipSprite, ShipImages } from "../../../../../utils/ships";
 import { DELAY } from "../../../constants";
@@ -30,10 +31,9 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
     },
   } = useMUD();
 
-  const playerEntity = getPlayerEntity();
+  const playerEntity = usePlayer();
   const fakeOwner = "0" as EntityID;
   const ownerEntity = getPlayerEntity(useComponentValue(OwnedBy, shipEntity, { value: fakeOwner }).value);
-  if (!ownerEntity) return null;
 
   const sailPosition = useComponentValue(SailPositionLocal, shipEntity, { value: 2 }).value;
   const rotation = useComponentValue(Rotation, shipEntity, { value: 0 }).value;
@@ -61,7 +61,7 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
     : sailPosition;
 
   const name = getShipName(shipEntity);
-
+  if (!ownerEntity) return null;
   return (
     <div style={{ display: "flex", borderRadius: "6px", width: "100%" }}>
       <BoxContainer>

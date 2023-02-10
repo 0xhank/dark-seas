@@ -12,6 +12,7 @@ import {
 import styled from "styled-components";
 import { world } from "../../../../../mud/world";
 import { useMUD } from "../../../../../MUDContext";
+import { usePlayer } from "../../../../../PlayerContext";
 import { ActionImg, ActionNames, ActionType } from "../../../../../types";
 import { isBroadside } from "../../../../../utils/trig";
 import { DELAY } from "../../../constants";
@@ -35,8 +36,7 @@ export const ActionSelection = ({ shipEntity }: { shipEntity: EntityIndex }) => 
     godEntity,
   } = useMUD();
 
-  const playerEntity = getPlayerEntity();
-  if (!playerEntity) return null;
+  const playerEntity = usePlayer();
 
   const selectedActions = useComponentValue(SelectedActions, shipEntity) || {
     actionTypes: [ActionType.None, ActionType.None],
@@ -80,8 +80,8 @@ export const ActionSelection = ({ shipEntity }: { shipEntity: EntityIndex }) => 
     <>
       {!damagedCannons &&
         cannonEntities.map((cannonEntity) => {
-          const loaded = useComponentValue(Loaded, cannonEntity)?.value;
-          const cannonRotation = useComponentValue(Rotation, cannonEntity, { value: 0 }).value;
+          const loaded = getComponentValue(Loaded, cannonEntity)?.value;
+          const cannonRotation = getComponentValue(Rotation, cannonEntity)?.value || 0;
 
           const selected = !actionsExecuted && selectedActions.specialEntities.includes(world.entities[cannonEntity]);
           const key = `cannonOption-${cannonEntity}`;

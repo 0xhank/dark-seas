@@ -2,6 +2,7 @@ import { useObservableValue } from "@latticexyz/react";
 import { getComponentValue } from "@latticexyz/recs";
 import styled, { keyframes } from "styled-components";
 import { useMUD } from "../../../../MUDContext";
+import { usePlayer } from "../../../../PlayerContext";
 import { Category } from "../../../../sound";
 import { Phase } from "../../../../types";
 import { DELAY } from "../../constants";
@@ -27,7 +28,7 @@ export function TurnTimer() {
 
   const phase = getPhase(DELAY);
   const turn = getTurn(DELAY);
-  const playerEntity = getPlayerEntity();
+  const playerEntity = usePlayer();
 
   const secsLeft = secondsUntilNextPhase(DELAY) || 0;
 

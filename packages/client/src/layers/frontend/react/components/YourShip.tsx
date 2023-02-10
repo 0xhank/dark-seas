@@ -16,7 +16,7 @@ export const YourShip = ({
 }: {
   shipEntity: EntityIndex;
   selectedShip: EntityIndex | undefined;
-  phase: Phase;
+  phase: Phase | undefined;
 }) => {
   const {
     components: { Position, SelectedShip, HoveredShip, HealthLocal },

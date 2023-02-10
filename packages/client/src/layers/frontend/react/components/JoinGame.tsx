@@ -1,5 +1,5 @@
 import { useComponentValue } from "@latticexyz/react";
-import { EntityIndex, Has, runQuery, setComponent } from "@latticexyz/recs";
+import { Has, runQuery, setComponent } from "@latticexyz/recs";
 import { useState } from "react";
 import { useMUD } from "../../../../MUDContext";
 import { ModalType } from "../../../../types";
@@ -20,9 +20,7 @@ export function JoinGame() {
 
   const gameConfig = useComponentValue(GameConfig, godEntity);
 
-  const playerEntity = getPlayerEntity();
-  const playerExists = useComponentValue(Player, playerEntity || (0 as EntityIndex), { value: false }).value;
-  if (!gameConfig || playerExists) return null;
+  if (!gameConfig) return null;
 
   const spawnAction = [...runQuery([Has(Action)])].length > 0;
 
