@@ -1,9 +1,8 @@
-import { EntityIndex, getComponentEntities, getComponentValue, removeComponent } from "@latticexyz/recs";
-import { map, merge } from "rxjs";
-import { world } from "../../../../../mud/world";
+import { useComponentValue } from "@latticexyz/react";
+import { EntityIndex, removeComponent } from "@latticexyz/recs";
+import { useMUD } from "../../../../../MUDContext";
 import { ModalType } from "../../../../../types";
-import { getShipName } from "../../../../../utils/ships";
-import { registerUIComponent } from "../../engine";
+import { Cell } from "../../engine/components";
 import { Container } from "../../styles/global";
 import { Leaderboard } from "./Leaderboard";
 import { Tutorial } from "./Tutorial";
@@ -24,97 +23,40 @@ export type PlayerData = {
   booty: number;
 };
 
-export function registerModal() {
-  registerUIComponent(
-    "Leaderboard",
-    {
-      gridRowStart: 1,
-      gridRowEnd: 13,
-      gridColumnStart: 1,
-      gridColumnEnd: 13,
-    },
-    (mud) => {
-      const {
-        components: { Kills, OwnedBy, Ship, Name, Booty, HealthLocal, ModalOpen },
-      } = mud;
+const gridConfig = {
+  gridRowStart: 1,
+  gridRowEnd: 13,
+  gridColumnStart: 1,
+  gridColumnEnd: 13,
+};
+export function Modal() {
+  const {
+    components: { ModalOpen },
+  } = useMUD();
 
-      return merge(Booty.update$, HealthLocal.update$, Kills.update$, ModalOpen.update$).pipe(
-        map(() => {
-          const showTutorial = !!getComponentValue(ModalOpen, ModalType.TUTORIAL)?.value;
-          const showLeaderboard = !!getComponentValue(ModalOpen, ModalType.LEADERBOARD)?.value;
-          const close = () => {
-            removeComponent(ModalOpen, ModalType.TUTORIAL);
-            removeComponent(ModalOpen, ModalType.LEADERBOARD);
-          };
-          const getPlayersAndShips = () => {
-            let players: PlayerData[] = [];
-            let ships: ShipData[] = [];
+  const showTutorial = !!useComponentValue(ModalOpen, ModalType.TUTORIAL)?.value;
+  const showLeaderboard = !!useComponentValue(ModalOpen, ModalType.LEADERBOARD)?.value;
+  const close = () => {
+    removeComponent(ModalOpen, ModalType.TUTORIAL);
+    removeComponent(ModalOpen, ModalType.LEADERBOARD);
+  };
 
-            [...getComponentEntities(Ship)].forEach((shipEntity) => {
-              const health = getComponentValue(HealthLocal, shipEntity)?.value;
-              const kills = getComponentValue(Kills, shipEntity)?.value;
-              const bootyString = getComponentValue(Booty, shipEntity)?.value;
-              const ownerId = getComponentValue(OwnedBy, shipEntity)?.value;
-
-              if (!ownerId) return;
-              const owner = world.entityToIndex.get(ownerId);
-              if (!owner) return;
-              const name = getComponentValue(Name, owner)?.value;
-              if (health == undefined || kills == undefined || name == undefined || bootyString == undefined) return;
-              const booty = Number(bootyString);
-              const player = players.find((player) => player.playerEntity == owner);
-
-              if (!player) {
-                players.push({
-                  playerEntity: owner,
-                  name,
-                  health,
-                  kills,
-                  booty,
-                });
-              } else {
-                player.health += health;
-                player.kills += kills;
-              }
-
-              ships.push({
-                name: getShipName(shipEntity),
-                health,
-                kills,
-                owner: name,
-                booty,
-              });
-            });
-            return { players, ships };
-          };
-
-          return {
-            getPlayersAndShips,
-            showTutorial,
-            showLeaderboard,
-            close,
-          };
-        })
-      );
-    },
-    ({ showTutorial, showLeaderboard, getPlayersAndShips, close }) => {
-      let content = null;
-      if (showLeaderboard) {
-        const { ships, players } = getPlayersAndShips();
-        content = <Leaderboard ships={ships} players={players} />;
-      } else if (showTutorial) {
-        content = <Tutorial />;
-      }
-      if (!content) return null;
-      return (
-        <Container
-          style={{ flexDirection: "row", background: "hsla(0, 0%, 0%, 0.6", zIndex: 9999, gap: "20px" }}
-          onClick={close}
-          onMouseEnter={(e) => e.stopPropagation()}
-        >
-          {content}
-        </Container>
-      );
-    }
+  let content = null;
+  if (showLeaderboard) {
+    content = <Leaderboard />;
+  } else if (showTutorial) {
+    content = <Tutorial />;
+  }
+  if (!content) return null;
+  return (
+    <Cell style={gridConfig}>
+      <Container
+        style={{ flexDirection: "row", background: "hsla(0, 0%, 0%, 0.6", zIndex: 9999, gap: "20px" }}
+        onClick={close}
+        onMouseEnter={(e) => e.stopPropagation()}
+      >
+        {content}
+      </Container>
+    </Cell>
   );
 }

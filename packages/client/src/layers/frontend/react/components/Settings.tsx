@@ -1,45 +1,31 @@
-import { EntityIndex, getComponentValue, setComponent } from "@latticexyz/recs";
-import { map, merge, of } from "rxjs";
+import { useComponentValue } from "@latticexyz/react";
+import { EntityIndex, setComponent } from "@latticexyz/recs";
 import styled from "styled-components";
+import { useMUD } from "../../../../MUDContext";
 import { ModalType } from "../../../../types";
-import { registerUIComponent } from "../engine";
+import { Cell } from "../engine/components";
 import { Button, Img } from "../styles/global";
 
-export function registerSettings() {
-  registerUIComponent(
-    // name
-    "Settings",
-    // grid location
-    {
-      gridRowStart: 1,
-      gridRowEnd: 3,
-      gridColumnStart: 1,
-      gridColumnEnd: 5,
-    },
-    // requirement
-    (layers) => {
-      const {
-        backend: {
-          utils: { muteSfx, unmuteSfx, playMusic, muteMusic },
-        },
-        phaser: {
-          components: { Volume, ModalOpen },
-          godEntity,
-        },
-      } = layers;
+const gridConfig = {
+  gridRowStart: 1,
+  gridRowEnd: 3,
+  gridColumnStart: 1,
+  gridColumnEnd: 5,
+};
+export function Settings() {
+  const {
+    utils: { muteSfx, unmuteSfx, playMusic, muteMusic },
+    components: { Volume, ModalOpen },
+    godEntity,
+  } = useMUD();
 
-      return merge(of(0), Volume.update$).pipe(
-        map(() => {
-          const openLeaderboard = () => setComponent(ModalOpen, ModalType.LEADERBOARD, { value: true });
-          const openTutorial = () => setComponent(ModalOpen, ModalType.TUTORIAL, { value: true });
+  const openLeaderboard = () => setComponent(ModalOpen, ModalType.LEADERBOARD, { value: true });
+  const openTutorial = () => setComponent(ModalOpen, ModalType.TUTORIAL, { value: true });
 
-          const volume = getComponentValue(Volume, godEntity)?.value || 0;
-          const musicVolume = getComponentValue(Volume, 1 as EntityIndex)?.value || 0;
-          return { volume, musicVolume, muteSfx, unmuteSfx, playMusic, muteMusic, openLeaderboard, openTutorial };
-        })
-      );
-    },
-    ({ volume, musicVolume, muteSfx, unmuteSfx, playMusic, muteMusic, openLeaderboard, openTutorial }) => (
+  const volume = useComponentValue(Volume, godEntity, { value: 0 }).value;
+  const musicVolume = useComponentValue(Volume, 1 as EntityIndex, { value: 0 });
+  return (
+    <Cell style={gridConfig}>
       <SettingsContainer>
         <Button onClick={openLeaderboard} style={{ width: "40px" }}>
           <Img src={"/icons/podium.svg"} />
@@ -55,7 +41,7 @@ export function registerSettings() {
           <Img src={"/icons/help.svg"} />
         </Button>
       </SettingsContainer>
-    )
+    </Cell>
   );
 }
 

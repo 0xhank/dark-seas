@@ -1,8 +1,55 @@
+import { useComponentValue } from "@latticexyz/react";
+import { getComponentEntities } from "@latticexyz/recs";
 import styled from "styled-components";
+import { world } from "../../../../../mud/world";
+import { useMUD } from "../../../../../MUDContext";
+import { getShipName } from "../../../../../utils/ships";
 import { colors } from "../../styles/global";
 import { PlayerData, ShipData } from "./Modal";
 
-export function Leaderboard({ players, ships }: { players: PlayerData[]; ships: ShipData[] }) {
+export function Leaderboard() {
+  const {
+    components: { Ship, HealthLocal, Kills, Booty, OwnedBy, Name },
+  } = useMUD();
+  let players: PlayerData[] = [];
+  let ships: ShipData[] = [];
+
+  [...getComponentEntities(Ship)].forEach((shipEntity) => {
+    const health = useComponentValue(HealthLocal, shipEntity)?.value;
+    const kills = useComponentValue(Kills, shipEntity)?.value;
+    const bootyString = useComponentValue(Booty, shipEntity)?.value;
+    const ownerId = useComponentValue(OwnedBy, shipEntity)?.value;
+
+    if (!ownerId) return;
+    const owner = world.entityToIndex.get(ownerId);
+    if (!owner) return;
+    const name = useComponentValue(Name, owner)?.value;
+    if (health == undefined || kills == undefined || name == undefined || bootyString == undefined) return;
+    const booty = Number(bootyString);
+    const player = players.find((player) => player.playerEntity == owner);
+
+    if (!player) {
+      players.push({
+        playerEntity: owner,
+        name,
+        health,
+        kills,
+        booty,
+      });
+    } else {
+      player.health += health;
+      player.kills += kills;
+    }
+
+    ships.push({
+      name: getShipName(shipEntity),
+      health,
+      kills,
+      owner: name,
+      booty,
+    });
+  });
+
   return (
     <>
       <LeaderboardContainer onClick={(e) => e.stopPropagation()}>

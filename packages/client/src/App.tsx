@@ -2,6 +2,8 @@ import { SyncState } from "@latticexyz/network";
 import { useComponentValue } from "@latticexyz/react";
 import styled from "styled-components";
 import { JoinGame } from "./layers/frontend/react/components/JoinGame";
+import { Modal } from "./layers/frontend/react/components/Modal/Modal";
+import { Settings } from "./layers/frontend/react/components/Settings";
 import { TopBar } from "./layers/frontend/react/components/TopBar";
 import { TurnTimer } from "./layers/frontend/react/components/TurnTimer";
 import { BootScreen } from "./layers/frontend/react/engine";
@@ -40,6 +42,8 @@ export const App = () => {
           <JoinGame />
           <TurnTimer />
           <TopBar />
+          <Settings />
+          <Modal />
         </UIGrid>
       )}
     </>
