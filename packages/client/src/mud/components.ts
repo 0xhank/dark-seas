@@ -53,7 +53,7 @@ export const components = {
     { value: Type.Entity },
     { id: "OwnedBy", metadata: { contractId: "ds.component.OwnedBy" } }
   ),
-  Player: defineBoolComponent(world, { id: "Player", metadata: { contractId: "ds.component.Player" } }),
+  Player: defineNumberComponent(world, { id: "Player", metadata: { contractId: "ds.component.Player" } }),
   Name: defineStringComponent(world, { id: "Name", metadata: { contractId: "ds.component.Name" } }),
   Commitment: defineStringComponent(world, { id: "Commitment", metadata: { contractId: "ds.component.Commitment" } }),
   Cannon: defineBoolComponent(world, { id: "Cannon", metadata: { contractId: "ds.component.Cannon" } }),
