@@ -92,20 +92,7 @@ library LibAction {
 
     // if ship has a damaged mast, reduce hull health by 1
     if (onFireComponent.has(shipEntity)) {
-      uint32 health = healthComponent.getValue(shipEntity);
-      if (health == 0) return;
-      else if (health == 1) {
-        healthComponent.set(shipEntity, 0);
-
-        LastHitComponent lastHitComponent = LastHitComponent(getAddressById(components, LastHitComponentID));
-        if (!lastHitComponent.has(shipEntity)) return;
-        uint256 lastAttacker = lastHitComponent.getValue(shipEntity);
-
-        KillsComponent killsComponent = KillsComponent(getAddressById(components, KillsComponentID));
-
-        uint32 prevKills = killsComponent.getValue(lastAttacker);
-        killsComponent.set(lastAttacker, prevKills + 1);
-      } else healthComponent.set(shipEntity, health - 1);
+      LibCombat.damageHull(components, 1, shipEntity);
     }
   }
 

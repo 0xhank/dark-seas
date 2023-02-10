@@ -261,28 +261,30 @@ library LibCombat {
     LengthComponent lengthComponent = LengthComponent(getAddressById(components, LengthComponentID));
 
     healthComponent.set(shipEntity, 0);
-
-    // update ship kills
-    uint32 prevKills = killsComponent.getValue(attackerEntity);
-    killsComponent.set(attackerEntity, prevKills + 1);
-
-    // update ship length
-    uint32 prevLength = lengthComponent.getValue(attackerEntity);
-    lengthComponent.set(attackerEntity, prevLength + 2);
-
     // remove booty from sunk ship -> add half to attacking ship and half to attacking player
     uint256 booty = bootyComponent.getValue(shipEntity);
     bootyComponent.set(shipEntity, 0);
-    uint256 oldBooty = bootyComponent.getValue(attackerEntity);
-    bootyComponent.set(attackerEntity, oldBooty + booty / 2);
-    uint256 ownerEntity = OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(attackerEntity);
-    oldBooty = bootyComponent.getValue(ownerEntity);
-    bootyComponent.set(ownerEntity, oldBooty + booty / 2);
+    // update ship kills
+    if (attackerEntity != GodID) {
+      uint32 prevKills = killsComponent.getValue(attackerEntity);
+      killsComponent.set(attackerEntity, prevKills + 1);
 
-    uint32 maxHealth = MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).getValue(attackerEntity);
-    uint32 health = healthComponent.getValue(attackerEntity);
-    if (health + 1 >= maxHealth) healthComponent.set(attackerEntity, maxHealth);
-    else healthComponent.set(attackerEntity, health + 1);
+      // update ship length
+      uint32 prevLength = lengthComponent.getValue(attackerEntity);
+      lengthComponent.set(attackerEntity, prevLength + 2);
+
+      uint256 oldBooty = bootyComponent.getValue(attackerEntity);
+      bootyComponent.set(attackerEntity, oldBooty + booty / 2);
+
+      uint32 maxHealth = MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).getValue(attackerEntity);
+      uint32 health = healthComponent.getValue(attackerEntity);
+      if (health + 1 >= maxHealth) healthComponent.set(attackerEntity, maxHealth);
+      else healthComponent.set(attackerEntity, health + 1);
+
+      uint256 ownerEntity = OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(attackerEntity);
+      oldBooty = bootyComponent.getValue(ownerEntity);
+      bootyComponent.set(ownerEntity, oldBooty + booty / 2);
+    }
   }
 
   /*************************************************** UTILITIES **************************************************** */
