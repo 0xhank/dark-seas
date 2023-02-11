@@ -13,10 +13,12 @@ import styled from "styled-components";
 import { world } from "../../mud/world";
 import { useMUD } from "../../MUDContext";
 import { usePlayer } from "../../PlayerContext";
-import { Category } from "../../sound";
 import { ActionType, DELAY, ModalType, Phase } from "../../types";
-import { Button, colors, ConfirmButton, Container } from "../styles/global";
+import { Button, colors, Container } from "../styles/global";
+import { ActionButtons } from "./ActionButtons";
 import { Cell } from "./Cell";
+import { CommitButtons } from "./CommitButtons";
+import { RevealButtons } from "./RevealButtons";
 import { YourShip } from "./YourShip";
 
 const gridConfig = { gridRowStart: 9, gridRowEnd: 13, gridColumnStart: 1, gridColumnEnd: 13 };
@@ -32,40 +34,15 @@ export function YourShips() {
       SelectedMove,
       SelectedActions,
       EncodedCommitment,
-      CommittedMove,
       HealthLocal,
       ModalOpen,
-      Player,
-      Ship,
       OwnedBy,
-      LastMove,
       LastAction,
+      Ship,
     },
-    api: { commitMove, revealMove, submitActions, respawn: apiRespawn },
-    utils: { getPlayerShipsWithMoves, getPlayerShipsWithActions, playSound, clearComponent, getGameConfig },
+    api: { respawn: apiRespawn },
+    utils: { getGameConfig },
   } = useMUD();
-
-  const handleSubmitActions = () => {
-    const shipsAndActions = getPlayerShipsWithActions();
-    if (!shipsAndActions) return;
-    playSound("click", Category.UI);
-
-    submitActions(shipsAndActions);
-  };
-
-  const handleSubmitCommitment = () => {
-    const shipsAndMoves = getPlayerShipsWithMoves();
-    if (!shipsAndMoves) return;
-
-    playSound("click", Category.UI);
-
-    commitMove(shipsAndMoves);
-  };
-
-  const handleSubmitExecute = () => {
-    const encoding = useComponentValue(EncodedCommitment, godEntity)?.value;
-    if (encoding) revealMove(encoding);
-  };
 
   useObservableValue(clock.time$);
   const phase: Phase | undefined = getPhase(DELAY);
@@ -90,20 +67,15 @@ export function YourShips() {
   const txExecuting = [...runQuery([Has(Action)])].length > 0;
   let cannotAct = false;
   let acted = false;
-  let someShipUnselected = false;
   if (phase == Phase.Commit) {
     const selectedMoves = [...getComponentEntities(SelectedMove)];
-    someShipUnselected = selectedMoves.length != yourShips.length;
     acted = encodedCommitment !== undefined;
     cannotAct = selectedMoves.length == 0;
-  } else if (phase == Phase.Reveal) {
-    acted = getComponentValue(LastMove, playerEntity)?.value == currentTurn;
   } else if (phase == Phase.Action) {
     const selectedActions = [...getComponentEntities(SelectedActions)].map((entity) =>
       getComponentValueStrict(SelectedActions, entity)
     );
     acted = getComponentValue(LastAction, playerEntity)?.value == currentTurn;
-    someShipUnselected = selectedActions.length != yourShips.length;
     cannotAct =
       !acted &&
       (selectedActions.length == 0 ||
@@ -114,81 +86,15 @@ export function YourShips() {
 
   const disabled = tooEarly || cannotAct || yourShips.length == 0;
 
-  const movesComplete = yourShips.every((shipEntity) => {
-    const committedMove = useComponentValue(CommittedMove, shipEntity)?.value;
-    const selectedMove = useComponentValue(SelectedMove, shipEntity)?.value;
-    return committedMove == selectedMove;
-  });
-
-  const removeActions = () => clearComponent(SelectedActions);
-
-  const removeMoves = () => clearComponent(SelectedMove);
-
   const isOpen = !!useComponentValue(ModalOpen, ModalType.BOTTOM_BAR, { value: true }).value;
 
   const toggleOpen = () => setComponent(ModalOpen, ModalType.BOTTOM_BAR, { value: !isOpen });
 
-  const RevealButtons = () => {
-    if (acted) return <Success>Move reveal successful!</Success>;
-    if (!encodedCommitment) return <Success>No moves to reveal</Success>;
-    return (
-      <ConfirmButton style={{ width: "100%", fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmitExecute}>
-        Reveal Moves
-      </ConfirmButton>
-    );
-  };
-
-  const CommitButtons = () => {
-    if (movesComplete && encodedCommitment) {
-      return <Success>Moves Successful!</Success>;
-    }
-    return (
-      <>
-        <ConfirmButton style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmitCommitment}>
-          Confirm Moves
-          {someShipUnselected && (
-            <p style={{ color: colors.darkerGray, fontSize: "0.75rem" }}>
-              You haven't selected a move for one of your ships!
-            </p>
-          )}
-        </ConfirmButton>
-        <ConfirmButton noGoldBorder onClick={removeMoves} style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}>
-          Clear
-        </ConfirmButton>
-      </>
-    );
-  };
-
-  const ActionButtons = () => {
-    if (acted) {
-      return <Success>Actions Successful</Success>;
-    } else {
-      return (
-        <>
-          <ConfirmButton style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmitActions}>
-            <p>Submit Actions</p>
-            {someShipUnselected && (
-              <p style={{ color: colors.darkerGray, fontSize: "0.75rem" }}>
-                You haven't selected actions for one of your ships!
-              </p>
-            )}
-          </ConfirmButton>
-          <ConfirmButton
-            noGoldBorder
-            onClick={removeActions}
-            style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}
-          >
-            Clear
-          </ConfirmButton>
-        </>
-      );
-    }
-  };
   let content = null;
   if (showExecuting) content = <Success>Executing...</Success>;
   else if (phase == Phase.Reveal) content = <RevealButtons />;
-  else if (phase == Phase.Commit) content = <CommitButtons />;
-  else if (phase == Phase.Action) content = <ActionButtons />;
+  else if (phase == Phase.Commit) content = <CommitButtons yourShips={yourShips} />;
+  else if (phase == Phase.Action) content = <ActionButtons yourShips={yourShips} />;
 
   return (
     <Cell style={gridConfig}>

@@ -80,6 +80,15 @@ export const Container = styled.div`
   z-index: 5;
 `;
 
+export const Success = styled.div`
+  color: ${colors.gold};
+  border-radius: 6px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 export const BackgroundImg = styled.div`
   position: fixed;
   left: -25;
