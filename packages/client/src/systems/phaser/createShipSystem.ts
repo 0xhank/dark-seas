@@ -163,7 +163,6 @@ export function createShipSystem(MUD: SetupResult) {
   async function move(shipEntity: EntityIndex, object: Phaser.GameObjects.Sprite, position: Coord, rotation: number) {
     const coord = tileCoordToPixelCoord(position, POS_WIDTH, POS_HEIGHT);
 
-    console.log("move object:", object);
     await tween({
       targets: object,
       duration: MOVE_LENGTH,

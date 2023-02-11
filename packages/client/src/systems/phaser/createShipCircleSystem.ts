@@ -12,7 +12,7 @@ export function createShipCircleSystem(MUD: SetupResult) {
   defineComponentSystem(world, SelectedShip, (update) => {
     const shipEntity = update.value[0]?.value as EntityIndex | undefined;
 
-    const groupId = "hover-circle";
+    const groupId = "select-circle";
     const hoveredGroup = getGroupObject(groupId, true);
     if (shipEntity === undefined) return;
 
@@ -27,7 +27,7 @@ export function createShipCircleSystem(MUD: SetupResult) {
   defineComponentSystem(world, HoveredShip, (update) => {
     const shipEntity = update.value[0]?.value as EntityIndex | undefined;
 
-    const groupId = "select-circle";
+    const groupId = "hover-circle";
     const hoveredGroup = getGroupObject(groupId, true);
     if (shipEntity === undefined) return;
     const position = getComponentValueStrict(Position, shipEntity);
@@ -35,6 +35,7 @@ export function createShipCircleSystem(MUD: SetupResult) {
     const rotation = getComponentValueStrict(Rotation, shipEntity).value;
     const shipColor = colors.whiteHex;
 
+    console.log("adding hover circle");
     renderCircle(hoveredGroup, position, length, rotation, shipColor, 0.15);
   });
 

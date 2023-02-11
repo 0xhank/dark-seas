@@ -9,7 +9,7 @@ export function createBorderSystem(MUD: SetupResult) {
     godEntity,
     components: { GameConfig, MapBounds },
     scene: { phaserScene, camera },
-    utils: { getGroupObject, secondsIntoTurn, getWorldDimsAtTime, getTurn },
+    utils: { getGroupObject, secondsIntoTurn, getWorldDimsAtTime },
     network: { clock },
   } = MUD;
 
@@ -22,6 +22,7 @@ export function createBorderSystem(MUD: SetupResult) {
     const height = dims.height * POS_WIDTH * 2;
     const border = phaserScene.add.rectangle(0, 0, width, height);
     border.setStrokeStyle(50, colors.whiteHex);
+    // border.setFillStyle(0xff0000);
     border.setDepth(RenderDepth.Background1);
     borderGroup.add(border);
 
@@ -36,12 +37,13 @@ export function createBorderSystem(MUD: SetupResult) {
   });
 
   defineRxSystem(world, clock.time$, () => {
-    if (secondsIntoTurn(clock.currentTime) != 0) return;
+    // if (secondsIntoTurn(clock.currentTime) != 0) return;
 
     const borderGroup = getGroupObject("borderGroup");
     const dims = getWorldDimsAtTime(clock.currentTime);
     const width = dims.width * POS_HEIGHT * 2;
     const height = dims.height * POS_HEIGHT * 2;
+
     phaserScene.tweens.add({
       targets: borderGroup.getChildren(),
       props: {

@@ -73,7 +73,6 @@ export async function setupMUD() {
   // --- API ------------------------------------------------------------------------
 
   function spawnPlayer(name: string, override?: boolean) {
-    console.log("spawning");
     spawnPlayerAction(systems, actions, name, override);
   }
 

@@ -73,7 +73,7 @@ export async function createUtilities(
     const delayMs = delay ? DELAY : 0;
     const gameConfig = getGameConfig();
     if (!gameConfig) return undefined;
-    const timeElapsed = (timeMs + delayMs) / 1000 - parseInt(gameConfig.startTime);
+    const timeElapsed = Math.floor((timeMs + delayMs) / 1000) - parseInt(gameConfig.startTime);
     const turnLength = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
 
     return Math.floor(timeElapsed / turnLength);
@@ -99,6 +99,7 @@ export async function createUtilities(
 
     const delayMs = delay ? DELAY : 0;
     const gameLength = Math.floor((clock.currentTime + delayMs) / 1000) - parseInt(gameConfig.startTime);
+
     const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;
     const secondsIntoTurn = gameLength % turnLength;
 
@@ -108,7 +109,6 @@ export async function createUtilities(
         : phase == Phase.Reveal
         ? gameConfig.commitPhaseLength + gameConfig.revealPhaseLength
         : turnLength;
-
     return phaseEnd - secondsIntoTurn;
   }
 

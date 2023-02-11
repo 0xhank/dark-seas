@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { useMUD } from "../../MUDContext";
 import { PlayerProvider } from "../../PlayerContext";
 import { BootScreen } from "./BootScreen";
+import { ComponentBrowser } from "./ComponentBrowser";
 import { HoveredShip } from "./HoveredShip";
 import { JoinGame } from "./JoinGame";
 import { Modal } from "./Modal";
@@ -50,6 +51,7 @@ export function Game() {
       ) : (
         <JoinGame />
       )}
+      <ComponentBrowser />
     </UIGrid>
   );
 }
