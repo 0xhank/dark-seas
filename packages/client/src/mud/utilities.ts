@@ -86,7 +86,7 @@ export async function createUtilities(
 
     if (!gameConfig || phase == undefined) return;
 
-    const gameLength = Math.floor(clock.currentTime + delayMs) / 1000 - parseInt(gameConfig.startTime);
+    const gameLength = Math.floor((clock.currentTime + delayMs) / 1000) - parseInt(gameConfig.startTime);
     const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;
     return gameLength % turnLength;
   }
@@ -112,7 +112,7 @@ export async function createUtilities(
     return phaseEnd - secondsIntoTurn;
   }
 
-  function getWorldHeightAtTime(timeMs: number, delay = false): number {
+  function getWorldHeightAtTime(timeMs: number, delay = true): number {
     const turn = getTurn(timeMs, false);
     const gameConfig = getGameConfig();
     if (!gameConfig || !turn) return 0;
