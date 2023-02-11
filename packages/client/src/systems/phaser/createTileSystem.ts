@@ -12,10 +12,12 @@ export function createTileSystem(MUD: SetupResult) {
     scene: {
       maps: { Main },
     },
+    network: { clock },
   } = MUD;
 
   defineComponentSystem(world, GameConfig, (update) => {
     const gameConfig = update.value[0];
+    const time = clock.currentTime;
     if (!gameConfig) return;
 
     const worldHeight = gameConfig.worldSize;
@@ -28,7 +30,7 @@ export function createTileSystem(MUD: SetupResult) {
       for (let j = -worldHeight; j < worldHeight; j += adjustment) {
         const coord = { x: i, y: j };
         const adjustedCoord = { x: Math.floor(i / adjustment), y: Math.floor(j / adjustment) };
-        if (!inWorld(coord)) continue;
+        if (!inWorld(time, coord)) continue;
         const tile = getWhirlpoolTile(coord, perlinSeed, adjustment);
         if (tile) {
           Main.putTileAt(adjustedCoord, tile, "Foreground");

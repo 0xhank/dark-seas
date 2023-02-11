@@ -79,7 +79,7 @@ export async function createUtilities(
 
   function secondsIntoTurn(timeSecs: number, delay = 0) {
     const gameConfig = getGameConfig();
-    const phase = getPhase(delay + timeSecs);
+    const phase = getPhase(timeSecs, delay);
 
     if (!gameConfig || phase == undefined) return;
 
