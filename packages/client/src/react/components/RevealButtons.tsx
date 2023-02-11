@@ -1,6 +1,7 @@
-import { useComponentValue } from "@latticexyz/react";
+import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { useMUD } from "../../MUDContext";
 import { usePlayer } from "../../PlayerContext";
+import { DELAY } from "../../types";
 import { ConfirmButton, Success } from "../styles/global";
 
 export function RevealButtons() {
@@ -9,9 +10,11 @@ export function RevealButtons() {
     utils: { getTurn },
     api: { revealMove },
     godEntity,
+    network: { clock },
   } = useMUD();
 
-  const currentTurn = getTurn();
+  const time = useObservableValue(clock.time$) || 0;
+  const currentTurn = getTurn(time, DELAY);
   const playerEntity = usePlayer();
   const acted = useComponentValue(LastMove, playerEntity, { value: 0 }).value == currentTurn;
   const encodedCommitment = useComponentValue(EncodedCommitment, godEntity)?.value;

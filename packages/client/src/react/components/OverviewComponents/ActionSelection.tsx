@@ -1,4 +1,4 @@
-import { useComponentValue } from "@latticexyz/react";
+import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import {
   EntityID,
   EntityIndex,
@@ -33,17 +33,18 @@ export const ActionSelection = ({ shipEntity }: { shipEntity: EntityIndex }) => 
     },
     utils: { checkActionPossible, handleNewActionsCannon, handleNewActionsSpecial, getPlayerEntity, getTurn },
     godEntity,
+    network: { clock },
   } = useMUD();
 
   const playerEntity = usePlayer();
-
+  const time = useObservableValue(clock.time$) || 0;
   const selectedActions = useComponentValue(SelectedActions, shipEntity) || {
     actionTypes: [ActionType.None, ActionType.None],
     specialEntities: ["0" as EntityID, "0" as EntityID],
   };
 
   const lastAction = useComponentValue(LastAction, playerEntity)?.value;
-  const currentTurn = getTurn(DELAY);
+  const currentTurn = getTurn(time, DELAY);
   const actionsExecuted = currentTurn == lastAction;
   const executedActions = useComponentValue(ExecutedActions, shipEntity, { value: [] }).value;
   let cannonEntities: EntityIndex[] = [];

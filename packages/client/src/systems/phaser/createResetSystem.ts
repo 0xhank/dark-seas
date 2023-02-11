@@ -38,13 +38,13 @@ export function createResetSystem(MUD: SetupResult) {
   } = MUD;
 
   defineRxSystem(world, clock.time$, () => {
-    const phase = getPhase(DELAY);
-    const turn = getTurn(DELAY);
+    const phase = getPhase(clock.currentTime, DELAY);
+    const turn = getTurn(clock.currentTime, DELAY);
     const gameConfig = getGameConfig();
 
     if (phase == undefined || !gameConfig) return;
 
-    const timeToNextPhase = secondsUntilNextPhase(DELAY);
+    const timeToNextPhase = secondsUntilNextPhase(clock.currentTime, DELAY);
 
     const playerEntity = getPlayerEntity();
     if (!playerEntity) return;

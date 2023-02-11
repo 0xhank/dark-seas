@@ -10,12 +10,13 @@ export function createBorderSystem(MUD: SetupResult) {
     godEntity,
     components: { GameConfig, MapBounds },
     scene: { phaserScene, camera },
-    utils: { getGroupObject, secondsIntoTurn, getWorldDimsAtTurn, getTurn },
+    utils: { getGroupObject, secondsIntoTurn, getWorldDimsAtTime, getTurn },
     network: { clock },
   } = MUD;
 
   defineComponentSystem(world, GameConfig, (update) => {
-    const dims = getWorldDimsAtTurn();
+    const time = clock.currentTime;
+    const dims = getWorldDimsAtTime(time + DELAY);
     const borderGroup = getGroupObject("borderGroup", true);
 
     const width = dims.width * POS_HEIGHT * 2;
@@ -36,19 +37,17 @@ export function createBorderSystem(MUD: SetupResult) {
   });
 
   defineRxSystem(world, clock.time$, () => {
-    if (secondsIntoTurn(DELAY) != 0) return;
+    if (secondsIntoTurn(clock.currentTime, DELAY) != 0) return;
 
-    const formerTurn = (getTurn(DELAY) || 1) - 1;
-    const formerDims = getWorldDimsAtTurn(formerTurn);
     const borderGroup = getGroupObject("borderGroup");
-    const dims = getWorldDimsAtTurn();
+    const dims = getWorldDimsAtTime(clock.currentTime + DELAY);
+    const width = dims.width * POS_HEIGHT * 2;
+    const height = dims.height * POS_HEIGHT * 2;
     phaserScene.tweens.add({
       targets: borderGroup.getChildren(),
       props: {
-        scaleX: dims.width / formerDims.width,
-        scaleY: dims.height / formerDims.height,
-        width: dims.width,
-        height: dims.height,
+        displayHeight: height,
+        displayWidth: width,
       },
       ease: Phaser.Math.Easing.Quadratic.InOut,
       duration: 2000,

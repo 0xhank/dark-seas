@@ -13,7 +13,7 @@ const gridConfig = { gridRowStart: 1, gridRowEnd: 1, gridColumnStart: 5, gridCol
 export function TurnTimer() {
   const {
     network: { clock },
-    utils: { getGameConfig, getPhase, secondsUntilNextPhase, getPlayerEntity, getTurn },
+    utils: { getGameConfig, getPhase, secondsUntilNextPhase, getTurn },
     components: { LastAction },
 
     utils: { playSound },
@@ -21,15 +21,15 @@ export function TurnTimer() {
     godEntity,
   } = useMUD();
 
-  const time = useObservableValue(clock.time$);
+  const time = useObservableValue(clock.time$) || 0;
   const gameConfig = getGameConfig();
   if (!gameConfig) return null;
 
-  const phase = getPhase(DELAY);
-  const turn = getTurn(DELAY);
+  const phase = getPhase(time, DELAY);
+  const turn = getTurn(time, DELAY);
   const playerEntity = usePlayer();
 
-  const secsLeft = secondsUntilNextPhase(DELAY) || 0;
+  const secsLeft = secondsUntilNextPhase(time, DELAY) || 0;
 
   const phaseLength =
     phase == Phase.Commit
@@ -40,12 +40,12 @@ export function TurnTimer() {
 
   if (!playerEntity || !phaseLength) return null;
 
+  if (secsLeft < 6 && !getComponentValue(EncodedCommitment, godEntity)) {
+    playSound("tick", Category.UI);
+  }
   let str = null;
   if (phase == Phase.Commit) {
     str = <Text secsLeft={secsLeft}>Choose your moves</Text>;
-    if (secsLeft < 6 && !getComponentValue(EncodedCommitment, godEntity)) {
-      playSound("tick", Category.UI);
-    }
   } else if (phase == Phase.Reveal) str = <PulsingText>Waiting for Players to Reveal Moves...</PulsingText>;
   else if (phase == Phase.Action) {
     str = <Text secsLeft={secsLeft}>Choose 2 actions per ship</Text>;

@@ -1,4 +1,4 @@
-import { useComponentValue } from "@latticexyz/react";
+import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { EntityID, EntityIndex } from "@latticexyz/recs";
 import styled from "styled-components";
 import { useMUD } from "../../../MUDContext";
@@ -28,6 +28,7 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
       SailPositionLocal,
       DamagedCannonsLocal,
     },
+    network: { clock },
   } = useMUD();
 
   const playerEntity = usePlayer();
@@ -43,7 +44,9 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
   const ownerName = useComponentValue(Name, ownerEntity, { value: fakeOwner })?.value;
   const selectedActions = useComponentValue(SelectedActions, shipEntity);
   const length = useComponentValue(Length, shipEntity)?.value || 10;
-  const currentTurn = getTurn(DELAY);
+
+  const time = useObservableValue(clock.time$) || 0;
+  const currentTurn = getTurn(time, DELAY);
   const booty = useComponentValue(Booty, shipEntity)?.value;
 
   let actionsExecuted = false;

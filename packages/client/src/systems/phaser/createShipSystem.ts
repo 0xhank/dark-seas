@@ -42,6 +42,7 @@ export function createShipSystem(MUD: SetupResult) {
       SailPosition,
     },
     utils: { getSpriteObject, destroySpriteObject, destroyGroupObject, getPlayerEntity, outOfBounds, playSound },
+    network: { clock },
   } = MUD;
 
   defineEnterSystem(
@@ -188,7 +189,8 @@ export function createShipSystem(MUD: SetupResult) {
 
     const length = getComponentValueStrict(Length, shipEntity).value;
 
-    if (outOfBounds(position) || outOfBounds(getSternLocation(position, rotation, length))) {
+    const time = clock.currentTime;
+    if (outOfBounds(time, position) || outOfBounds(time, getSternLocation(position, rotation, length))) {
       const midpoint = getShipMidpoint(shipEntity);
       const healthLocal = getComponentValueStrict(HealthLocal, shipEntity).value;
       setComponent(HealthLocal, shipEntity, { value: healthLocal - 1 });

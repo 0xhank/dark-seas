@@ -50,9 +50,8 @@ export async function createUtilities(
     return playerEntity;
   }
 
-  function getPhase(delay = 0): Phase | undefined {
-    const time = Math.floor(clock.currentTime / 1000) + delay;
-    const gamePhase = getGamePhaseAt(time);
+  function getPhase(timeSecs: number, delay = 0): Phase | undefined {
+    const gamePhase = getGamePhaseAt(timeSecs + delay);
     return gamePhase;
   }
 
@@ -69,24 +68,18 @@ export async function createUtilities(
     return Phase.Action;
   }
 
-  function getTurn(delay = 0): number | undefined {
-    const time = Math.floor(clock.currentTime / 1000) + delay;
-    const gameTurn = getGameTurnAt(time);
-    return gameTurn;
-  }
-
-  function getGameTurnAt(timeInSeconds: number): number | undefined {
+  function getTurn(timeSecs: number, delay = 0): number | undefined {
     const gameConfig = getGameConfig();
     if (!gameConfig) return undefined;
-    const timeElapsed = timeInSeconds - parseInt(gameConfig.startTime);
+    const timeElapsed = timeSecs + delay - parseInt(gameConfig.startTime);
     const turnLength = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
 
     return Math.floor(timeElapsed / turnLength);
   }
 
-  function secondsIntoTurn(delay = 0) {
+  function secondsIntoTurn(timeSecs: number, delay = 0) {
     const gameConfig = getGameConfig();
-    const phase = getPhase(delay);
+    const phase = getPhase(delay + timeSecs);
 
     if (!gameConfig || phase == undefined) return;
 
@@ -95,9 +88,9 @@ export async function createUtilities(
     return gameLength % turnLength;
   }
 
-  function secondsUntilNextPhase(delay = 0) {
+  function secondsUntilNextPhase(timeSecs: number, delay = 0) {
     const gameConfig = getGameConfig();
-    const phase = getPhase(delay);
+    const phase = getPhase(timeSecs + delay);
 
     if (!gameConfig || phase == undefined) return;
 
@@ -113,6 +106,42 @@ export async function createUtilities(
         : turnLength;
 
     return phaseEnd - secondsIntoTurn;
+  }
+
+  function getWorldHeightAtTime(timeSecs: number): number {
+    const turn = getTurn(timeSecs, DELAY);
+    const gameConfig = getGameConfig();
+    if (!gameConfig || !turn) return 0;
+    if (turn <= gameConfig.entryCutoffTurns || gameConfig.shrinkRate == 0) return gameConfig.worldSize;
+    const turnsAfterCutoff = turn - gameConfig.entryCutoffTurns;
+    const finalSize = gameConfig.worldSize - (gameConfig.shrinkRate / 100) * turnsAfterCutoff;
+
+    return finalSize < 50 ? 50 : Math.ceil(finalSize);
+  }
+
+  function getWorldDimsAtTime(timeSecs: number) {
+    const height = getWorldHeightAtTime(timeSecs);
+
+    return { height, width: (height * 16) / 9 };
+  }
+
+  function inWorld(time: number, a: Coord): boolean {
+    const turn = getTurn(time, DELAY);
+    if (turn == undefined) return false;
+    const dims = getWorldDimsAtTime(turn);
+
+    return Math.abs(a.x) < dims.width && Math.abs(a.y) < dims.height;
+  }
+
+  function outOfBounds(time: number, position: Coord) {
+    const gameConfig = getGameConfig();
+    if (!gameConfig) return false;
+
+    if (!inWorld(time, position)) return true;
+
+    const whirlpool = isWhirlpool(position, Number(gameConfig.perlinSeed));
+    if (whirlpool) return true;
+    return false;
   }
 
   function clearComponent(component: Component) {
@@ -296,42 +325,6 @@ export async function createUtilities(
   }
 
   const whirlpoolMap = new Map<string, boolean>();
-
-  function getWorldHeightAtTurn(turn: number): number {
-    const gameConfig = getGameConfig();
-    if (!gameConfig) return 0;
-    if (turn <= gameConfig.entryCutoffTurns || gameConfig.shrinkRate == 0) return gameConfig.worldSize;
-    const turnsAfterCutoff = turn - gameConfig.entryCutoffTurns;
-    const finalSize = gameConfig.worldSize - (gameConfig.shrinkRate / 100) * turnsAfterCutoff;
-
-    return finalSize < 50 ? 50 : Math.ceil(finalSize);
-  }
-
-  function getWorldDimsAtTurn(turn?: number) {
-    const theTurn = turn == undefined ? getTurn(DELAY) || 0 : turn;
-    const height = getWorldHeightAtTurn(theTurn);
-
-    return { height, width: (height * 16) / 9 };
-  }
-
-  function inWorld(a: Coord): boolean {
-    const turn = getTurn(DELAY);
-    if (turn == undefined) return false;
-    const dims = getWorldDimsAtTurn(turn);
-
-    return Math.abs(a.x) < dims.width && Math.abs(a.y) < dims.height;
-  }
-
-  function outOfBounds(position: Coord) {
-    const gameConfig = getGameConfig();
-    if (!gameConfig) return false;
-
-    if (!inWorld(position)) return true;
-
-    const whirlpool = isWhirlpool(position, Number(gameConfig.perlinSeed));
-    if (whirlpool) return true;
-    return false;
-  }
 
   function isWhirlpool(coord: Coord, perlinSeed: number): boolean {
     const coordStr = `${coord.x}-${coord.y}`;
@@ -649,7 +642,7 @@ export async function createUtilities(
     playMusic,
     muteMusic,
     inWorld,
-    getWorldDimsAtTurn,
+    getWorldDimsAtTime,
     getSpriteObject,
     getGroupObject,
     destroySpriteObject,

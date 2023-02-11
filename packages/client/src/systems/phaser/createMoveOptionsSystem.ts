@@ -20,6 +20,7 @@ export function createMoveOptionsSystem(MUD: SetupResult) {
     components: { Position, Rotation, SailPosition, MoveCard, Speed, SelectedShip, SelectedMove, HoveredMove },
     utils: { destroySpriteObject, getPhase, isMyShip, renderShip },
     godEntity,
+    network: { clock },
   } = MUD;
   /* ---------------------------------------------- Move Options update ------------------------------------------- */
 
@@ -43,7 +44,8 @@ export function createMoveOptionsSystem(MUD: SetupResult) {
   });
 
   function renderShipOptions(shipEntity: EntityIndex) {
-    const phase: Phase | undefined = getPhase(DELAY);
+    const time = clock.currentTime;
+    const phase: Phase | undefined = getPhase(time, DELAY);
     if (phase != Phase.Commit) return;
 
     const moveCardEntities = [...getComponentEntities(MoveCard)];

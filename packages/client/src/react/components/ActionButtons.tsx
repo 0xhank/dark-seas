@@ -1,8 +1,9 @@
-import { useComponentValue } from "@latticexyz/react";
+import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { EntityIndex, getComponentEntities } from "@latticexyz/recs";
 import { useMUD } from "../../MUDContext";
 import { usePlayer } from "../../PlayerContext";
 import { Category } from "../../sound";
+import { DELAY } from "../../types";
 import { colors, ConfirmButton, Success } from "../styles/global";
 
 export function ActionButtons({ yourShips }: { yourShips: EntityIndex[] }) {
@@ -10,10 +11,12 @@ export function ActionButtons({ yourShips }: { yourShips: EntityIndex[] }) {
     components: { SelectedActions, LastAction },
     utils: { getPlayerShipsWithActions, playSound, getTurn, clearComponent },
     api: { submitActions },
+    network: { clock },
   } = useMUD();
 
+  const time = useObservableValue(clock.time$) || 0;
   const playerEntity = usePlayer();
-  const currentTurn = getTurn();
+  const currentTurn = getTurn(time, DELAY);
 
   const selectedActions = [...getComponentEntities(SelectedActions)].map((entity) =>
     useComponentValue(SelectedActions, entity)

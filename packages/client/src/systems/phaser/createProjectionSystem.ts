@@ -43,6 +43,7 @@ export function createProjectionSystem(MUD: SetupResult) {
       renderShip,
       renderFiringArea,
     },
+    network: { clock },
   } = MUD;
 
   /* --------------------------------------------- Selected Move update --------------------------------------------- */
@@ -53,7 +54,8 @@ export function createProjectionSystem(MUD: SetupResult) {
   });
 
   defineSystem(world, [Has(SelectedMove)], ({ entity: shipEntity, type, value: [newMoveEntity, oldMoveentity] }) => {
-    const phase: Phase | undefined = getPhase(DELAY);
+    const time = clock.currentTime;
+    const phase: Phase | undefined = getPhase(time, DELAY);
 
     if (phase == undefined || phase == Phase.Action) return;
 
@@ -80,6 +82,7 @@ export function createProjectionSystem(MUD: SetupResult) {
   /* ---------------------------------------------- Hovered Move update --------------------------------------------- */
 
   defineComponentSystem(world, HoveredMove, (update) => {
+    const currentTime = clock.currentTime;
     const hoveredMove = update.value[0];
 
     if (!hoveredMove) return;
@@ -110,7 +113,8 @@ export function createProjectionSystem(MUD: SetupResult) {
     });
 
     const color =
-      outOfBounds(finalPosition) || outOfBounds(getSternLocation(finalPosition, finalRotation, length))
+      outOfBounds(currentTime, finalPosition) ||
+      outOfBounds(currentTime, getSternLocation(finalPosition, finalRotation, length))
         ? colors.redHex
         : colors.whiteHex;
 

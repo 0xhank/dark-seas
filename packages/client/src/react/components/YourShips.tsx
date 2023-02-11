@@ -26,7 +26,7 @@ export function YourShips() {
   const {
     components: {},
     network: { clock },
-    utils: { getPlayerEntity, getPhase, getTurn },
+    utils: { getPhase, getTurn },
     godEntity,
     actions: { Action },
     components: {
@@ -44,9 +44,9 @@ export function YourShips() {
     utils: { getGameConfig },
   } = useMUD();
 
-  useObservableValue(clock.time$);
-  const phase: Phase | undefined = getPhase(DELAY);
-  const currentTurn = getTurn();
+  const time = useObservableValue(clock.time$) || 0;
+  const phase: Phase | undefined = getPhase(time, DELAY);
+  const currentTurn = getTurn(time, DELAY);
 
   const playerEntity = usePlayer();
 
@@ -62,7 +62,7 @@ export function YourShips() {
 
   const encodedCommitment = useComponentValue(EncodedCommitment, godEntity)?.value;
 
-  const tooEarly = getPhase() !== phase;
+  const tooEarly = getPhase(time) !== phase;
 
   const txExecuting = [...runQuery([Has(Action)])].length > 0;
   let cannotAct = false;

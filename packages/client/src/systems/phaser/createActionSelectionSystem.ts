@@ -34,6 +34,7 @@ export function createActionSelectionSystem(MUD: SetupResult) {
       DamagedCannonsLocal,
     },
     godEntity,
+    network: { clock },
     utils: {
       getGroupObject,
       destroyGroupObject,
@@ -137,7 +138,8 @@ export function createActionSelectionSystem(MUD: SetupResult) {
 
     const shipEntity = update.value[0]?.value as EntityIndex | undefined;
     if (!shipEntity) return;
-    const phase: Phase | undefined = getPhase(DELAY);
+    const time = clock.currentTime;
+    const phase: Phase | undefined = getPhase(time, DELAY);
     const isMine = isMyShip(shipEntity);
     if (phase == Phase.Commit && isMine) return;
 

@@ -1,4 +1,4 @@
-import { useComponentValue } from "@latticexyz/react";
+import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { Has, runQuery, setComponent } from "@latticexyz/recs";
 import { useState } from "react";
 import { useMUD } from "../../MUDContext";
@@ -12,8 +12,9 @@ export function JoinGame() {
     components: { GameConfig, ModalOpen, Player },
     actions: { Action },
     api: { spawnPlayer },
-    utils: { getTurn, getPlayerEntity },
+    utils: { getTurn },
     godEntity,
+    network: { clock },
   } = useMUD();
 
   const [playerName, setPlayerName] = useState("");
@@ -24,7 +25,8 @@ export function JoinGame() {
 
   const spawnAction = [...runQuery([Has(Action)])].length > 0;
 
-  const turn = getTurn() || 0;
+  const time = useObservableValue(clock.time$) || 0;
+  const turn = getTurn(time) || 0;
   const entryWindowClosed = turn > gameConfig.entryCutoffTurns;
 
   const openTutorial = () => setComponent(ModalOpen, ModalType.TUTORIAL, { value: true });
