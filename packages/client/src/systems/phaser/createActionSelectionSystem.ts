@@ -14,7 +14,7 @@ import {
 import { world } from "../../mud/world";
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
-import { ActionType, DELAY, Phase } from "../../types";
+import { ActionType, Phase } from "../../types";
 
 import { getRangeTintAlpha } from "./renderShip";
 
@@ -139,7 +139,7 @@ export function createActionSelectionSystem(MUD: SetupResult) {
     const shipEntity = update.value[0]?.value as EntityIndex | undefined;
     if (!shipEntity) return;
     const time = clock.currentTime;
-    const phase: Phase | undefined = getPhase(time, DELAY);
+    const phase: Phase | undefined = getPhase(time);
     const isMine = isMyShip(shipEntity);
     if (phase == Phase.Commit && isMine) return;
 

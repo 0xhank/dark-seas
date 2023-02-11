@@ -9,7 +9,7 @@ import { Cell } from "./Cell";
 const gridConfig = { gridColumnStart: 5, gridColumnEnd: 9, gridRowStart: 4, gridRowEnd: 9 };
 export function JoinGame() {
   const {
-    components: { GameConfig, ModalOpen, Player },
+    components: { GameConfig, ModalOpen },
     actions: { Action },
     api: { spawnPlayer },
     utils: { getTurn },
@@ -20,12 +20,12 @@ export function JoinGame() {
   const [playerName, setPlayerName] = useState("");
 
   const gameConfig = useComponentValue(GameConfig, godEntity);
+  const time = useObservableValue(clock.time$) || 0;
 
   if (!gameConfig) return null;
 
   const spawnAction = [...runQuery([Has(Action)])].length > 0;
 
-  const time = useObservableValue(clock.time$) || 0;
   const turn = getTurn(time) || 0;
   const entryWindowClosed = turn > gameConfig.entryCutoffTurns;
 

@@ -22,15 +22,15 @@ import { Action, Move } from "./types";
 export type SetupResult = Awaited<ReturnType<typeof setupMUD>>;
 
 export async function setupMUD() {
-  const result = await setupMUDNetwork<typeof components, SystemTypes>(config, world, components, SystemAbis);
-  const { systems, network, systemCallStreams, txReduced$ } = result;
-  result.startSync();
+  const res = await setupMUDNetwork<typeof components, SystemTypes>(config, world, components, SystemAbis);
+  const { systems, network, systemCallStreams, txReduced$ } = res;
+  res.startSync();
 
   // For LoadingState updates
   const godEntity = world.registerEntity({ id: GodID });
 
   // Register player entity
-  const playerAddress = result.network.connectedAddress.get();
+  const playerAddress = res.network.connectedAddress.get();
   if (!playerAddress) throw new Error("Not connected");
 
   const playerEntityId = playerAddress as EntityID;
@@ -104,7 +104,7 @@ export async function setupMUD() {
     playerEntityId,
     network,
     components: {
-      ...result.components,
+      ...res.components,
       ...clientComponents,
     },
     api: { revealMove, submitActions, spawnPlayer, commitMove, respawn },

@@ -13,7 +13,7 @@ import styled from "styled-components";
 import { world } from "../../../mud/world";
 import { useMUD } from "../../../MUDContext";
 import { usePlayer } from "../../../PlayerContext";
-import { ActionImg, ActionNames, ActionType, DELAY } from "../../../types";
+import { ActionImg, ActionNames, ActionType } from "../../../types";
 import { isBroadside } from "../../../utils/trig";
 import { Img, OptionButton } from "../../styles/global";
 
@@ -44,7 +44,7 @@ export const ActionSelection = ({ shipEntity }: { shipEntity: EntityIndex }) => 
   };
 
   const lastAction = useComponentValue(LastAction, playerEntity)?.value;
-  const currentTurn = getTurn(time, DELAY);
+  const currentTurn = getTurn(time);
   const actionsExecuted = currentTurn == lastAction;
   const executedActions = useComponentValue(ExecutedActions, shipEntity, { value: [] }).value;
   let cannonEntities: EntityIndex[] = [];

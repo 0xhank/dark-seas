@@ -1,5 +1,6 @@
-import { useComponentValue } from "@latticexyz/react";
-import { EntityIndex, getComponentEntities } from "@latticexyz/recs";
+import { useComponentValue, useObservableValue } from "@latticexyz/react";
+import { EntityIndex, getComponentEntities, getComponentValue } from "@latticexyz/recs";
+import { merge } from "rxjs";
 import { useMUD } from "../../MUDContext";
 import { Category } from "../../sound";
 import { colors, ConfirmButton, Success } from "../styles/global";
@@ -13,9 +14,12 @@ export function CommitButtons({ yourShips }: { yourShips: EntityIndex[] }) {
   } = useMUD();
 
   const encodedCommitment = useComponentValue(EncodedCommitment, godEntity)?.value;
+
+  useObservableValue(merge(CommittedMove.update$, SelectedMove.update$));
+
   const movesComplete = yourShips.every((shipEntity) => {
-    const committedMove = useComponentValue(CommittedMove, shipEntity)?.value;
-    const selectedMove = useComponentValue(SelectedMove, shipEntity)?.value;
+    const committedMove = getComponentValue(CommittedMove, shipEntity)?.value;
+    const selectedMove = getComponentValue(SelectedMove, shipEntity)?.value;
     return committedMove == selectedMove;
   });
 

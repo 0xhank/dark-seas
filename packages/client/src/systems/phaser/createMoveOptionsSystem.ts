@@ -11,7 +11,7 @@ import {
 } from "@latticexyz/recs";
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
-import { DELAY, Phase } from "../../types";
+import { Phase } from "../../types";
 import { getFinalPosition } from "../../utils/directions";
 
 export function createMoveOptionsSystem(MUD: SetupResult) {
@@ -45,7 +45,7 @@ export function createMoveOptionsSystem(MUD: SetupResult) {
 
   function renderShipOptions(shipEntity: EntityIndex) {
     const time = clock.currentTime;
-    const phase: Phase | undefined = getPhase(time, DELAY);
+    const phase: Phase | undefined = getPhase(time);
     if (phase != Phase.Commit) return;
 
     const moveCardEntities = [...getComponentEntities(MoveCard)];

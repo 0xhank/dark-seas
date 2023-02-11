@@ -9,11 +9,12 @@ import {
   runQuery,
   setComponent,
 } from "@latticexyz/recs";
+import { merge } from "rxjs";
 import styled from "styled-components";
 import { world } from "../../mud/world";
 import { useMUD } from "../../MUDContext";
 import { usePlayer } from "../../PlayerContext";
-import { ActionType, DELAY, ModalType, Phase } from "../../types";
+import { ActionType, ModalType, Phase } from "../../types";
 import { Button, colors, Container } from "../styles/global";
 import { ActionButtons } from "./ActionButtons";
 import { Cell } from "./Cell";
@@ -45,8 +46,10 @@ export function YourShips() {
   } = useMUD();
 
   const time = useObservableValue(clock.time$) || 0;
-  const phase: Phase | undefined = getPhase(time, DELAY);
-  const currentTurn = getTurn(time, DELAY);
+
+  useObservableValue(merge(HealthLocal.update$, SelectedMove.update$, SelectedActions.update$, LastAction.update$));
+  const phase: Phase | undefined = getPhase(time);
+  const currentTurn = getTurn(time);
 
   const playerEntity = usePlayer();
 
@@ -56,13 +59,13 @@ export function YourShips() {
 
   const allYourShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
 
-  const yourShips = allYourShips.filter((shipEntity) => useComponentValue(HealthLocal, shipEntity)?.value);
+  const yourShips = allYourShips.filter((shipEntity) => getComponentValue(HealthLocal, shipEntity)?.value);
 
   const respawn = () => apiRespawn(allYourShips);
 
   const encodedCommitment = useComponentValue(EncodedCommitment, godEntity)?.value;
 
-  const tooEarly = getPhase(time) !== phase;
+  const tooEarly = getPhase(time, false) !== phase;
 
   const txExecuting = [...runQuery([Has(Action)])].length > 0;
   let cannotAct = false;

@@ -3,7 +3,7 @@ import { EntityID, EntityIndex } from "@latticexyz/recs";
 import styled from "styled-components";
 import { useMUD } from "../../../MUDContext";
 import { usePlayer } from "../../../PlayerContext";
-import { ActionType, DELAY } from "../../../types";
+import { ActionType } from "../../../types";
 import { getShipName, getShipSprite, ShipImages } from "../../../utils/ships";
 import { BoxImage } from "../../styles/global";
 import { ShipAttributeTypes } from "../../types";
@@ -46,7 +46,7 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
   const length = useComponentValue(Length, shipEntity)?.value || 10;
 
   const time = useObservableValue(clock.time$) || 0;
-  const currentTurn = getTurn(time, DELAY);
+  const currentTurn = getTurn(time);
   const booty = useComponentValue(Booty, shipEntity)?.value;
 
   let actionsExecuted = false;

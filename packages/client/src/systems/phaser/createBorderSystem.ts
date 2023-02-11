@@ -2,7 +2,6 @@ import { defineComponentSystem, defineRxSystem, setComponent } from "@latticexyz
 import { POS_HEIGHT, POS_WIDTH, RenderDepth } from "../../phaser/constants";
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
-import { DELAY } from "../../types";
 
 export function createBorderSystem(MUD: SetupResult) {
   const {
@@ -16,7 +15,7 @@ export function createBorderSystem(MUD: SetupResult) {
 
   defineComponentSystem(world, GameConfig, (update) => {
     const time = clock.currentTime;
-    const dims = getWorldDimsAtTime(time + DELAY);
+    const dims = getWorldDimsAtTime(time);
     const borderGroup = getGroupObject("borderGroup", true);
 
     const width = dims.width * POS_HEIGHT * 2;
@@ -37,10 +36,10 @@ export function createBorderSystem(MUD: SetupResult) {
   });
 
   defineRxSystem(world, clock.time$, () => {
-    if (secondsIntoTurn(clock.currentTime, DELAY) != 0) return;
+    if (secondsIntoTurn(clock.currentTime) != 0) return;
 
     const borderGroup = getGroupObject("borderGroup");
-    const dims = getWorldDimsAtTime(clock.currentTime + DELAY);
+    const dims = getWorldDimsAtTime(clock.currentTime);
     const width = dims.width * POS_HEIGHT * 2;
     const height = dims.height * POS_HEIGHT * 2;
     phaserScene.tweens.add({

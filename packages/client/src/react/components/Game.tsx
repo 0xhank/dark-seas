@@ -1,6 +1,5 @@
 import { SyncState } from "@latticexyz/network";
-import { useComponentValue } from "@latticexyz/react";
-import { EntityIndex } from "@latticexyz/recs";
+import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import styled from "styled-components";
 import { useMUD } from "../../MUDContext";
 import { PlayerProvider } from "../../PlayerContext";
@@ -18,15 +17,17 @@ export function Game() {
     components: { LoadingState, Player },
     godEntity,
     utils: { getPlayerEntity },
+    initialPlayerEntity,
   } = useMUD();
 
+  // re render when a player is added
+  useObservableValue(Player.update$);
+  const playerEntity = getPlayerEntity();
   const loadingState = useComponentValue(LoadingState, godEntity, {
     state: SyncState.CONNECTING,
     msg: "Connecting",
     percentage: 0,
   });
-  const playerEntity = getPlayerEntity();
-  useComponentValue(Player, playerEntity || (0 as EntityIndex), { value: 0 }).value;
   if (loadingState.state !== SyncState.LIVE) return <BootScreen progression={loadingState.percentage as number} />;
 
   return (

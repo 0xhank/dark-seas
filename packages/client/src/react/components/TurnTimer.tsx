@@ -4,7 +4,7 @@ import styled, { keyframes } from "styled-components";
 import { useMUD } from "../../MUDContext";
 import { usePlayer } from "../../PlayerContext";
 import { Category } from "../../sound";
-import { DELAY, Phase } from "../../types";
+import { Phase } from "../../types";
 import { colors } from "../styles/global";
 import { Cell } from "./Cell";
 
@@ -25,11 +25,11 @@ export function TurnTimer() {
   const gameConfig = getGameConfig();
   if (!gameConfig) return null;
 
-  const phase = getPhase(time, DELAY);
-  const turn = getTurn(time, DELAY);
+  const phase = getPhase(time);
+  const turn = getTurn(time);
   const playerEntity = usePlayer();
 
-  const secsLeft = secondsUntilNextPhase(time, DELAY) || 0;
+  const secsLeft = secondsUntilNextPhase(time) || 0;
 
   const phaseLength =
     phase == Phase.Commit

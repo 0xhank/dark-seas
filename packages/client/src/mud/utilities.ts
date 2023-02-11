@@ -50,8 +50,9 @@ export async function createUtilities(
     return playerEntity;
   }
 
-  function getPhase(timeSecs: number, delay = 0): Phase | undefined {
-    const gamePhase = getGamePhaseAt(timeSecs + delay);
+  function getPhase(timeMs: number, delay = true): Phase | undefined {
+    const delayMs = delay ? DELAY : 0;
+    const gamePhase = getGamePhaseAt((timeMs + delayMs) / 1000);
     return gamePhase;
   }
 
@@ -68,33 +69,36 @@ export async function createUtilities(
     return Phase.Action;
   }
 
-  function getTurn(timeSecs: number, delay = 0): number | undefined {
+  function getTurn(timeMs: number, delay = true): number | undefined {
+    const delayMs = delay ? DELAY : 0;
     const gameConfig = getGameConfig();
     if (!gameConfig) return undefined;
-    const timeElapsed = timeSecs + delay - parseInt(gameConfig.startTime);
+    const timeElapsed = (timeMs + delayMs) / 1000 - parseInt(gameConfig.startTime);
     const turnLength = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
 
     return Math.floor(timeElapsed / turnLength);
   }
 
-  function secondsIntoTurn(timeSecs: number, delay = 0) {
+  function secondsIntoTurn(timeMs: number, delay = true) {
+    const delayMs = delay ? DELAY : 0;
     const gameConfig = getGameConfig();
-    const phase = getPhase(timeSecs, delay);
+    const phase = getPhase(timeMs, delay);
 
     if (!gameConfig || phase == undefined) return;
 
-    const gameLength = Math.floor(clock.currentTime / 1000) + delay - parseInt(gameConfig.startTime);
+    const gameLength = Math.floor(clock.currentTime + delayMs) / 1000 - parseInt(gameConfig.startTime);
     const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;
     return gameLength % turnLength;
   }
 
-  function secondsUntilNextPhase(timeSecs: number, delay = 0) {
+  function secondsUntilNextPhase(timeMs: number, delay = true) {
     const gameConfig = getGameConfig();
-    const phase = getPhase(timeSecs + delay);
+    const phase = getPhase(timeMs, delay);
 
     if (!gameConfig || phase == undefined) return;
 
-    const gameLength = Math.floor(clock.currentTime / 1000) + delay - parseInt(gameConfig.startTime);
+    const delayMs = delay ? DELAY : 0;
+    const gameLength = Math.floor((clock.currentTime + delayMs) / 1000) - parseInt(gameConfig.startTime);
     const turnLength = gameConfig.revealPhaseLength + gameConfig.commitPhaseLength + gameConfig.actionPhaseLength;
     const secondsIntoTurn = gameLength % turnLength;
 
@@ -108,8 +112,8 @@ export async function createUtilities(
     return phaseEnd - secondsIntoTurn;
   }
 
-  function getWorldHeightAtTime(timeSecs: number): number {
-    const turn = getTurn(timeSecs, DELAY);
+  function getWorldHeightAtTime(timeMs: number, delay = false): number {
+    const turn = getTurn(timeMs, false);
     const gameConfig = getGameConfig();
     if (!gameConfig || !turn) return 0;
     if (turn <= gameConfig.entryCutoffTurns || gameConfig.shrinkRate == 0) return gameConfig.worldSize;
@@ -119,25 +123,25 @@ export async function createUtilities(
     return finalSize < 50 ? 50 : Math.ceil(finalSize);
   }
 
-  function getWorldDimsAtTime(timeSecs: number) {
-    const height = getWorldHeightAtTime(timeSecs);
+  function getWorldDimsAtTime(timeMs: number, delay = true) {
+    const height = getWorldHeightAtTime(timeMs, delay);
 
     return { height, width: (height * 16) / 9 };
   }
 
-  function inWorld(time: number, a: Coord): boolean {
-    const turn = getTurn(time, DELAY);
+  function inWorld(timeMs: number, a: Coord, delay = true): boolean {
+    const turn = getTurn(timeMs, delay);
     if (turn == undefined) return false;
     const dims = getWorldDimsAtTime(turn);
 
     return Math.abs(a.x) < dims.width && Math.abs(a.y) < dims.height;
   }
 
-  function outOfBounds(time: number, position: Coord) {
+  function outOfBounds(timeMs: number, position: Coord) {
     const gameConfig = getGameConfig();
     if (!gameConfig) return false;
 
-    if (!inWorld(time, position)) return true;
+    if (!inWorld(timeMs, position)) return true;
 
     const whirlpool = isWhirlpool(position, Number(gameConfig.perlinSeed));
     if (whirlpool) return true;

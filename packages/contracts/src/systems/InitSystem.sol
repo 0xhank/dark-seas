@@ -59,7 +59,7 @@ contract InitSystem is System {
         worldSize: 120,
         perlinSeed: 420,
         shipPrototypes: shipEntities,
-        entryCutoffTurns: 60, // entry is closed after the 60th turn (~1 hour)
+        entryCutoffTurns: 300, // entry is closed after the 60th turn (~1 hour)
         buyin: 1000,
         respawnAllowed: true,
         // Calculation: Every turn, the world shrinks by gameConfig.shrinkrate / 100.

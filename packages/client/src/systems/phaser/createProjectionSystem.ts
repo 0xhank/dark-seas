@@ -12,7 +12,7 @@ import {
 } from "@latticexyz/recs";
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
-import { DELAY, Phase } from "../../types";
+import { Phase } from "../../types";
 import { getFinalPosition } from "../../utils/directions";
 import { getSternLocation } from "../../utils/trig";
 import { getRangeTintAlpha } from "./renderShip";
@@ -55,7 +55,7 @@ export function createProjectionSystem(MUD: SetupResult) {
 
   defineSystem(world, [Has(SelectedMove)], ({ entity: shipEntity, type, value: [newMoveEntity, oldMoveentity] }) => {
     const time = clock.currentTime;
-    const phase: Phase | undefined = getPhase(time, DELAY);
+    const phase: Phase | undefined = getPhase(time);
 
     if (phase == undefined || phase == Phase.Action) return;
 

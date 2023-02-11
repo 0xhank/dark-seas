@@ -1,6 +1,6 @@
 import { defineRxSystem, getComponentEntities, getComponentValue } from "@latticexyz/recs";
 import { SetupResult } from "../../setupMUD";
-import { DELAY, Phase } from "../../types";
+import { Phase } from "../../types";
 
 export function createResetSystem(MUD: SetupResult) {
   const {
@@ -38,13 +38,13 @@ export function createResetSystem(MUD: SetupResult) {
   } = MUD;
 
   defineRxSystem(world, clock.time$, () => {
-    const phase = getPhase(clock.currentTime, DELAY);
-    const turn = getTurn(clock.currentTime, DELAY);
+    const phase = getPhase(clock.currentTime);
+    const turn = getTurn(clock.currentTime);
     const gameConfig = getGameConfig();
 
     if (phase == undefined || !gameConfig) return;
 
-    const timeToNextPhase = secondsUntilNextPhase(clock.currentTime, DELAY);
+    const timeToNextPhase = secondsUntilNextPhase(clock.currentTime);
 
     const playerEntity = getPlayerEntity();
     if (!playerEntity) return;

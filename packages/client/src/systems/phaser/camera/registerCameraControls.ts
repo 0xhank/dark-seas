@@ -3,7 +3,6 @@ import { filter, fromEvent, interval, map, merge, scan, Subscription, throttleTi
 import { phaserConfig } from "../../../phaser/config";
 import { POS_HEIGHT } from "../../../phaser/constants";
 import { SetupResult } from "../../../setupMUD";
-import { DELAY } from "../../../types";
 
 export function registerCameraControls(MUD: SetupResult) {
   const {
@@ -33,7 +32,7 @@ export function registerCameraControls(MUD: SetupResult) {
       const useHeight = camera.phaserCamera.displayWidth / camera.phaserCamera.displayHeight < 16 / 9;
       const currDisplayDim = useHeight ? camera.phaserCamera.displayHeight : camera.phaserCamera.displayWidth;
       const newDisplayDim = currDisplayDim * (deltaY < 0 ? 0.92 : 1.08);
-      const worldDims = getWorldDimsAtTime(clock.currentTime + DELAY);
+      const worldDims = getWorldDimsAtTime(clock.currentTime);
 
       const maxDim = useHeight ? worldDims.height : worldDims.width * POS_HEIGHT * 2;
       if (deltaY >= 0 && (newZoom < phaserConfig.cameraConfig.minZoom || maxDim <= newDisplayDim)) return;
