@@ -15,8 +15,8 @@ export function spawnPlayer(systems: TxQueue<SystemTypes>, actions: ActionSystem
     updates: () => [],
     execute: (name: string) => {
       console.log("spawning");
-      const location: Coord = { x: 0, y: 0 };
-      systems["ds.system.PlayerSpawn"].executeTyped(name, location);
+      const position: Coord = { x: 0, y: 0 };
+      systems["ds.system.PlayerSpawn"].executeTyped(name, position);
     },
   });
 }

@@ -20,7 +20,7 @@ export function getMidpoint(origin: Coord, rotation: number, length: number): Co
   return getPositionByVector(origin, rotation, length / 2, 180);
 }
 
-export function getSternLocation(origin: Coord, rotation: number, length: number): Coord {
+export function getSternPosition(origin: Coord, rotation: number, length: number): Coord {
   return getPositionByVector(origin, rotation, length, 180);
 }
 
@@ -34,7 +34,7 @@ export function getFiringArea(
   const rightRange = (cannonRotation + 10) % 360;
   const leftRange = (cannonRotation - 10) % 360;
 
-  const sternPosition = getSternLocation(position, shipRotation, length);
+  const sternPosition = getSternPosition(position, shipRotation, length);
 
   if (isBroadside(cannonRotation)) {
     let frontCorner = getPositionByVector(position, shipRotation, range, rightRange);

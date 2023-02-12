@@ -13,7 +13,7 @@ import { Animations, CANNON_SHOT_DELAY, MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, Rend
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
 import { Category } from "../../sound";
-import { getSternLocation, midpoint } from "../../utils/trig";
+import { getSternPosition, midpoint } from "../../utils/trig";
 
 export function createStatAnimationSystem(MUD: SetupResult) {
   const {
@@ -36,23 +36,20 @@ export function createStatAnimationSystem(MUD: SetupResult) {
   defineComponentSystem(world, OnFireLocal, (update) => {
     if (!update.value[0]) return;
     if (update.value[0].value == 0) {
-      for (let i = 0; i < 4; i++) {
-        const spriteId = `${update.entity}-fire-${i}`;
-        destroySpriteObject(spriteId);
-      }
+      destroyFire(update.entity);
       return;
     }
     const position = getComponentValueStrict(Position, update.entity);
     const rotation = getComponentValueStrict(Rotation, update.entity).value;
     const length = getComponentValueStrict(Length, update.entity).value;
-    const sternPosition = getSternLocation(position, rotation, length);
+    const sternPosition = getSternPosition(position, rotation, length);
     const center = midpoint(position, sternPosition);
-    const fireLocations = [midpoint(position, center), center, center, midpoint(center, sternPosition)];
-    for (let i = 0; i < fireLocations.length; i++) {
+    const firePositions = [midpoint(position, center), center, center, midpoint(center, sternPosition)];
+    for (let i = 0; i < firePositions.length; i++) {
       const spriteId = `${update.entity}-fire-${i}`;
       const object = getSpriteObject(spriteId);
 
-      const { x, y } = tileCoordToPixelCoord(fireLocations[i], POS_WIDTH, POS_HEIGHT);
+      const { x, y } = tileCoordToPixelCoord(firePositions[i], POS_WIDTH, POS_HEIGHT);
       object.setAlpha(0);
 
       setTimeout(() => {
@@ -75,14 +72,14 @@ export function createStatAnimationSystem(MUD: SetupResult) {
     const position = getComponentValueStrict(Position, update.entity);
     const rotation = getComponentValueStrict(Rotation, update.entity).value;
     const length = getComponentValueStrict(Length, update.entity).value;
-    const sternPosition = getSternLocation(position, rotation, length);
+    const sternPosition = getSternPosition(position, rotation, length);
     const center = midpoint(position, sternPosition);
-    const fireLocations = [midpoint(position, center), center, center, midpoint(center, sternPosition)];
-    for (let i = 0; i < fireLocations.length; i++) {
+    const firePositions = [midpoint(position, center), center, center, midpoint(center, sternPosition)];
+    for (let i = 0; i < firePositions.length; i++) {
       const spriteId = `${update.entity}-fire-${i}`;
       const object = getSpriteObject(spriteId);
 
-      const coord = tileCoordToPixelCoord(fireLocations[i], POS_WIDTH, POS_HEIGHT);
+      const coord = tileCoordToPixelCoord(firePositions[i], POS_WIDTH, POS_HEIGHT);
 
       moveFire(object, coord);
     }
@@ -98,7 +95,18 @@ export function createStatAnimationSystem(MUD: SetupResult) {
     object.setPosition(coord.x, coord.y);
   }
 
+  function destroyFire(shipEntity: EntityIndex) {
+    for (let i = 0; i < 4; i++) {
+      const spriteId = `${shipEntity}-fire-${i}`;
+      destroySpriteObject(spriteId);
+    }
+  }
+
   defineUpdateSystem(world, [Has(HealthLocal)], ({ entity: shipEntity, value: [newComponent, oldComponent] }) => {
+    if (newComponent?.value == 0) {
+      destroyFire(shipEntity);
+    }
+
     if (!newComponent?.value || !oldComponent?.value) return;
 
     if (newComponent.value > oldComponent.value) {

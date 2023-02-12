@@ -24,7 +24,7 @@ import { Category, soundLibrary } from "../sound";
 import { Action, ActionType, DELAY, Move, Phase, Sprites } from "../types";
 import { distance } from "../utils/distance";
 import { cap, getHash, getShipSprite } from "../utils/ships";
-import { getFiringArea, getSternLocation, inFiringArea } from "../utils/trig";
+import { getFiringArea, getSternPosition, inFiringArea } from "../utils/trig";
 import { adjectives, nouns } from "../wordlist";
 import { clientComponents, components } from "./components";
 import { polygonRegistry, spriteRegistry, world } from "./world";
@@ -158,6 +158,12 @@ export async function createUtilities(
     return owner == playerAddress;
   }
 
+  function getShipOwner(shipEntity: EntityIndex) {
+    const owner = getComponentValue(components.OwnedBy, shipEntity)?.value;
+    if (!owner) return;
+    return world.entityToIndex.get(owner);
+  }
+
   function checkActionPossible(action: ActionType, ship: EntityIndex): boolean {
     if (isNaN(action)) return false;
     if (action == ActionType.None) return false;
@@ -228,7 +234,7 @@ export async function createUtilities(
       const enemyPosition = getComponentValueStrict(components.Position, targetEntity);
       const enemyRotation = getComponentValueStrict(components.Rotation, targetEntity).value;
       const enemyLength = getComponentValueStrict(components.Length, targetEntity).value;
-      const sternPosition = getSternLocation(enemyPosition, enemyRotation, enemyLength);
+      const sternPosition = getSternPosition(enemyPosition, enemyRotation, enemyLength);
       const range = getCannonRange(cannonEntity);
       const firingArea = getFiringArea(shipPosition, range, length, shipRotation, cannonRotation);
 
@@ -258,7 +264,7 @@ export async function createUtilities(
     const baseHitChance = getBaseHitChance(dist, firepower * (1 + kills / 10));
 
     const format = (n: number) => Math.min(100, Math.round(n));
-    return { 3: format(baseHitChance), 2: format(baseHitChance * 1.7), 1: format(baseHitChance * 4.5) };
+    return { 3: format(baseHitChance), 2: format(baseHitChance * 1.7), 1: format(baseHitChance * 6.5) };
   }
 
   function getPlayerShipsWithActions(player?: EntityIndex): Action[] {
@@ -647,6 +653,7 @@ export async function createUtilities(
     secondsIntoTurn,
     bigNumToEntityID,
     checkActionPossible,
+    getShipOwner,
     getPlayerShips,
     getPlayerShipsWithMoves,
     getPlayerShipsWithActions,
@@ -673,6 +680,7 @@ export async function createUtilities(
     destroyGroupObject,
     renderFiringArea,
     renderCircle,
+    getFiringAreaPixels,
     renderShip,
     getShipName,
   };

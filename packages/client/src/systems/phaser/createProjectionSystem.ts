@@ -14,7 +14,7 @@ import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
 import { Phase } from "../../types";
 import { getFinalPosition } from "../../utils/directions";
-import { getSternLocation } from "../../utils/trig";
+import { getSternPosition } from "../../utils/trig";
 import { getRangeTintAlpha } from "./renderShip";
 
 export function createProjectionSystem(MUD: SetupResult) {
@@ -114,7 +114,7 @@ export function createProjectionSystem(MUD: SetupResult) {
 
     const color =
       outOfBounds(currentTime, finalPosition) ||
-      outOfBounds(currentTime, getSternLocation(finalPosition, finalRotation, length))
+      outOfBounds(currentTime, getSternPosition(finalPosition, finalRotation, length))
         ? colors.redHex
         : colors.whiteHex;
 

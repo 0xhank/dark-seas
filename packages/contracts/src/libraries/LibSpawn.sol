@@ -57,24 +57,33 @@ library LibSpawn {
   }
 
   /**
-   * @notice  generates a random location using random seed
+   * @notice  generates a random position using random seed
    * @param   components  world components
    * @param   r  random seed
-   * @return  Coord  randomly generated location
+   * @return  Coord  randomly generated position
    */
-  function getRandomLocation(IUint256Component components, uint256 r) public view returns (Coord memory) {
-    uint32 worldSize = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).worldSize;
-
-    uint32 distance = worldSize - 40;
-    uint32 rotation = uint32(LibUtils.getByteUInt(r, 14, 14) % 360);
-
-    Coord memory location = LibVector.getPositionByVector(Coord(0, 0), 0, distance, rotation);
-
-    return location;
+  function getRandomPosition(IUint256Component components, uint256 r) public view returns (Coord memory) {
+    uint32 worldHeight = GameConfigComponent(getAddressById(components, GameConfigComponentID))
+      .getValue(GodID)
+      .worldSize;
+    uint32 worldWidth = (worldHeight * 16) / 9;
+    bool useWidth = r % 2 == 1;
+    uint256 y = 0;
+    uint256 x = 0;
+    if (useWidth) {
+      x = (LibUtils.getByteUInt(r, 14, 14) % worldWidth) - 40;
+      y = worldHeight - 40;
+    } else {
+      x = worldWidth - 40;
+      y = (LibUtils.getByteUInt(r, 14, 14) % worldHeight) - 40;
+    }
+    int32 retY = r % 4 < 2 ? int32(uint32(y)) : 0 - int32(uint32(y));
+    int32 retX = r % 8 < 4 ? int32(uint32(x)) : 0 - int32(uint32(x));
+    return Coord(retX, retY);
   }
 
   /**
-   * @notice  points ships kinda towards the center of the map based on their location
+   * @notice  points ships kinda towards the center of the map based on their position
    * @param   a  coordinate of ship
    * @return  uint32  direction to face
    */
@@ -92,27 +101,27 @@ library LibSpawn {
    * @param   world  world in question
    * @param   components  world components
    * @param   playerEntity  player's entity id
-   * @param   startingLocation location at which to spawn (currently used as source of randomness hehe)
+   * @param   startingPosition position at which to spawn (currently used as source of randomness hehe)
    */
   function spawn(
     IWorld world,
     IUint256Component components,
     uint256 playerEntity,
-    Coord memory startingLocation
+    Coord memory startingPosition
   ) public {
-    uint256 nonce = uint256(keccak256(abi.encode(startingLocation)));
+    uint256 nonce = uint256(keccak256(abi.encode(startingPosition, playerEntity)));
     uint256 buyin = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).buyin;
-    startingLocation = getRandomLocation(components, LibUtils.randomness(playerEntity, nonce));
+    startingPosition = getRandomPosition(components, LibUtils.randomness(playerEntity, nonce));
 
-    uint32 rotation = pointKindaTowardsTheCenter(startingLocation);
+    uint32 rotation = pointKindaTowardsTheCenter(startingPosition);
 
     uint256[] memory shipPrototypeEntities = GameConfigComponent(getAddressById(components, GameConfigComponentID))
       .getValue(GodID)
       .shipPrototypes;
 
     for (uint256 i = 0; i < shipPrototypeEntities.length; i++) {
-      spawnShip(components, world, playerEntity, startingLocation, rotation, shipPrototypeEntities[i], buyin);
-      startingLocation = Coord(startingLocation.x + 20, startingLocation.y);
+      spawnShip(components, world, playerEntity, startingPosition, rotation, shipPrototypeEntities[i], buyin);
+      startingPosition = Coord(startingPosition.x + 20, startingPosition.y);
     }
 
     LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 0);
@@ -125,14 +134,14 @@ library LibSpawn {
    * @param   components  creates a ship
    * @param   world  world
    * @param   playerEntity  entity id of ship's owner
-   * @param   location  starting location of ship
+   * @param   position  starting position of ship
    * @param   rotation  starting rotation of ship
    */
   function spawnShip(
     IUint256Component components,
     IWorld world,
     uint256 playerEntity,
-    Coord memory location,
+    Coord memory position,
     uint32 rotation,
     uint256 shipPrototypeEntity,
     uint256 startingBooty
@@ -152,7 +161,7 @@ library LibSpawn {
     ShipComponent(getAddressById(components, ShipComponentID)).set(shipEntity);
 
     uint32 maxHealth = 10;
-    PositionComponent(getAddressById(components, PositionComponentID)).set(shipEntity, location);
+    PositionComponent(getAddressById(components, PositionComponentID)).set(shipEntity, position);
     RotationComponent(getAddressById(components, RotationComponentID)).set(shipEntity, rotation);
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
     OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(shipEntity, playerEntity);

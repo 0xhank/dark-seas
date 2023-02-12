@@ -32,6 +32,7 @@ export function createActionSelectionSystem(MUD: SetupResult) {
       HoveredAction,
       Targeted,
       DamagedCannonsLocal,
+      LastAction,
     },
     godEntity,
     network: { clock },
@@ -43,6 +44,8 @@ export function createActionSelectionSystem(MUD: SetupResult) {
       isMyShip,
       handleNewActionsCannon,
       renderFiringArea,
+      getShipOwner,
+      getTurn,
     },
   } = MUD;
 
@@ -171,7 +174,11 @@ export function createActionSelectionSystem(MUD: SetupResult) {
       const firingPolygon = renderFiringArea(activeGroup, position, rotation, length, cannonEntity, rangeColor);
       const actionType = loaded ? ActionType.Fire : ActionType.Load;
 
-      if (damagedCannons || !myShip || (cannotAdd && !cannonSelected)) return;
+      const shipOwner = getShipOwner(shipEntity);
+      const currentTurn = getTurn();
+      if (!shipOwner) return;
+      const acted = getComponentValue(LastAction, shipOwner)?.value == currentTurn;
+      if (damagedCannons || !myShip || acted || (cannotAdd && !cannonSelected)) return;
       firingPolygon.setInteractive(firingPolygon.geom, Phaser.Geom.Polygon.Contains);
       firingPolygon.on("pointerdown", () => handleNewActionsCannon(actionType, cannonEntity));
       firingPolygon.on("pointerover", () =>

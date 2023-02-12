@@ -6,7 +6,7 @@ import { useMUD } from "../../MUDContext";
 import { colors, Container } from "../styles/global";
 
 type ShipData = {
-  location: Coord;
+  position: Coord;
   1: number;
   2: number;
   3: number;
@@ -42,10 +42,10 @@ export function DamageChance() {
     const x = Math.round(((shipObject.x - cam.worldView.x) * cam.zoom) / 2);
     const y = Math.round(((shipObject.y - cam.worldView.y) * cam.zoom) / 2);
 
-    const location = { x, y };
+    const position = { x, y };
     const hitChances = getDamageLikelihood(cannonEntity, ship);
     if (!hitChances) return curr;
-    return [...curr, { location, ...hitChances }];
+    return [...curr, { position, ...hitChances }];
   }, []);
 
   const prefix = "/img/explosions/explosion";
@@ -58,11 +58,11 @@ export function DamageChance() {
         {data.map((ship) => {
           return (
             <DamageContainer
-              top={ship.location.y}
-              left={ship.location.x}
+              top={ship.position.y}
+              left={ship.position.x}
               width={width}
               borderRadius={borderRadius}
-              key={`ship-${ship.location.x}-${ship.location.y}`}
+              key={`ship-${ship.position.x}-${ship.position.y}`}
             >
               <StatContainer fontSize={fontSize}>
                 <img src={prefix + "1.png"} /> {ship[1]}%
