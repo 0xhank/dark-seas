@@ -93,6 +93,29 @@ contract DamageTest is DarkSeasTest {
     assertEq(healthComponent.getValue(shipEntity), health - 1);
   }
 
+  function testFireDeathNoAttacker() public prank(deployer) {
+    setup();
+    uint256 shipEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
+    OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
+    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+
+    componentDevSystem.executeTyped(HealthComponentID, shipEntity, abi.encode(1));
+    componentDevSystem.executeTyped(OnFireComponentID, shipEntity, abi.encode(2));
+
+    vm.warp(LibTurn.getTurnAndPhaseTime(components, 69, Phase.Action));
+
+    Action memory action = Action({
+      shipEntity: shipEntity,
+      actionTypes: [ActionType.None, ActionType.None],
+      metadata: [none, none]
+    });
+    actions.push(action);
+
+    actionSystem.executeTyped(actions);
+
+    assertEq(healthComponent.getValue(shipEntity), 0);
+  }
+
   function testDamagedSailEffect() public prank(deployer) {
     setup();
 

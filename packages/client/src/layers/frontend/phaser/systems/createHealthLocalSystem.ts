@@ -29,6 +29,8 @@ export function createHealthLocalSystem(phaser: PhaserLayer) {
       DamagedCannons,
       SailPosition,
       HealthBackend,
+      SelectedActions,
+      SelectedMove,
     },
     utils: { getSpriteObject, getPlayerEntity },
     scene: { config },
@@ -78,6 +80,8 @@ export function createHealthLocalSystem(phaser: PhaserLayer) {
     shipObject.setTexture(sprite.assetKey, sprite.frame);
 
     if (health == 0) {
+      removeComponent(SelectedActions, update.entity);
+      removeComponent(SelectedMove, update.entity);
       shipObject.setAlpha(0.5);
       shipObject.setDepth(RenderDepth.Foreground4);
     } else {

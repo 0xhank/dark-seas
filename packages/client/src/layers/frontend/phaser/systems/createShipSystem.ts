@@ -13,9 +13,7 @@ import {
 } from "@latticexyz/recs";
 import { Sprites } from "../../../../types";
 import { getShipSprite } from "../../../../utils/ships";
-import { getMidpoint, getSternLocation } from "../../../../utils/trig";
-import { Category } from "../../../backend/sound/library";
-import { Animations, MOVE_LENGTH, RenderDepth, SHIP_RATIO } from "../constants";
+import { MOVE_LENGTH, RenderDepth, SHIP_RATIO } from "../constants";
 import { PhaserLayer } from "../types";
 
 export function createShipSystem(phaser: PhaserLayer) {
@@ -188,37 +186,7 @@ export function createShipSystem(phaser: PhaserLayer) {
 
     const length = getComponentValueStrict(Length, shipEntity).value;
 
-    if (outOfBounds(position) || outOfBounds(getSternLocation(position, rotation, length))) {
-      const midpoint = getShipMidpoint(shipEntity);
-      const healthLocal = getComponentValueStrict(HealthLocal, shipEntity).value;
-      setComponent(HealthLocal, shipEntity, { value: healthLocal - 1 });
-      setComponent(HealthBackend, shipEntity, { value: healthLocal - 1 });
-
-      const explosionId = `explosion-move-${shipEntity}`;
-      const explosion = getSpriteObject(explosionId);
-      explosion.setOrigin(0.5, 0.5);
-      explosion.setPosition(midpoint.x, midpoint.y);
-      explosion.setDepth(RenderDepth.UI5);
-      playSound("impact_ship_1", Category.Combat);
-
-      explosion.play(Animations.Explosion);
-
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      destroySpriteObject(explosionId);
-      setComponent(SailPositionLocal, shipEntity, { value: 0 });
-    }
-
     object.setAngle((rotation - 90) % 360);
     object.setPosition(coord.x, coord.y);
-  }
-
-  function getShipMidpoint(shipEntity: EntityIndex) {
-    const position = getComponentValueStrict(Position, shipEntity);
-    const rotation = getComponentValue(Rotation, shipEntity)?.value || 0;
-    const length = getComponentValue(Length, shipEntity)?.value || 10;
-    const midpoint = getMidpoint(position, rotation, length);
-
-    return tileCoordToPixelCoord(midpoint, posWidth, posHeight);
   }
 }

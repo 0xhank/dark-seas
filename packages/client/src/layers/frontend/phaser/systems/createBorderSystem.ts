@@ -38,17 +38,15 @@ export function createBorderSystem(phaser: PhaserLayer) {
   defineRxSystem(world, clock.time$, () => {
     if (secondsIntoTurn(DELAY) != 0) return;
 
-    const formerTurn = (getTurn(DELAY) || 1) - 1;
-    const formerDims = getWorldDimsAtTurn(formerTurn);
     const borderGroup = getGroupObject("borderGroup");
     const dims = getWorldDimsAtTurn();
+    const width = dims.width * posHeight * 2;
+    const height = dims.height * posWidth * 2;
     phaserScene.tweens.add({
       targets: borderGroup.getChildren(),
       props: {
-        scaleX: dims.width / formerDims.width,
-        scaleY: dims.height / formerDims.height,
-        width: dims.width,
-        height: dims.height,
+        displayHeight: height,
+        displayWidth: width,
       },
       ease: Phaser.Math.Easing.Quadratic.InOut,
       duration: 2000,

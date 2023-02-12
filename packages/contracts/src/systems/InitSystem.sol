@@ -24,10 +24,10 @@ contract InitSystem is System {
     MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
     GameConfigComponent gameConfigComponent = GameConfigComponent(getAddressById(components, GameConfigComponentID));
 
-    uint256[] memory shipEntities = new uint256[](2);
+    uint256[] memory shipEntities = new uint256[](3);
     CannonPrototype[] memory cannonEntities1 = new CannonPrototype[](4);
-    cannonEntities1[0] = CannonPrototype({ rotation: 90, firepower: 65, range: 60 });
-    cannonEntities1[1] = CannonPrototype({ rotation: 270, firepower: 65, range: 60 });
+    cannonEntities1[0] = CannonPrototype({ rotation: 90, firepower: 60, range: 60 });
+    cannonEntities1[1] = CannonPrototype({ rotation: 270, firepower: 60, range: 60 });
     cannonEntities1[2] = CannonPrototype({ rotation: 345, firepower: 50, range: 50 });
     cannonEntities1[3] = CannonPrototype({ rotation: 15, firepower: 50, range: 50 });
 
@@ -49,23 +49,29 @@ contract InitSystem is System {
 
     shipEntities[1] = LibCreateShip.createShip(components, shipPrototype);
 
+    CannonPrototype[] memory cannonEntities3 = new CannonPrototype[](2);
+    cannonEntities3[0] = CannonPrototype({ rotation: 90, firepower: 70, range: 120 });
+    cannonEntities3[1] = CannonPrototype({ rotation: 270, firepower: 70, range: 120 });
+    shipPrototype = ShipPrototype({ length: 8, maxHealth: 10, speed: 80, cannons: cannonEntities3 });
+
+    shipEntities[2] = LibCreateShip.createShip(components, shipPrototype);
     gameConfigComponent.set(
       GodID,
       GameConfig({
         startTime: block.timestamp,
-        commitPhaseLength: 22,
+        commitPhaseLength: 24,
         revealPhaseLength: 9,
-        actionPhaseLength: 22,
-        worldSize: 120,
+        actionPhaseLength: 24,
+        worldSize: 150,
         perlinSeed: 420,
         shipPrototypes: shipEntities,
-        entryCutoffTurns: 60, // entry is closed after the 60th turn (~1 hour)
-        buyin: 1000,
+        entryCutoffTurns: 7, // entry is closed after the 60th turn (~1 hour)
+        buyin: 0,
         respawnAllowed: true,
         // Calculation: Every turn, the world shrinks by gameConfig.shrinkrate / 100.
         // If shrink rate is 100, the world will shrink by 1 each turn.
         // Shrinking starts once entry is cutoff and ends when the world size is 50.
-        shrinkRate: 0
+        shrinkRate: 500
       })
     );
 

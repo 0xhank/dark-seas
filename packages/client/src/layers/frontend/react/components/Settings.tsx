@@ -9,7 +9,7 @@ export function registerSettings() {
   registerUIComponent(
     // name
     "Settings",
-    // grid location
+    // grid position
     {
       rowStart: 1,
       rowEnd: 3,

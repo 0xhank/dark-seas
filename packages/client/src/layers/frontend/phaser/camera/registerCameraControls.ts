@@ -39,7 +39,8 @@ export function registerCameraControls<S extends ScenesConfig>(layer: PhaserLaye
       const newDisplayDim = currDisplayDim * (deltaY < 0 ? 0.92 : 1.08);
       const worldDims = getWorldDimsAtTurn();
 
-      const maxDim = useHeight ? worldDims.height : worldDims.width * posWidth * 2;
+      const mapView = useHeight ? worldDims.height : worldDims.width * posWidth * 2;
+      const maxDim = Math.max(mapView, 6000);
       if (deltaY >= 0 && (newZoom < config.cameraConfig.minZoom || maxDim <= newDisplayDim)) return;
       if (deltaY <= 0 && newZoom > config.cameraConfig.maxZoom) return;
 

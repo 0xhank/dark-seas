@@ -345,16 +345,27 @@ contract MoveSystemTest is DarkSeasTest {
     console.logInt(finalResult);
   }
 
-  function testGetPerlin() public {
-    getValue(Coord({ x: 66, y: -210 }));
+  function testMoveSuicide() public prank(deployer) {
+    setup();
+    ComponentDevSystem componentDevSystem = ComponentDevSystem(system(ComponentDevSystemID));
+    GameConfigComponent gameConfigComponent = GameConfigComponent(getAddressById(components, GameConfigComponentID));
 
-    // perlinResult = Perlin.noise2d(0, 1, 69, 64);
-    // console.log("perlin result:");
-    // console.logInt(perlinResult);
+    GameConfig memory gameConfig = gameConfigComponent.getValue(GodID);
+    gameConfig.worldSize = 10;
+    gameConfigComponent.set(GodID, gameConfig);
 
-    // perlinResult = Perlin.noise2d(0, 2, 69, 64);
-    // console.log("perlin result:");
-    // console.logInt(perlinResult);
+    Coord memory position = Coord({ x: 0, y: 0 });
+    uint32 rotation = 90;
+    uint256 shipEntity = spawnShip(position, rotation, deployer);
+    componentDevSystem.executeTyped(HealthComponentID, shipEntity, abi.encode(1));
+
+    uint256 moveCardEntity = uint256(keccak256("ds.prototype.moveEntity1"));
+    moves.push(Move({ moveCardEntity: moveCardEntity, shipEntity: shipEntity }));
+
+    commitAndExecuteMove(1, moves);
+
+    uint32 health = HealthComponent(getAddressById(components, HealthComponentID)).getValue(shipEntity);
+    assertEq(health, 0);
   }
 
   /**

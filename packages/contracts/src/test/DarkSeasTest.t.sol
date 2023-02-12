@@ -28,14 +28,14 @@ contract DarkSeasTest is MudTest {
     IUint256Component components,
     IWorld world,
     uint256 playerEntity,
-    Coord memory location,
+    Coord memory position,
     uint32 rotation
   ) private returns (uint256 shipEntity) {
     shipEntity = world.getUniqueEntityId();
     ShipComponent(getAddressById(components, ShipComponentID)).set(shipEntity);
 
     uint32 maxHealth = 10;
-    PositionComponent(getAddressById(components, PositionComponentID)).set(shipEntity, location);
+    PositionComponent(getAddressById(components, PositionComponentID)).set(shipEntity, position);
     RotationComponent(getAddressById(components, RotationComponentID)).set(shipEntity, rotation);
     LengthComponent(getAddressById(components, LengthComponentID)).set(shipEntity, 10);
     HealthComponent(getAddressById(components, HealthComponentID)).set(shipEntity, maxHealth);

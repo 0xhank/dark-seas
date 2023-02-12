@@ -47,6 +47,12 @@ export async function createBackendUtilities(
     return owner == myAddress;
   }
 
+  function getShipOwner(shipEntity: EntityIndex) {
+    const owner = getComponentValue(OwnedBy, shipEntity)?.value;
+    if (!owner) return;
+    return world.entityToIndex.get(owner);
+  }
+
   function checkActionPossible(action: ActionType, ship: EntityIndex): boolean {
     if (isNaN(action)) return false;
     if (action == ActionType.None) return false;
@@ -138,7 +144,7 @@ export async function createBackendUtilities(
     const baseHitChance = getBaseHitChance(dist, firepower * (1 + kills / 10));
 
     const format = (n: number) => Math.min(100, Math.round(n));
-    return { 3: format(baseHitChance), 2: format(baseHitChance * 1.7), 1: format(baseHitChance * 4.5) };
+    return { 3: format(baseHitChance), 2: format(baseHitChance * 1.7), 1: format(baseHitChance * 6.5) };
   }
 
   function getPlayerShipsWithActions(player?: EntityIndex): Action[] {
@@ -407,5 +413,6 @@ export async function createBackendUtilities(
     muteMusic,
     inWorld,
     getWorldDimsAtTurn,
+    getShipOwner,
   };
 }
