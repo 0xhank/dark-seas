@@ -23,11 +23,11 @@ import { colors } from "../react/styles/global";
 import { Category, soundLibrary } from "../sound";
 import { Action, ActionType, DELAY, Move, Phase, Sprites } from "../types";
 import { distance } from "../utils/distance";
-import { getShipSprite } from "../utils/ships";
+import { cap, getHash, getShipSprite } from "../utils/ships";
 import { getFiringArea, getSternLocation, inFiringArea } from "../utils/trig";
+import { adjectives, nouns } from "../wordlist";
 import { clientComponents, components } from "./components";
 import { polygonRegistry, spriteRegistry, world } from "./world";
-
 export async function createUtilities(
   godEntity: EntityIndex,
   playerAddress: string,
@@ -614,6 +614,23 @@ export async function createUtilities(
     group.add(circle, true);
   }
 
+  const nameRegistry = new Map<EntityID, string>();
+
+  function getShipName(shipEntity: EntityIndex) {
+    const shipID = world.entities[shipEntity];
+    const value = nameRegistry.get(shipID);
+    if (value) return value;
+
+    const hash = getHash(shipID);
+    const adjective = adjectives[hash % adjectives.length];
+    const newHash = getHash(`${hash}`);
+    const noun = nouns[newHash % nouns.length];
+
+    const name = cap(adjective) + " " + cap(noun);
+    nameRegistry.set(shipID, name);
+    return name;
+  }
+
   startEnvironmentSoundSystem();
   playMusic();
 
@@ -654,5 +671,6 @@ export async function createUtilities(
     renderFiringArea,
     renderCircle,
     renderShip,
+    getShipName,
   };
 }

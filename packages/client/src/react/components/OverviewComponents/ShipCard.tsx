@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { useMUD } from "../../../MUDContext";
 import { usePlayer } from "../../../PlayerContext";
 import { ActionType } from "../../../types";
-import { getShipName, getShipSprite, ShipImages } from "../../../utils/ships";
+import { getShipSprite, ShipImages } from "../../../utils/ships";
 import { BoxImage } from "../../styles/global";
 import { ShipAttributeTypes } from "../../types";
 import HullHealth from "./HullHealth";
@@ -13,7 +13,7 @@ import ShipDamage from "./ShipDamage";
 
 export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
   const {
-    utils: { getPlayerEntity, getTurn },
+    utils: { getPlayerEntity, getTurn, getShipName },
     components: {
       MaxHealth,
       Rotation,

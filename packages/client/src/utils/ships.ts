@@ -1,32 +1,23 @@
 import { EntityIndex } from "@latticexyz/recs";
 import { Sprites } from "../types";
-import { adjectives, nouns } from "../wordlist";
 
-const nameRegistry = new Map<EntityIndex, string>();
-export function getShipName(shipEntity: EntityIndex) {
-  const value = nameRegistry.get(shipEntity);
-  if (value) return value;
-
-  const hash = getHash(shipEntity);
-  const adjective = adjectives[hash % adjectives.length];
-  const newHash = getHash(hash);
-  const noun = nouns[newHash % nouns.length];
-
-  const name = cap(adjective) + " " + cap(noun);
-  nameRegistry.set(shipEntity, name);
-  return name;
-}
-
-function cap(string: string) {
+export function cap(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-function getHash(a: number) {
-  let t = (a += 0x6d2b79f5);
-  t = Math.imul(t ^ (t >>> 15), t | 1);
-  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-  return (t ^ (t >>> 14)) >>> 0;
+export function getHash(input: string) {
+  let hash = 0,
+    i,
+    chr;
+  if (input.length === 0) return hash;
+  for (i = 0; i < input.length; i++) {
+    chr = input.charCodeAt(i);
+    hash = (hash << 5) - hash + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
 }
+
 export function getShipSprite(ownerEntity: EntityIndex, health: number, mine: boolean): Sprites {
   if (mine) {
     if (health > 7) return Sprites.ShipWhite;
@@ -34,7 +25,7 @@ export function getShipSprite(ownerEntity: EntityIndex, health: number, mine: bo
     else if (health > 0) return Sprites.ShipWhiteMajor;
   }
 
-  const color = getShipColor(ownerEntity);
+  const color = getShipColor(`${ownerEntity}`);
 
   if (color == ShipColors.Red) {
     if (health > 7) return Sprites.ShipRed;
@@ -66,7 +57,7 @@ export function getShipSprite(ownerEntity: EntityIndex, health: number, mine: bo
   return Sprites.ShipBlack;
 }
 
-export function getShipColor(src: number): ShipColors {
+export function getShipColor(src: string): ShipColors {
   return getHash(src) % 5;
 }
 

@@ -22,7 +22,6 @@ export function createBorderSystem(MUD: SetupResult) {
     const height = dims.height * POS_WIDTH * 2;
     const border = phaserScene.add.rectangle(0, 0, width, height);
     border.setStrokeStyle(50, colors.whiteHex);
-    // border.setFillStyle(0xff0000);
     border.setDepth(RenderDepth.Background1);
     borderGroup.add(border);
 

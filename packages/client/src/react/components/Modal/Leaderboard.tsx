@@ -3,13 +3,13 @@ import { getComponentEntities } from "@latticexyz/recs";
 import styled from "styled-components";
 import { world } from "../../../mud/world";
 import { useMUD } from "../../../MUDContext";
-import { getShipName } from "../../../utils/ships";
 import { colors } from "../../styles/global";
 import { PlayerData, ShipData } from "../Modal";
 
 export function Leaderboard() {
   const {
     components: { Ship, HealthLocal, Kills, Booty, OwnedBy, Name },
+    utils: { getShipName },
   } = useMUD();
   let players: PlayerData[] = [];
   let ships: ShipData[] = [];
