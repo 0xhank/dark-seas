@@ -15,7 +15,7 @@ export function getHash(input: string) {
     hash = (hash << 5) - hash + chr;
     hash |= 0; // Convert to 32bit integer
   }
-  return hash;
+  return Math.abs(hash);
 }
 
 export function getShipSprite(ownerEntity: EntityIndex, health: number, mine: boolean): Sprites {

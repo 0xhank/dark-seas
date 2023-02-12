@@ -1,31 +1,13 @@
-import { useComponentValue, useObservableValue } from "@latticexyz/react";
-import { EntityIndex, getComponentEntities, getComponentValue } from "@latticexyz/recs";
-import { merge } from "rxjs";
 import { useMUD } from "../../MUDContext";
 import { Category } from "../../sound";
-import { colors, ConfirmButton, Success } from "../styles/global";
+import { ConfirmButton, Success } from "../styles/global";
 
-export function CommitButtons({ yourShips }: { yourShips: EntityIndex[] }) {
+export function CommitButtons({ acted }: { acted: boolean }) {
   const {
-    components: { SelectedMove, EncodedCommitment, CommittedMove },
+    components: { SelectedMove },
     utils: { getPlayerShipsWithMoves, playSound, clearComponent },
     api: { commitMove },
-    godEntity,
   } = useMUD();
-
-  const encodedCommitment = useComponentValue(EncodedCommitment, godEntity)?.value;
-
-  useObservableValue(merge(CommittedMove.update$, SelectedMove.update$));
-
-  const movesComplete = yourShips.every((shipEntity) => {
-    const committedMove = getComponentValue(CommittedMove, shipEntity)?.value;
-    const selectedMove = getComponentValue(SelectedMove, shipEntity)?.value;
-    return committedMove == selectedMove;
-  });
-
-  const selectedMoves = [...getComponentEntities(SelectedMove)];
-  const someShipUnselected = selectedMoves.length != yourShips.length;
-  const acted = encodedCommitment !== undefined;
 
   const handleSubmitCommitment = () => {
     const shipsAndMoves = getPlayerShipsWithMoves();
@@ -38,18 +20,13 @@ export function CommitButtons({ yourShips }: { yourShips: EntityIndex[] }) {
 
   const removeMoves = () => clearComponent(SelectedMove);
 
-  if (movesComplete && encodedCommitment) {
+  if (acted) {
     return <Success>Moves Successful!</Success>;
   }
   return (
     <>
       <ConfirmButton style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }} onClick={handleSubmitCommitment}>
         Confirm Moves
-        {someShipUnselected && (
-          <p style={{ color: colors.darkerGray, fontSize: "0.75rem" }}>
-            You haven't selected a move for one of your ships!
-          </p>
-        )}
       </ConfirmButton>
       <ConfirmButton noGoldBorder onClick={removeMoves} style={{ flex: 2, fontSize: "1rem", lineHeight: "1.25rem" }}>
         Clear

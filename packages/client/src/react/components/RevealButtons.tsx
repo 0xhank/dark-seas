@@ -1,21 +1,14 @@
-import { useComponentValue, useObservableValue } from "@latticexyz/react";
+import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "../../MUDContext";
-import { usePlayer } from "../../PlayerContext";
 import { ConfirmButton, Success } from "../styles/global";
 
-export function RevealButtons() {
+export function RevealButtons({ acted }: { acted: boolean }) {
   const {
-    components: { LastMove, EncodedCommitment },
-    utils: { getTurn },
+    components: { EncodedCommitment },
     api: { revealMove },
     godEntity,
-    network: { clock },
   } = useMUD();
 
-  const time = useObservableValue(clock.time$) || 0;
-  const currentTurn = getTurn(time);
-  const playerEntity = usePlayer();
-  const acted = useComponentValue(LastMove, playerEntity, { value: 0 }).value == currentTurn;
   const encodedCommitment = useComponentValue(EncodedCommitment, godEntity)?.value;
 
   const handleSubmitExecute = () => {

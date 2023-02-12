@@ -1,25 +1,14 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
-import {
-  EntityIndex,
-  getComponentEntities,
-  getComponentValue,
-  getComponentValueStrict,
-  Has,
-  HasValue,
-  runQuery,
-  setComponent,
-} from "@latticexyz/recs";
+import { EntityIndex, getComponentValue, Has, HasValue, runQuery, setComponent } from "@latticexyz/recs";
 import { merge } from "rxjs";
 import styled from "styled-components";
 import { world } from "../../mud/world";
 import { useMUD } from "../../MUDContext";
 import { usePlayer } from "../../PlayerContext";
-import { ActionType, ModalType, Phase } from "../../types";
+import { ModalType, Phase } from "../../types";
+import { ConfirmButtons } from "../ConfirmButtons";
 import { Button, colors, Container } from "../styles/global";
-import { ActionButtons } from "./ActionButtons";
 import { Cell } from "./Cell";
-import { CommitButtons } from "./CommitButtons";
-import { RevealButtons } from "./RevealButtons";
 import { YourShip } from "./YourShip";
 
 const gridConfig = { gridRowStart: 9, gridRowEnd: 13, gridColumnStart: 1, gridColumnEnd: 13 };
@@ -29,27 +18,15 @@ export function YourShips() {
     network: { clock },
     utils: { getPhase, getTurn },
     godEntity,
-    actions: { Action },
-    components: {
-      SelectedShip,
-      SelectedMove,
-      SelectedActions,
-      EncodedCommitment,
-      HealthLocal,
-      ModalOpen,
-      OwnedBy,
-      LastAction,
-      Ship,
-    },
+    components: { SelectedShip, HealthLocal, ModalOpen, OwnedBy, Ship },
     api: { respawn: apiRespawn },
     utils: { getGameConfig },
   } = useMUD();
 
   const time = useObservableValue(clock.time$) || 0;
-
-  useObservableValue(merge(HealthLocal.update$, SelectedMove.update$, SelectedActions.update$, LastAction.update$));
   const phase: Phase | undefined = getPhase(time);
-  const currentTurn = getTurn(time);
+
+  useObservableValue(merge(HealthLocal.update$));
 
   const playerEntity = usePlayer();
 
@@ -63,41 +40,9 @@ export function YourShips() {
 
   const respawn = () => apiRespawn(allYourShips);
 
-  const encodedCommitment = useComponentValue(EncodedCommitment, godEntity)?.value;
-
-  const tooEarly = getPhase(time, false) !== phase;
-
-  const txExecuting = [...runQuery([Has(Action)])].length > 0;
-  let cannotAct = false;
-  let acted = false;
-  if (phase == Phase.Commit) {
-    const selectedMoves = [...getComponentEntities(SelectedMove)];
-    acted = encodedCommitment !== undefined;
-    cannotAct = selectedMoves.length == 0;
-  } else if (phase == Phase.Action) {
-    const selectedActions = [...getComponentEntities(SelectedActions)].map((entity) =>
-      getComponentValueStrict(SelectedActions, entity)
-    );
-    acted = getComponentValue(LastAction, playerEntity)?.value == currentTurn;
-    cannotAct =
-      !acted &&
-      (selectedActions.length == 0 ||
-        selectedActions.every((arr) => arr.actionTypes.every((elem) => elem == ActionType.None)));
-  }
-
-  const showExecuting = txExecuting && !acted;
-
-  const disabled = tooEarly || cannotAct || yourShips.length == 0;
-
   const isOpen = !!useComponentValue(ModalOpen, ModalType.BOTTOM_BAR, { value: true }).value;
 
   const toggleOpen = () => setComponent(ModalOpen, ModalType.BOTTOM_BAR, { value: !isOpen });
-
-  let content = null;
-  if (showExecuting) content = <Success>Executing...</Success>;
-  else if (phase == Phase.Reveal) content = <RevealButtons />;
-  else if (phase == Phase.Commit) content = <CommitButtons yourShips={yourShips} />;
-  else if (phase == Phase.Action) content = <ActionButtons yourShips={yourShips} />;
 
   return (
     <Cell style={gridConfig}>
@@ -120,7 +65,7 @@ export function YourShips() {
               />
             ))
           )}
-          <ConfirmButtonsContainer hide={disabled}>{disabled ? null : content}</ConfirmButtonsContainer>
+          <ConfirmButtons />
         </MoveButtons>
       </Container>
     </Cell>
@@ -176,21 +121,4 @@ const OpenCloseButton = styled.button`
   :focus {
     outline: 0;
   }
-`;
-const ConfirmButtonsContainer = styled.div<{ hide: boolean }>`
-  position: absolute;
-  margin: 0 auto;
-  top: 6px;
-  z-index: -1;
-  display: flex;
-  gap: 6px;
-  background: ${colors.darkBrown};
-
-  min-height: 70px;
-  border-radius: 10px 10px 0 0;
-  transform: ${({ hide }) => (hide ? "translateY(0)" : "translateY(-70px)")};
-  transition: all 0.2s ease-out;
-  width: 500px;
-
-  padding: 6px;
 `;

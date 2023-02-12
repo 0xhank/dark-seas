@@ -179,11 +179,10 @@ export async function createUtilities(
 
   function getPlayerShips(player?: EntityIndex) {
     if (!player) player = getPlayerEntity();
-    if (!player) return;
+    if (!player) return [];
     const ships = [
       ...runQuery([Has(components.Ship), HasValue(components.OwnedBy, { value: world.entities[player] })]),
     ];
-    if (ships.length == 0) return;
 
     return ships;
   }
@@ -622,9 +621,13 @@ export async function createUtilities(
     if (value) return value;
 
     const hash = getHash(shipID);
+    console.log("hash:", hash);
     const adjective = adjectives[hash % adjectives.length];
+    console.log("adjective:", adjective);
     const newHash = getHash(`${hash}`);
+    console.log("new hash:");
     const noun = nouns[newHash % nouns.length];
+    console.log("noun:", noun);
 
     const name = cap(adjective) + " " + cap(noun);
     nameRegistry.set(shipID, name);

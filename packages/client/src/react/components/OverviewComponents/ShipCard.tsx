@@ -48,12 +48,8 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
   const time = useObservableValue(clock.time$) || 0;
   const currentTurn = getTurn(time);
   const booty = useComponentValue(Booty, shipEntity)?.value;
-
-  let actionsExecuted = false;
-  if (playerEntity) {
-    const lastAction = useComponentValue(LastAction, playerEntity)?.value;
-    actionsExecuted = currentTurn == lastAction;
-  }
+  const lastAction = useComponentValue(LastAction, playerEntity)?.value;
+  const actionsExecuted = currentTurn == lastAction;
   const updates = actionsExecuted ? undefined : selectedActions?.actionTypes;
 
   const updatedSailPosition = updates?.includes(ActionType.LowerSail)
