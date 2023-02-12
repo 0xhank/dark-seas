@@ -1,8 +1,8 @@
 import { getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
 import { ActionState, ActionStateString } from "@latticexyz/std-client";
-import { useMUD } from "../../MUDContext";
-import { Container } from "../styles/global";
-import { Cell } from "./Cell";
+import { useMUD } from "../../../MUDContext";
+import { Container } from "../../styles/global";
+import { Cell } from "../Cell";
 
 const gridConfig = {
   gridRowStart: 4,

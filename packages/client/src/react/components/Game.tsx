@@ -3,22 +3,22 @@ import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import styled from "styled-components";
 import { useMUD } from "../../MUDContext";
 import { PlayerProvider } from "../../PlayerContext";
+import { HoveredShip } from "../HoveredShip";
 import { BootScreen } from "./BootScreen";
-import { ComponentBrowser } from "./ComponentBrowser";
-import { HoveredShip } from "./HoveredShip";
+import { DamageChance } from "./DamageChance";
+import { ComponentBrowser } from "./Dev/ComponentBrowser";
 import { JoinGame } from "./JoinGame";
-import { Modal } from "./Modal";
+import { Modal } from "./Modals/Modal";
 import { Settings } from "./Settings";
+import { YourShips } from "./ShipStatus/YourShips";
 import { TopBar } from "./TopBar";
 import { TurnTimer } from "./TurnTimer";
-import { YourShips } from "./YourShips";
 
 export function Game() {
   const {
     components: { LoadingState, Player },
     godEntity,
     utils: { getPlayerEntity },
-    initialPlayerEntity,
   } = useMUD();
 
   // re render when a player is added
@@ -47,6 +47,7 @@ export function Game() {
           <Modal />
           <HoveredShip />
           <YourShips />
+          <DamageChance />
         </PlayerProvider>
       ) : (
         <JoinGame />

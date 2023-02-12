@@ -1,9 +1,9 @@
 import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex } from "@latticexyz/recs";
-import { useMUD } from "../../MUDContext";
-import { Container, InternalContainer } from "../styles/global";
-import { Cell } from "./Cell";
-import { ShipCard } from "./OverviewComponents/ShipCard";
+import { useMUD } from "../MUDContext";
+import { Cell } from "./components/Cell";
+import { ShipCard } from "./components/ShipStatus/ShipCard";
+import { Container, InternalContainer } from "./styles/global";
 
 const gridConfig = { gridRowStart: 2, gridRowEnd: 5, gridColumnStart: 10, gridColumnEnd: 13 };
 export function HoveredShip() {

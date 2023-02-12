@@ -1,11 +1,11 @@
 import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex, removeComponent } from "@latticexyz/recs";
-import { useMUD } from "../../MUDContext";
-import { ModalType } from "../../types";
-import { Container } from "../styles/global";
-import { Cell } from "./Cell";
-import { Leaderboard } from "./Modal/Leaderboard";
-import { Tutorial } from "./Modal/Tutorial";
+import { useMUD } from "../../../MUDContext";
+import { ModalType } from "../../../types";
+import { Container } from "../../styles/global";
+import { Cell } from "../Cell";
+import { Leaderboard } from "./Leaderboard";
+import { Tutorial } from "./Tutorial";
 
 export type ShipData = {
   name: string;

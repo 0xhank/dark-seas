@@ -1,6 +1,6 @@
-import { useMUD } from "../../MUDContext";
-import { Category } from "../../sound";
-import { ConfirmButton, Success } from "../styles/global";
+import { useMUD } from "../../../MUDContext";
+import { Category } from "../../../sound";
+import { ConfirmButton, Success } from "../../styles/global";
 
 export function ActionButtons({ acted }: { acted: boolean }) {
   const {

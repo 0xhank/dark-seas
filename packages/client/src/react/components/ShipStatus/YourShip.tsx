@@ -2,12 +2,12 @@ import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex, removeComponent, setComponent } from "@latticexyz/recs";
 import color from "color";
 import styled from "styled-components";
-import { useMUD } from "../../MUDContext";
-import { Phase } from "../../types";
-import { colors, InternalContainer } from "../styles/global";
-import { ActionSelection } from "./OverviewComponents/ActionSelection";
-import { MoveSelection } from "./OverviewComponents/MoveSelection";
-import { ShipCard } from "./OverviewComponents/ShipCard";
+import { useMUD } from "../../../MUDContext";
+import { Phase } from "../../../types";
+import { colors, InternalContainer } from "../../styles/global";
+import { ActionSelection } from "./ActionSelection";
+import { MoveSelection } from "./MoveSelection";
+import { ShipCard } from "./ShipCard";
 
 export const YourShip = ({
   shipEntity,

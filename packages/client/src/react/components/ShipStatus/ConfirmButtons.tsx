@@ -2,13 +2,13 @@ import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { getComponentEntities, getComponentValue, getComponentValueStrict, Has, runQuery } from "@latticexyz/recs";
 import { merge } from "rxjs";
 import styled from "styled-components";
-import { useMUD } from "../MUDContext";
-import { usePlayer } from "../PlayerContext";
-import { ActionType, Phase } from "../types";
-import { ActionButtons } from "./components/ActionButtons";
-import { CommitButtons } from "./components/CommitButtons";
-import { RevealButtons } from "./components/RevealButtons";
-import { colors, Success } from "./styles/global";
+import { useMUD } from "../../../MUDContext";
+import { usePlayer } from "../../../PlayerContext";
+import { ActionType, Phase } from "../../../types";
+import { colors, Success } from "../../styles/global";
+import { ActionButtons } from "./ActionButtons";
+import { CommitButtons } from "./CommitButtons";
+import { RevealButtons } from "./RevealButtons";
 
 export function ConfirmButtons() {
   const {

@@ -1,4 +1,5 @@
-import { EntityIndex, getComponentValue } from "@latticexyz/recs";
+import { useComponentValue, useObservableValue } from "@latticexyz/react";
+import { EntityIndex } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
 import styled from "styled-components";
 import { useMUD } from "../../MUDContext";
@@ -18,7 +19,7 @@ const gridConfig = {
   gridColumnEnd: 13,
 };
 
-export function registerDamageChance() {
+export function DamageChance() {
   const {
     components: { Loaded, HoveredAction },
     utils: { getTargetedShips, getDamageLikelihood, getSpriteObject },
@@ -26,14 +27,13 @@ export function registerDamageChance() {
     scene: { camera },
   } = useMUD();
 
-  const hoveredAction = getComponentValue(HoveredAction, godEntity);
+  const hoveredAction = useComponentValue(HoveredAction, godEntity);
+  const cannonEntity = hoveredAction?.specialEntity as EntityIndex;
+  const loaded = useComponentValue(Loaded, cannonEntity)?.value;
+  useObservableValue(HoveredAction.update$);
 
-  if (!hoveredAction) return null;
-  const cannonEntity = hoveredAction.specialEntity as EntityIndex;
+  if (!hoveredAction || !cannonEntity || !loaded) return null;
 
-  if (!cannonEntity) return null;
-
-  if (!getComponentValue(Loaded, cannonEntity)?.value) return null;
   const cam = camera.phaserCamera;
 
   const data = getTargetedShips(hoveredAction.specialEntity as EntityIndex).reduce((curr: ShipData[], ship) => {
@@ -49,9 +49,9 @@ export function registerDamageChance() {
   }, []);
 
   const prefix = "/img/explosions/explosion";
-  const width = cam.zoom * 100;
+  const width = cam.zoom * 150;
   const fontSize = cam.zoom;
-  const borderRadius = cam.zoom * 6;
+  const borderRadius = cam.zoom * 9;
   return (
     <Container style={gridConfig}>
       <div style={{ width: "100%", height: "100%", position: "relative" }}>
