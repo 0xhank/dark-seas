@@ -130,7 +130,7 @@ library LibMove {
       sailPositionComponent.set(move.shipEntity, 0);
     } else {
       uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(move.shipEntity);
-      Coord memory sternPosition = LibVector.getSternLocation(position, rotation, length);
+      Coord memory sternPosition = LibVector.getSternPosition(position, rotation, length);
       if (LibVector.outOfBounds(components, sternPosition)) {
         LibCombat.damageHull(components, 1, move.shipEntity);
         sailPositionComponent.set(move.shipEntity, 0);

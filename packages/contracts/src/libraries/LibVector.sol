@@ -54,14 +54,14 @@ library LibVector {
   }
 
   /**
-   * @notice  retrieves locations of both bow (front) and stern (back) of ship
+   * @notice  retrieves positions of both bow (front) and stern (back) of ship
    * @dev     bow is always the position and stern is calculated using getPositionByVector based on ship's rotation and length
    * @param   components  world components
    * @param   shipEntity  ship's entity id
    * @return  Coord  ship bow
    * @return  Coord  ship stern
    */
-  function getShipBowAndSternLocation(IUint256Component components, uint256 shipEntity)
+  function getShipBowAndSternPosition(IUint256Component components, uint256 shipEntity)
     public
     view
     returns (Coord memory, Coord memory)
@@ -77,7 +77,7 @@ library LibVector {
     uint32 rotation = rotationComponent.getValue(shipEntity);
 
     Coord memory shipPosition = positionComponent.getValue(shipEntity);
-    Coord memory sternPosition = getSternLocation(shipPosition, rotation, length);
+    Coord memory sternPosition = getSternPosition(shipPosition, rotation, length);
 
     return (shipPosition, sternPosition);
   }
@@ -89,7 +89,7 @@ library LibVector {
    * @param   length  ship length
    * @return  Coord  stern position
    */
-  function getSternLocation(
+  function getSternPosition(
     Coord memory originPosition,
     uint32 rotation,
     uint32 length
@@ -101,7 +101,7 @@ library LibVector {
    * @notice  checks if a point is within a quadrilateral
    * @dev  uses the winding algorithm to calculate if point is within the polygon comprised of coords
    *       https://visualgo.net/en/polygon
-   * @param   coords  locations of vertices of quadrilateral
+   * @param   coords  positions of vertices of quadrilateral
    * @param   point  to check if within coords
    * @return  bool  is the point within the coords?
    */
@@ -123,7 +123,7 @@ library LibVector {
    * @notice  checks if a point is within a triangle
    * @dev  uses the winding algorithm to calculate if point is within the polygon comprised of coords
    *       https://visualgo.net/en/polygon
-   * @param   coords  locations of vertices of triangle
+   * @param   coords  positions of vertices of triangle
    * @param   point  to check if within coords
    * @return  bool  is the point within the coords?
    */

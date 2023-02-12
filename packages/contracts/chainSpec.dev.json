@@ -1,0 +1,8 @@
+{
+  "chainId": 31337,
+  "chainBlockTime": 1,
+  "chainGasLimit": 100000000,
+  "rpc": "http://localhost:8545",
+  "wsRpc": "ws://localhost:8545",
+  "dev": true
+}

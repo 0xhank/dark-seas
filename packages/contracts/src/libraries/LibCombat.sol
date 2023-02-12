@@ -131,7 +131,7 @@ library LibCombat {
 
     // iterate through each ship, checking if it is within firing range
     for (uint256 i = 0; i < targetEntities.length; i++) {
-      (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, targetEntities[i]);
+      (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternPosition(components, targetEntities[i]);
       if (LibVector.withinPolygon3(firingRange, aft)) {
         uint256 distance = LibVector.distance(firingRange[0], aft);
         damageEnemy(components, shipEntity, targetEntities[i], distance, firepower);
@@ -165,7 +165,7 @@ library LibCombat {
 
     // iterate through each ship, checking if it is within firing range
     for (uint256 i = 0; i < targetEntities.length; i++) {
-      (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, targetEntities[i]);
+      (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternPosition(components, targetEntities[i]);
 
       if (LibVector.withinPolygon4(firingRange, aft)) {
         uint256 distance = LibVector.distance(firingRange[0], aft);
@@ -361,7 +361,7 @@ library LibCombat {
 
     if (cannonRotation >= 90 && cannonRotation < 270) {
       uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
-      position = LibVector.getSternLocation(position, shipRotation, length);
+      position = LibVector.getSternPosition(position, shipRotation, length);
     }
     Coord memory frontCorner = LibVector.getPositionByVector(
       position,
@@ -403,7 +403,7 @@ library LibCombat {
     uint32 rightRange = (cannonRotation + 10) % 360;
     uint32 leftRange = (cannonRotation + 350) % 360;
 
-    Coord memory sternPosition = LibVector.getSternLocation(position, shipRotation, length);
+    Coord memory sternPosition = LibVector.getSternPosition(position, shipRotation, length);
 
     Coord memory frontCorner;
     Coord memory backCorner;

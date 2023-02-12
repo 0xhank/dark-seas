@@ -16,23 +16,23 @@ import "../../libraries/LibVector.sol";
 contract LibVectorTest is DarkSeasTest {
   constructor() DarkSeasTest(new Deploy()) {}
 
-  function testGetSternLocation() public prank(deployer) {
+  function testGetSternPosition() public prank(deployer) {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 rotation = 45;
     uint32 length = 50;
 
-    Coord memory sternPosition = LibVector.getSternLocation(startingPosition, rotation, length);
+    Coord memory sternPosition = LibVector.getSternPosition(startingPosition, rotation, length);
 
-    Coord memory expectedLocation = Coord({ x: -35, y: -35 });
-    assertCoordEq(sternPosition, expectedLocation);
+    Coord memory expectedPosition = Coord({ x: -35, y: -35 });
+    assertCoordEq(sternPosition, expectedPosition);
   }
 
-  function testGetShipBowAndSternLocation() public prank(deployer) {
+  function testGetShipBowAndSternPosition() public prank(deployer) {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
     uint256 shipEntity = spawnShip(startingPosition, startingRotation, deployer);
 
-    (Coord memory bow, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, shipEntity);
+    (Coord memory bow, Coord memory stern) = LibVector.getShipBowAndSternPosition(components, shipEntity);
 
     assertCoordEq(startingPosition, bow);
     Coord memory expectedStern = Coord({ x: -7, y: -7 });

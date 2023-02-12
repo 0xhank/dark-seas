@@ -320,7 +320,7 @@ contract AttackActionTest is DarkSeasTest {
     Coord memory attackerPosition = PositionComponent(getAddressById(components, PositionComponentID)).getValue(
       attackerEntity
     );
-    (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternLocation(components, defenderEntity);
+    (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternPosition(components, defenderEntity);
 
     uint256 distance;
     uint256 randomness = LibUtils.randomness(attackerEntity, defenderEntity);
