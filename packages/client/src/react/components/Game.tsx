@@ -1,8 +1,8 @@
 import { SyncState } from "@latticexyz/network";
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import styled from "styled-components";
-import { useMUD } from "../../MUDContext";
-import { PlayerProvider } from "../../PlayerContext";
+import { useMUD } from "../../mud/providers/MUDProvider";
+import { PlayerProvider } from "../../mud/providers/PlayerProvider";
 import { HoveredShip } from "../HoveredShip";
 import { BootScreen } from "./BootScreen";
 import { DamageChance } from "./DamageChance";

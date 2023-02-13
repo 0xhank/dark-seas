@@ -17,7 +17,7 @@ import { SetupResult } from "../../setupMUD";
 import { Sprites } from "../../types";
 import { getShipSprite } from "../../utils/ships";
 
-export function createShipSystem(MUD: SetupResult) {
+export function shipTextureSystems(MUD: SetupResult) {
   const {
     world,
     godEntity,
@@ -27,7 +27,6 @@ export function createShipSystem(MUD: SetupResult) {
       SelectedMove,
       HoveredShip,
       HealthLocal,
-      HealthBackend,
       OnFireLocal,
       DamagedCannonsLocal,
       SailPositionLocal,
@@ -38,6 +37,7 @@ export function createShipSystem(MUD: SetupResult) {
       OnFire,
       DamagedCannons,
       SailPosition,
+      MaxHealth,
     },
     utils: { getSpriteObject, destroySpriteObject, destroyGroupObject, getPlayerEntity, outOfBounds, playSound },
     network: { clock },
@@ -45,8 +45,9 @@ export function createShipSystem(MUD: SetupResult) {
 
   defineEnterSystem(
     world,
-    [Has(HealthLocal), Has(Length), Has(Position), Has(Rotation), Has(OwnedBy), Has(SailPosition)],
+    [Has(HealthLocal), Has(MaxHealth), Has(Length), Has(Position), Has(Rotation), Has(OwnedBy), Has(SailPosition)],
     ({ entity: shipEntity }) => {
+      const maxHealth = getComponentValueStrict(MaxHealth, shipEntity).value;
       const health = getComponentValueStrict(HealthLocal, shipEntity).value;
       const position = getComponentValueStrict(Position, shipEntity);
       const length = getComponentValueStrict(Length, shipEntity).value;
@@ -57,7 +58,7 @@ export function createShipSystem(MUD: SetupResult) {
       if (!ownerEntity) return;
       const playerEntity = getPlayerEntity();
       const object = getSpriteObject(shipEntity);
-      const spriteAsset: Sprites = getShipSprite(ownerEntity, health, playerEntity == ownerEntity);
+      const spriteAsset: Sprites = getShipSprite(ownerEntity, health, maxHealth, playerEntity == ownerEntity);
       const sprite = sprites[spriteAsset];
 
       object.setTexture(sprite.assetKey, sprite.frame);
@@ -142,9 +143,7 @@ export function createShipSystem(MUD: SetupResult) {
       object.disableInteractive();
       destroySpriteObject(update.entity);
     }
-
     destroyGroupObject(`projection-${update.entity}`);
-    destroySpriteObject(`projection-${update.entity}`);
     removeComponent(SelectedMove, update.entity);
     if (update.entity == getComponentValue(SelectedShip, godEntity)?.value) {
       removeComponent(SelectedShip, godEntity);

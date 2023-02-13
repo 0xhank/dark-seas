@@ -1,7 +1,7 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { Has, runQuery, setComponent } from "@latticexyz/recs";
 import { useState } from "react";
-import { useMUD } from "../../MUDContext";
+import { useMUD } from "../../mud/providers/MUDProvider";
 import { ModalType } from "../../types";
 import { Button, colors, Input } from "../styles/global";
 import { Cell } from "./Cell";

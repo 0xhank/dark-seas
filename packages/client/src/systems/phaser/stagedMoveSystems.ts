@@ -6,18 +6,17 @@ import {
   getComponentValue,
   getComponentValueStrict,
   Has,
-  HasValue,
-  runQuery,
+  setComponent,
   UpdateType,
 } from "@latticexyz/recs";
+import { RenderDepth } from "../../phaser/constants";
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
 import { Phase } from "../../types";
 import { getFinalPosition } from "../../utils/directions";
 import { getSternPosition } from "../../utils/trig";
-import { getRangeTintAlpha } from "./renderShip";
 
-export function createProjectionSystem(MUD: SetupResult) {
+export function stagedMoveSystems(MUD: SetupResult) {
   const {
     world,
     components: {
@@ -25,7 +24,7 @@ export function createProjectionSystem(MUD: SetupResult) {
       Length,
       Rotation,
       MoveCard,
-      Cannon,
+      SelectedShip,
       OwnedBy,
       Speed,
       Loaded,
@@ -41,9 +40,11 @@ export function createProjectionSystem(MUD: SetupResult) {
       getPhase,
       outOfBounds,
       renderShip,
-      renderFiringArea,
+      renderShipFiringAreas,
+      renderMovePath,
     },
     network: { clock },
+    godEntity,
   } = MUD;
 
   /* --------------------------------------------- Selected Move update --------------------------------------------- */
@@ -62,7 +63,7 @@ export function createProjectionSystem(MUD: SetupResult) {
     const groupId = `projection-${shipEntity}`;
 
     if (type == UpdateType.Exit) {
-      destroySpriteObject(groupId);
+      destroyGroupObject(groupId);
       return;
     }
 
@@ -76,7 +77,21 @@ export function createProjectionSystem(MUD: SetupResult) {
     const sailPosition = getComponentValueStrict(SailPositionLocal, shipEntity).value;
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
 
-    renderShip(shipEntity, groupId, finalPosition, finalRotation, colors.darkGrayHex, 0.7);
+    const ship = renderShip(shipEntity, groupId, finalPosition, finalRotation, colors.darkGrayHex, 0.7, false);
+    if (!ship) return;
+    ship.setDepth(RenderDepth.Foreground6);
+    ship.setInteractive();
+    ship.on("pointerdown", () => {
+      setComponent(SelectedShip, godEntity, { value: shipEntity });
+    });
+
+    const length = getComponentValueStrict(Length, shipEntity).value;
+    const finalPositionRear = getSternPosition(finalPosition, finalRotation, length);
+    const path = renderMovePath(shipEntity, groupId, finalPositionRear);
+
+    const group = getGroupObject(groupId, true);
+    group.add(path);
+    group.add(ship);
   });
 
   /* ---------------------------------------------- Hovered Move update --------------------------------------------- */
@@ -100,17 +115,10 @@ export function createProjectionSystem(MUD: SetupResult) {
     const length = getComponentValueStrict(Length, shipEntity).value;
     const sailPosition = getComponentValueStrict(SailPositionLocal, shipEntity).value;
     const speed = getComponentValueStrict(Speed, shipEntity).value;
-    const damaged = getComponentValue(DamagedCannonsLocal, shipEntity)?.value != 0;
 
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
-    const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
 
-    cannonEntities.forEach((cannonEntity) => {
-      const loaded = getComponentValue(Loaded, cannonEntity);
-      const rangeColor = getRangeTintAlpha(!!loaded, false, damaged);
-
-      renderFiringArea(hoverGroup, finalPosition, finalRotation, length, cannonEntity, rangeColor);
-    });
+    renderShipFiringAreas(shipEntity, "activeShip", finalPosition, finalRotation);
 
     const color =
       outOfBounds(currentTime, finalPosition) ||

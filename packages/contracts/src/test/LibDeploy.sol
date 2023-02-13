@@ -186,11 +186,7 @@ library LibDeploy {
     deploySystems(address(result.world), true);
   }
 
-  function authorizeWriter(
-    IUint256Component components,
-    uint256 componentId,
-    address writer
-  ) internal {
+  function authorizeWriter(IUint256Component components, uint256 componentId, address writer) internal {
     IComponent(getAddressById(components, componentId)).authorizeWriter(writer);
   }
 

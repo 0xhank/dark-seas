@@ -1,7 +1,7 @@
 import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex } from "@latticexyz/recs";
 import styled from "styled-components";
-import { useMUD } from "../../../MUDContext";
+import { useMUD } from "../../../mud/providers/MUDProvider";
 
 export const MoveSelection = ({ shipEntity }: { shipEntity: EntityIndex }) => {
   const {

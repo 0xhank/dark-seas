@@ -3,7 +3,7 @@ import { POS_HEIGHT, POS_WIDTH, RenderDepth } from "../../phaser/constants";
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
 
-export function createBorderSystem(MUD: SetupResult) {
+export function borderSystems(MUD: SetupResult) {
   const {
     world,
     godEntity,
@@ -13,7 +13,7 @@ export function createBorderSystem(MUD: SetupResult) {
     network: { clock },
   } = MUD;
 
-  defineComponentSystem(world, GameConfig, (update) => {
+  defineComponentSystem(world, GameConfig, () => {
     const time = clock.currentTime;
     const dims = getWorldDimsAtTime(time);
     const borderGroup = getGroupObject("borderGroup", true);
@@ -36,7 +36,7 @@ export function createBorderSystem(MUD: SetupResult) {
   });
 
   defineRxSystem(world, clock.time$, () => {
-    // if (secondsIntoTurn(clock.currentTime) != 0) return;
+    if (secondsIntoTurn(clock.currentTime) != 0) return;
 
     const borderGroup = getGroupObject("borderGroup");
     const dims = getWorldDimsAtTime(clock.currentTime);

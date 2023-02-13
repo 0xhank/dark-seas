@@ -1,6 +1,6 @@
 import { getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
 import { ActionState, ActionStateString } from "@latticexyz/std-client";
-import { useMUD } from "../../../MUDContext";
+import { useMUD } from "../../../mud/providers/MUDProvider";
 import { Container } from "../../styles/global";
 import { Cell } from "../Cell";
 

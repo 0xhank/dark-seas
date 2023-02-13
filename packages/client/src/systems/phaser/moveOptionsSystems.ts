@@ -14,11 +14,11 @@ import { SetupResult } from "../../setupMUD";
 import { Phase } from "../../types";
 import { getFinalPosition } from "../../utils/directions";
 
-export function createMoveOptionsSystem(MUD: SetupResult) {
+export function moveOptionsSystems(MUD: SetupResult) {
   const {
     world,
     components: { Position, Rotation, SailPosition, MoveCard, Speed, SelectedShip, SelectedMove, HoveredMove },
-    utils: { destroySpriteObject, getPhase, isMyShip, renderShip },
+    utils: { destroySpriteObject, getPhase, isMyShip, renderShip, destroyGroupObject, renderShipFiringAreas },
     godEntity,
     network: { clock },
   } = MUD;
@@ -65,14 +65,18 @@ export function createMoveOptionsSystem(MUD: SetupResult) {
       const objectId = `optionGhost-${moveCardEntity}`;
       destroySpriteObject(objectId);
       const shipObject = renderShip(shipEntity, objectId, finalPosition, finalRotation, shipColor, 0.3);
-      if (!isMyShip(shipEntity)) return;
+      if (!shipObject) return;
       shipObject.setInteractive();
       shipObject.on("pointerdown", () => {
+        if (!isMyShip(shipEntity)) return;
         if (isSelected) return removeComponent(SelectedMove, shipEntity);
         setComponent(SelectedMove, shipEntity, { value: moveCardEntity });
       });
       shipObject.on("pointerover", () => setComponent(HoveredMove, godEntity, { shipEntity, moveCardEntity }));
-      shipObject.on("pointerout", () => removeComponent(HoveredMove, godEntity));
+      shipObject.on("pointerout", () => {
+        removeComponent(HoveredMove, godEntity);
+        destroyGroupObject("activeShip");
+      });
     });
   }
 }

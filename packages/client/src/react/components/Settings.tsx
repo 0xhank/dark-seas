@@ -1,7 +1,7 @@
 import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex, setComponent } from "@latticexyz/recs";
 import styled from "styled-components";
-import { useMUD } from "../../MUDContext";
+import { useMUD } from "../../mud/providers/MUDProvider";
 import { ModalType } from "../../types";
 import { Button, Img } from "../styles/global";
 import { Cell } from "./Cell";

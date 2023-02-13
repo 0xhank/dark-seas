@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MUDProvider } from "./MUDContext";
+import { MUDProvider } from "./mud/providers/MUDProvider";
 import { Game } from "./react/components/Game";
 import { BackgroundImg } from "./react/styles/global";
 import { setupMUD, SetupResult } from "./setupMUD";

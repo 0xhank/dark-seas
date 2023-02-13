@@ -1,7 +1,7 @@
 import { Browser as ECSBrowser, createBrowserDevComponents } from "@latticexyz/ecs-browser";
 import { Layer } from "@latticexyz/recs";
 import { useState } from "react";
-import { useMUD } from "../../../MUDContext";
+import { useMUD } from "../../../mud/providers/MUDProvider";
 
 export const ComponentBrowser = () => {
   const { world, components } = useMUD();

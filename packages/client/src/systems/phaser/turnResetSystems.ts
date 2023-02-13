@@ -1,8 +1,8 @@
-import { defineRxSystem, getComponentEntities, getComponentValue } from "@latticexyz/recs";
+import { defineRxSystem, EntityIndex, getComponentEntities, getComponentValue } from "@latticexyz/recs";
 import { SetupResult } from "../../setupMUD";
 import { Phase } from "../../types";
 
-export function createResetSystem(MUD: SetupResult) {
+export function turnResetSystems(MUD: SetupResult) {
   const {
     world,
     godEntity,
@@ -19,6 +19,7 @@ export function createResetSystem(MUD: SetupResult) {
       LastMove,
       LastAction,
       MoveCard,
+      SelectedShip,
     },
     api: { commitMove, revealMove, submitActions },
     network: { clock },
@@ -33,6 +34,7 @@ export function createResetSystem(MUD: SetupResult) {
       getPlayerShipsWithMoves,
       getPlayerShipsWithActions,
       getPlayerShips,
+      renderShipFiringAreas,
       clearComponent,
     },
   } = MUD;
@@ -58,22 +60,13 @@ export function createResetSystem(MUD: SetupResult) {
           destroySpriteObject(`projection-${ship}`);
           destroyGroupObject(`projection-${ship}`);
         });
-        destroyGroupObject("selectedActions");
+        destroyGroupObject("activeShip");
         destroyGroupObject("hoveredFiringArea");
         clearComponent(SelectedActions);
         clearComponent(HoveredAction);
         clearComponent(ExecutedActions);
         clearComponent(ExecutedCannon);
         clearComponent(Targeted);
-      }
-
-      // END OF PHASE
-      if (timeToNextPhase == 1) {
-        const encodedCommitment = getComponentValue(EncodedCommitment, godEntity)?.value;
-        if (encodedCommitment) return;
-        const shipsAndMoves = getPlayerShipsWithMoves();
-        if (!shipsAndMoves) return;
-        commitMove(shipsAndMoves);
       }
     }
 
@@ -85,6 +78,11 @@ export function createResetSystem(MUD: SetupResult) {
         if (encoding) revealMove(encoding);
       }
       if (timeToNextPhase !== gameConfig.revealPhaseLength) return;
+      const encodedCommitment = getComponentValue(EncodedCommitment, godEntity)?.value;
+      if (encodedCommitment) return;
+      const shipsAndMoves = getPlayerShipsWithMoves();
+      if (!shipsAndMoves) return;
+      commitMove(shipsAndMoves);
 
       [...getComponentEntities(MoveCard)].forEach((moveCardEntity) => {
         const objectId = `optionGhost-${moveCardEntity}`;
@@ -111,6 +109,8 @@ export function createResetSystem(MUD: SetupResult) {
         clearComponent(EncodedCommitment);
         clearComponent(CommittedMove);
         clearComponent(SelectedMove);
+        const selectedShip = getComponentValue(SelectedShip, godEntity)?.value as EntityIndex | undefined;
+        if (selectedShip) renderShipFiringAreas(selectedShip, "activeShip");
       }
       // END OF PHASE
       if (timeToNextPhase == 1) {

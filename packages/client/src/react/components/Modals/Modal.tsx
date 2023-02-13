@@ -1,6 +1,6 @@
 import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex, removeComponent } from "@latticexyz/recs";
-import { useMUD } from "../../../MUDContext";
+import { useMUD } from "../../../mud/providers/MUDProvider";
 import { ModalType } from "../../../types";
 import { Container } from "../../styles/global";
 import { Cell } from "../Cell";

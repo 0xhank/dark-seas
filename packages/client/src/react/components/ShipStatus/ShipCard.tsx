@@ -1,8 +1,8 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { EntityID, EntityIndex } from "@latticexyz/recs";
 import styled from "styled-components";
-import { useMUD } from "../../../MUDContext";
-import { usePlayer } from "../../../PlayerContext";
+import { useMUD } from "../../../mud/providers/MUDProvider";
+import { usePlayer } from "../../../mud/providers/PlayerProvider";
 import { ActionType } from "../../../types";
 import { getShipSprite, ShipImages } from "../../../utils/ships";
 import { BoxImage } from "../../styles/global";
@@ -67,7 +67,7 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
         {playerEntity !== ownerEntity && <span>{ownerName}</span>}
         <BoxImage>
           <img
-            src={ShipImages[getShipSprite(ownerEntity, health, ownerEntity == playerEntity)]}
+            src={ShipImages[getShipSprite(ownerEntity, health, maxHealth, ownerEntity == playerEntity)]}
             style={{
               objectFit: "scale-down",
               left: "50%",

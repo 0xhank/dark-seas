@@ -4,7 +4,7 @@ import { DSTileset } from "../../phaser/assets/tilesets/dsTilesheet";
 import { POS_HEIGHT, TILE_HEIGHT } from "../../phaser/constants";
 import { SetupResult } from "../../setupMUD";
 
-export function createTileSystem(MUD: SetupResult) {
+export function tilemapSystems(MUD: SetupResult) {
   const {
     world,
     components: { GameConfig },

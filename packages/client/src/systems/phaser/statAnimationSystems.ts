@@ -15,7 +15,7 @@ import { SetupResult } from "../../setupMUD";
 import { Category } from "../../sound";
 import { getSternPosition, midpoint } from "../../utils/trig";
 
-export function createStatAnimationSystem(MUD: SetupResult) {
+export function statAnimationSystems(MUD: SetupResult) {
   const {
     world,
     components: { Position, Rotation, Length, Cannon, OwnedBy, HealthLocal, OnFireLocal, DamagedCannonsLocal },
@@ -28,7 +28,7 @@ export function createStatAnimationSystem(MUD: SetupResult) {
       destroyGroupObject,
       isMyShip,
       playSound,
-      renderFiringArea,
+      renderCannonFiringArea,
     },
   } = MUD;
 
@@ -182,7 +182,7 @@ export function createStatAnimationSystem(MUD: SetupResult) {
       const length = getComponentValueStrict(Length, shipEntity).value;
       const rotation = getComponentValueStrict(Rotation, shipEntity).value;
       const rangeColor = { tint, alpha: 0.5 };
-      renderFiringArea(group, position, rotation, length, cannonEntity, rangeColor);
+      renderCannonFiringArea(group, position, rotation, length, cannonEntity, rangeColor);
     });
 
     phaserScene.tweens.add({

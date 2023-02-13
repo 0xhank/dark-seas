@@ -1,4 +1,4 @@
-import { useMUD } from "../../../MUDContext";
+import { useMUD } from "../../../mud/providers/MUDProvider";
 import { Category } from "../../../sound";
 import { ConfirmButton, Success } from "../../styles/global";
 

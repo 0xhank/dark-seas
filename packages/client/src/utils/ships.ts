@@ -18,39 +18,40 @@ export function getHash(input: string) {
   return Math.abs(hash);
 }
 
-export function getShipSprite(ownerEntity: EntityIndex, health: number, mine: boolean): Sprites {
+export function getShipSprite(ownerEntity: EntityIndex, health: number, maxHealth: number, mine: boolean): Sprites {
+  const healthPct = health / maxHealth;
   if (mine) {
-    if (health > 7) return Sprites.ShipWhite;
-    else if (health > 4) return Sprites.ShipWhiteMinor;
-    else if (health > 0) return Sprites.ShipWhiteMajor;
+    if (healthPct > 0.66) return Sprites.ShipWhite;
+    else if (healthPct > 0.33) return Sprites.ShipWhiteMinor;
+    else if (healthPct > 0) return Sprites.ShipWhiteMajor;
   }
 
   const color = getShipColor(`${ownerEntity}`);
 
   if (color == ShipColors.Red) {
-    if (health > 7) return Sprites.ShipRed;
-    else if (health > 4) return Sprites.ShipRedMinor;
-    else if (health > 0) return Sprites.ShipRedMajor;
+    if (healthPct > 0.66) return Sprites.ShipRed;
+    else if (healthPct > 0.33) return Sprites.ShipRedMinor;
+    else if (healthPct > 0) return Sprites.ShipRedMajor;
     else return Sprites.ShipRedDead;
   } else if (color == ShipColors.Yellow) {
-    if (health > 7) return Sprites.ShipYellow;
-    else if (health > 4) return Sprites.ShipYellowMinor;
-    else if (health > 0) return Sprites.ShipYellowMajor;
+    if (healthPct > 0.66) return Sprites.ShipYellow;
+    else if (healthPct > 0.33) return Sprites.ShipYellowMinor;
+    else if (healthPct > 0) return Sprites.ShipYellowMajor;
     else return Sprites.ShipYellowDead;
   } else if (color == ShipColors.Black) {
-    if (health > 7) return Sprites.ShipBlack;
-    else if (health > 4) return Sprites.ShipBlackMinor;
-    else if (health > 0) return Sprites.ShipBlackMajor;
+    if (healthPct > 0.66) return Sprites.ShipBlack;
+    else if (healthPct > 0.33) return Sprites.ShipBlackMinor;
+    else if (healthPct > 0) return Sprites.ShipBlackMajor;
     else return Sprites.ShipBlackDead;
   } else if (color == ShipColors.Blue) {
-    if (health > 7) return Sprites.ShipBlue;
-    else if (health > 4) return Sprites.ShipBlueMinor;
-    else if (health > 0) return Sprites.ShipBlueMajor;
+    if (healthPct > 0.66) return Sprites.ShipBlue;
+    else if (healthPct > 0.33) return Sprites.ShipBlueMinor;
+    else if (healthPct > 0) return Sprites.ShipBlueMajor;
     else return Sprites.ShipBlueDead;
   } else if (color == ShipColors.Green) {
-    if (health > 7) return Sprites.ShipGreen;
-    else if (health > 4) return Sprites.ShipGreenMinor;
-    else if (health > 0) return Sprites.ShipGreenMajor;
+    if (healthPct > 0.66) return Sprites.ShipGreen;
+    else if (healthPct > 0.33) return Sprites.ShipGreenMinor;
+    else if (healthPct > 0) return Sprites.ShipGreenMajor;
     else return Sprites.ShipGreenDead;
   }
 

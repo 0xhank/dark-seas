@@ -1,8 +1,8 @@
 import { useComponentValue } from "@latticexyz/react";
 import { getComponentEntities } from "@latticexyz/recs";
 import styled from "styled-components";
+import { useMUD } from "../../../mud/providers/MUDProvider";
 import { world } from "../../../mud/world";
-import { useMUD } from "../../../MUDContext";
 import { colors } from "../../styles/global";
 import { PlayerData, ShipData } from "./Modal";
 

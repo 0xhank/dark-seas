@@ -2,7 +2,7 @@ import { defineComponentSystem, defineUpdateSystem, EntityIndex, getComponentVal
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
 
-export function createShipCircleSystem(MUD: SetupResult) {
+export function shipCircleSystems(MUD: SetupResult) {
   const {
     world,
     components: { Position, Length, Rotation, SelectedShip, HoveredShip },
@@ -35,7 +35,6 @@ export function createShipCircleSystem(MUD: SetupResult) {
     const rotation = getComponentValueStrict(Rotation, shipEntity).value;
     const shipColor = colors.whiteHex;
 
-    console.log("adding hover circle");
     renderCircle(hoveredGroup, position, length, rotation, shipColor, 0.15);
   });
 
