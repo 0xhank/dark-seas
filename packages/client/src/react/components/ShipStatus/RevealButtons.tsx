@@ -1,5 +1,5 @@
 import { useComponentValue } from "@latticexyz/react";
-import { useMUD } from "../../../MUDContext";
+import { useMUD } from "../../../mud/providers/MUDProvider";
 import { ConfirmButton, Success } from "../../styles/global";
 
 export function RevealButtons({ acted }: { acted: boolean }) {

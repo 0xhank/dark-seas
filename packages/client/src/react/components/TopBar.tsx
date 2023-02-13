@@ -1,6 +1,6 @@
 import { useComponentValue } from "@latticexyz/react";
 import styled from "styled-components";
-import { useMUD } from "../../MUDContext";
+import { useMUD } from "../../mud/providers/MUDProvider";
 import { ShipAttributeTypes } from "../types";
 import { Cell } from "./Cell";
 import ShipAttribute from "./ShipStatus/ShipAttribute";

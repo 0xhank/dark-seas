@@ -2,7 +2,7 @@ import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex, removeComponent, setComponent } from "@latticexyz/recs";
 import color from "color";
 import styled from "styled-components";
-import { useMUD } from "../../../MUDContext";
+import { useMUD } from "../../../mud/providers/MUDProvider";
 import { Phase } from "../../../types";
 import { colors, InternalContainer } from "../../styles/global";
 import { ActionSelection } from "./ActionSelection";

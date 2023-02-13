@@ -5,30 +5,15 @@ import {
   defineNumberComponent,
   defineStringComponent,
 } from "@latticexyz/std-client";
-import { defineLoadingStateComponent } from "./components/";
-import { defineMoveCardComponent } from "./components/MoveCardComponent";
-import { world } from "./world";
+import { world } from "../world";
+import { GameConfigComponent } from "./GameConfigComponent";
+import { LoadingStateComponent } from "./LoadingStateComponent";
+import { MoveCardComponent } from "./MoveCardComponent";
 
 export const components = {
-  GameConfig: defineComponent(
-    world,
-    {
-      startTime: Type.String,
-      commitPhaseLength: Type.Number,
-      revealPhaseLength: Type.Number,
-      actionPhaseLength: Type.Number,
-      worldSize: Type.Number,
-      perlinSeed: Type.String,
-      shipPrototypes: Type.StringArray,
-      entryCutoffTurns: Type.Number,
-      buyin: Type.String,
-      respawnAllowed: Type.Boolean,
-      shrinkRate: Type.Number,
-    },
-    { id: "GameConfig", metadata: { contractId: "ds.component.GameConfig" } }
-  ),
-  LoadingState: defineLoadingStateComponent(world),
-  MoveCard: defineMoveCardComponent(world),
+  GameConfig: GameConfigComponent,
+  LoadingState: LoadingStateComponent,
+  MoveCard: MoveCardComponent,
   Position: defineCoordComponent(world, { id: "Position", metadata: { contractId: "ds.component.Position" } }),
   Rotation: defineNumberComponent(world, { id: "Rotation", metadata: { contractId: "ds.component.Rotation" } }),
   Length: defineNumberComponent(world, { id: "Length", metadata: { contractId: "ds.component.Length" } }),

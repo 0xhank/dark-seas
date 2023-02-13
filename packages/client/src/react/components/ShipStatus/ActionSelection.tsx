@@ -10,9 +10,9 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import styled from "styled-components";
+import { useMUD } from "../../../mud/providers/MUDProvider";
+import { usePlayer } from "../../../mud/providers/PlayerProvider";
 import { world } from "../../../mud/world";
-import { useMUD } from "../../../MUDContext";
-import { usePlayer } from "../../../PlayerContext";
 import { ActionImg, ActionNames, ActionType } from "../../../types";
 import { isBroadside } from "../../../utils/trig";
 import { Img, OptionButton } from "../../styles/global";

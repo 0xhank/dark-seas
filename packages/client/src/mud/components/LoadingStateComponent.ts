@@ -1,18 +1,17 @@
-import { defineComponent, Type, World } from "@latticexyz/recs";
+import { defineComponent, Type } from "@latticexyz/recs";
+import { world } from "../world";
 
-export function defineLoadingStateComponent(world: World) {
-  return defineComponent(
-    world,
-    {
-      state: Type.Number,
-      msg: Type.String,
-      percentage: Type.Number,
+export const LoadingStateComponent = defineComponent(
+  world,
+  {
+    state: Type.Number,
+    msg: Type.String,
+    percentage: Type.Number,
+  },
+  {
+    id: "LoadingState",
+    metadata: {
+      contractId: "component.LoadingState",
     },
-    {
-      id: "LoadingState",
-      metadata: {
-        contractId: "component.LoadingState",
-      },
-    }
-  );
-}
+  }
+);

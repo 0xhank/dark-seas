@@ -1,8 +1,8 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { EntityID, EntityIndex } from "@latticexyz/recs";
 import styled from "styled-components";
-import { useMUD } from "../../../MUDContext";
-import { usePlayer } from "../../../PlayerContext";
+import { useMUD } from "../../../mud/providers/MUDProvider";
+import { usePlayer } from "../../../mud/providers/PlayerProvider";
 import { ActionType } from "../../../types";
 import { getShipSprite, ShipImages } from "../../../utils/ships";
 import { BoxImage } from "../../styles/global";
