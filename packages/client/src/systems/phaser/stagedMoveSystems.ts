@@ -9,6 +9,7 @@ import {
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
+import { RenderDepth } from "../../phaser/constants";
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
 import { Phase } from "../../types";
@@ -76,6 +77,7 @@ export function stagedMoveSystems(MUD: SetupResult) {
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
 
     const ship = renderShip(shipEntity, groupId, finalPosition, finalRotation, colors.darkGrayHex, 0.7);
+    ship?.setDepth(RenderDepth.Foreground6);
     ship?.setInteractive();
     ship?.on("pointerdown", () => {
       setComponent(SelectedShip, godEntity, { value: shipEntity });
