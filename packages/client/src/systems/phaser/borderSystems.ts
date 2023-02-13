@@ -3,7 +3,7 @@ import { POS_HEIGHT, POS_WIDTH, RenderDepth } from "../../phaser/constants";
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
 
-export function createBorderSystem(MUD: SetupResult) {
+export function borderSystems(MUD: SetupResult) {
   const {
     world,
     godEntity,

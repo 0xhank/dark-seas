@@ -18,7 +18,7 @@ import { ActionType, Phase } from "../../types";
 
 import { getRangeTintAlpha } from "./renderShip";
 
-export function createActionSelectionSystem(MUD: SetupResult) {
+export function firingAreaSystems(MUD: SetupResult) {
   const {
     components: {
       Position,

@@ -14,7 +14,7 @@ import { SetupResult } from "../../setupMUD";
 import { Phase } from "../../types";
 import { getFinalPosition } from "../../utils/directions";
 
-export function createMoveOptionsSystem(MUD: SetupResult) {
+export function moveOptionsSystems(MUD: SetupResult) {
   const {
     world,
     components: { Position, Rotation, SailPosition, MoveCard, Speed, SelectedShip, SelectedMove, HoveredMove },

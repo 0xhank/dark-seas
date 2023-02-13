@@ -17,7 +17,7 @@ import { SetupResult } from "../../setupMUD";
 import { Sprites } from "../../types";
 import { getShipSprite } from "../../utils/ships";
 
-export function createShipSystem(MUD: SetupResult) {
+export function shipTextureSystems(MUD: SetupResult) {
   const {
     world,
     godEntity,

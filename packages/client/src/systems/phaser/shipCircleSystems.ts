@@ -2,7 +2,7 @@ import { defineComponentSystem, defineUpdateSystem, EntityIndex, getComponentVal
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
 
-export function createShipCircleSystem(MUD: SetupResult) {
+export function shipCircleSystems(MUD: SetupResult) {
   const {
     world,
     components: { Position, Length, Rotation, SelectedShip, HoveredShip },

@@ -15,7 +15,7 @@ import { SetupResult } from "../../setupMUD";
 import { Category } from "../../sound";
 import { getSternPosition, midpoint } from "../../utils/trig";
 
-export function createStatAnimationSystem(MUD: SetupResult) {
+export function statAnimationSystems(MUD: SetupResult) {
   const {
     world,
     components: { Position, Rotation, Length, Cannon, OwnedBy, HealthLocal, OnFireLocal, DamagedCannonsLocal },

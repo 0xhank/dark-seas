@@ -15,7 +15,7 @@ import { SetupResult } from "../../setupMUD";
 import { Sprites } from "../../types";
 import { getShipSprite } from "../../utils/ships";
 
-export function createHealthLocalSystem(MUD: SetupResult) {
+export function localHealthSystems(MUD: SetupResult) {
   const {
     world,
     components: {

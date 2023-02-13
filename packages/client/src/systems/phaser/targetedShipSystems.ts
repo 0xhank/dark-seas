@@ -2,7 +2,7 @@ import { defineComponentSystem } from "@latticexyz/recs";
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
 
-export function createTargetedSystem(MUD: SetupResult) {
+export function targetedShipSystems(MUD: SetupResult) {
   const {
     world,
     components: { Targeted },

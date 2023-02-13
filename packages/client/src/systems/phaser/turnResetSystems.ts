@@ -2,7 +2,7 @@ import { defineRxSystem, getComponentEntities, getComponentValue } from "@lattic
 import { SetupResult } from "../../setupMUD";
 import { Phase } from "../../types";
 
-export function createResetSystem(MUD: SetupResult) {
+export function turnResetSystems(MUD: SetupResult) {
   const {
     world,
     godEntity,

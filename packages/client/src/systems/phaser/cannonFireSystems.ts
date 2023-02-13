@@ -31,7 +31,7 @@ type Attack = {
   damagedCannons: boolean;
   toreSail: boolean;
 };
-export function createCannonAnimationSystem(MUD: SetupResult) {
+export function cannonFireSystems(MUD: SetupResult) {
   const {
     world,
     scene: { config, phaserScene },

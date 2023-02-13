@@ -11,7 +11,7 @@ import {
 import { POS_HEIGHT, POS_WIDTH } from "../../phaser/constants";
 import { SetupResult } from "../../setupMUD";
 
-export function createInputSystem(MUD: SetupResult) {
+export function inputSystems(MUD: SetupResult) {
   const {
     world,
     components: { SelectedShip, Position, OwnedBy },

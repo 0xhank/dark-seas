@@ -17,7 +17,7 @@ import { getFinalPosition } from "../../utils/directions";
 import { getSternPosition } from "../../utils/trig";
 import { getRangeTintAlpha } from "./renderShip";
 
-export function createProjectionSystem(MUD: SetupResult) {
+export function stagedMoveSystems(MUD: SetupResult) {
   const {
     world,
     components: {
