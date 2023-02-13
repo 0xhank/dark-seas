@@ -536,8 +536,11 @@ export async function createUtilities(
     const length = getComponentValueStrict(components.Length, shipEntity).value;
     const health = getComponentValueStrict(clientComponents.HealthLocal, shipEntity).value;
     const maxHealth = getComponentValueStrict(components.MaxHealth, shipEntity).value;
-
-    const spriteAsset: Sprites = getShipSprite(godEntity, health, maxHealth, true);
+    const ownerID = getComponentValueStrict(components.OwnedBy, shipEntity).value;
+    const ownerEntity = world.entityToIndex.get(ownerID);
+    const playerEntity = getPlayerEntity();
+    if (!ownerEntity) return;
+    const spriteAsset: Sprites = getShipSprite(ownerEntity, health, maxHealth, ownerEntity == playerEntity);
 
     const sprite = sprites[spriteAsset];
 

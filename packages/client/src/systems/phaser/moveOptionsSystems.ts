@@ -65,6 +65,7 @@ export function moveOptionsSystems(MUD: SetupResult) {
       const objectId = `optionGhost-${moveCardEntity}`;
       destroySpriteObject(objectId);
       const shipObject = renderShip(shipEntity, objectId, finalPosition, finalRotation, shipColor, 0.3);
+      if (!shipObject) return;
       shipObject.setInteractive();
       shipObject.on("pointerdown", () => {
         if (!isMyShip(shipEntity)) return;

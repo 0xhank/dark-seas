@@ -48,7 +48,6 @@ export function firingAreaSystems(MUD: SetupResult) {
     const loaded = getComponentValue(Loaded, cannonEntity)?.value;
 
     const strokeFill = { tint: loaded ? colors.cannonReadyHex : colors.goldHex, alpha: 0.5 };
-
     renderCannonFiringArea(hoveredGroup, position, rotation, length, cannonEntity, undefined, strokeFill);
   });
 

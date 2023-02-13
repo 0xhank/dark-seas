@@ -1,9 +1,10 @@
-import { useComponentValue, useObservableValue } from "@latticexyz/react";
+import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
 import styled from "styled-components";
 import { useMUD } from "../../mud/providers/MUDProvider";
 import { colors, Container } from "../styles/global";
+import { Cell } from "./Cell";
 
 type ShipData = {
   position: Coord;
@@ -30,7 +31,6 @@ export function DamageChance() {
   const hoveredAction = useComponentValue(HoveredAction, godEntity);
   const cannonEntity = hoveredAction?.specialEntity as EntityIndex;
   const loaded = useComponentValue(Loaded, cannonEntity)?.value;
-  useObservableValue(HoveredAction.update$);
 
   if (!hoveredAction || !cannonEntity || !loaded) return null;
 
@@ -47,37 +47,39 @@ export function DamageChance() {
     if (!hitChances) return curr;
     return [...curr, { position, ...hitChances }];
   }, []);
-
   const prefix = "/img/explosions/explosion";
   const width = cam.zoom * 150;
   const fontSize = cam.zoom;
   const borderRadius = cam.zoom * 9;
+  if (data.length == 0) return null;
   return (
-    <Container style={gridConfig}>
-      <div style={{ width: "100%", height: "100%", position: "relative" }}>
-        {data.map((ship) => {
-          return (
-            <DamageContainer
-              top={ship.position.y}
-              left={ship.position.x}
-              width={width}
-              borderRadius={borderRadius}
-              key={`ship-${ship.position.x}-${ship.position.y}`}
-            >
-              <StatContainer fontSize={fontSize}>
-                <img src={prefix + "1.png"} /> {ship[1]}%
-              </StatContainer>
-              <StatContainer fontSize={fontSize}>
-                <img src={prefix + "2.png"} /> {ship[2]}%
-              </StatContainer>
-              <StatContainer fontSize={fontSize}>
-                <img src={prefix + "3.png"} /> {ship[3]}%
-              </StatContainer>
-            </DamageContainer>
-          );
-        })}
-      </div>
-    </Container>
+    <Cell style={gridConfig}>
+      <Container>
+        <div style={{ width: "100%", height: "100%", position: "relative" }}>
+          {data.map((ship) => {
+            return (
+              <DamageContainer
+                top={ship.position.y}
+                left={ship.position.x}
+                width={width}
+                borderRadius={borderRadius}
+                key={`ship-${ship.position.x}-${ship.position.y}`}
+              >
+                <StatContainer fontSize={fontSize}>
+                  <img src={prefix + "1.png"} /> {ship[1]}%
+                </StatContainer>
+                <StatContainer fontSize={fontSize}>
+                  <img src={prefix + "2.png"} /> {ship[2]}%
+                </StatContainer>
+                <StatContainer fontSize={fontSize}>
+                  <img src={prefix + "3.png"} /> {ship[3]}%
+                </StatContainer>
+              </DamageContainer>
+            );
+          })}
+        </div>
+      </Container>
+    </Cell>
   );
 }
 

@@ -6,6 +6,7 @@ import {
   getComponentValue,
   getComponentValueStrict,
   Has,
+  setComponent,
   UpdateType,
 } from "@latticexyz/recs";
 import { colors } from "../../react/styles/global";
@@ -22,7 +23,7 @@ export function stagedMoveSystems(MUD: SetupResult) {
       Length,
       Rotation,
       MoveCard,
-      Cannon,
+      SelectedShip,
       OwnedBy,
       Speed,
       Loaded,
@@ -41,6 +42,7 @@ export function stagedMoveSystems(MUD: SetupResult) {
       renderShipFiringAreas,
     },
     network: { clock },
+    godEntity,
   } = MUD;
 
   /* --------------------------------------------- Selected Move update --------------------------------------------- */
@@ -73,7 +75,11 @@ export function stagedMoveSystems(MUD: SetupResult) {
     const sailPosition = getComponentValueStrict(SailPositionLocal, shipEntity).value;
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
 
-    renderShip(shipEntity, groupId, finalPosition, finalRotation, colors.darkGrayHex, 0.7);
+    const ship = renderShip(shipEntity, groupId, finalPosition, finalRotation, colors.darkGrayHex, 0.7);
+    ship?.setInteractive();
+    ship?.on("pointerdown", () => {
+      setComponent(SelectedShip, godEntity, { value: shipEntity });
+    });
   });
 
   /* ---------------------------------------------- Hovered Move update --------------------------------------------- */
