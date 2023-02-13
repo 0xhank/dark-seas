@@ -2,7 +2,7 @@ import { defineComponentSystem, getComponentValue, setComponent } from "@lattice
 import { POS_HEIGHT, POS_WIDTH } from "../../../phaser/constants";
 import { SetupResult } from "../../../setupMUD";
 
-export function createConstrainCameraSystem(MUD: SetupResult) {
+export function cameraConstraintSystems(MUD: SetupResult) {
   const {
     world,
     components: { MapBounds, Position },

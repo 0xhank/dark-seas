@@ -1,8 +1,7 @@
 import { SetupResult } from "../../../setupMUD";
-import { createConstrainCameraSystem } from "./createConstrainCameraSystem";
-import { registerCameraControls } from "./registerCameraControls";
-
+import { cameraConstraintSystems } from "./cameraConstraintSystems";
+import { cameraControlSystems } from "./registerCameraControls";
 export function createCamera(MUD: SetupResult) {
-  createConstrainCameraSystem(MUD);
-  registerCameraControls(MUD);
+  cameraConstraintSystems(MUD);
+  cameraControlSystems(MUD);
 }

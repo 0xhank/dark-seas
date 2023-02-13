@@ -21,6 +21,7 @@ import { sprites } from "../phaser/config";
 import { POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../phaser/constants";
 import { colors } from "../react/styles/global";
 import { Category, soundLibrary } from "../sound";
+import { getRangeTintAlpha } from "../systems/phaser/renderShip";
 import { Action, ActionType, DELAY, Move, Phase, Sprites } from "../types";
 import { distance } from "../utils/distance";
 import { cap, getHash, getShipSprite } from "../utils/ships";
@@ -566,7 +567,43 @@ export async function createUtilities(
     return getFiringArea(pixelPosition, range, length * POS_HEIGHT, rotation, cannonRotation);
   }
 
-  function renderFiringArea(
+  function renderShipFiringAreas(shipEntity: EntityIndex, groupId: string, position?: Coord, rotation?: number) {
+    const activeGroup = getGroupObject(groupId, true);
+
+    const selectedActions = getComponentValue(clientComponents.SelectedActions, shipEntity);
+    const cannonEntities = [
+      ...runQuery([Has(components.Cannon), HasValue(components.OwnedBy, { value: world.entities[shipEntity] })]),
+    ];
+    const damagedCannons = getComponentValue(clientComponents.DamagedCannonsLocal, shipEntity)?.value != 0;
+    const myShip = isMyShip(shipEntity);
+    cannonEntities.forEach((cannonEntity) => {
+      const loaded = getComponentValue(components.Loaded, cannonEntity);
+      const cannonSelected = selectedActions?.specialEntities.includes(world.entities[cannonEntity]);
+      const cannotAdd = selectedActions?.actionTypes.every((action, i) => action !== ActionType.None);
+
+      position = position || getComponentValueStrict(components.Position, shipEntity);
+      rotation = rotation || getComponentValueStrict(components.Rotation, shipEntity).value;
+      const length = getComponentValueStrict(components.Length, shipEntity).value;
+      const rangeColor = getRangeTintAlpha(!!loaded, !!cannonSelected, damagedCannons);
+      const firingPolygon = renderCannonFiringArea(activeGroup, position, rotation, length, cannonEntity, rangeColor);
+      const actionType = loaded ? ActionType.Fire : ActionType.Load;
+
+      const shipOwner = getShipOwner(shipEntity);
+      const currentTurn = getTurn(clock.currentTime);
+      const phase = getPhase(clock.currentTime);
+      if (!shipOwner) return;
+      const acted = getComponentValue(components.LastAction, shipOwner)?.value == currentTurn;
+      if (damagedCannons || !myShip || acted || (cannotAdd && !cannonSelected) || phase !== Phase.Action) return;
+      firingPolygon.setInteractive(firingPolygon.geom, Phaser.Geom.Polygon.Contains);
+      firingPolygon.on("pointerdown", () => handleNewActionsCannon(actionType, cannonEntity));
+      firingPolygon.on("pointerover", () =>
+        setComponent(clientComponents.HoveredAction, godEntity, { shipEntity, actionType, specialEntity: cannonEntity })
+      );
+      firingPolygon.on("pointerout", () => removeComponent(clientComponents.HoveredAction, godEntity));
+    });
+  }
+
+  function renderCannonFiringArea(
     group: Phaser.GameObjects.Group,
     position: Coord,
     rotation: number,
@@ -591,7 +628,6 @@ export async function createUtilities(
 
     return firingPolygon;
   }
-
   function renderCircle(
     group: Phaser.GameObjects.Group,
     position: Coord,
@@ -675,7 +711,8 @@ export async function createUtilities(
     getGroupObject,
     destroySpriteObject,
     destroyGroupObject,
-    renderFiringArea,
+    renderShipFiringAreas,
+    renderCannonFiringArea,
     renderCircle,
     getFiringAreaPixels,
     renderShip,

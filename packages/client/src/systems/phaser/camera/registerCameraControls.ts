@@ -4,7 +4,7 @@ import { phaserConfig } from "../../../phaser/config";
 import { POS_WIDTH } from "../../../phaser/constants";
 import { SetupResult } from "../../../setupMUD";
 
-export function registerCameraControls(MUD: SetupResult) {
+export function cameraControlSystems(MUD: SetupResult) {
   const {
     scene: { input, camera, phaserScene },
 

@@ -28,7 +28,7 @@ export function statAnimationSystems(MUD: SetupResult) {
       destroyGroupObject,
       isMyShip,
       playSound,
-      renderFiringArea,
+      renderCannonFiringArea,
     },
   } = MUD;
 
@@ -182,7 +182,7 @@ export function statAnimationSystems(MUD: SetupResult) {
       const length = getComponentValueStrict(Length, shipEntity).value;
       const rotation = getComponentValueStrict(Rotation, shipEntity).value;
       const rangeColor = { tint, alpha: 0.5 };
-      renderFiringArea(group, position, rotation, length, cannonEntity, rangeColor);
+      renderCannonFiringArea(group, position, rotation, length, cannonEntity, rangeColor);
     });
 
     phaserScene.tweens.add({

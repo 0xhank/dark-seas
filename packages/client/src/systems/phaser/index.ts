@@ -1,5 +1,6 @@
 import { SetupResult } from "../../setupMUD";
 import { borderSystems } from "./borderSystems";
+import { createCamera } from "./camera";
 import { cannonFireSystems } from "./cannonFireSystems";
 import { firingAreaSystems } from "./firingAreaSystems";
 import { inputSystems } from "./inputSystems";
@@ -27,4 +28,5 @@ export function createPhaserSystems(MUD: SetupResult) {
   targetedShipSystems(MUD);
   tilemapSystems(MUD);
   turnResetSystems(MUD);
+  createCamera(MUD);
 }
