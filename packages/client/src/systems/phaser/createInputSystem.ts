@@ -35,7 +35,6 @@ export function createInputSystem(MUD: SetupResult) {
     if (!playerEntity) return;
     if (owner != world.entities[playerEntity]) return;
 
-    console.log("setting shortcut for", entity);
     for (let i = 0; i < 5; i++) {
       const ship = shipKeyRegistry.has(NumberKeyNames[i]);
       if (!ship) return shipKeyRegistry.set(NumberKeyNames[i], entity);

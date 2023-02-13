@@ -534,8 +534,9 @@ export async function createUtilities(
 
     const length = getComponentValueStrict(components.Length, shipEntity).value;
     const health = getComponentValueStrict(clientComponents.HealthLocal, shipEntity).value;
+    const maxHealth = getComponentValueStrict(components.MaxHealth, shipEntity).value;
 
-    const spriteAsset: Sprites = getShipSprite(godEntity, health, true);
+    const spriteAsset: Sprites = getShipSprite(godEntity, health, maxHealth, true);
 
     const sprite = sprites[spriteAsset];
 
@@ -627,13 +628,9 @@ export async function createUtilities(
     if (value) return value;
 
     const hash = getHash(shipID);
-    console.log("hash:", hash);
     const adjective = adjectives[hash % adjectives.length];
-    console.log("adjective:", adjective);
     const newHash = getHash(`${hash}`);
-    console.log("new hash:");
     const noun = nouns[newHash % nouns.length];
-    console.log("noun:", noun);
 
     const name = cap(adjective) + " " + cap(noun);
     nameRegistry.set(shipID, name);

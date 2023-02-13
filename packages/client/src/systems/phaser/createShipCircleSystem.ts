@@ -35,7 +35,6 @@ export function createShipCircleSystem(MUD: SetupResult) {
     const rotation = getComponentValueStrict(Rotation, shipEntity).value;
     const shipColor = colors.whiteHex;
 
-    console.log("adding hover circle");
     renderCircle(hoveredGroup, position, length, rotation, shipColor, 0.15);
   });
 

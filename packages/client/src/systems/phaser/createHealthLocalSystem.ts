@@ -3,6 +3,7 @@ import {
   defineEnterSystem,
   defineSystem,
   getComponentValue,
+  getComponentValueStrict,
   Has,
   Not,
   removeComponent,
@@ -32,6 +33,7 @@ export function createHealthLocalSystem(MUD: SetupResult) {
       HealthBackend,
       SelectedActions,
       SelectedMove,
+      MaxHealth,
     },
     utils: { getSpriteObject, getPlayerEntity },
     scene: { config },
@@ -68,12 +70,13 @@ export function createHealthLocalSystem(MUD: SetupResult) {
   defineComponentSystem(world, HealthLocal, (update) => {
     if (update.value[0] === undefined || update.value[1] === undefined) return;
     const health = update.value[0].value;
+    const maxHealth = getComponentValueStrict(MaxHealth, update.entity)?.value;
     const shipObject = getSpriteObject(update.entity);
     const ownerEntity = getPlayerEntity(getComponentValue(OwnedBy, update.entity)?.value);
     const playerEntity = getPlayerEntity();
     if (!ownerEntity) return null;
 
-    const spriteAsset: Sprites = getShipSprite(ownerEntity, health, playerEntity == ownerEntity);
+    const spriteAsset: Sprites = getShipSprite(ownerEntity, health, maxHealth, playerEntity == ownerEntity);
 
     const sprite = sprites[spriteAsset];
 

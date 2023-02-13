@@ -67,7 +67,7 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
         {playerEntity !== ownerEntity && <span>{ownerName}</span>}
         <BoxImage>
           <img
-            src={ShipImages[getShipSprite(ownerEntity, health, ownerEntity == playerEntity)]}
+            src={ShipImages[getShipSprite(ownerEntity, health, maxHealth, ownerEntity == playerEntity)]}
             style={{
               objectFit: "scale-down",
               left: "50%",
