@@ -25,7 +25,7 @@ import { getRangeTintAlpha } from "../systems/phaser/renderShip";
 import { Action, ActionType, DELAY, Move, Phase, Sprites } from "../types";
 import { distance } from "../utils/distance";
 import { cap, getHash, getShipSprite } from "../utils/ships";
-import { getFiringArea, getSternPosition, inFiringArea } from "../utils/trig";
+import { getFiringArea, getPositionByVector, getSternPosition, inFiringArea } from "../utils/trig";
 import { adjectives, nouns } from "../wordlist";
 import { clientComponents, components } from "./components";
 import { polygonRegistry, spriteRegistry, world } from "./world";
@@ -489,6 +489,7 @@ export async function createUtilities(
   function destroySpriteObject(id: string | number) {
     const sprite = spriteRegistry.get(id);
     if (!sprite) return;
+    console.log("sprite:", sprite);
     sprite.disableInteractive();
 
     sprite.off("pointerdown");
@@ -513,6 +514,7 @@ export async function createUtilities(
     const group = polygonRegistry.get(id);
     if (!group) return;
     group.getChildren().forEach((child) => {
+      if (!child) return;
       child.disableInteractive();
 
       child.off("pointerdown");
@@ -523,15 +525,35 @@ export async function createUtilities(
     polygonRegistry.delete(id);
   }
 
+  function renderMovePath(shipEntity: EntityIndex, objectId: string, finalPosition: Coord) {
+    const origin = getComponentValueStrict(components.Position, shipEntity);
+    const initialRotation = getComponentValueStrict(components.Rotation, shipEntity).value;
+    const midpoint = getPositionByVector(origin, initialRotation, 20, 0);
+
+    const points = [origin, midpoint, finalPosition].map((coord) => {
+      const pixelPos = tileCoordToPixelCoord(coord, POS_HEIGHT, POS_WIDTH);
+      return new Phaser.Math.Vector2(pixelPos.x, pixelPos.y);
+    });
+
+    const path = new Phaser.Curves.QuadraticBezier(points[0], points[1], points[2]);
+
+    const graphics = mainScene.add.graphics();
+    graphics.lineStyle(8, 0xffffff);
+    path.draw(graphics, 16);
+
+    return graphics;
+  }
+
   function renderShip(
     shipEntity: EntityIndex,
     objectId: string,
     position: Coord,
     rotation: number,
     tint = colors.whiteHex,
-    alpha = 1
+    alpha = 1,
+    register = true
   ) {
-    const object = getSpriteObject(objectId);
+    const object = register ? getSpriteObject(objectId) : mainScene.add.sprite(0, 0, "none");
 
     const length = getComponentValueStrict(components.Length, shipEntity).value;
     const health = getComponentValueStrict(clientComponents.HealthLocal, shipEntity).value;
@@ -716,6 +738,7 @@ export async function createUtilities(
     destroyGroupObject,
     renderShipFiringAreas,
     renderCannonFiringArea,
+    renderMovePath,
     renderCircle,
     getFiringAreaPixels,
     renderShip,

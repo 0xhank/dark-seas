@@ -143,9 +143,7 @@ export function shipTextureSystems(MUD: SetupResult) {
       object.disableInteractive();
       destroySpriteObject(update.entity);
     }
-
     destroyGroupObject(`projection-${update.entity}`);
-    destroySpriteObject(`projection-${update.entity}`);
     removeComponent(SelectedMove, update.entity);
     if (update.entity == getComponentValue(SelectedShip, godEntity)?.value) {
       removeComponent(SelectedShip, godEntity);

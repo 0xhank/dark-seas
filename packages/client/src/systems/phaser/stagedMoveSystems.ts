@@ -41,6 +41,7 @@ export function stagedMoveSystems(MUD: SetupResult) {
       outOfBounds,
       renderShip,
       renderShipFiringAreas,
+      renderMovePath,
     },
     network: { clock },
     godEntity,
@@ -62,7 +63,7 @@ export function stagedMoveSystems(MUD: SetupResult) {
     const groupId = `projection-${shipEntity}`;
 
     if (type == UpdateType.Exit) {
-      destroySpriteObject(groupId);
+      destroyGroupObject(groupId);
       return;
     }
 
@@ -76,12 +77,21 @@ export function stagedMoveSystems(MUD: SetupResult) {
     const sailPosition = getComponentValueStrict(SailPositionLocal, shipEntity).value;
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
 
-    const ship = renderShip(shipEntity, groupId, finalPosition, finalRotation, colors.darkGrayHex, 0.7);
-    ship?.setDepth(RenderDepth.Foreground6);
-    ship?.setInteractive();
-    ship?.on("pointerdown", () => {
+    const ship = renderShip(shipEntity, groupId, finalPosition, finalRotation, colors.darkGrayHex, 0.7, false);
+    if (!ship) return;
+    ship.setDepth(RenderDepth.Foreground6);
+    ship.setInteractive();
+    ship.on("pointerdown", () => {
       setComponent(SelectedShip, godEntity, { value: shipEntity });
     });
+
+    const length = getComponentValueStrict(Length, shipEntity).value;
+    const finalPositionRear = getSternPosition(finalPosition, finalRotation, length);
+    const path = renderMovePath(shipEntity, groupId, finalPositionRear);
+
+    const group = getGroupObject(groupId, true);
+    group.add(path);
+    group.add(ship);
   });
 
   /* ---------------------------------------------- Hovered Move update --------------------------------------------- */
