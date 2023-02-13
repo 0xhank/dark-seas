@@ -20,7 +20,6 @@ export function getHash(input: string) {
 
 export function getShipSprite(ownerEntity: EntityIndex, health: number, maxHealth: number, mine: boolean): Sprites {
   const healthPct = health / maxHealth;
-  console.log("health percent:", healthPct);
   if (mine) {
     if (healthPct > 0.66) return Sprites.ShipWhite;
     else if (healthPct > 0.33) return Sprites.ShipWhiteMinor;

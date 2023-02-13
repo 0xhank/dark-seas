@@ -19,7 +19,7 @@ export const GameConfigComponent = defineComponent(
   {
     id: "GameConfig",
     metadata: {
-      contractId: "component.GameConfig",
+      contractId: "ds.component.GameConfig",
     },
   }
 );

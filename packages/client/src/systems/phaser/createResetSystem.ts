@@ -66,15 +66,6 @@ export function createResetSystem(MUD: SetupResult) {
         clearComponent(ExecutedCannon);
         clearComponent(Targeted);
       }
-
-      // END OF PHASE
-      if (timeToNextPhase == 1) {
-        const encodedCommitment = getComponentValue(EncodedCommitment, godEntity)?.value;
-        if (encodedCommitment) return;
-        const shipsAndMoves = getPlayerShipsWithMoves();
-        if (!shipsAndMoves) return;
-        commitMove(shipsAndMoves);
-      }
     }
 
     // START OF PHASE: reveal moves
@@ -85,6 +76,11 @@ export function createResetSystem(MUD: SetupResult) {
         if (encoding) revealMove(encoding);
       }
       if (timeToNextPhase !== gameConfig.revealPhaseLength) return;
+      const encodedCommitment = getComponentValue(EncodedCommitment, godEntity)?.value;
+      if (encodedCommitment) return;
+      const shipsAndMoves = getPlayerShipsWithMoves();
+      if (!shipsAndMoves) return;
+      commitMove(shipsAndMoves);
 
       [...getComponentEntities(MoveCard)].forEach((moveCardEntity) => {
         const objectId = `optionGhost-${moveCardEntity}`;
