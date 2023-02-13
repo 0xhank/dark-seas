@@ -19,14 +19,14 @@ export const YourShip = ({
   phase: Phase | undefined;
 }) => {
   const {
-    components: { Position, SelectedShip, HoveredShip, HealthLocal },
+    components: { SelectedShip, HoveredShip, HealthLocal },
     godEntity,
     scene: { camera },
     utils: { getSpriteObject },
   } = useMUD();
 
   const selectShip = (shipEntity: EntityIndex) => {
-    const shipObject = getSpriteObject(`shipEntity`);
+    const shipObject = getSpriteObject(shipEntity);
 
     camera.centerOn(shipObject.x, shipObject.y + 400);
 
@@ -48,7 +48,7 @@ export const YourShip = ({
   }
   return (
     <YourShipContainer
-      onClick={() => health !== 0 && selectShip(shipEntity)}
+      onClick={() => selectShip(shipEntity)}
       onMouseEnter={() => setComponent(HoveredShip, godEntity, { value: shipEntity })}
       onMouseLeave={() => removeComponent(HoveredShip, godEntity)}
       isSelected={isSelected}
