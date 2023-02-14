@@ -117,6 +117,7 @@ export const Button = styled.button<{ isSelected?: boolean; noGoldBorder?: boole
   border-color: ${gold};
   pointer-events: all;
   color: ${darkBrown};
+  backdrop-filter: blur(3px);
   // color: ${({ isSelected }) => `${isSelected ? white : darkBrown}`};
 
   :hover {

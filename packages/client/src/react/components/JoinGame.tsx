@@ -38,6 +38,7 @@ export function JoinGame() {
       <div
         style={{
           background: colors.glass,
+          backdropFilter: "blur(3px)",
           color: colors.darkBrown,
           display: "flex",
           flexDirection: "column",

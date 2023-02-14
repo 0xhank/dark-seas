@@ -59,14 +59,16 @@ export function TurnTimer() {
   return (
     <Cell style={gridConfig}>
       <OuterContainer>
-        {phase == Phase.Commit || phase == Phase.Action ? (
-          <InternalContainer>
-            {str}
-            <ProgressBar phaseLength={phaseLength} secsLeft={secsLeft} />
-          </InternalContainer>
-        ) : (
-          str
-        )}
+        <InternalContainer>
+          {phase == Phase.Commit || phase == Phase.Action ? (
+            <>
+              {str}
+              <ProgressBar phaseLength={phaseLength} secsLeft={secsLeft} />
+            </>
+          ) : (
+            str
+          )}
+        </InternalContainer>
       </OuterContainer>
     </Cell>
   );
@@ -88,6 +90,7 @@ const InternalContainer = styled.div`
   background: ${colors.glass};
   border-radius: 6px;
   height: 40px;
+  backdrop-filter: blur(3px);
 `;
 
 const Text = styled.div<{ secsLeft?: number }>`
