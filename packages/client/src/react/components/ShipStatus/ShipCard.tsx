@@ -5,7 +5,7 @@ import { useMUD } from "../../../mud/providers/MUDProvider";
 import { usePlayer } from "../../../mud/providers/PlayerProvider";
 import { ActionType } from "../../../types";
 import { getShipSprite, ShipImages } from "../../../utils/ships";
-import { BoxImage } from "../../styles/global";
+import { BoxImage, colors } from "../../styles/global";
 import { ShipAttributeTypes } from "../../types";
 import HullHealth from "./HullHealth";
 import ShipAttribute from "./ShipAttribute";
@@ -33,8 +33,8 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
 
   const playerEntity = usePlayer();
   const fakeOwner = "0" as EntityID;
-  const ownerEntity = getPlayerEntity(useComponentValue(OwnedBy, shipEntity, { value: fakeOwner }).value);
-
+  const ownerId = useComponentValue(OwnedBy, shipEntity, { value: fakeOwner }).value;
+  const ownerEntity = getPlayerEntity(ownerId);
   const sailPosition = useComponentValue(SailPositionLocal, shipEntity, { value: 2 }).value;
   const rotation = useComponentValue(Rotation, shipEntity, { value: 0 }).value;
   const health = useComponentValue(HealthLocal, shipEntity, { value: 0 })?.value || 0;
@@ -47,7 +47,6 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
 
   const time = useObservableValue(clock.time$) || 0;
   const currentTurn = getTurn(time);
-  const booty = useComponentValue(Booty, shipEntity)?.value;
   const lastAction = useComponentValue(LastAction, playerEntity)?.value;
   const actionsExecuted = currentTurn == lastAction;
   const updates = actionsExecuted ? undefined : selectedActions?.actionTypes;
@@ -61,26 +60,24 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
   const name = getShipName(shipEntity);
   if (!ownerEntity) return null;
   return (
-    <div style={{ display: "flex", borderRadius: "6px", width: "100%" }}>
-      <BoxContainer>
-        <span style={{ fontSize: "1.5rem", lineHeight: "2.1rem" }}>{name}</span>
-        {playerEntity !== ownerEntity && <span>{ownerName}</span>}
-        <BoxImage>
-          <img
-            src={ShipImages[getShipSprite(ownerEntity, health, maxHealth, ownerEntity == playerEntity)]}
-            style={{
-              objectFit: "scale-down",
-              left: "50%",
-              position: "absolute",
-              top: "50%",
-              margin: "auto",
-              transform: `rotate(${rotation - 90}deg) translate(-50%,-50%)`,
-              transformOrigin: `top left`,
-              maxWidth: `${3.5 * length}px`,
-            }}
-          />
-        </BoxImage>
-      </BoxContainer>
+    <BoxContainer>
+      <span style={{ lineHeight: "0.75rem", fontSize: ".75rem", color: colors.lightBrown }}>{ownerName}'s</span>
+      <span style={{ fontSize: "1.25rem", lineHeight: "2rem" }}>{name}</span>
+      <BoxImage length={length}>
+        <img
+          src={ShipImages[getShipSprite(ownerEntity, health, maxHealth, ownerEntity == playerEntity)]}
+          style={{
+            objectFit: "scale-down",
+            left: "50%",
+            position: "absolute",
+            top: "50%",
+            margin: "auto",
+            transform: `rotate(${rotation - 90}deg) translate(-50%,-50%)`,
+            transformOrigin: `top left`,
+            maxWidth: `${3.5 * length}px`,
+          }}
+        />
+      </BoxImage>
       <div style={{ flex: 3, display: "flex", flexDirection: "column", minWidth: 0, marginLeft: "3px" }}>
         <HullHealth health={health} maxHealth={maxHealth} />
         <div style={{ display: "flex", width: "100%", flexWrap: "wrap" }}>
@@ -89,7 +86,6 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
             attribute={updatedSailPosition}
             updating={updatedSailPosition !== sailPosition}
           />
-          {/* <ShipAttribute attributeType={ShipAttributeTypes.Booty} attribute={booty ? Number(booty) : undefined} /> */}
         </div>
         {health !== 0 && (
           <div style={{ display: "flex", gap: "8px" }}>
@@ -107,20 +103,12 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
           </div>
         )}
       </div>
-    </div>
+    </BoxContainer>
   );
 };
 
 const BoxContainer = styled.div`
-  flex: 2;
   display: flex;
   flex-direction: column;
   position: relative;
-  max-width: 12rem;
-  min-width: 8rem;
-  padding-top: 6px;
-
-  @media (max-width: 1500px) {
-    max-width: 10rem;
-  }
 `;

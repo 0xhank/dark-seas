@@ -73,23 +73,18 @@ export function ConfirmButtons() {
 
   const disabled = tooEarly || cannotAct;
 
-  return <ConfirmButtonsContainer hide={disabled}>{disabled ? null : content}</ConfirmButtonsContainer>;
+  return <ConfirmButtonsContainer>{disabled ? null : content}</ConfirmButtonsContainer>;
 }
 
-const ConfirmButtonsContainer = styled.div<{ hide: boolean }>`
-  position: absolute;
-  margin: 0 auto;
-  top: 6px;
-  z-index: -1;
+const ConfirmButtonsContainer = styled.div`
   display: flex;
+  flex-direction: column;
   gap: 6px;
   background: ${colors.darkBrown};
-
-  min-height: 70px;
-  border-radius: 10px 10px 0 0;
-  transform: ${({ hide }) => (hide ? "translateY(0)" : "translateY(-70px)")};
-  transition: all 0.2s ease-out;
-  width: 500px;
-
+  height: 40px;
+  border-radius: 6px;
+  filter: drop-shadow(0px 1px 3px ${colors.black});
+  width: 100%;
   padding: 6px;
+  align-self: flex-end;
 `;

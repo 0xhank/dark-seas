@@ -22,6 +22,7 @@ const cannonReady = "hsla(344, 89%, 59%, 1)";
 const waiting = "hsla(50, 100%, 50%, 0.5)";
 const green = "hsl(119, 78%, 39%)";
 const tan = "hsl(23, 22%, 88%)";
+const lightTan = color(tan).lighten(0.1).toString();
 const greenGlass = color(green).alpha(0.7).toString();
 const darkGrayHex = color(darkGray).rgbNumber();
 const blackHex = color(black).rgbNumber();
@@ -189,18 +190,16 @@ export const ShipContainer = styled.div<{
   isSelected?: boolean;
   isHovered?: boolean;
 }>`
-background: ${tan};
-border-radius: 6px;
-border: 1px solid ${gold};
-filter: drop-shadow(0px 2px 4px ${black};
-  display: flex;
+  position: relative;
+  background: ${tan};
   flex-direction: column;
+  justify-content: space-between;
   cursor: pointer;
-  box-shadow: ${({ isSelected }) => `inset 0px 0px 0px ${isSelected ? "5px" : "0px"} ${colors.white}`};
-  background: ${({ isSelected, isHovered }) =>
-    `${color(colors.white)
-      .lighten(0.1)
-      .alpha(isSelected || isHovered ? 0.8 : 0.7)}`};
+  box-shadow: ${({ isSelected }) => `inset 0px 0px 0px ${isSelected ? "1px" : "0px"} ${colors.gold}`};
+  background: ${({ isSelected, isHovered }) => `${isSelected || isHovered ? lightTan : tan}`};
+  padding: 6px;
+  border-radius: 6px;
+  color: ${darkBrown};
 `;
 
 export const Row = styled.div`
@@ -232,9 +231,9 @@ export const Input = styled.input`
   }
 `;
 
-export const BoxImage = styled.div`
+export const BoxImage = styled.div<{ length: number }>`
   position: relative;
-  width: 70%;
+  width: ${({ length }) => `${length * 5}%`};
   margin: auto;
   padding-top: 6px;
   :before {
