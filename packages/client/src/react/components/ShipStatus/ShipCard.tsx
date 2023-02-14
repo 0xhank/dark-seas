@@ -89,7 +89,7 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
             attribute={updatedSailPosition}
             updating={updatedSailPosition !== sailPosition}
           />
-          <ShipAttribute attributeType={ShipAttributeTypes.Booty} attribute={booty ? Number(booty) : undefined} />
+          {/* <ShipAttribute attributeType={ShipAttributeTypes.Booty} attribute={booty ? Number(booty) : undefined} /> */}
         </div>
         {health !== 0 && (
           <div style={{ display: "flex", gap: "8px" }}>

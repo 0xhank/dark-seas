@@ -53,10 +53,10 @@ export function Leaderboard() {
   return (
     <>
       <LeaderboardContainer onClick={(e) => e.stopPropagation()}>
-        <PlayerTable theadData={["", "", "Booty", "Health"]} tbodyData={players} />
+        <PlayerTable theadData={["", "", "Kills", "Health"]} tbodyData={players} />
       </LeaderboardContainer>
       <LeaderboardContainer onClick={(e) => e.stopPropagation()}>
-        <ShipTable theadData={["", "Booty", "Health", "Owner"]} tbodyData={ships} />
+        <ShipTable theadData={["", "Kills", "Health", "Owner"]} tbodyData={ships} />
       </LeaderboardContainer>
     </>
   );
@@ -110,8 +110,8 @@ const ShipTable = ({ theadData, tbodyData }: { theadData: string[]; tbodyData: (
               if (a.health == 0 && b.health !== 0) return 1;
               if (a.health !== 0 && b.health == 0) return -1;
 
-              const booty = b.booty - a.booty;
-              if (booty !== 0) return booty;
+              const kills = b.kills - a.kills;
+              if (kills !== 0) return kills;
 
               return b.health - a.health;
             })
@@ -128,7 +128,7 @@ const ShipTableRow = ({ data }: { data: ShipData }) => {
   return (
     <tr>
       <td>{data.name}</td>
-      <td>{data.booty}</td>
+      <td>{data.kills}</td>
 
       <td>{data.health}</td>
 
@@ -157,8 +157,8 @@ const PlayerTable = ({ theadData, tbodyData }: { theadData: string[]; tbodyData:
 
               if (a.health == 0 && b.health !== 0) return 1;
               if (a.health !== 0 && b.health == 0) return -1;
-              const booty = b.booty - a.booty;
-              if (booty !== 0) return booty;
+              const kills = b.kills - a.kills;
+              if (kills !== 0) return kills;
 
               return b.health - a.health;
             })
@@ -176,7 +176,7 @@ const PlayerTableRow = ({ data, index }: { data: PlayerData; index: number }) =>
     <tr>
       <td>{index + 1}</td>
       <td>{data.name}</td>
-      <td>{data.booty}</td>
+      <td>{data.kills}</td>
       <td>{data.health}</td>
     </tr>
   );
