@@ -489,7 +489,6 @@ export async function createUtilities(
   function destroySpriteObject(id: string | number) {
     const sprite = spriteRegistry.get(id);
     if (!sprite) return;
-    console.log("sprite:", sprite);
     sprite.disableInteractive();
 
     sprite.off("pointerdown");

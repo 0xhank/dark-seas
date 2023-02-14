@@ -21,6 +21,7 @@ const red = "hsl(0, 100%, 50%)";
 const cannonReady = "hsla(344, 89%, 59%, 1)";
 const waiting = "hsla(50, 100%, 50%, 0.5)";
 const green = "hsl(119, 78%, 39%)";
+const tan = "hsl(23, 22%, 88%)";
 const greenGlass = color(green).alpha(0.7).toString();
 const darkGrayHex = color(darkGray).rgbNumber();
 const blackHex = color(black).rgbNumber();
@@ -48,6 +49,7 @@ export const colors = {
   blue,
   darkGold,
   glass,
+  tan,
   thickGlass,
   thinGlass,
   blueGradient,
@@ -133,7 +135,6 @@ export const Button = styled.button<{ isSelected?: boolean; noGoldBorder?: boole
 `;
 
 export const OptionButton = styled(Button)<{ confirmed?: boolean }>`
-  margin-bottom: 12px;
   :hover {
     background: ${({ isSelected, confirmed }) => `${confirmed ? greenGlass : isSelected ? red : white}`};
     color: ${({ isSelected, disabled }) => `${isSelected || disabled ? white : darkBrown}`};
@@ -182,6 +183,24 @@ export const InternalContainer = styled.div`
   background: ${glass};
   justify-content: space-between;
   color: ${darkBrown};
+`;
+
+export const ShipContainer = styled.div<{
+  isSelected?: boolean;
+  isHovered?: boolean;
+}>`
+background: ${tan};
+border-radius: 6px;
+border: 1px solid ${gold};
+filter: drop-shadow(0px 2px 4px ${black};
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  box-shadow: ${({ isSelected }) => `inset 0px 0px 0px ${isSelected ? "5px" : "0px"} ${colors.white}`};
+  background: ${({ isSelected, isHovered }) =>
+    `${color(colors.white)
+      .lighten(0.1)
+      .alpha(isSelected || isHovered ? 0.8 : 0.7)}`};
 `;
 
 export const Row = styled.div`
