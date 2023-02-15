@@ -56,7 +56,7 @@ const LeftSide = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 20px;
+  height: 2rem;
 `;
 
 const RightSide = styled.div<{ updating?: boolean }>`
@@ -72,5 +72,5 @@ const RightSide = styled.div<{ updating?: boolean }>`
   @media (max-width: 1500px) {
     line-height: 1.5rem;
   }
-  height: 20px;
+  height: 2rem;
 `;

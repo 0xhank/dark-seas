@@ -134,6 +134,7 @@ const ActionStatusContainer = styled.div`
   padding: 4px;
   display: flex;
   flex-direction: column;
+  height: 70px;
   gap: 4px;
   margin: 4px;
 `;

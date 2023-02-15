@@ -191,6 +191,7 @@ export const ShipContainer = styled.div<{
   isSelected?: boolean;
   isHovered?: boolean;
 }>`
+  min-width: 160px;
   position: relative;
   display: flex;
   flex-direction: column;

@@ -11,6 +11,34 @@ import HealthBar from "./HealthBar";
 import ShipAttribute from "./ShipAttribute";
 import ShipDamage from "./ShipDamage";
 
+function DamageDisplay({ shipEntity, updates }: { shipEntity: EntityIndex; updates: ActionType[] | undefined }) {
+  const {
+    components: { DamagedCannonsLocal, OnFireLocal, HealthLocal, SailPositionLocal },
+  } = useMUD();
+  const damagedCannons = useComponentValue(DamagedCannonsLocal, shipEntity, { value: 0 }).value;
+  const onFire = useComponentValue(OnFireLocal, shipEntity, { value: 0 }).value;
+  const health = useComponentValue(HealthLocal, shipEntity, { value: 0 }).value;
+  const sailPosition = useComponentValue(SailPositionLocal, shipEntity, { value: 2 }).value;
+
+  if (health == 0) return null;
+  if (!damagedCannons && !onFire && sailPosition == 2) return null;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "4px", marginTop: "8px" }}>
+      {damagedCannons !== undefined && (
+        <ShipDamage
+          message="cannons broken"
+          amountLeft={damagedCannons}
+          fixing={updates?.includes(ActionType.RepairCannons)}
+        />
+      )}
+      {onFire !== undefined && (
+        <ShipDamage message="on fire" amountLeft={onFire} fixing={updates?.includes(ActionType.ExtinguishFire)} />
+      )}
+      {sailPosition == 0 && <ShipDamage message="sails torn" fixing={updates?.includes(ActionType.RepairSail)} />}
+    </div>
+  );
+}
+
 export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
   const {
     utils: { getPlayerEntity, getTurn, getShipName },
@@ -21,12 +49,9 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
       Name,
       Length,
       LastAction,
-      Booty,
       SelectedActions,
       HealthLocal,
-      OnFireLocal,
       SailPositionLocal,
-      DamagedCannonsLocal,
     },
     network: { clock },
   } = useMUD();
@@ -35,15 +60,13 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
   const fakeOwner = "0" as EntityID;
   const ownerId = useComponentValue(OwnedBy, shipEntity, { value: fakeOwner }).value;
   const ownerEntity = getPlayerEntity(ownerId);
-  const sailPosition = useComponentValue(SailPositionLocal, shipEntity, { value: 2 }).value;
   const rotation = useComponentValue(Rotation, shipEntity, { value: 0 }).value;
   const health = useComponentValue(HealthLocal, shipEntity, { value: 0 })?.value || 0;
   const maxHealth = useComponentValue(MaxHealth, shipEntity, { value: 0 })?.value || 0;
-  const onFire = useComponentValue(OnFireLocal, shipEntity, { value: 0 })?.value;
-  const damagedCannons = useComponentValue(DamagedCannonsLocal, shipEntity, { value: 0 })?.value;
   const ownerName = useComponentValue(Name, ownerEntity, { value: fakeOwner })?.value;
   const selectedActions = useComponentValue(SelectedActions, shipEntity);
   const length = useComponentValue(Length, shipEntity)?.value || 10;
+  const sailPosition = useComponentValue(SailPositionLocal, shipEntity, { value: 2 }).value;
 
   const time = useObservableValue(clock.time$) || 0;
   const currentTurn = getTurn(time);
@@ -82,28 +105,14 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
         />
       </BoxImage>
       <div style={{ flex: 3, display: "flex", flexDirection: "column", minWidth: 0, marginLeft: "3px" }}>
-        <div style={{ display: "flex", width: "100%", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", width: "100%", flexWrap: "wrap", paddingTop: "4px" }}>
           <ShipAttribute
             attributeType={ShipAttributeTypes.Sails}
             attribute={updatedSailPosition}
             updating={updatedSailPosition !== sailPosition}
           />
         </div>
-        {health !== 0 && (
-          <div style={{ display: "flex", gap: "8px" }}>
-            {damagedCannons !== undefined && (
-              <ShipDamage
-                message="cannons broken"
-                amountLeft={damagedCannons}
-                fixing={updates?.includes(ActionType.RepairCannons)}
-              />
-            )}
-            {onFire !== undefined && (
-              <ShipDamage message="on fire" amountLeft={onFire} fixing={updates?.includes(ActionType.ExtinguishFire)} />
-            )}
-            {sailPosition == 0 && <ShipDamage message="sails torn" fixing={updates?.includes(ActionType.RepairSail)} />}
-          </div>
-        )}
+        <DamageDisplay shipEntity={shipEntity} updates={updates} />
       </div>
     </BoxContainer>
   );

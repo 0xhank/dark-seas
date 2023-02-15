@@ -27,7 +27,6 @@ const ActionContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 4px;
-  height: 30px;
 `;
 
 const StatusText = styled.div`
