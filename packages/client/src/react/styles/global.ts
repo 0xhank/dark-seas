@@ -51,6 +51,7 @@ export const colors = {
   darkGold,
   glass,
   tan,
+  lightTan,
   thickGlass,
   thinGlass,
   blueGradient,
