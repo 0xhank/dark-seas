@@ -43,7 +43,7 @@ export function RevealButtons({
       style={{ width: "100%", fontSize: "1rem", lineHeight: "1.25rem" }}
       onClick={handleSubmitExecute}
     >
-      Reveal Moves
+      {!disabled && "Reveal Moves"}
     </ConfirmButton>
   );
 }

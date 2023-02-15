@@ -38,7 +38,6 @@ export function ActionButtons({
     submitActions(shipsAndActions);
   };
 
-  const removeActions = () => clearComponent(SelectedActions);
   const showExecuting = txExecuting && !acted;
 
   const disabled = tooEarly || cannotAct;
@@ -55,7 +54,7 @@ export function ActionButtons({
           style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }}
           onClick={handleSubmitActions}
         >
-          Submit All Actions
+          {!disabled && "Submit All Actions"}
         </ConfirmButton>
       </>
     );

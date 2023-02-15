@@ -50,7 +50,7 @@ export function CommitButtons({ tooEarly, txExecuting }: { tooEarly: boolean; tx
   }
   return (
     <ConfirmButton onClick={handleSubmitCommitment} disabled={disabled}>
-      Confirm All Moves
+      {!disabled && "Confirm All Moves"}
     </ConfirmButton>
   );
 }
