@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 const lightGold = "hsl(45,100%,60%)";
 const gold = "hsl(45,100%,54.1%)";
+const goldDisabled = "hsla(45,100%,54%, 0.5)";
 const darkGold = "hsl(45,100%,31%)";
 const lightBrown = "hsl(30,46.9%,48%)";
 const brown = "hsl(30,100%,35%)";
@@ -85,12 +86,16 @@ export const Container = styled.div`
 `;
 
 export const Success = styled.div`
-  color: ${colors.gold};
+  background: ${green};
+  color: ${lightTan};
   border-radius: 6px;
-  width: 100%;
+  border: none;
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0px 1px 3px ${colors.black});
 `;
 
 export const BackgroundImg = styled.div`
@@ -157,21 +162,22 @@ export const Img = styled.img<{ isSelected?: boolean }>`
       : "invert(19%) sepia(89%) saturate(1106%) hue-rotate(7deg) brightness(93%) contrast(102%)"};
 `;
 
-export const ConfirmButton = styled(Button)`
+export const ConfirmButton = styled.button`
   background: ${gold};
-
-  :hover {
-    background: ${gold};
-  }
-
+  color: ${darkBrown};
+  border-radius: 6px;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: all;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  filter: drop-shadow(0px 1px 3px ${colors.black});
   :disabled {
-    background: ${lightGray};
-    color: ${lighterGray};
-    border-color: ${darkGray};
+    background: ${goldDisabled};
     cursor: not-allowed;
-    hover: {
-      background: ${lightGray};
-    }
   }
 `;
 

@@ -67,7 +67,6 @@ export function SideBar() {
             ))
           )}
         </MoveButtons>
-        <div style={{ height: 0, margin: 0, padding: 0, visibility: "collapse" }} />
       </YourShips>
     </TopBarContainer>
   );
@@ -89,7 +88,7 @@ const TopBarContainer = styled.div`
 const YourShips = styled.div`
   display: flex;
   flex-direction: column-reverse;
-  gap: 12px;
+  gap: 24px;
 `;
 
 const MoveButtons = styled.div`
