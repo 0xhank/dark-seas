@@ -61,7 +61,9 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
   if (!ownerEntity) return null;
   return (
     <BoxContainer>
-      <span style={{ lineHeight: "0.75rem", fontSize: ".75rem", color: colors.lightBrown }}>{ownerName}'s</span>
+      {ownerEntity !== playerEntity && (
+        <span style={{ lineHeight: "0.75rem", fontSize: ".75rem", color: colors.lightBrown }}>{ownerName}'s</span>
+      )}
       <span style={{ fontSize: "1.25rem", lineHeight: "2rem" }}>{name}</span>
       <HealthBar health={health} maxHealth={maxHealth} />
       <BoxImage length={length}>
@@ -111,4 +113,5 @@ const BoxContainer = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
+  margin: 6px;
 `;

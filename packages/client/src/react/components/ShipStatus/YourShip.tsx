@@ -3,6 +3,7 @@ import { EntityIndex, removeComponent, setComponent } from "@latticexyz/recs";
 import styled from "styled-components";
 import { useMUD } from "../../../mud/providers/MUDProvider";
 import { ShipContainer } from "../../styles/global";
+import { ActionStatus } from "./ActionStatus";
 import { ShipCard } from "./ShipCard";
 
 export const YourShip = ({ shipEntity, selected }: { shipEntity: EntityIndex; selected: boolean }) => {
@@ -33,6 +34,7 @@ export const YourShip = ({ shipEntity, selected }: { shipEntity: EntityIndex; se
       key={`move-selection-${shipEntity}`}
     >
       <ShipCard shipEntity={shipEntity} />
+      <ActionStatus shipEntity={shipEntity} />
     </ShipContainer>
   );
 };

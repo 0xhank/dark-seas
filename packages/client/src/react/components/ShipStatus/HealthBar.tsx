@@ -13,14 +13,14 @@ export default function HealthBar({ health, maxHealth }: { health: number; maxHe
     <HealthContainer>
       {chunk(Array(maxHealth).fill(0), 2).map((val, idx) => {
         return (
-          <p style={{ display: "flex", gap: "0", flex: 1 }}>
-            <Health key={`hull-health-${idx * 2}`} show={idx * 2 <= health} left color={color} />
+          <div style={{ display: "flex", gap: "0", flex: 1 }}>
+            <Health key={`hull-health-${idx * 2}`} show={idx * 2 < health} left color={color} />
             {idx * 2 + 1 < maxHealth ? (
-              <Health key={`hull-health-${idx * 2 + 1}`} show={idx * 2 + 1 <= health} color={color} />
+              <Health key={`hull-health-${idx * 2 + 1}`} show={idx * 2 + 1 < health} color={color} />
             ) : (
               <div style={{ flex: 1 }} />
             )}
-          </p>
+          </div>
         );
       })}
     </HealthContainer>

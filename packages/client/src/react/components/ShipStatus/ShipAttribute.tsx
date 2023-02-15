@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { SailPositions } from "../../../types";
-import { colors, Container } from "../../styles/global";
+import { colors } from "../../styles/global";
 import { ShipAttributeTypes } from "../../types";
 
 export default function ShipAttribute({
@@ -26,7 +26,7 @@ export default function ShipAttribute({
       <LeftSide>
         <AttributeImg src={source} alt={`attribute-${attributeType}`} />
       </LeftSide>
-      <RightSide updating={updating} style={{ fontSize: `${attribute.toString().length > 2 ? "1rem" : "1.25rem"}` }}>
+      <RightSide updating={updating}>
         {attributeType == ShipAttributeTypes.Sails ? SailPositions[attribute] : attribute}
       </RightSide>
     </AttributeContainer>
@@ -41,26 +41,22 @@ const AttributeImg = styled.img`
     height: 1.5rem;
   }
 `;
-const AttributeContainer = styled(Container)`
-  height: auto;
+const AttributeContainer = styled.div`
   color: ${colors.darkBrown};
-  flex-direction: row;
-  padding: 3px;
   border-radius: 6px;
+  display: flex;
+  flex-direction: row;
   gap: 0;
-  width: auto;
 `;
 
 const LeftSide = styled.div`
   background: ${colors.lightBrown};
   border-radius: 6px 0 0 6px;
-  padding: 6px;
+  padding-inline: 6px;
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 1px solid ${colors.gold};
-  border-right: none;
-  height: 40px;
+  height: 20px;
 `;
 
 const RightSide = styled.div<{ updating?: boolean }>`
@@ -70,14 +66,11 @@ const RightSide = styled.div<{ updating?: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.5rem;
   color: ${colors.darkBrown};
-  line-height: 2.5rem;
-  border: 1px solid ${colors.gold};
   border-left: none;
 
   @media (max-width: 1500px) {
     line-height: 1.5rem;
   }
-  height: 40px;
+  height: 20px;
 `;

@@ -193,14 +193,15 @@ export const ShipContainer = styled.div<{
 }>`
   position: relative;
   background: ${tan};
+  display: flex;
   flex-direction: column;
   justify-content: space-between;
   cursor: pointer;
   box-shadow: ${({ isSelected }) => `inset 0px 0px 0px ${isSelected ? "1px" : "0px"} ${colors.gold}`};
   background: ${({ isSelected, isHovered }) => `${isSelected || isHovered ? lightTan : tan}`};
-  padding: 6px;
   border-radius: 6px;
   color: ${darkBrown};
+  filter: drop-shadow(0px 1px 3px ${colors.black});
 `;
 
 export const Row = styled.div`
