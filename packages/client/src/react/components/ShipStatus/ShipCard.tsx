@@ -65,7 +65,7 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
         <span style={{ lineHeight: "0.75rem", fontSize: ".75rem", color: colors.lightBrown }}>{ownerName}'s</span>
       )}
       <span style={{ fontSize: "1.25rem", lineHeight: "2rem" }}>{name}</span>
-      <HealthBar health={health} maxHealth={maxHealth} />
+      <HealthBar health={health} maxHealth={maxHealth} shipEntity={shipEntity} />
       <BoxImage length={length}>
         <img
           src={ShipImages[getShipSprite(ownerEntity, health, maxHealth, ownerEntity == playerEntity)]}

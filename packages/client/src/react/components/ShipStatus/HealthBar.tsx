@@ -1,7 +1,16 @@
+import { EntityIndex } from "@latticexyz/recs";
 import { chunk } from "lodash";
 import styled from "styled-components";
 import { colors } from "../../styles/global";
-export default function HealthBar({ health, maxHealth }: { health: number; maxHealth: number }) {
+export default function HealthBar({
+  health,
+  maxHealth,
+  shipEntity,
+}: {
+  health: number;
+  maxHealth: number;
+  shipEntity: EntityIndex;
+}) {
   let color = colors.red;
   const healthPct = health / maxHealth;
   if (healthPct > 0.66) {
@@ -14,9 +23,9 @@ export default function HealthBar({ health, maxHealth }: { health: number; maxHe
       {chunk(Array(maxHealth).fill(0), 2).map((val, idx) => {
         return (
           <div style={{ display: "flex", gap: "0", flex: 1 }}>
-            <Health key={`hull-health-${idx * 2}`} show={idx * 2 < health} left color={color} />
+            <Health key={`hull-health-${shipEntity}-${idx * 2}`} show={idx * 2 < health} left color={color} />
             {idx * 2 + 1 < maxHealth ? (
-              <Health key={`hull-health-${idx * 2 + 1}`} show={idx * 2 + 1 < health} color={color} />
+              <Health key={`hull-health-${shipEntity}-${idx * 2 + 1}`} show={idx * 2 + 1 < health} color={color} />
             ) : (
               <div style={{ flex: 1 }} />
             )}
