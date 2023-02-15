@@ -3,9 +3,9 @@ import { EntityIndex } from "@latticexyz/recs";
 import { useMUD } from "../mud/providers/MUDProvider";
 import { Cell } from "./components/Cell";
 import { ShipCard } from "./components/ShipStatus/ShipCard";
-import { Container, InternalContainer } from "./styles/global";
+import { ShipContainer } from "./styles/global";
 
-const gridConfig = { gridRowStart: 2, gridRowEnd: 5, gridColumnStart: 10, gridColumnEnd: 13 };
+const gridConfig = { gridRowStart: 2, gridRowEnd: 5, gridColumnStart: 11, gridColumnEnd: 13 };
 export function HoveredShip() {
   const {
     components: { HoveredShip },
@@ -17,11 +17,11 @@ export function HoveredShip() {
 
   return (
     <Cell style={gridConfig}>
-      <Container style={{ justifyContent: "flex-start" }}>
-        <InternalContainer style={{ gap: "24px", height: "auto" }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", padding: "12px" }}>
+        <ShipContainer style={{ width: "fix-content", alignSelf: "flex-end" }}>
           <ShipCard shipEntity={shipEntity} />
-        </InternalContainer>
-      </Container>
+        </ShipContainer>
+      </div>
     </Cell>
   );
 }
