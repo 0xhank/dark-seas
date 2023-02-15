@@ -29,7 +29,6 @@ export async function setupMUD() {
   const { systems, network, systemCallStreams, txReduced$, encoders } = res;
   res.startSync();
 
-  console.log("system call streams:", systemCallStreams);
   // For LoadingState updates
   const godEntity = world.registerEntity({ id: GodID });
 

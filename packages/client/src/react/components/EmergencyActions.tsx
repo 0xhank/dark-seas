@@ -8,13 +8,6 @@ import { ActionImg, ActionNames, ActionType, Phase } from "../../types";
 import { getMidpoint } from "../../utils/trig";
 import { colors, Img, OptionButton } from "../styles/global";
 
-const gridConfig = {
-  gridRowStart: 1,
-  gridRowEnd: 13,
-  gridColumnStart: 1,
-  gridColumnEnd: 13,
-};
-
 export function EmergencyActions() {
   const {
     components: {
@@ -26,7 +19,7 @@ export function EmergencyActions() {
       SailPositionLocal,
       HoveredAction,
     },
-    utils: { handleNewActionsSpecial, getSpriteObject, getPhase, getTurn },
+    utils: { handleNewActionsSpecial, getSpriteObject, getPhase, getTurn, isMyShip },
     godEntity,
     network: { clock },
 
@@ -51,7 +44,9 @@ export function EmergencyActions() {
 
   const lastAction = useComponentValue(LastAction, playerEntity)?.value;
 
-  if (phase !== Phase.Action || !shipEntity || (!onFire && !damagedCannons && !tornSail)) return null;
+  if (phase !== Phase.Action || !shipEntity) return null;
+  if (!isMyShip(shipEntity)) return null;
+  if (!onFire && !damagedCannons && !tornSail) return null;
   const actionsExecuted = turn == lastAction;
 
   const cam = camera.phaserCamera;
@@ -95,7 +90,7 @@ export function EmergencyActions() {
 
   return (
     <DamageContainer top={y} left={x}>
-      <p style={{ color: colors.red, fontWeight: "bolder", lineHeight: "1.25rem" }}>Emergency Actions</p>
+      <p style={{ color: colors.red, fontWeight: "bolder", lineHeight: "1.25rem" }}>Emergencies</p>
       <div style={{ display: "flex", gap: "6px" }}>
         {onFire && <ActionButton actionType={ActionType.ExtinguishFire} />}
         {damagedCannons && <ActionButton actionType={ActionType.RepairCannons} />}
@@ -118,7 +113,9 @@ const DamageContainer = styled.div<{ top: number; left: number }>`
   background: ${colors.tan};
   border-radius: 6px;
   text-align: center;
-  padding: 6px;
+  padding: 4px;
+  filter: drop-shadow(0px 1px 3px ${colors.black});
+  box-shadow: inset 0px 0px 3px ${colors.red};
 `;
 
 const Sub = styled.p`

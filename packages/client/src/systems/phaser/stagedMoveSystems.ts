@@ -105,8 +105,7 @@ export function stagedMoveSystems(MUD: SetupResult) {
     const shipEntity = hoveredMove.shipEntity as EntityIndex;
     const moveCardEntity = hoveredMove.moveCardEntity as EntityIndex;
 
-    const objectId = `hoverGhost-${shipEntity}`;
-    const hoverGroup = getGroupObject(objectId, true);
+    const objectId = "hoverGhost";
     if (!moveCardEntity) return;
 
     const moveCard = getComponentValueStrict(MoveCard, moveCardEntity);
@@ -132,9 +131,8 @@ export function stagedMoveSystems(MUD: SetupResult) {
   defineExitSystem(world, [Has(HoveredMove)], (update) => {
     const hoveredMove = update.value[1] as { shipEntity: EntityIndex; moveCardEntity: EntityIndex } | undefined;
     if (!hoveredMove) return;
-    const objectId = `hoverGhost-${hoveredMove.shipEntity}`;
+    const objectId = "hoverGhost";
 
     destroySpriteObject(objectId);
-    destroyGroupObject(objectId);
   });
 }

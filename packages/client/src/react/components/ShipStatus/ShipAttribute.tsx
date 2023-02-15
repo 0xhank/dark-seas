@@ -34,12 +34,8 @@ export default function ShipAttribute({
 }
 
 const AttributeImg = styled.img`
-  height: 2.5rem;
+  height: 1.5rem;
   filter: invert(81%) sepia(24%) saturate(2269%) hue-rotate(344deg) brightness(104%) contrast(103%);
-
-  @media (max-width: 1500px) {
-    height: 1.5rem;
-  }
 `;
 const AttributeContainer = styled.div`
   color: ${colors.darkBrown};

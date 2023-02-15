@@ -1,10 +1,11 @@
-import { useComponentValue } from "@latticexyz/react";
+import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { EntityIndex } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
+import { merge } from "rxjs";
 import styled from "styled-components";
 import { useMUD } from "../../mud/providers/MUDProvider";
-import { colors, Container } from "../styles/global";
-import { Cell } from "./Cell";
+import { getMidpoint } from "../../utils/trig";
+import { colors } from "../styles/global";
 
 type ShipData = {
   position: Coord;
@@ -27,6 +28,7 @@ export function DamageChance() {
     godEntity,
     scene: { camera },
   } = useMUD();
+  useObservableValue(merge(camera.worldView$, camera.zoom$));
 
   const hoveredAction = useComponentValue(HoveredAction, godEntity);
   const cannonEntity = hoveredAction?.specialEntity as EntityIndex;
@@ -38,48 +40,47 @@ export function DamageChance() {
 
   const data = getTargetedShips(hoveredAction.specialEntity as EntityIndex).reduce((curr: ShipData[], ship) => {
     const shipObject = getSpriteObject(ship);
+    const front = { x: shipObject.x, y: shipObject.y };
+    const angle = shipObject.angle + 90;
+    const length = shipObject.displayHeight;
+    const position = getMidpoint(front, angle, length);
 
-    const x = Math.round(((shipObject.x - cam.worldView.x) * cam.zoom) / 2);
-    const y = Math.round(((shipObject.y - cam.worldView.y) * cam.zoom) / 2);
+    const x = Math.round(((position.x - cam.worldView.x) * cam.zoom) / 2);
+    const y = Math.round(((position.y - cam.worldView.y) * cam.zoom) / 2) + (length / 10) * cam.zoom;
 
-    const position = { x, y };
     const hitChances = getDamageLikelihood(cannonEntity, ship);
     if (!hitChances) return curr;
-    return [...curr, { position, ...hitChances }];
+    return [...curr, { position: { x, y }, ...hitChances }];
   }, []);
   const prefix = "/img/explosions/explosion";
   const width = cam.zoom * 150;
-  const fontSize = cam.zoom;
+  const fontSize = cam.zoom * 1.3;
   const borderRadius = cam.zoom * 9;
   if (data.length == 0) return null;
   return (
-    <Cell style={gridConfig}>
-      <Container>
-        <div style={{ width: "100%", height: "100%", position: "relative" }}>
-          {data.map((ship) => {
-            return (
-              <DamageContainer
-                top={ship.position.y}
-                left={ship.position.x}
-                width={width}
-                borderRadius={borderRadius}
-                key={`ship-${ship.position.x}-${ship.position.y}`}
-              >
-                <StatContainer fontSize={fontSize}>
-                  <img src={prefix + "1.png"} /> {ship[1]}%
-                </StatContainer>
-                <StatContainer fontSize={fontSize}>
-                  <img src={prefix + "2.png"} /> {ship[2]}%
-                </StatContainer>
-                <StatContainer fontSize={fontSize}>
-                  <img src={prefix + "3.png"} /> {ship[3]}%
-                </StatContainer>
-              </DamageContainer>
-            );
-          })}
-        </div>
-      </Container>
-    </Cell>
+    <>
+      {data.map((ship) => {
+        return (
+          <DamageContainer
+            top={ship.position.y}
+            left={ship.position.x}
+            width={width}
+            borderRadius={borderRadius}
+            key={`ship-${ship.position.x}-${ship.position.y}`}
+          >
+            <StatContainer fontSize={fontSize}>
+              <img src={prefix + "1.png"} /> {ship[1]}%
+            </StatContainer>
+            <StatContainer fontSize={fontSize}>
+              <img src={prefix + "2.png"} /> {ship[2]}%
+            </StatContainer>
+            <StatContainer fontSize={fontSize}>
+              <img src={prefix + "3.png"} /> {ship[3]}%
+            </StatContainer>
+          </DamageContainer>
+        );
+      })}
+    </>
   );
 }
 
@@ -94,6 +95,7 @@ const DamageContainer = styled.div<{ top: number; left: number; width: number; b
   background: ${colors.glass};
   border-radius: ${({ borderRadius }) => borderRadius}px;
   text-align: center;
+  transform: translate(-50%, 0);
 `;
 
 const StatContainer = styled.div<{ fontSize: number }>`
@@ -102,4 +104,5 @@ const StatContainer = styled.div<{ fontSize: number }>`
   line-height: ${({ fontSize }) => fontSize * 2}rem;
   color: ${colors.darkBrown};
   font-size: ${({ fontSize }) => fontSize}rem;
+  font-weight: 700;
 `;

@@ -121,7 +121,7 @@ export const Button = styled.button<{ isSelected?: boolean; noGoldBorder?: boole
   background: ${({ isSelected }) => `${isSelected ? gold : glass}`};
   border: ${({ noGoldBorder }) => `${noGoldBorder ? "0" : "1"}px solid ${gold}`};
   cursor: pointer;
-  padding: 6px;
+  padding: 4px;
   border-radius: 6px;
   border-color: ${gold};
   pointer-events: all;

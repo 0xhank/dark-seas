@@ -71,24 +71,31 @@ function RevealStatus({
 
 function ActStatus({ shipEntity, turn, txExecuting }: { shipEntity: EntityIndex; turn: number; txExecuting: boolean }) {
   const {
-    components: { LastAction, SelectedActions, MoveCard },
+    components: { LastAction, SelectedActions, ExecutedActions },
   } = useMUD();
 
   const playerEntity = usePlayer();
-  const none = "Select an action";
-  let action1 = <ActionComponent name={none} status={0} />;
-  let action2 = <ActionComponent name={none} status={0} />;
 
   const acted = useComponentValue(LastAction, playerEntity)?.value == turn;
   const selectedActions = useComponentValue(SelectedActions, shipEntity);
+  const executedActions = useComponentValue(ExecutedActions, shipEntity)?.value;
+  const status = acted ? 3 : txExecuting ? 2 : 1;
+
+  const none = "Select an action";
+  let action1 = <ActionComponent name={none} status={0} />;
+  let action2 = <ActionComponent name={none} status={0} />;
 
   if (acted) {
     action1 = <ActionComponent name={""} status={-1} />;
     action2 = <ActionComponent name={""} status={-1} />;
   }
   if (selectedActions) {
-    const status = acted ? 3 : txExecuting ? 2 : 1;
     const [actionType1, actionType2] = selectedActions.actionTypes;
+    if (actionType1 !== ActionType.None) action1 = <ActionComponent name={ActionNames[actionType1]} status={status} />;
+    if (actionType2 !== ActionType.None) action2 = <ActionComponent name={ActionNames[actionType2]} status={status} />;
+  }
+  if (executedActions) {
+    const [actionType1, actionType2] = executedActions;
     if (actionType1 !== ActionType.None) action1 = <ActionComponent name={ActionNames[actionType1]} status={status} />;
     if (actionType2 !== ActionType.None) action2 = <ActionComponent name={ActionNames[actionType2]} status={status} />;
   }

@@ -5,7 +5,9 @@ import { useMUD } from "../../mud/providers/MUDProvider";
 import { PlayerProvider } from "../../mud/providers/PlayerProvider";
 import { HoveredShip } from "../HoveredShip";
 import { BootScreen } from "./BootScreen";
+import { DamageChance } from "./DamageChance";
 import { ComponentBrowser } from "./Dev/ComponentBrowser";
+import { EmergencyActions } from "./EmergencyActions";
 import { JoinGame } from "./JoinGame";
 import { Modal } from "./Modals/Modal";
 import { Settings } from "./Settings";
@@ -41,15 +43,15 @@ export function Game() {
         <PlayerProvider value={playerEntity}>
           <TurnTimer />
           <SideBar />
-          <Settings />
           <Modal />
           <HoveredShip />
-          {/* <DamageChance />
-          <EmergencyActions /> */}
+          <DamageChance />
+          <EmergencyActions />
         </PlayerProvider>
       ) : (
         <JoinGame />
       )}
+      <Settings />
       <ComponentBrowser />
     </UIGrid>
   );
