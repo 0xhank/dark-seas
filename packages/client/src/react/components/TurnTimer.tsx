@@ -56,18 +56,13 @@ export function TurnTimer() {
     }
   }
 
+  const show = phase !== Phase.Reveal;
   return (
-    <Cell style={gridConfig}>
+    <Cell style={{ ...gridConfig, display: "flex", alignItems: "flex-start", padding: "12px" }}>
       <OuterContainer>
-        <InternalContainer>
-          {phase == Phase.Commit || phase == Phase.Action ? (
-            <>
-              {str}
-              <ProgressBar phaseLength={phaseLength} secsLeft={secsLeft} />
-            </>
-          ) : (
-            str
-          )}
+        <InternalContainer hide={!show}>
+          {str}
+          {show && <ProgressBar phaseLength={phaseLength} secsLeft={secsLeft} />}
         </InternalContainer>
       </OuterContainer>
     </Cell>
@@ -75,22 +70,23 @@ export function TurnTimer() {
 }
 
 const OuterContainer = styled.div`
-  top: 12px;
-  left: 50%;
-  transform: translate(-50%, 0);
-
-  position: relative;
-  text-align: center;
-`;
-
-const InternalContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background: ${colors.glass};
+  position: relative;
+  text-align: center;
+  width: 100%;
+`;
+
+const InternalContainer = styled.div<{ hide?: boolean }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: ${({ hide }) => (hide ? "transparent" : colors.glass)};
   border-radius: 6px;
   height: 40px;
   backdrop-filter: blur(3px);
+  width: 100%;
 `;
 
 const Text = styled.div<{ secsLeft?: number }>`
