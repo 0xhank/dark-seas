@@ -25,7 +25,14 @@ import { getRangeTintAlpha } from "../systems/phaser/renderShip";
 import { Action, ActionType, DELAY, Move, Phase, Sprites } from "../types";
 import { distance } from "../utils/distance";
 import { cap, getHash, getShipSprite } from "../utils/ships";
-import { getFiringArea, getPositionByVector, getSternPosition, inFiringArea } from "../utils/trig";
+import {
+  getFiringArea,
+  getPolygonCenter,
+  getPositionByVector,
+  getSternPosition,
+  inFiringArea,
+  isBroadside,
+} from "../utils/trig";
 import { adjectives, nouns } from "../wordlist";
 import { clientComponents, components } from "./components";
 import { polygonRegistry, spriteRegistry, world } from "./world";
@@ -597,11 +604,16 @@ export async function createUtilities(
       const cannonSelected = selectedActions?.specialEntities.includes(world.entities[cannonEntity]);
       const cannotAdd = selectedActions?.actionTypes.every((action, i) => action !== ActionType.None);
 
-      position = position || getComponentValueStrict(components.Position, shipEntity);
-      rotation = rotation || getComponentValueStrict(components.Rotation, shipEntity).value;
-      const length = getComponentValueStrict(components.Length, shipEntity).value;
       const rangeColor = getRangeTintAlpha(!!loaded, !!cannonSelected, damagedCannons);
-      const firingPolygon = renderCannonFiringArea(activeGroup, position, rotation, length, cannonEntity, rangeColor);
+      const firingPolygon = renderCannonFiringArea(
+        activeGroup,
+        shipEntity,
+        cannonEntity,
+        rangeColor,
+        undefined,
+        position,
+        rotation
+      );
       const actionType = loaded ? ActionType.Fire : ActionType.Load;
 
       const shipOwner = getShipOwner(shipEntity);
@@ -621,13 +633,16 @@ export async function createUtilities(
 
   function renderCannonFiringArea(
     group: Phaser.GameObjects.Group,
-    position: Coord,
-    rotation: number,
-    length: number,
+    shipEntity: EntityIndex,
     cannonEntity: EntityIndex,
-    fill: { tint: number; alpha: number } | undefined = undefined,
-    stroke: { tint: number; alpha: number } | undefined = undefined
+    fill?: { tint: number; alpha: number },
+    stroke?: { tint: number; alpha: number },
+    position?: Coord,
+    rotation?: number
   ) {
+    const length = getComponentValueStrict(components.Length, shipEntity).value;
+    position = position || getComponentValueStrict(components.Position, shipEntity);
+    rotation = rotation || getComponentValueStrict(components.Rotation, shipEntity).value;
     const firingArea = getFiringAreaPixels(position, rotation, length, cannonEntity);
     const firingPolygon = mainScene.add.polygon(undefined, undefined, firingArea, colors.whiteHex, 0.3);
     firingPolygon.setDisplayOrigin(0);
@@ -639,11 +654,35 @@ export async function createUtilities(
     if (stroke) {
       firingPolygon.setStrokeStyle(6, stroke.tint, stroke.alpha);
     }
-
     group.add(firingPolygon, true);
 
+    const showText = getPhase(clock.currentTime) == Phase.Action && isMyShip(shipEntity);
+    if (!showText) return firingPolygon;
+
+    const cannonRotation = getComponentValueStrict(components.Rotation, cannonEntity).value;
+    const suffix = isBroadside(cannonRotation) ? "BROADSIDE" : "PIVOT GUN";
+
+    const loaded = getComponentValue(components.Loaded, cannonEntity)?.value;
+    const prefix = loaded ? "FIRE" : "LOAD";
+
+    const textPosition = getPolygonCenter(firingArea);
+    console.log("firing area:", firingArea);
+    console.log("text position:", textPosition);
+    const textObject = mainScene.add.text(textPosition.x, textPosition.y, `${prefix}\n${suffix}`, {
+      color: colors.white,
+      align: "center",
+      fontFamily: "Inknut Antiqua",
+      fontSize: "40px",
+    });
+
+    textObject.setDepth(RenderDepth.Foreground5);
+    textObject.setOrigin(0.5);
+
+    textObject.setAngle(((cannonRotation + rotation + 90) % 180) - 90);
+    group.add(textObject, true);
     return firingPolygon;
   }
+
   function renderCircle(
     group: Phaser.GameObjects.Group,
     position: Coord,

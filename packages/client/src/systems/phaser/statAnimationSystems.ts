@@ -178,11 +178,8 @@ export function statAnimationSystems(MUD: SetupResult) {
     const duration = 500;
     const repeat = -1;
     cannonEntities.forEach((cannonEntity) => {
-      const position = getComponentValueStrict(Position, shipEntity);
-      const length = getComponentValueStrict(Length, shipEntity).value;
-      const rotation = getComponentValueStrict(Rotation, shipEntity).value;
       const rangeColor = { tint, alpha: 0.5 };
-      renderCannonFiringArea(group, position, rotation, length, cannonEntity, rangeColor);
+      renderCannonFiringArea(group, shipEntity, cannonEntity, rangeColor);
     });
 
     phaserScene.tweens.add({

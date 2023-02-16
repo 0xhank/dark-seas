@@ -55,7 +55,6 @@ export function EmergencyActions() {
   const front = { x: shipObject.x, y: shipObject.y };
   const angle = shipObject.angle + 90;
   const length = shipObject.displayHeight;
-  console.log("angle:", angle, `height: ${length}`);
   const position = getMidpoint(front, angle, length);
 
   const x = Math.round(((position.x - cam.worldView.x) * cam.zoom) / 2);

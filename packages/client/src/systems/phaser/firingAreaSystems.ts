@@ -4,7 +4,6 @@ import {
   EntityID,
   EntityIndex,
   getComponentValue,
-  getComponentValueStrict,
   Has,
   setComponent,
 } from "@latticexyz/recs";
@@ -43,13 +42,10 @@ export function firingAreaSystems(MUD: SetupResult) {
     const hoveredGroup = getGroupObject(objectId, true);
     if (!shipEntity || !cannonEntity) return;
 
-    const position = getComponentValueStrict(Position, shipEntity);
-    const length = getComponentValueStrict(Length, shipEntity).value;
-    const rotation = getComponentValueStrict(Rotation, shipEntity).value;
     const loaded = getComponentValue(Loaded, cannonEntity)?.value;
 
     const strokeFill = { tint: loaded ? colors.cannonReadyHex : colors.goldHex, alpha: 0.5 };
-    renderCannonFiringArea(hoveredGroup, position, rotation, length, cannonEntity, undefined, strokeFill);
+    renderCannonFiringArea(hoveredGroup, shipEntity, cannonEntity, undefined, strokeFill);
   });
 
   defineExitSystem(world, [Has(HoveredAction)], (update) => {
