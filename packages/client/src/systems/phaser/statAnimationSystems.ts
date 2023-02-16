@@ -123,7 +123,7 @@ export function statAnimationSystems(MUD: SetupResult) {
 
   async function flashGreen(shipEntity: EntityIndex) {
     const object = getSpriteObject(shipEntity);
-    const delay = 500;
+    const delay = 1000;
 
     phaserScene.time.addEvent({
       delay: CANNON_SHOT_DELAY,

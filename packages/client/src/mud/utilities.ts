@@ -656,7 +656,8 @@ export async function createUtilities(
     }
     group.add(firingPolygon, true);
 
-    const showText = getPhase(clock.currentTime) == Phase.Action && isMyShip(shipEntity);
+    const damagedCannons = getComponentValue(clientComponents.DamagedCannonsLocal, shipEntity)?.value;
+    const showText = !damagedCannons && getPhase(clock.currentTime) == Phase.Action && isMyShip(shipEntity);
     if (!showText) return firingPolygon;
 
     const cannonRotation = getComponentValueStrict(components.Rotation, cannonEntity).value;
@@ -666,8 +667,6 @@ export async function createUtilities(
     const prefix = loaded ? "FIRE" : "LOAD";
 
     const textPosition = getPolygonCenter(firingArea);
-    console.log("firing area:", firingArea);
-    console.log("text position:", textPosition);
     const textObject = mainScene.add.text(textPosition.x, textPosition.y, `${prefix}\n${suffix}`, {
       color: colors.white,
       align: "center",

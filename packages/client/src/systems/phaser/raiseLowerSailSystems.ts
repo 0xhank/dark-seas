@@ -127,18 +127,17 @@ export function raiseLowerSailSystems(MUD: SetupResult) {
       specialEntities: ["0" as EntityID, "0" as EntityID],
     };
     const hovered = getComponentValue(HoveredAction, godEntity)?.actionType == actionType;
-    console.log("hovered:", hovered);
     const actionsExecuted = getTurn(clock.currentTime) == lastAction;
     const selected = !actionsExecuted && selectedActions.actionTypes.includes(actionType);
     const allActionsUsed = selectedActions.actionTypes.every((a) => a !== ActionType.None);
     const disabled = !selected && (actionsExecuted || allActionsUsed);
 
-    const circleHue = actionsExecuted || selected ? colors.greenHex : colors.goldHex;
+    const circleHue = selected ? colors.goldHex : actionsExecuted ? colors.greenHex : colors.lightTanHex;
     const hoverBonus = !disabled && hovered ? 0.1 : 0;
-    const circleOpacity = disabled ? 0.4 : 0.7;
+    const circleOpacity = disabled ? 0.4 : 0.8;
 
     const textOpacity = disabled ? 0.4 : 1;
-    const circle = phaserScene.add.circle(position.x, position.y, width / 1.5, circleHue, circleOpacity + hoverBonus);
+    const circle = phaserScene.add.circle(position.x, position.y, width / 1.3, circleHue, circleOpacity + hoverBonus);
     circle.setDepth(RenderDepth.Foreground2);
     circle.setInteractive({ cursor: "pointer" });
 
@@ -153,7 +152,7 @@ export function raiseLowerSailSystems(MUD: SetupResult) {
     const text = actionType == ActionType.LowerSail ? "LOWER\nSAIL" : "RAISE\nSAIL";
     const textObject = phaserScene.add.text(position.x, position.y, text, {
       fontSize: `${width / 3.5}px`,
-      color: colors.white,
+      color: colors.darkBrown,
       align: "center",
       fontFamily: "Inknut Antiqua",
     });

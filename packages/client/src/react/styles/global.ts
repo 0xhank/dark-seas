@@ -24,6 +24,7 @@ const waiting = "hsla(50, 100%, 50%, 0.5)";
 const green = "hsl(119, 78%, 39%)";
 const tan = "hsl(23, 22%, 88%)";
 const lightTan = color(tan).lighten(0.1).toString();
+const lightTanHex = color(tan).lighten(0.1).rgbNumber();
 const greenGlass = color(green).alpha(0.7).toString();
 const darkGrayHex = color(darkGray).rgbNumber();
 const blackHex = color(black).rgbNumber();
@@ -53,6 +54,7 @@ export const colors = {
   glass,
   tan,
   lightTan,
+  lightTanHex,
   thickGlass,
   thinGlass,
   blueGradient,
