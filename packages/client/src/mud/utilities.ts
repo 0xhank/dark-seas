@@ -493,11 +493,7 @@ export async function createUtilities(
   function destroySpriteObject(id: string | number) {
     const sprite = spriteRegistry.get(id);
     if (!sprite) return;
-    sprite.disableInteractive();
 
-    sprite.off("pointerdown");
-    sprite.off("pointerover");
-    sprite.off("pointerout");
     sprite.destroy(true);
     spriteRegistry.delete(id);
   }
@@ -516,14 +512,6 @@ export async function createUtilities(
   function destroyGroupObject(id: string | number) {
     const group = polygonRegistry.get(id);
     if (!group) return;
-    group.getChildren().forEach((child) => {
-      if (!child) return;
-      child.disableInteractive();
-
-      child.off("pointerdown");
-      child.off("pointerover");
-      child.off("pointerout");
-    });
     group.destroy(true, true);
     polygonRegistry.delete(id);
   }
