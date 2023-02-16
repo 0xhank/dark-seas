@@ -85,7 +85,7 @@ const InternalContainer = styled.div<{ hide?: boolean }>`
   background: ${({ hide }) => (hide ? "transparent" : colors.glass)};
   border-radius: 6px;
   height: 40px;
-  backdrop-filter: blur(3px);
+  backdrop-filter: ${({ hide }) => (hide ? "none" : "blur(3px)")};
   width: 100%;
 `;
 

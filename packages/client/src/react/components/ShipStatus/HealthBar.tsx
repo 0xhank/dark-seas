@@ -42,6 +42,7 @@ const Health = styled.div<{ show: boolean; left?: boolean; color: string }>`
   width: 50%;
   flex: 1;
   background: ${({ show, color }) => (show ? color : "hsla(0, 0%, 0%, .25)")};
+  border-right: ${({ left }) => (left ? `1px solid ${colors.tan}` : "none")};
 `;
 
 const HealthContainer = styled.div`

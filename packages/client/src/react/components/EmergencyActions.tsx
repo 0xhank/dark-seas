@@ -82,7 +82,7 @@ export function EmergencyActions() {
           handleNewActionsSpecial(actionType, shipEntity);
         }}
       >
-        <Img src={ActionImg[actionType]} style={{ height: "70%" }} />
+        <Img src={ActionImg[actionType]} style={{ height: "35px" }} />
         <Sub>{ActionNames[actionType]}</Sub>
       </OptionButton>
     );

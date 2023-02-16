@@ -11,7 +11,7 @@ import { world } from "../../mud/world";
 import { POS_WIDTH, RenderDepth, SHIP_RATIO } from "../../phaser/constants";
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
-import { ActionNames, ActionType, Phase } from "../../types";
+import { ActionType, Phase } from "../../types";
 import { getMidpoint } from "../../utils/trig";
 
 export function raiseLowerSailSystems(MUD: SetupResult) {
@@ -92,8 +92,7 @@ export function raiseLowerSailSystems(MUD: SetupResult) {
     const phase = getPhase(clock.currentTime);
     const selectedShip = getComponentValue(SelectedShip, godEntity)?.value;
     const sailPosition = getComponentValue(SailPositionLocal, shipEntity)?.value;
-    const passed = shipEntity == selectedShip && !!sailPosition && isMyShip(shipEntity);
-    console.log(`shipEntity ${passed ? "passed" : "failed"}`);
+    const passed = phase == Phase.Action && shipEntity == selectedShip && !!sailPosition && isMyShip(shipEntity);
     return passed;
   }
 
@@ -132,7 +131,7 @@ export function raiseLowerSailSystems(MUD: SetupResult) {
     const actionsExecuted = getTurn(clock.currentTime) == lastAction;
     const selected = !actionsExecuted && selectedActions.actionTypes.includes(actionType);
     const allActionsUsed = selectedActions.actionTypes.every((a) => a !== ActionType.None);
-    const disabled = actionsExecuted || allActionsUsed;
+    const disabled = !selected && (actionsExecuted || allActionsUsed);
 
     const circleHue = selected ? colors.goldHex : actionsExecuted ? colors.greenHex : colors.whiteHex;
     const hoverBonus = !disabled && hovered ? 0.1 : 0;
@@ -151,9 +150,9 @@ export function raiseLowerSailSystems(MUD: SetupResult) {
     // );
     // circle.on("pointerout", () => removeComponent(HoveredAction, godEntity), phaserScene);
 
-    const text = ActionNames[actionType];
+    const text = actionType == ActionType.LowerSail ? "Lower\nSail" : "Raise\nSail";
     const textObject = phaserScene.add.text(position.x, position.y, text, {
-      fontSize: `${width / 4}px`,
+      fontSize: `${width / 3}px`,
       color: colors.darkBrown,
       align: "center",
       fontFamily: "Inknut",
