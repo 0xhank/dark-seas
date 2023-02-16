@@ -6,6 +6,7 @@ import { firingAreaSystems } from "./firingAreaSystems";
 import { inputSystems } from "./inputSystems";
 import { localHealthSystems } from "./localHealthSystems";
 import { moveOptionsSystems } from "./moveOptionsSystems";
+import { raiseLowerSailSystems } from "./raiseLowerSailSystems";
 import { shipCircleSystems } from "./shipCircleSystems";
 import { shipTextureSystems } from "./shipTextureSystems";
 import { stagedMoveSystems } from "./stagedMoveSystems";
@@ -29,4 +30,5 @@ export function createPhaserSystems(MUD: SetupResult) {
   tilemapSystems(MUD);
   turnResetSystems(MUD);
   createCamera(MUD);
+  raiseLowerSailSystems(MUD);
 }

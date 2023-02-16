@@ -98,7 +98,7 @@ export function localHealthSystems(MUD: SetupResult) {
       shipObject.off("pointerout");
       shipObject.disableInteractive();
     } else {
-      shipObject.setInteractive();
+      shipObject.setInteractive({ cursor: "pointer" });
       shipObject.off("pointerdown");
       shipObject.off("pointerover");
       shipObject.off("pointerout");

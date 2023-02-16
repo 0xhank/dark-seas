@@ -51,6 +51,10 @@ export async function createUtilities(
     return playerEntity;
   }
 
+  function pixelCoord(coord: Coord) {
+    return tileCoordToPixelCoord(coord, POS_HEIGHT, POS_WIDTH);
+  }
+
   function getPhase(timeMs: number, delay = true): Phase | undefined {
     const delayMs = delay ? DELAY : 0;
     const gamePhase = getGamePhaseAt((timeMs + delayMs) / 1000);
@@ -703,6 +707,7 @@ export async function createUtilities(
   return {
     getGameConfig,
     getPlayerEntity,
+    pixelCoord,
     getPhase,
     getGamePhaseAt,
     getTurn,

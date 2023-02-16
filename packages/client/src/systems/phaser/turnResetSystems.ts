@@ -39,14 +39,14 @@ export function turnResetSystems(MUD: SetupResult) {
     },
   } = MUD;
 
-  defineRxSystem(world, clock.time$, () => {
-    const phase = getPhase(clock.currentTime);
-    const turn = getTurn(clock.currentTime);
+  defineRxSystem(world, clock.time$, (time) => {
+    const phase = getPhase(time);
+    const turn = getTurn(time);
     const gameConfig = getGameConfig();
 
     if (phase == undefined || !gameConfig) return;
 
-    const timeToNextPhase = secondsUntilNextPhase(clock.currentTime);
+    const timeToNextPhase = secondsUntilNextPhase(time);
 
     const playerEntity = getPlayerEntity();
     if (!playerEntity) return;

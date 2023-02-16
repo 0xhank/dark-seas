@@ -34,7 +34,7 @@ export function RevealButtons({
   }
 
   if (acted) return <Success>Move reveal successful!</Success>;
-  if (!encodedCommitment) return <Success>No moves to reveal</Success>;
+  if (!encodedCommitment) return <ConfirmButton disabled>No moves to reveal</ConfirmButton>;
 
   const disabled = tooEarly;
   return (

@@ -76,7 +76,7 @@ export function shipTextureSystems(MUD: SetupResult) {
       if (health == 0) {
         object.disableInteractive();
       } else {
-        object.setInteractive();
+        object.setInteractive({ cursor: "pointer" });
         object.on("pointerdown", () => setComponent(SelectedShip, godEntity, { value: shipEntity }));
         object.on("pointerover", () => setComponent(HoveredShip, godEntity, { value: shipEntity }));
         object.on("pointerout", () => removeComponent(HoveredShip, godEntity));

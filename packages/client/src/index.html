@@ -4,6 +4,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua&display=swap" rel="stylesheet" />
+    <link
+      rel="preload"
+      as="font"
+      href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua&display=swap"
+      type="font/ttf"
+    />
+
     <link rel="icon" href="./public/icons/sail.svg" />
     <style>
       * {
@@ -12,6 +19,11 @@
         box-sizing: border-box;
         font-family: "Inknut Antiqua", serif;
         font-size: 10px;
+      }
+
+      @font-face {
+        font-family: Inknut;
+        src: url("https://fonts.googleapis.com/css2?family=Inknut+Antiqua&display=swap");
       }
     </style>
   </head>
