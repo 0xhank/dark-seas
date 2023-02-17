@@ -9,12 +9,15 @@ import { ActionComponent } from "./Action";
 
 function CommitStatus({ shipEntity, txExecuting }: { shipEntity: EntityIndex; txExecuting: boolean }) {
   const {
-    components: { SelectedMove, MoveCard, CommittedMove, LastMove },
+    components: { SelectedMove, MoveCard, CommittedMove, EncodedCommitment },
+    godEntity,
   } = useMUD();
 
   const committedMove = useComponentValue(CommittedMove, shipEntity)?.value;
   const selectedMove = useComponentValue(SelectedMove, shipEntity)?.value;
-  const acted = !!committedMove && committedMove == selectedMove;
+  const encodedCommitment = useComponentValue(EncodedCommitment, godEntity)?.value;
+
+  const acted = !!encodedCommitment && !!committedMove && committedMove == selectedMove;
 
   let action1 = <ActionComponent name="Select a move" status={0} />;
 

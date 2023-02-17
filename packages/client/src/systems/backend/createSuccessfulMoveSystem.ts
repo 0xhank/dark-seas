@@ -1,4 +1,5 @@
 import { defineComponentSystem, defineRxSystem, getComponentValueStrict, setComponent } from "@latticexyz/recs";
+import { ActionState } from "@latticexyz/std-client";
 import { MOVE_LENGTH } from "../../phaser/constants";
 import { SetupResult } from "../../setupMUD";
 import { Category } from "../../sound";
@@ -24,10 +25,12 @@ export function createSuccessfulMoveSystem(MUD: SetupResult) {
 
   defineComponentSystem(world, Action, ({ value }) => {
     const newAction = value[0];
-    if (!newAction?.metadata) return;
+    const oldAction = value[1];
+    if (newAction || !oldAction) return;
+    if (!oldAction.metadata) return;
 
-    const { type, metadata } = newAction.metadata as { type: TxType; metadata: any };
-    if (type !== TxType.Commit) return;
+    const { type, metadata } = oldAction.metadata as { type: TxType; metadata: any };
+    if (type !== TxType.Commit && oldAction.state !== ActionState.Complete) return;
 
     const { moves, encoding } = metadata as { moves: Move[]; encoding: string };
     setComponent(EncodedCommitment, godEntity, { value: encoding });
