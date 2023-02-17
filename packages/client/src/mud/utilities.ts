@@ -18,7 +18,7 @@ import { Coord } from "@latticexyz/utils";
 import { BigNumber, BigNumberish } from "ethers";
 import { Howl } from "howler";
 import { sprites } from "../phaser/config";
-import { POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../phaser/constants";
+import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../phaser/constants";
 import { colors } from "../react/styles/global";
 import { Category, soundLibrary } from "../sound";
 import { getRangeTintAlpha } from "../systems/phaser/renderShip";
@@ -727,6 +727,15 @@ export async function createUtilities(
     return name;
   }
 
+  async function moveElement(object: Phaser.GameObjects.GameObject, coord: Coord) {
+    mainScene.add.tween({
+      targets: object,
+      duration: MOVE_LENGTH,
+      props: { x: coord.x, y: coord.y },
+      ease: Phaser.Math.Easing.Sine.InOut,
+    });
+  }
+
   startEnvironmentSoundSystem();
   playMusic();
 
@@ -770,6 +779,7 @@ export async function createUtilities(
     renderCannonFiringArea,
     renderMovePath,
     renderCircle,
+    moveElement,
     getFiringAreaPixels,
     renderShip,
     getShipName,

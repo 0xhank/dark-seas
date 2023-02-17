@@ -1,4 +1,4 @@
-import { tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
+import { tileCoordToPixelCoord } from "@latticexyz/phaserx";
 import {
   defineComponentSystem,
   defineUpdateSystem,
@@ -8,8 +8,7 @@ import {
   HasValue,
   runQuery,
 } from "@latticexyz/recs";
-import { Coord } from "@latticexyz/utils";
-import { Animations, CANNON_SHOT_DELAY, MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth } from "../../phaser/constants";
+import { Animations, CANNON_SHOT_DELAY, POS_HEIGHT, POS_WIDTH, RenderDepth } from "../../phaser/constants";
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
 import { Category } from "../../sound";
@@ -29,6 +28,7 @@ export function statAnimationSystems(MUD: SetupResult) {
       isMyShip,
       playSound,
       renderCannonFiringArea,
+      moveElement,
     },
   } = MUD;
 
@@ -81,19 +81,9 @@ export function statAnimationSystems(MUD: SetupResult) {
 
       const coord = tileCoordToPixelCoord(firePositions[i], POS_WIDTH, POS_HEIGHT);
 
-      moveFire(object, coord);
+      moveElement(object, coord);
     }
   });
-
-  async function moveFire(object: Phaser.GameObjects.Sprite, coord: Coord) {
-    await tween({
-      targets: object,
-      duration: MOVE_LENGTH,
-      props: { x: coord.x, y: coord.y },
-      ease: Phaser.Math.Easing.Sine.InOut,
-    });
-    object.setPosition(coord.x, coord.y);
-  }
 
   function destroyFire(shipEntity: EntityIndex) {
     for (let i = 0; i < 4; i++) {
