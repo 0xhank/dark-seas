@@ -66,7 +66,7 @@ export function moveOptionsSystems(MUD: SetupResult) {
       destroySpriteObject(objectId);
       const shipObject = renderShip(shipEntity, objectId, finalPosition, finalRotation, shipColor, 0.3);
       if (!shipObject) return;
-      shipObject.setInteractive();
+      shipObject.setInteractive({ cursor: "pointer" });
       shipObject.on("pointerdown", () => {
         if (!isMyShip(shipEntity)) return;
         if (isSelected) return removeComponent(SelectedMove, shipEntity);

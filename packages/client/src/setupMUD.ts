@@ -1,4 +1,4 @@
-import { EntityID, EntityIndex } from "@latticexyz/recs";
+import { EntityIndex } from "@latticexyz/recs";
 import { setupMUDNetwork } from "@latticexyz/std-client";
 
 import { createFaucetService, GodID } from "@latticexyz/network";
@@ -11,6 +11,7 @@ import { commitMoveAction, respawnAction, revealMoveAction, spawnPlayerAction, s
 import { clientComponents, components } from "./mud/components";
 import { config } from "./mud/config";
 import { createUtilities } from "./mud/utilities";
+import { setupDevSystems } from "./mud/utilities/setupDevSystems";
 import { world } from "./mud/world";
 import { phaserConfig } from "./phaser/config";
 import { Action, Move } from "./types";
@@ -22,8 +23,10 @@ import { Action, Move } from "./types";
 export type SetupResult = Awaited<ReturnType<typeof setupMUD>>;
 
 export async function setupMUD() {
-  const res = await setupMUDNetwork<typeof components, SystemTypes>(config, world, components, SystemAbis);
-  const { systems, network, systemCallStreams, txReduced$ } = res;
+  const res = await setupMUDNetwork<typeof components, SystemTypes>(config, world, components, SystemAbis, {
+    fetchSystemCalls: true,
+  });
+  const { systems, network, systemCallStreams, txReduced$, encoders } = res;
   res.startSync();
 
   // For LoadingState updates
@@ -33,9 +36,6 @@ export async function setupMUD() {
   const playerAddress = res.network.connectedAddress.get();
   if (!playerAddress) throw new Error("Not connected");
 
-  const playerEntityId = playerAddress as EntityID;
-
-  const initialPlayerEntity = world.entityToIndex.get(playerEntityId);
   // Faucet setup
   const faucetUrl = "https://faucet.testnet-mud-services.linfra.xyz";
 
@@ -99,8 +99,6 @@ export async function setupMUD() {
     godEntityId: GodID,
     godEntity,
     playerAddress,
-    initialPlayerEntity,
-    playerEntityId,
     network,
     components: {
       ...res.components,
@@ -110,6 +108,7 @@ export async function setupMUD() {
     utils,
     actions,
     scene: scenes.Main,
+    dev: setupDevSystems(world, encoders, systems),
   };
 
   return context;

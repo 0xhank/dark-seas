@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 const lightGold = "hsl(45,100%,60%)";
 const gold = "hsl(45,100%,54.1%)";
+const goldDisabled = "hsla(45,100%,54%, 0.5)";
 const darkGold = "hsl(45,100%,31%)";
 const lightBrown = "hsl(30,46.9%,48%)";
 const brown = "hsl(30,100%,35%)";
@@ -21,6 +22,9 @@ const red = "hsl(0, 100%, 50%)";
 const cannonReady = "hsla(344, 89%, 59%, 1)";
 const waiting = "hsla(50, 100%, 50%, 0.5)";
 const green = "hsl(119, 78%, 39%)";
+const tan = "hsl(23, 22%, 88%)";
+const lightTan = color(tan).lighten(0.1).toString();
+const lightTanHex = color(tan).lighten(0.1).rgbNumber();
 const greenGlass = color(green).alpha(0.7).toString();
 const darkGrayHex = color(darkGray).rgbNumber();
 const blackHex = color(black).rgbNumber();
@@ -48,6 +52,9 @@ export const colors = {
   blue,
   darkGold,
   glass,
+  tan,
+  lightTan,
+  lightTanHex,
   thickGlass,
   thinGlass,
   blueGradient,
@@ -81,12 +88,16 @@ export const Container = styled.div`
 `;
 
 export const Success = styled.div`
-  color: ${colors.gold};
+  background: ${green};
+  color: ${lightTan};
   border-radius: 6px;
-  width: 100%;
+  border: none;
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0px 1px 3px ${colors.black});
 `;
 
 export const BackgroundImg = styled.div`
@@ -112,11 +123,12 @@ export const Button = styled.button<{ isSelected?: boolean; noGoldBorder?: boole
   background: ${({ isSelected }) => `${isSelected ? gold : glass}`};
   border: ${({ noGoldBorder }) => `${noGoldBorder ? "0" : "1"}px solid ${gold}`};
   cursor: pointer;
-  padding: 6px;
+  padding: 4px;
   border-radius: 6px;
   border-color: ${gold};
   pointer-events: all;
   color: ${darkBrown};
+  backdrop-filter: blur(3px);
   // color: ${({ isSelected }) => `${isSelected ? white : darkBrown}`};
 
   :hover {
@@ -132,7 +144,6 @@ export const Button = styled.button<{ isSelected?: boolean; noGoldBorder?: boole
 `;
 
 export const OptionButton = styled(Button)<{ confirmed?: boolean }>`
-  margin-bottom: 12px;
   :hover {
     background: ${({ isSelected, confirmed }) => `${confirmed ? greenGlass : isSelected ? red : white}`};
     color: ${({ isSelected, disabled }) => `${isSelected || disabled ? white : darkBrown}`};
@@ -153,21 +164,22 @@ export const Img = styled.img<{ isSelected?: boolean }>`
       : "invert(19%) sepia(89%) saturate(1106%) hue-rotate(7deg) brightness(93%) contrast(102%)"};
 `;
 
-export const ConfirmButton = styled(Button)`
+export const ConfirmButton = styled.button`
   background: ${gold};
-
-  :hover {
-    background: ${gold};
-  }
-
+  color: ${darkBrown};
+  border-radius: 6px;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: all;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  filter: drop-shadow(0px 1px 3px ${colors.black});
   :disabled {
-    background: ${lightGray};
-    color: ${lighterGray};
-    border-color: ${darkGray};
+    background: ${goldDisabled};
     cursor: not-allowed;
-    hover: {
-      background: ${lightGray};
-    }
   }
 `;
 
@@ -181,6 +193,23 @@ export const InternalContainer = styled.div`
   background: ${glass};
   justify-content: space-between;
   color: ${darkBrown};
+`;
+
+export const ShipContainer = styled.div<{
+  isSelected?: boolean;
+  isHovered?: boolean;
+}>`
+  min-width: 160px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  box-shadow: ${({ isSelected }) => `inset 0px 0px 0px ${isSelected ? "3px" : "0px"} ${colors.gold}`};
+  background: ${tan};
+  border-radius: 6px;
+  color: ${darkBrown};
+  filter: drop-shadow(0px 1px 3px ${colors.black});
 `;
 
 export const Row = styled.div`
@@ -212,9 +241,9 @@ export const Input = styled.input`
   }
 `;
 
-export const BoxImage = styled.div`
+export const BoxImage = styled.div<{ length: number }>`
   position: relative;
-  width: 70%;
+  width: ${({ length }) => `${length * 5}%`};
   margin: auto;
   padding-top: 6px;
   :before {

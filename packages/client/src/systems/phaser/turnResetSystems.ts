@@ -39,14 +39,14 @@ export function turnResetSystems(MUD: SetupResult) {
     },
   } = MUD;
 
-  defineRxSystem(world, clock.time$, () => {
-    const phase = getPhase(clock.currentTime);
-    const turn = getTurn(clock.currentTime);
+  defineRxSystem(world, clock.time$, (time) => {
+    const phase = getPhase(time);
+    const turn = getTurn(time);
     const gameConfig = getGameConfig();
 
     if (phase == undefined || !gameConfig) return;
 
-    const timeToNextPhase = secondsUntilNextPhase(clock.currentTime);
+    const timeToNextPhase = secondsUntilNextPhase(time);
 
     const playerEntity = getPlayerEntity();
     if (!playerEntity) return;
@@ -73,31 +73,26 @@ export function turnResetSystems(MUD: SetupResult) {
     // START OF PHASE: reveal moves
     // note: contract-side this occurs during the commit phase
     if (phase == Phase.Reveal) {
+      if (timeToNextPhase == gameConfig.revealPhaseLength) {
+        //cleanup
+        [...getComponentEntities(MoveCard)].forEach((moveCardEntity) => {
+          const objectId = `optionGhost-${moveCardEntity}`;
+          destroySpriteObject(objectId);
+        });
+
+        destroyGroupObject("activeShip");
+        destroySpriteObject("hoverGhost");
+        //commit move
+        const encodedCommitment = getComponentValue(EncodedCommitment, godEntity)?.value;
+        if (encodedCommitment) return;
+        const shipsAndMoves = getPlayerShipsWithMoves();
+        if (!shipsAndMoves) return;
+        commitMove(shipsAndMoves);
+      }
+
       if (timeToNextPhase == gameConfig.revealPhaseLength - 3) {
         const encoding = getComponentValue(EncodedCommitment, godEntity)?.value;
         if (encoding) revealMove(encoding);
-      }
-      if (timeToNextPhase !== gameConfig.revealPhaseLength) return;
-      const encodedCommitment = getComponentValue(EncodedCommitment, godEntity)?.value;
-      if (encodedCommitment) return;
-      const shipsAndMoves = getPlayerShipsWithMoves();
-      if (!shipsAndMoves) return;
-      commitMove(shipsAndMoves);
-
-      [...getComponentEntities(MoveCard)].forEach((moveCardEntity) => {
-        const objectId = `optionGhost-${moveCardEntity}`;
-        destroySpriteObject(objectId);
-      });
-      const lastMove = getComponentValue(LastMove, playerEntity)?.value;
-      if (lastMove == turn) return;
-
-      // clear projected ship
-      const hoveredShip = getComponentValue(HoveredMove, godEntity)?.shipEntity;
-      if (hoveredShip) {
-        const hoverId = `hoverGhost-${hoveredShip}`;
-
-        destroySpriteObject(hoverId);
-        destroyGroupObject(hoverId);
       }
     }
 

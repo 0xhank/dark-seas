@@ -42,6 +42,7 @@ export const config = {
   initialBlockNumber: Number(params.get("initialBlockNumber")) || 0,
   worldAddress: params.get("worldAddress") || "0x69",
   devMode: params.get("dev") === "true",
+  encoders: true,
 };
 
 console.info(`Booting with network config:`);

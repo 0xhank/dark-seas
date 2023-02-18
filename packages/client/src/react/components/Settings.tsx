@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { useMUD } from "../../mud/providers/MUDProvider";
 import { ModalType } from "../../types";
 import { Button, Img } from "../styles/global";
-import { Cell } from "./Cell";
 
 const gridConfig = {
   gridRowStart: 1,
@@ -23,25 +22,23 @@ export function Settings() {
   const openTutorial = () => setComponent(ModalOpen, ModalType.TUTORIAL, { value: true });
 
   const volume = useComponentValue(Volume, godEntity, { value: 0 }).value;
-  const musicVolume = useComponentValue(Volume, 1 as EntityIndex, { value: 0 });
+  const musicVolume = useComponentValue(Volume, 1 as EntityIndex, { value: 0 }).value;
   return (
-    <Cell style={gridConfig}>
-      <SettingsContainer>
-        <Button onClick={openLeaderboard} style={{ width: "40px" }}>
-          <Img src={"/icons/podium.svg"} />
-        </Button>
-        <Button onClick={volume ? muteSfx : unmuteSfx} style={{ width: "40px", height: "40px" }}>
-          <Img src={volume ? "/icons/unmute.svg" : "/icons/mute.svg"}></Img>
-        </Button>
-        <Button onClick={() => (musicVolume ? muteMusic() : playMusic(1))} style={{ width: "40px", height: "40px" }}>
-          <Img src={musicVolume ? "/icons/unmute-music.svg" : "/icons/mute-music.svg"}></Img>
-        </Button>
+    <SettingsContainer>
+      <Button onClick={openLeaderboard} style={{ width: "40px" }}>
+        <Img src={"/icons/podium.svg"} />
+      </Button>
+      <Button onClick={volume ? muteSfx : unmuteSfx} style={{ width: "40px", height: "40px" }}>
+        <Img src={volume ? "/icons/unmute.svg" : "/icons/mute.svg"}></Img>
+      </Button>
+      <Button onClick={() => (musicVolume ? muteMusic() : playMusic(1))} style={{ width: "40px", height: "40px" }}>
+        <Img src={musicVolume ? "/icons/unmute-music.svg" : "/icons/mute-music.svg"}></Img>
+      </Button>
 
-        <Button onClick={openTutorial} style={{ width: "40px" }}>
-          <Img src={"/icons/help.svg"} />
-        </Button>
-      </SettingsContainer>
-    </Cell>
+      <Button onClick={openTutorial} style={{ width: "40px" }}>
+        <Img src={"/icons/help.svg"} />
+      </Button>
+    </SettingsContainer>
   );
 }
 

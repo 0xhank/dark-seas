@@ -4,18 +4,18 @@ import {
   EntityID,
   EntityIndex,
   getComponentValue,
-  getComponentValueStrict,
   Has,
   setComponent,
 } from "@latticexyz/recs";
 import { world } from "../../mud/world";
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
-import { ActionType } from "../../types";
+import { ActionType, Phase } from "../../types";
 
 export function firingAreaSystems(MUD: SetupResult) {
   const {
     components: { Position, Length, Rotation, Loaded, SelectedActions, SelectedShip, HoveredAction, Targeted },
+    network: { clock },
     utils: {
       getGroupObject,
       destroyGroupObject,
@@ -42,13 +42,10 @@ export function firingAreaSystems(MUD: SetupResult) {
     const hoveredGroup = getGroupObject(objectId, true);
     if (!shipEntity || !cannonEntity) return;
 
-    const position = getComponentValueStrict(Position, shipEntity);
-    const length = getComponentValueStrict(Length, shipEntity).value;
-    const rotation = getComponentValueStrict(Rotation, shipEntity).value;
     const loaded = getComponentValue(Loaded, cannonEntity)?.value;
 
     const strokeFill = { tint: loaded ? colors.cannonReadyHex : colors.goldHex, alpha: 0.5 };
-    renderCannonFiringArea(hoveredGroup, position, rotation, length, cannonEntity, undefined, strokeFill);
+    renderCannonFiringArea(hoveredGroup, shipEntity, cannonEntity, undefined, strokeFill);
   });
 
   defineExitSystem(world, [Has(HoveredAction)], (update) => {
@@ -120,6 +117,8 @@ export function firingAreaSystems(MUD: SetupResult) {
 
     const shipEntity = update.value[0]?.value as EntityIndex | undefined;
     if (!shipEntity) return;
+    const phase = getPhase(clock.currentTime);
+    if (phase == Phase.Commit) return;
     renderShipFiringAreas(shipEntity, groupId);
   });
 

@@ -18,14 +18,21 @@ import { Coord } from "@latticexyz/utils";
 import { BigNumber, BigNumberish } from "ethers";
 import { Howl } from "howler";
 import { sprites } from "../phaser/config";
-import { POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../phaser/constants";
+import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../phaser/constants";
 import { colors } from "../react/styles/global";
 import { Category, soundLibrary } from "../sound";
 import { getRangeTintAlpha } from "../systems/phaser/renderShip";
 import { Action, ActionType, DELAY, Move, Phase, Sprites } from "../types";
 import { distance } from "../utils/distance";
 import { cap, getHash, getShipSprite } from "../utils/ships";
-import { getFiringArea, getPositionByVector, getSternPosition, inFiringArea } from "../utils/trig";
+import {
+  getFiringArea,
+  getPolygonCenter,
+  getPositionByVector,
+  getSternPosition,
+  inFiringArea,
+  isBroadside,
+} from "../utils/trig";
 import { adjectives, nouns } from "../wordlist";
 import { clientComponents, components } from "./components";
 import { polygonRegistry, spriteRegistry, world } from "./world";
@@ -49,6 +56,10 @@ export async function createUtilities(
     if (!address) address = playerAddress;
     const playerEntity = world.entityToIndex.get(address as EntityID);
     return playerEntity;
+  }
+
+  function pixelCoord(coord: Coord) {
+    return tileCoordToPixelCoord(coord, POS_HEIGHT, POS_WIDTH);
   }
 
   function getPhase(timeMs: number, delay = true): Phase | undefined {
@@ -489,12 +500,7 @@ export async function createUtilities(
   function destroySpriteObject(id: string | number) {
     const sprite = spriteRegistry.get(id);
     if (!sprite) return;
-    console.log("sprite:", sprite);
-    sprite.disableInteractive();
 
-    sprite.off("pointerdown");
-    sprite.off("pointerover");
-    sprite.off("pointerout");
     sprite.destroy(true);
     spriteRegistry.delete(id);
   }
@@ -513,14 +519,6 @@ export async function createUtilities(
   function destroyGroupObject(id: string | number) {
     const group = polygonRegistry.get(id);
     if (!group) return;
-    group.getChildren().forEach((child) => {
-      if (!child) return;
-      child.disableInteractive();
-
-      child.off("pointerdown");
-      child.off("pointerover");
-      child.off("pointerout");
-    });
     group.destroy(true, true);
     polygonRegistry.delete(id);
   }
@@ -606,11 +604,16 @@ export async function createUtilities(
       const cannonSelected = selectedActions?.specialEntities.includes(world.entities[cannonEntity]);
       const cannotAdd = selectedActions?.actionTypes.every((action, i) => action !== ActionType.None);
 
-      position = position || getComponentValueStrict(components.Position, shipEntity);
-      rotation = rotation || getComponentValueStrict(components.Rotation, shipEntity).value;
-      const length = getComponentValueStrict(components.Length, shipEntity).value;
       const rangeColor = getRangeTintAlpha(!!loaded, !!cannonSelected, damagedCannons);
-      const firingPolygon = renderCannonFiringArea(activeGroup, position, rotation, length, cannonEntity, rangeColor);
+      const firingPolygon = renderCannonFiringArea(
+        activeGroup,
+        shipEntity,
+        cannonEntity,
+        rangeColor,
+        undefined,
+        position,
+        rotation
+      );
       const actionType = loaded ? ActionType.Fire : ActionType.Load;
 
       const shipOwner = getShipOwner(shipEntity);
@@ -630,13 +633,16 @@ export async function createUtilities(
 
   function renderCannonFiringArea(
     group: Phaser.GameObjects.Group,
-    position: Coord,
-    rotation: number,
-    length: number,
+    shipEntity: EntityIndex,
     cannonEntity: EntityIndex,
-    fill: { tint: number; alpha: number } | undefined = undefined,
-    stroke: { tint: number; alpha: number } | undefined = undefined
+    fill?: { tint: number; alpha: number },
+    stroke?: { tint: number; alpha: number },
+    position?: Coord,
+    rotation?: number
   ) {
+    const length = getComponentValueStrict(components.Length, shipEntity).value;
+    position = position || getComponentValueStrict(components.Position, shipEntity);
+    rotation = rotation || getComponentValueStrict(components.Rotation, shipEntity).value;
     const firingArea = getFiringAreaPixels(position, rotation, length, cannonEntity);
     const firingPolygon = mainScene.add.polygon(undefined, undefined, firingArea, colors.whiteHex, 0.3);
     firingPolygon.setDisplayOrigin(0);
@@ -648,11 +654,34 @@ export async function createUtilities(
     if (stroke) {
       firingPolygon.setStrokeStyle(6, stroke.tint, stroke.alpha);
     }
-
     group.add(firingPolygon, true);
 
+    const damagedCannons = getComponentValue(clientComponents.DamagedCannonsLocal, shipEntity)?.value;
+    const showText = !damagedCannons && getPhase(clock.currentTime) == Phase.Action && isMyShip(shipEntity);
+    if (!showText) return firingPolygon;
+
+    const cannonRotation = getComponentValueStrict(components.Rotation, cannonEntity).value;
+    const suffix = isBroadside(cannonRotation) ? "BROADSIDE" : "PIVOT GUN";
+
+    const loaded = getComponentValue(components.Loaded, cannonEntity)?.value;
+    const prefix = loaded ? "FIRE" : "LOAD";
+
+    const textPosition = getPolygonCenter(firingArea);
+    const textObject = mainScene.add.text(textPosition.x, textPosition.y, `${prefix}\n${suffix}`, {
+      color: colors.white,
+      align: "center",
+      fontFamily: "Inknut Antiqua",
+      fontSize: "40px",
+    });
+
+    textObject.setDepth(RenderDepth.Foreground5);
+    textObject.setOrigin(0.5);
+
+    textObject.setAngle(((cannonRotation + rotation + 90) % 180) - 90);
+    group.add(textObject, true);
     return firingPolygon;
   }
+
   function renderCircle(
     group: Phaser.GameObjects.Group,
     position: Coord,
@@ -698,12 +727,22 @@ export async function createUtilities(
     return name;
   }
 
+  async function moveElement(object: Phaser.GameObjects.GameObject, coord: Coord) {
+    mainScene.add.tween({
+      targets: object,
+      duration: MOVE_LENGTH,
+      props: { x: coord.x, y: coord.y },
+      ease: Phaser.Math.Easing.Sine.InOut,
+    });
+  }
+
   startEnvironmentSoundSystem();
   playMusic();
 
   return {
     getGameConfig,
     getPlayerEntity,
+    pixelCoord,
     getPhase,
     getGamePhaseAt,
     getTurn,
@@ -740,6 +779,7 @@ export async function createUtilities(
     renderCannonFiringArea,
     renderMovePath,
     renderCircle,
+    moveElement,
     getFiringAreaPixels,
     renderShip,
     getShipName,
