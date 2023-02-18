@@ -62,16 +62,16 @@ contract InitSystem is System {
         commitPhaseLength: 24,
         revealPhaseLength: 9,
         actionPhaseLength: 24,
-        worldSize: 150,
-        perlinSeed: 420,
+        worldSize: 120,
+        perlinSeed: 45420,
         shipPrototypes: shipEntities,
         entryCutoffTurns: 300, // entry is closed after the 60th turn (~1 hour)
-        buyin: 1000,
-        respawnAllowed: true,
+        buyin: 0,
+        respawnAllowed: false,
         // Calculation: Every turn, the world shrinks by gameConfig.shrinkrate / 100.
         // If shrink rate is 100, the world will shrink by 1 each turn.
         // Shrinking starts once entry is cutoff and ends when the world size is 50.
-        shrinkRate: 500
+        shrinkRate: 400
       })
     );
 

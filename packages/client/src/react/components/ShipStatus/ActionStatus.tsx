@@ -60,7 +60,7 @@ function RevealStatus({
     const status = acted ? 3 : txExecuting ? 2 : 1;
     const direction = getComponentValueStrict(MoveCard, committedMove as EntityIndex).direction;
     const movementName = direction == 0 ? "Straight" : direction > 180 ? "Left" : "Right";
-    action1 = <ActionComponent name={"Reveal " + movementName} status={status} />;
+    action1 = <ActionComponent name={"Move " + movementName} status={status} />;
   }
 
   return (

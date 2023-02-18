@@ -19,9 +19,9 @@ export function RevealButtons({
   } = useMUD();
 
   const encodedCommitment = useComponentValue(EncodedCommitment, godEntity)?.value;
+  const encoding = useComponentValue(EncodedCommitment, godEntity)?.value;
 
   const handleSubmitExecute = () => {
-    const encoding = useComponentValue(EncodedCommitment, godEntity)?.value;
     if (encoding) revealMove(encoding);
   };
   const playerEntity = usePlayer();

@@ -35,7 +35,7 @@ export function createSuccessfulMoveSystem(MUD: SetupResult) {
     const { moves, encoding } = metadata as { moves: Move[]; encoding: string };
     setComponent(EncodedCommitment, godEntity, { value: encoding });
 
-    moves.map((move) => {
+    moves?.map((move) => {
       const shipEntity = world.entityToIndex.get(move.shipEntity);
       const moveCardEntity = world.entityToIndex.get(move.moveCardEntity);
       if (!shipEntity || !moveCardEntity) return;

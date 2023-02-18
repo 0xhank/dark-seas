@@ -95,10 +95,11 @@ export function damageBubbleSystems(MUD: SetupResult) {
     const modulatedTime = Date.now() % 3000;
 
     const delay = (index * 1000 - modulatedTime + 12000) % 3000;
-
-    group.setAlpha(0);
-    await new Promise((resolve) => setTimeout(resolve, delay));
-    group.setAlpha(1);
+    if (group.getChildren().entries()) {
+      group.setAlpha(0);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      group.setAlpha(1);
+    }
     phaserScene.tweens.add({
       targets: group.getChildren(),
       props: {
