@@ -47,7 +47,6 @@ struct GameConfig {
   uint32 actionPhaseLength;
   uint32 worldSize;
   int128 perlinSeed;
-  uint256[] shipPrototypes;
   // Number of turns before registration is blocked
   uint32 entryCutoffTurns;
   uint256 buyin;

@@ -96,31 +96,23 @@ library LibSpawn {
     return 135;
   }
 
-  /**
-   * @notice  spawns three ships for player next to each other
-   * @param   world  world in question
-   * @param   components  world components
-   * @param   playerEntity  player's entity id
-   * @param   startingPosition position at which to spawn (currently used as source of randomness hehe)
-   */
   function spawn(
     IWorld world,
     IUint256Component components,
     uint256 playerEntity,
-    Coord memory startingPosition
+    uint256[] memory shipPrototypes
   ) public {
-    uint256 nonce = uint256(keccak256(abi.encode(startingPosition, playerEntity)));
     uint256 buyin = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).buyin;
-    startingPosition = getRandomPosition(components, LibUtils.randomness(playerEntity, nonce));
+    uint256 prototypeRandomness = uint256(keccak256(abi.encode(shipPrototypes)));
+    Coord memory startingPosition = getRandomPosition(
+      components,
+      LibUtils.randomness(prototypeRandomness, playerEntity)
+    );
 
     uint32 rotation = pointKindaTowardsTheCenter(startingPosition);
 
-    uint256[] memory shipPrototypeEntities = GameConfigComponent(getAddressById(components, GameConfigComponentID))
-      .getValue(GodID)
-      .shipPrototypes;
-
-    for (uint256 i = 0; i < shipPrototypeEntities.length; i++) {
-      spawnShip(components, world, playerEntity, startingPosition, rotation, shipPrototypeEntities[i], buyin);
+    for (uint256 i = 0; i < shipPrototypes.length; i++) {
+      spawnShip(components, world, playerEntity, startingPosition, rotation, shipPrototypes[i], buyin);
       startingPosition = Coord(startingPosition.x + 20, startingPosition.y);
     }
 

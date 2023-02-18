@@ -26,6 +26,8 @@ contract PlayerSpawnTest is DarkSeasTest {
   PlayerSpawnSystem playerSpawnSystem;
   NameComponent nameComponent;
 
+  uint256[] shipPrototypes;
+
   function testRevertTooLate() public prank(deployer) {
     setup();
 
@@ -36,7 +38,7 @@ contract PlayerSpawnTest is DarkSeasTest {
     vm.warp(LibTurn.getTurnAndPhaseTime(components, gameConfig.entryCutoffTurns + 1, Phase.Commit));
 
     vm.expectRevert(bytes("PlayerSpawnSystem: entry period has ended"));
-    playerSpawnSystem.executeTyped("Jamaican me crazy", Coord(1, 1));
+    playerSpawnSystem.executeTyped("Jamaican me crazy", shipPrototypes);
   }
 
   function testSpawn() public prank(deployer) {
@@ -47,11 +49,11 @@ contract PlayerSpawnTest is DarkSeasTest {
     BootyComponent bootyComponent = BootyComponent(getAddressById(components, BootyComponentID));
     uint256 playerEntity = addressToEntity(deployer);
 
-    playerSpawnSystem.executeTyped("Jamaican me crazy", Coord(1, 1));
+    playerSpawnSystem.executeTyped("Jamaican me crazy", shipPrototypes);
 
     (uint256[] memory entities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
-    assertEq(entities.length, gameConfig.shipPrototypes.length, "incorrect number of ships");
+    assertEq(entities.length, shipPrototypes.length, "incorrect number of ships");
 
     bool hasName = nameComponent.has(playerEntity);
     for (uint256 i = 0; i < entities.length; i++) {
@@ -79,5 +81,6 @@ contract PlayerSpawnTest is DarkSeasTest {
     gameConfig.respawnAllowed = true;
 
     gameConfigComponent.set(GodID, gameConfig);
+    delete shipPrototypes;
   }
 }
