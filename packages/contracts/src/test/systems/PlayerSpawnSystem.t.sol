@@ -15,10 +15,11 @@ import { GameConfigComponent, ID as GameConfigComponentID } from "../../componen
 import { BootyComponent, ID as BootyComponentID } from "../../components/BootyComponent.sol";
 
 // Types
-import { Coord, Phase } from "../../libraries/DSTypes.sol";
+import { Coord, Phase, CannonPrototype } from "../../libraries/DSTypes.sol";
 
 // Internal
 import "../../libraries/LibUtils.sol";
+import "../../libraries/LibCreateShip.sol";
 
 contract PlayerSpawnTest is DarkSeasTest {
   constructor() DarkSeasTest(new Deploy()) {}
@@ -43,12 +44,18 @@ contract PlayerSpawnTest is DarkSeasTest {
 
   function testSpawn() public prank(deployer) {
     setup();
+
+    console.log("msg.sender: ", msg.sender);
+    console.log("deployer: ", deployer);
     GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
       GodID
     );
     BootyComponent bootyComponent = BootyComponent(getAddressById(components, BootyComponentID));
     uint256 playerEntity = addressToEntity(deployer);
 
+    uint256 encodedShip = createShipPrototype(1);
+
+    shipPrototypes.push(encodedShip);
     playerSpawnSystem.executeTyped("Jamaican me crazy", shipPrototypes);
 
     (uint256[] memory entities, ) = LibUtils.getEntityWith(components, ShipComponentID);

@@ -55,12 +55,14 @@ struct GameConfig {
   // If shrink rate is 100, the world will shrink by 1 each turn.
   // Shrinking starts once entry is cutoff and ends when the world size is 50.
   uint32 shrinkRate;
+  uint32 budget;
 }
 
 struct ShipPrototype {
   uint32 length;
   uint32 maxHealth;
   uint32 speed;
+  uint32 price;
   CannonPrototype[] cannons;
 }
 

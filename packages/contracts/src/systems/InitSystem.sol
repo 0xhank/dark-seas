@@ -34,16 +34,25 @@ contract InitSystem is System {
     cannon4[1] = CannonPrototype({ rotation: 270, firepower: 60, range: 60 });
     cannon4[2] = CannonPrototype({ rotation: 345, firepower: 50, range: 50 });
     cannon4[3] = CannonPrototype({ rotation: 15, firepower: 50, range: 50 });
-    LibCreateShip.createShip(components, ShipPrototype({ length: 13, maxHealth: 10, speed: 90, cannons: cannon4 }));
+    LibCreateShip.createShip(
+      components,
+      ShipPrototype({ price: 1, length: 13, maxHealth: 10, speed: 90, cannons: cannon4 })
+    );
 
     cannon3[0] = CannonPrototype({ rotation: 90, firepower: 50, range: 100 });
     cannon3[1] = CannonPrototype({ rotation: 270, firepower: 50, range: 100 });
     cannon3[2] = CannonPrototype({ rotation: 0, firepower: 40, range: 100 });
-    LibCreateShip.createShip(components, ShipPrototype({ length: 10, maxHealth: 10, speed: 110, cannons: cannon3 }));
+    LibCreateShip.createShip(
+      components,
+      ShipPrototype({ price: 1, length: 10, maxHealth: 10, speed: 110, cannons: cannon3 })
+    );
 
     cannon2[0] = CannonPrototype({ rotation: 90, firepower: 70, range: 120 });
     cannon2[1] = CannonPrototype({ rotation: 270, firepower: 70, range: 120 });
-    LibCreateShip.createShip(components, ShipPrototype({ length: 8, maxHealth: 10, speed: 80, cannons: cannon2 }));
+    LibCreateShip.createShip(
+      components,
+      ShipPrototype({ price: 1, length: 8, maxHealth: 10, speed: 80, cannons: cannon2 })
+    );
 
     gameConfigComponent.set(
       GodID,
@@ -60,7 +69,8 @@ contract InitSystem is System {
         // Calculation: Every turn, the world shrinks by gameConfig.shrinkrate / 100.
         // If shrink rate is 100, the world will shrink by 1 each turn.
         // Shrinking starts once entry is cutoff and ends when the world size is 50.
-        shrinkRate: 400
+        shrinkRate: 400,
+        budget: 5
       })
     );
 

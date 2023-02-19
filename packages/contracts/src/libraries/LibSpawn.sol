@@ -103,11 +103,8 @@ library LibSpawn {
     uint256[] memory shipPrototypes
   ) public {
     uint256 buyin = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).buyin;
-    uint256 prototypeRandomness = uint256(keccak256(abi.encode(shipPrototypes)));
-    Coord memory startingPosition = getRandomPosition(
-      components,
-      LibUtils.randomness(prototypeRandomness, playerEntity)
-    );
+    // uint256 prototypeRandomness = uint256(keccak256(abi.encode(shipPrototypes)));
+    Coord memory startingPosition = getRandomPosition(components, LibUtils.randomness(1, playerEntity));
 
     uint32 rotation = pointKindaTowardsTheCenter(startingPosition);
 

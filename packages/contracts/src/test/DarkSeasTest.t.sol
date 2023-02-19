@@ -15,6 +15,8 @@ import "../libraries/LibTurn.sol";
 import "../libraries/LibSpawn.sol";
 import "../libraries/LibUtils.sol";
 
+import { CannonPrototype, ShipPrototype } from "../libraries/DSTypes.sol";
+
 contract DarkSeasTest is MudTest {
   constructor(IDeploy deploy) MudTest(deploy) {}
 
@@ -64,6 +66,31 @@ contract DarkSeasTest is MudTest {
 
     LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 0);
     LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 0);
+  }
+
+  function createShipPrototype(uint32 price) internal returns (uint256) {
+    ShipPrototypeComponent shipPrototypeComponent = ShipPrototypeComponent(
+      getAddressById(components, ShipPrototypeComponentID)
+    );
+
+    CannonPrototype[] memory cannon4 = new CannonPrototype[](4);
+    cannon4[0] = CannonPrototype({ rotation: 90, firepower: 60, range: 60 });
+    cannon4[1] = CannonPrototype({ rotation: 270, firepower: 60, range: 60 });
+    cannon4[2] = CannonPrototype({ rotation: 345, firepower: 50, range: 50 });
+    cannon4[3] = CannonPrototype({ rotation: 15, firepower: 50, range: 50 });
+    ShipPrototype memory shipPrototype = ShipPrototype({
+      price: price,
+      length: 13,
+      maxHealth: 10,
+      speed: 90,
+      cannons: cannon4
+    });
+
+    bytes memory packedShipPrototype = abi.encode(shipPrototype);
+    uint256 shipEntity = uint256(keccak256(packedShipPrototype));
+    if (shipPrototypeComponent.has(shipEntity)) return shipEntity;
+    ShipPrototypeComponent(getAddressById(components, ShipPrototypeComponentID)).set(shipEntity, packedShipPrototype);
+    return shipEntity;
   }
 
   function assertCoordEq(Coord memory a, Coord memory b) internal {
