@@ -46,6 +46,3 @@ export const config = {
   devMode: dev,
   encoders: true,
 };
-
-console.info(`Booting with network config:`);
-console.info(config);

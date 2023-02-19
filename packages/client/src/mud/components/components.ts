@@ -7,12 +7,10 @@ import {
 } from "@latticexyz/std-client";
 import { world } from "../world";
 import { GameConfigComponent } from "./GameConfigComponent";
-import { LoadingStateComponent } from "./LoadingStateComponent";
 import { MoveCardComponent } from "./MoveCardComponent";
 
 export const components = {
   GameConfig: GameConfigComponent,
-  LoadingState: LoadingStateComponent,
   MoveCard: MoveCardComponent,
   Position: defineCoordComponent(world, { id: "Position", metadata: { contractId: "ds.component.Position" } }),
   Rotation: defineNumberComponent(world, { id: "Rotation", metadata: { contractId: "ds.component.Rotation" } }),

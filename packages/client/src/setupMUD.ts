@@ -23,13 +23,17 @@ import { Action, Move } from "./types";
 export type SetupResult = Awaited<ReturnType<typeof setupMUD>>;
 
 export async function setupMUD() {
+  console.info(`Booting with network config:`, config);
+
   const res = await setupMUDNetwork<typeof components, SystemTypes>(config, world, components, SystemAbis, {
     fetchSystemCalls: true,
   });
+  console.log("network setup complete");
+
   const { systems, network, systemCallStreams, txReduced$, encoders } = res;
   res.startSync();
 
-  // For LoadingState updates
+  // For LoadingState updatesk
   const godEntity = world.registerEntity({ id: GodID });
 
   // Register player entity
@@ -41,6 +45,7 @@ export async function setupMUD() {
 
   const { game, scenes, dispose: disposePhaser } = await createPhaserEngine(phaserConfig);
   world.registerDisposer(disposePhaser);
+  console.log("phaser setup complete");
 
   if (!config.devMode) {
     const faucet = createFaucetService(faucetUrl);
@@ -110,5 +115,6 @@ export async function setupMUD() {
     dev: setupDevSystems(world, encoders, systems),
   };
 
+  console.log("setup complete");
   return context;
 }
