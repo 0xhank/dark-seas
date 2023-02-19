@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "----- EXTERNAL -----": "---------------------------",
-    "prepare": "mud types && mud codegen-libdeploy --out src/test",
+    "build": "mud types && mud codegen-libdeploy --out src/test",
     "devnode": "mud devnode",
     "test": "mud test",
     "types": "mud types",
