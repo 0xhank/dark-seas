@@ -102,14 +102,26 @@ library LibSpawn {
     uint256 playerEntity,
     uint256[] memory shipPrototypes
   ) public {
-    uint256 buyin = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).buyin;
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
     // uint256 prototypeRandomness = uint256(keccak256(abi.encode(shipPrototypes)));
     Coord memory startingPosition = getRandomPosition(components, LibUtils.randomness(1, playerEntity));
 
     uint32 rotation = pointKindaTowardsTheCenter(startingPosition);
-
+    uint32 spent = 0;
     for (uint256 i = 0; i < shipPrototypes.length; i++) {
-      spawnShip(components, world, playerEntity, startingPosition, rotation, shipPrototypes[i], buyin);
+      uint32 price = spawnShip(
+        components,
+        world,
+        playerEntity,
+        startingPosition,
+        rotation,
+        shipPrototypes[i],
+        gameConfig.buyin
+      );
+      spent += price;
+      require(spent <= gameConfig.buyin, "LibSpawn: ships too expensive");
       startingPosition = Coord(startingPosition.x + 20, startingPosition.y);
     }
 
@@ -134,7 +146,7 @@ library LibSpawn {
     uint32 rotation,
     uint256 shipPrototypeEntity,
     uint256 startingBooty
-  ) internal returns (uint256 shipEntity) {
+  ) internal returns (uint32) {
     ShipPrototypeComponent shipPrototypeComponent = ShipPrototypeComponent(
       getAddressById(components, ShipPrototypeComponentID)
     );
@@ -146,10 +158,9 @@ library LibSpawn {
       (ShipPrototype)
     );
 
-    shipEntity = world.getUniqueEntityId();
+    uint256 shipEntity = world.getUniqueEntityId();
     ShipComponent(getAddressById(components, ShipComponentID)).set(shipEntity);
 
-    uint32 maxHealth = 10;
     PositionComponent(getAddressById(components, PositionComponentID)).set(shipEntity, position);
     RotationComponent(getAddressById(components, RotationComponentID)).set(shipEntity, rotation);
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
@@ -171,6 +182,7 @@ library LibSpawn {
         shipPrototype.cannons[i].range
       );
     }
+    return shipPrototype.price;
   }
 
   function respawnShip(

@@ -42,6 +42,31 @@ contract PlayerSpawnTest is DarkSeasTest {
     playerSpawnSystem.executeTyped("Jamaican me crazy", shipPrototypes);
   }
 
+  function testRevertTooExpensive() public prank(deployer) {
+    setup();
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+
+    uint32 budget = gameConfig.budget;
+    uint256 encodedShip = createShipPrototype(budget + 1);
+
+    shipPrototypes.push(encodedShip);
+
+    vm.expectRevert(bytes("LibSpawn: ships too expensive"));
+    playerSpawnSystem.executeTyped("Jamaican me crazy", shipPrototypes);
+
+    delete shipPrototypes;
+
+    encodedShip = createShipPrototype(budget / 2);
+
+    shipPrototypes.push(encodedShip);
+    shipPrototypes.push(encodedShip);
+    shipPrototypes.push(encodedShip);
+    vm.expectRevert(bytes("LibSpawn: ships too expensive"));
+    playerSpawnSystem.executeTyped("Jamaican me crazy", shipPrototypes);
+  }
+
   function testSpawn() public prank(deployer) {
     setup();
 
