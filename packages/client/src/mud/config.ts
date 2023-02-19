@@ -23,8 +23,8 @@ export const getChainSpec = (): ChainSpec => {
   return dev ? devChainSpec : chainSpec;
 };
 
+const chainId = getChainSpec().chainId;
 const params = new URLSearchParams(window.location.search);
-const chainId = Number(params.get("chainId")) || devChainSpec.chainId;
 
 export const config = {
   clock: {
@@ -35,7 +35,7 @@ export const config = {
   provider: {
     jsonRpcUrl: getChainSpec().rpc,
     wsRpcUrl: getChainSpec().wsRpc,
-    chainId: getChainSpec().chainId,
+    chainId,
   },
   privateKey: params.get("privateKey") ?? getBurnerWallet().privateKey,
   chainId,

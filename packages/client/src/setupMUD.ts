@@ -45,19 +45,18 @@ export async function setupMUD() {
   if (!config.devMode) {
     const faucet = createFaucetService(faucetUrl);
     const address = network.connectedAddress.get();
-    console.info("[Dev Faucet]: Player Address -> ", address);
 
     const requestDrip = async () => {
       const balance = await network.signer.get()?.getBalance();
-      console.info(`[Dev Faucet]: Player Balance -> ${balance}`);
       const playerIsBroke = balance?.lte(ethers.utils.parseEther(".5"));
-      console.info(`[Dev Faucet]: Player is broke -> ${playerIsBroke}`);
       if (playerIsBroke) {
-        console.info("[Dev Faucet]: Dripping funds to player");
+        console.info(`[Dev Faucet]: Player Balance -> ${balance}, dripping funds`);
         // Double drip
         address && (await faucet?.dripDev({ address })) && (await faucet?.dripDev({ address }));
         address && (await faucet?.dripDev({ address })) && (await faucet?.dripDev({ address }));
         address && (await faucet?.dripDev({ address })) && (await faucet?.dripDev({ address }));
+        const newBalance = await network.signer.get()?.getBalance();
+        console.info(`[Dev Faucet]: Player dripped, new balance: ${newBalance}`);
       }
     };
 
