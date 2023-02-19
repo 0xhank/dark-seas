@@ -78,7 +78,7 @@
     "// use yarn start when developing with MUD packages from npm or yalc": "",
     "start": "rimraf ../../.parcel-cache && rimraf .parcel-cache && yarn parcel src/index.html --port 3000",
     "// note: must use MUD packages from npm or yalc to build for production": "",
-    "build": "rimraf dist && rimraf ../../.parcel-cache && rimraf .parcel-cache && parcel build src/index.html",
+    "build": "yarn vite build && cp -r public/ dist/",
     "prod": "yarn serve dist",
     "check:circdepen": "dpdm ./src/index.ts"
   },
