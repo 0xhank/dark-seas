@@ -29,7 +29,6 @@ export function JoinGame() {
 
   const spawning = !!spawnActions.find((action) => {
     const state = getComponentValueStrict(Action, action).state;
-    console.log("state:", state);
     return state !== ActionState.Complete && state !== ActionState.Failed;
   });
   const txFailed =
@@ -38,7 +37,6 @@ export function JoinGame() {
       const state = getComponentValueStrict(Action, action).state;
       return state == ActionState.Complete || state == ActionState.Failed;
     });
-  console.log("tx failed:", txFailed);
 
   const turn = getTurn(time) || 0;
   const entryWindowClosed = turn > gameConfig.entryCutoffTurns;

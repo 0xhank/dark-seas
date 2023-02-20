@@ -28,7 +28,10 @@ export function Game() {
     msg: "Connecting",
     percentage: 0,
   });
-  if (loadingState.state !== SyncState.LIVE) return <BootScreen progression={loadingState.percentage as number} />;
+
+  const progression =
+    loadingState.state == SyncState.INITIAL ? loadingState.percentage : loadingState.state == SyncState.LIVE ? 100 : 0;
+  if (loadingState.state !== SyncState.LIVE) return <BootScreen progression={progression} />;
 
   return (
     <UIGrid

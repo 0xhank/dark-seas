@@ -28,7 +28,9 @@ export const BootScreen: React.FC<{ initialOpacity?: number; progression: number
             alignItems: "center",
           }}
         >
-          <Img src="/img/ds-ship.png" progression={progression}></Img>
+          <ImgContainer progression={progression}>
+            <img src="/img/ds-ship.png"></img>
+          </ImgContainer>
         </div>
       </div>
     </Container>
@@ -56,7 +58,7 @@ x
   color: white;
 `;
 
-const Img = styled.img<{ progression: number }>`
+const ImgContainer = styled.div<{ progression: number }>`
   position: absolute;
   transform: rotate(270deg);
   left: ${({ progression }) => `${progression}%`};
