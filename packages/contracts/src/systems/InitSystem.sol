@@ -26,10 +26,10 @@ contract InitSystem is System {
 
     uint256[] memory shipEntities = new uint256[](2);
     CannonPrototype[] memory cannonEntities1 = new CannonPrototype[](4);
-    cannonEntities1[0] = CannonPrototype({ rotation: 90, firepower: 60, range: 100 });
-    cannonEntities1[1] = CannonPrototype({ rotation: 270, firepower: 60, range: 100 });
-    cannonEntities1[2] = CannonPrototype({ rotation: 345, firepower: 60, range: 100 });
-    cannonEntities1[3] = CannonPrototype({ rotation: 15, firepower: 60, range: 100 });
+    cannonEntities1[0] = CannonPrototype({ rotation: 90, firepower: 60, range: 80 });
+    cannonEntities1[1] = CannonPrototype({ rotation: 270, firepower: 60, range: 80 });
+    cannonEntities1[2] = CannonPrototype({ rotation: 345, firepower: 60, range: 80 });
+    cannonEntities1[3] = CannonPrototype({ rotation: 15, firepower: 60, range: 80 });
 
     ShipPrototype memory shipPrototype = ShipPrototype({
       length: 9,
@@ -41,9 +41,9 @@ contract InitSystem is System {
     shipEntities[0] = LibCreateShip.createShip(components, shipPrototype);
 
     CannonPrototype[] memory cannonEntities2 = new CannonPrototype[](3);
-    cannonEntities2[0] = CannonPrototype({ rotation: 90, firepower: 50, range: 75 });
-    cannonEntities2[1] = CannonPrototype({ rotation: 270, firepower: 50, range: 75 });
-    cannonEntities2[2] = CannonPrototype({ rotation: 0, firepower: 50, range: 75 });
+    cannonEntities2[0] = CannonPrototype({ rotation: 90, firepower: 50, range: 70 });
+    cannonEntities2[1] = CannonPrototype({ rotation: 270, firepower: 50, range: 70 });
+    cannonEntities2[2] = CannonPrototype({ rotation: 0, firepower: 50, range: 70 });
 
     shipPrototype = ShipPrototype({ length: 12, maxHealth: 8, speed: 100, cannons: cannonEntities2 });
 

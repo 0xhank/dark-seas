@@ -25,14 +25,14 @@ export function borderSystems(MUD: SetupResult) {
     border.setDepth(RenderDepth.Background1);
     borderGroup.add(border);
 
-    const minX = -width / 2;
+    const minX = -width / 2 - 1000;
     const minY = -height / 2;
     const maxX = width / 2;
     const maxY = height / 2;
 
     camera.phaserCamera.setBounds(minX, minY, maxX - minX, maxY - minY);
 
-    setComponent(MapBounds, godEntity, { left: minX - 1000, top: minY, right: maxX, bottom: maxY });
+    setComponent(MapBounds, godEntity, { left: minX, top: minY, right: maxX, bottom: maxY });
   });
 
   defineRxSystem(world, clock.time$, () => {
