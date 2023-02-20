@@ -17,12 +17,14 @@ export type ChainSpec = {
   stream?: string;
 };
 
+const dev = window.location.href.includes("localhost");
+const spec = dev ? devChainSpec : chainSpec;
 export const getChainSpec = (): ChainSpec => {
-  return params.get("dev") === "true" ? devChainSpec : chainSpec;
+  return dev ? devChainSpec : chainSpec;
 };
 
+const chainId = getChainSpec().chainId;
 const params = new URLSearchParams(window.location.search);
-const chainId = Number(params.get("chainId")) || devChainSpec.chainId;
 
 export const config = {
   clock: {
@@ -31,17 +33,17 @@ export const config = {
     syncInterval: 5000,
   },
   provider: {
-    jsonRpcUrl: params.get("rpc") ?? devChainSpec.rpc,
-    wsRpcUrl: params.get("wsRpc") ?? devChainSpec.wsRpc,
+    jsonRpcUrl: getChainSpec().rpc,
+    wsRpcUrl: getChainSpec().wsRpc,
     chainId,
   },
   privateKey: params.get("privateKey") ?? getBurnerWallet().privateKey,
   chainId,
-  snapshotServiceUrl: params.get("snapshot") || undefined,
-  faucetServiceUrl: params.get("faucet") || undefined,
-  initialBlockNumber: Number(params.get("initialBlockNumber")) || 0,
+  snapshotServiceUrl: getChainSpec().snapshot,
+  faucetServiceUrl: getChainSpec().faucet,
+  initialBlockNumber: Number(params.get("block")) || 0,
   worldAddress: params.get("worldAddress") || "0x69",
-  devMode: params.get("dev") === "true",
+  devMode: dev,
   encoders: true,
 };
 
