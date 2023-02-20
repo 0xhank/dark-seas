@@ -19,6 +19,7 @@ export function revealMove(
   const actionId = `revealMove ${Date.now()}` as EntityID;
   actions.add({
     id: actionId,
+    awaitConfirmation: true,
     components: { Commitment },
     requirement: ({ Commitment }) => {
       if (!override) {
@@ -44,7 +45,7 @@ export function revealMove(
     },
     updates: () => [],
     execute: ({ moves, salt }) => {
-      systems["ds.system.Move"].executeTyped(moves, salt, {
+      return systems["ds.system.Move"].executeTyped(moves, salt, {
         gasLimit: 5_000_000,
       });
     },

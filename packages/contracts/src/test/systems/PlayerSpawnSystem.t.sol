@@ -47,8 +47,9 @@ contract PlayerSpawnTest is DarkSeasTest {
     BootyComponent bootyComponent = BootyComponent(getAddressById(components, BootyComponentID));
     uint256 playerEntity = addressToEntity(deployer);
 
+    uint256 gas = gasleft();
     playerSpawnSystem.executeTyped("Jamaican me crazy", Coord(1, 1));
-
+    console.log("gas", gas - gasleft());
     (uint256[] memory entities, ) = LibUtils.getEntityWith(components, ShipComponentID);
 
     assertEq(entities.length, gameConfig.shipPrototypes.length, "incorrect number of ships");

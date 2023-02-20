@@ -1,3 +1,4 @@
+import { useObservableValue } from "@latticexyz/react";
 import { getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
 import { ActionState, ActionStateString } from "@latticexyz/std-client";
 import { useMUD } from "../../../mud/providers/MUDProvider";
@@ -15,6 +16,7 @@ export function ActionQueue() {
   const {
     actions: { Action },
   } = useMUD();
+  useObservableValue(Action.update$);
   return (
     <Cell style={gridConfig}>
       <Container>

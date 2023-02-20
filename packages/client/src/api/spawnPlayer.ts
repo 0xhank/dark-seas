@@ -8,6 +8,7 @@ export function spawnPlayer(systems: TxQueue<SystemTypes>, actions: ActionSystem
   const actionId = `spawn ${Math.random()}` as EntityID;
   actions.add({
     id: actionId,
+    awaitConfirmation: true,
     components: {},
     requirement: () => {
       return name;
@@ -16,7 +17,9 @@ export function spawnPlayer(systems: TxQueue<SystemTypes>, actions: ActionSystem
     execute: (name: string) => {
       console.log("spawning");
       const position: Coord = { x: 0, y: 0 };
-      systems["ds.system.PlayerSpawn"].executeTyped(name, position);
+      return systems["ds.system.PlayerSpawn"].executeTyped(name, position, {
+        gasLimit: 20_000_000,
+      });
     },
   });
 }
