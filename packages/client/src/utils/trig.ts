@@ -16,11 +16,49 @@ export function getPositionByVector(
   return { x: Math.round(x), y: Math.round(y) };
 }
 
+export function getPolygonArea(coords: Coord[]) {
+  let area = 0,
+    i,
+    j,
+    point1,
+    point2;
+
+  for (i = 0, j = coords.length - 1; i < coords.length; j = i, i++) {
+    point1 = coords[i];
+    point2 = coords[j];
+    area += point1.x * point2.y;
+    area -= point1.y * point2.x;
+  }
+  area /= 2;
+
+  return area;
+}
+export function getPolygonCenter(coords: Coord[]) {
+  let x = 0,
+    y = 0,
+    i,
+    j;
+
+  for (i = 0, j = coords.length - 1; i < coords.length; j = i, i++) {
+    const point1 = coords[i];
+    const point2 = coords[j];
+    const f = point1.x * point2.y - point2.x * point1.y;
+    x += (point1.x + point2.x) * f;
+    y += (point1.y + point2.y) * f;
+  }
+
+  const a = getPolygonArea(coords) * 6;
+
+  return { x: x / a, y: y / a };
+}
+
+(window as any).polygon = getPolygonCenter;
+
 export function getMidpoint(origin: Coord, rotation: number, length: number): Coord {
   return getPositionByVector(origin, rotation, length / 2, 180);
 }
 
-export function getSternLocation(origin: Coord, rotation: number, length: number): Coord {
+export function getSternPosition(origin: Coord, rotation: number, length: number): Coord {
   return getPositionByVector(origin, rotation, length, 180);
 }
 
@@ -34,7 +72,7 @@ export function getFiringArea(
   const rightRange = (cannonRotation + 10) % 360;
   const leftRange = (cannonRotation - 10) % 360;
 
-  const sternPosition = getSternLocation(position, shipRotation, length);
+  const sternPosition = getSternPosition(position, shipRotation, length);
 
   if (isBroadside(cannonRotation)) {
     let frontCorner = getPositionByVector(position, shipRotation, range, rightRange);

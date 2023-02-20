@@ -1,72 +1,64 @@
 import { EntityIndex } from "@latticexyz/recs";
-import { adjectives, nouns } from "../layers/backend/utilities/wordlist";
 import { Sprites } from "../types";
 
-const nameRegistry = new Map<EntityIndex, string>();
-export function getShipName(shipEntity: EntityIndex) {
-  const value = nameRegistry.get(shipEntity);
-  if (value) return value;
-
-  const hash = getHash(shipEntity);
-  const adjective = adjectives[hash % adjectives.length];
-  const newHash = getHash(hash);
-  const noun = nouns[newHash % nouns.length];
-
-  const name = cap(adjective) + " " + cap(noun);
-  nameRegistry.set(shipEntity, name);
-  return name;
-}
-
-function cap(string: string) {
+export function cap(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-function getHash(a: number) {
-  let t = (a += 0x6d2b79f5);
-  t = Math.imul(t ^ (t >>> 15), t | 1);
-  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-  return (t ^ (t >>> 14)) >>> 0;
+export function getHash(input: string) {
+  let hash = 0,
+    i,
+    chr;
+  if (input.length === 0) return hash;
+  for (i = 0; i < input.length; i++) {
+    chr = input.charCodeAt(i);
+    hash = (hash << 5) - hash + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return Math.abs(hash);
 }
-export function getShipSprite(ownerEntity: EntityIndex, health: number, mine: boolean): Sprites {
+
+export function getShipSprite(ownerEntity: EntityIndex, health: number, maxHealth: number, mine: boolean): Sprites {
+  const healthPct = health / maxHealth;
   if (mine) {
-    if (health > 7) return Sprites.ShipWhite;
-    else if (health > 4) return Sprites.ShipWhiteMinor;
-    else if (health > 0) return Sprites.ShipWhiteMajor;
+    if (healthPct > 0.66) return Sprites.ShipWhite;
+    else if (healthPct > 0.33) return Sprites.ShipWhiteMinor;
+    else if (healthPct > 0) return Sprites.ShipWhiteMajor;
   }
 
-  const color = getShipColor(ownerEntity);
+  const color = getShipColor(`${ownerEntity}`);
 
   if (color == ShipColors.Red) {
-    if (health > 7) return Sprites.ShipRed;
-    else if (health > 4) return Sprites.ShipRedMinor;
-    else if (health > 0) return Sprites.ShipRedMajor;
+    if (healthPct > 0.66) return Sprites.ShipRed;
+    else if (healthPct > 0.33) return Sprites.ShipRedMinor;
+    else if (healthPct > 0) return Sprites.ShipRedMajor;
     else return Sprites.ShipRedDead;
   } else if (color == ShipColors.Yellow) {
-    if (health > 7) return Sprites.ShipYellow;
-    else if (health > 4) return Sprites.ShipYellowMinor;
-    else if (health > 0) return Sprites.ShipYellowMajor;
+    if (healthPct > 0.66) return Sprites.ShipYellow;
+    else if (healthPct > 0.33) return Sprites.ShipYellowMinor;
+    else if (healthPct > 0) return Sprites.ShipYellowMajor;
     else return Sprites.ShipYellowDead;
   } else if (color == ShipColors.Black) {
-    if (health > 7) return Sprites.ShipBlack;
-    else if (health > 4) return Sprites.ShipBlackMinor;
-    else if (health > 0) return Sprites.ShipBlackMajor;
+    if (healthPct > 0.66) return Sprites.ShipBlack;
+    else if (healthPct > 0.33) return Sprites.ShipBlackMinor;
+    else if (healthPct > 0) return Sprites.ShipBlackMajor;
     else return Sprites.ShipBlackDead;
   } else if (color == ShipColors.Blue) {
-    if (health > 7) return Sprites.ShipBlue;
-    else if (health > 4) return Sprites.ShipBlueMinor;
-    else if (health > 0) return Sprites.ShipBlueMajor;
+    if (healthPct > 0.66) return Sprites.ShipBlue;
+    else if (healthPct > 0.33) return Sprites.ShipBlueMinor;
+    else if (healthPct > 0) return Sprites.ShipBlueMajor;
     else return Sprites.ShipBlueDead;
   } else if (color == ShipColors.Green) {
-    if (health > 7) return Sprites.ShipGreen;
-    else if (health > 4) return Sprites.ShipGreenMinor;
-    else if (health > 0) return Sprites.ShipGreenMajor;
+    if (healthPct > 0.66) return Sprites.ShipGreen;
+    else if (healthPct > 0.33) return Sprites.ShipGreenMinor;
+    else if (healthPct > 0) return Sprites.ShipGreenMajor;
     else return Sprites.ShipGreenDead;
   }
 
   return Sprites.ShipBlack;
 }
 
-export function getShipColor(src: number): ShipColors {
+export function getShipColor(src: string): ShipColors {
   return getHash(src) % 5;
 }
 

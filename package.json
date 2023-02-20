@@ -32,14 +32,13 @@
     }
   },
   "scripts": {
-    "prepare": "yarn workspace contracts prepare",
+    "build": "yarn workspace contracts build && yarn workspace client build",
     "dev": "run-pty % yarn dev:node % yarn dev:client % yarn dev:contracts",
     "dev:client": "yarn workspace client run start",
     "dev:node": "yarn workspace contracts run devnode",
     "dev:contracts": "yarn workspace contracts run dev",
     "deploy:prod": "yarn workspace contracts run deploy:prod",
     "test": "yarn workspace contracts run test",
-    "deploy:prod": "yarn workspace contracts run deploy:prod",
     "commit": "cz",
     "prettier:check": "prettier --check 'src/**/*.ts'",
     "prettier": "prettier --write 'packages/**/*.ts'",
