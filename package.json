@@ -32,6 +32,7 @@
     }
   },
   "scripts": {
+    "prepare": "yarn workspace contracts prepare",
     "build": "yarn workspace contracts build && yarn workspace client build",
     "dev": "run-pty % yarn dev:node % yarn dev:client % yarn dev:contracts",
     "dev:client": "yarn workspace client run start",

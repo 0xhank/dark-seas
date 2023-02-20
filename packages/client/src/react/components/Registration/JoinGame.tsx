@@ -1,10 +1,11 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { Has, runQuery, setComponent } from "@latticexyz/recs";
 import { useState } from "react";
-import { useMUD } from "../../mud/providers/MUDProvider";
-import { ModalType } from "../../types";
-import { Button, colors, Input } from "../styles/global";
-import { Cell } from "./Cell";
+import { useMUD } from "../../../mud/providers/MUDProvider";
+import { ModalType } from "../../../types";
+import { Button, colors, Input } from "../../styles/global";
+import { Cell } from "../Cell";
+import { SelectFleet } from "./SelectFleet";
 
 const gridConfig = { gridColumnStart: 5, gridColumnEnd: 9, gridRowStart: 4, gridRowEnd: 9 };
 export function JoinGame() {
@@ -95,6 +96,7 @@ export function JoinGame() {
             </Button>
           )}
           <Button onClick={openTutorial}>How to Play</Button>
+          <SelectFleet />
         </div>
       </div>
     </Cell>
