@@ -1,5 +1,6 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
-import { Has, runQuery, setComponent } from "@latticexyz/recs";
+import { getComponentValueStrict, Has, runQuery, setComponent } from "@latticexyz/recs";
+import { ActionState } from "@latticexyz/std-client";
 import { useState } from "react";
 import { useMUD } from "../../mud/providers/MUDProvider";
 import { ModalType } from "../../types";
@@ -21,10 +22,23 @@ export function JoinGame() {
 
   const gameConfig = useComponentValue(GameConfig, godEntity);
   const time = useObservableValue(clock.time$) || 0;
-
+  useObservableValue(Action.update$);
   if (!gameConfig) return null;
 
-  const spawnAction = [...runQuery([Has(Action)])].length > 0;
+  const spawnActions = [...runQuery([Has(Action)])];
+
+  const spawning = !!spawnActions.find((action) => {
+    const state = getComponentValueStrict(Action, action).state;
+    console.log("state:", state);
+    return state !== ActionState.Complete && state !== ActionState.Failed;
+  });
+  const txFailed =
+    !spawning &&
+    !!spawnActions.find((action) => {
+      const state = getComponentValueStrict(Action, action).state;
+      return state == ActionState.Complete || state == ActionState.Failed;
+    });
+  console.log("tx failed:", txFailed);
 
   const turn = getTurn(time) || 0;
   const entryWindowClosed = turn > gameConfig.entryCutoffTurns;
@@ -32,6 +46,51 @@ export function JoinGame() {
   const openTutorial = () => setComponent(ModalOpen, ModalType.TUTORIAL, { value: true });
 
   const findSpawnButtonDisabled = playerName.length === 0 || entryWindowClosed;
+
+  let content = (
+    <Button
+      isSelected
+      disabled={findSpawnButtonDisabled}
+      style={{
+        fontSize: "1.5rem",
+        flex: 1,
+      }}
+      onClick={() => {
+        spawnPlayer(playerName);
+      }}
+    >
+      Register
+    </Button>
+  );
+  if (spawning) {
+    content = (
+      <Button
+        disabled
+        style={{
+          fontSize: "1.5rem",
+          flex: 1,
+        }}
+      >
+        Spawning...
+      </Button>
+    );
+  } else if (txFailed) {
+    content = (
+      <Button
+        disabled={findSpawnButtonDisabled}
+        onClick={() => {
+          spawnPlayer(playerName);
+        }}
+        style={{
+          fontSize: "1.5rem",
+          flex: 1,
+          background: colors.red,
+        }}
+      >
+        Spawn failed! Try again.
+      </Button>
+    );
+  }
 
   return (
     <Cell style={gridConfig}>
@@ -69,31 +128,8 @@ export function JoinGame() {
             }}
           ></Input>
           {entryWindowClosed && <h1 style={{ color: colors.red, textAlign: "center" }}>Registration window closed!</h1>}
-          {!spawnAction ? (
-            <Button
-              isSelected
-              disabled={findSpawnButtonDisabled}
-              style={{
-                fontSize: "1.5rem",
-                flex: 1,
-              }}
-              onClick={() => {
-                spawnPlayer(playerName);
-              }}
-            >
-              Register
-            </Button>
-          ) : (
-            <Button
-              disabled
-              style={{
-                fontSize: "1.5rem",
-                flex: 1,
-              }}
-            >
-              Spawning...
-            </Button>
-          )}
+          {content}
+
           <Button onClick={openTutorial}>How to Play</Button>
         </div>
       </div>
