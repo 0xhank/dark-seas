@@ -59,10 +59,10 @@ struct GameConfig {
 }
 
 struct ShipPrototype {
+  uint32 price;
   uint32 length;
   uint32 maxHealth;
   uint32 speed;
-  uint32 price;
   CannonPrototype[] cannons;
 }
 

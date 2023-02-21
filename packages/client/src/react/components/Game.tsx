@@ -52,6 +52,7 @@ export function Game() {
         <JoinGame />
       )}
       <Settings />
+      <Modal />
       <ComponentBrowser />
     </UIGrid>
   );

@@ -89,7 +89,10 @@ contract DarkSeasTest is MudTest {
     bytes memory packedShipPrototype = abi.encode(shipPrototype);
     uint256 shipEntity = uint256(keccak256(packedShipPrototype));
     if (shipPrototypeComponent.has(shipEntity)) return shipEntity;
-    ShipPrototypeComponent(getAddressById(components, ShipPrototypeComponentID)).set(shipEntity, packedShipPrototype);
+    ShipPrototypeComponent(getAddressById(components, ShipPrototypeComponentID)).set(
+      shipEntity,
+      string(packedShipPrototype)
+    );
     return shipEntity;
   }
 

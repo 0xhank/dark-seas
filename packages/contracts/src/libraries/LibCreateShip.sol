@@ -20,6 +20,6 @@ library LibCreateShip {
     bytes memory packedShipPrototype = abi.encode(shipPrototype);
     prototypeEntity = uint256(keccak256(packedShipPrototype));
     require(!shipPrototypeComponent.has(prototypeEntity), "createShip: ship prototype already created");
-    shipPrototypeComponent.set(prototypeEntity, packedShipPrototype);
+    shipPrototypeComponent.set(prototypeEntity, string(packedShipPrototype));
   }
 }

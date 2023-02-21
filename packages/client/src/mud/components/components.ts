@@ -44,14 +44,10 @@ export const components = {
   Cannon: defineBoolComponent(world, { id: "Cannon", metadata: { contractId: "ds.component.Cannon" } }),
   Loaded: defineBoolComponent(world, { id: "Loaded", metadata: { contractId: "ds.component.Loaded" } }),
   Speed: defineNumberComponent(world, { id: "Speed", metadata: { contractId: "ds.component.Speed" } }),
-  ShipPrototype: defineComponent(
-    world,
-    { value: Type.String },
-    {
-      id: "ShipPrototype",
-      metadata: { contractId: "ds.component.ShipPrototype" },
-    }
-  ),
+  ShipPrototype: defineStringComponent(world, {
+    id: "ShipPrototype",
+    metadata: { contractId: "ds.component.ShipPrototype" },
+  }),
   Kills: defineNumberComponent(world, { id: "Kills", metadata: { contractId: "ds.component.Kills" } }),
   LastHit: defineStringComponent(world, { id: "LastHit", metadata: { contractId: "ds.component.LastHit" } }),
   Booty: defineStringComponent(world, { id: "Booty", metadata: { contractId: "ds.component.Booty" } }),

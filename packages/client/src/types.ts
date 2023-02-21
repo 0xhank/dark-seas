@@ -14,6 +14,20 @@ export type Move = {
   moveCardEntity: EntityID;
 };
 
+export type ShipPrototype = {
+  price: number;
+  length: number;
+  maxHealth: number;
+  speed: number;
+  cannons: CannonPrototype[];
+};
+
+export type CannonPrototype = {
+  rotation: number;
+  firepower: number;
+  range: number;
+};
+
 export enum ActionType {
   None,
   Load,

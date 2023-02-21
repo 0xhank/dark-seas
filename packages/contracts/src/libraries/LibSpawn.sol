@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
+import { console } from "forge-std/console.sol";
 
 // External
 import { IWorld } from "solecs/interfaces/IWorld.sol";
@@ -111,6 +112,7 @@ library LibSpawn {
     uint32 rotation = pointKindaTowardsTheCenter(startingPosition);
     uint32 spent = 0;
     for (uint256 i = 0; i < shipPrototypes.length; i++) {
+      console.log("here");
       uint32 price = spawnShip(
         components,
         world,
@@ -121,7 +123,10 @@ library LibSpawn {
         gameConfig.buyin
       );
       spent += price;
-      require(spent <= gameConfig.buyin, "LibSpawn: ships too expensive");
+      console.log("spent:", spent);
+      console.log("price:", price);
+
+      require(spent <= gameConfig.budget, "LibSpawn: ships too expensive");
       startingPosition = Coord(startingPosition.x + 20, startingPosition.y);
     }
 
@@ -147,16 +152,26 @@ library LibSpawn {
     uint256 shipPrototypeEntity,
     uint256 startingBooty
   ) internal returns (uint32) {
+    console.log("here2");
+
     ShipPrototypeComponent shipPrototypeComponent = ShipPrototypeComponent(
       getAddressById(components, ShipPrototypeComponentID)
     );
+    console.log("here3");
 
     require(shipPrototypeComponent.has(shipPrototypeEntity), "spawnShip: ship prototype does not exist");
+    console.log("here4");
+
+    console.log(shipPrototypeComponent.getValue(shipPrototypeEntity));
+    console.log("here5");
 
     ShipPrototype memory shipPrototype = abi.decode(
-      shipPrototypeComponent.getValue(shipPrototypeEntity),
+      bytes(shipPrototypeComponent.getValue(shipPrototypeEntity)),
       (ShipPrototype)
     );
+
+    console.log("price:", shipPrototype.price);
+    console.log("speed:", shipPrototype.speed);
 
     uint256 shipEntity = world.getUniqueEntityId();
     ShipComponent(getAddressById(components, ShipComponentID)).set(shipEntity);

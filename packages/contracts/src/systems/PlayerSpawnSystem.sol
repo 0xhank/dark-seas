@@ -44,4 +44,6 @@ contract PlayerSpawnSystem is System {
   function executeTyped(string calldata name, uint256[] calldata shipPrototypes) public returns (bytes memory) {
     return execute(abi.encode(name, shipPrototypes));
   }
+
+  function getType(ShipPrototype calldata entry) public pure {}
 }
