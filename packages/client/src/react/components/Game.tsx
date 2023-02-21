@@ -10,7 +10,7 @@ import { ComponentBrowser } from "./Dev/ComponentBrowser";
 import { EmergencyActions } from "./EmergencyActions";
 import { HoveredShip } from "./HoveredShip";
 import { Modal } from "./Modals/Modal";
-import { JoinGame } from "./Registration/JoinGame";
+import { Registration } from "./Registration/Registration";
 import { Settings } from "./Settings";
 import { SideBar } from "./SideBar";
 import { TurnTimer } from "./TurnTimer";
@@ -53,7 +53,7 @@ export function Game() {
           <EmergencyActions />
         </PlayerProvider>
       ) : (
-        <JoinGame />
+        <Registration />
       )}
       <Settings />
       <Modal />

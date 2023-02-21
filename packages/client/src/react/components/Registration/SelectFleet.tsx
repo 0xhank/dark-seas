@@ -1,81 +1,104 @@
-import { useObservableValue } from "@latticexyz/react";
-import {
-  EntityIndex,
-  getComponentEntities,
-  getComponentValueStrict,
-  removeComponent,
-  setComponent,
-} from "@latticexyz/recs";
-import { defaultAbiCoder as abi } from "ethers/lib/utils";
+import styled from "styled-components";
+import { ShipDetails } from "./ShipDetails";
+import { ShipSelect } from "./ShipSelect";
+import { YourFleet } from "./YourFleet";
 
-import { merge } from "rxjs";
-import { useMUD } from "../../../mud/providers/MUDProvider";
-import { CannonPrototype } from "../../../types";
-import { Button, Container } from "../../styles/global";
+export function SelectFleet({ back }: { back: () => void }) {
+  // const {
+  //   components: { SelectedShip, ShipPrototype },
+  // } = useMUD();
 
-export function SelectFleet() {
-  const {
-    components: { SelectedShip, ShipPrototype },
-  } = useMUD();
+  // useObservableValue(merge(ShipPrototype.update$, SelectedShip.update$));
 
-  useObservableValue(merge(ShipPrototype.update$, SelectedShip.update$));
+  // const selectedShips = [...getComponentEntities(SelectedShip)];
 
-  const selectedShips = [...getComponentEntities(SelectedShip)];
+  // const prototypeEntities = [...getComponentEntities(ShipPrototype)];
 
-  const prototypeEntities = [...getComponentEntities(ShipPrototype)];
+  // const toggleSelected = (prototypeEntity: EntityIndex) => {
+  //   if (selectedShips.includes(prototypeEntity)) {
+  //     removeComponent(SelectedShip, prototypeEntity);
+  //   } else {
+  //     setComponent(SelectedShip, prototypeEntity, { value: 1 });
+  //   }
+  // };
+  // const spawnActions = [...runQuery([Has(Action)])];
 
-  const toggleSelected = (prototypeEntity: EntityIndex) => {
-    if (selectedShips.includes(prototypeEntity)) {
-      removeComponent(SelectedShip, prototypeEntity);
-    } else {
-      setComponent(SelectedShip, prototypeEntity, { value: 1 });
-    }
-  };
+  // const spawning = !!spawnActions.find((action) => {
+  //   const state = getComponentValueStrict(Action, action).state;
+  //   return state !== ActionState.Complete && state !== ActionState.Failed;
+  // });
+  // const txFailed =
+  //   !spawning &&
+  //   !!spawnActions.find((action) => {
+  //     const state = getComponentValueStrict(Action, action).state;
+  //     return state == ActionState.Complete || state == ActionState.Failed;
+  //   });
+
+  // useObservableValue(Action.update$);
+
+  // let content = (
+  //   <Button
+  //     disabled={findSpawnButtonDisabled}
+  //     style={{
+  //       fontSize: "1.5rem",
+  //       flex: 1,
+  //     }}
+  //     onClick={selectFleet}
+  //   >
+  //     Register
+  //   </Button>
+  // );
+  // if (spawning) {
+  //   content = (
+  //     <Button
+  //       disabled
+  //       style={{
+  //         fontSize: "1.5rem",
+  //         flex: 1,
+  //       }}
+  //     >
+  //       Spawning...
+  //     </Button>
+  //   );
+  // } else if (txFailed) {
+  //   content = (
+  //     <Button
+  //       disabled={findSpawnButtonDisabled}
+  //       onClick={() => {
+  //         spawnPlayer(playerName);
+  //       }}
+  //       style={{
+  //         fontSize: "1.5rem",
+  //         flex: 1,
+  //         background: colors.red,
+  //       }}
+  //     >
+  //       Spawn failed! Try again.
+  //     </Button>
+  //   );
+  // }
+
   return (
-    <Container>
-      {prototypeEntities.map((prototypeEntity) => {
-        const shipPrototypeDataEncoded = getComponentValueStrict(ShipPrototype, prototypeEntity).value;
-
-        const reformattedData = "0x" + shipPrototypeDataEncoded.slice(66);
-
-        const [price, length, maxHealth, speed, rawCannons] = abi.decode(
-          [
-            "uint32 price",
-            "uint32 length",
-            "uint32 maxHealth",
-            "uint32 speed",
-            "tuple(uint32 rotation,uint32 firepower,uint32 range)[] cannons",
-          ],
-          reformattedData
-        );
-        const cannons = rawCannons.map((cannon: [any, any, any]) => {
-          const [rotation, firepower, range] = cannon;
-          return {
-            rotation,
-            firepower,
-            range,
-          };
-        }) as CannonPrototype[];
-        console.log("cannons:", cannons);
-        return (
-          <Button key={`shipPrototype-${prototypeEntity}`} onClick={() => toggleSelected(prototypeEntity)}>
-            <p>price: {price}</p>
-            <p>length: {length}</p>
-            <p>max health: {maxHealth}</p>
-            <p>speed: {speed}</p>
-            {cannons.map((cannon, idx) => {
-              return (
-                <div>
-                  cannon {idx}
-                  <p>range: {cannon.range}</p>
-                  <p>range: {cannon.firepower}</p>
-                  <p>range: {cannon.rotation}</p>
-                </div>
-              );
-            })}
-          </Button>
-        );
-      })}
-    </Container>
+    <FleetContainer>
+      <Title>Build your fleet</Title>
+      <div style={{ display: "flex" }}>
+        <ShipSelect flex={1} />
+        <ShipDetails />
+        <YourFleet />
+      </div>
+    </FleetContainer>
   );
 }
+
+const Title = styled.p`
+  font-size: 3.5rem;
+  line-height: 4rem;
+`;
+
+const FleetContainer = styled.div`
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+  text-align: center;
+`;
