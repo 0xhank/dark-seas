@@ -20,6 +20,7 @@ export function submitActions(
   const actionId = `submitActions ${Date.now()}` as EntityID;
   actions.add({
     id: actionId,
+    awaitConfirmation: true,
     components: { OwnedBy },
     requirement: ({ OwnedBy }) => {
       if (!override) {
@@ -68,7 +69,7 @@ export function submitActions(
     updates: () => [],
     execute: (actions) => {
       console.log("submitting actions:", actions);
-      systems["ds.system.Action"].executeTyped(actions, {
+      return systems["ds.system.Action"].executeTyped(actions, {
         gasLimit: 10_000_000,
       });
     },

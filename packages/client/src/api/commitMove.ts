@@ -13,13 +13,14 @@ export function commitMove(systems: TxQueue<SystemTypes>, actions: ActionSystem,
   override;
   actions.add({
     id: actionId,
+    awaitConfirmation: true,
     components: { OwnedBy, GameConfig, MoveCard },
     requirement: () => {
       return abi.encode(["tuple(uint256 shipEntity, uint256 moveCardEntity)[]", "uint256"], [moves, 0]);
     },
     updates: () => [],
     execute: (encoding: string) => {
-      systems["ds.system.Commit"].executeTyped(keccak256(encoding));
+      return systems["ds.system.Commit"].executeTyped(keccak256(encoding));
     },
     metadata: {
       type: TxType.Commit,

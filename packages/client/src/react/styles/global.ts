@@ -187,3 +187,24 @@ export const BoxImage = styled.div<{ length: number }>`
     padding-top: 100%;
   }
 `;
+
+export const Input = styled.input`
+  pointer-events: all;
+  border-radius: 6px;
+  padding: 7px;
+  font-size: 1rem;
+  background: ${lightTan};
+  border: 1px solid ${gold};
+  color: ${darkBrown};
+
+  &:focus {
+    outline: none;
+  }
+  ::selection {
+    color: white;
+    background: #d07e1a;
+  }
+  ::placeholder {
+    color: ${darkGray};
+  }
+`;

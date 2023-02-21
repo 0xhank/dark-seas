@@ -56,7 +56,6 @@
         "LengthComponent"
       ]
     },
-    { "name": "ComponentDevSystem", "writeAccess": ["*"] },
     {
       "name": "PlayerSpawnSystem",
       "writeAccess": [
