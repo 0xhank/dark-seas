@@ -1,5 +1,5 @@
-import { getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
-import { defaultAbiCoder as abi } from "ethers/lib/utils";
+import { useComponentValue } from "@latticexyz/react";
+import { EntityIndex, getComponentEntities, removeComponent, setComponent } from "@latticexyz/recs";
 import styled from "styled-components";
 import { useMUD } from "../../../mud/providers/MUDProvider";
 import { getShipSprite, ShipImages } from "../../../utils/ships";
@@ -7,49 +7,41 @@ import { BoxImage, colors, OptionButton } from "../../styles/global";
 
 export function ShipSelect({ flex }: { flex: number }) {
   const {
-    components: { ShipPrototype },
+    components: { ShipPrototype, ActiveShip },
     godEntity,
+    utils: { decodeShipPrototype },
   } = useMUD();
 
   const prototypeEntities = [...getComponentEntities(ShipPrototype)];
 
-  const prototypes = prototypeEntities.map((prototypeEntity) => {
-    const shipPrototypeDataEncoded = getComponentValueStrict(ShipPrototype, prototypeEntity).value;
+  const activeShip = useComponentValue(ActiveShip, godEntity)?.value;
 
-    const reformattedData = "0x" + shipPrototypeDataEncoded.slice(66);
+  const handleSelection = (entity: EntityIndex) => {
+    if (entity == activeShip) {
+      removeComponent(ActiveShip, godEntity);
+    } else {
+      setComponent(ActiveShip, godEntity, { value: entity });
+    }
+  };
 
-    const [price, length, maxHealth, speed, rawCannons] = abi.decode(
-      [
-        "uint32 price",
-        "uint32 length",
-        "uint32 maxHealth",
-        "uint32 speed",
-        "tuple(uint32 rotation,uint32 firepower,uint32 range)[] cannons",
-      ],
-      reformattedData
-    );
-
-    return {
-      entity: prototypeEntity,
-      price,
-      length,
-    };
-  });
   return (
     <SelectShipContainer style={{ flex, height: "100%" }}>
-      <Title>Select Ships</Title>
+      <Title>Available Ships</Title>
       <ShipButtons>
-        {prototypes.map((p) => {
+        {prototypeEntities.map((prototypeEntity) => {
+          const { length, price } = decodeShipPrototype(prototypeEntity);
           return (
             <OptionButton
-              key={`shipPrototype-${p.entity}`}
-              onClick={() => {}}
+              isSelected={activeShip == prototypeEntity}
+              key={`shipPrototype-${prototypeEntity}}`}
+              onClick={() => handleSelection(prototypeEntity)}
               style={{
                 flexDirection: "row",
                 justifyContent: "space-between",
-                minHeight: `${5 * p.length}px`,
-                padding: "5px",
+                minHeight: `${5 * length}px`,
+                padding: "18px",
                 direction: "ltr",
+                marginLeft: "6px",
               }}
             >
               <BoxContainer>
@@ -64,14 +56,14 @@ export function ShipSelect({ flex }: { flex: number }) {
                       margin: "auto",
                       transform: `rotate(270deg) translate(-50%, 0%)`,
                       transformOrigin: `top left`,
-                      maxWidth: `${3.5 * p.length}px`,
+                      maxWidth: `${3.5 * length}px`,
                     }}
                   />
                 </BoxImage>
               </BoxContainer>
               <div style={{ display: "flex", flexDirection: "column", textAlign: "end" }}>
                 <p style={{ lineHeight: "0.75rem", fontSize: ".75rem", color: colors.lightBrown }}>price</p>
-                <Title style={{ lineHeight: "2.5rem" }}>{p.price}</Title>
+                <Title style={{ lineHeight: "2.5rem" }}>{price}</Title>
               </div>
             </OptionButton>
           );
@@ -101,9 +93,11 @@ const ShipButtons = styled.div`
   }
   ::-webkit-scrollbar-track {
     background: #f1f1f1;
+    border: solid 3px transparent;
   }
   ::-webkit-scrollbar-thumb {
     background: #888;
+    border: solid 3px transparent;
   }
   ::-webkit-scrollbar-thumb:hover {
     background: #555;

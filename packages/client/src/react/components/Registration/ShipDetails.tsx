@@ -1,3 +1,3 @@
-export function ShipDetails() {
-  return <>ship details</>;
+export function ShipDetails({ flex }: { flex: number }) {
+  return <div style={{ flex }}>ship details</div>;
 }

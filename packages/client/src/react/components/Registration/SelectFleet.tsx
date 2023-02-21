@@ -81,10 +81,10 @@ export function SelectFleet({ back }: { back: () => void }) {
   return (
     <FleetContainer>
       <Title>Build your fleet</Title>
-      <div style={{ display: "flex", height: "100%" }}>
+      <div style={{ display: "flex", height: "100%", overflow: "hidden" }}>
         <ShipSelect flex={1} />
-        <ShipDetails />
-        <YourFleet />
+        <ShipDetails flex={2} />
+        <YourFleet flex={1} />
       </div>
     </FleetContainer>
   );

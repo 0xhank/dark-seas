@@ -24,6 +24,7 @@ const waiting = "hsla(50, 100%, 50%, 0.5)";
 const green = "hsl(119, 78%, 39%)";
 const tan = "hsl(23, 22%, 88%)";
 const lightTan = color(tan).lighten(0.1).toString();
+const lighterTan = color(tan).lighten(0.2).toString();
 const lightTanHex = color(tan).lighten(0.1).rgbNumber();
 const greenGlass = color(green).alpha(0.7).toString();
 const darkGrayHex = color(darkGray).rgbNumber();
@@ -54,6 +55,7 @@ export const colors = {
   glass,
   tan,
   lightTan,
+  lighterTan,
   lightTanHex,
   thickGlass,
   thinGlass,
@@ -142,8 +144,7 @@ export const Button = styled.button<{ secondary?: boolean }>`
 export const OptionButton = styled(Button)<{ isSelected?: boolean; confirmed?: boolean }>`
   background: ${({ isSelected, confirmed }) => `${confirmed ? greenGlass : isSelected ? gold : lightTan}`};
   :hover {
-    background: ${({ isSelected }) => `${isSelected ? red : lightGold}`};
-    color: ${({ isSelected }) => `${isSelected ? white : darkBrown}`};
+    background: ${({ isSelected }) => `${isSelected ? lightGold : lighterTan}`};
   }
 `;
 
@@ -171,6 +172,7 @@ export const ShipContainer = styled.div<{
   border-radius: 6px;
   color: ${darkBrown};
   filter: drop-shadow(0px 1px 3px ${colors.black});
+  overflow: none;
 `;
 
 export const BoxImage = styled.div<{ length: number }>`
