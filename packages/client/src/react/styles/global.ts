@@ -140,13 +140,10 @@ export const Button = styled.button<{ secondary?: boolean }>`
 `;
 
 export const OptionButton = styled(Button)<{ isSelected?: boolean; confirmed?: boolean }>`
+  background: ${({ isSelected, confirmed }) => `${confirmed ? greenGlass : isSelected ? gold : lightTan}`};
   :hover {
-    background: ${({ isSelected, confirmed }) => `${confirmed ? greenGlass : isSelected ? red : white}`};
+    background: ${({ isSelected }) => `${isSelected ? red : lightGold}`};
     color: ${({ isSelected }) => `${isSelected ? white : darkBrown}`};
-  }
-
-  :disabled {
-    opacity: 40%;
   }
 `;
 

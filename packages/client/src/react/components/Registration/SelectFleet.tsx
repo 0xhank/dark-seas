@@ -81,7 +81,7 @@ export function SelectFleet({ back }: { back: () => void }) {
   return (
     <FleetContainer>
       <Title>Build your fleet</Title>
-      <div style={{ display: "flex" }}>
+      <div style={{ display: "flex", height: "100%" }}>
         <ShipSelect flex={1} />
         <ShipDetails />
         <YourFleet />
@@ -101,4 +101,5 @@ const FleetContainer = styled.div`
   width: 100%;
   flex-direction: column;
   text-align: center;
+  padding: 12px;
 `;

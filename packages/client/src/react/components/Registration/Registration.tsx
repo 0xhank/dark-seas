@@ -7,7 +7,7 @@ import { SelectFleet } from "./SelectFleet";
 type RegisterState = "Name" | "Fleet";
 
 export function Registration() {
-  const [state, setState] = useState<RegisterState>("Name");
+  const [state, setState] = useState<RegisterState>("Fleet");
 
   return (
     <RegisterContainer>

@@ -2,12 +2,13 @@ import { getComponentEntities, getComponentValueStrict } from "@latticexyz/recs"
 import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import styled from "styled-components";
 import { useMUD } from "../../../mud/providers/MUDProvider";
-import { CannonPrototype } from "../../../types";
-import { Button } from "../../styles/global";
+import { getShipSprite, ShipImages } from "../../../utils/ships";
+import { BoxImage, colors, OptionButton } from "../../styles/global";
 
 export function ShipSelect({ flex }: { flex: number }) {
   const {
     components: { ShipPrototype },
+    godEntity,
   } = useMUD();
 
   const prototypeEntities = [...getComponentEntities(ShipPrototype)];
@@ -27,46 +28,54 @@ export function ShipSelect({ flex }: { flex: number }) {
       ],
       reformattedData
     );
-    const cannons = rawCannons.map((cannon: [any, any, any]) => {
-      const [rotation, firepower, range] = cannon;
-      return {
-        rotation,
-        firepower,
-        range,
-      };
-    }) as CannonPrototype[];
 
     return {
       entity: prototypeEntity,
       price,
       length,
-      maxHealth,
-      speed,
-      cannons,
     };
   });
   return (
-    <SelectShipContainer style={{ flex }}>
+    <SelectShipContainer style={{ flex, height: "100%" }}>
       <Title>Select Ships</Title>
       <ShipButtons>
-        {prototypes.map((p) => (
-          <Button key={`shipPrototype-${p.entity}`} onClick={() => {}}>
-            <p>price: {p.price}</p>
-            {/* <p>length: {p.length}</p>
-          <p>max health: {p.maxHealth}</p>
-          <p>speed: {p.speed}</p>
-          {p.cannons.map((cannon, idx) => {
-            return (
-              <div>
-                cannon {idx}
-                <p>range: {cannon.range}</p>
-                <p>range: {cannon.firepower}</p>
-                <p>range: {cannon.rotation}</p>
+        {prototypes.map((p) => {
+          return (
+            <OptionButton
+              key={`shipPrototype-${p.entity}`}
+              onClick={() => {}}
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                minHeight: `${5 * p.length}px`,
+                padding: "5px",
+                direction: "ltr",
+              }}
+            >
+              <BoxContainer>
+                <BoxImage length={length}>
+                  <img
+                    src={ShipImages[getShipSprite(godEntity, 1, 1, true)]}
+                    style={{
+                      objectFit: "scale-down",
+                      left: "50%",
+                      position: "absolute",
+                      top: "50%",
+                      margin: "auto",
+                      transform: `rotate(270deg) translate(-50%, 0%)`,
+                      transformOrigin: `top left`,
+                      maxWidth: `${3.5 * p.length}px`,
+                    }}
+                  />
+                </BoxImage>
+              </BoxContainer>
+              <div style={{ display: "flex", flexDirection: "column", textAlign: "end" }}>
+                <p style={{ lineHeight: "0.75rem", fontSize: ".75rem", color: colors.lightBrown }}>price</p>
+                <Title style={{ lineHeight: "2.5rem" }}>{p.price}</Title>
               </div>
-            );
-          })} */}
-          </Button>
-        ))}
+            </OptionButton>
+          );
+        })}
       </ShipButtons>
     </SelectShipContainer>
   );
@@ -79,14 +88,35 @@ const SelectShipContainer = styled.div`
 `;
 
 const ShipButtons = styled.div`
+  direction: rtl;
+
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
   gap: 8px;
   width: 100%;
+  height: 100%;
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
 `;
 
 const Title = styled.p`
   font-size: 3rem;
   line-height: 4rem;
+`;
+
+const BoxContainer = styled.div`
+  display: flex;
+  position: relative;
+  margin: 6px;
 `;
