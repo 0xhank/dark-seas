@@ -1,6 +1,7 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { Has, runQuery, setComponent } from "@latticexyz/recs";
 import { useState } from "react";
+import styled from "styled-components";
 import { useMUD } from "../../../mud/providers/MUDProvider";
 import { ModalType } from "../../../types";
 import { Button, colors, Input } from "../../styles/global";
@@ -72,7 +73,6 @@ export function JoinGame() {
           {entryWindowClosed && <h1 style={{ color: colors.red, textAlign: "center" }}>Registration window closed!</h1>}
           {!spawnAction ? (
             <Button
-              isSelected
               disabled={findSpawnButtonDisabled}
               style={{
                 fontSize: "1.5rem",
@@ -102,3 +102,23 @@ export function JoinGame() {
     </Cell>
   );
 }
+
+const Input = styled.input`
+  border-radius: 6px;
+  padding: 7px;
+  font-size: 1rem;
+  background: ${colors.thickGlass};
+  border: 1px solid ${colors.gold};
+  color: ${colors.darkBrown};
+
+  &:focus {
+    outline: none;
+  }
+  ::selection {
+    color: white;
+    background: #d07e1a;
+  }
+  ::placeholder {
+    color: ${colors.darkGray};
+  }
+`;

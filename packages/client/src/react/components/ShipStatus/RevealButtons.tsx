@@ -1,7 +1,7 @@
 import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "../../../mud/providers/MUDProvider";
 import { usePlayer } from "../../../mud/providers/PlayerProvider";
-import { ConfirmButton, Success } from "../../styles/global";
+import { Button, Success } from "../../styles/global";
 
 export function RevealButtons({
   tooEarly,
@@ -30,20 +30,20 @@ export function RevealButtons({
   const showExecuting = txExecuting && !acted;
 
   if (showExecuting) {
-    return <ConfirmButton disabled>Executing...</ConfirmButton>;
+    return <Button disabled>Executing...</Button>;
   }
 
   if (acted) return <Success>Move reveal successful!</Success>;
-  if (!encodedCommitment) return <ConfirmButton disabled>No moves to reveal</ConfirmButton>;
+  if (!encodedCommitment) return <Button disabled>No moves to reveal</Button>;
 
   const disabled = tooEarly;
   return (
-    <ConfirmButton
+    <Button
       disabled={disabled}
       style={{ width: "100%", fontSize: "1rem", lineHeight: "1.25rem" }}
       onClick={handleSubmitExecute}
     >
       {!disabled && "Reveal Moves"}
-    </ConfirmButton>
+    </Button>
   );
 }

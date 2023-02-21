@@ -7,7 +7,7 @@ const goldDisabled = "hsla(45,100%,54%, 0.5)";
 const darkGold = "hsl(45,100%,31%)";
 const lightBrown = "hsl(30,46.9%,48%)";
 const brown = "hsl(30,100%,35%)";
-const darkBrown = "hsl(28,100%,21%)";
+const darkBrown = "hsl(30,48%,25%)";
 const white = "hsl(0,0%,100%)";
 const black = "hsl(0,0%,0%)";
 const lighterGray = "hsl(0,0%,86.7%)";
@@ -115,43 +115,38 @@ export const BackgroundImg = styled.div`
   filter: blur(5px) saturate(40%);
 `;
 
-export const Button = styled.button<{ isSelected?: boolean; noGoldBorder?: boolean }>`
+export const Button = styled.button<{ secondary?: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  background: ${({ isSelected }) => `${isSelected ? gold : glass}`};
-  border: ${({ noGoldBorder }) => `${noGoldBorder ? "0" : "1"}px solid ${gold}`};
+  background: ${({ secondary }) => `${secondary ? darkBrown : gold}`};
+  border: 1px solid ${gold};
   cursor: pointer;
   padding: 4px;
   border-radius: 6px;
-  border-color: ${gold};
   pointer-events: all;
-  color: ${darkBrown};
+  color: ${({ secondary }) => `${secondary ? gold : darkBrown}`};
   backdrop-filter: blur(3px);
-  // color: ${({ isSelected }) => `${isSelected ? white : darkBrown}`};
 
   :hover {
-    background: ${({ isSelected }) => `${isSelected ? lightGold : white}`};
+    background: ${({ secondary }) => `${secondary ? brown : lightGold}`};
   }
 
   :disabled {
-    background: ${lightGray};
-    color: ${lighterGray};
-    border-color: ${darkGray};
+    opacity: 40%;
     cursor: not-allowed;
   }
 `;
 
-export const OptionButton = styled(Button)<{ confirmed?: boolean }>`
+export const OptionButton = styled(Button)<{ isSelected?: boolean; confirmed?: boolean }>`
   :hover {
     background: ${({ isSelected, confirmed }) => `${confirmed ? greenGlass : isSelected ? red : white}`};
-    color: ${({ isSelected, disabled }) => `${isSelected || disabled ? white : darkBrown}`};
+    color: ${({ isSelected }) => `${isSelected ? white : darkBrown}`};
   }
 
   :disabled {
-    background: ${({ confirmed }) => `${confirmed ? greenGlass : lightGray}`};
-    color: ${({ confirmed }) => `${confirmed ? darkBrown : lighterGray}`};
+    opacity: 40%;
   }
 `;
 
@@ -162,37 +157,6 @@ export const Img = styled.img<{ isSelected?: boolean }>`
     isSelected
       ? "invert(100%)"
       : "invert(19%) sepia(89%) saturate(1106%) hue-rotate(7deg) brightness(93%) contrast(102%)"};
-`;
-
-export const ConfirmButton = styled.button`
-  background: ${gold};
-  color: ${darkBrown};
-  border-radius: 6px;
-  border: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  pointer-events: all;
-  width: 100%;
-  height: 100%;
-  cursor: pointer;
-  filter: drop-shadow(0px 1px 3px ${colors.black});
-  :disabled {
-    background: ${goldDisabled};
-    cursor: not-allowed;
-  }
-`;
-
-export const InternalContainer = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: row;
-  padding: 12px;
-  border-radius: 6px;
-  background: ${glass};
-  justify-content: space-between;
-  color: ${darkBrown};
 `;
 
 export const ShipContainer = styled.div<{
@@ -210,35 +174,6 @@ export const ShipContainer = styled.div<{
   border-radius: 6px;
   color: ${darkBrown};
   filter: drop-shadow(0px 1px 3px ${colors.black});
-`;
-
-export const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 8px;
-`;
-
-export const Input = styled.input`
-  border-radius: 6px;
-  padding: 7px;
-  font-size: 1rem;
-  background: ${thickGlass};
-  border: 1px solid ${gold};
-  color: ${darkBrown};
-
-  &:focus {
-    outline: none;
-  }
-  ::selection {
-    color: white;
-    background: #d07e1a;
-  }
-  ::placeholder {
-    color: ${darkGray};
-  }
 `;
 
 export const BoxImage = styled.div<{ length: number }>`
