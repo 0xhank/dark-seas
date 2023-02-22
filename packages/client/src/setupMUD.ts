@@ -28,7 +28,6 @@ export async function setupMUD() {
   const res = await setupMUDNetwork<typeof components, SystemTypes>(config, world, components, SystemAbis, {
     fetchSystemCalls: true,
   });
-  console.log("network setup complete");
 
   const { systems, network, systemCallStreams, txReduced$, encoders } = res;
   res.startSync();
@@ -45,7 +44,6 @@ export async function setupMUD() {
 
   const { game, scenes, dispose: disposePhaser } = await createPhaserEngine(phaserConfig);
   world.registerDisposer(disposePhaser);
-  console.log("phaser setup complete");
 
   if (!config.devMode) {
     const faucet = createFaucetService(faucetUrl);
