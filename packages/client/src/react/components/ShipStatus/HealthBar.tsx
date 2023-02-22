@@ -6,10 +6,12 @@ export default function HealthBar({
   health,
   maxHealth,
   shipEntity,
+  title,
 }: {
   health: number;
   maxHealth: number;
-  shipEntity: EntityIndex;
+  shipEntity: EntityIndex | string;
+  title?: string;
 }) {
   let color = colors.red;
   const healthPct = health / maxHealth;
@@ -20,6 +22,7 @@ export default function HealthBar({
   }
   return (
     <HealthContainer>
+      {title && title}
       {chunk(Array(maxHealth).fill(0), 2).map((val, idx) => {
         return (
           <div style={{ display: "flex", gap: "0", flex: 1 }} key={`hull-health-${shipEntity}-${idx * 2}`}>

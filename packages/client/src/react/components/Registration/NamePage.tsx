@@ -4,7 +4,7 @@ import { useMUD } from "../../../mud/providers/MUDProvider";
 import { ModalType } from "../../../types";
 import { Button, colors, Input } from "../../styles/global";
 
-export function NameCaptain({ selectFleet }: { selectFleet: () => void }) {
+export function NamePage({ selectFleet }: { selectFleet: () => void }) {
   const {
     components: { Name, ModalOpen, GameConfig },
     godEntity,

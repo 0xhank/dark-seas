@@ -1,4 +1,4 @@
-import { EntityIndex } from "@latticexyz/recs";
+import { EntityID, EntityIndex } from "@latticexyz/recs";
 import { setupMUDNetwork } from "@latticexyz/std-client";
 
 import { createFaucetService, GodID } from "@latticexyz/network";
@@ -71,8 +71,8 @@ export async function setupMUD() {
   const utils = await createUtilities(godEntity, playerAddress, network.clock, scenes.Main.phaserScene);
   // --- API ------------------------------------------------------------------------
 
-  function spawnPlayer(name: string, override?: boolean) {
-    spawnPlayerAction(systems, actions, name, override);
+  function spawnPlayer(name: string, ships: EntityID[], override?: boolean) {
+    spawnPlayerAction(systems, actions, name, ships, override);
   }
 
   function respawn(ships: EntityIndex[], override?: boolean) {

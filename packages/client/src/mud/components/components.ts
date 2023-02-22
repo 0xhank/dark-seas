@@ -100,5 +100,5 @@ export const clientComponents = {
   // USED IN FLEET SELECTION
 
   ActiveShip: defineNumberComponent(world, { id: "ActiveShip" }),
-  InFleet: defineBoolComponent(world, { id: "InFleet" }),
+  StagedShips: defineComponent(world, { value: Type.NumberArray }, { id: "StagedShips" }),
 };

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import styled from "styled-components";
 import { ShipContainer } from "../../styles/global";
-import { NameCaptain } from "./NameCaptain";
-import { SelectFleet } from "./SelectFleet";
+import { FleetPage } from "./FleetPage";
+import { NamePage } from "./NamePage";
 
 type RegisterState = "Name" | "Fleet";
 
@@ -12,9 +12,9 @@ export function Registration() {
   return (
     <RegisterContainer>
       {state == "Name" ? (
-        <NameCaptain selectFleet={() => setState("Fleet")} />
+        <NamePage selectFleet={() => setState("Fleet")} />
       ) : (
-        <SelectFleet back={() => setState("Name")} />
+        <FleetPage back={() => setState("Name")} />
       )}
     </RegisterContainer>
   );
