@@ -28,7 +28,7 @@ const ShipButtons = styled.div`
 
   display: flex;
   flex-direction: column;
-  overflow-y: scroll;
+  overflow-y: auto;
   gap: 8px;
   width: 100%;
   height: 100%;
@@ -49,6 +49,6 @@ const ShipButtons = styled.div`
 `;
 
 const Title = styled.p`
-  font-size: 3rem;
-  line-height: 4rem;
+  font-size: 2.5rem;
+  line-height: 3rem;
 `;

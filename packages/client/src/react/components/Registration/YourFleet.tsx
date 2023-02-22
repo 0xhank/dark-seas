@@ -12,18 +12,21 @@ export function YourFleet({ flex }: { flex: number }) {
   const {
     components: { SelectedShip, ShipPrototype, Name, StagedShips },
     actions: { Action },
-    utils: { decodeShipPrototype },
+    utils: { decodeShipPrototype, getGameConfig },
     api: { spawnPlayer },
     godEntity,
   } = useMUD();
 
   useObservableValue(merge(ShipPrototype.update$, SelectedShip.update$, Action.update$));
 
+  const budget = getGameConfig()?.budget || 0;
   const name = useComponentValue(Name, godEntity, { value: "" }).value;
   const stagedShips = useComponentValue(StagedShips, godEntity, { value: [] }).value.map((ship) => ({
     entity: ship as EntityIndex,
     ...decodeShipPrototype(ship as EntityIndex),
   }));
+
+  const moneySpent = stagedShips.reduce((prev, curr) => prev + curr.price, 0);
   const registrationClosed = false;
   const spawnActions = [...runQuery([Has(Action)])];
 
@@ -90,27 +93,46 @@ export function YourFleet({ flex }: { flex: number }) {
   return (
     <Container style={{ flex }}>
       <Title>Your Fleet</Title>
-      <div
-        style={{
-          height: "100%",
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-        }}
-      >
-        <div style={{ display: "flex", width: "100%", flexDirection: "column" }}>
-          {stagedShips.map((ship) => (
-            <ShipButton prototypeEntity={ship.entity} />
-          ))}
-        </div>
-        <div style={{ maxHeight: "100px" }}>{button}</div>
+
+      <ShipButtons>
+        {stagedShips.map((ship) => (
+          <ShipButton prototypeEntity={ship.entity} />
+        ))}
+      </ShipButtons>
+      <div>
+        budget: {moneySpent} / {budget}
+        {button}
       </div>
     </Container>
   );
 }
 
+const ShipButtons = styled.div`
+  direction: rtl;
+
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border: solid 3px transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border: solid 3px transparent;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+`;
+
 const Title = styled.p`
-  font-size: 3rem;
-  line-height: 4rem;
+  font-size: 2.5rem;
+  line-height: 3rem;
 `;

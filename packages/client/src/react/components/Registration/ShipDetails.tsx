@@ -75,8 +75,8 @@ const ClippedArea = styled.div`
   position: relative;
 `;
 const Title = styled.p`
-  font-size: 3rem;
-  line-height: 4rem;
+  font-size: 2.5rem;
+  line-height: 3rem;
 `;
 
 const StatContainer = styled.div`
