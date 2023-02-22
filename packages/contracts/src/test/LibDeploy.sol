@@ -47,7 +47,6 @@ import { BootyComponent, ID as BootyComponentID } from "components/BootyComponen
 import { InitSystem, ID as InitSystemID } from "systems/InitSystem.sol";
 import { MoveSystem, ID as MoveSystemID } from "systems/MoveSystem.sol";
 import { ActionSystem, ID as ActionSystemID } from "systems/ActionSystem.sol";
-import { ComponentDevSystem, ID as ComponentDevSystemID } from "systems/ComponentDevSystem.sol";
 import { PlayerSpawnSystem, ID as PlayerSpawnSystemID } from "systems/PlayerSpawnSystem.sol";
 import { RespawnSystem, ID as RespawnSystemID } from "systems/RespawnSystem.sol";
 import { CommitSystem, ID as CommitSystemID } from "systems/CommitSystem.sol";
@@ -261,37 +260,6 @@ library LibDeploy {
     authorizeWriter(components, LastHitComponentID, address(system));
     authorizeWriter(components, BootyComponentID, address(system));
     authorizeWriter(components, LengthComponentID, address(system));
-    console.log(address(system));
-
-    console.log("Deploying ComponentDevSystem");
-    system = new ComponentDevSystem(world, address(components));
-    world.registerSystem(address(system), ComponentDevSystemID);
-    authorizeWriter(components, PositionComponentID, address(system));
-    authorizeWriter(components, RotationComponentID, address(system));
-    authorizeWriter(components, MoveCardComponentID, address(system));
-    authorizeWriter(components, LengthComponentID, address(system));
-    authorizeWriter(components, RangeComponentID, address(system));
-    authorizeWriter(components, HealthComponentID, address(system));
-    authorizeWriter(components, MaxHealthComponentID, address(system));
-    authorizeWriter(components, ShipComponentID, address(system));
-    authorizeWriter(components, SailPositionComponentID, address(system));
-    authorizeWriter(components, OnFireComponentID, address(system));
-    authorizeWriter(components, DamagedCannonsComponentID, address(system));
-    authorizeWriter(components, FirepowerComponentID, address(system));
-    authorizeWriter(components, GameConfigComponentID, address(system));
-    authorizeWriter(components, LastMoveComponentID, address(system));
-    authorizeWriter(components, LastActionComponentID, address(system));
-    authorizeWriter(components, OwnedByComponentID, address(system));
-    authorizeWriter(components, NameComponentID, address(system));
-    authorizeWriter(components, PlayerComponentID, address(system));
-    authorizeWriter(components, CommitmentComponentID, address(system));
-    authorizeWriter(components, LoadedComponentID, address(system));
-    authorizeWriter(components, CannonComponentID, address(system));
-    authorizeWriter(components, SpeedComponentID, address(system));
-    authorizeWriter(components, ShipPrototypeComponentID, address(system));
-    authorizeWriter(components, KillsComponentID, address(system));
-    authorizeWriter(components, LastHitComponentID, address(system));
-    authorizeWriter(components, BootyComponentID, address(system));
     console.log(address(system));
 
     console.log("Deploying PlayerSpawnSystem");

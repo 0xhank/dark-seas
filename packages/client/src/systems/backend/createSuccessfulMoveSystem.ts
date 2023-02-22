@@ -1,12 +1,9 @@
 import {
-  Component,
   defineComponentSystem,
   defineRxSystem,
   getComponentValueStrict,
-  Metadata,
   removeComponent,
   setComponent,
-  Type,
 } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
 import { MOVE_LENGTH } from "../../phaser/constants";
@@ -27,7 +24,7 @@ export function createSuccessfulMoveSystem(MUD: SetupResult) {
       HealthBackend,
       SailPositionLocal,
     },
-    utils: { playSound },
+    utils: { playSound, clearComponent },
     actions: { Action },
     godEntity,
   } = MUD;
@@ -77,7 +74,4 @@ export function createSuccessfulMoveSystem(MUD: SetupResult) {
       }
     });
   });
-}
-function clearComponent(CommittedMove: Component<{ value: Type.Number }, Metadata, undefined>) {
-  throw new Error("Function not implemented.");
 }

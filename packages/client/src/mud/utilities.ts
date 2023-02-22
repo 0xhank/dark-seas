@@ -127,7 +127,7 @@ export async function createUtilities(
   function getWorldHeightAtTime(timeMs: number, delay = true): number {
     const turn = getTurn(timeMs, false);
     const gameConfig = getGameConfig();
-    if (!gameConfig || !turn) return 0;
+    if (!gameConfig || turn == undefined) return 0;
     if (turn <= gameConfig.entryCutoffTurns || gameConfig.shrinkRate == 0) return gameConfig.worldSize;
     const turnsAfterCutoff = turn - gameConfig.entryCutoffTurns;
     const finalSize = gameConfig.worldSize - (gameConfig.shrinkRate / 100) * turnsAfterCutoff;
