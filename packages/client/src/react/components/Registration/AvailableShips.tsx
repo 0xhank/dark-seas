@@ -1,4 +1,5 @@
 import { getComponentEntities } from "@latticexyz/recs";
+import { Fragment } from "react";
 import styled from "styled-components";
 import { useMUD } from "../../../mud/providers/MUDProvider";
 import { Container } from "../../styles/global";
@@ -16,7 +17,9 @@ export function AvailableShips({ flex }: { flex: number }) {
       <Title>Available Ships</Title>
       <ShipButtons>
         {prototypeEntities.map((prototypeEntity) => (
-          <ShipButton prototypeEntity={prototypeEntity} />
+          <Fragment key={`available-ship-${prototypeEntity}`}>
+            <ShipButton prototypeEntity={prototypeEntity} />
+          </Fragment>
         ))}
       </ShipButtons>
     </Container>

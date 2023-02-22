@@ -51,45 +51,10 @@ export function YourFleet({ flex }: { flex: number }) {
     );
   };
 
-  let button = (
-    <Button
-      disabled={spawnDisabled}
-      style={{
-        fontSize: "1.5rem",
-        flex: 1,
-      }}
-      onClick={spawn}
-    >
-      Register
-    </Button>
-  );
-  if (spawning) {
-    button = (
-      <Button
-        disabled
-        style={{
-          fontSize: "1.5rem",
-          flex: 1,
-        }}
-      >
-        Spawning...
-      </Button>
-    );
-  } else if (txFailed) {
-    button = (
-      <Button
-        disabled={spawnDisabled}
-        onClick={spawn}
-        style={{
-          fontSize: "1.5rem",
-          flex: 1,
-          background: colors.red,
-        }}
-      >
-        Spawn failed! Try again.
-      </Button>
-    );
-  }
+  const onClick = spawning || txFailed ? () => {} : spawn;
+  const content = spawning ? "Spawning..." : txFailed ? "Spawn failed! Try again." : "Register";
+  const background = txFailed ? colors.red : "auto";
+
   return (
     <Container style={{ flex }}>
       <Title>Your Fleet</Title>
@@ -99,9 +64,38 @@ export function YourFleet({ flex }: { flex: number }) {
           <ShipButton prototypeEntity={ship.entity} />
         ))}
       </ShipButtons>
-      <div>
-        budget: {moneySpent} / {budget}
-        {button}
+      <div style={{ display: "flex", gap: "6px", width: "100%" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            gap: "3px",
+            textAlign: "left",
+            background: colors.lightTan,
+            padding: "6px",
+            borderRadius: "6px",
+            minWidth: "70px",
+            flex: 2,
+          }}
+        >
+          <p style={{ lineHeight: "0.75rem", fontSize: ".75rem", color: colors.lightBrown }}>budget</p>
+          <Title>
+            {moneySpent} / {budget}
+          </Title>
+        </div>
+        <Button
+          disabled={spawnDisabled}
+          onClick={onClick}
+          style={{
+            fontSize: "1.5rem",
+            width: "100%",
+            background: background,
+            flex: 3,
+          }}
+        >
+          {content}
+        </Button>
       </div>
     </Container>
   );
@@ -135,4 +129,5 @@ const ShipButtons = styled.div`
 const Title = styled.p`
   font-size: 2.5rem;
   line-height: 3rem;
+  text-align: center;
 `;

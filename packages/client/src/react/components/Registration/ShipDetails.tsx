@@ -1,9 +1,11 @@
 import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex, setComponent } from "@latticexyz/recs";
+import { useEffect } from "react";
 import styled from "styled-components";
 import { useMUD } from "../../../mud/providers/MUDProvider";
+import { phaserConfig } from "../../../phaser/config";
 import { Button, colors, Container } from "../../styles/global";
-import HealthBar from "../ShipStatus/HealthBar";
+import PillBar from "../PillBar";
 
 export function ShipDetails({ flex }: { flex: number }) {
   const {
@@ -32,35 +34,57 @@ export function ShipDetails({ flex }: { flex: number }) {
         </AddButton>
       </ClippedArea>
 
-      <div style={{ display: "flex", width: "100%", height: "40%" }}>
+      <div style={{ display: "flex", width: "100%", height: "40%", gap: "12px" }}>
         <StatContainer>
-          Ship Stats
-          {prototype && (
-            <>
-              <HealthBar
-                health={prototype.maxHealth}
-                maxHealth={Math.max(prototype.maxHealth, 16)}
-                shipEntity={`${prototypeEntity}-health`}
-                title="HEALTH"
-              />
-              <HealthBar
-                health={prototype.length}
-                maxHealth={Math.max(prototype.length, 16)}
-                shipEntity={`${prototypeEntity}-length`}
-                title="LENGTH"
-              />
-              <HealthBar
-                health={prototype.speed / 10}
-                maxHealth={Math.max(prototype.speed / 10, 16)}
-                shipEntity={`${prototypeEntity}-speed`}
-                title="SPEED"
-              />
-            </>
-          )}
+          <Header>Ship Stats</Header>
+          <div
+            style={{
+              display: "flex",
+              height: "100%",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            {prototype ? (
+              <>
+                <PillBar
+                  stat={prototype.maxHealth}
+                  maxStat={Math.max(prototype.maxHealth, 16)}
+                  key={`${prototypeEntity}-health`}
+                  title="health"
+                />
+                <PillBar
+                  stat={prototype.length}
+                  maxStat={Math.max(prototype.length, 16)}
+                  key={`${prototypeEntity}-length`}
+                  title="length"
+                />
+                <PillBar
+                  stat={prototype.speed / 10}
+                  maxStat={Math.max(prototype.speed / 10, 16)}
+                  key={`${prototypeEntity}-speed`}
+                  title="speed"
+                />
+              </>
+            ) : (
+              <p style={{ color: colors.darkGray }}>No ship selected</p>
+            )}
+          </div>
         </StatContainer>
         <StatContainer>
-          <p>Cannon Stats</p>
-          <p>Hover over a cannon to see its stats</p>
+          <Header>Cannon Stats</Header>
+          <div
+            style={{
+              display: "flex",
+              height: "100%",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <p style={{ color: colors.darkGray }}>No cannon selected</p>
+          </div>
         </StatContainer>
       </div>
     </Container>
@@ -79,10 +103,17 @@ const Title = styled.p`
   line-height: 3rem;
 `;
 
+const Header = styled.p`
+  font-size: 1.25rem;
+  line-height: 1.5rem;
+  text-align: left;
+`;
+
 const StatContainer = styled.div`
   width: 50%;
   background: ${colors.lightTan};
   border-radius: 6px;
+  padding: 12px;
 `;
 
 const AddButton = styled(Button)`
