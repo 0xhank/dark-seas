@@ -36,7 +36,7 @@ contract InitSystem is System {
     cannon4[3] = CannonPrototype({ rotation: 15, firepower: 50, range: 50 });
     LibCreateShip.createShip(
       components,
-      ShipPrototype({ price: 1, length: 13, maxHealth: 10, speed: 90, cannons: cannon4 })
+      ShipPrototype({ price: 1, length: 13, maxHealth: 10, speed: 90, cannons: cannon4, name: "Big Betty" })
     );
 
     cannon3[0] = CannonPrototype({ rotation: 90, firepower: 50, range: 100 });
@@ -44,14 +44,14 @@ contract InitSystem is System {
     cannon3[2] = CannonPrototype({ rotation: 0, firepower: 40, range: 100 });
     LibCreateShip.createShip(
       components,
-      ShipPrototype({ price: 1, length: 10, maxHealth: 10, speed: 110, cannons: cannon3 })
+      ShipPrototype({ price: 1, length: 10, maxHealth: 10, speed: 110, cannons: cannon3, name: "Lil Boy" })
     );
 
     cannon2[0] = CannonPrototype({ rotation: 90, firepower: 70, range: 120 });
     cannon2[1] = CannonPrototype({ rotation: 270, firepower: 70, range: 120 });
     LibCreateShip.createShip(
       components,
-      ShipPrototype({ price: 1, length: 8, maxHealth: 10, speed: 80, cannons: cannon2 })
+      ShipPrototype({ price: 1, length: 8, maxHealth: 10, speed: 80, cannons: cannon2, name: "Fat Man" })
     );
 
     gameConfigComponent.set(

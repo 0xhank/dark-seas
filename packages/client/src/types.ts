@@ -20,6 +20,7 @@ export type ShipPrototype = {
   maxHealth: number;
   speed: number;
   cannons: CannonPrototype[];
+  name: string;
 };
 
 export type CannonPrototype = {

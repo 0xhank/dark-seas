@@ -206,13 +206,14 @@ export async function createUtilities(
 
     const reformattedData = "0x" + shipPrototypeDataEncoded.slice(66);
 
-    const [price, length, maxHealth, speed, rawCannons] = abi.decode(
+    const [price, length, maxHealth, speed, rawCannons, name] = abi.decode(
       [
         "uint32 price",
         "uint32 length",
         "uint32 maxHealth",
         "uint32 speed",
         "tuple(uint32 rotation,uint32 firepower,uint32 range)[] cannons",
+        "string name",
       ],
       reformattedData
     );
@@ -223,6 +224,7 @@ export async function createUtilities(
       cannons: rawCannons,
       price,
       length,
+      name,
     };
     prototypeRegistry.set(prototypeEntity, prototype);
     return prototype;

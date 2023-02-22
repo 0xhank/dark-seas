@@ -64,6 +64,7 @@ struct ShipPrototype {
   uint32 maxHealth;
   uint32 speed;
   CannonPrototype[] cannons;
+  string name;
 }
 
 struct CannonPrototype {

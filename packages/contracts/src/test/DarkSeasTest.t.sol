@@ -83,7 +83,8 @@ contract DarkSeasTest is MudTest {
       length: 13,
       maxHealth: 10,
       speed: 90,
-      cannons: cannon4
+      cannons: cannon4,
+      name: "Johnson"
     });
 
     bytes memory packedShipPrototype = abi.encode(shipPrototype);

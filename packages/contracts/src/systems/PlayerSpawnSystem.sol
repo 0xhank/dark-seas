@@ -25,6 +25,7 @@ contract PlayerSpawnSystem is System {
     GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
       GodID
     );
+
     require(
       LibTurn.getCurrentTurn(components) <= gameConfig.entryCutoffTurns,
       "PlayerSpawnSystem: entry period has ended"
@@ -33,6 +34,7 @@ contract PlayerSpawnSystem is System {
 
     (string memory name, uint256[] memory ships) = abi.decode(arguments, (string, uint256[]));
     require(bytes(name).length > 0, "PlayerSpawnSystem: name is blank");
+    require(ships.length > 0, "PlayerSpawnSystem: no ships spawned");
 
     // create entity for player and name it
     uint256 playerEntity = LibSpawn.createPlayerEntity(components, msg.sender);
