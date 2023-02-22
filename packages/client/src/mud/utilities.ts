@@ -146,7 +146,7 @@ export async function createUtilities(
     if (turn == undefined) return false;
     const dims = getWorldDimsAtTime(turn);
 
-    return Math.abs(a.x) < dims.width && Math.abs(a.y) < dims.height;
+    return Math.abs(a.x) <= dims.width && Math.abs(a.y) <= dims.height;
   }
 
   function outOfBounds(timeMs: number, position: Coord) {
