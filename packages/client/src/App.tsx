@@ -12,7 +12,6 @@ export const App = () => {
   const worldAddress = params.get("worldAddress");
 
   useEffect(() => {
-    console.log("world address:", worldAddress);
     if (!worldAddress) return;
     setupMUD().then((result) => {
       console.log("result:", result);

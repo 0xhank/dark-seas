@@ -5,6 +5,7 @@ import { useMUD } from "../../mud/providers/MUDProvider";
 import { PlayerProvider } from "../../mud/providers/PlayerProvider";
 import { BootScreen } from "./BootScreen";
 import { DamageChance } from "./DamageChance";
+import { ActionQueue } from "./Dev/ActionQueue";
 import { ComponentBrowser } from "./Dev/ComponentBrowser";
 import { EmergencyActions } from "./EmergencyActions";
 import { HoveredShip } from "./HoveredShip";
@@ -29,7 +30,10 @@ export function Game() {
     msg: "Connecting",
     percentage: 0,
   });
-  if (loadingState.state !== SyncState.LIVE) return <BootScreen progression={loadingState.percentage as number} />;
+
+  const progression =
+    loadingState.state == SyncState.INITIAL ? loadingState.percentage : loadingState.state == SyncState.LIVE ? 100 : 0;
+  if (loadingState.state !== SyncState.LIVE) return <BootScreen progression={progression} />;
 
   return (
     <UIGrid
@@ -53,6 +57,7 @@ export function Game() {
       )}
       <Settings />
       <ComponentBrowser />
+      <ActionQueue />
     </UIGrid>
   );
 }

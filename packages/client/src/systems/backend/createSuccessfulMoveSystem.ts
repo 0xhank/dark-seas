@@ -1,4 +1,10 @@
-import { defineComponentSystem, defineRxSystem, getComponentValueStrict, setComponent } from "@latticexyz/recs";
+import {
+  defineComponentSystem,
+  defineRxSystem,
+  getComponentValueStrict,
+  removeComponent,
+  setComponent,
+} from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
 import { MOVE_LENGTH } from "../../phaser/constants";
 import { SetupResult } from "../../setupMUD";
@@ -18,7 +24,7 @@ export function createSuccessfulMoveSystem(MUD: SetupResult) {
       HealthBackend,
       SailPositionLocal,
     },
-    utils: { playSound },
+    utils: { playSound, clearComponent },
     actions: { Action },
     godEntity,
   } = MUD;
@@ -26,21 +32,26 @@ export function createSuccessfulMoveSystem(MUD: SetupResult) {
   defineComponentSystem(world, Action, ({ value }) => {
     const newAction = value[0];
     const oldAction = value[1];
-    if (newAction || !oldAction) return;
-    if (!oldAction.metadata) return;
+    if (!newAction || !newAction.metadata) return;
 
-    const { type, metadata } = oldAction.metadata as { type: TxType; metadata: any };
-    if (type !== TxType.Commit && oldAction.state !== ActionState.Complete) return;
-
+    const { type, metadata } = newAction.metadata as { type: TxType; metadata: any };
+    if (type !== TxType.Commit) return;
     const { moves, encoding } = metadata as { moves: Move[]; encoding: string };
-    setComponent(EncodedCommitment, godEntity, { value: encoding });
 
-    moves?.map((move) => {
-      const shipEntity = world.entityToIndex.get(move.shipEntity);
-      const moveCardEntity = world.entityToIndex.get(move.moveCardEntity);
-      if (!shipEntity || !moveCardEntity) return;
-      setComponent(CommittedMove, shipEntity, { value: moveCardEntity });
-    });
+    if (newAction.state == ActionState.WaitingForTxEvents || newAction.state == ActionState.Complete) {
+      setComponent(EncodedCommitment, godEntity, { value: encoding });
+
+      moves?.map((move) => {
+        const shipEntity = world.entityToIndex.get(move.shipEntity);
+        const moveCardEntity = world.entityToIndex.get(move.moveCardEntity);
+        if (!shipEntity || !moveCardEntity) return;
+        setComponent(CommittedMove, shipEntity, { value: moveCardEntity });
+      });
+    }
+    if (newAction.state == ActionState.Failed) {
+      removeComponent(EncodedCommitment, godEntity);
+      clearComponent(CommittedMove);
+    }
   });
 
   defineRxSystem(world, systemCallStreams["ds.system.Move"], (systemCall) => {

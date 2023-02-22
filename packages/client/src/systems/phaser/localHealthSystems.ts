@@ -1,7 +1,9 @@
+import { Coord, tileCoordToPixelCoord } from "@latticexyz/phaserx";
 import {
   defineComponentSystem,
   defineEnterSystem,
   defineSystem,
+  EntityIndex,
   getComponentValue,
   getComponentValueStrict,
   Has,
@@ -10,15 +12,20 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import { sprites } from "../../phaser/config";
-import { RenderDepth } from "../../phaser/constants";
+import { Animations, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../../phaser/constants";
 import { SetupResult } from "../../setupMUD";
+import { Category } from "../../sound";
 import { Sprites } from "../../types";
 import { getShipSprite } from "../../utils/ships";
+import { getMidpoint } from "../../utils/trig";
 
 export function localHealthSystems(MUD: SetupResult) {
   const {
     world,
     components: {
+      Length,
+      Position,
+      Rotation,
       HealthLocal,
       OnFireLocal,
       SelectedShip,
@@ -35,7 +42,7 @@ export function localHealthSystems(MUD: SetupResult) {
       SelectedMove,
       MaxHealth,
     },
-    utils: { getSpriteObject, getPlayerEntity },
+    utils: { getSpriteObject, getPlayerEntity, destroySpriteObject, playSound },
     scene: { config },
     godEntity,
   } = MUD;
@@ -67,12 +74,12 @@ export function localHealthSystems(MUD: SetupResult) {
   });
 
   // HEALTH UPDATES
-  defineComponentSystem(world, HealthLocal, (update) => {
-    if (update.value[0] === undefined || update.value[1] === undefined) return;
-    const health = update.value[0].value;
-    const maxHealth = getComponentValueStrict(MaxHealth, update.entity)?.value;
-    const shipObject = getSpriteObject(update.entity);
-    const ownerEntity = getPlayerEntity(getComponentValue(OwnedBy, update.entity)?.value);
+  defineComponentSystem(world, HealthLocal, ({ entity: shipEntity, value: [newVal, oldVal] }) => {
+    if (newVal === undefined || oldVal === undefined) return;
+    const health = newVal.value;
+    const maxHealth = getComponentValueStrict(MaxHealth, shipEntity)?.value;
+    const shipObject = getSpriteObject(shipEntity);
+    const ownerEntity = getPlayerEntity(getComponentValue(OwnedBy, shipEntity)?.value);
     const playerEntity = getPlayerEntity();
     if (!ownerEntity) return null;
 
@@ -83,29 +90,67 @@ export function localHealthSystems(MUD: SetupResult) {
     shipObject.setTexture(sprite.assetKey, sprite.frame);
 
     if (health == 0) {
-      removeComponent(SelectedActions, update.entity);
-      removeComponent(SelectedMove, update.entity);
+      playDeathAnimation(shipEntity);
+      removeComponent(SelectedActions, shipEntity);
+      removeComponent(SelectedMove, shipEntity);
       shipObject.setAlpha(0.5);
       shipObject.setDepth(RenderDepth.Foreground4);
-    } else {
-      shipObject.setAlpha(1);
-      shipObject.setDepth(RenderDepth.Foreground3);
-    }
-
-    if (health == 0) {
       shipObject.off("pointerdown");
       shipObject.off("pointerover");
       shipObject.off("pointerout");
       shipObject.disableInteractive();
     } else {
+      shipObject.setAlpha(1);
+      shipObject.setDepth(RenderDepth.Foreground3);
       shipObject.setInteractive({ cursor: "pointer" });
       shipObject.off("pointerdown");
       shipObject.off("pointerover");
       shipObject.off("pointerout");
 
-      shipObject.on("pointerdown", () => setComponent(SelectedShip, godEntity, { value: update.entity }));
-      shipObject.on("pointerover", () => setComponent(HoveredShip, godEntity, { value: update.entity }));
+      shipObject.on("pointerdown", () => setComponent(SelectedShip, godEntity, { value: shipEntity }));
+      shipObject.on("pointerover", () => setComponent(HoveredShip, godEntity, { value: shipEntity }));
       shipObject.on("pointerout", () => removeComponent(HoveredShip, godEntity));
     }
   });
+
+  function playDeathAnimation(shipEntity: EntityIndex) {
+    const shipMidpoint = getShipMidpoint(shipEntity);
+    const length = getComponentValueStrict(Length, shipEntity).value;
+    const width = length / (1.5 * SHIP_RATIO);
+
+    for (let i = 0; i < 20; i++) {
+      const explosionId = `deathexplosion-${shipEntity}-${i}`;
+
+      const randX = Math.random() * width * 2 - width;
+      const randY = Math.random() * width * 2 - width;
+      const end = { x: shipMidpoint.x + randX * POS_HEIGHT, y: shipMidpoint.y + randY * POS_HEIGHT };
+
+      explode(explosionId, end, i * 100);
+    }
+  }
+
+  function getShipMidpoint(shipEntity: EntityIndex) {
+    const position = getComponentValueStrict(Position, shipEntity);
+    const rotation = getComponentValue(Rotation, shipEntity)?.value || 0;
+    const length = getComponentValue(Length, shipEntity)?.value || 10;
+    const midpoint = getMidpoint(position, rotation, length);
+
+    return tileCoordToPixelCoord(midpoint, POS_WIDTH, POS_HEIGHT);
+  }
+
+  async function explode(explosionId: string, position: Coord, delay?: number) {
+    if (delay) {
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+    const explosion = getSpriteObject(explosionId);
+    explosion.setOrigin(0.5, 0.5);
+    playSound("impact_ship_1", Category.Combat);
+    explosion.setPosition(position.x, position.y);
+    explosion.setDepth(RenderDepth.UI5);
+    explosion.play(Animations.Explosion);
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    destroySpriteObject(explosionId);
+  }
 }
