@@ -67,19 +67,21 @@ library LibSpawn {
     uint32 worldHeight = GameConfigComponent(getAddressById(components, GameConfigComponentID))
       .getValue(GodID)
       .worldSize;
+    console.log("world height:", worldHeight);
     uint32 worldWidth = (worldHeight * 16) / 9;
     bool useWidth = r % 2 == 1;
     uint256 y = 0;
     uint256 x = 0;
     if (useWidth) {
-      x = (LibUtils.getByteUInt(r, 14, 14) % worldWidth) - 40;
-      y = worldHeight - 40;
+      x = (LibUtils.getByteUInt(r, 14, 14) % worldWidth);
+      y = worldHeight;
     } else {
-      x = worldWidth - 40;
-      y = (LibUtils.getByteUInt(r, 14, 14) % worldHeight) - 40;
+      x = worldWidth;
+      y = (LibUtils.getByteUInt(r, 14, 14) % worldHeight);
     }
-    int32 retY = r % 4 < 2 ? int32(uint32(y)) : 0 - int32(uint32(y));
-    int32 retX = r % 8 < 4 ? int32(uint32(x)) : 0 - int32(uint32(x));
+    int32 buffer = 40;
+    int32 retY = r % 4 < 2 ? int32(uint32(y)) - buffer : buffer - int32(uint32(y));
+    int32 retX = r % 8 < 4 ? int32(uint32(x)) - buffer : buffer - int32(uint32(x));
     return Coord(retX, retY);
   }
 
@@ -92,8 +94,6 @@ library LibSpawn {
     if (a.x >= 0 && a.y >= 0) return 235;
     if (a.x < 0 && a.y >= 0) return 315;
     if (a.x < 0 && a.y < 0) return 45;
-    if (a.x < 0 && a.y >= 0) return 135;
-
     return 135;
   }
 

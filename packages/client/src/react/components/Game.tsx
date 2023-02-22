@@ -54,9 +54,8 @@ export function Game() {
         <Registration />
       )}
       <Settings />
-      <Modal />
-      {/* <ComponentBrowser /> */}
-      {/* <ActionQueue /> */}
+      {/* <ComponentBrowser />
+      <ActionQueue /> */}
     </UIGrid>
   );
 }

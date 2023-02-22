@@ -58,12 +58,12 @@ contract InitSystem is System {
       GodID,
       GameConfig({
         startTime: block.timestamp,
-        commitPhaseLength: 30,
+        commitPhaseLength: 25,
         revealPhaseLength: 9,
-        actionPhaseLength: 30,
-        worldSize: 100,
-        perlinSeed: 45420,
-        entryCutoffTurns: 300, // entry is closed after the 60th turn (~1 hour)
+        actionPhaseLength: 25,
+        worldSize: 120,
+        perlinSeed: 454520,
+        entryCutoffTurns: 10, // entry is closed after the 60th turn (~1 hour)
         buyin: 0,
         respawnAllowed: false,
         // Calculation: Every turn, the world shrinks by gameConfig.shrinkrate / 100.
