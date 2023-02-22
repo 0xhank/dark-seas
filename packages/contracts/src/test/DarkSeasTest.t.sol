@@ -44,7 +44,7 @@ contract DarkSeasTest is MudTest {
     MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).set(shipEntity, maxHealth);
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
     OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(shipEntity, playerEntity);
-    SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, 110);
+    SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, 100);
     KillsComponent(getAddressById(components, KillsComponentID)).set(shipEntity, 0);
     BootyComponent(getAddressById(components, BootyComponentID)).set(shipEntity, 500);
     LastHitComponent(getAddressById(components, LastHitComponentID)).set(shipEntity, GodID);
