@@ -1,11 +1,7 @@
 import {
   defineComponentSystem,
-  defineEnterSystem,
-  defineSystem,
   getComponentValue,
   getComponentValueStrict,
-  Has,
-  Not,
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
@@ -18,53 +14,11 @@ import { getShipSprite } from "../../utils/ships";
 export function localHealthSystems(MUD: SetupResult) {
   const {
     world,
-    components: {
-      HealthLocal,
-      OnFireLocal,
-      SelectedShip,
-      HoveredShip,
-      DamagedCannonsLocal,
-      SailPositionLocal,
-      Health,
-      OwnedBy,
-      OnFire,
-      DamagedCannons,
-      SailPosition,
-      HealthBackend,
-      SelectedActions,
-      SelectedMove,
-      MaxHealth,
-    },
+    components: { HealthLocal, SelectedShip, HoveredShip, OwnedBy, SelectedActions, SelectedMove, MaxHealth },
     utils: { getSpriteObject, getPlayerEntity },
     scene: { config },
     godEntity,
   } = MUD;
-
-  defineSystem(world, [Has(Health)], ({ entity, value }) => {
-    const health = value[0]?.value as number | undefined;
-    const oldHealth = value[1]?.value as number | undefined;
-    if (health == undefined || !!oldHealth) return;
-    setComponent(HealthLocal, entity, { value: health });
-    setComponent(HealthBackend, entity, { value: health });
-  });
-
-  defineEnterSystem(world, [Has(OnFire), Not(OnFireLocal)], ({ entity, value }) => {
-    const health = value[0]?.value as number | undefined;
-    if (!health) return;
-    setComponent(OnFireLocal, entity, { value: health });
-  });
-
-  defineEnterSystem(world, [Has(DamagedCannons), Not(DamagedCannonsLocal)], ({ entity, value }) => {
-    const health = value[0]?.value as number | undefined;
-    if (!health) return;
-    setComponent(DamagedCannonsLocal, entity, { value: health });
-  });
-
-  defineEnterSystem(world, [Has(SailPosition), Not(SailPositionLocal)], ({ entity, value }) => {
-    const health = value[0]?.value as number | undefined;
-    if (!health) return;
-    setComponent(SailPositionLocal, entity, { value: health });
-  });
 
   // HEALTH UPDATES
   defineComponentSystem(world, HealthLocal, (update) => {

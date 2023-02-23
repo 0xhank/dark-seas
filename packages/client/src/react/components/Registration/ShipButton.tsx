@@ -8,20 +8,17 @@ import { BoxImage, colors, OptionButton } from "../../styles/global";
 
 export function ShipButton({ prototypeEntity, children }: { prototypeEntity: EntityIndex; children?: ReactNode }) {
   const {
-    components: { ActiveShip },
+    components: { ActiveShip, Length, Booty, Name },
     godEntity,
-    utils: { decodeShipPrototype },
   } = useMUD();
 
-  const { length, price, name } = decodeShipPrototype(prototypeEntity);
+  const length = useComponentValue(Length, prototypeEntity, { value: 0 }).value;
+  const price = Number(useComponentValue(Booty, prototypeEntity, { value: "0" }).value);
+  const name = useComponentValue(Name, prototypeEntity, { value: "" }).value;
 
   const activeShip = useComponentValue(ActiveShip, godEntity)?.value;
-  console.log("active ship outside:", activeShip);
   const handleSelection = () => {
-    console.log("active ship:", activeShip);
-    console.log("ship:", prototypeEntity);
     if (prototypeEntity == activeShip) {
-      console.log("hello");
       removeComponent(ActiveShip, godEntity);
     } else {
       setComponent(ActiveShip, godEntity, { value: prototypeEntity });
