@@ -100,5 +100,6 @@ export const clientComponents = {
   // USED IN FLEET SELECTION
 
   ActiveShip: defineNumberComponent(world, { id: "ActiveShip" }),
+  ActiveCannon: defineNumberComponent(world, { id: "ActiveCannon" }),
   StagedShips: defineComponent(world, { value: Type.NumberArray }, { id: "StagedShips" }),
 };

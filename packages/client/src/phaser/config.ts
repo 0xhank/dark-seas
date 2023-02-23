@@ -185,7 +185,6 @@ export const phaserConfig = {
     }),
   },
   scale: defineScaleConfig({
-    parent: "phaser-game",
     zoom: 0.5,
     mode: Phaser.Scale.NONE,
   }),

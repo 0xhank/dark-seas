@@ -362,12 +362,14 @@ export async function createUtilities(
 
   function getCannonRange(cannonEntity: EntityIndex) {
     const range = getComponentValue(components.Range, cannonEntity)?.value;
+    console.log("cannon range:", range);
     const shipEntity = getCannonOwner(cannonEntity);
     if (!shipEntity) return 0;
     const kills = getComponentValue(components.Kills, shipEntity)?.value;
-    if (range == undefined || kills == undefined) return 0;
+    const boost = kills ? 1 + kills / 10 : 1;
+    if (range == undefined) return 0;
 
-    return range * (1 + kills / 10);
+    return range * boost;
   }
 
   function getCannonFirepower(cannonEntity: EntityIndex) {

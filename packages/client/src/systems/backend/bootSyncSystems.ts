@@ -1,12 +1,4 @@
-import {
-  defineComponentSystem,
-  defineEnterSystem,
-  defineSystem,
-  EntityID,
-  Has,
-  Not,
-  setComponent,
-} from "@latticexyz/recs";
+import { defineComponentSystem, defineEnterSystem, defineSystem, Has, Not, setComponent } from "@latticexyz/recs";
 import { world } from "../../mud/world";
 import { SetupResult } from "../../setupMUD";
 
@@ -32,6 +24,7 @@ export function bootSyncSystems(MUD: SetupResult) {
       OwnedBy,
       Name,
       Booty,
+      Cannon,
     },
     utils: { decodeShipPrototype, destroySpriteObject },
   } = MUD;
@@ -71,10 +64,11 @@ export function bootSyncSystems(MUD: SetupResult) {
     setComponent(Booty, prototypeEntity, { value: prototype.price.toString() });
     prototype.cannons.map((cannon) => {
       const cannonEntity = world.registerEntity();
+      setComponent(Cannon, cannonEntity, { value: true });
       setComponent(Rotation, cannonEntity, { value: cannon.rotation });
       setComponent(Firepower, cannonEntity, { value: cannon.firepower });
       setComponent(Range, cannonEntity, { value: cannon.range });
-      setComponent(OwnedBy, cannonEntity, { value: `${prototype}` as EntityID });
+      setComponent(OwnedBy, cannonEntity, { value: world.entities[prototypeEntity] });
     });
 
     destroySpriteObject(prototypeEntity);
