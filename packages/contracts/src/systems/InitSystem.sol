@@ -24,34 +24,93 @@ contract InitSystem is System {
     MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
     GameConfigComponent gameConfigComponent = GameConfigComponent(getAddressById(components, GameConfigComponentID));
 
+    CannonPrototype[] memory cannon6 = new CannonPrototype[](6);
+    CannonPrototype[] memory cannon5 = new CannonPrototype[](5);
     CannonPrototype[] memory cannon4 = new CannonPrototype[](4);
     CannonPrototype[] memory cannon3 = new CannonPrototype[](3);
     CannonPrototype[] memory cannon2 = new CannonPrototype[](2);
     CannonPrototype[] memory cannon1 = new CannonPrototype[](1);
 
-    // SHIP ONE
-    cannon4[0] = CannonPrototype({ rotation: 90, firepower: 60, range: 60 });
-    cannon4[1] = CannonPrototype({ rotation: 270, firepower: 60, range: 60 });
-    cannon4[2] = CannonPrototype({ rotation: 345, firepower: 50, range: 50 });
-    cannon4[3] = CannonPrototype({ rotation: 15, firepower: 50, range: 50 });
+    // Leaky Canoe
+    cannon2[0] = CannonPrototype({ rotation: 90, firepower: 50, range: 30 });
+    cannon2[1] = CannonPrototype({ rotation: 270, firepower: 50, range: 30 });
+
     LibCreateShip.createShip(
       components,
-      ShipPrototype({ price: 1, length: 13, maxHealth: 10, speed: 90, cannons: cannon4, name: "Big Betty" })
+      ShipPrototype({ price: 1, length: 6, maxHealth: 3, speed: 70, cannons: cannon2, name: "Leaky Canoe" })
     );
 
-    cannon3[0] = CannonPrototype({ rotation: 90, firepower: 50, range: 100 });
-    cannon3[1] = CannonPrototype({ rotation: 270, firepower: 50, range: 100 });
-    cannon3[2] = CannonPrototype({ rotation: 0, firepower: 40, range: 100 });
+    // Wet Blanket
+    cannon1[0] = CannonPrototype({ rotation: 0, firepower: 40, range: 70 });
     LibCreateShip.createShip(
       components,
-      ShipPrototype({ price: 1, length: 10, maxHealth: 10, speed: 110, cannons: cannon3, name: "Lil Boy" })
+      ShipPrototype({ price: 1, length: 6, maxHealth: 3, speed: 80, cannons: cannon1, name: "Wet Blanket" })
     );
 
-    cannon2[0] = CannonPrototype({ rotation: 90, firepower: 70, range: 120 });
-    cannon2[1] = CannonPrototype({ rotation: 270, firepower: 70, range: 120 });
+    // Waterski
+    cannon2[0] = CannonPrototype({ rotation: 45, firepower: 40, range: 70 });
+    cannon2[1] = CannonPrototype({ rotation: 315, firepower: 40, range: 70 });
     LibCreateShip.createShip(
       components,
-      ShipPrototype({ price: 1, length: 8, maxHealth: 10, speed: 80, cannons: cannon2, name: "Fat Man" })
+      ShipPrototype({ price: 2, length: 7, maxHealth: 4, speed: 150, cannons: cannon2, name: "Waterski" })
+    );
+
+    // Tugboat
+    cannon2[0] = CannonPrototype({ rotation: 0, firepower: 45, range: 70 });
+    cannon2[1] = CannonPrototype({ rotation: 180, firepower: 45, range: 70 });
+    LibCreateShip.createShip(
+      components,
+      ShipPrototype({ price: 2, length: 8, maxHealth: 4, speed: 50, cannons: cannon2, name: "Tugboat" })
+    );
+
+    // Dolphin
+    cannon3[0] = CannonPrototype({ rotation: 90, firepower: 45, range: 80 });
+    cannon3[1] = CannonPrototype({ rotation: 270, firepower: 45, range: 80 });
+    cannon3[2] = CannonPrototype({ rotation: 0, firepower: 45, range: 80 });
+    LibCreateShip.createShip(
+      components,
+      ShipPrototype({ price: 3, length: 9, maxHealth: 5, speed: 100, cannons: cannon3, name: "Dolphin" })
+    );
+
+    // Defiance
+    cannon4[0] = CannonPrototype({ rotation: 90, firepower: 55, range: 60 });
+    cannon4[1] = CannonPrototype({ rotation: 270, firepower: 55, range: 60 });
+    cannon4[2] = CannonPrototype({ rotation: 30, firepower: 60, range: 70 });
+    cannon4[3] = CannonPrototype({ rotation: 330, firepower: 60, range: 70 });
+    LibCreateShip.createShip(
+      components,
+      ShipPrototype({ price: 3, length: 9, maxHealth: 4, speed: 80, cannons: cannon4, name: "Defiance" })
+    );
+
+    // The Raven
+    cannon2[0] = CannonPrototype({ rotation: 90, firepower: 90, range: 110 });
+    cannon2[1] = CannonPrototype({ rotation: 270, firepower: 90, range: 110 });
+    LibCreateShip.createShip(
+      components,
+      ShipPrototype({ price: 4, length: 7, maxHealth: 3, speed: 120, cannons: cannon2, name: "The Raven" })
+    );
+
+    // The Tank
+    cannon6[0] = CannonPrototype({ rotation: 90, firepower: 50, range: 55 });
+    cannon6[1] = CannonPrototype({ rotation: 270, firepower: 50, range: 55 });
+    cannon6[2] = CannonPrototype({ rotation: 30, firepower: 50, range: 55 });
+    cannon6[3] = CannonPrototype({ rotation: 330, firepower: 50, range: 55 });
+    cannon6[4] = CannonPrototype({ rotation: 150, firepower: 50, range: 55 });
+    cannon6[5] = CannonPrototype({ rotation: 210, firepower: 50, range: 55 });
+    LibCreateShip.createShip(
+      components,
+      ShipPrototype({ price: 4, length: 12, maxHealth: 6, speed: 50, cannons: cannon6, name: "The Tank" })
+    );
+
+    // Victory
+    cannon5[0] = CannonPrototype({ rotation: 90, firepower: 65, range: 80 });
+    cannon5[1] = CannonPrototype({ rotation: 270, firepower: 65, range: 80 });
+    cannon5[2] = CannonPrototype({ rotation: 45, firepower: 60, range: 70 });
+    cannon5[3] = CannonPrototype({ rotation: 315, firepower: 60, range: 70 });
+    cannon5[4] = CannonPrototype({ rotation: 0, firepower: 60, range: 70 });
+    LibCreateShip.createShip(
+      components,
+      ShipPrototype({ price: 5, length: 13, maxHealth: 9, speed: 110, cannons: cannon5, name: "Victory" })
     );
 
     gameConfigComponent.set(

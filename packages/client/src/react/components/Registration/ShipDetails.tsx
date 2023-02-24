@@ -184,7 +184,7 @@ export function ShipDetails({ flex }: { flex: number }) {
           >
             {prototypeEntity ? (
               <>
-                {rotation && (
+                {rotation != undefined && (
                   <PillBar
                     stat={isBroadside(rotation) ? "BROADSIDE" : "PIVOT GUN"}
                     maxStat={0}
