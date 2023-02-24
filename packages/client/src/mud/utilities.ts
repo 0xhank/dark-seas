@@ -362,7 +362,6 @@ export async function createUtilities(
 
   function getCannonRange(cannonEntity: EntityIndex) {
     const range = getComponentValue(components.Range, cannonEntity)?.value;
-    console.log("cannon range:", range);
     const shipEntity = getCannonOwner(cannonEntity);
     if (!shipEntity) return 0;
     const kills = getComponentValue(components.Kills, shipEntity)?.value;
@@ -536,10 +535,10 @@ export async function createUtilities(
 
   function destroySpriteObject(id: string | number) {
     const sprite = spriteRegistry.get(id);
+    spriteRegistry.delete(id);
     if (!sprite) return;
 
     sprite.destroy(true);
-    spriteRegistry.delete(id);
   }
 
   function getGroupObject(id: string | number, clear = false, s?: Phaser.Scene): Phaser.GameObjects.Group {
@@ -555,9 +554,10 @@ export async function createUtilities(
 
   function destroyGroupObject(id: string | number) {
     const group = polygonRegistry.get(id);
-    if (!group) return;
-    group.destroy(true, true);
     polygonRegistry.delete(id);
+    if (!group || !group.getChildren()?.length) return;
+    console.log("destroying group:", group);
+    group.destroy(true, true);
   }
 
   function renderMovePath(shipEntity: EntityIndex, objectId: string, finalPosition: Coord) {

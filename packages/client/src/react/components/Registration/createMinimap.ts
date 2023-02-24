@@ -1,6 +1,8 @@
 import { createPhaserEngine, defineCameraConfig, defineScaleConfig } from "@latticexyz/phaserx";
 import {
+  defineComponentSystem,
   EntityIndex,
+  getComponentValue,
   getComponentValueStrict,
   Has,
   HasValue,
@@ -68,49 +70,88 @@ export async function createMinimap() {
   };
 }
 
-export function renderMinimapShip(shipEntity: EntityIndex, scene: Phaser.Scene, mud: SetupResult) {
+export function createMinimapSystems(scene: Phaser.Scene, mud: SetupResult) {
   const {
-    components: { Length, MaxHealth, Cannon, OwnedBy, ActiveCannon },
-    utils: { pixelCoord, getFiringAreaPixels },
+    components: { Length, MaxHealth, Cannon, OwnedBy, ActiveCannon, ActiveShip },
+    utils: { pixelCoord, getFiringAreaPixels, getShipOwner, destroyGroupObject, getGroupObject },
     godEntity,
   } = mud;
+
   const position = { x: 0, y: 0 };
   const rotation = 315;
-  const group = scene.add.group();
-  const object = scene.add.sprite(position.x, position.y, "none");
-  group.add(object);
-  const length = getComponentValueStrict(Length, shipEntity).value;
-  const maxHealth = getComponentValueStrict(MaxHealth, shipEntity).value;
-  const spriteAsset: Sprites = getShipSprite(godEntity, maxHealth, maxHealth, true);
 
-  const sprite = sprites[spriteAsset];
+  defineComponentSystem(world, ActiveShip, ({ entity, value: [newVal] }) => {
+    destroyGroupObject("cannons");
+    destroyGroupObject("ship");
 
-  const { x, y } = pixelCoord(position);
-
-  object.setTexture(sprite.assetKey, sprite.frame);
-
-  const shipLength = length * POS_WIDTH * 1.25;
-  const shipWidth = shipLength / SHIP_RATIO;
-  object.setAngle(rotation - 90);
-  object.setOrigin(0.5, 0.92);
-  object.setDisplaySize(shipWidth, shipLength);
-  object.setPosition(x, y);
-  object.setDepth(RenderDepth.Foreground5);
-  scene.cameras.main.centerOn(position.x, position.y);
-  const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
-  cannonEntities.forEach((cannonEntity) => {
-    const length = getComponentValueStrict(Length, shipEntity).value;
-    const firingArea = getFiringAreaPixels(position, rotation, length, cannonEntity);
-    const firingPolygon = scene.add.polygon(undefined, undefined, firingArea, colors.whiteHex, 0.5);
-    firingPolygon.setDisplayOrigin(0);
-    firingPolygon.setDepth(RenderDepth.Foreground6);
-    group.add(firingPolygon);
-
-    firingPolygon.setInteractive(firingPolygon.geom, Phaser.Geom.Polygon.Contains);
-
-    firingPolygon.on("pointerover", () => setComponent(ActiveCannon, godEntity, { value: cannonEntity }));
-    firingPolygon.on("pointerout", () => removeComponent(ActiveCannon, godEntity));
+    if (!newVal) return;
+    const shipEntity = newVal.value as EntityIndex;
+    renderShip(shipEntity);
+    renderCannons();
+    scene.cameras.main.centerOn(position.x, position.y);
   });
 
-  scene.registry.set("ship", group);
+  defineComponentSystem(world, ActiveCannon, ({ value: [newVal] }) => {
+    console.log("active cannon:", newVal);
+    if (!newVal) renderCannons();
+    else renderCannons(newVal.value as EntityIndex);
+  });
+
+  function renderCannons(activeCannon?: EntityIndex) {
+    const group = getGroupObject("cannons", true, scene);
+    const shipEntity = getComponentValue(ActiveShip, godEntity)?.value;
+    if (!shipEntity) return;
+    const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
+    cannonEntities.forEach((cannonEntity) => {
+      const shipEntity = (getShipOwner(cannonEntity) as EntityIndex) || undefined;
+      if (!shipEntity) return;
+      const length = getComponentValueStrict(Length, shipEntity).value;
+      const firingArea = getFiringAreaPixels(position, rotation, length, cannonEntity);
+      const firingPolygon = scene.add.polygon(undefined, undefined, firingArea, colors.whiteHex, 0.3);
+      if (cannonEntity == activeCannon) {
+        firingPolygon.setAlpha(0.5);
+        firingPolygon.setStrokeStyle(1, colors.goldHex);
+      }
+
+      firingPolygon.setDisplayOrigin(0);
+      firingPolygon.setDepth(RenderDepth.Foreground6);
+
+      firingPolygon.setInteractive(firingPolygon.geom, Phaser.Geom.Polygon.Contains);
+
+      firingPolygon.on("pointerover", () => {
+        if (getComponentValue(ActiveCannon, godEntity)) return;
+        setComponent(ActiveCannon, godEntity, { value: cannonEntity });
+      });
+      firingPolygon.on("pointerout", () => removeComponent(ActiveCannon, godEntity));
+      group.add(firingPolygon);
+    });
+
+    return group;
+  }
+
+  function renderShip(shipEntity: EntityIndex) {
+    const group = getGroupObject("activeship", true, scene);
+    const object = scene.add.sprite(position.x, position.y, "none");
+    const length = getComponentValueStrict(Length, shipEntity).value;
+    const maxHealth = getComponentValueStrict(MaxHealth, shipEntity).value;
+    const spriteAsset: Sprites = getShipSprite(godEntity, maxHealth, maxHealth, true);
+
+    const sprite = sprites[spriteAsset];
+
+    const { x, y } = pixelCoord(position);
+
+    object.setTexture(sprite.assetKey, sprite.frame);
+
+    const shipLength = length * POS_WIDTH * 1.25;
+    const shipWidth = shipLength / SHIP_RATIO;
+    object.setAngle(rotation - 90);
+    object.setOrigin(0.5, 0.92);
+    object.setDisplaySize(shipWidth, shipLength);
+    object.setPosition(x, y);
+    object.setDepth(RenderDepth.Foreground5);
+    scene.cameras.main.centerOn(position.x, position.y);
+
+    group.add(object);
+    return group;
+  }
 }

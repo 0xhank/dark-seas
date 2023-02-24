@@ -13,10 +13,9 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useMUD } from "../../../mud/providers/MUDProvider";
 import { world } from "../../../mud/world";
-import { isBroadside } from "../../../utils/trig";
 import { Button, colors, Container } from "../../styles/global";
 import PillBar from "../PillBar";
-import { createMinimap, renderMinimapShip } from "./createMinimap";
+import { createMinimap, createMinimapSystems } from "./createMinimap";
 
 export function ShipDetails({ flex }: { flex: number }) {
   const {
@@ -40,7 +39,6 @@ export function ShipDetails({ flex }: { flex: number }) {
   const mud = useMUD();
 
   const [game, setGame] = useState<Phaser.Game>();
-  const [scene, setScene] = useState<Phaser.Scene>();
   const prototypeEntity = useComponentValue(ActiveShip, godEntity)?.value as EntityIndex | undefined;
   const activeCannon = useComponentValue(ActiveCannon, godEntity)?.value as EntityIndex | undefined;
   const stagedShips = useComponentValue(StagedShips, godEntity, { value: [] }).value.map((ship) => ({
@@ -52,20 +50,12 @@ export function ShipDetails({ flex }: { flex: number }) {
     if (!game)
       createMinimap().then(({ game, scene }) => {
         setGame(game);
-        setScene(scene.phaserScene);
+        createMinimapSystems(scene.phaserScene, mud);
       });
     return () => {
       game?.destroy(true);
     };
   }, []);
-
-  useEffect(() => {
-    scene?.registry.get("ship")?.destroy(true, true);
-
-    if (!mud || !scene || !prototypeEntity) return;
-
-    renderMinimapShip(prototypeEntity, scene, mud);
-  }, [mud, scene, prototypeEntity]);
 
   const budget = getGameConfig()?.budget || 0;
   const spent = stagedShips.reduce((prev, curr) => prev + curr.price, 0);
@@ -97,7 +87,6 @@ export function ShipDetails({ flex }: { flex: number }) {
       base
     ) || base;
 
-  const rotation = activeCannon ? getComponentValueStrict(Rotation, activeCannon).value : undefined;
   const firepower = activeCannon
     ? getComponentValueStrict(Firepower, activeCannon).value
     : sums.firepower / cannonsLength;
@@ -184,14 +173,6 @@ export function ShipDetails({ flex }: { flex: number }) {
           >
             {prototypeEntity ? (
               <>
-                {rotation != undefined && (
-                  <PillBar
-                    stat={isBroadside(rotation) ? "BROADSIDE" : "PIVOT GUN"}
-                    maxStat={0}
-                    key={`${activeCannon}-TYPE`}
-                    title="type"
-                  />
-                )}
                 <PillBar
                   stat={firepower / 5}
                   maxStat={Math.max(firepower / 5, 16)}

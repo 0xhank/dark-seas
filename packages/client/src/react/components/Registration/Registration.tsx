@@ -1,5 +1,7 @@
+import { removeComponent } from "@latticexyz/recs";
 import { useState } from "react";
 import styled from "styled-components";
+import { useMUD } from "../../../mud/providers/MUDProvider";
 import { ShipContainer } from "../../styles/global";
 import { FleetPage } from "./FleetPage";
 import { NamePage } from "./NamePage";
@@ -7,6 +9,10 @@ import { NamePage } from "./NamePage";
 type RegisterState = "Name" | "Fleet";
 
 export function Registration() {
+  const {
+    components: { ActiveShip },
+    godEntity,
+  } = useMUD();
   const [state, setState] = useState<RegisterState>("Name");
 
   return (
@@ -14,7 +20,12 @@ export function Registration() {
       {state == "Name" ? (
         <NamePage selectFleet={() => setState("Fleet")} />
       ) : (
-        <FleetPage back={() => setState("Name")} />
+        <FleetPage
+          back={() => {
+            removeComponent(ActiveShip, godEntity);
+            setState("Name");
+          }}
+        />
       )}
     </RegisterContainer>
   );

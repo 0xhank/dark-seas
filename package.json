@@ -42,6 +42,7 @@
     "deploy:contracts": "yarn workspace contracts run deploy",
     "deploy:client": "yarn workspace client run deploy",
     "deploy:client:prod": "yarn workspace client run deploy:prod",
+    "deploy:prod": "yarn workspace contracts run deploy:prod",
     "test": "yarn workspace contracts run test",
     "commit": "cz",
     "prettier:check": "prettier --check 'src/**/*.ts'",

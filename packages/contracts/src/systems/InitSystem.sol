@@ -32,8 +32,8 @@ contract InitSystem is System {
     CannonPrototype[] memory cannon1 = new CannonPrototype[](1);
 
     // Leaky Canoe
-    cannon2[0] = CannonPrototype({ rotation: 90, firepower: 50, range: 30 });
-    cannon2[1] = CannonPrototype({ rotation: 270, firepower: 50, range: 30 });
+    cannon2[0] = CannonPrototype({ rotation: 90, firepower: 30, range: 50 });
+    cannon2[1] = CannonPrototype({ rotation: 270, firepower: 30, range: 50 });
 
     LibCreateShip.createShip(
       components,
@@ -60,7 +60,7 @@ contract InitSystem is System {
     cannon2[1] = CannonPrototype({ rotation: 180, firepower: 45, range: 70 });
     LibCreateShip.createShip(
       components,
-      ShipPrototype({ price: 2, length: 8, maxHealth: 4, speed: 50, cannons: cannon2, name: "Tugboat" })
+      ShipPrototype({ price: 2, length: 8, maxHealth: 5, speed: 50, cannons: cannon2, name: "Tugboat" })
     );
 
     // Dolphin
