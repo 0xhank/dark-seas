@@ -8,31 +8,48 @@ export default function PillBar({
   key,
   title,
 }: {
-  stat: number;
+  stat: number | string;
   maxStat: number;
   key: EntityIndex | string;
   title?: string;
 }) {
+  let content = null;
   let color = colors.red;
-  const statPct = stat / maxStat;
-  if (statPct > 0.66) {
-    color = colors.green;
-  } else if (statPct > 0.33) {
-    color = colors.gold;
+
+  if (typeof stat === "string") {
+    content = <p style={{ flex: 1 }}>{stat}</p>;
+  } else {
+    const statPct = stat / maxStat;
+    if (statPct > 0.66) {
+      color = colors.green;
+    } else if (statPct > 0.33) {
+      color = colors.gold;
+    }
+    content = chunk(Array(maxStat).fill(0), 2).map((val, idx) => {
+      return (
+        <div style={{ display: "flex", gap: "0", flex: 1 }} key={`hull-stat-${key}-${idx * 2}`}>
+          <Stat show={idx * 2 < stat} left color={color} />
+          {idx * 2 + 1 < maxStat ? <Stat show={idx * 2 + 1 < stat} color={color} /> : <div style={{ flex: 1 }} />}
+        </div>
+      );
+    });
   }
   return (
     <StatContainer>
       {title && (
-        <div style={{ width: "25%", textAlign: "left", textTransform: "uppercase", marginRight: "3px" }}>{title}</div>
+        <div
+          style={{
+            width: "30%",
+            textAlign: "left",
+            fontWeight: "bolder",
+            textTransform: "uppercase",
+            marginRight: "3px",
+          }}
+        >
+          {title}
+        </div>
       )}
-      {chunk(Array(maxStat).fill(0), 2).map((val, idx) => {
-        return (
-          <div style={{ display: "flex", gap: "0", flex: 1 }} key={`hull-stat-${key}-${idx * 2}`}>
-            <Stat show={idx * 2 < stat} left color={color} />
-            {idx * 2 + 1 < maxStat ? <Stat show={idx * 2 + 1 < stat} color={color} /> : <div style={{ flex: 1 }} />}
-          </div>
-        );
-      })}
+      {content}
     </StatContainer>
   );
 }

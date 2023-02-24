@@ -1,4 +1,4 @@
-import { createPhaserEngine, defineCameraConfig } from "@latticexyz/phaserx";
+import { createPhaserEngine, defineCameraConfig, defineScaleConfig } from "@latticexyz/phaserx";
 import {
   EntityIndex,
   getComponentValueStrict,
@@ -20,13 +20,13 @@ import { colors } from "../../styles/global";
 export async function createMinimap() {
   const { game, scenes, dispose } = await createPhaserEngine({
     ...phaserConfig,
-    scale: {
+    scale: defineScaleConfig({
       parent: "phaser-cutin",
       zoom: 1,
       mode: Phaser.Scale.RESIZE,
       width: "100%",
       height: "100%",
-    },
+    }),
     cameraConfig: defineCameraConfig({
       pinchSpeed: 0.5,
       wheelSpeed: 0,
@@ -39,7 +39,7 @@ export async function createMinimap() {
 
   world.registerDisposer(dispose);
 
-  phaserScene.cameras.main.setZoom(0.25);
+  phaserScene.cameras.main.setZoom(1);
   // scene.phaserScene.cameras.main.setBounds(-500, -500, 1000, 1000, true);
   phaserScene.input.on(
     "wheel",

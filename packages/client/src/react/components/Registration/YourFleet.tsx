@@ -1,5 +1,13 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
-import { EntityIndex, getComponentValueStrict, Has, runQuery } from "@latticexyz/recs";
+import {
+  EntityIndex,
+  getComponentValue,
+  getComponentValueStrict,
+  Has,
+  removeComponent,
+  runQuery,
+  setComponent,
+} from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
 import { merge } from "rxjs";
 import styled from "styled-components";
@@ -10,14 +18,14 @@ import { ShipButton } from "./ShipButton";
 
 export function YourFleet({ flex }: { flex: number }) {
   const {
-    components: { SelectedShip, ShipPrototype, Name, StagedShips },
+    components: { ShipPrototype, Name, StagedShips, ActiveShip },
     actions: { Action },
     utils: { decodeShipPrototype, getGameConfig },
     api: { spawnPlayer },
     godEntity,
   } = useMUD();
 
-  useObservableValue(merge(ShipPrototype.update$, SelectedShip.update$, Action.update$));
+  useObservableValue(merge(ShipPrototype.update$, Action.update$));
 
   const budget = getGameConfig()?.budget || 0;
   const name = useComponentValue(Name, godEntity, { value: "" }).value;
@@ -41,8 +49,6 @@ export function YourFleet({ flex }: { flex: number }) {
       return state == ActionState.Complete || state == ActionState.Failed;
     });
 
-  const spawnDisabled = name.length == 0 || stagedShips.length == 0 || registrationClosed;
-
   const spawn = () => {
     if (stagedShips.length == 0 || name.length == 0) return;
     spawnPlayer(
@@ -51,17 +57,51 @@ export function YourFleet({ flex }: { flex: number }) {
     );
   };
 
+  const spawnDisabled = spawning || name.length == 0 || stagedShips.length == 0 || registrationClosed;
   const onClick = spawning || txFailed ? () => {} : spawn;
   const content = spawning ? "Spawning..." : txFailed ? "Spawn failed! Try again." : "Register";
-  const background = txFailed ? colors.red : "auto";
+
+  const background = txFailed ? colors.red : colors.gold;
+
+  const removeShip = (index: number) => {
+    const ships = getComponentValue(StagedShips, godEntity)?.value;
+    if (!ships || index > ships.length) return;
+    ships.splice(index, 1);
+    setComponent(StagedShips, godEntity, { value: ships });
+    removeComponent(ActiveShip, godEntity);
+  };
 
   return (
     <Container style={{ flex }}>
       <Title>Your Fleet</Title>
 
       <ShipButtons>
-        {stagedShips.map((ship) => (
-          <ShipButton prototypeEntity={ship.entity} />
+        {stagedShips.map((ship, index) => (
+          <ShipButton prototypeEntity={ship.entity}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                removeShip(index);
+              }}
+              style={{
+                position: "absolute",
+                top: "4px",
+                right: "4px",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              <img
+                src={"/icons/close.svg"}
+                style={{
+                  height: "14px",
+                  width: "14px",
+                  filter: "invert(14%) sepia(72%) saturate(7185%) hue-rotate(355deg) brightness(95%) contrast(119%)",
+                }}
+              />
+            </button>
+          </ShipButton>
         ))}
       </ShipButtons>
       <div style={{ display: "flex", gap: "6px", width: "100%" }}>
@@ -92,6 +132,7 @@ export function YourFleet({ flex }: { flex: number }) {
             width: "100%",
             background: background,
             flex: 3,
+            lineHeight: "1.75rem",
           }}
         >
           {content}

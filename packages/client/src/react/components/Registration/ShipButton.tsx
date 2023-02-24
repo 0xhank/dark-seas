@@ -33,10 +33,11 @@ export function ShipButton({ prototypeEntity, children }: { prototypeEntity: Ent
       style={{
         flexDirection: "row",
         justifyContent: "space-between",
-        minHeight: `${5 * length}px`,
+        minHeight: `${7 * length}px`,
         padding: "18px",
         direction: "ltr",
         marginLeft: "6px",
+        position: "relative",
       }}
     >
       <BoxContainer>

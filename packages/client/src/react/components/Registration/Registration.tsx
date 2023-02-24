@@ -7,7 +7,7 @@ import { NamePage } from "./NamePage";
 type RegisterState = "Name" | "Fleet";
 
 export function Registration() {
-  const [state, setState] = useState<RegisterState>("Fleet");
+  const [state, setState] = useState<RegisterState>("Name");
 
   return (
     <RegisterContainer>

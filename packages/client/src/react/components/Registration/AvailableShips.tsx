@@ -1,4 +1,4 @@
-import { getComponentEntities } from "@latticexyz/recs";
+import { EntityIndex, getComponentEntities, getComponentValue } from "@latticexyz/recs";
 import { Fragment } from "react";
 import styled from "styled-components";
 import { useMUD } from "../../../mud/providers/MUDProvider";
@@ -7,18 +7,23 @@ import { ShipButton } from "./ShipButton";
 
 export function AvailableShips({ flex }: { flex: number }) {
   const {
-    components: { ShipPrototype },
+    components: { ShipPrototype, Booty },
   } = useMUD();
 
-  const prototypeEntities = [...getComponentEntities(ShipPrototype)];
+  const prototypes = [...getComponentEntities(ShipPrototype)]
+    .map((entity) => ({
+      entity: entity as EntityIndex,
+      price: getComponentValue(Booty, entity)?.value || 0,
+    }))
+    .sort((a, b) => Number(a.price) - Number(b.price));
 
   return (
     <Container style={{ flex, overflow: "none" }}>
       <Title>Available Ships</Title>
       <ShipButtons>
-        {prototypeEntities.map((prototypeEntity) => (
+        {prototypes.map((prototypeEntity) => (
           <Fragment key={`available-ship-${prototypeEntity}`}>
-            <ShipButton prototypeEntity={prototypeEntity} />
+            <ShipButton prototypeEntity={prototypeEntity.entity} />
           </Fragment>
         ))}
       </ShipButtons>
