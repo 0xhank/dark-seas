@@ -30,17 +30,26 @@ export function RevealButtons({
   const showExecuting = txExecuting && !acted;
 
   if (showExecuting) {
-    return <Button disabled>Executing...</Button>;
+    return (
+      <Button disabled style={{ width: "100%", height: "100%" }}>
+        Executing...
+      </Button>
+    );
   }
 
-  if (acted) return <Success>Move reveal successful!</Success>;
-  if (!encodedCommitment) return <Button disabled>No moves to reveal</Button>;
+  if (acted) return <Success style={{ width: "100%", height: "100%" }}>Move reveal successful!</Success>;
+  if (!encodedCommitment)
+    return (
+      <Button disabled style={{ width: "100%", height: "100%" }}>
+        No moves to reveal
+      </Button>
+    );
 
   const disabled = tooEarly;
   return (
     <Button
       disabled={disabled}
-      style={{ width: "100%", fontSize: "1rem", lineHeight: "1.25rem" }}
+      style={{ width: "100%", height: "100%", fontSize: "1rem", lineHeight: "1.25rem" }}
       onClick={handleSubmitExecute}
     >
       {!disabled && "Reveal Moves"}

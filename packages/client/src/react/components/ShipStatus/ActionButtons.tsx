@@ -42,16 +42,20 @@ export function ActionButtons({
 
   const disabled = tooEarly || cannotAct;
   if (showExecuting) {
-    return <Button disabled>Executing...</Button>;
+    return (
+      <Button disabled style={{ width: "100%", height: "100%" }}>
+        Executing...
+      </Button>
+    );
   }
   if (acted) {
-    return <Success>Actions Successful</Success>;
+    return <Success style={{ width: "100%", height: "100%" }}>Actions Successful</Success>;
   } else {
     return (
       <>
         <Button
           disabled={disabled}
-          style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }}
+          style={{ width: "100%", height: "100%", fontSize: "1rem", lineHeight: "1.25rem" }}
           onClick={handleSubmitActions}
         >
           {!disabled && "Submit All Actions"}

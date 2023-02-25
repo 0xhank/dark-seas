@@ -93,25 +93,19 @@ export function createMinimapSystems(scene: Phaser.Scene, mud: SetupResult) {
 
   defineComponentSystem(world, ActiveCannon, ({ value: [newVal] }) => {
     console.log("active cannon:", newVal);
-    if (!newVal) renderCannons();
-    else renderCannons(newVal.value as EntityIndex);
+    // if (!newVal) renderCannons();
+    // else renderCannons(newVal.value as EntityIndex);
   });
 
   function renderCannons(activeCannon?: EntityIndex) {
     const group = getGroupObject("cannons", true, scene);
-    const shipEntity = getComponentValue(ActiveShip, godEntity)?.value;
+    const shipEntity = getComponentValue(ActiveShip, godEntity)?.value as EntityIndex | undefined;
     if (!shipEntity) return;
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
     cannonEntities.forEach((cannonEntity) => {
-      const shipEntity = (getShipOwner(cannonEntity) as EntityIndex) || undefined;
-      if (!shipEntity) return;
       const length = getComponentValueStrict(Length, shipEntity).value;
       const firingArea = getFiringAreaPixels(position, rotation, length, cannonEntity);
       const firingPolygon = scene.add.polygon(undefined, undefined, firingArea, colors.whiteHex, 0.3);
-      if (cannonEntity == activeCannon) {
-        firingPolygon.setAlpha(0.5);
-        firingPolygon.setStrokeStyle(1, colors.goldHex);
-      }
 
       firingPolygon.setDisplayOrigin(0);
       firingPolygon.setDepth(RenderDepth.Foreground6);
@@ -121,8 +115,14 @@ export function createMinimapSystems(scene: Phaser.Scene, mud: SetupResult) {
       firingPolygon.on("pointerover", () => {
         if (getComponentValue(ActiveCannon, godEntity)) return;
         setComponent(ActiveCannon, godEntity, { value: cannonEntity });
+        firingPolygon.setFillStyle(colors.whiteHex, 0.7);
+        firingPolygon.setStrokeStyle(3, colors.goldHex);
       });
-      firingPolygon.on("pointerout", () => removeComponent(ActiveCannon, godEntity));
+      firingPolygon.on("pointerout", () => {
+        removeComponent(ActiveCannon, godEntity);
+        firingPolygon.setFillStyle(colors.whiteHex, 0.3);
+        firingPolygon.setStrokeStyle(0, colors.goldHex);
+      });
       group.add(firingPolygon);
     });
 

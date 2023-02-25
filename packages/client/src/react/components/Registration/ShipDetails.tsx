@@ -161,7 +161,7 @@ export function ShipDetails({ flex }: { flex: number }) {
           </div>
         </StatContainer>
         <StatContainer>
-          <Header>{activeCannon ? "Cannon Stats" : `Cannons (${cannonsLength})`}</Header>
+          <Header>{activeCannon && prototypeEntity ? "Cannon Stats" : `Cannons (${cannonsLength})`}</Header>
           <div
             style={{
               display: "flex",
@@ -187,7 +187,7 @@ export function ShipDetails({ flex }: { flex: number }) {
                 />
               </>
             ) : (
-              "No ship selected"
+              <p style={{ color: colors.darkGray }}>No ship selected</p>
             )}
           </div>
         </StatContainer>

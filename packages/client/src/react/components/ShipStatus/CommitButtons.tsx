@@ -41,15 +41,19 @@ export function CommitButtons({ tooEarly, txExecuting }: { tooEarly: boolean; tx
   const showExecuting = txExecuting && !acted;
 
   if (showExecuting) {
-    return <Button disabled>Executing...</Button>;
+    return (
+      <Button disabled style={{ width: "100%", height: "100%" }}>
+        Executing...
+      </Button>
+    );
   }
 
   const disabled = tooEarly || cannotAct;
   if (acted && movesComplete) {
-    return <Success>Moves Successful</Success>;
+    return <Success style={{ width: "100%", height: "100%" }}>Moves Successful</Success>;
   }
   return (
-    <Button onClick={handleSubmitCommitment} disabled={disabled}>
+    <Button onClick={handleSubmitCommitment} disabled={disabled} style={{ width: "100%", height: "100%" }}>
       {!disabled && "Confirm All Moves"}
     </Button>
   );
