@@ -29,11 +29,6 @@
   ],
   "systems": [
     {
-      "name": "InitSystem",
-      "writeAccess": ["*"],
-      "initialize": "abi.encode(block.timestamp, 25, 9, 25, 120, 454520, 10,0,false, 0, 5)"
-    },
-    {
       "name": "MoveSystem",
       "writeAccess": [
         "PositionComponent",
@@ -60,7 +55,12 @@
         "LengthComponent"
       ]
     },
-    { "name": "ComponentDevSystem", "writeAccess": ["*"] },
+    {
+      "name": "ComponentDevSystem",
+      "writeAccess": [
+        "*"
+      ]
+    },
     {
       "name": "PlayerSpawnSystem",
       "writeAccess": [
@@ -99,6 +99,18 @@
         "LengthComponent"
       ]
     },
-    { "name": "CommitSystem", "writeAccess": ["CommitmentComponent"] }
+    {
+      "name": "CommitSystem",
+      "writeAccess": [
+        "CommitmentComponent"
+      ]
+    },
+    {
+      "name": "InitSystem",
+      "writeAccess": [
+        "*"
+      ],
+      "initialize": "abi.encode(block.timestamp, 25, 9, 25, 120, 345676, 60, 0, false, 0, 5)"
+    }
   ]
 }
