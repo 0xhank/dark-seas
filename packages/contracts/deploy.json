@@ -28,7 +28,11 @@
     "BootyComponent"
   ],
   "systems": [
-    { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
+    {
+      "name": "InitSystem",
+      "writeAccess": ["*"],
+      "initialize": "abi.encode(block.timestamp, 25, 9, 25, 120, 454520, 10,0,false, 0, 5)"
+    },
     {
       "name": "MoveSystem",
       "writeAccess": [
