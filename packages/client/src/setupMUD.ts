@@ -1,4 +1,4 @@
-import { EntityIndex } from "@latticexyz/recs";
+import { EntityID, EntityIndex } from "@latticexyz/recs";
 import { setupMUDNetwork } from "@latticexyz/std-client";
 
 import { createFaucetService, GodID } from "@latticexyz/network";
@@ -23,13 +23,16 @@ import { Action, Move } from "./types";
 export type SetupResult = Awaited<ReturnType<typeof setupMUD>>;
 
 export async function setupMUD() {
+  console.info(`Booting with network config:`, config);
+
   const res = await setupMUDNetwork<typeof components, SystemTypes>(config, world, components, SystemAbis, {
     fetchSystemCalls: true,
   });
+
   const { systems, network, systemCallStreams, txReduced$, encoders } = res;
   res.startSync();
 
-  // For LoadingState updates
+  // For LoadingState updatesk
   const godEntity = world.registerEntity({ id: GodID });
 
   // Register player entity
@@ -71,8 +74,8 @@ export async function setupMUD() {
   const utils = await createUtilities(godEntity, playerAddress, network.clock, scenes.Main.phaserScene);
   // --- API ------------------------------------------------------------------------
 
-  function spawnPlayer(name: string, override?: boolean) {
-    spawnPlayerAction(systems, actions, name, override);
+  function spawnPlayer(name: string, ships: EntityID[], override?: boolean) {
+    spawnPlayerAction(systems, actions, name, ships, override);
   }
 
   function respawn(ships: EntityIndex[], override?: boolean) {
@@ -110,5 +113,6 @@ export async function setupMUD() {
     dev: setupDevSystems(world, encoders, systems),
   };
 
+  (window as any).ds = context;
   return context;
 }

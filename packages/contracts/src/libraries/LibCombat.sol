@@ -234,9 +234,7 @@ library LibCombat {
     uint32 health = healthComponent.getValue(shipEntity);
 
     if (health <= damage) {
-      uint256 attackerEntity = LastHitComponent(getAddressById(components, LastHitComponentID)).getValue(shipEntity);
-
-      killEnemy(components, attackerEntity, shipEntity);
+      killShip(components, shipEntity);
       return true;
     }
 
@@ -247,18 +245,15 @@ library LibCombat {
   /**
    * @notice  kills enemy and rewards the attacker
    * @param   components  world components
-   * @param   attackerEntity  ship that attacked
    * @param   shipEntity  ship that got killed
    */
-  function killEnemy(
-    IUint256Component components,
-    uint256 attackerEntity,
-    uint256 shipEntity
-  ) private {
+  function killShip(IUint256Component components, uint256 shipEntity) private {
     KillsComponent killsComponent = KillsComponent(getAddressById(components, KillsComponentID));
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
     BootyComponent bootyComponent = BootyComponent(getAddressById(components, BootyComponentID));
     LengthComponent lengthComponent = LengthComponent(getAddressById(components, LengthComponentID));
+
+    uint256 attackerEntity = LastHitComponent(getAddressById(components, LastHitComponentID)).getValue(shipEntity);
 
     healthComponent.set(shipEntity, 0);
     // remove booty from sunk ship -> add half to attacking ship and half to attacking player

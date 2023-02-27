@@ -4,7 +4,7 @@ import { useMUD } from "../../../mud/providers/MUDProvider";
 import { usePlayer } from "../../../mud/providers/PlayerProvider";
 import { Category } from "../../../sound";
 import { ActionType } from "../../../types";
-import { ConfirmButton, Success } from "../../styles/global";
+import { Button, Success } from "../../styles/global";
 
 export function ActionButtons({
   tooEarly,
@@ -42,20 +42,24 @@ export function ActionButtons({
 
   const disabled = tooEarly || cannotAct;
   if (showExecuting) {
-    return <ConfirmButton disabled>Executing...</ConfirmButton>;
+    return (
+      <Button disabled style={{ width: "100%", height: "100%" }}>
+        Executing...
+      </Button>
+    );
   }
   if (acted) {
-    return <Success>Actions Successful</Success>;
+    return <Success style={{ width: "100%", height: "100%" }}>Actions Successful</Success>;
   } else {
     return (
       <>
-        <ConfirmButton
+        <Button
           disabled={disabled}
-          style={{ flex: 3, fontSize: "1rem", lineHeight: "1.25rem" }}
+          style={{ width: "100%", height: "100%", fontSize: "1rem", lineHeight: "1.25rem" }}
           onClick={handleSubmitActions}
         >
           {!disabled && "Submit All Actions"}
-        </ConfirmButton>
+        </Button>
       </>
     );
   }

@@ -25,7 +25,7 @@ export function borderSystems(MUD: SetupResult) {
     border.setDepth(RenderDepth.Background1);
     borderGroup.add(border);
 
-    const minX = -width / 2;
+    const minX = -width / 2 - 1000;
     const minY = -height / 2;
     const maxX = width / 2;
     const maxY = height / 2;

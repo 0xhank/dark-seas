@@ -5,11 +5,10 @@ import { useMUD } from "../../mud/providers/MUDProvider";
 import { PlayerProvider } from "../../mud/providers/PlayerProvider";
 import { BootScreen } from "./BootScreen";
 import { DamageChance } from "./DamageChance";
-import { ComponentBrowser } from "./Dev/ComponentBrowser";
 import { EmergencyActions } from "./EmergencyActions";
 import { HoveredShip } from "./HoveredShip";
-import { JoinGame } from "./JoinGame";
 import { Modal } from "./Modals/Modal";
+import { Registration } from "./Registration/Registration";
 import { Settings } from "./Settings";
 import { SideBar } from "./SideBar";
 import { TurnTimer } from "./TurnTimer";
@@ -29,7 +28,10 @@ export function Game() {
     msg: "Connecting",
     percentage: 0,
   });
-  if (loadingState.state !== SyncState.LIVE) return <BootScreen progression={loadingState.percentage as number} />;
+
+  const progression =
+    loadingState.state == SyncState.INITIAL ? loadingState.percentage : loadingState.state == SyncState.LIVE ? 100 : 0;
+  if (loadingState.state !== SyncState.LIVE) return <BootScreen progression={progression} />;
 
   return (
     <UIGrid
@@ -49,10 +51,11 @@ export function Game() {
           <EmergencyActions />
         </PlayerProvider>
       ) : (
-        <JoinGame />
+        <Registration />
       )}
       <Settings />
-      <ComponentBrowser />
+      {/* <ComponentBrowser /> */}
+      {/* <ActionQueue /> */}
     </UIGrid>
   );
 }

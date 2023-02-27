@@ -29,6 +29,8 @@ contract RespawnTest is DarkSeasTest {
 
   RespawnSystem respawnSystem;
 
+  uint256[] ships;
+
   function testRevertNoPlayer() public prank(deployer) {
     setup();
 
@@ -96,7 +98,9 @@ contract RespawnTest is DarkSeasTest {
   function setup() internal returns (uint256[] memory shipEntities) {
     PlayerSpawnSystem playerSpawnSystem = PlayerSpawnSystem(system(PlayerSpawnSystemID));
     respawnSystem = RespawnSystem(system(RespawnSystemID));
-    playerSpawnSystem.executeTyped("Jamaican me crazy", Coord(1, 1));
+    uint256 shipId = createShipPrototype(1);
+    ships.push(shipId);
+    playerSpawnSystem.executeTyped("Jamaican me crazy", ships);
     GameConfigComponent gameConfigComponent = GameConfigComponent(getAddressById(components, GameConfigComponentID));
     GameConfig memory gameConfig = gameConfigComponent.getValue(GodID);
     gameConfig.respawnAllowed = true;

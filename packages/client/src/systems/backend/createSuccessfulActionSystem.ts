@@ -1,11 +1,4 @@
-import {
-  ComponentValue,
-  defineRxSystem,
-  EntityIndex,
-  getComponentValue,
-  getComponentValueStrict,
-  setComponent,
-} from "@latticexyz/recs";
+import { ComponentValue, defineRxSystem, EntityIndex, getComponentValueStrict, setComponent } from "@latticexyz/recs";
 import { BigNumber } from "ethers";
 import { BytesLike, defaultAbiCoder as abi } from "ethers/lib/utils";
 import { ActionStruct } from "../../../../contracts/types/ethers-contracts/ActionSystem";
@@ -85,7 +78,7 @@ export function createSuccessfulActionSystem(MUD: SetupResult) {
       //TODO: animate this
 
       const shipNewHealth = shipUpdates.get(`${shipEntity}-Health`)?.value as number | undefined;
-      if (shipNewHealth) {
+      if (shipNewHealth !== undefined) {
         setComponent(HealthLocal, shipEntity, { value: shipNewHealth });
         setComponent(HealthBackend, shipEntity, { value: shipNewHealth });
       }
@@ -110,17 +103,12 @@ export function createSuccessfulActionSystem(MUD: SetupResult) {
     } else if (actionType == ActionType.ExtinguishFire) {
       const newOnFire = shipUpdates.get(`${shipEntity}-OnFire`)?.value as number | undefined;
       setComponent(OnFireLocal, shipEntity, { value: newOnFire || 0 });
-    } else if (actionType == ActionType.LowerSail) {
-      const oldSailPosition = getComponentValue(SailPositionLocal, shipEntity)?.value || 2;
-      setComponent(SailPositionLocal, shipEntity, { value: oldSailPosition - 1 });
-    } else if (actionType == ActionType.RaiseSail) {
-      const oldSailPosition = getComponentValue(SailPositionLocal, shipEntity)?.value || 1;
-      setComponent(SailPositionLocal, shipEntity, { value: oldSailPosition + 1 });
+    } else if ([ActionType.LowerSail, ActionType.RaiseSail, ActionType.RepairSail].includes(actionType)) {
+      const newSail = shipUpdates.get(`${shipEntity}-SailPosition`)?.value as number | undefined;
+      setComponent(SailPositionLocal, shipEntity, { value: newSail || 0 });
     } else if (actionType == ActionType.RepairCannons) {
       const newCannons = shipUpdates.get(`${shipEntity}-DamagedCannons`)?.value as number | undefined;
       setComponent(DamagedCannonsLocal, shipEntity, { value: newCannons || 0 });
-    } else if (actionType == ActionType.RepairSail) {
-      setComponent(SailPositionLocal, shipEntity, { value: 1 });
     }
   }
 
@@ -131,10 +119,8 @@ export function createSuccessfulActionSystem(MUD: SetupResult) {
     targets.forEach((target) => {
       const healthKey = `${target}-Health`;
       const oldHealth = getComponentValueStrict(HealthBackend, target).value;
-      const newHealth = shipUpdates.get(healthKey)?.value as number | undefined;
-
-      const damageDealt = Math.min(3, oldHealth - (newHealth == undefined ? oldHealth : newHealth));
-      setComponent(HealthBackend, target, { value: oldHealth - damageDealt });
+      const newHealth = (shipUpdates.get(healthKey)?.value as number | undefined) || oldHealth;
+      const damageDealt = Math.min(3, oldHealth - newHealth);
       damage.push(damageDealt);
 
       const fireKey = `${target}-OnFire`;

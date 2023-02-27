@@ -40,7 +40,7 @@ export function inputSystems(MUD: SetupResult) {
       if (!ship) return shipKeyRegistry.set(NumberKeyNames[i], entity);
     }
   });
-
+  console.log("input:", input);
   const clickSub = input.click$.subscribe((p) => {
     const pointer = p as Phaser.Input.Pointer;
     const tilePos = pixelCoordToTileCoord({ x: pointer.worldX, y: pointer.worldY }, tileWidth, tileHeight);

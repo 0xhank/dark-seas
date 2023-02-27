@@ -5,7 +5,7 @@ import { useMUD } from "../../../mud/providers/MUDProvider";
 import { usePlayer } from "../../../mud/providers/PlayerProvider";
 import { world } from "../../../mud/world";
 import { Category } from "../../../sound";
-import { ConfirmButton, Success } from "../../styles/global";
+import { Button, Success } from "../../styles/global";
 
 export function CommitButtons({ tooEarly, txExecuting }: { tooEarly: boolean; txExecuting: boolean }) {
   const {
@@ -41,16 +41,20 @@ export function CommitButtons({ tooEarly, txExecuting }: { tooEarly: boolean; tx
   const showExecuting = txExecuting && !acted;
 
   if (showExecuting) {
-    return <ConfirmButton disabled>Executing...</ConfirmButton>;
+    return (
+      <Button disabled style={{ width: "100%", height: "100%" }}>
+        Executing...
+      </Button>
+    );
   }
 
   const disabled = tooEarly || cannotAct;
   if (acted && movesComplete) {
-    return <Success>Moves Successful</Success>;
+    return <Success style={{ width: "100%", height: "100%" }}>Moves Successful</Success>;
   }
   return (
-    <ConfirmButton onClick={handleSubmitCommitment} disabled={disabled}>
+    <Button onClick={handleSubmitCommitment} disabled={disabled} style={{ width: "100%", height: "100%" }}>
       {!disabled && "Confirm All Moves"}
-    </ConfirmButton>
+    </Button>
   );
 }

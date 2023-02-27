@@ -29,5 +29,5 @@ export function ConfirmButtons() {
   else if (phase == Phase.Commit) content = <CommitButtons tooEarly={tooEarly} txExecuting={txExecuting} />;
   else if (phase == Phase.Action) content = <ActionButtons tooEarly={tooEarly} turn={turn} txExecuting={txExecuting} />;
 
-  return <div style={{ minHeight: "50px" }}>{content}</div>;
+  return <div style={{ minHeight: "50px", width: "100%" }}>{content}</div>;
 }

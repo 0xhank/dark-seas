@@ -42,6 +42,7 @@ export function cannonFireSystems(MUD: SetupResult) {
       OwnedBy,
       ExecutedShots,
       HealthLocal,
+      HealthBackend,
       Targeted,
       OnFireLocal,
       DamagedCannonsLocal,
@@ -146,6 +147,9 @@ export function cannonFireSystems(MUD: SetupResult) {
   }
 
   async function fireCannon(start: Coord, cannonEntity: EntityIndex, attack: Attack, shotIndex: number, hit: boolean) {
+    const oldHealth = getComponentValueStrict(HealthBackend, attack.target).value;
+    setComponent(HealthBackend, attack.target, { value: oldHealth - attack.damage });
+
     const end = getCannonEnd(attack.target, hit);
 
     const targetedValue = getComponentValue(Targeted, attack.target)?.value;
@@ -191,7 +195,6 @@ export function cannonFireSystems(MUD: SetupResult) {
       explode(explosionId, end);
 
       const healthLocal = getComponentValueStrict(HealthLocal, attack.target).value;
-      if (healthLocal == 1) playDeathAnimation(attack.target);
       setComponent(HealthLocal, attack.target, { value: healthLocal - 1 });
     } else {
       playSound("impact_water_1", Category.Combat);
@@ -216,21 +219,9 @@ export function cannonFireSystems(MUD: SetupResult) {
       destroyGroupObject(textId);
     }
     destroySpriteObject(spriteId);
-  }
-
-  function playDeathAnimation(shipEntity: EntityIndex) {
-    const shipMidpoint = getShipMidpoint(shipEntity);
-    const length = getComponentValueStrict(Length, shipEntity).value;
-    const width = length / (1.5 * SHIP_RATIO);
-
-    for (let i = 0; i < 20; i++) {
-      const explosionId = `deathexplosion-${shipEntity}-${i}`;
-
-      const randX = Math.random() * width * 2 - width;
-      const randY = Math.random() * width * 2 - width;
-      const end = { x: shipMidpoint.x + randX * POS_HEIGHT, y: shipMidpoint.y + randY * POS_HEIGHT };
-
-      explode(explosionId, end, i * 100);
+    const backendHealth = getComponentValueStrict(HealthBackend, attack.target).value;
+    if (backendHealth != getComponentValueStrict(HealthLocal, attack.target).value) {
+      setComponent(HealthLocal, attack.target, { value: backendHealth });
     }
   }
 

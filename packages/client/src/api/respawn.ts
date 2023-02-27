@@ -17,6 +17,7 @@ export function respawn(
 
   actions.add({
     id: actionId,
+    awaitConfirmation: true,
     components: { OwnedBy },
     requirement: ({ OwnedBy }) => {
       if (!override) {
@@ -34,7 +35,7 @@ export function respawn(
     updates: () => [],
     execute: (shipIds: EntityID[]) => {
       console.log("respawning");
-      systems["ds.system.Respawn"].executeTyped(shipIds);
+      return systems["ds.system.Respawn"].executeTyped(shipIds);
     },
   });
 }
