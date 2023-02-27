@@ -113,6 +113,12 @@ contract InitSystem is System {
       ShipPrototype({ price: 5, length: 13, maxHealth: 9, speed: 110, cannons: cannon5, name: "Victory" })
     );
 
+    CannonPrototype[] memory cannonEntities3 = new CannonPrototype[](2);
+    cannonEntities3[0] = CannonPrototype({ rotation: 90, firepower: 70, range: 120 });
+    cannonEntities3[1] = CannonPrototype({ rotation: 270, firepower: 70, range: 120 });
+    shipPrototype = ShipPrototype({ length: 8, maxHealth: 10, speed: 80, cannons: cannonEntities3 });
+
+    shipEntities[2] = LibCreateShip.createShip(components, shipPrototype);
     gameConfigComponent.set(
       GodID,
       GameConfig({

@@ -32,7 +32,7 @@ export function borderSystems(MUD: SetupResult) {
 
     camera.phaserCamera.setBounds(minX, minY, maxX - minX, maxY - minY);
 
-    setComponent(MapBounds, godEntity, { left: minX, top: minY, right: maxX, bottom: maxY });
+    setComponent(MapBounds, godEntity, { left: minX - 1000, top: minY, right: maxX, bottom: maxY });
   });
 
   defineRxSystem(world, clock.time$, () => {
