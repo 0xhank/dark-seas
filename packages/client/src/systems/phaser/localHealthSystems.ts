@@ -14,7 +14,17 @@ import { getShipSprite } from "../../utils/ships";
 export function localHealthSystems(MUD: SetupResult) {
   const {
     world,
-    components: { HealthLocal, SelectedShip, HoveredShip, OwnedBy, SelectedActions, SelectedMove, MaxHealth },
+    components: {
+      HealthLocal,
+      SelectedShip,
+      HealthBackend,
+      HoveredShip,
+      Health,
+      OwnedBy,
+      SelectedActions,
+      SelectedMove,
+      MaxHealth,
+    },
     utils: { getSpriteObject, getPlayerEntity },
     scene: { config },
     godEntity,
@@ -25,6 +35,12 @@ export function localHealthSystems(MUD: SetupResult) {
     if (update.value[0] === undefined || update.value[1] === undefined) return;
     const health = update.value[0].value;
     const maxHealth = getComponentValueStrict(MaxHealth, update.entity)?.value;
+    if (health < 0) {
+      const contractHealth = getComponentValueStrict(Health, update.entity).value;
+      setComponent(HealthLocal, update.entity, { value: contractHealth });
+      setComponent(HealthBackend, update.entity, { value: contractHealth });
+      return;
+    }
     const shipObject = getSpriteObject(update.entity);
     const ownerEntity = getPlayerEntity(getComponentValue(OwnedBy, update.entity)?.value);
     const playerEntity = getPlayerEntity();

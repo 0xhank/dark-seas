@@ -42,6 +42,7 @@ export function cannonFireSystems(MUD: SetupResult) {
       OwnedBy,
       ExecutedShots,
       HealthLocal,
+      HealthBackend,
       Targeted,
       OnFireLocal,
       DamagedCannonsLocal,
@@ -146,6 +147,9 @@ export function cannonFireSystems(MUD: SetupResult) {
   }
 
   async function fireCannon(start: Coord, cannonEntity: EntityIndex, attack: Attack, shotIndex: number, hit: boolean) {
+    const oldHealth = getComponentValueStrict(HealthBackend, attack.target).value;
+    setComponent(HealthBackend, attack.target, { value: oldHealth - attack.damage });
+
     const end = getCannonEnd(attack.target, hit);
 
     const targetedValue = getComponentValue(Targeted, attack.target)?.value;
@@ -216,6 +220,10 @@ export function cannonFireSystems(MUD: SetupResult) {
       destroyGroupObject(textId);
     }
     destroySpriteObject(spriteId);
+    const backendHealth = getComponentValueStrict(HealthBackend, attack.target).value;
+    if (backendHealth != getComponentValueStrict(HealthLocal, attack.target).value) {
+      setComponent(HealthLocal, attack.target, { value: backendHealth });
+    }
   }
 
   function playDeathAnimation(shipEntity: EntityIndex) {
