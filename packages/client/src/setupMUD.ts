@@ -110,5 +110,6 @@ export async function setupMUD() {
     dev: setupDevSystems(world, encoders, systems),
   };
 
+  (window as any).ds = context;
   return context;
 }

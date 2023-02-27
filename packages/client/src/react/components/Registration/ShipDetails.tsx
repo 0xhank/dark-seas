@@ -117,9 +117,11 @@ export function ShipDetails({ flex }: { flex: number }) {
         }}
         id="phaser-cutin"
       >
-        <AddButton disabled={cannotAddShip} onClick={addShip}>
-          Add Ship
-        </AddButton>
+        {prototypeEntity && (
+          <AddButton disabled={cannotAddShip} onClick={addShip}>
+            {cannotAddShip ? "Ship Too Expensive" : "Add Ship"}
+          </AddButton>
+        )}
       </div>
 
       <div style={{ display: "flex", width: "100%", height: "40%", gap: "12px" }}>
@@ -161,7 +163,7 @@ export function ShipDetails({ flex }: { flex: number }) {
           </div>
         </StatContainer>
         <StatContainer>
-          <Header>{activeCannon && prototypeEntity ? "Cannon Stats" : `Cannons (${cannonsLength})`}</Header>
+          <Header>{activeCannon || !prototypeEntity ? "Cannon Stats" : `Cannons (${cannonsLength})`}</Header>
           <div
             style={{
               display: "flex",

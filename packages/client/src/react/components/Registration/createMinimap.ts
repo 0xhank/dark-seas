@@ -82,7 +82,7 @@ export function createMinimapSystems(scene: Phaser.Scene, mud: SetupResult) {
 
   defineComponentSystem(world, ActiveShip, ({ entity, value: [newVal] }) => {
     destroyGroupObject("cannons");
-    destroyGroupObject("ship");
+    destroyGroupObject("activeship");
 
     if (!newVal) return;
     const shipEntity = newVal.value as EntityIndex;

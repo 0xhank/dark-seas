@@ -556,7 +556,6 @@ export async function createUtilities(
     const group = polygonRegistry.get(id);
     polygonRegistry.delete(id);
     if (!group || !group.getChildren()?.length) return;
-    console.log("destroying group:", group);
     group.destroy(true, true);
   }
 
