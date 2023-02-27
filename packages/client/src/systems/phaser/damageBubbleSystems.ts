@@ -34,6 +34,7 @@ export function damageBubbleSystems(MUD: SetupResult) {
 
   defineComponentSystem(world, Position, ({ entity: shipEntity, value: [newVal, oldVal] }) => {
     if (!newVal) return;
+    if (getComponentValue(HealthLocal, shipEntity)?.value == 0) return;
     const damagedCannons = getComponentValue(DamagedCannonsLocal, shipEntity)?.value || 0;
     const sailPosition = getComponentValue(SailPositionLocal, shipEntity)?.value || 2;
     const onFire = getComponentValue(OnFireLocal, shipEntity)?.value || 0;
@@ -46,6 +47,14 @@ export function damageBubbleSystems(MUD: SetupResult) {
     if (onFire > 0) {
       moveElement(shipEntity, `${shipEntity}-firebubble`, "ON FIRE", 2);
     }
+  });
+
+  defineComponentSystem(world, HealthLocal, ({ entity: shipEntity, value: [newVal] }) => {
+    if (newVal == undefined || newVal.value !== 0) return;
+
+    destroyGroupObject(`${shipEntity}-cannonsbubble`);
+    destroyGroupObject(`${shipEntity}-tornsailbubble`);
+    destroyGroupObject(`${shipEntity}-firebubble`);
   });
 
   async function moveElement(shipEntity: EntityIndex, objectId: string, msg: string, index: number) {

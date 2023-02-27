@@ -195,7 +195,6 @@ export function cannonFireSystems(MUD: SetupResult) {
       explode(explosionId, end);
 
       const healthLocal = getComponentValueStrict(HealthLocal, attack.target).value;
-      if (healthLocal == 1) playDeathAnimation(attack.target);
       setComponent(HealthLocal, attack.target, { value: healthLocal - 1 });
     } else {
       playSound("impact_water_1", Category.Combat);
@@ -223,22 +222,6 @@ export function cannonFireSystems(MUD: SetupResult) {
     const backendHealth = getComponentValueStrict(HealthBackend, attack.target).value;
     if (backendHealth != getComponentValueStrict(HealthLocal, attack.target).value) {
       setComponent(HealthLocal, attack.target, { value: backendHealth });
-    }
-  }
-
-  function playDeathAnimation(shipEntity: EntityIndex) {
-    const shipMidpoint = getShipMidpoint(shipEntity);
-    const length = getComponentValueStrict(Length, shipEntity).value;
-    const width = length / (1.5 * SHIP_RATIO);
-
-    for (let i = 0; i < 20; i++) {
-      const explosionId = `deathexplosion-${shipEntity}-${i}`;
-
-      const randX = Math.random() * width * 2 - width;
-      const randY = Math.random() * width * 2 - width;
-      const end = { x: shipMidpoint.x + randX * POS_HEIGHT, y: shipMidpoint.y + randY * POS_HEIGHT };
-
-      explode(explosionId, end, i * 100);
     }
   }
 

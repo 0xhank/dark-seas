@@ -23,13 +23,16 @@ import { Action, Move } from "./types";
 export type SetupResult = Awaited<ReturnType<typeof setupMUD>>;
 
 export async function setupMUD() {
+  console.info(`Booting with network config:`, config);
+
   const res = await setupMUDNetwork<typeof components, SystemTypes>(config, world, components, SystemAbis, {
     fetchSystemCalls: true,
   });
+
   const { systems, network, systemCallStreams, txReduced$, encoders } = res;
   res.startSync();
 
-  // For LoadingState updates
+  // For LoadingState updatesk
   const godEntity = world.registerEntity({ id: GodID });
 
   // Register player entity
