@@ -166,16 +166,15 @@ contract MoveSystemTest is DarkSeasTest {
     uint256 moveCardEntity = uint256(keccak256("ds.prototype.moveEntity2"));
 
     moves.push(Move({ moveCardEntity: moveCardEntity, shipEntity: shipEntity }));
-
+    uint32 sailPosition = sailPositionComponent.getValue(shipEntity);
     commitAndExecuteMove(1, moves);
 
     MoveCard memory moveCard = moveCardComponent.getValue(moveCardEntity);
+    console.log("distance:", moveCard.distance);
+    console.log("sail position", sailPositionComponent.getValue(shipEntity));
+    moveCard = LibMove.getMoveWithSails(moveCard, speedComponent.getValue(shipEntity), sailPosition);
 
-    moveCard = LibMove.getMoveWithSails(
-      moveCard,
-      speedComponent.getValue(shipEntity),
-      sailPositionComponent.getValue(shipEntity)
-    );
+    console.log("distance 2:", moveCard.distance);
 
     Coord memory expectedPosition = LibVector.getPositionByVector(
       position,
@@ -200,18 +199,14 @@ contract MoveSystemTest is DarkSeasTest {
     uint256 shipEntity = spawnShip(position, rotation, deployer);
 
     uint256 moveCardEntity = uint256(keccak256("ds.prototype.moveEntity2"));
-
+    uint32 sailPosition = sailPositionComponent.getValue(shipEntity);
     moves.push(Move({ moveCardEntity: moveCardEntity, shipEntity: shipEntity }));
 
     commitAndExecuteMove(1, moves);
 
     MoveCard memory moveCard = moveCardComponent.getValue(moveCardEntity);
 
-    moveCard = LibMove.getMoveWithSails(
-      moveCard,
-      speedComponent.getValue(shipEntity),
-      sailPositionComponent.getValue(shipEntity)
-    );
+    moveCard = LibMove.getMoveWithSails(moveCard, speedComponent.getValue(shipEntity), sailPosition);
 
     Coord memory expectedPosition = LibVector.getPositionByVector(
       position,
@@ -236,6 +231,7 @@ contract MoveSystemTest is DarkSeasTest {
     uint256 shipEntity = spawnShip(position, rotation, deployer);
 
     uint256 moveCardEntity = uint256(keccak256("ds.prototype.moveEntity3"));
+    uint32 sailPosition = sailPositionComponent.getValue(shipEntity);
 
     moves.push(Move({ moveCardEntity: moveCardEntity, shipEntity: shipEntity }));
 
@@ -243,11 +239,7 @@ contract MoveSystemTest is DarkSeasTest {
 
     MoveCard memory moveCard = moveCardComponent.getValue(moveCardEntity);
 
-    moveCard = LibMove.getMoveWithSails(
-      moveCard,
-      speedComponent.getValue(shipEntity),
-      sailPositionComponent.getValue(shipEntity)
-    );
+    moveCard = LibMove.getMoveWithSails(moveCard, speedComponent.getValue(shipEntity), sailPosition);
 
     Coord memory expectedPosition = LibVector.getPositionByVector(
       position,
@@ -304,6 +296,7 @@ contract MoveSystemTest is DarkSeasTest {
     uint256 moveCardEntity = uint256(keccak256("ds.prototype.moveEntity2"));
 
     ComponentDevSystem(system(ComponentDevSystemID)).executeTyped(SailPositionComponentID, shipEntity, abi.encode(1));
+    uint32 sailPosition = sailPositionComponent.getValue(shipEntity);
 
     moves.push(Move({ moveCardEntity: moveCardEntity, shipEntity: shipEntity }));
 
@@ -311,11 +304,7 @@ contract MoveSystemTest is DarkSeasTest {
 
     MoveCard memory moveCard = moveCardComponent.getValue(moveCardEntity);
 
-    moveCard = LibMove.getMoveWithSails(
-      moveCard,
-      speedComponent.getValue(shipEntity),
-      sailPositionComponent.getValue(shipEntity)
-    );
+    moveCard = LibMove.getMoveWithSails(moveCard, speedComponent.getValue(shipEntity), sailPosition);
 
     Coord memory expectedPosition = LibVector.getPositionByVector(
       position,

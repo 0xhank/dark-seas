@@ -7,7 +7,7 @@ import { ActionType } from "../../../types";
 import { getShipSprite, ShipImages } from "../../../utils/ships";
 import { BoxImage, colors } from "../../styles/global";
 import { ShipAttributeTypes } from "../../types";
-import HealthBar from "./HealthBar";
+import PillBar from "../PillBar";
 import ShipAttribute from "./ShipAttribute";
 import ShipDamage from "./ShipDamage";
 
@@ -88,7 +88,7 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
         <span style={{ lineHeight: "0.75rem", fontSize: ".75rem", color: colors.lightBrown }}>{ownerName}'s</span>
       )}
       <span style={{ fontSize: "1.25rem", lineHeight: "2rem" }}>{name}</span>
-      <HealthBar health={health} maxHealth={maxHealth} shipEntity={shipEntity} />
+      <PillBar stat={health} maxStat={maxHealth} key={`${shipEntity}-health`} />
       <BoxImage length={length}>
         <img
           src={ShipImages[getShipSprite(ownerEntity, health, maxHealth, ownerEntity == playerEntity)]}

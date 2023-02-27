@@ -10,11 +10,11 @@ export const GameConfigComponent = defineComponent(
     actionPhaseLength: Type.Number,
     worldSize: Type.Number,
     perlinSeed: Type.String,
-    shipPrototypes: Type.StringArray,
     entryCutoffTurns: Type.Number,
     buyin: Type.String,
     respawnAllowed: Type.Boolean,
     shrinkRate: Type.Number,
+    budget: Type.Number,
   },
   {
     id: "GameConfig",

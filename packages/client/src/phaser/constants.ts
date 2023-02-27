@@ -1,5 +1,3 @@
-import { Sprites } from "../../../types";
-
 export const TILE_WIDTH = 64;
 export const TILE_HEIGHT = 64;
 
@@ -51,9 +49,3 @@ export enum Animations {
   Explosion = "Explosion",
   Fire = "Fire",
 }
-
-export const UnitTypeSprites: Record<number, Sprites> = {};
-
-export const ItemTypeSprites: Record<number, Sprites> = {};
-
-export const StructureTypeSprites: Record<number, Sprites> = {};

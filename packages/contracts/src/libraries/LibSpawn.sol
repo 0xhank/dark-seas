@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
+import { console } from "forge-std/console.sol";
 
 // External
 import { IWorld } from "solecs/interfaces/IWorld.sol";
@@ -66,19 +67,21 @@ library LibSpawn {
     uint32 worldHeight = GameConfigComponent(getAddressById(components, GameConfigComponentID))
       .getValue(GodID)
       .worldSize;
+    console.log("world height:", worldHeight);
     uint32 worldWidth = (worldHeight * 16) / 9;
     bool useWidth = r % 2 == 1;
     uint256 y = 0;
     uint256 x = 0;
     if (useWidth) {
-      x = (LibUtils.getByteUInt(r, 14, 14) % worldWidth) - 40;
-      y = worldHeight - 40;
+      x = (LibUtils.getByteUInt(r, 14, 14) % worldWidth);
+      y = worldHeight;
     } else {
-      x = worldWidth - 40;
-      y = (LibUtils.getByteUInt(r, 14, 14) % worldHeight) - 40;
+      x = worldWidth;
+      y = (LibUtils.getByteUInt(r, 14, 14) % worldHeight);
     }
-    int32 retY = r % 4 < 2 ? int32(uint32(y)) : 0 - int32(uint32(y));
-    int32 retX = r % 8 < 4 ? int32(uint32(x)) : 0 - int32(uint32(x));
+    int32 buffer = 40;
+    int32 retY = r % 4 < 2 ? int32(uint32(y)) - buffer : buffer - int32(uint32(y));
+    int32 retX = r % 8 < 4 ? int32(uint32(x)) - buffer : buffer - int32(uint32(x));
     return Coord(retX, retY);
   }
 
@@ -91,36 +94,39 @@ library LibSpawn {
     if (a.x >= 0 && a.y >= 0) return 235;
     if (a.x < 0 && a.y >= 0) return 315;
     if (a.x < 0 && a.y < 0) return 45;
-    if (a.x < 0 && a.y >= 0) return 135;
-
     return 135;
   }
 
-  /**
-   * @notice  spawns three ships for player next to each other
-   * @param   world  world in question
-   * @param   components  world components
-   * @param   playerEntity  player's entity id
-   * @param   startingPosition position at which to spawn (currently used as source of randomness hehe)
-   */
   function spawn(
     IWorld world,
     IUint256Component components,
     uint256 playerEntity,
-    Coord memory startingPosition
+    uint256[] memory shipPrototypes
   ) public {
-    uint256 nonce = uint256(keccak256(abi.encode(startingPosition, playerEntity)));
-    uint256 buyin = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).buyin;
-    startingPosition = getRandomPosition(components, LibUtils.randomness(playerEntity, nonce));
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+    // uint256 prototypeRandomness = uint256(keccak256(abi.encode(shipPrototypes)));
+    Coord memory startingPosition = getRandomPosition(components, LibUtils.randomness(1, playerEntity));
 
     uint32 rotation = pointKindaTowardsTheCenter(startingPosition);
+    uint32 spent = 0;
+    for (uint256 i = 0; i < shipPrototypes.length; i++) {
+      console.log("here");
+      uint32 price = spawnShip(
+        components,
+        world,
+        playerEntity,
+        startingPosition,
+        rotation,
+        shipPrototypes[i],
+        gameConfig.buyin
+      );
+      spent += price;
+      console.log("spent:", spent);
+      console.log("price:", price);
 
-    uint256[] memory shipPrototypeEntities = GameConfigComponent(getAddressById(components, GameConfigComponentID))
-      .getValue(GodID)
-      .shipPrototypes;
-
-    for (uint256 i = 0; i < shipPrototypeEntities.length; i++) {
-      spawnShip(components, world, playerEntity, startingPosition, rotation, shipPrototypeEntities[i], buyin);
+      require(spent <= gameConfig.budget, "LibSpawn: ships too expensive");
       startingPosition = Coord(startingPosition.x + 20, startingPosition.y);
     }
 
@@ -145,22 +151,31 @@ library LibSpawn {
     uint32 rotation,
     uint256 shipPrototypeEntity,
     uint256 startingBooty
-  ) internal returns (uint256 shipEntity) {
+  ) internal returns (uint32) {
+    console.log("here2");
+
     ShipPrototypeComponent shipPrototypeComponent = ShipPrototypeComponent(
       getAddressById(components, ShipPrototypeComponentID)
     );
+    console.log("here3");
 
     require(shipPrototypeComponent.has(shipPrototypeEntity), "spawnShip: ship prototype does not exist");
+    console.log("here4");
+
+    console.log(shipPrototypeComponent.getValue(shipPrototypeEntity));
+    console.log("here5");
 
     ShipPrototype memory shipPrototype = abi.decode(
-      shipPrototypeComponent.getValue(shipPrototypeEntity),
+      bytes(shipPrototypeComponent.getValue(shipPrototypeEntity)),
       (ShipPrototype)
     );
 
-    shipEntity = world.getUniqueEntityId();
+    console.log("price:", shipPrototype.price);
+    console.log("speed:", shipPrototype.speed);
+
+    uint256 shipEntity = world.getUniqueEntityId();
     ShipComponent(getAddressById(components, ShipComponentID)).set(shipEntity);
 
-    uint32 maxHealth = 10;
     PositionComponent(getAddressById(components, PositionComponentID)).set(shipEntity, position);
     RotationComponent(getAddressById(components, RotationComponentID)).set(shipEntity, rotation);
     SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
@@ -182,6 +197,7 @@ library LibSpawn {
         shipPrototype.cannons[i].range
       );
     }
+    return shipPrototype.price;
   }
 
   function respawnShip(

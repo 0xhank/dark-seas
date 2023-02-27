@@ -32,19 +32,19 @@ contract GameConfigComponent is Component {
     keys[5] = "perlinSeed";
     values[5] = LibTypes.SchemaValue.INT128;
 
-    keys[6] = "shipPrototypes";
-    values[6] = LibTypes.SchemaValue.UINT256_ARRAY;
+    keys[6] = "entryCutoffTurns";
+    values[6] = LibTypes.SchemaValue.UINT32;
 
-    keys[7] = "entryCutoffTurns";
-    values[7] = LibTypes.SchemaValue.UINT32;
+    keys[7] = "buyin";
+    values[7] = LibTypes.SchemaValue.UINT256;
 
-    keys[8] = "buyin";
-    values[8] = LibTypes.SchemaValue.UINT256;
+    keys[8] = "respawnAllowed";
+    values[8] = LibTypes.SchemaValue.BOOL;
 
-    keys[9] = "respawnAllowed";
-    values[9] = LibTypes.SchemaValue.BOOL;
+    keys[9] = "shrinkRate";
+    values[9] = LibTypes.SchemaValue.UINT32;
 
-    keys[10] = "shrinkRate";
+    keys[10] = "budget";
     values[10] = LibTypes.SchemaValue.UINT32;
   }
 
@@ -60,14 +60,14 @@ contract GameConfigComponent is Component {
       uint32 actionPhaseLength,
       uint32 worldSize,
       int128 perlinSeed,
-      uint256[] memory shipPrototypes,
       uint32 entryCutoffTurns,
       uint256 buyin,
       bool respawnAllowed,
-      uint32 shrinkRate
+      uint32 shrinkRate,
+      uint32 budget
     ) = abi.decode(
         getRawValue(entity),
-        (uint256, uint32, uint32, uint32, uint32, int128, uint256[], uint32, uint256, bool, uint32)
+        (uint256, uint32, uint32, uint32, uint32, int128, uint32, uint256, bool, uint32, uint32)
       );
     return
       GameConfig({
@@ -77,11 +77,11 @@ contract GameConfigComponent is Component {
         actionPhaseLength: actionPhaseLength,
         worldSize: worldSize,
         perlinSeed: perlinSeed,
-        shipPrototypes: shipPrototypes,
         entryCutoffTurns: entryCutoffTurns,
         buyin: buyin,
         respawnAllowed: respawnAllowed,
-        shrinkRate: shrinkRate
+        shrinkRate: shrinkRate,
+        budget: budget
       });
   }
 
@@ -98,11 +98,11 @@ contract GameConfigComponent is Component {
         config.actionPhaseLength,
         config.worldSize,
         config.perlinSeed,
-        config.shipPrototypes,
         config.entryCutoffTurns,
         config.buyin,
         config.respawnAllowed,
-        config.shrinkRate
+        config.shrinkRate,
+        config.budget
       );
   }
 }

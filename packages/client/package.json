@@ -6,7 +6,9 @@
     "dev": "vite",
     "start": "yarn dev",
     "build": "yarn vite build && cp -r public/ dist/",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "netlify deploy",
+    "deploy:prod": "netlify deploy --prod"
   },
   "dependencies": {
     "@ethersproject/providers": "^5.7.0",

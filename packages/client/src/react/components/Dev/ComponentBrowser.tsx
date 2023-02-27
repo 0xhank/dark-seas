@@ -11,7 +11,7 @@ export const ComponentBrowser = () => {
   (window as any).showBrowser = () => setShown(!shown);
 
   return (
-    <div style={{ position: "fixed", right: 0, top: "10%", width: "25%", height: "90%" }}>
+    <div style={{ position: "fixed", right: 0, top: "10%", width: "25%", height: "90%", zIndex: -1 }}>
       {shown ? (
         <ECSBrowser
           world={world}

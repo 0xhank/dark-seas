@@ -5,7 +5,7 @@ export function ActionComponent({ name, status }: { name: string; status: number
   const color =
     status == -1 ? "transparent" : status == 0 ? colors.lightGray : status == 3 ? colors.green : colors.gold;
   return (
-    <ActionContainer>
+    <ActionContainer hide={status == -1}>
       <StatusText style={status <= 0 ? { color: colors.darkGray } : {}}>{name}</StatusText>
       {status !== 2 ? (
         <StatusCircle color={color} />
@@ -19,9 +19,9 @@ export function ActionComponent({ name, status }: { name: string; status: number
   );
 }
 
-const ActionContainer = styled.div`
+const ActionContainer = styled.div<{ hide?: boolean }>`
   width: 100%;
-  background: white;
+  background: ${({ hide }) => (hide ? "transparent" : "white")};
   border-radius: 1.25rem;
   display: flex;
   justify-content: space-between;

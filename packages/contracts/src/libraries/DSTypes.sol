@@ -47,7 +47,6 @@ struct GameConfig {
   uint32 actionPhaseLength;
   uint32 worldSize;
   int128 perlinSeed;
-  uint256[] shipPrototypes;
   // Number of turns before registration is blocked
   uint32 entryCutoffTurns;
   uint256 buyin;
@@ -56,13 +55,16 @@ struct GameConfig {
   // If shrink rate is 100, the world will shrink by 1 each turn.
   // Shrinking starts once entry is cutoff and ends when the world size is 50.
   uint32 shrinkRate;
+  uint32 budget;
 }
 
 struct ShipPrototype {
+  uint32 price;
   uint32 length;
   uint32 maxHealth;
   uint32 speed;
   CannonPrototype[] cannons;
+  string name;
 }
 
 struct CannonPrototype {

@@ -14,6 +14,8 @@ import {
   runQuery,
   setComponent,
 } from "@latticexyz/recs";
+import { defaultAbiCoder as abi } from "ethers/lib/utils";
+
 import { Coord } from "@latticexyz/utils";
 import { BigNumber, BigNumberish } from "ethers";
 import { Howl } from "howler";
@@ -22,7 +24,7 @@ import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../
 import { colors } from "../react/styles/global";
 import { Category, soundLibrary } from "../sound";
 import { getRangeTintAlpha } from "../systems/phaser/renderShip";
-import { Action, ActionType, DELAY, Move, Phase, Sprites } from "../types";
+import { Action, ActionType, DELAY, Move, Phase, ShipPrototype, Sprites } from "../types";
 import { distance } from "../utils/distance";
 import { cap, getHash, getShipSprite } from "../utils/ships";
 import {
@@ -195,6 +197,39 @@ export async function createUtilities(
     return true;
   }
 
+  const prototypeRegistry = new Map<EntityIndex, ShipPrototype>();
+
+  function decodeShipPrototype(prototypeEntity: EntityIndex) {
+    const retrieved = prototypeRegistry.get(prototypeEntity);
+    if (retrieved) return retrieved;
+    const shipPrototypeDataEncoded = getComponentValueStrict(components.ShipPrototype, prototypeEntity).value;
+
+    const reformattedData = "0x" + shipPrototypeDataEncoded.slice(66);
+
+    const [price, length, maxHealth, speed, rawCannons, name] = abi.decode(
+      [
+        "uint32 price",
+        "uint32 length",
+        "uint32 maxHealth",
+        "uint32 speed",
+        "tuple(uint32 rotation,uint32 firepower,uint32 range)[] cannons",
+        "string name",
+      ],
+      reformattedData
+    );
+
+    const prototype: ShipPrototype = {
+      maxHealth,
+      speed,
+      cannons: rawCannons,
+      price,
+      length,
+      name,
+    };
+    prototypeRegistry.set(prototypeEntity, prototype);
+    return prototype;
+  }
+
   function getPlayerShips(player?: EntityIndex) {
     if (!player) player = getPlayerEntity();
     if (!player) return [];
@@ -330,9 +365,10 @@ export async function createUtilities(
     const shipEntity = getCannonOwner(cannonEntity);
     if (!shipEntity) return 0;
     const kills = getComponentValue(components.Kills, shipEntity)?.value;
-    if (range == undefined || kills == undefined) return 0;
+    const boost = kills ? 1 + kills / 10 : 1;
+    if (range == undefined) return 0;
 
-    return range * (1 + kills / 10);
+    return range * boost;
   }
 
   function getCannonFirepower(cannonEntity: EntityIndex) {
@@ -499,10 +535,10 @@ export async function createUtilities(
 
   function destroySpriteObject(id: string | number) {
     const sprite = spriteRegistry.get(id);
+    spriteRegistry.delete(id);
     if (!sprite) return;
 
     sprite.destroy(true);
-    spriteRegistry.delete(id);
   }
 
   function getGroupObject(id: string | number, clear = false, s?: Phaser.Scene): Phaser.GameObjects.Group {
@@ -518,9 +554,9 @@ export async function createUtilities(
 
   function destroyGroupObject(id: string | number) {
     const group = polygonRegistry.get(id);
-    if (!group) return;
-    group.destroy(true, true);
     polygonRegistry.delete(id);
+    if (!group || !group.getChildren()?.length) return;
+    group.destroy(true, true);
   }
 
   function renderMovePath(shipEntity: EntityIndex, objectId: string, finalPosition: Coord) {
@@ -746,6 +782,7 @@ export async function createUtilities(
     getPhase,
     getGamePhaseAt,
     getTurn,
+    decodeShipPrototype,
     secondsUntilNextPhase,
     secondsIntoTurn,
     bigNumToEntityID,
