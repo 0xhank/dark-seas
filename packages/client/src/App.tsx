@@ -26,5 +26,5 @@ export const App = () => {
         <Game />
       </MUDProvider>
     );
-  return <HomePage />;
+  return <HomePage showButtons={!worldAddress} />;
 };

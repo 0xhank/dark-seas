@@ -1,6 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
 import { BackgroundImg, Button } from "../styles/global";
+import { CreateGame } from "./CreateGame";
 import { JoinGame } from "./JoinGame";
 
 const configData = {
@@ -18,31 +19,15 @@ const configData = {
 
 type ModalOpen = "Create" | "Join" | undefined;
 
-export function HomePage() {
+export function HomePage({ showButtons }: { showButtons?: boolean }) {
   const [modalOpen, setModalOpen] = useState<ModalOpen>();
-
-  async function sendMessage() {
-    try {
-      const response = await fetch(`http://localhost:3001/deploy`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(configData),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch data");
-      }
-      const data = await response.text();
-    } catch (e) {
-      console.log("error:", e);
-    }
-  }
 
   return (
     <Container>
       <BackgroundImg style={{ zIndex: -1 }} />
       {modalOpen == "Create" && (
         <Modal onClick={() => setModalOpen(undefined)}>
-          <div>Create</div>
+          <CreateGame />
         </Modal>
       )}
       {modalOpen == "Join" && (
@@ -60,14 +45,16 @@ export function HomePage() {
         }}
       >
         <Logo src="/img/ds-logo.png" />
-        <div style={{ display: "flex", width: "100%", gap: "6px" }}>
-          <Button style={{ flex: 1, fontSize: "1.5rem" }} onClick={() => setModalOpen("Create")}>
-            Create Game
-          </Button>
-          <Button style={{ flex: 1, fontSize: "1.5rem" }} onClick={() => setModalOpen("Join")} secondary>
-            Join Game
-          </Button>
-        </div>
+        {showButtons && (
+          <div style={{ display: "flex", width: "100%", gap: "6px" }}>
+            <Button style={{ flex: 1, fontSize: "1.5rem" }} onClick={() => setModalOpen("Create")}>
+              Create Game
+            </Button>
+            <Button style={{ flex: 1, fontSize: "1.5rem" }} onClick={() => setModalOpen("Join")} secondary>
+              Join Game
+            </Button>
+          </div>
+        )}
       </div>
     </Container>
   );

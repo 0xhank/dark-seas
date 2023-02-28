@@ -17,8 +17,14 @@ export function JoinGame() {
         type="text"
         placeholder="World Address"
         onChange={(e) => setWorldAddress(e.target.value.toLowerCase())}
+        value={worldAddress}
       ></Input>
-      <Input type="number" placeholder="Block Number" onChange={(e) => setBlockNumber(Number(e.target.value))}></Input>
+      <Input
+        type="number"
+        value={blockNumber}
+        placeholder="Block Number"
+        onChange={(e) => setBlockNumber(Number(e.target.value))}
+      ></Input>
       <Button disabled={!validAddress || !blockNumber}>
         <A href={`/?worldAddress=${worldAddress}&block=${blockNumber}`}>Join Game</A>
       </Button>
