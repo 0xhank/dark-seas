@@ -43,14 +43,20 @@ if (options.config) {
     budget: options.budget || 9,
   };
 }
+const fileName = generateDeployJson(config);
+console.log("new deployment script generated at ", fileName);
 
-const initializerParam = `abi.encode(block.timestamp, ${config.commitPhaseLength}, ${config.revealPhaseLength}, ${config.actionPhaseLength}, ${config.worldSize}, ${config.perlinSeed}, ${config.entryCutoffTurns}, ${config.buyin}, ${config.respawnAllowed}, ${config.shrinkRate}, ${config.budget})`;
+export function generateDeployJson(config) {
+  const initializerParam = `abi.encode(block.timestamp, ${config.commitPhaseLength}, ${config.revealPhaseLength}, ${config.actionPhaseLength}, ${config.worldSize}, ${config.perlinSeed}, ${config.entryCutoffTurns}, ${config.buyin}, ${config.respawnAllowed}, ${config.shrinkRate}, ${config.budget})`;
 
-const data = deployData.systems.find((system) => system.name == "InitSystem");
-if (data) data.initialize = initializerParam;
-const json = JSON.stringify(deployData, null, 2); // the second argument is a replacer function, the third argument is the number of spaces to use for indentation (optional)
+  const data = deployData.systems.find((system) => system.name == "InitSystem");
+  if (data) data.initialize = initializerParam;
+  const json = JSON.stringify(deployData, null, 2); // the second argument is a replacer function, the third argument is the number of spaces to use for indentation (optional)
 
-writeFile("deploy.json", json, (err) => {
-  if (err) throw err;
-  console.log("Data saved to file");
-});
+  const fileName = `deployments/deploy-${Date.now()}.json`;
+  writeFile(fileName, json, (err) => {
+    if (err) throw err;
+    console.log("Data saved to file");
+  });
+  return fileName;
+}
