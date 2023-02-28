@@ -1,0 +1,1 @@
+export { generateAndDeploy } from "./deploy";
