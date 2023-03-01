@@ -10,6 +10,11 @@ struct MoveCard {
   uint32 rotation;
 }
 
+struct Line {
+  Coord start;
+  Coord end;
+}
+
 struct Action {
   uint256 shipEntity;
   ActionType[2] actionTypes;

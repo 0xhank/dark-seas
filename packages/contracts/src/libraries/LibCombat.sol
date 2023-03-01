@@ -25,7 +25,7 @@ import { LoadedComponent, ID as LoadedComponentID } from "../components/LoadedCo
 import { BootyComponent, ID as BootyComponentID } from "../components/BootyComponent.sol";
 
 // Types
-import { Coord } from "../libraries/DSTypes.sol";
+import { Coord, Line } from "../libraries/DSTypes.sol";
 
 // Libraries
 import "./LibVector.sol";
@@ -128,11 +128,11 @@ library LibCombat {
     // iterate through each ship, checking if it is within firing range
     for (uint256 i = 0; i < targetEntities.length; i++) {
       (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternPosition(components, targetEntities[i]);
-      if (LibVector.withinPolygon(firingRange, aft)) {
+      if (
+        LibVector.withinPolygon(aft, firingRange) ||
+        LibVector.lineIntersectsPolygon(Line({ start: stern, end: aft }), firingRange)
+      ) {
         uint256 distance = LibVector.distance(firingRange[0], aft);
-        damageEnemy(components, shipEntity, targetEntities[i], distance, firepower);
-      } else if (LibVector.withinPolygon(firingRange, stern)) {
-        uint256 distance = LibVector.distance(firingRange[0], stern);
         damageEnemy(components, shipEntity, targetEntities[i], distance, firepower);
       }
     }

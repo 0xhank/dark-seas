@@ -15,7 +15,7 @@ import { RotationComponent, ID as RotationComponentID } from "../components/Rota
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
-import { Coord, GodID, GameConfig } from "../libraries/DSTypes.sol";
+import { Coord, Line, GodID, GameConfig } from "../libraries/DSTypes.sol";
 
 // Libraries
 import { ABDKMath64x64 as Math } from "abdk-libraries-solidity/ABDKMath64x64.sol";
@@ -97,7 +97,7 @@ library LibVector {
     return getPositionByVector(originPosition, rotation, length, 180);
   }
 
-  function withinPolygon(Coord[] memory coords, Coord memory point) public pure returns (bool) {
+  function withinPolygon(Coord memory point, Coord[] memory coords) public pure returns (bool) {
     int32 wn = 0;
     for (uint32 i = 0; i < coords.length; i++) {
       Coord memory point1 = coords[i];
@@ -111,37 +111,45 @@ library LibVector {
     return wn != 0;
   }
 
-  // function lineIntersectsPolygon(LineSegment memory line, Coord[] memory polygon) public pure returns (bool) {
-  //     uint i = 0;
-  //     uint j = polygon.length - 1;
+  function lineIntersectsPolygon(Line memory line, Coord[] memory polygon) public pure returns (bool) {
+    for (uint32 i = 0; i < polygon.length; i++) {
+      Coord memory point1 = polygon[i];
+      Coord memory point2 = i == polygon.length - 1 ? polygon[0] : polygon[i + 1];
 
-  //     for (uint i = 1, i < polygon.length; i++) {
-  //       for(uint j = i - 1; j < i )
-  //         LineSegment memory edge = LineSegment({ start: polygon[i], end: polygon[j] });
+      if (linesIntersect(line, Line({ start: point1, end: point2 }))) {
+        return true;
+      }
+    }
 
-  //         if (lineSegmentsIntersect(line, edge)) {
-  //             return true;
-  //         }
-  //     }
+    return false;
+  }
 
-  //     return false;
-  // }
+  function max(int32 a, int32 b) private pure returns (int32) {
+    return a > b ? a : b;
+  }
 
-  // function lineSegmentsIntersect(LineSegment memory l1, LineSegment memory l2) public pure returns (bool) {
-  //     int256 x1 = l1.start.x;
-  //     int256 y1 = l1.start.y;
-  //     int256 x2 = l1.end.x;
-  //     int256 y2 = l1.end.y;
-  //     int256 x3 = l2.start.x;
-  //     int256 y3 = l2.start.y;
-  //     int256 x4 = l2.end.x;
-  //     int256 y4 = l2.end.y;
+  function min(int32 a, int32 b) private pure returns (int32) {
+    return a < b ? a : b;
+  }
 
-  //     int256 ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
-  //     int256 ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+  function linesIntersect(Line memory l1, Line memory l2) public pure returns (bool) {
+    int256 x1 = l1.start.x;
+    int256 y1 = l1.start.y;
+    int256 x2 = l1.end.x;
+    int256 y2 = l1.end.y;
+    int256 x3 = l2.start.x;
+    int256 y3 = l2.start.y;
+    int256 x4 = l2.end.x;
+    int256 y4 = l2.end.y;
 
-  //     return ua >= 0 && ua <= int256(1) && ub >= 0 && ub <= int256(1);
-  // }
+    // lets say parallel lines do not intersect
+    int256 denom = ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+    if (denom == 0) return false;
+    int256 ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denom;
+    int256 ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denom;
+
+    return ua >= 0 && ua <= int256(1) && ub >= 0 && ub <= int256(1);
+  }
 
   /**
    * @notice  calculates distance between two points
