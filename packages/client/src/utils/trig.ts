@@ -1,4 +1,5 @@
 import { Coord } from "@latticexyz/utils";
+import { Line } from "../types";
 
 export const deg2rad = (degrees: number) => degrees * (Math.PI / 180);
 
@@ -94,11 +95,11 @@ export function getFiringArea(
   ];
 }
 
-export function inFiringArea(coords: Coord[], point: Coord) {
+function withinPolygon(point: Coord, polygon: Coord[]) {
   let wn = 0;
-  for (let i = 0; i < coords.length; i++) {
-    const point1 = coords[i];
-    const point2 = i == coords.length - 1 ? coords[0] : coords[i + 1];
+  for (let i = 0; i < polygon.length; i++) {
+    const point1 = polygon[i];
+    const point2 = i == polygon.length - 1 ? polygon[0] : polygon[i + 1];
 
     const isLeft = (point2.x - point1.x) * (point.y - point1.y) - (point.x - point1.x) * (point2.y - point1.y);
     if (isLeft == 0) return false;
@@ -106,6 +107,42 @@ export function inFiringArea(coords: Coord[], point: Coord) {
     else if (point1.y > point.y && point2.y <= point.y && isLeft < 0) wn--;
   }
   return wn != 0;
+}
+function lineIntersectsPolygon(line: Line, polygon: Coord[]) {
+  for (let i = 0; i < polygon.length; i++) {
+    const p1 = polygon[i];
+    const p2 = i == polygon.length - 1 ? polygon[0] : polygon[i + 1];
+
+    if (doLinesIntersect(line, { p1, p2 })) {
+      return true;
+    }
+  }
+
+  return false;
+}
+function doLinesIntersect(l1: Line, l2: Line): boolean {
+  const x1 = l1.p1.x;
+  const y1 = l1.p1.y;
+  const x2 = l1.p2.x;
+  const y2 = l1.p2.y;
+  const x3 = l2.p1.x;
+  const y3 = l2.p1.y;
+  const x4 = l2.p2.x;
+  const y4 = l2.p2.y;
+
+  const d = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+  if (d === 0) {
+    return false;
+  }
+
+  const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / d;
+  const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / d;
+
+  return ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1;
+}
+
+export function inFiringArea(line: Line, coords: Coord[]) {
+  return withinPolygon(line.p1, coords) || lineIntersectsPolygon(line, coords);
 }
 
 export function midpoint(a: Coord, b: Coord): Coord {

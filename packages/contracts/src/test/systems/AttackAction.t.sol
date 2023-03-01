@@ -322,26 +322,14 @@ contract AttackActionTest is DarkSeasTest {
     );
     (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternPosition(components, defenderEntity);
 
-    uint256 distance;
     uint256 randomness = LibUtils.randomness(attackerEntity, defenderEntity);
-    if (!LibCombat.isBroadside(cannonRotation)) {
-      Coord[3] memory firingRange3 = LibCombat.getFiringAreaPivot(components, attackerEntity, cannonEntity);
+    Coord[] memory firingRange = LibCombat.getFiringArea(components, attackerEntity, cannonEntity);
 
-      if (LibVector.withinPolygon3(firingRange3, aft)) {
-        distance = LibVector.distance(attackerPosition, aft);
-        return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
-      } else if (LibVector.withinPolygon3(firingRange3, stern)) {
-        distance = LibVector.distance(attackerPosition, stern);
-        return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
-      } else return 0;
-    }
-    Coord[4] memory firingRange4 = LibCombat.getFiringAreaBroadside(components, attackerEntity, cannonEntity);
-
-    if (LibVector.withinPolygon4(firingRange4, aft)) {
-      distance = LibVector.distance(attackerPosition, aft);
-      return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
-    } else if (LibVector.withinPolygon4(firingRange4, stern)) {
-      distance = LibVector.distance(attackerPosition, stern);
+    if (
+      LibVector.withinPolygon(aft, firingRange) ||
+      LibVector.lineIntersectsPolygon(Line({ start: stern, end: aft }), firingRange)
+    ) {
+      uint256 distance = LibVector.distance(firingRange[0], aft);
       return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
     } else return 0;
   }

@@ -15,7 +15,7 @@ import { RotationComponent, ID as RotationComponentID } from "../components/Rota
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
-import { Coord, GodID, GameConfig } from "../libraries/DSTypes.sol";
+import { Coord, Line, GodID, GameConfig } from "../libraries/DSTypes.sol";
 
 // Libraries
 import { ABDKMath64x64 as Math } from "abdk-libraries-solidity/ABDKMath64x64.sol";
@@ -97,19 +97,11 @@ library LibVector {
     return getPositionByVector(originPosition, rotation, length, 180);
   }
 
-  /**
-   * @notice  checks if a point is within a quadrilateral
-   * @dev  uses the winding algorithm to calculate if point is within the polygon comprised of coords
-   *       https://visualgo.net/en/polygon
-   * @param   coords  positions of vertices of quadrilateral
-   * @param   point  to check if within coords
-   * @return  bool  is the point within the coords?
-   */
-  function withinPolygon4(Coord[4] memory coords, Coord memory point) public pure returns (bool) {
+  function withinPolygon(Coord memory point, Coord[] memory coords) public pure returns (bool) {
     int32 wn = 0;
-    for (uint32 i = 0; i < 4; i++) {
+    for (uint32 i = 0; i < coords.length; i++) {
       Coord memory point1 = coords[i];
-      Coord memory point2 = i == 3 ? coords[0] : coords[i + 1];
+      Coord memory point2 = i == coords.length - 1 ? coords[0] : coords[i + 1];
 
       int32 isLeft = ((point2.x - point1.x) * (point.y - point1.y)) - ((point.x - point1.x) * (point2.y - point1.y));
       if (isLeft == 0) return false;
@@ -119,26 +111,44 @@ library LibVector {
     return wn != 0;
   }
 
-  /**
-   * @notice  checks if a point is within a triangle
-   * @dev  uses the winding algorithm to calculate if point is within the polygon comprised of coords
-   *       https://visualgo.net/en/polygon
-   * @param   coords  positions of vertices of triangle
-   * @param   point  to check if within coords
-   * @return  bool  is the point within the coords?
-   */
-  function withinPolygon3(Coord[3] memory coords, Coord memory point) public pure returns (bool) {
-    int32 wn = 0;
-    for (uint32 i = 0; i < 3; i++) {
-      Coord memory point1 = coords[i];
-      Coord memory point2 = i == 2 ? coords[0] : coords[i + 1];
+  function lineIntersectsPolygon(Line memory line, Coord[] memory polygon) public pure returns (bool) {
+    for (uint32 i = 0; i < polygon.length; i++) {
+      Coord memory point1 = polygon[i];
+      Coord memory point2 = i == polygon.length - 1 ? polygon[0] : polygon[i + 1];
 
-      int32 isLeft = ((point2.x - point1.x) * (point.y - point1.y)) - ((point.x - point1.x) * (point2.y - point1.y));
-      if (isLeft == 0) return false;
-      if (point1.y <= point.y && point2.y > point.y && isLeft > 0) wn++;
-      else if (point1.y > point.y && point2.y <= point.y && isLeft < 0) wn--;
+      if (linesIntersect(line, Line({ start: point1, end: point2 }))) {
+        return true;
+      }
     }
-    return wn != 0;
+
+    return false;
+  }
+
+  function max(int32 a, int32 b) private pure returns (int32) {
+    return a > b ? a : b;
+  }
+
+  function min(int32 a, int32 b) private pure returns (int32) {
+    return a < b ? a : b;
+  }
+
+  function linesIntersect(Line memory l1, Line memory l2) public pure returns (bool) {
+    int256 x1 = l1.start.x;
+    int256 y1 = l1.start.y;
+    int256 x2 = l1.end.x;
+    int256 y2 = l1.end.y;
+    int256 x3 = l2.start.x;
+    int256 y3 = l2.start.y;
+    int256 x4 = l2.end.x;
+    int256 y4 = l2.end.y;
+
+    // lets say parallel lines do not intersect
+    int256 denom = ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+    if (denom == 0) return false;
+    int256 ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denom;
+    int256 ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denom;
+
+    return ua >= 0 && ua <= int256(1) && ub >= 0 && ub <= int256(1);
   }
 
   /**
