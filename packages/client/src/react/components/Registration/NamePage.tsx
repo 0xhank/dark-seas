@@ -24,8 +24,6 @@ export function NamePage({ selectFleet }: { selectFleet: () => void }) {
       (gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength);
 
   const timeUntilRound = closeTime - time / 1000;
-  console.log("close time:", closeTime);
-  console.log("time: ", time / 1000);
   const findSpawnButtonDisabled = name.length === 0 || timeUntilRound < 0;
 
   const openTutorial = () => setComponent(ModalOpen, ModalType.TUTORIAL, { value: true });
@@ -54,7 +52,7 @@ export function NamePage({ selectFleet }: { selectFleet: () => void }) {
         }}
       ></Input>
       {timeUntilRound < 0 ? (
-        <h1 style={{ color: colors.red, textAlign: "center" }}>Registration window closed!</h1>
+        <h1 style={{ color: colors.red, textAlign: "center" }}>closed!</h1>
       ) : (
         <h1>Game Starts in {formatTime(timeUntilRound)}</h1>
       )}

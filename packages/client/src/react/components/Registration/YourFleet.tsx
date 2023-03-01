@@ -69,18 +69,19 @@ export function YourFleet({ flex }: { flex: number }) {
   const timeUntilRound = closeTime - time / 1000;
   const spawnDisabled = spawning || name.length == 0 || stagedShips.length == 0 || timeUntilRound < 0;
   const onClick = spawning || txFailed ? () => {} : spawn;
-  const content = spawnDisabled ? (
-    "Entry closed!"
-  ) : spawning ? (
-    "Spawning..."
-  ) : txFailed ? (
-    "Spawn failed! Try again."
-  ) : (
-    <div>
-      <p style={{ fontSize: "1.5rem" }}>Register</p>
-      <p>{formatTime(timeUntilRound)}</p>
-    </div>
-  );
+  const content =
+    timeUntilRound < 0 ? (
+      "Entry closed!"
+    ) : spawning ? (
+      "Spawning..."
+    ) : txFailed ? (
+      "Spawn failed! Try again."
+    ) : (
+      <div>
+        <p style={{ fontSize: "1.5rem" }}>Register</p>
+        <p>{formatTime(timeUntilRound)}</p>
+      </div>
+    );
 
   const background = txFailed ? colors.red : colors.gold;
 

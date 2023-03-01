@@ -632,7 +632,9 @@ export async function createUtilities(
     const cannonEntities = [
       ...runQuery([Has(components.Cannon), HasValue(components.OwnedBy, { value: world.entities[shipEntity] })]),
     ];
-    const damagedCannons = getComponentValue(clientComponents.DamagedCannonsLocal, shipEntity)?.value != 0;
+    const gameStarted = (getTurn(clock.currentTime) || 0) > (getGameConfig()?.entryCutoffTurns || 0);
+    const damagedCannons =
+      getComponentValue(clientComponents.DamagedCannonsLocal, shipEntity)?.value != 0 || !gameStarted;
     const myShip = isMyShip(shipEntity);
     cannonEntities.forEach((cannonEntity) => {
       const loaded = getComponentValue(components.Loaded, cannonEntity);
