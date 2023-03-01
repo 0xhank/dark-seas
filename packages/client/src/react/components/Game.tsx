@@ -45,7 +45,6 @@ export function Game() {
         <PlayerProvider value={playerEntity}>
           <TurnTimer />
           <SideBar />
-          <Modal />
           <HoveredShip />
           <DamageChance />
           <EmergencyActions />
@@ -53,6 +52,7 @@ export function Game() {
       ) : (
         <Registration />
       )}
+      <Modal />
       <Settings />
       {/* <ComponentBrowser /> */}
       {/* <ActionQueue /> */}

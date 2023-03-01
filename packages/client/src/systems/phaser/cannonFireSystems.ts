@@ -147,9 +147,6 @@ export function cannonFireSystems(MUD: SetupResult) {
   }
 
   async function fireCannon(start: Coord, cannonEntity: EntityIndex, attack: Attack, shotIndex: number, hit: boolean) {
-    const oldHealth = getComponentValueStrict(HealthBackend, attack.target).value;
-    setComponent(HealthBackend, attack.target, { value: oldHealth - attack.damage });
-
     const end = getCannonEnd(attack.target, hit);
 
     const targetedValue = getComponentValue(Targeted, attack.target)?.value;
