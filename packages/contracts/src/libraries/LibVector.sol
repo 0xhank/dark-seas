@@ -97,19 +97,11 @@ library LibVector {
     return getPositionByVector(originPosition, rotation, length, 180);
   }
 
-  /**
-   * @notice  checks if a point is within a quadrilateral
-   * @dev  uses the winding algorithm to calculate if point is within the polygon comprised of coords
-   *       https://visualgo.net/en/polygon
-   * @param   coords  positions of vertices of quadrilateral
-   * @param   point  to check if within coords
-   * @return  bool  is the point within the coords?
-   */
-  function withinPolygon4(Coord[4] memory coords, Coord memory point) public pure returns (bool) {
+  function withinPolygon(Coord[] memory coords, Coord memory point) public pure returns (bool) {
     int32 wn = 0;
-    for (uint32 i = 0; i < 4; i++) {
+    for (uint32 i = 0; i < coords.length; i++) {
       Coord memory point1 = coords[i];
-      Coord memory point2 = i == 3 ? coords[0] : coords[i + 1];
+      Coord memory point2 = i == coords.length - 1 ? coords[0] : coords[i + 1];
 
       int32 isLeft = ((point2.x - point1.x) * (point.y - point1.y)) - ((point.x - point1.x) * (point2.y - point1.y));
       if (isLeft == 0) return false;
@@ -119,27 +111,37 @@ library LibVector {
     return wn != 0;
   }
 
-  /**
-   * @notice  checks if a point is within a triangle
-   * @dev  uses the winding algorithm to calculate if point is within the polygon comprised of coords
-   *       https://visualgo.net/en/polygon
-   * @param   coords  positions of vertices of triangle
-   * @param   point  to check if within coords
-   * @return  bool  is the point within the coords?
-   */
-  function withinPolygon3(Coord[3] memory coords, Coord memory point) public pure returns (bool) {
-    int32 wn = 0;
-    for (uint32 i = 0; i < 3; i++) {
-      Coord memory point1 = coords[i];
-      Coord memory point2 = i == 2 ? coords[0] : coords[i + 1];
+  // function lineIntersectsPolygon(LineSegment memory line, Coord[] memory polygon) public pure returns (bool) {
+  //     uint i = 0;
+  //     uint j = polygon.length - 1;
 
-      int32 isLeft = ((point2.x - point1.x) * (point.y - point1.y)) - ((point.x - point1.x) * (point2.y - point1.y));
-      if (isLeft == 0) return false;
-      if (point1.y <= point.y && point2.y > point.y && isLeft > 0) wn++;
-      else if (point1.y > point.y && point2.y <= point.y && isLeft < 0) wn--;
-    }
-    return wn != 0;
-  }
+  //     for (uint i = 1, i < polygon.length; i++) {
+  //       for(uint j = i - 1; j < i )
+  //         LineSegment memory edge = LineSegment({ start: polygon[i], end: polygon[j] });
+
+  //         if (lineSegmentsIntersect(line, edge)) {
+  //             return true;
+  //         }
+  //     }
+
+  //     return false;
+  // }
+
+  // function lineSegmentsIntersect(LineSegment memory l1, LineSegment memory l2) public pure returns (bool) {
+  //     int256 x1 = l1.start.x;
+  //     int256 y1 = l1.start.y;
+  //     int256 x2 = l1.end.x;
+  //     int256 y2 = l1.end.y;
+  //     int256 x3 = l2.start.x;
+  //     int256 y3 = l2.start.y;
+  //     int256 x4 = l2.end.x;
+  //     int256 y4 = l2.end.y;
+
+  //     int256 ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+  //     int256 ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+
+  //     return ua >= 0 && ua <= int256(1) && ub >= 0 && ub <= int256(1);
+  // }
 
   /**
    * @notice  calculates distance between two points

@@ -325,22 +325,22 @@ contract AttackActionTest is DarkSeasTest {
     uint256 distance;
     uint256 randomness = LibUtils.randomness(attackerEntity, defenderEntity);
     if (!LibCombat.isBroadside(cannonRotation)) {
-      Coord[3] memory firingRange3 = LibCombat.getFiringAreaPivot(components, attackerEntity, cannonEntity);
+      Coord[] memory firingRange3 = LibCombat.getFiringArea(components, attackerEntity, cannonEntity);
 
-      if (LibVector.withinPolygon3(firingRange3, aft)) {
+      if (LibVector.withinPolygon(firingRange3, aft)) {
         distance = LibVector.distance(attackerPosition, aft);
         return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
-      } else if (LibVector.withinPolygon3(firingRange3, stern)) {
+      } else if (LibVector.withinPolygon(firingRange3, stern)) {
         distance = LibVector.distance(attackerPosition, stern);
         return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
       } else return 0;
     }
-    Coord[4] memory firingRange4 = LibCombat.getFiringAreaBroadside(components, attackerEntity, cannonEntity);
+    Coord[] memory firingRange4 = LibCombat.getFiringArea(components, attackerEntity, cannonEntity);
 
-    if (LibVector.withinPolygon4(firingRange4, aft)) {
+    if (LibVector.withinPolygon(firingRange4, aft)) {
       distance = LibVector.distance(attackerPosition, aft);
       return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
-    } else if (LibVector.withinPolygon4(firingRange4, stern)) {
+    } else if (LibVector.withinPolygon(firingRange4, stern)) {
       distance = LibVector.distance(attackerPosition, stern);
       return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
     } else return 0;
