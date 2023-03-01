@@ -2,6 +2,7 @@ import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { setComponent } from "@latticexyz/recs";
 import { useMUD } from "../../../mud/providers/MUDProvider";
 import { ModalType } from "../../../types";
+import { formatTime } from "../../../utils/directions";
 import { Button, colors, Input } from "../../styles/global";
 
 export function NamePage({ selectFleet }: { selectFleet: () => void }) {
@@ -9,7 +10,6 @@ export function NamePage({ selectFleet }: { selectFleet: () => void }) {
     components: { Name, ModalOpen, GameConfig },
     godEntity,
     network: { clock },
-    utils: { getTurn },
   } = useMUD();
 
   const name = useComponentValue(Name, godEntity, { value: "" }).value;
@@ -18,9 +18,15 @@ export function NamePage({ selectFleet }: { selectFleet: () => void }) {
   const gameConfig = useComponentValue(GameConfig, godEntity);
   if (!gameConfig) return null;
 
-  const turn = getTurn(time) || 0;
-  const entryWindowClosed = turn > gameConfig.entryCutoffTurns;
-  const findSpawnButtonDisabled = name.length === 0 || entryWindowClosed;
+  const closeTime =
+    Number(gameConfig.startTime) +
+    gameConfig.entryCutoffTurns *
+      (gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength);
+
+  const timeUntilRound = closeTime - time / 1000;
+  console.log("close time:", closeTime);
+  console.log("time: ", time / 1000);
+  const findSpawnButtonDisabled = name.length === 0 || timeUntilRound < 0;
 
   const openTutorial = () => setComponent(ModalOpen, ModalType.TUTORIAL, { value: true });
 
@@ -47,7 +53,11 @@ export function NamePage({ selectFleet }: { selectFleet: () => void }) {
           if (e.target.value.length < 15) setComponent(Name, godEntity, { value: e.target.value });
         }}
       ></Input>
-      {entryWindowClosed && <h1 style={{ color: colors.red, textAlign: "center" }}>Registration window closed!</h1>}
+      {timeUntilRound < 0 ? (
+        <h1 style={{ color: colors.red, textAlign: "center" }}>Registration window closed!</h1>
+      ) : (
+        <h1>Game Starts in {formatTime(timeUntilRound)}</h1>
+      )}
       <div style={{ display: "flex", gap: "8px", minWidth: "33%" }}>
         <Button style={{ flex: 1 }} secondary onClick={openTutorial}>
           How to Play
