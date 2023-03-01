@@ -19,6 +19,7 @@ program
     "-sh, --shrink <shrinkRate>",
     "after entry cuts off, the world will shrink at rate / 100 coordinates per second"
   )
+  .option("-m, --main <main>", "place updated script into main deploy.json")
   .option("-b, --budget <budget>", "amount of points players can spend on ships");
 
 program.parse(process.argv);
@@ -43,17 +44,17 @@ if (options.config) {
     budget: options.budget || 9,
   };
 }
-const fileName = generateDeployJson(config);
+const fileName = generateDeployJson(config, options.main == "true" || false);
 console.log("new deployment script generated at ", fileName);
 
-export function generateDeployJson(config) {
+export function generateDeployJson(config, toMain = false) {
   const initializerParam = `abi.encode(block.timestamp, ${config.commitPhaseLength}, ${config.revealPhaseLength}, ${config.actionPhaseLength}, ${config.worldSize}, ${config.perlinSeed}, ${config.entryCutoffTurns}, ${config.buyin}, ${config.respawnAllowed}, ${config.shrinkRate}, ${config.budget})`;
 
   const data = deployData.systems.find((system) => system.name == "InitSystem");
   if (data) data.initialize = initializerParam;
   const json = JSON.stringify(deployData, null, 2); // the second argument is a replacer function, the third argument is the number of spaces to use for indentation (optional)
 
-  const fileName = `deployments/deploy-${Date.now()}.json`;
+  const fileName = toMain ? "deploy.json" : `deployments/deploy-${Date.now()}.json`;
   writeFile(fileName, json, (err) => {
     if (err) throw err;
     console.log("Data saved to file");
