@@ -1,5 +1,13 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
-import { getComponentEntities, getComponentValue, Has, HasValue, runQuery } from "@latticexyz/recs";
+import {
+  getComponentEntities,
+  getComponentValue,
+  getComponentValueStrict,
+  Has,
+  HasValue,
+  runQuery,
+} from "@latticexyz/recs";
+import { ActionState } from "@latticexyz/std-client";
 import { merge } from "rxjs";
 import { useMUD } from "../../../mud/providers/MUDProvider";
 import { usePlayer } from "../../../mud/providers/PlayerProvider";
@@ -7,10 +15,11 @@ import { world } from "../../../mud/world";
 import { Category } from "../../../sound";
 import { Button, Success } from "../../styles/global";
 
-export function CommitButtons({ tooEarly, txExecuting }: { tooEarly: boolean; txExecuting: boolean }) {
+export function CommitButtons({ tooEarly }: { tooEarly: boolean }) {
   const {
     components: { SelectedMove, EncodedCommitment, Ship, OwnedBy, CommittedMove },
     utils: { getPlayerShipsWithMoves, playSound },
+    actions: { Action },
     api: { commitMove },
     godEntity,
   } = useMUD();
@@ -29,6 +38,10 @@ export function CommitButtons({ tooEarly, txExecuting }: { tooEarly: boolean; tx
     return committedMove == selectedMove;
   });
 
+  const txExecuting = !![...runQuery([Has(Action)])].find((entity) => {
+    const action = getComponentValueStrict(Action, entity);
+    return action.state !== ActionState.Complete && Action.world.entities[entity].includes("commit");
+  });
   const handleSubmitCommitment = () => {
     const shipsAndMoves = getPlayerShipsWithMoves();
     if (!shipsAndMoves) return;
