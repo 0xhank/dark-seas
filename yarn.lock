@@ -1781,12 +1781,10 @@
     goober "^2.1.11"
     shiki "^0.11.1"
 
-"@latticexyz/network@1.37.1":
-  version "1.37.1"
-  resolved "https://registry.yarnpkg.com/@latticexyz/network/-/network-1.37.1.tgz#5987ccd544884f8766c60e07258b5ed6edae0d7e"
-  integrity sha512-QxiUNPsglKIuEOK5sjRYvD1Fdnon7hbFKb3LPEjtPsLjkpfbOTCJ8IhbGlkJMsH50Ng031ReYjaRimLvjOetNA==
-  dependencies:
-    debug "^4.3.4"
+"@latticexyz/network@1.28.1":
+  version "1.28.1"
+  resolved "https://registry.yarnpkg.com/@latticexyz/network/-/network-1.28.1.tgz#c78be884fda1f9e4106fcfffea68060a27e97022"
+  integrity sha512-1U5bbUJWkYvTKlZfZuChV1Z46qxMKDZjZ/AEHFrCNaizVg0Kl4KncJPNRYL/iwvdm4wR/DVQIAFtH5Y17wiAyg==
 
 "@latticexyz/noise@^1.37.1":
   version "1.37.1"
@@ -1828,10 +1826,10 @@
   resolved "https://registry.yarnpkg.com/@latticexyz/solecs/-/solecs-1.37.1.tgz#eb73cda9ae7aa901e6544a4e8cdb06381292ec92"
   integrity sha512-P7+kkGAggijurg1EfTVrXcKvWf8C/q6VlJjNSn1ObYC72nv/ewPjK1hJwDpaF+nFu7KIV2y6BMwN1zJU63I85A==
 
-"@latticexyz/std-client@1.37.1":
-  version "1.37.1"
-  resolved "https://registry.yarnpkg.com/@latticexyz/std-client/-/std-client-1.37.1.tgz#43a638e8ebdc15d808cda8422b62350e6c7ebf21"
-  integrity sha512-s1MD9YD1pn1CTyQ0YjIdZebO+RirF/Px1d7idEgSqQvZewfJQVm/fTeNLvTatnJf+pODG1Zfyn5V+6ZmS+CS1w==
+"@latticexyz/std-client@1.28.1":
+  version "1.28.1"
+  resolved "https://registry.yarnpkg.com/@latticexyz/std-client/-/std-client-1.28.1.tgz#76dac760a2dad2bd1b1fdc7737447f6cc2d46671"
+  integrity sha512-soCMvhSVTT/s0zav5O5Co++gfPP9P0y6tcq1tr9TL07FJWuVuWw06Qshf8jhkNMLXKKD54XNIRuhEujbvHe66w==
 
 "@latticexyz/std-contracts@1.37.1", "@latticexyz/std-contracts@^1.37.1":
   version "1.37.1"

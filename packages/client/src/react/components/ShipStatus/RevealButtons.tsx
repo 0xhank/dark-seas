@@ -20,6 +20,7 @@ export function RevealButtons({ tooEarly, turn }: { tooEarly: boolean; turn: num
 
   const txExecuting = !![...runQuery([Has(Action)])].find((entity) => {
     const action = getComponentValueStrict(Action, entity);
+    console.log("state:", action.state, "type:", Action.world.entities[entity]);
     return action.state !== ActionState.Complete && Action.world.entities[entity].includes("reveal");
   });
   const handleSubmitExecute = () => {

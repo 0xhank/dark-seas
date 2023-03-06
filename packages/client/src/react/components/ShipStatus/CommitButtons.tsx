@@ -40,7 +40,7 @@ export function CommitButtons({ tooEarly }: { tooEarly: boolean }) {
 
   const txExecuting = !![...runQuery([Has(Action)])].find((entity) => {
     const action = getComponentValueStrict(Action, entity);
-    return action.state !== ActionState.Complete && Action.world.entities[entity].includes("commit");
+    return action.state !== ActionState.TxReduced && Action.world.entities[entity].includes("commit");
   });
   const handleSubmitCommitment = () => {
     const shipsAndMoves = getPlayerShipsWithMoves();

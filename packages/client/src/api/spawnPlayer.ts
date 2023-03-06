@@ -21,7 +21,6 @@ export function spawnPlayer(
     updates: () => [],
     execute: (name: string) => {
       return systems["ds.system.PlayerSpawn"].executeTyped(name, ships, {
-        gasLimit: 30_000_000,
         type: 2,
         gasPrice: undefined,
       });
