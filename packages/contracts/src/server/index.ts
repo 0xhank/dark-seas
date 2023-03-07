@@ -1,6 +1,6 @@
 import { generateLibDeploy } from "@latticexyz/cli/dist/utils/deprecated/index.js";
 import express from "express";
-import { readFileSync, rmSync, writeFile } from "fs";
+import { promises, readFileSync, rmSync } from "fs";
 import { generateDeployJson } from "../../build-deploy.js";
 import devChainSpec from "../../chainSpec.dev.json" assert { type: "json" };
 import chainSpec from "../../chainSpec.json" assert { type: "json" };
@@ -33,14 +33,12 @@ app.post("/deploy", async function (req, res) {
   const dev = true;
 
   try {
-    const libDeployPath = await generateLibDeploy(`${fileName}/deploy.json`, fileName);
+    await generateLibDeploy(`${fileName}/deploy.json`, fileName);
 
-    writeFile(`${fileName}/Deploy.sol`, deploysol, function (err) {
-      console.log("err:", err);
-    });
+    await promises.writeFile(`${fileName}/Deploy.sol`, deploysol);
     const deployResult = await deploy(
       fileName,
-      dev ? undefined : "0x26e86e45f6fc45ec6e2ecd128cec80fa1d1505e5507dcd2ae58c3130a7a97b48",
+      dev ? devChainSpec.deployer : chainSpec.deployer,
       dev ? devChainSpec.rpc : chainSpec.rpc
     );
     rmSync(fileName, { recursive: true, force: true });
