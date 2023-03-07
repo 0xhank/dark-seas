@@ -52,6 +52,7 @@ export function Game() {
       ) : (
         <Registration />
       )}
+      <Modal />
       <Settings />
       <Modal />
       {/* <ComponentBrowser /> */}

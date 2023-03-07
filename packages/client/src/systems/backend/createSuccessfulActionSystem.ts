@@ -119,9 +119,11 @@ export function createSuccessfulActionSystem(MUD: SetupResult) {
     targets.forEach((target) => {
       const healthKey = `${target}-Health`;
       const oldHealth = getComponentValueStrict(HealthBackend, target).value;
-      const newHealth = (shipUpdates.get(healthKey)?.value as number | undefined) || oldHealth;
-      const damageDealt = Math.min(3, oldHealth - newHealth);
+      const newHealth = shipUpdates.get(healthKey)?.value as number | undefined;
+      const healthToUpdate = newHealth == undefined ? oldHealth : newHealth;
+      const damageDealt = Math.min(3, oldHealth - healthToUpdate);
       damage.push(damageDealt);
+      setComponent(HealthBackend, target, { value: oldHealth - damageDealt });
 
       const fireKey = `${target}-OnFire`;
       const damagedCannonsKey = `${target}-DamagedCannons`;

@@ -53,7 +53,13 @@ export function localHealthSystems(MUD: SetupResult) {
 
     shipObject.setTexture(sprite.assetKey, sprite.frame);
 
-    if (health == 0) {
+    if (health <= 0) {
+      const contractHealth = getComponentValueStrict(Health, shipEntity).value;
+      if (contractHealth !== health) {
+        setComponent(HealthLocal, shipEntity, { value: contractHealth });
+        setComponent(HealthBackend, shipEntity, { value: contractHealth });
+        return;
+      }
       playDeathAnimation(shipEntity);
       removeComponent(SelectedActions, shipEntity);
       removeComponent(SelectedMove, shipEntity);

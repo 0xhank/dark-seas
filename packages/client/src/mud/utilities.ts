@@ -285,8 +285,7 @@ export async function createUtilities(
       const range = getCannonRange(cannonEntity);
       const firingArea = getFiringArea(shipPosition, range, length, shipRotation, cannonRotation);
 
-      const toTarget = inFiringArea(firingArea, enemyPosition) || inFiringArea(firingArea, sternPosition);
-      return toTarget;
+      return inFiringArea({ p1: enemyPosition, p2: sternPosition }, firingArea);
     });
 
     return shipEntities;
