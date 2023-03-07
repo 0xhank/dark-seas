@@ -1,5 +1,6 @@
-import { readFileSync, writeFile } from "fs";
 import { program } from "commander";
+import { promises, readFileSync } from "fs";
+import path from "path";
 import deployData from "./deploy.json" assert { type: "json" };
 
 program
@@ -29,7 +30,7 @@ let config;
 
 if (options.config) {
   const configStr = readFileSync(options.config);
-  config = JSON.parse(configStr);
+  config = JSON.parse(configStr.toString());
 } else {
   config = {
     commitPhaseLength: options.commitPhaseLength || 25,
@@ -44,20 +45,19 @@ if (options.config) {
     budget: options.budget || 9,
   };
 }
-const fileName = generateDeployJson(config, options.main == "true" || false);
+const fileName = await generateDeployJson(config, options.main == "true" || false);
 console.log("new deployment script generated at ", fileName);
 
-export function generateDeployJson(config, toMain = false) {
+export async function generateDeployJson(config: any, toMain = false) {
   const initializerParam = `abi.encode(block.timestamp, ${config.commitPhaseLength}, ${config.revealPhaseLength}, ${config.actionPhaseLength}, ${config.worldSize}, ${config.perlinSeed}, ${config.entryCutoffTurns}, ${config.buyin}, ${config.respawnAllowed}, ${config.shrinkRate}, ${config.budget})`;
 
   const data = deployData.systems.find((system) => system.name == "InitSystem");
   if (data) data.initialize = initializerParam;
   const json = JSON.stringify(deployData, null, 2); // the second argument is a replacer function, the third argument is the number of spaces to use for indentation (optional)
 
-  const fileName = toMain ? "deploy.json" : `deployments/deploy-${Date.now()}.json`;
-  writeFile(fileName, json, (err) => {
-    if (err) throw err;
-    console.log("Data saved to file");
-  });
+  const fileName = toMain ? "." : path.join(`deployments`, Date.now().toString());
+  await promises.mkdir(fileName, { recursive: true });
+
+  await promises.writeFile(`${fileName}/deploy.json`, json);
   return fileName;
 }

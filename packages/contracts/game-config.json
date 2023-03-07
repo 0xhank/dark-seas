@@ -1,7 +1,7 @@
 {
   "commitPhaseLength": 25,
   "revealPhaseLength": 9,
-  "actionPhaseLength": 25,
+  "actionPhaseLength": 15,
   "worldSize": 120,
   "perlinSeed": 345676,
   "entryCutoffTurns": 60,
