@@ -1,7 +1,8 @@
 import { generateLibDeploy } from "@latticexyz/cli/dist/utils/deprecated/index.js";
 import express from "express";
 import { promises, readFileSync, rmSync } from "fs";
-import { generateDeployJson } from "../../build-deploy.js";
+import path from "path";
+import { Config, generateDeployJson } from "../../build-deploy.js";
 import devChainSpec from "../../chainSpec.dev.json" assert { type: "json" };
 import chainSpec from "../../chainSpec.json" assert { type: "json" };
 import { deploy } from "./deploy.js";
@@ -22,26 +23,25 @@ app.get("/", function (req, res) {
   res.send({ response: "Hello World!" });
 });
 
+type Payload = {
+  dev: boolean;
+  configData: Config;
+};
 app.post("/deploy", async function (req, res) {
-  const data = req.body;
-  console.log("in deploy");
-
-  // 1. generate a deploy.json file based on the config provided with a unique identifier
-  const fileName = await generateDeployJson(data);
-  console.log("file name:", fileName);
-  // 2. deploy a new world using the deploy.json file as the config
-  const dev = true;
-
+  console.log("body:", req.body);
+  const { dev, configData: data } = req.body as Payload;
+  console.log(dev);
+  console.log(data);
   try {
-    await generateLibDeploy(`${fileName}/deploy.json`, fileName);
-
-    await promises.writeFile(`${fileName}/Deploy.sol`, deploysol);
+    const dirName = await generateDeployJson(data);
+    await generateLibDeploy(path.join(dirName, "deploy.json"), dirName);
+    await promises.writeFile(path.join(dirName, "Deploy.sol"), deploysol);
     const deployResult = await deploy(
-      fileName,
+      dirName,
       dev ? devChainSpec.deployer : chainSpec.deployer,
       dev ? devChainSpec.rpc : chainSpec.rpc
     );
-    rmSync(fileName, { recursive: true, force: true });
+    rmSync(dirName, { recursive: true, force: true });
     res.send(
       JSON.stringify({
         worldAddress: deployResult.deployedWorldAddress,
@@ -49,9 +49,8 @@ app.post("/deploy", async function (req, res) {
       })
     );
   } catch (e) {
-    console.log("error:", e);
+    res.status(500).send(`Error: ${e}`);
   }
-  // 3. return the corresponding world address and blocknumber resulting from deployment
 });
 
 app.listen(port, function () {
