@@ -71,8 +71,6 @@ export function submitActions(
       console.log("submitting actions:", actions);
       return systems["ds.system.Action"].executeTyped(actions, {
         gasLimit: 10_000_000,
-        type: 2,
-        gasPrice: undefined,
       });
     },
     metadata: {

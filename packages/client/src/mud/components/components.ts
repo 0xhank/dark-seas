@@ -10,18 +10,6 @@ import { GameConfigComponent } from "./GameConfigComponent";
 import { MoveCardComponent } from "./MoveCardComponent";
 
 export const components = {
-  LoadingState: defineComponent(
-    world,
-    {
-      state: Type.Number,
-      msg: Type.String,
-      percentage: Type.Number,
-    },
-    {
-      id: "LoadingState",
-      metadata: { contractId: "component.LoadingState" },
-    }
-  ),
   GameConfig: GameConfigComponent,
   MoveCard: MoveCardComponent,
   Position: defineCoordComponent(world, { id: "Position", metadata: { contractId: "ds.component.Position" } }),

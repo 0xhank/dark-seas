@@ -78,12 +78,12 @@ export function createTxQueue<C extends Contracts>(
   ): Promise<{
     hash: string;
     wait: () => Promise<TransactionReceipt>;
-    response: Promise<ReturnTypeStrict<(typeof target)[typeof prop]>>;
+    response: Promise<ReturnTypeStrict<typeof target[typeof prop]>>;
   }> {
     const [resolve, reject, promise] = deferred<{
       hash: string;
       wait: () => Promise<TransactionReceipt>;
-      response: Promise<ReturnTypeStrict<(typeof target)[typeof prop]>>;
+      response: Promise<ReturnTypeStrict<typeof target[typeof prop]>>;
     }>();
 
     // Extract existing overrides from function call
@@ -145,9 +145,7 @@ export function createTxQueue<C extends Contracts>(
           const tx = await target.signer.sendTransaction(populatedTx);
           hash = tx.hash;
         }
-        const response = target.provider.getTransaction(hash) as Promise<
-          ReturnTypeStrict<(typeof target)[typeof prop]>
-        >;
+        const response = target.provider.getTransaction(hash) as Promise<ReturnTypeStrict<typeof target[typeof prop]>>;
         // This promise is awaited asynchronously in the tx queue and the action queue to catch errors
         const wait = async () => (await response).wait();
         // Resolved value goes to the initiator of the transaction

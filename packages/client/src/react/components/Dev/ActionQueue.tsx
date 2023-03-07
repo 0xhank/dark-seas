@@ -17,9 +17,10 @@ export function ActionQueue() {
     actions: { Action },
   } = useMUD();
   useObservableValue(Action.update$);
+
   return (
     <Cell style={gridConfig}>
-      <Container style={{ pointerEvents: "none" }}>
+      <Container style={{ display: "none", pointerEvents: "none" }}>
         <p>Actions:</p>
         {[...getComponentEntities(Action)].map((e) => {
           const actionData = getComponentValueStrict(Action, e);
