@@ -20,10 +20,7 @@ export function commitMove(systems: TxQueue<SystemTypes>, actions: ActionSystem,
     },
     updates: () => [],
     execute: (encoding: string) => {
-      return systems["ds.system.Commit"].executeTyped(keccak256(encoding), {
-        type: 2,
-        gasPrice: undefined,
-      });
+      return systems["ds.system.Commit"].executeTyped(keccak256(encoding));
     },
     metadata: {
       type: TxType.Commit,

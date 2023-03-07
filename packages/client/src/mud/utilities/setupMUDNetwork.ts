@@ -1,5 +1,5 @@
 import { Ack, createContracts, createNetwork, createSyncWorker, InputType, Mappings } from "@latticexyz/network";
-import { World } from "@latticexyz/recs";
+import { defineComponent, Type, World } from "@latticexyz/recs";
 import { abi as WorldAbi } from "@latticexyz/solecs/abi/World.json";
 import { World as WorldContract } from "@latticexyz/solecs/types/ethers-contracts/World";
 import {
@@ -23,22 +23,49 @@ import { createTxQueue } from "./createTxQueue";
 export async function setupMUDNetwork<C extends ContractComponents, SystemTypes extends { [key: string]: Contract }>(
   networkConfig: SetupContractConfig,
   world: World,
-  components: C,
+  contractComponents: C,
   SystemAbis: { [key in keyof SystemTypes]: ContractInterface },
   options?: { initialGasPrice?: number; fetchSystemCalls?: boolean }
 ) {
-  const SystemsRegistry = defineStringComponent(world, {
-    id: "SystemsRegistry",
-    metadata: { contractId: "world.component.systems" },
-  });
+  const SystemsRegistry = findOrDefineComponent(
+    contractComponents,
+    defineStringComponent(world, {
+      id: "SystemsRegistry",
+      metadata: { contractId: "world.component.systems" },
+    })
+  );
 
-  const ComponentsRegistry = defineStringComponent(world, {
-    id: "ComponentsRegistry",
-    metadata: { contractId: "world.component.components" },
-  });
+  const ComponentsRegistry = findOrDefineComponent(
+    contractComponents,
+    defineStringComponent(world, {
+      id: "ComponentsRegistry",
+      metadata: { contractId: "world.component.components" },
+    })
+  );
 
-  (components as NetworkComponents<C>).SystemsRegistry = SystemsRegistry;
-  (components as NetworkComponents<C>).ComponentsRegistry = ComponentsRegistry;
+  // used by SyncWorker to notify client of sync progress
+  const LoadingState = findOrDefineComponent(
+    contractComponents,
+    defineComponent(
+      world,
+      {
+        state: Type.Number,
+        msg: Type.String,
+        percentage: Type.Number,
+      },
+      {
+        id: "LoadingState",
+        metadata: { contractId: "component.LoadingState" },
+      }
+    )
+  );
+
+  const components: NetworkComponents<C> = {
+    ...contractComponents,
+    SystemsRegistry,
+    ComponentsRegistry,
+    LoadingState,
+  };
 
   // Mapping from component contract id to key in components object
   const mappings: Mappings<C> = {};
@@ -96,13 +123,19 @@ export async function setupMUDNetwork<C extends ContractComponents, SystemTypes 
 
   // Create sync worker
   const ack$ = new Subject<Ack>();
+  // Avoid passing externalProvider to sync worker (too complex to copy)
+  const {
+    provider: { externalProvider: _, ...providerConfig },
+    ...syncWorkerConfig
+  } = networkConfig;
   const { ecsEvents$, input$, dispose } = createSyncWorker<C>(ack$);
   world.registerDisposer(dispose);
   function startSync() {
     input$.next({
       type: InputType.Config,
       data: {
-        ...networkConfig,
+        ...syncWorkerConfig,
+        provider: providerConfig,
         worldContract: contractsConfig.World,
         initialBlockNumber: networkConfig.initialBlockNumber ?? 0,
         disableCache: networkConfig.devMode, // Disable cache on local networks (hardhat / anvil)
@@ -132,4 +165,29 @@ export async function setupMUDNetwork<C extends ContractComponents, SystemTypes 
     registerSystem,
     components,
   };
+}
+
+/**
+ * Find a component in the components object by contract id, or return the component if it doesn't exist
+ * @param components object of components
+ * @param component component to find
+ * @returns component if it exists in components object, otherwise the component passed in
+ */
+function findOrDefineComponent<Cs extends ContractComponents, C extends ContractComponent>(
+  components: Cs,
+  component: C
+): C {
+  const existingComponent = Object.values(components).find(
+    (c) => c.metadata.contractId === component.metadata.contractId
+  ) as C;
+
+  if (existingComponent) {
+    console.warn(
+      "Component with contract id",
+      component.metadata.contractId,
+      "is defined by default in setupMUDNetwork"
+    );
+  }
+
+  return existingComponent || component;
 }

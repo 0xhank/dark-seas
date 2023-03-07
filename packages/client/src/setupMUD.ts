@@ -26,6 +26,7 @@ export async function setupMUD() {
 
   const res = await setupMUDNetwork<typeof components, SystemTypes>(config, world, components, SystemAbis, {
     fetchSystemCalls: true,
+    // initialGasPrice: 10000,
   });
 
   const { systems, network, systemCallStreams, txReduced$, encoders } = res;

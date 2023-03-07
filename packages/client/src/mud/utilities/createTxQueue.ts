@@ -22,6 +22,7 @@ export function createTxQueue<C extends Contracts>(
   computedContracts: IComputedValue<C> | IObservableValue<C>,
   network: Network,
   gasPrice$: BehaviorSubject<number>,
+
   options?: { concurrency?: number; devMode?: boolean }
 ): { txQueue: TxQueue<C>; dispose: () => void; ready: IComputedValue<boolean | undefined> } {
   const { concurrency } = options || {};
@@ -32,7 +33,7 @@ export function createTxQueue<C extends Contracts>(
       gasLimit: BigNumberish
     ) => Promise<{ hash: string; wait: () => Promise<TransactionReceipt> }>;
     estimateGas: () => BigNumberish | Promise<BigNumberish>;
-    cancel: () => void;
+    cancel: (error: any) => void;
     stateMutability?: string;
   }>();
   const submissionMutex = new Mutex();
@@ -113,15 +114,15 @@ export function createTxQueue<C extends Contracts>(
             )}".`
           );
         }
-
         // Populate config
         const configOverrides = {
-          gasPrice: gasPrice$.getValue(),
+          maxPriorityFeePerGas: gasPrice$.getValue() * 2,
+          maxFeePerGas: gasPrice$.getValue() * 4,
           ...overrides,
           nonce,
           gasLimit,
         };
-        if (options?.devMode) configOverrides.gasPrice = 0;
+        if (options?.devMode) configOverrides.maxPriorityFeePerGas = 0;
 
         // Populate tx
         const populatedTx = await member(...argsWithoutOverrides, configOverrides);
@@ -129,14 +130,22 @@ export function createTxQueue<C extends Contracts>(
         populatedTx.chainId = network.config.chainId;
 
         // Execute tx
-        const signedTx = await target.signer.signTransaction(populatedTx);
-        const hash = await (target.provider as JsonRpcProvider).perform("sendTransaction", {
-          signedTransaction: signedTx,
-        });
+        let hash: string;
+        try {
+          // Attempt to sign the transaction and send it raw for higher performance
+          const signedTx = await target.signer.signTransaction(populatedTx);
+          hash = await (target.provider as JsonRpcProvider).perform("sendTransaction", {
+            signedTransaction: signedTx,
+          });
+        } catch (e) {
+          // Some signers don't support signing without sending (looking at you MetaMask),
+          // so sign+send using the signer as a fallback
+          const tx = await target.signer.sendTransaction(populatedTx);
+          hash = tx.hash;
+        }
         const response = target.provider.getTransaction(hash) as Promise<ReturnTypeStrict<typeof target[typeof prop]>>;
         // This promise is awaited asynchronously in the tx queue and the action queue to catch errors
         const wait = async () => (await response).wait();
-
         // Resolved value goes to the initiator of the transaction
         resolve({ hash, wait, response });
 
@@ -149,7 +158,12 @@ export function createTxQueue<C extends Contracts>(
     };
 
     // Queue the tx execution
-    queue.add(uuid(), { execute, estimateGas, cancel: () => reject(new Error("TX_CANCELLED")), stateMutability });
+    queue.add(uuid(), {
+      execute,
+      estimateGas,
+      cancel: (error?: any) => reject(error ?? new Error("TX_CANCELLED")),
+      stateMutability,
+    });
 
     // Start processing the queue
     processQueue();
@@ -187,7 +201,7 @@ export function createTxQueue<C extends Contracts>(
         gasLimit = await txRequest.estimateGas();
       } catch (e) {
         console.error("[TXQueue] GAS ESTIMATION ERROR", e);
-        return txRequest.cancel();
+        return txRequest.cancel(e);
       }
 
       // Wait if nonce is not ready
@@ -216,6 +230,8 @@ export function createTxQueue<C extends Contracts>(
         // Nonce handeling
         if (shouldIncreaseNonce) incNonce();
         if (shouldResetNonce) await resetNonce();
+        // Bubble up error
+        if (error) txRequest.cancel(error);
       }
     });
 
