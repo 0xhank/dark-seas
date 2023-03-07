@@ -17,8 +17,8 @@ export type ChainSpec = {
   stream?: string;
 };
 
-// const dev = window.location.href.includes("localhost");
-const dev = false;
+const dev = window.location.href.includes("localhost");
+// const dev = false;
 export const getChainSpec = (): ChainSpec => {
   return dev ? devChainSpec : chainSpec;
 };

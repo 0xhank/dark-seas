@@ -78,12 +78,12 @@ export function createTxQueue<C extends Contracts>(
   ): Promise<{
     hash: string;
     wait: () => Promise<TransactionReceipt>;
-    response: Promise<ReturnTypeStrict<typeof target[typeof prop]>>;
+    response: Promise<ReturnTypeStrict<(typeof target)[typeof prop]>>;
   }> {
     const [resolve, reject, promise] = deferred<{
       hash: string;
       wait: () => Promise<TransactionReceipt>;
-      response: Promise<ReturnTypeStrict<typeof target[typeof prop]>>;
+      response: Promise<ReturnTypeStrict<(typeof target)[typeof prop]>>;
     }>();
 
     // Extract existing overrides from function call
@@ -116,14 +116,16 @@ export function createTxQueue<C extends Contracts>(
         }
         // Populate config
         const configOverrides = {
-          maxPriorityFeePerGas: gasPrice$.getValue() * 2,
-          maxFeePerGas: gasPrice$.getValue() * 4,
+          maxPriorityFeePerGas: gasPrice$.getValue(),
+          maxFeePerGas: gasPrice$.getValue(),
           ...overrides,
           nonce,
           gasLimit,
         };
-        if (options?.devMode) configOverrides.maxPriorityFeePerGas = 0;
-
+        if (options?.devMode) {
+          configOverrides.maxPriorityFeePerGas = 0;
+          configOverrides.maxFeePerGas = 0;
+        }
         // Populate tx
         const populatedTx = await member(...argsWithoutOverrides, configOverrides);
         populatedTx.nonce = nonce;
@@ -143,7 +145,9 @@ export function createTxQueue<C extends Contracts>(
           const tx = await target.signer.sendTransaction(populatedTx);
           hash = tx.hash;
         }
-        const response = target.provider.getTransaction(hash) as Promise<ReturnTypeStrict<typeof target[typeof prop]>>;
+        const response = target.provider.getTransaction(hash) as Promise<
+          ReturnTypeStrict<(typeof target)[typeof prop]>
+        >;
         // This promise is awaited asynchronously in the tx queue and the action queue to catch errors
         const wait = async () => (await response).wait();
         // Resolved value goes to the initiator of the transaction
