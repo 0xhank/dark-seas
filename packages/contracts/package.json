@@ -24,7 +24,7 @@
     "@ethersproject/abi": "^5.7.0",
     "@ethersproject/bytes": "^5.7.0",
     "@ethersproject/providers": "^5.7.0",
-    "@latticexyz/cli": "1.40.0",
+    "@latticexyz/cli": "1.39.0",
     "@latticexyz/noise": "^1.40.0",
     "@latticexyz/solecs": "1.40.0",
     "@latticexyz/std-contracts": "1.40.0",
