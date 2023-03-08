@@ -18,7 +18,7 @@ export type ChainSpec = {
 };
 
 const dev = window.location.href.includes("localhost");
-const spec = dev ? devChainSpec : chainSpec;
+// const dev = false;
 export const getChainSpec = (): ChainSpec => {
   return dev ? devChainSpec : chainSpec;
 };

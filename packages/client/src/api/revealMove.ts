@@ -47,6 +47,8 @@ export function revealMove(
     execute: ({ moves, salt }) => {
       return systems["ds.system.Move"].executeTyped(moves, salt, {
         gasLimit: 5_000_000,
+        type: 2,
+        gasPrice: undefined,
       });
     },
     metadata: {

@@ -1,23 +1,17 @@
 import { useComponentValue } from "@latticexyz/react";
-import { getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
+import { getComponentEntities, getComponentValueStrict, Has, runQuery } from "@latticexyz/recs";
+import { ActionState } from "@latticexyz/std-client";
 import { useMUD } from "../../../mud/providers/MUDProvider";
 import { usePlayer } from "../../../mud/providers/PlayerProvider";
 import { Category } from "../../../sound";
 import { ActionType } from "../../../types";
 import { Button, Success } from "../../styles/global";
 
-export function ActionButtons({
-  tooEarly,
-  turn,
-  txExecuting,
-}: {
-  tooEarly: boolean;
-  turn: number;
-  txExecuting: boolean;
-}) {
+export function ActionButtons({ tooEarly, turn }: { tooEarly: boolean; turn: number }) {
   const {
     components: { SelectedActions, LastAction },
     utils: { getPlayerShipsWithActions, playSound, clearComponent },
+    actions: { Action },
     api: { submitActions },
   } = useMUD();
 
@@ -38,6 +32,10 @@ export function ActionButtons({
     submitActions(shipsAndActions);
   };
 
+  const txExecuting = !![...runQuery([Has(Action)])].find((entity) => {
+    const action = getComponentValueStrict(Action, entity);
+    return action.state !== ActionState.Complete && Action.world.entities[entity].includes("action");
+  });
   const showExecuting = txExecuting && !acted;
 
   const disabled = tooEarly || cannotAct;

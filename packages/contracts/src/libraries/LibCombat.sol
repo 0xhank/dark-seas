@@ -23,6 +23,7 @@ import { LastHitComponent, ID as LastHitComponentID } from "../components/LastHi
 import { CannonComponent, ID as CannonComponentID } from "../components/CannonComponent.sol";
 import { LoadedComponent, ID as LoadedComponentID } from "../components/LoadedComponent.sol";
 import { BootyComponent, ID as BootyComponentID } from "../components/BootyComponent.sol";
+import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
 import { Coord, Line } from "../libraries/DSTypes.sol";
@@ -30,6 +31,7 @@ import { Coord, Line } from "../libraries/DSTypes.sol";
 // Libraries
 import "./LibVector.sol";
 import "./LibUtils.sol";
+import "./LibTurn.sol";
 import { ABDKMath64x64 as Math } from "abdk-libraries-solidity/ABDKMath64x64.sol";
 
 library LibCombat {
@@ -79,6 +81,11 @@ library LibCombat {
   ) internal {
     if (DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).has(shipEntity)) return;
 
+    require(
+      LibTurn.getCurrentTurn(components) >
+        GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).entryCutoffTurns,
+      "attack: cannot fire before entry cuts off"
+    );
     require(
       CannonComponent(getAddressById(components, CannonComponentID)).has(cannonEntity),
       "attack: entity not a cannon"

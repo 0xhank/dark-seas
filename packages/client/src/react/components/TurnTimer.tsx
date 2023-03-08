@@ -5,6 +5,7 @@ import { useMUD } from "../../mud/providers/MUDProvider";
 import { usePlayer } from "../../mud/providers/PlayerProvider";
 import { Category } from "../../sound";
 import { Phase } from "../../types";
+import { formatTime } from "../../utils/directions";
 import { colors } from "../styles/global";
 import { Cell } from "./Cell";
 
@@ -55,7 +56,13 @@ export function TurnTimer() {
       playSound("tick", Category.UI);
     }
   }
+  const closeTime =
+    Number(gameConfig.startTime) +
+    gameConfig.entryCutoffTurns *
+      (gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength);
 
+  const timeUntilRound = closeTime - time / 1000;
+  if (timeUntilRound == 0) playSound("success", Category.UI);
   const show = phase !== Phase.Reveal;
   return (
     <Cell style={{ ...gridConfig, display: "flex", alignItems: "flex-start", padding: "12px" }}>
@@ -64,6 +71,12 @@ export function TurnTimer() {
           {str}
           {show && <ProgressBar phaseLength={phaseLength} secsLeft={secsLeft} />}
         </InternalContainer>
+        {timeUntilRound > 0 && (
+          <>
+            <div>Entry closes in {formatTime(timeUntilRound)}</div>
+            <div>Cannons disabled until round start</div>
+          </>
+        )}
       </OuterContainer>
     </Cell>
   );
@@ -71,6 +84,7 @@ export function TurnTimer() {
 
 const OuterContainer = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   position: relative;
