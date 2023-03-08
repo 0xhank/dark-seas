@@ -29,9 +29,9 @@ type Payload = {
 };
 app.post("/deploy", async function (req, res) {
   console.log("body:", req.body);
+
   const { dev, configData: data } = req.body as Payload;
-  console.log(dev);
-  console.log(data);
+  const start = Date.now();
   try {
     const dirName = await generateDeployJson(data);
     await generateLibDeploy(path.join(dirName, "deploy.json"), dirName);
@@ -42,6 +42,8 @@ app.post("/deploy", async function (req, res) {
       dev ? devChainSpec.rpc : chainSpec.rpc
     );
     rmSync(dirName, { recursive: true, force: true });
+    const end = Date.now();
+    console.log("time in seconds:", (end - start) / 1000);
     res.send(
       JSON.stringify({
         worldAddress: deployResult.deployedWorldAddress,
@@ -50,6 +52,7 @@ app.post("/deploy", async function (req, res) {
     );
   } catch (e) {
     res.status(500).send(`Error: ${e}`);
+    return;
   }
 });
 

@@ -10,4 +10,3 @@ types/
 broadcast/
 deployments/
 src/libraries/LibDeploy.sol
-LibDeploy.sol
