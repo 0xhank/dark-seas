@@ -22,17 +22,17 @@ const options = program.opts();
 const inputConfig: Config | undefined = options.config
   ? JSON.parse(readFileSync(options.config).toString())
   : undefined;
-const config = {
-  commitPhaseLength: inputConfig?.commitPhaseLength || 25,
-  revealPhaseLength: inputConfig?.revealPhaseLength || 9,
-  actionPhaseLength: inputConfig?.actionPhaseLength || 9,
-  worldSize: inputConfig?.worldSize || 9,
-  perlinSeed: inputConfig?.perlinSeed || 9,
-  entryCutoffTurns: inputConfig?.entryCutoffTurns || 9,
-  buyin: inputConfig?.buyin || 9,
-  respawnAllowed: inputConfig?.respawnAllowed || false,
-  shrinkRate: inputConfig?.shrinkRate || 9,
-  budget: inputConfig?.budget || 9,
+const config = inputConfig || {
+  commitPhaseLength: 25,
+  revealPhaseLength: 9,
+  actionPhaseLength: 25,
+  worldSize: 120,
+  perlinSeed: 69,
+  entryCutoffTurns: 9,
+  buyin: 0,
+  respawnAllowed: false,
+  shrinkRate: 0,
+  budget: 5,
 };
 console.log("config: ", config);
 await generateDeployJson(config, true);

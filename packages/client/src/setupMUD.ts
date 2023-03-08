@@ -1,6 +1,7 @@
 import { createFaucetService, GodID } from "@latticexyz/network";
 import { createPhaserEngine } from "@latticexyz/phaserx";
 import { EntityID, EntityIndex } from "@latticexyz/recs";
+import { createActionSystem } from "@latticexyz/std-client";
 import { ethers } from "ethers";
 import { SystemAbis } from "../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../contracts/types/SystemTypes";
@@ -8,7 +9,6 @@ import { commitMoveAction, respawnAction, revealMoveAction, spawnPlayerAction, s
 import { clientComponents, components } from "./mud/components";
 import { config } from "./mud/config";
 import { createUtilities } from "./mud/utilities";
-import { createActionSystem } from "./mud/utilities/createActionSystem";
 import { setupDevSystems } from "./mud/utilities/setupDevSystems";
 import { setupMUDNetwork } from "./mud/utilities/setupMUDNetwork";
 import { world } from "./mud/world";
