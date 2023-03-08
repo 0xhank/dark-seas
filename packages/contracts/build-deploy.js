@@ -23,7 +23,6 @@ const config = {
 console.log("config: ", config);
 await generateDeployJson(config, true);
 export async function generateDeployJson(config, toMain = false) {
-    console.log("config: ", config);
     const initializerParam = `abi.encode(block.timestamp, ${config.commitPhaseLength}, ${config.revealPhaseLength}, ${config.actionPhaseLength}, ${config.worldSize}, ${config.perlinSeed}, ${config.entryCutoffTurns}, ${config.buyin}, ${config.respawnAllowed}, ${config.shrinkRate}, ${config.budget})`;
     const data = deployData.systems.find((system) => system.name == "InitSystem");
     if (data)

@@ -1,7 +1,8 @@
 import _ from "lodash";
 import { useState } from "react";
 import styled from "styled-components";
-import { Button, Input, ShipContainer } from "../styles/global";
+import { getChainSpec } from "../../mud/config";
+import { Button, colors, Input, ShipContainer } from "../styles/global";
 import { CopyableInput } from "./CopyableInput";
 
 interface Setting {
@@ -10,7 +11,7 @@ interface Setting {
   update: (value: number) => void;
 }
 
-type State = "unsubmitted" | "creating" | "created";
+type State = "unsubmitted" | "creating" | "created" | "failed";
 export function CreateGame() {
   const [commitLength, setCommitLength] = useState(25);
   const [revealLength, setRevealLength] = useState(9);
@@ -40,21 +41,21 @@ export function CreateGame() {
       budget,
     };
     setState("creating");
-
     try {
       const response = await fetch(`http://localhost:3001/deploy`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(configData),
+        body: JSON.stringify({ dev: getChainSpec().dev, configData }),
       });
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
       const { worldAddress, blockNumber } = await response.json();
       setState("created");
-      setUrl(`${window.location.origin}/?worldAddress=${worldAddress}&blockNumber=${blockNumber}`);
+      setUrl(`${window.location.origin}/?worldAddress=${worldAddress}&block=${blockNumber}`);
     } catch (e) {
       console.log("error:", e);
+      setState("failed");
     }
   }
 
@@ -98,9 +99,9 @@ export function CreateGame() {
       <p style={{ fontSize: "1.25rem", textAlign: "center" }}>Avast! Create your world! </p>
       <div style={{ display: "flex", flexDirection: "column", gap: "6px", overflow: "auto" }}>
         {_.chunk(settings, 2).map((row) => (
-          <div style={{ display: "flex", gap: "24px" }}>
+          <div key={`row-${row}`} style={{ display: "flex", gap: "24px" }}>
             {row.map((setting) => (
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1 }} key={`setting-${setting.name}`}>
                 <P>{setting.name}</P>
                 <Input
                   style={{ width: "100%" }}
@@ -114,13 +115,20 @@ export function CreateGame() {
           </div>
         ))}
       </div>
+      {state == "failed" && (
+        <div style={{ color: colors.red, textAlign: "center" }}>Something went wrong. Please try again.</div>
+      )}
       <Button onClick={sendMessage} disabled={disabled}>
-        {state == "unsubmitted" ? "Create Game" : state == "creating" ? "Creating..." : "Enter Game"}
+        {state == "creating"
+          ? "Deploying and initializing your world. This will take ~3 minutes -- please be patient!"
+          : state == "created"
+          ? "Enter Game"
+          : "Create Game"}
       </Button>
       {url !== undefined && (
         <CopyableInput
-          displayValue={"Click here to share game link with your friends"}
-          copyText={`Invite friends to your game here: ${url}️`}
+          displayValue={"Share the game link with friends!"}
+          copyText={`Join my game of Dark Seas! ${url}️`}
           onCopyError={() => {}}
         />
       )}
