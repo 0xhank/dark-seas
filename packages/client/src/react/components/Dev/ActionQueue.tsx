@@ -6,10 +6,10 @@ import { Container } from "../../styles/global";
 import { Cell } from "../Cell";
 
 const gridConfig = {
-  gridRowStart: 4,
-  gridRowEnd: 8,
-  gridColumnStart: 1,
-  gridColumnEnd: 3,
+  gridRowStart: 10,
+  gridRowEnd: 13,
+  gridColumnStart: 3,
+  gridColumnEnd: 13,
 };
 
 export function ActionQueue() {
@@ -17,9 +17,10 @@ export function ActionQueue() {
     actions: { Action },
   } = useMUD();
   useObservableValue(Action.update$);
+
   return (
     <Cell style={gridConfig}>
-      <Container>
+      <Container style={{ display: "none", pointerEvents: "none" }}>
         <p>Actions:</p>
         {[...getComponentEntities(Action)].map((e) => {
           const actionData = getComponentValueStrict(Action, e);
