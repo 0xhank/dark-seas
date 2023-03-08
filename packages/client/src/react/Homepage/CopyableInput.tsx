@@ -33,7 +33,18 @@ export const CopyableInput: React.FC<{
       <Button style={{ width: "100%" }} secondary onClick={() => onCopy(copyText, handleCopySuccess, onCopyError)}>
         {displayValue}
       </Button>
-      <div style={{ position: "absolute", right: 12, color: colors.green }}>{copied && "✓ Copied"}</div>
+      <div
+        style={{
+          position: "absolute",
+          right: 12,
+          color: colors.green,
+          height: "36px",
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        {copied && "✓ Copied"}
+      </div>
     </Container>
   );
 };

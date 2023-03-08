@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { getChainSpec } from "../../mud/config";
 import { Button, colors, Input, ShipContainer } from "../styles/global";
 import { CopyableInput } from "./CopyableInput";
-
 interface Setting {
   name: string;
   value: number;
@@ -41,11 +40,14 @@ export function CreateGame() {
       budget,
     };
     setState("creating");
+    const dev = getChainSpec().dev;
     try {
-      const response = await fetch(`http://localhost:3001/deploy`, {
+      const serverUrl = dev ? "http://localhost" : "http://206.189.254.232";
+      const port = "3001";
+      const response = await fetch(`${serverUrl}:${port}/deploy`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dev: getChainSpec().dev, configData }),
+        body: JSON.stringify({ dev, configData }),
       });
       if (!response.ok) {
         throw new Error("Failed to fetch data");
