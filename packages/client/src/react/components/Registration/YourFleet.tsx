@@ -13,6 +13,7 @@ import { merge } from "rxjs";
 import styled from "styled-components";
 import { useMUD } from "../../../mud/providers/MUDProvider";
 import { world } from "../../../mud/world";
+import { formatTime } from "../../../utils/directions";
 import { Button, colors, Container } from "../../styles/global";
 import { ShipButton } from "./ShipButton";
 
@@ -22,6 +23,7 @@ export function YourFleet({ flex }: { flex: number }) {
     actions: { Action },
     utils: { decodeShipPrototype, getGameConfig },
     api: { spawnPlayer },
+    network: { clock },
     godEntity,
   } = useMUD();
 
@@ -35,7 +37,6 @@ export function YourFleet({ flex }: { flex: number }) {
   }));
 
   const moneySpent = stagedShips.reduce((prev, curr) => prev + curr.price, 0);
-  const registrationClosed = false;
   const spawnActions = [...runQuery([Has(Action)])];
 
   const spawning = !!spawnActions.find((action) => {
@@ -57,9 +58,30 @@ export function YourFleet({ flex }: { flex: number }) {
     );
   };
 
-  const spawnDisabled = spawning || name.length == 0 || stagedShips.length == 0 || registrationClosed;
+  const time = useObservableValue(clock.time$) || 0;
+  const gameConfig = getGameConfig();
+  const closeTime = !gameConfig
+    ? 0
+    : Number(gameConfig.startTime) +
+      gameConfig.entryCutoffTurns *
+        (gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength);
+
+  const timeUntilRound = closeTime - time / 1000;
+  const spawnDisabled = spawning || name.length == 0 || stagedShips.length == 0 || timeUntilRound < 0;
   const onClick = spawning || txFailed ? () => {} : spawn;
-  const content = spawning ? "Spawning..." : txFailed ? "Spawn failed! Try again." : "Register";
+  const content =
+    timeUntilRound < 0 ? (
+      "Entry closed!"
+    ) : spawning ? (
+      "Spawning..."
+    ) : txFailed ? (
+      "Spawn failed! Try again."
+    ) : (
+      <div>
+        <p style={{ fontSize: "1.5rem" }}>Register</p>
+        <p>{formatTime(timeUntilRound)}</p>
+      </div>
+    );
 
   const background = txFailed ? colors.red : colors.gold;
 

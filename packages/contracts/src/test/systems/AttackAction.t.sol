@@ -16,7 +16,7 @@ import { FirepowerComponent, ID as FirepowerComponentID } from "../../components
 import { BootyComponent, ID as BootyComponentID } from "../../components/BootyComponent.sol";
 import { KillsComponent, ID as KillsComponentID } from "../../components/KillsComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../../components/OwnedByComponent.sol";
-
+import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 // Libraries
 import "../../libraries/LibVector.sol";
 import "../../libraries/LibCombat.sol";
@@ -303,6 +303,13 @@ contract AttackActionTest is DarkSeasTest {
     commitSystem = CommitSystem(system(CommitSystemID));
     moveSystem = MoveSystem(system(MoveSystemID));
 
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+
+    gameConfig.entryCutoffTurns = 0;
+
+    GameConfigComponent(getAddressById(components, GameConfigComponentID)).set(GodID, gameConfig);
     delete moves;
     delete actions;
     delete targets;
