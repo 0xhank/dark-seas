@@ -73,11 +73,23 @@ export function TurnTimer() {
         </InternalContainer>
         {timeUntilRound > 0 && (
           <>
-            <div>Entry closes in {formatTime(timeUntilRound)}</div>
-            <div>Cannons disabled until round start</div>
+            <div style={{ opacity: "70%", fontStyle: "italic", fontSize: "1.5rem" }}>
+              Cannons disabled until round start
+            </div>
           </>
         )}
       </OuterContainer>
+      <div
+        style={{
+          position: "fixed",
+          right: 12,
+          bottom: 12,
+          fontSize: "3rem",
+          color: colors.gold,
+        }}
+      >
+        Round starts in {formatTime(timeUntilRound)}
+      </div>
     </Cell>
   );
 }
