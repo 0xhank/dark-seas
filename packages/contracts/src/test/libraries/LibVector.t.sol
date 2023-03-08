@@ -39,6 +39,19 @@ contract LibVectorTest is DarkSeasTest {
     assertCoordEq(stern, expectedStern);
   }
 
+  function testLinesIntersect() public prank(deployer) {
+    Line memory line1 = Line(Coord(0, 0), Coord(10, 0));
+    Line memory line2 = Line(Coord(0, 5), Coord(5, -5));
+
+    assertTrue(LibVector.linesIntersect(line1, line2));
+    line2 = Line(Coord(0, 5), Coord(10, -5));
+    assertTrue(LibVector.linesIntersect(line1, line2));
+    line2 = Line(Coord(2, 0), Coord(5, 0));
+    assertTrue(!LibVector.linesIntersect(line1, line2));
+    line2 = Line(Coord(2, 20), Coord(5, 40));
+    assertTrue(!LibVector.linesIntersect(line1, line2));
+  }
+
   function testInsidePolygon() public prank(deployer) {
     Coord[] memory polygon = new Coord[](4);
     polygon[0] = Coord({ x: 0, y: 0 });
