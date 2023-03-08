@@ -110,7 +110,7 @@
       "writeAccess": [
         "*"
       ],
-      "initialize": "abi.encode(block.timestamp, 25, 9, 15, 120, 345676, 60, 0, false, 0, 7)"
+      "initialize": "abi.encode(block.timestamp, 25, 9, 9, 9, 9, 9, 9, false, 9, 9)"
     }
   ]
 }

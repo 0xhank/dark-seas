@@ -6,5 +6,5 @@ optimizer = true
 optimizer_runs = 200
 out = "out"
 src = "src"
-test = 'src/test'
+test = "src/test"
 verbosity = 1

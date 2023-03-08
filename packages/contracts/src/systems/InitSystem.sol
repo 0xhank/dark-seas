@@ -24,6 +24,7 @@ contract InitSystem is System {
     MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
     GameConfigComponent gameConfigComponent = GameConfigComponent(getAddressById(components, GameConfigComponentID));
 
+    gameConfigComponent.set(GodID, abi.decode(arguments, (GameConfig)));
     CannonPrototype[] memory cannon6 = new CannonPrototype[](6);
     CannonPrototype[] memory cannon5 = new CannonPrototype[](5);
     CannonPrototype[] memory cannon4 = new CannonPrototype[](4);
@@ -111,26 +112,6 @@ contract InitSystem is System {
     LibCreateShip.createShip(
       components,
       ShipPrototype({ price: 5, length: 13, maxHealth: 8, speed: 110, cannons: cannon5, name: "Victory" })
-    );
-
-    gameConfigComponent.set(
-      GodID,
-      GameConfig({
-        startTime: block.timestamp,
-        commitPhaseLength: 25,
-        revealPhaseLength: 9,
-        actionPhaseLength: 25,
-        worldSize: 160,
-        perlinSeed: 454520,
-        entryCutoffTurns: 500, // entry is closed after the 60th turn (~1 hour)
-        buyin: 0,
-        respawnAllowed: false,
-        // Calculation: Every turn, the world shrinks by gameConfig.shrinkrate / 100.
-        // If shrink rate is 100, the world will shrink by 1 each turn.
-        // Shrinking starts once entry is cutoff and ends when the world size is 50.
-        shrinkRate: 500,
-        budget: 5
-      })
     );
 
     // Initialize Prototypes

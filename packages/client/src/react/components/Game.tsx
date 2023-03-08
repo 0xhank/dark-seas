@@ -5,8 +5,6 @@ import { useMUD } from "../../mud/providers/MUDProvider";
 import { PlayerProvider } from "../../mud/providers/PlayerProvider";
 import { BootScreen } from "./BootScreen";
 import { DamageChance } from "./DamageChance";
-import { ActionQueue } from "./Dev/ActionQueue";
-import { ComponentBrowser } from "./Dev/ComponentBrowser";
 import { EmergencyActions } from "./EmergencyActions";
 import { HoveredShip } from "./HoveredShip";
 import { Modal } from "./Modals/Modal";
@@ -56,8 +54,9 @@ export function Game() {
       )}
       <Modal />
       <Settings />
-      <ComponentBrowser />
-      <ActionQueue />
+      <Modal />
+      {/* <ComponentBrowser /> */}
+      {/* <ActionQueue /> */}
     </UIGrid>
   );
 }
