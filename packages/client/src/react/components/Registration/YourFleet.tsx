@@ -99,7 +99,10 @@ export function YourFleet({ flex }: { flex: number }) {
 
       <ShipButtons>
         {stagedShips.map((ship, index) => (
-          <ShipButton prototypeEntity={ship.entity}>
+          <div style={{ position: "relative" }} key={`fleet-ship-${ship.entity}`}>
+            <div style={{ width: "100%", position: "absolute" }}>
+              <ShipButton prototypeEntity={ship.entity} />
+            </div>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -123,7 +126,7 @@ export function YourFleet({ flex }: { flex: number }) {
                 }}
               />
             </button>
-          </ShipButton>
+          </div>
         ))}
       </ShipButtons>
       <div style={{ display: "flex", gap: "6px", width: "100%" }}>

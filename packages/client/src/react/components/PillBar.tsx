@@ -1,18 +1,7 @@
-import { EntityIndex } from "@latticexyz/recs";
 import { chunk } from "lodash";
 import styled from "styled-components";
 import { colors } from "../styles/global";
-export default function PillBar({
-  maxStat,
-  stat,
-  key,
-  title,
-}: {
-  stat: number | string;
-  maxStat: number;
-  key: EntityIndex | string;
-  title?: string;
-}) {
+export default function PillBar({ maxStat, stat, title }: { stat: number | string; maxStat: number; title?: string }) {
   let content = null;
   let color = colors.red;
 
@@ -27,7 +16,7 @@ export default function PillBar({
     }
     content = chunk(Array(maxStat).fill(0), 2).map((val, idx) => {
       return (
-        <div style={{ display: "flex", gap: "0", flex: 1 }} key={`hull-stat-${key}-${idx * 2}`}>
+        <div style={{ display: "flex", gap: "0", flex: 1 }} key={`hull-stat-${idx * 2}`}>
           <Stat show={idx * 2 < stat} left color={color} />
           {idx * 2 + 1 < maxStat ? <Stat show={idx * 2 + 1 < stat} color={color} /> : <div style={{ flex: 1 }} />}
         </div>

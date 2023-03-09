@@ -138,24 +138,9 @@ export function ShipDetails({ flex }: { flex: number }) {
           >
             {prototypeEntity ? (
               <>
-                <PillBar
-                  stat={maxHealth}
-                  maxStat={Math.max(maxHealth, 10)}
-                  key={`${prototypeEntity}-health`}
-                  title="health"
-                />
-                <PillBar
-                  stat={length}
-                  maxStat={Math.max(length, 16)}
-                  key={`${prototypeEntity}-length`}
-                  title="length"
-                />
-                <PillBar
-                  stat={speed / 10}
-                  maxStat={Math.max(speed / 10, 16)}
-                  key={`${prototypeEntity}-speed`}
-                  title="speed"
-                />
+                <PillBar stat={maxHealth} maxStat={Math.max(maxHealth, 10)} title="health" />
+                <PillBar stat={length} maxStat={Math.max(length, 16)} title="length" />
+                <PillBar stat={speed / 10} maxStat={Math.max(speed / 10, 16)} title="speed" />
               </>
             ) : (
               <p style={{ color: colors.darkGray }}>No ship selected</p>
@@ -175,18 +160,8 @@ export function ShipDetails({ flex }: { flex: number }) {
           >
             {prototypeEntity ? (
               <>
-                <PillBar
-                  stat={firepower / 5}
-                  maxStat={Math.max(firepower / 5, 16)}
-                  key={`${activeCannon}-firepower`}
-                  title="firepower"
-                />
-                <PillBar
-                  stat={range / 12}
-                  maxStat={Math.max(range / 12, 16)}
-                  key={`${activeCannon}-range`}
-                  title="range"
-                />
+                <PillBar stat={firepower / 5} maxStat={Math.max(firepower / 5, 16)} title="firepower" />
+                <PillBar stat={range / 12} maxStat={Math.max(range / 12, 16)} title="range" />
               </>
             ) : (
               <p style={{ color: colors.darkGray }}>No ship selected</p>
