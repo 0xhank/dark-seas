@@ -6,7 +6,6 @@ import { Button, colors, Input, ShipContainer } from "../styles/global";
 export function JoinGame() {
   const [worldAddress, setWorldAddress] = useState<string>("");
   const [blockNumber, setBlockNumber] = useState<number>();
-  console.log(window.location.hostname);
   const validAddress = ethers.utils.isAddress(worldAddress);
   return (
     <Container onClick={(e) => e.stopPropagation()}>

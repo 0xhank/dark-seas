@@ -99,31 +99,30 @@ export function YourFleet({ flex }: { flex: number }) {
 
       <ShipButtons>
         {stagedShips.map((ship, index) => (
-          <ShipButton prototypeEntity={ship.entity}>
+          <div style={{ display: "flex", gap: "6px" }} key={`fleet-ship-${ship.entity}`}>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 removeShip(index);
               }}
               style={{
-                position: "absolute",
-                top: "4px",
-                right: "4px",
-                background: "transparent",
+                background: colors.red,
                 border: "none",
+                borderRadius: "6px",
                 cursor: "pointer",
               }}
             >
               <img
                 src={"/icons/close.svg"}
                 style={{
-                  height: "14px",
+                  height: "24px",
                   width: "14px",
-                  filter: "invert(14%) sepia(72%) saturate(7185%) hue-rotate(355deg) brightness(95%) contrast(119%)",
+                  // filter: "invert(100%)",
                 }}
               />
             </button>
-          </ShipButton>
+            <ShipButton prototypeEntity={ship.entity} />
+          </div>
         ))}
       </ShipButtons>
       <div style={{ display: "flex", gap: "6px", width: "100%" }}>
