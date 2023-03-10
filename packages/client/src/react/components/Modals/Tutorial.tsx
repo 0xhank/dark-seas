@@ -32,15 +32,18 @@ export function Tutorial() {
         </CannonActionContainer>
         <SpecialActionContainer>
           <H5>Special actions</H5>
-          <P>This is your ship's status bar. </P>
-          <TutorialImg src="/img/tutorial/ship_stats.png"></TutorialImg>
-          <div style={{ display: "flex", width: "80%", gap: "6px" }}>
-            <P>If your ship takes special damage, repair it from the status bar.</P>
+          <P>
+            <TutorialImg style={{ width: "33%", float: "right" }} src="/img/tutorial/ship_stats.png"></TutorialImg>
+            This is your ship's status bar. Use it to see your ship's <strong>Health</strong>,{" "}
+            <strong>Sail Position</strong>, and <strong>Staged Actions</strong>.
+          </P>
+          <P>
             <TutorialImg
               src="/img/tutorial/special_actions.png"
-              style={{ width: "40%", height: "fit-content" }}
+              style={{ float: "right", width: "40%", height: "fit-content" }}
             ></TutorialImg>
-          </div>
+            If your ship takes special damage, repair it from the Emergencies bar beneath the ship.
+          </P>
         </SpecialActionContainer>
       </div>
     </TutorialContainer>
@@ -114,6 +117,7 @@ const MoveOptionContainer = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 2rem;
+  border-right: 1px solid ${colors.darkBrown};
 `;
 
 const ActionTitleContainer = styled.div`
@@ -133,8 +137,7 @@ const CannonActionContainer = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 6px;
-  border-right: 1px solid ${colors.brown};
-
+  border-right: 1px solid ${colors.darkBrown};
   gap: 1rem;
 `;
 
