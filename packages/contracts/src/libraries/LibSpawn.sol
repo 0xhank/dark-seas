@@ -77,7 +77,7 @@ library LibSpawn {
       x = worldWidth;
       y = (LibUtils.getByteUInt(r, 14, 14) % worldHeight);
     }
-    int32 buffer = 40;
+    int32 buffer = 10;
     int32 retY = r % 4 < 2 ? int32(uint32(y)) - buffer : buffer - int32(uint32(y));
     int32 retX = r % 8 < 4 ? int32(uint32(x)) - buffer : buffer - int32(uint32(x));
     return Coord(retX, retY);
@@ -105,16 +105,16 @@ library LibSpawn {
       GodID
     );
     // uint256 prototypeRandomness = uint256(keccak256(abi.encode(shipPrototypes)));
-    Coord memory startingPosition = getRandomPosition(components, LibUtils.randomness(1, playerEntity));
+    Coord memory position = getRandomPosition(components, LibUtils.randomness(1, playerEntity));
 
-    uint32 rotation = pointKindaTowardsTheCenter(startingPosition);
+    uint32 rotation = pointKindaTowardsTheCenter(position);
     uint32 spent = 0;
     for (uint256 i = 0; i < shipPrototypes.length; i++) {
       uint32 price = spawnShip(
         components,
         world,
         playerEntity,
-        startingPosition,
+        position,
         rotation,
         shipPrototypes[i],
         gameConfig.buyin
@@ -122,7 +122,11 @@ library LibSpawn {
       spent += price;
 
       require(spent <= gameConfig.budget, "LibSpawn: ships too expensive");
-      startingPosition = Coord(startingPosition.x + 20, startingPosition.y);
+
+      position = Coord(
+        position.x + (position.x >= 0 ? -15 : int32(15)),
+        position.y + (position.y >= 0 ? -15 : int32(15))
+      );
     }
 
     LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 0);
