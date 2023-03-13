@@ -53,6 +53,10 @@ export function localHealthSystems(MUD: SetupResult) {
 
     shipObject.setTexture(sprite.assetKey, sprite.frame);
 
+    shipObject.setInteractive({ cursor: "pointer" });
+    shipObject.on("pointerover", () => setComponent(HoveredShip, godEntity, { value: shipEntity }));
+    shipObject.off("pointerdown");
+    shipObject.on("pointerout", () => removeComponent(HoveredShip, godEntity));
     if (health <= 0) {
       const contractHealth = getComponentValueStrict(Health, shipEntity).value;
       if (contractHealth !== health) {
@@ -65,21 +69,10 @@ export function localHealthSystems(MUD: SetupResult) {
       removeComponent(SelectedMove, shipEntity);
       shipObject.setAlpha(0.5);
       shipObject.setDepth(RenderDepth.Foreground4);
-      shipObject.off("pointerdown");
-      shipObject.off("pointerover");
-      shipObject.off("pointerout");
-      shipObject.disableInteractive();
     } else {
       shipObject.setAlpha(1);
       shipObject.setDepth(RenderDepth.Foreground3);
-      shipObject.setInteractive({ cursor: "pointer" });
-      shipObject.off("pointerdown");
-      shipObject.off("pointerover");
-      shipObject.off("pointerout");
-
       shipObject.on("pointerdown", () => setComponent(SelectedShip, godEntity, { value: shipEntity }));
-      shipObject.on("pointerover", () => setComponent(HoveredShip, godEntity, { value: shipEntity }));
-      shipObject.on("pointerout", () => removeComponent(HoveredShip, godEntity));
     }
   });
 

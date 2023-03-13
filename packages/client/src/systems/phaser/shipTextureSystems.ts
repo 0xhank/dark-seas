@@ -63,23 +63,17 @@ export function shipTextureSystems(MUD: SetupResult) {
 
       object.setTexture(sprite.assetKey, sprite.frame);
 
+      object.setInteractive({ cursor: "pointer" });
+      object.off("pointerup");
+      object.on("pointerout", () => removeComponent(HoveredShip, godEntity));
+      object.on("pointerover", () => setComponent(HoveredShip, godEntity, { value: shipEntity }));
       if (health == 0) {
         object.setAlpha(0.5);
         object.setDepth(RenderDepth.Foreground4);
       } else {
         object.setAlpha(1);
         object.setDepth(RenderDepth.Foreground3);
-      }
-      object.off("pointerup");
-      object.off("pointerover");
-      object.off("pointerout");
-      if (health == 0) {
-        object.disableInteractive();
-      } else {
-        object.setInteractive({ cursor: "pointer" });
         object.on("pointerup", () => setComponent(SelectedShip, godEntity, { value: shipEntity }));
-        object.on("pointerover", () => setComponent(HoveredShip, godEntity, { value: shipEntity }));
-        object.on("pointerout", () => removeComponent(HoveredShip, godEntity));
       }
 
       const shipLength = length * POS_WIDTH * 1.25;
