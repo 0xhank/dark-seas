@@ -41,10 +41,7 @@ contract DamageTest is DarkSeasTest {
     DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
       getAddressById(components, DamagedCannonsComponentID)
     );
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
     uint256 attackerEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
-    uint256 defenderEntity = spawnShip(Coord({ x: 9, y: 25 }), 0, deployer);
-    uint32 origHealth = healthComponent.getValue(defenderEntity);
 
     componentDevSystem.executeTyped(DamagedCannonsComponentID, attackerEntity, abi.encode(2));
     assertEq(damagedCannonsComponent.getValue(attackerEntity), 2);
@@ -96,7 +93,6 @@ contract DamageTest is DarkSeasTest {
   function testFireDeathNoAttacker() public prank(deployer) {
     setup();
     uint256 shipEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
-    OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
 
     componentDevSystem.executeTyped(HealthComponentID, shipEntity, abi.encode(1));

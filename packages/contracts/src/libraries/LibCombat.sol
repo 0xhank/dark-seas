@@ -107,7 +107,6 @@ library LibCombat {
       }
     }
 
-    uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
     executeAttack(components, shipEntity, cannonEntity, targetEntities);
   }
 
@@ -124,7 +123,6 @@ library LibCombat {
     uint256 cannonEntity,
     uint256[] memory targetEntities
   ) private {
-    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
     uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
     uint32 kills = KillsComponent(getAddressById(components, KillsComponentID)).getValue(shipEntity);
     firepower = (firepower * (10 + kills)) / 10;
@@ -316,14 +314,14 @@ library LibCombat {
     uint32 shipRotation = rotationComponent.getValue(shipEntity);
     uint32 cannonRotation = rotationComponent.getValue(cannonEntity);
     uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
+    Coord memory frontCorner;
+    Coord memory backCorner;
+    Coord[] memory ret;
     if (cannonRotation == 90 || cannonRotation == 270) {
       uint32 rightRange = (cannonRotation + 10) % 360;
       uint32 leftRange = (cannonRotation + 350) % 360;
 
       Coord memory sternPosition = LibVector.getSternPosition(position, shipRotation, length);
-
-      Coord memory frontCorner;
-      Coord memory backCorner;
 
       // if the stern is above the bow, switch the corners to ensure the quadrilateral doesn't cross in the middle
       if (cannonRotation % 360 >= 180) {
@@ -333,7 +331,7 @@ library LibCombat {
         frontCorner = LibVector.getPositionByVector(position, shipRotation, range, leftRange);
         backCorner = LibVector.getPositionByVector(sternPosition, shipRotation, range, rightRange);
       }
-      Coord[] memory ret = new Coord[](4);
+      ret = new Coord[](4);
       ret[0] = position;
       ret[1] = sternPosition;
       ret[2] = backCorner;
@@ -344,19 +342,9 @@ library LibCombat {
     if (cannonRotation >= 90 && cannonRotation < 270) {
       position = LibVector.getSternPosition(position, shipRotation, length);
     }
-    Coord memory frontCorner = LibVector.getPositionByVector(
-      position,
-      shipRotation,
-      range,
-      (cannonRotation + 10) % 360
-    );
-    Coord memory backCorner = LibVector.getPositionByVector(
-      position,
-      shipRotation,
-      range,
-      (cannonRotation + 350) % 360
-    );
-    Coord[] memory ret = new Coord[](3);
+    frontCorner = LibVector.getPositionByVector(position, shipRotation, range, (cannonRotation + 10) % 360);
+    backCorner = LibVector.getPositionByVector(position, shipRotation, range, (cannonRotation + 350) % 360);
+    ret = new Coord[](3);
     ret[0] = position;
     ret[1] = backCorner;
     ret[2] = frontCorner;

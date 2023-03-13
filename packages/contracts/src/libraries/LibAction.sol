@@ -88,7 +88,6 @@ library LibAction {
    */
   function applySpecialDamage(IUint256Component components, uint256 shipEntity) private {
     OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
 
     // if ship has a damaged mast, reduce hull health by 1
     if (onFireComponent.has(shipEntity)) {
