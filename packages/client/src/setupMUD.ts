@@ -13,6 +13,8 @@ import { setupDevSystems } from "./mud/utilities/setupDevSystems";
 import { setupMUDNetwork } from "./mud/utilities/setupMUDNetwork";
 import { world } from "./mud/world";
 import { phaserConfig } from "./phaser/config";
+import { createBackendSystems } from "./systems/backend/index";
+import { createPhaserSystems } from "./systems/phaser/index";
 import { Action, Move } from "./types";
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -21,33 +23,71 @@ import { Action, Move } from "./types";
 
 export type SetupResult = Awaited<ReturnType<typeof setupMUD>>;
 
+type mudNetwork = Awaited<ReturnType<typeof setupMUDNetwork>>;
+let MUDNetwork: mudNetwork | undefined = undefined;
+let phaser: Awaited<ReturnType<typeof createPhaserEngine>> | undefined = undefined;
 export async function setupMUD() {
   console.info(`Booting with network config:`, config);
 
-  const res = await setupMUDNetwork<typeof components, SystemTypes>(config, world, components, SystemAbis, {
-    fetchSystemCalls: true,
-    // initialGasPrice: 10000,
+  async function bootGame() {
+    let n = MUDNetwork;
+    let p = phaser;
+    if (!n)
+      n = await setupMUDNetwork<typeof components, SystemTypes>(config, world, components, SystemAbis, {
+        fetchSystemCalls: true,
+        // initialGasPrice: 10000,
+      });
+    if (!p) {
+      p = await createPhaserEngine(phaserConfig);
+      world.registerDisposer(p.dispose);
+    }
+    return { n, p };
+  }
+  const { n, p } = await bootGame();
+  MUDNetwork = n;
+  phaser = p;
+  if (import.meta.hot) {
+    import.meta.hot.accept("./systems/phaser/index.ts", async (module) => {
+      console.log("updating from module");
+      world.dispose();
+      phaser?.dispose();
+      phaser = undefined;
+      bootGame();
+    });
+  }
+  import.meta.hot?.accept("./systems/backend/index.ts", async (module) => {
+    world.dispose();
+    MUDNetwork = undefined;
+    await bootGame();
   });
 
-  const { systems, network, systemCallStreams, txReduced$, encoders } = res;
-  res.startSync();
+  if (!MUDNetwork || !phaser) throw new Error("network or phaser not created properly");
+  console.log("phaser: ", phaser);
+  console.log("mud network:", MUDNetwork);
+  const {
+    systems,
+    network,
+    systemCallStreams,
+    txReduced$,
+    encoders,
+    startSync,
+    components: networkComponents,
+  } = MUDNetwork;
+  const { game, scenes } = phaser;
+  startSync();
 
   // For LoadingState updatesk
   const godEntity = world.registerEntity({ id: GodID });
 
   // Register player entity
-  const playerAddress = res.network.connectedAddress.get();
+  const playerAddress = network.connectedAddress.get();
   if (!playerAddress) throw new Error("Not connected");
 
   // Faucet setup
   const faucetUrl = "https://faucet.testnet-mud-services.linfra.xyz";
 
-  const { game, scenes, dispose: disposePhaser } = await createPhaserEngine(phaserConfig);
-  world.registerDisposer(disposePhaser);
-
   if (!config.devMode) {
     const faucet = createFaucetService(faucetUrl);
-    const address = network.connectedAddress.get();
 
     const requestDrip = async () => {
       const balance = await network.signer.get()?.getBalance();
@@ -55,9 +95,12 @@ export async function setupMUD() {
       if (playerIsBroke) {
         console.info(`[Dev Faucet]: Player Balance -> ${balance}, dripping funds`);
         // Double drip
-        address && (await faucet?.dripDev({ address })) && (await faucet?.dripDev({ address }));
-        address && (await faucet?.dripDev({ address })) && (await faucet?.dripDev({ address }));
-        address && (await faucet?.dripDev({ address })) && (await faucet?.dripDev({ address }));
+        playerAddress &&
+          (await faucet?.dripDev({ address: playerAddress })) &&
+          (await faucet?.dripDev({ address: playerAddress }));
+        playerAddress &&
+          (await faucet?.dripDev({ address: playerAddress })) &&
+          (await faucet?.dripDev({ address: playerAddress }));
         const newBalance = await network.signer.get()?.getBalance();
         console.info(`[Dev Faucet]: Player dripped, new balance: ${newBalance}`);
       }
@@ -69,7 +112,6 @@ export async function setupMUD() {
   }
 
   // --- UTILITIES ------------------------------------------------------------------
-
   const actions = createActionSystem(world, txReduced$);
   const utils = await createUtilities(godEntity, playerAddress, network.clock, scenes.Main.phaserScene);
   // --- API ------------------------------------------------------------------------
@@ -103,7 +145,7 @@ export async function setupMUD() {
     playerAddress,
     network,
     components: {
-      ...res.components,
+      ...networkComponents,
       ...clientComponents,
     },
     api: { revealMove, submitActions, spawnPlayer, commitMove, respawn },
@@ -114,5 +156,7 @@ export async function setupMUD() {
   };
 
   (window as any).ds = context;
+  createBackendSystems(context);
+  createPhaserSystems(context);
   return context;
 }
