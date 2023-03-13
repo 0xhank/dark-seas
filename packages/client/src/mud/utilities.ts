@@ -561,9 +561,10 @@ export async function createUtilities(
   function renderMovePath(shipEntity: EntityIndex, objectId: string, finalPosition: Coord) {
     const origin = getComponentValueStrict(components.Position, shipEntity);
     const initialRotation = getComponentValueStrict(components.Rotation, shipEntity).value;
-    const midpoint = getPositionByVector(origin, initialRotation, 20, 0);
+    const midpoint = getPositionByVector(origin, initialRotation, distance(finalPosition, origin) / 2, 0);
 
     const points = [origin, midpoint, finalPosition].map((coord) => {
+      console.log("point", coord);
       const pixelPos = tileCoordToPixelCoord(coord, POS_HEIGHT, POS_WIDTH);
       return new Phaser.Math.Vector2(pixelPos.x, pixelPos.y);
     });

@@ -55,7 +55,6 @@ export function cameraControlSystems(MUD: SetupResult) {
 
   const rawMouseMove$ = fromEvent<MouseEvent>(document, "mousemove");
   const screenEdgeCameraMovement$ = merge(interval(2), rawMouseMove$).pipe(
-    filter(() => !!document.fullscreenElement),
     throttleTime(2),
     scan<number | MouseEvent, MouseEvent | undefined>((acc, event) => {
       if (typeof event == "number") return acc;
