@@ -24,6 +24,7 @@ export function Game() {
   // re render when a player is added
   useObservableValue(Player.update$);
   const playerEntity = getPlayerEntity();
+  const spectating = useComponentValue(Player, playerEntity)?.value == -1;
   const loadingState = useComponentValue(LoadingState, godEntity, {
     state: SyncState.CONNECTING,
     msg: "Connecting",
@@ -45,7 +46,7 @@ export function Game() {
       {playerEntity ? (
         <PlayerProvider value={playerEntity}>
           <TurnTimer />
-          <SideBar />
+          {!spectating && <SideBar />}
           <HoveredShip />
           <DamageChance />
           <EmergencyActions />

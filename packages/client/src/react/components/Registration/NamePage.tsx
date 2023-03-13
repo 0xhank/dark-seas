@@ -1,13 +1,15 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
-import { setComponent } from "@latticexyz/recs";
+import { EntityID, setComponent } from "@latticexyz/recs";
 import { useMUD } from "../../../mud/providers/MUDProvider";
+import { world } from "../../../mud/world";
 import { ModalType } from "../../../types";
 import { formatTime } from "../../../utils/directions";
 import { Button, colors, Input } from "../../styles/global";
 
 export function NamePage({ selectFleet }: { selectFleet: () => void }) {
   const {
-    components: { Name, ModalOpen, GameConfig },
+    components: { Name, ModalOpen, GameConfig, Player },
+    playerAddress,
     godEntity,
     network: { clock },
   } = useMUD();
@@ -27,7 +29,11 @@ export function NamePage({ selectFleet }: { selectFleet: () => void }) {
   const findSpawnButtonDisabled = name.length === 0 || timeUntilRound < 0;
 
   const openTutorial = () => setComponent(ModalOpen, ModalType.TUTORIAL, { value: true });
-
+  const spectate = () => {
+    const playerEntity = world.registerEntity({ id: playerAddress as EntityID });
+    // setting player to -1 tells Game.tsx that we are spectating
+    setComponent(Player, playerEntity, { value: -1 });
+  };
   return (
     <div
       style={{
@@ -56,12 +62,15 @@ export function NamePage({ selectFleet }: { selectFleet: () => void }) {
       ) : (
         <h1>Game Starts in {formatTime(timeUntilRound)}</h1>
       )}
+      <Button style={{ minWidth: "33%" }} disabled={findSpawnButtonDisabled} onClick={selectFleet}>
+        Continue
+      </Button>
       <div style={{ display: "flex", gap: "8px", minWidth: "33%" }}>
         <Button style={{ flex: 1 }} secondary onClick={openTutorial}>
           How to Play
         </Button>
-        <Button style={{ flex: 2 }} disabled={findSpawnButtonDisabled} onClick={selectFleet}>
-          Continue
+        <Button style={{ flex: 1 }} secondary onClick={spectate}>
+          Spectate
         </Button>
       </div>
     </div>
