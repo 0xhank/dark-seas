@@ -570,8 +570,7 @@ export async function createUtilities(
     console.log("rotation: ", rotation);
     direction = direction > 180 ? 360 - direction : direction;
     rotation = rotation > 180 ? 360 - rotation : rotation;
-    rotation = rotation < 45 ? rotation + 45 : rotation;
-    console.log("direction: ", direction);
+
     const origin = getComponentValueStrict(components.Position, shipEntity);
     const initialRotation = getComponentValueStrict(components.Rotation, shipEntity).value;
 
@@ -584,7 +583,6 @@ export async function createUtilities(
     const midpoint = getPositionByVector(origin, initialRotation, finalDistance, 0);
 
     const points = [origin, midpoint, finalPosition].map((coord) => {
-      console.log("point", coord);
       const pixelPos = tileCoordToPixelCoord(coord, POS_HEIGHT, POS_WIDTH);
       return new Phaser.Math.Vector2(pixelPos.x, pixelPos.y);
     });
