@@ -86,7 +86,7 @@ export function shipTextureSystems(MUD: SetupResult) {
       object.setAngle((rotation - 90) % 360);
       object.setPosition(x, y);
 
-      if (playerEntity == ownerEntity) camera.centerOn(position.x * POS_WIDTH, position.y * POS_HEIGHT + 400);
+      if (playerEntity == ownerEntity) camera.centerOn(position.x * POS_WIDTH, position.y * POS_HEIGHT);
 
       const onFire = getComponentValue(OnFire, shipEntity)?.value || 0;
       setComponent(OnFireLocal, shipEntity, { value: onFire });

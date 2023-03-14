@@ -1,27 +1,11 @@
 import { useComponentValue } from "@latticexyz/react";
-import { EntityIndex, removeComponent } from "@latticexyz/recs";
+import { removeComponent } from "@latticexyz/recs";
 import { useMUD } from "../../../mud/providers/MUDProvider";
 import { ModalType } from "../../../types";
 import { Container } from "../../styles/global";
 import { Cell } from "../Cell";
 import { Leaderboard } from "./Leaderboard";
 import { Tutorial } from "./Tutorial";
-
-export type ShipData = {
-  name: string;
-  health: number;
-  kills: number;
-  booty: number;
-  owner: string;
-};
-
-export type PlayerData = {
-  playerEntity: EntityIndex;
-  name: string;
-  health: number;
-  kills: number;
-  booty: number;
-};
 
 const gridConfig = {
   gridRowStart: 1,
