@@ -17,7 +17,6 @@ export function ActionQueue() {
     actions: { Action },
   } = useMUD();
   useObservableValue(Action.update$);
-
   return (
     <Cell style={gridConfig}>
       <Container style={{ display: "none", pointerEvents: "none" }}>
