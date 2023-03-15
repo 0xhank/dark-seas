@@ -4,9 +4,10 @@ import { Button } from "../../styles/global";
 
 const TableElement = styled.table`
   width: 100%;
-  overflow-y: hidden;
+  overflow-y: auto;
   scrollbar-width: initial;
   border-radius: 6px;
+  border-collapse: collapse;
 `;
 
 const ScrollableBody = styled.tbody`
@@ -72,9 +73,12 @@ export function Table<T>({
 
         <ScrollableBody>
           {visibleRows.map((row: T, rowIdx: number) => (
-            <tr key={rowIdx}>
+            <tr key={rowIdx} style={{ padding: "2px" }}>
               {columns.map((column, colIdx) => (
-                <td key={colIdx} style={(alignments && { textAlign: AlignmentOptions[alignments[colIdx]] }) || {}}>
+                <td
+                  key={colIdx}
+                  style={(alignments && { padding: "2px", textAlign: AlignmentOptions[alignments[colIdx]] }) || {}}
+                >
                   {column(row, rowIdx + page * itemsPerPage)}
                 </td>
               ))}

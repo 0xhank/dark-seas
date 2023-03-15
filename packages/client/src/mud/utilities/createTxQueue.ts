@@ -116,8 +116,8 @@ export function createTxQueue<C extends Contracts>(
         }
         // Populate config
         const configOverrides = {
-          maxPriorityFeePerGas: gasPrice$.getValue(),
-          maxFeePerGas: gasPrice$.getValue(),
+          maxPriorityFeePerGas: 100000,
+          maxFeePerGas: 100000,
           ...overrides,
           nonce,
           gasLimit,
