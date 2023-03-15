@@ -141,7 +141,7 @@ export function raiseLowerSailSystems(MUD: SetupResult) {
     circle.setDepth(RenderDepth.Foreground2);
     circle.setInteractive({ cursor: "pointer" });
 
-    circle.on("pointerdown", () => handleNewActionsSpecial(actionType, shipEntity), phaserScene);
+    circle.on("pointerup", () => handleNewActionsSpecial(actionType, shipEntity), phaserScene);
     // circle.on(
     //   "pointerover",
     //   () => setComponent(HoveredAction, godEntity, { shipEntity, actionType, specialEntity: 0 }),

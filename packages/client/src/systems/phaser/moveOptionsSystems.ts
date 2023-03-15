@@ -79,7 +79,7 @@ export function moveOptionsSystems(MUD: SetupResult) {
       const shipObject = renderShip(shipEntity, objectId, finalPosition, finalRotation, shipColor, 0.3);
       if (!shipObject) return;
       shipObject.setInteractive({ cursor: "pointer" });
-      shipObject.on("pointerdown", () => {
+      shipObject.on("pointerup", () => {
         if (!isMyShip(shipEntity)) return;
         if (isSelected) return removeComponent(SelectedMove, shipEntity);
         setComponent(SelectedMove, shipEntity, { value: moveCardEntity });
