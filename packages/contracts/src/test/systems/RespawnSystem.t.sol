@@ -34,7 +34,6 @@ contract RespawnTest is DarkSeasTest {
   function testRevertNoPlayer() public prank(deployer) {
     setup();
 
-    uint256[] memory ships;
     vm.stopPrank();
     vm.startPrank(bob);
     respawnSystem = RespawnSystem(system(RespawnSystemID));

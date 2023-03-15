@@ -64,7 +64,7 @@ export function inputSystems(MUD: SetupResult) {
         setComponent(SelectedShip, godEntity, { value: shipEntity });
         const position = getComponentValue(Position, shipEntity);
         if (!position) return;
-        camera.centerOn(position.x * POS_WIDTH, position.y * POS_HEIGHT + 400);
+        camera.centerOn(position.x * POS_WIDTH, position.y * POS_HEIGHT);
       }
     );
   }

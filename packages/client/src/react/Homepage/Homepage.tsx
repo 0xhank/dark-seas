@@ -4,24 +4,11 @@ import { BackgroundImg, Button } from "../styles/global";
 import { CreateGame } from "./CreateGame";
 import { JoinGame } from "./JoinGame";
 
-const configData = {
-  commitPhaseLength: 25,
-  revealPhaseLength: 9,
-  actionPhaseLength: 25,
-  worldSize: 120,
-  perlinSeed: 345676,
-  entryCutoffTurns: 60,
-  buyin: 0,
-  respawnAllowed: false,
-  shrinkRate: 0,
-  budget: 5,
-};
-
 type ModalOpen = "Create" | "Join" | undefined;
 
 export function HomePage({ showButtons }: { showButtons?: boolean }) {
   const [modalOpen, setModalOpen] = useState<ModalOpen>();
-
+  showButtons = false;
   return (
     <Container>
       <BackgroundImg style={{ zIndex: -1 }} />

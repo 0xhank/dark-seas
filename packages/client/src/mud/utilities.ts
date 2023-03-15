@@ -389,7 +389,7 @@ export async function createUtilities(
     if (retrievedVal != undefined) return retrievedVal;
     const denom = 50;
     const depth = perlin(coord.x + perlinSeed, coord.y + perlinSeed, 0, denom);
-    const ret = depth * 100 < 33;
+    const ret = depth * 100 < 35;
     whirlpoolMap.set(coordStr, ret);
 
     return ret;
@@ -557,11 +557,30 @@ export async function createUtilities(
     if (!group || !group.getChildren()?.length) return;
     group.destroy(true, true);
   }
+  function toRadians(angle: number) {
+    return angle * (Math.PI / 180);
+  }
+  function renderMovePath(
+    shipEntity: EntityIndex,
+    objectId: string,
+    direction: number,
+    rotation: number,
+    finalPosition: Coord
+  ) {
+    console.log("rotation: ", rotation);
+    direction = direction > 180 ? 360 - direction : direction;
+    rotation = rotation > 180 ? 360 - rotation : rotation;
 
-  function renderMovePath(shipEntity: EntityIndex, objectId: string, finalPosition: Coord) {
     const origin = getComponentValueStrict(components.Position, shipEntity);
     const initialRotation = getComponentValueStrict(components.Rotation, shipEntity).value;
-    const midpoint = getPositionByVector(origin, initialRotation, 20, 0);
+
+    const hypoteneuse = distance(finalPosition, origin);
+    console.log("hypoteneuse distance: ", hypoteneuse);
+    const rightDistance = hypoteneuse * Math.cos(toRadians(direction));
+    console.log("right distance: ", rightDistance);
+    const finalDistance = (rightDistance * rotation) / 90;
+    console.log("final distance: ", finalDistance);
+    const midpoint = getPositionByVector(origin, initialRotation, finalDistance, 0);
 
     const points = [origin, midpoint, finalPosition].map((coord) => {
       const pixelPos = tileCoordToPixelCoord(coord, POS_HEIGHT, POS_WIDTH);
@@ -572,7 +591,8 @@ export async function createUtilities(
 
     const graphics = mainScene.add.graphics();
     graphics.lineStyle(8, 0xffffff);
-    path.draw(graphics, 16);
+    // path.draw(graphics, 16);
+    path.draw(graphics);
 
     return graphics;
   }

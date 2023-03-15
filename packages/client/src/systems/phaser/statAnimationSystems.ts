@@ -8,16 +8,15 @@ import {
   HasValue,
   runQuery,
 } from "@latticexyz/recs";
-import { Animations, CANNON_SHOT_DELAY, POS_HEIGHT, POS_WIDTH, RenderDepth } from "../../phaser/constants";
+import { Animations, POS_HEIGHT, POS_WIDTH, RenderDepth } from "../../phaser/constants";
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
-import { Category } from "../../sound";
 import { getSternPosition, midpoint } from "../../utils/trig";
 
 export function statAnimationSystems(MUD: SetupResult) {
   const {
     world,
-    components: { Position, Rotation, Length, Cannon, OwnedBy, HealthLocal, OnFireLocal, DamagedCannonsLocal },
+    components: { Position, Rotation, Length, Cannon, OwnedBy, OnFireLocal, DamagedCannonsLocal },
     scene: { phaserScene },
 
     utils: {
@@ -25,8 +24,6 @@ export function statAnimationSystems(MUD: SetupResult) {
       destroySpriteObject,
       getGroupObject,
       destroyGroupObject,
-      isMyShip,
-      playSound,
       renderCannonFiringArea,
       moveElement,
     },
@@ -92,61 +89,6 @@ export function statAnimationSystems(MUD: SetupResult) {
     }
   }
 
-  defineUpdateSystem(world, [Has(HealthLocal)], ({ entity: shipEntity, value: [newComponent, oldComponent] }) => {
-    if (newComponent?.value == 0) {
-      destroyFire(shipEntity);
-    }
-
-    if (!newComponent?.value || !oldComponent?.value) return;
-
-    if (newComponent.value > oldComponent.value) {
-      flashGreen(shipEntity);
-    }
-
-    if (newComponent?.value !== 0) return;
-
-    for (let i = 0; i < 4; i++) {
-      const spriteId = `${shipEntity}-fire-${i}`;
-      destroySpriteObject(spriteId);
-    }
-  });
-
-  async function flashGreen(shipEntity: EntityIndex) {
-    const object = getSpriteObject(shipEntity);
-    const delay = 1000;
-
-    phaserScene.time.addEvent({
-      delay: CANNON_SHOT_DELAY,
-      callback: function () {
-        object.setTint(colors.greenHex);
-        if (isMyShip(shipEntity)) playSound("success_notif", Category.UI);
-      },
-      callbackScope: phaserScene,
-    });
-
-    phaserScene.time.addEvent({
-      delay: delay + CANNON_SHOT_DELAY,
-      callback: function () {
-        object.clearTint();
-      },
-      callbackScope: phaserScene,
-    });
-    phaserScene.time.addEvent({
-      delay: delay * 2 + CANNON_SHOT_DELAY,
-      callback: function () {
-        object.setTint(colors.greenHex);
-      },
-      callbackScope: phaserScene,
-    });
-
-    phaserScene.time.addEvent({
-      delay: delay * 3 + CANNON_SHOT_DELAY,
-      callback: function () {
-        object.clearTint();
-      },
-      callbackScope: phaserScene,
-    });
-  }
   // BROKEN CANNON UPDATES
 
   defineComponentSystem(world, DamagedCannonsLocal, (update) => {

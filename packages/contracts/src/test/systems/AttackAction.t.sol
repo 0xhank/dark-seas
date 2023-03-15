@@ -260,7 +260,6 @@ contract AttackActionTest is DarkSeasTest {
     setup();
     KillsComponent killsComponent = KillsComponent(getAddressById(components, KillsComponentID));
     BootyComponent bootyComponent = BootyComponent(getAddressById(components, BootyComponentID));
-    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
     uint256 attackerEntity = spawnShip(Coord({ x: 0, y: 0 }), 0, deployer);
     uint256 cannonEntity = LibSpawn.spawnCannon(components, world, attackerEntity, 0, 50, 80);
@@ -323,10 +322,6 @@ contract AttackActionTest is DarkSeasTest {
     uint32 kills = KillsComponent(getAddressById(components, KillsComponentID)).getValue(attackerEntity);
     uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
     firepower = (firepower * (kills + 10)) / 10;
-    uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
-    Coord memory attackerPosition = PositionComponent(getAddressById(components, PositionComponentID)).getValue(
-      attackerEntity
-    );
     (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternPosition(components, defenderEntity);
 
     uint256 randomness = LibUtils.randomness(attackerEntity, defenderEntity);
@@ -341,13 +336,13 @@ contract AttackActionTest is DarkSeasTest {
     } else return 0;
   }
 
-  function commitAndExecuteMove(uint32 turn, Move[] memory moves) internal {
+  function commitAndExecuteMove(uint32 turn, Move[] memory _moves) internal {
     vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Commit));
-    uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
+    uint256 commitment = uint256(keccak256(abi.encode(_moves, 69)));
     commitSystem.executeTyped(commitment);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Reveal));
-    moveSystem.executeTyped(moves, 69);
+    moveSystem.executeTyped(_moves, 69);
   }
 
   function loadAndFireCannon(

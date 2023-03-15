@@ -87,7 +87,7 @@ export function stagedMoveSystems(MUD: SetupResult) {
 
     const length = getComponentValueStrict(Length, shipEntity).value;
     const finalPositionRear = getSternPosition(finalPosition, finalRotation, length);
-    const path = renderMovePath(shipEntity, groupId, finalPositionRear);
+    const path = renderMovePath(shipEntity, groupId, moveCard.direction, moveCard.rotation, finalPositionRear);
 
     const group = getGroupObject(groupId, true);
     group.add(path);
