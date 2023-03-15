@@ -323,7 +323,7 @@ contract MoveSystemTest is DarkSeasTest {
 
   int128 constant _11 = 8 * 2**64;
 
-  function getValue(Coord memory input) public returns (int32 finalResult) {
+  function getValue(Coord memory input) public view returns (int32 finalResult) {
     int128 denom = 15;
     uint8 precision = 64;
     int128 perlinResult = Perlin.noise2d(input.x, input.y, denom, precision);
@@ -373,12 +373,12 @@ contract MoveSystemTest is DarkSeasTest {
     delete moves;
   }
 
-  function commitAndExecuteMove(uint32 turn, Move[] memory moves) internal {
+  function commitAndExecuteMove(uint32 turn, Move[] memory _moves) internal {
     vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Commit));
-    uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
+    uint256 commitment = uint256(keccak256(abi.encode(_moves, 69)));
     commitSystem.executeTyped(commitment);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Reveal));
-    moveSystem.executeTyped(moves, 69);
+    moveSystem.executeTyped(_moves, 69);
   }
 }

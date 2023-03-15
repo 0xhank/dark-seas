@@ -6,5 +6,6 @@
   "wsRpc": "wss://follower.testnet-chain.linfra.xyz",
   "faucet": "https://faucet.testnet-mud-services.linfra.xyz",
   "snapshot": "https://ecs-snapshot.testnet-mud-services.linfra.xyz",
-  "dev": false
+  "dev": false,
+  "deployer": "0x26e86e45f6fc45ec6e2ecd128cec80fa1d1505e5507dcd2ae58c3130a7a97b48"
 }

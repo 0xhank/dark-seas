@@ -70,12 +70,6 @@ export const clientComponents = {
   CommittedMove: defineComponent(world, { value: Type.Number }, { id: "CommittedMove" }),
   Targeted: defineNumberComponent(world, { id: "Targeted" }),
 
-  ExecutedShots: defineComponent(
-    world,
-    { targets: Type.NumberArray, damage: Type.NumberArray, specialDamage: Type.NumberArray },
-    { id: "ExecutedShots" }
-  ),
-
   ExecutedActions: defineComponent(world, { value: Type.NumberArray }, { id: "ExecutedActions" }),
   ExecutedCannon: defineBoolComponent(world, { id: "ExecutedLoad" }),
 

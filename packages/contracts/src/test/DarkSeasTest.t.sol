@@ -114,7 +114,7 @@ contract DarkSeasTest is MudTest {
     assertTrue(!falseAssertion);
   }
 
-  function logCoord(string memory name, Coord memory coord) internal {
+  function logCoord(string memory name, Coord memory coord) internal view {
     console.log(name);
     console.log("x:");
     console.logInt(coord.x);
@@ -122,7 +122,7 @@ contract DarkSeasTest is MudTest {
     console.logInt(coord.y);
   }
 
-  function logCoord(Coord memory coord) internal {
+  function logCoord(Coord memory coord) internal view {
     console.log("x:");
     console.logInt(coord.x);
     console.log("y:");

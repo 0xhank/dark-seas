@@ -146,7 +146,7 @@ library LibMove {
    * @param   position  position to check if out of bounds
    * @return  bool  is out of bounds
    */
-  function outOfBounds(IUint256Component components, Coord memory position) internal returns (bool) {
+  function outOfBounds(IUint256Component components, Coord memory position) internal view returns (bool) {
     if (!LibVector.inWorld(components, position)) return true;
 
     GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(

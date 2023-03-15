@@ -17,7 +17,17 @@ import { getFinalPosition } from "../../utils/directions";
 export function moveOptionsSystems(MUD: SetupResult) {
   const {
     world,
-    components: { Position, Rotation, SailPositionLocal, MoveCard, Speed, SelectedShip, SelectedMove, HoveredMove },
+    components: {
+      Position,
+      Rotation,
+      SailPositionLocal,
+      MoveCard,
+      Speed,
+      Health,
+      SelectedShip,
+      SelectedMove,
+      HoveredMove,
+    },
     utils: { destroySpriteObject, getPhase, isMyShip, renderShip, destroyGroupObject, renderShipFiringAreas },
     godEntity,
     network: { clock },
@@ -32,6 +42,8 @@ export function moveOptionsSystems(MUD: SetupResult) {
   defineComponentSystem(world, SelectedShip, (update) => {
     const shipEntity = update.value[0]?.value as EntityIndex | undefined;
     if (!shipEntity) return;
+    const health = getComponentValue(Health, shipEntity)?.value;
+    if (!health) return;
     renderShipOptions(shipEntity);
   });
 

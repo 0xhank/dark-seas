@@ -9,6 +9,7 @@ import {
 } from "@latticexyz/recs";
 import { sprites } from "../../phaser/config";
 import { Animations, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../../phaser/constants";
+import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
 import { Category } from "../../sound";
 import { Sprites } from "../../types";
@@ -32,8 +33,8 @@ export function localHealthSystems(MUD: SetupResult) {
       SelectedMove,
       MaxHealth,
     },
-    utils: { getSpriteObject, getPlayerEntity, destroySpriteObject, playSound },
-    scene: { config },
+    utils: { isMyShip, getSpriteObject, getPlayerEntity, destroySpriteObject, playSound },
+    scene: { phaserScene },
     godEntity,
   } = MUD;
 
@@ -41,6 +42,7 @@ export function localHealthSystems(MUD: SetupResult) {
   defineComponentSystem(world, HealthLocal, ({ entity: shipEntity, value: [newVal, oldVal] }) => {
     if (newVal === undefined || oldVal === undefined) return;
     const health = newVal.value;
+    const oldHealth = oldVal.value;
     const maxHealth = getComponentValueStrict(MaxHealth, shipEntity)?.value;
     const shipObject = getSpriteObject(shipEntity);
     const ownerEntity = getPlayerEntity(getComponentValue(OwnedBy, shipEntity)?.value);
@@ -53,30 +55,60 @@ export function localHealthSystems(MUD: SetupResult) {
 
     shipObject.setTexture(sprite.assetKey, sprite.frame);
 
-    if (health == 0) {
+    shipObject.setInteractive({ cursor: "pointer" });
+    shipObject.on("pointerover", () => setComponent(HoveredShip, godEntity, { value: shipEntity }));
+    shipObject.off("pointerdown");
+    shipObject.on("pointerout", () => removeComponent(HoveredShip, godEntity));
+    if (health <= 0) {
+      const contractHealth = getComponentValueStrict(Health, shipEntity).value;
+      if (contractHealth !== health) {
+        setComponent(HealthLocal, shipEntity, { value: contractHealth });
+        setComponent(HealthBackend, shipEntity, { value: contractHealth });
+        return;
+      }
       playDeathAnimation(shipEntity);
       removeComponent(SelectedActions, shipEntity);
       removeComponent(SelectedMove, shipEntity);
       shipObject.setAlpha(0.5);
       shipObject.setDepth(RenderDepth.Foreground4);
-      shipObject.off("pointerdown");
-      shipObject.off("pointerover");
-      shipObject.off("pointerout");
-      shipObject.disableInteractive();
+      for (let i = 0; i < 4; i++) {
+        const spriteId = `${shipEntity}-fire-${i}`;
+        destroySpriteObject(spriteId);
+      }
     } else {
       shipObject.setAlpha(1);
       shipObject.setDepth(RenderDepth.Foreground3);
-      shipObject.setInteractive({ cursor: "pointer" });
-      shipObject.off("pointerdown");
-      shipObject.off("pointerover");
-      shipObject.off("pointerout");
-
       shipObject.on("pointerdown", () => setComponent(SelectedShip, godEntity, { value: shipEntity }));
-      shipObject.on("pointerover", () => setComponent(HoveredShip, godEntity, { value: shipEntity }));
-      shipObject.on("pointerout", () => removeComponent(HoveredShip, godEntity));
+
+      if (oldHealth > 0 && health > oldHealth) {
+        console.log(`${shipEntity} health increase: old ${oldHealth} new ${health}`);
+        flashGreen(shipEntity);
+      }
     }
   });
+  async function flashGreen(shipEntity: EntityIndex) {
+    const object = getSpriteObject(shipEntity);
+    const delay = 200;
+    const repeat = 4;
 
+    for (let i = 0; i < repeat; i++) {
+      phaserScene.time.addEvent({
+        delay: (delay * i) / 2,
+        callback: function () {
+          object.setTint(colors.greenHex);
+        },
+        callbackScope: phaserScene,
+      });
+
+      phaserScene.time.addEvent({
+        delay: delay * i,
+        callback: function () {
+          object.clearTint();
+        },
+        callbackScope: phaserScene,
+      });
+    }
+  }
   function playDeathAnimation(shipEntity: EntityIndex) {
     const shipMidpoint = getShipMidpoint(shipEntity);
     const length = getComponentValueStrict(Length, shipEntity).value;

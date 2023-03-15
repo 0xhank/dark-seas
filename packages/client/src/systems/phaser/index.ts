@@ -1,7 +1,6 @@
 import { SetupResult } from "../../setupMUD";
 import { borderSystems } from "./borderSystems";
 import { createCamera } from "./camera";
-import { cannonFireSystems } from "./cannonFireSystems";
 import { damageBubbleSystems } from "./damageBubbleSystems";
 import { firingAreaSystems } from "./firingAreaSystems";
 import { inputSystems } from "./inputSystems";
@@ -18,7 +17,6 @@ import { turnResetSystems } from "./turnResetSystems";
 
 export function createPhaserSystems(MUD: SetupResult) {
   borderSystems(MUD);
-  cannonFireSystems(MUD);
   firingAreaSystems(MUD);
   inputSystems(MUD);
   localHealthSystems(MUD);

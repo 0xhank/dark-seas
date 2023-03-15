@@ -23,13 +23,15 @@ import { LastHitComponent, ID as LastHitComponentID } from "../components/LastHi
 import { CannonComponent, ID as CannonComponentID } from "../components/CannonComponent.sol";
 import { LoadedComponent, ID as LoadedComponentID } from "../components/LoadedComponent.sol";
 import { BootyComponent, ID as BootyComponentID } from "../components/BootyComponent.sol";
+import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
-import { Coord } from "../libraries/DSTypes.sol";
+import { Coord, Line } from "../libraries/DSTypes.sol";
 
 // Libraries
 import "./LibVector.sol";
 import "./LibUtils.sol";
+import "./LibTurn.sol";
 import { ABDKMath64x64 as Math } from "abdk-libraries-solidity/ABDKMath64x64.sol";
 
 library LibCombat {
@@ -80,6 +82,11 @@ library LibCombat {
     if (DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).has(shipEntity)) return;
 
     require(
+      LibTurn.getCurrentTurn(components) >
+        GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).entryCutoffTurns,
+      "attack: cannot fire before entry cuts off"
+    );
+    require(
       CannonComponent(getAddressById(components, CannonComponentID)).has(cannonEntity),
       "attack: entity not a cannon"
     );
@@ -100,78 +107,37 @@ library LibCombat {
       }
     }
 
-    uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
-    if (!isBroadside(cannonRotation)) {
-      attackPivot(components, shipEntity, cannonEntity, targetEntities);
-    } else {
-      attackBroadside(components, shipEntity, cannonEntity, targetEntities);
-    }
+    executeAttack(components, shipEntity, cannonEntity, targetEntities);
   }
 
   /**
    * @notice  attacks all enemies in forward arc of ship
-   * @dev     todo: how can i combine this with attackSide despite different number of vertices in range?
+   * @dev     todo: how can i combi:wne this with attackSide despite different number of vertices in range?
    * @param   components  world components
    * @param   shipEntity  entity performing an attack
    * @param   cannonEntity  .
    */
-  function attackPivot(
+  function executeAttack(
     IUint256Component components,
     uint256 shipEntity,
     uint256 cannonEntity,
     uint256[] memory targetEntities
   ) private {
-    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
     uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
     uint32 kills = KillsComponent(getAddressById(components, KillsComponentID)).getValue(shipEntity);
     firepower = (firepower * (10 + kills)) / 10;
 
     // get firing area of ship
-    Coord[3] memory firingRange = getFiringAreaPivot(components, shipEntity, cannonEntity);
+    Coord[] memory firingRange = getFiringArea(components, shipEntity, cannonEntity);
 
     // iterate through each ship, checking if it is within firing range
     for (uint256 i = 0; i < targetEntities.length; i++) {
       (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternPosition(components, targetEntities[i]);
-      if (LibVector.withinPolygon3(firingRange, aft)) {
+      if (
+        LibVector.withinPolygon(aft, firingRange) ||
+        LibVector.lineIntersectsPolygon(Line({ start: stern, end: aft }), firingRange)
+      ) {
         uint256 distance = LibVector.distance(firingRange[0], aft);
-        damageEnemy(components, shipEntity, targetEntities[i], distance, firepower);
-      } else if (LibVector.withinPolygon3(firingRange, stern)) {
-        uint256 distance = LibVector.distance(firingRange[0], stern);
-        damageEnemy(components, shipEntity, targetEntities[i], distance, firepower);
-      }
-    }
-  }
-
-  /**
-   * @notice  attacks all enemies on given side of ship
-   * @dev     todo: i plan to change this to reqiure inclusion of both an attacker and defender, saving gas and improving ux
-   * @param   components  world components
-   * @param   shipEntity  entity performing an attack
-   * @param   cannonEntity  .
-   */
-  function attackBroadside(
-    IUint256Component components,
-    uint256 shipEntity,
-    uint256 cannonEntity,
-    uint256[] memory targetEntities
-  ) private {
-    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
-    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
-    uint32 kills = KillsComponent(getAddressById(components, KillsComponentID)).getValue(shipEntity);
-    firepower = (firepower * (10 + kills)) / 10;
-
-    // get firing area of ship
-    Coord[4] memory firingRange = getFiringAreaBroadside(components, shipEntity, cannonEntity);
-
-    // iterate through each ship, checking if it is within firing range
-    for (uint256 i = 0; i < targetEntities.length; i++) {
-      (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternPosition(components, targetEntities[i]);
-
-      if (LibVector.withinPolygon4(firingRange, aft)) {
-        uint256 distance = LibVector.distance(firingRange[0], aft);
-        damageEnemy(components, shipEntity, targetEntities[i], distance, firepower);
-      } else if (LibVector.withinPolygon4(firingRange, stern)) {
-        uint256 distance = LibVector.distance(firingRange[0], stern);
         damageEnemy(components, shipEntity, targetEntities[i], distance, firepower);
       }
     }
@@ -336,83 +302,53 @@ library LibCombat {
     return (odds <= outcome);
   }
 
-  /**
-   * @notice  calculates the position of three points comprising a triangular firing area
-   * @param   components  world components
-   * @param   shipEntity  attacking ship entity
-   * @return  Coord[3]  points comprising firing area
-   */
-  function getFiringAreaPivot(
+  function getFiringArea(
     IUint256Component components,
     uint256 shipEntity,
     uint256 cannonEntity
-  ) public view returns (Coord[3] memory) {
+  ) public view returns (Coord[] memory) {
     RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
 
     uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(cannonEntity);
     Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(shipEntity);
     uint32 shipRotation = rotationComponent.getValue(shipEntity);
     uint32 cannonRotation = rotationComponent.getValue(cannonEntity);
-
-    if (cannonRotation >= 90 && cannonRotation < 270) {
-      uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
-      position = LibVector.getSternPosition(position, shipRotation, length);
-    }
-    Coord memory frontCorner = LibVector.getPositionByVector(
-      position,
-      shipRotation,
-      range,
-      (cannonRotation + 10) % 360
-    );
-    Coord memory backCorner = LibVector.getPositionByVector(
-      position,
-      shipRotation,
-      range,
-      (cannonRotation + 350) % 360
-    );
-
-    return ([position, backCorner, frontCorner]);
-  }
-
-  /**
-   * @notice  calculates the position of four points comprising a quadrilateral firing area
-   * @dev     .
-   * @param   components  world components
-   * @param   shipEntity  attacking ship entity
-   * @param   cannonEntity  attacking cannon entity
-   * @return  Coord[4]  points comprising firing area
-   */
-  function getFiringAreaBroadside(
-    IUint256Component components,
-    uint256 shipEntity,
-    uint256 cannonEntity
-  ) public view returns (Coord[4] memory) {
-    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
-
-    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(cannonEntity);
-    Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(shipEntity);
     uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
-    uint32 shipRotation = rotationComponent.getValue(shipEntity);
-    uint32 cannonRotation = rotationComponent.getValue(cannonEntity);
-
-    uint32 rightRange = (cannonRotation + 10) % 360;
-    uint32 leftRange = (cannonRotation + 350) % 360;
-
-    Coord memory sternPosition = LibVector.getSternPosition(position, shipRotation, length);
-
     Coord memory frontCorner;
     Coord memory backCorner;
+    Coord[] memory ret;
+    if (cannonRotation == 90 || cannonRotation == 270) {
+      uint32 rightRange = (cannonRotation + 10) % 360;
+      uint32 leftRange = (cannonRotation + 350) % 360;
 
-    // if the stern is above the bow, switch the corners to ensure the quadrilateral doesn't cross in the middle
-    if (cannonRotation % 360 >= 180) {
-      frontCorner = LibVector.getPositionByVector(position, shipRotation, range, rightRange);
-      backCorner = LibVector.getPositionByVector(sternPosition, shipRotation, range, leftRange);
-    } else {
-      frontCorner = LibVector.getPositionByVector(position, shipRotation, range, leftRange);
-      backCorner = LibVector.getPositionByVector(sternPosition, shipRotation, range, rightRange);
+      Coord memory sternPosition = LibVector.getSternPosition(position, shipRotation, length);
+
+      // if the stern is above the bow, switch the corners to ensure the quadrilateral doesn't cross in the middle
+      if (cannonRotation % 360 >= 180) {
+        frontCorner = LibVector.getPositionByVector(position, shipRotation, range, rightRange);
+        backCorner = LibVector.getPositionByVector(sternPosition, shipRotation, range, leftRange);
+      } else {
+        frontCorner = LibVector.getPositionByVector(position, shipRotation, range, leftRange);
+        backCorner = LibVector.getPositionByVector(sternPosition, shipRotation, range, rightRange);
+      }
+      ret = new Coord[](4);
+      ret[0] = position;
+      ret[1] = sternPosition;
+      ret[2] = backCorner;
+      ret[3] = frontCorner;
+
+      return ret;
     }
-
-    return ([position, sternPosition, backCorner, frontCorner]);
+    if (cannonRotation >= 90 && cannonRotation < 270) {
+      position = LibVector.getSternPosition(position, shipRotation, length);
+    }
+    frontCorner = LibVector.getPositionByVector(position, shipRotation, range, (cannonRotation + 10) % 360);
+    backCorner = LibVector.getPositionByVector(position, shipRotation, range, (cannonRotation + 350) % 360);
+    ret = new Coord[](3);
+    ret[0] = position;
+    ret[1] = backCorner;
+    ret[2] = frontCorner;
+    return ret;
   }
 
   /**

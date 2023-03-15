@@ -1,12 +1,11 @@
 import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex, removeComponent, setComponent } from "@latticexyz/recs";
-import { ReactNode } from "react";
 import styled from "styled-components";
 import { useMUD } from "../../../mud/providers/MUDProvider";
 import { getShipSprite, ShipImages } from "../../../utils/ships";
 import { BoxImage, colors, OptionButton } from "../../styles/global";
 
-export function ShipButton({ prototypeEntity, children }: { prototypeEntity: EntityIndex; children?: ReactNode }) {
+export function ShipButton({ prototypeEntity }: { prototypeEntity: EntityIndex }) {
   const {
     components: { ActiveShip, Length, Booty, Name },
     godEntity,
@@ -28,7 +27,6 @@ export function ShipButton({ prototypeEntity, children }: { prototypeEntity: Ent
   return (
     <OptionButton
       isSelected={activeShip == prototypeEntity}
-      key={`shipPrototype-${prototypeEntity}}`}
       onClick={handleSelection}
       style={{
         flexDirection: "row",
@@ -38,6 +36,7 @@ export function ShipButton({ prototypeEntity, children }: { prototypeEntity: Ent
         direction: "ltr",
         marginLeft: "6px",
         position: "relative",
+        width: "100%",
       }}
     >
       <BoxContainer>
@@ -62,7 +61,6 @@ export function ShipButton({ prototypeEntity, children }: { prototypeEntity: Ent
         <p style={{ lineHeight: "0.75rem", fontSize: ".75rem", color: colors.lightBrown }}>price</p>
         <Title style={{ lineHeight: "2.5rem" }}>{price}</Title>
       </div>
-      {children}
     </OptionButton>
   );
 }

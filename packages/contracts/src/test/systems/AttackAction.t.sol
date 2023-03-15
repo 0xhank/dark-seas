@@ -16,7 +16,7 @@ import { FirepowerComponent, ID as FirepowerComponentID } from "../../components
 import { BootyComponent, ID as BootyComponentID } from "../../components/BootyComponent.sol";
 import { KillsComponent, ID as KillsComponentID } from "../../components/KillsComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../../components/OwnedByComponent.sol";
-
+import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 // Libraries
 import "../../libraries/LibVector.sol";
 import "../../libraries/LibCombat.sol";
@@ -260,7 +260,6 @@ contract AttackActionTest is DarkSeasTest {
     setup();
     KillsComponent killsComponent = KillsComponent(getAddressById(components, KillsComponentID));
     BootyComponent bootyComponent = BootyComponent(getAddressById(components, BootyComponentID));
-    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
     HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
     uint256 attackerEntity = spawnShip(Coord({ x: 0, y: 0 }), 0, deployer);
     uint256 cannonEntity = LibSpawn.spawnCannon(components, world, attackerEntity, 0, 50, 80);
@@ -303,6 +302,13 @@ contract AttackActionTest is DarkSeasTest {
     commitSystem = CommitSystem(system(CommitSystemID));
     moveSystem = MoveSystem(system(MoveSystemID));
 
+    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+      GodID
+    );
+
+    gameConfig.entryCutoffTurns = 0;
+
+    GameConfigComponent(getAddressById(components, GameConfigComponentID)).set(GodID, gameConfig);
     delete moves;
     delete actions;
     delete targets;
@@ -316,43 +322,27 @@ contract AttackActionTest is DarkSeasTest {
     uint32 kills = KillsComponent(getAddressById(components, KillsComponentID)).getValue(attackerEntity);
     uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
     firepower = (firepower * (kills + 10)) / 10;
-    uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
-    Coord memory attackerPosition = PositionComponent(getAddressById(components, PositionComponentID)).getValue(
-      attackerEntity
-    );
     (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternPosition(components, defenderEntity);
 
-    uint256 distance;
     uint256 randomness = LibUtils.randomness(attackerEntity, defenderEntity);
-    if (!LibCombat.isBroadside(cannonRotation)) {
-      Coord[3] memory firingRange3 = LibCombat.getFiringAreaPivot(components, attackerEntity, cannonEntity);
+    Coord[] memory firingRange = LibCombat.getFiringArea(components, attackerEntity, cannonEntity);
 
-      if (LibVector.withinPolygon3(firingRange3, aft)) {
-        distance = LibVector.distance(attackerPosition, aft);
-        return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
-      } else if (LibVector.withinPolygon3(firingRange3, stern)) {
-        distance = LibVector.distance(attackerPosition, stern);
-        return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
-      } else return 0;
-    }
-    Coord[4] memory firingRange4 = LibCombat.getFiringAreaBroadside(components, attackerEntity, cannonEntity);
-
-    if (LibVector.withinPolygon4(firingRange4, aft)) {
-      distance = LibVector.distance(attackerPosition, aft);
-      return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
-    } else if (LibVector.withinPolygon4(firingRange4, stern)) {
-      distance = LibVector.distance(attackerPosition, stern);
+    if (
+      LibVector.withinPolygon(aft, firingRange) ||
+      LibVector.lineIntersectsPolygon(Line({ start: stern, end: aft }), firingRange)
+    ) {
+      uint256 distance = LibVector.distance(firingRange[0], aft);
       return LibCombat.getHullDamage(LibCombat.getBaseHitChance(distance, firepower), randomness);
     } else return 0;
   }
 
-  function commitAndExecuteMove(uint32 turn, Move[] memory moves) internal {
+  function commitAndExecuteMove(uint32 turn, Move[] memory _moves) internal {
     vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Commit));
-    uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
+    uint256 commitment = uint256(keccak256(abi.encode(_moves, 69)));
     commitSystem.executeTyped(commitment);
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Reveal));
-    moveSystem.executeTyped(moves, 69);
+    moveSystem.executeTyped(_moves, 69);
   }
 
   function loadAndFireCannon(

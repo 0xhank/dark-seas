@@ -39,13 +39,25 @@ contract LibVectorTest is DarkSeasTest {
     assertCoordEq(stern, expectedStern);
   }
 
+  function testLinesIntersect() public prank(deployer) {
+    Line memory line1 = Line(Coord(0, 0), Coord(10, 0));
+    Line memory line2 = Line(Coord(0, 5), Coord(5, -5));
+
+    assertTrue(LibVector.linesIntersect(line1, line2));
+    line2 = Line(Coord(0, 5), Coord(10, -5));
+    assertTrue(LibVector.linesIntersect(line1, line2));
+    line2 = Line(Coord(2, 0), Coord(5, 0));
+    assertTrue(!LibVector.linesIntersect(line1, line2));
+    line2 = Line(Coord(2, 20), Coord(5, 40));
+    assertTrue(!LibVector.linesIntersect(line1, line2));
+  }
+
   function testInsidePolygon() public prank(deployer) {
-    Coord[4] memory polygon = [
-      Coord({ x: 0, y: 0 }),
-      Coord({ x: 0, y: 10 }),
-      Coord({ x: 10, y: 10 }),
-      Coord({ x: 10, y: 0 })
-    ];
+    Coord[] memory polygon = new Coord[](4);
+    polygon[0] = Coord({ x: 0, y: 0 });
+    polygon[1] = Coord({ x: 0, y: 10 });
+    polygon[2] = Coord({ x: 10, y: 10 });
+    polygon[3] = Coord({ x: 10, y: 0 });
 
     Coord memory point1 = Coord({ x: 5, y: 10 }); // not inside
     Coord memory point2 = Coord({ x: 5, y: 0 }); // not inside
@@ -56,31 +68,30 @@ contract LibVectorTest is DarkSeasTest {
     Coord memory point7 = Coord({ x: 15, y: 5 }); // not inside
     Coord memory point8 = Coord({ x: 9, y: 9 }); // inside
 
-    assertTrue(!LibVector.withinPolygon4(polygon, point1), "point 1 failed");
-    assertTrue(!LibVector.withinPolygon4(polygon, point2), "point 2 failed");
-    assertTrue(LibVector.withinPolygon4(polygon, point3), "point 3 failed");
-    assertTrue(!LibVector.withinPolygon4(polygon, point4), "point 4 failed");
-    assertTrue(!LibVector.withinPolygon4(polygon, point5), "point 5 failed");
-    assertTrue(!LibVector.withinPolygon4(polygon, point6), "point 6 failed");
-    assertTrue(!LibVector.withinPolygon4(polygon, point7), "point 7 failed");
-    assertTrue(LibVector.withinPolygon4(polygon, point8), "point 8 failed");
+    assertTrue(!LibVector.withinPolygon(point1, polygon), "point 1 failed");
+    assertTrue(!LibVector.withinPolygon(point2, polygon), "point 2 failed");
+    assertTrue(LibVector.withinPolygon(point3, polygon), "point 3 failed");
+    assertTrue(!LibVector.withinPolygon(point4, polygon), "point 4 failed");
+    assertTrue(!LibVector.withinPolygon(point5, polygon), "point 5 failed");
+    assertTrue(!LibVector.withinPolygon(point6, polygon), "point 6 failed");
+    assertTrue(!LibVector.withinPolygon(point7, polygon), "point 7 failed");
+    assertTrue(LibVector.withinPolygon(point8, polygon), "point 8 failed");
   }
 
   function testPointInsideRectangle() public prank(deployer) {
-    Coord[4] memory coords = [
-      Coord({ x: 0, y: 0 }),
-      Coord({ x: 0, y: 4 }),
-      Coord({ x: 12, y: 4 }),
-      Coord({ x: 12, y: 0 })
-    ];
+    Coord[] memory coords = new Coord[](4);
+    coords[0] = Coord({ x: 0, y: 0 });
+    coords[1] = Coord({ x: 0, y: 4 });
+    coords[2] = Coord({ x: 12, y: 4 });
+    coords[3] = Coord({ x: 12, y: 0 });
 
     Coord memory insideCoord = Coord({ x: 1, y: 1 });
     Coord memory outsideCoord = Coord({ x: -1, y: 3 });
     Coord memory onLineCoord = Coord({ x: 0, y: 3 });
 
-    bool isInside = LibVector.withinPolygon4(coords, insideCoord);
-    bool isOutside = LibVector.withinPolygon4(coords, outsideCoord);
-    bool isOnLine = LibVector.withinPolygon4(coords, onLineCoord);
+    bool isInside = LibVector.withinPolygon(insideCoord, coords);
+    bool isOutside = LibVector.withinPolygon(outsideCoord, coords);
+    bool isOnLine = LibVector.withinPolygon(onLineCoord, coords);
 
     assertTrue(isInside);
     assertTrue(!isOutside);
@@ -88,20 +99,19 @@ contract LibVectorTest is DarkSeasTest {
   }
 
   function testPointInsideTiltedTrapezoid() public prank(deployer) {
-    Coord[4] memory coords = [
-      Coord({ x: 2, y: 0 }),
-      Coord({ x: 0, y: 4 }),
-      Coord({ x: 1, y: 6 }),
-      Coord({ x: 7, y: 6 })
-    ];
+    Coord[] memory coords = new Coord[](4);
+    coords[0] = Coord({ x: 2, y: 0 });
+    coords[1] = Coord({ x: 0, y: 4 });
+    coords[2] = Coord({ x: 1, y: 6 });
+    coords[3] = Coord({ x: 7, y: 6 });
 
     Coord memory insideCoord = Coord({ x: 6, y: 5 });
     Coord memory outsideCoord = Coord({ x: 0, y: 4 });
     Coord memory onLineCoord = Coord({ x: 1, y: 2 });
 
-    bool isInside = LibVector.withinPolygon4(coords, insideCoord);
-    bool isOutside = LibVector.withinPolygon4(coords, outsideCoord);
-    bool isOnLine = LibVector.withinPolygon4(coords, onLineCoord);
+    bool isInside = LibVector.withinPolygon(insideCoord, coords);
+    bool isOutside = LibVector.withinPolygon(outsideCoord, coords);
+    bool isOnLine = LibVector.withinPolygon(onLineCoord, coords);
 
     assertTrue(isInside);
     assertTrue(!isOutside);
@@ -109,15 +119,18 @@ contract LibVectorTest is DarkSeasTest {
   }
 
   function testPointInsideForwardPath() public prank(deployer) {
-    Coord[3] memory coords = [Coord({ x: 0, y: 0 }), Coord({ x: 78, y: -13 }), Coord({ x: 78, y: 13 })];
+    Coord[] memory coords = new Coord[](3);
+    coords[0] = Coord({ x: 0, y: 0 });
+    coords[1] = Coord({ x: 78, y: -13 });
+    coords[2] = Coord({ x: 78, y: 13 });
 
     Coord memory insideCoord = Coord({ x: 70, y: 0 });
     Coord memory outsideCoord = Coord({ x: 79, y: 0 });
     Coord memory onLineCoord = Coord({ x: 78, y: 0 });
 
-    bool isInside = LibVector.withinPolygon3(coords, insideCoord);
-    bool isOutside = LibVector.withinPolygon3(coords, outsideCoord);
-    bool isOnLine = LibVector.withinPolygon3(coords, onLineCoord);
+    bool isInside = LibVector.withinPolygon(insideCoord, coords);
+    bool isOutside = LibVector.withinPolygon(outsideCoord, coords);
+    bool isOnLine = LibVector.withinPolygon(onLineCoord, coords);
 
     assertTrue(isInside, "is inside failed");
     assertTrue(!isOutside, "is outside failed");

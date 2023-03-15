@@ -5,6 +5,7 @@ import { useMUD } from "../../mud/providers/MUDProvider";
 import { PlayerProvider } from "../../mud/providers/PlayerProvider";
 import { BootScreen } from "./BootScreen";
 import { DamageChance } from "./DamageChance";
+import { ComponentBrowser } from "./Dev/ComponentBrowser";
 import { EmergencyActions } from "./EmergencyActions";
 import { HoveredShip } from "./HoveredShip";
 import { Modal } from "./Modals/Modal";
@@ -23,6 +24,7 @@ export function Game() {
   // re render when a player is added
   useObservableValue(Player.update$);
   const playerEntity = getPlayerEntity();
+  const spectating = useComponentValue(Player, playerEntity)?.value == -1;
   const loadingState = useComponentValue(LoadingState, godEntity, {
     state: SyncState.CONNECTING,
     msg: "Connecting",
@@ -44,8 +46,7 @@ export function Game() {
       {playerEntity ? (
         <PlayerProvider value={playerEntity}>
           <TurnTimer />
-          <SideBar />
-          <Modal />
+          {!spectating && <SideBar />}
           <HoveredShip />
           <DamageChance />
           <EmergencyActions />
@@ -53,8 +54,10 @@ export function Game() {
       ) : (
         <Registration />
       )}
+      <Modal />
       <Settings />
-      {/* <ComponentBrowser /> */}
+      <Modal />
+      <ComponentBrowser />
       {/* <ActionQueue /> */}
     </UIGrid>
   );

@@ -13,6 +13,7 @@ import { merge } from "rxjs";
 import styled from "styled-components";
 import { useMUD } from "../../../mud/providers/MUDProvider";
 import { world } from "../../../mud/world";
+import { formatTime } from "../../../utils/directions";
 import { Button, colors, Container } from "../../styles/global";
 import { ShipButton } from "./ShipButton";
 
@@ -22,6 +23,7 @@ export function YourFleet({ flex }: { flex: number }) {
     actions: { Action },
     utils: { decodeShipPrototype, getGameConfig },
     api: { spawnPlayer },
+    network: { clock },
     godEntity,
   } = useMUD();
 
@@ -35,7 +37,6 @@ export function YourFleet({ flex }: { flex: number }) {
   }));
 
   const moneySpent = stagedShips.reduce((prev, curr) => prev + curr.price, 0);
-  const registrationClosed = false;
   const spawnActions = [...runQuery([Has(Action)])];
 
   const spawning = !!spawnActions.find((action) => {
@@ -57,9 +58,30 @@ export function YourFleet({ flex }: { flex: number }) {
     );
   };
 
-  const spawnDisabled = spawning || name.length == 0 || stagedShips.length == 0 || registrationClosed;
+  const time = useObservableValue(clock.time$) || 0;
+  const gameConfig = getGameConfig();
+  const closeTime = !gameConfig
+    ? 0
+    : Number(gameConfig.startTime) +
+      gameConfig.entryCutoffTurns *
+        (gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength);
+
+  const timeUntilRound = closeTime - time / 1000;
+  const spawnDisabled = spawning || name.length == 0 || stagedShips.length == 0 || timeUntilRound < 0;
   const onClick = spawning || txFailed ? () => {} : spawn;
-  const content = spawning ? "Spawning..." : txFailed ? "Spawn failed! Try again." : "Register";
+  const content =
+    timeUntilRound < 0 ? (
+      "Entry closed!"
+    ) : spawning ? (
+      "Spawning..."
+    ) : txFailed ? (
+      "Spawn failed! Try again."
+    ) : (
+      <div>
+        <p style={{ fontSize: "1.5rem" }}>Register</p>
+        <p>{formatTime(timeUntilRound)}</p>
+      </div>
+    );
 
   const background = txFailed ? colors.red : colors.gold;
 
@@ -77,31 +99,30 @@ export function YourFleet({ flex }: { flex: number }) {
 
       <ShipButtons>
         {stagedShips.map((ship, index) => (
-          <ShipButton prototypeEntity={ship.entity}>
+          <div style={{ display: "flex", gap: "6px" }} key={`fleet-ship-${ship.entity}`}>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 removeShip(index);
               }}
               style={{
-                position: "absolute",
-                top: "4px",
-                right: "4px",
-                background: "transparent",
+                background: colors.red,
                 border: "none",
+                borderRadius: "6px",
                 cursor: "pointer",
               }}
             >
               <img
                 src={"/icons/close.svg"}
                 style={{
-                  height: "14px",
+                  height: "24px",
                   width: "14px",
-                  filter: "invert(14%) sepia(72%) saturate(7185%) hue-rotate(355deg) brightness(95%) contrast(119%)",
+                  // filter: "invert(100%)",
                 }}
               />
             </button>
-          </ShipButton>
+            <ShipButton prototypeEntity={ship.entity} />
+          </div>
         ))}
       </ShipButtons>
       <div style={{ display: "flex", gap: "6px", width: "100%" }}>

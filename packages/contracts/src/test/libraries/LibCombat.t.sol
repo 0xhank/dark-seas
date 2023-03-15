@@ -101,7 +101,7 @@ contract LibCombatTest is DarkSeasTest {
     uint32 leftRange = (cannonRotation - 10) % 360;
     console.log("hello2");
 
-    Coord[4] memory firingArea = LibCombat.getFiringAreaBroadside(components, shipEntity, cannonEntity);
+    Coord[] memory firingArea = LibCombat.getFiringArea(components, shipEntity, cannonEntity);
 
     Coord memory stern = LibVector.getSternPosition(startingPosition, rotation, length);
     Coord memory backCorner = LibVector.getPositionByVector(stern, rotation, range, leftRange);
@@ -125,7 +125,7 @@ contract LibCombatTest is DarkSeasTest {
     uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
     uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(cannonEntity);
 
-    Coord[4] memory firingArea = LibCombat.getFiringAreaBroadside(components, shipEntity, cannonEntity);
+    Coord[] memory firingArea = LibCombat.getFiringArea(components, shipEntity, cannonEntity);
 
     Coord memory stern = LibVector.getSternPosition(startingPosition, rotation, length);
     Coord memory frontCorner = LibVector.getPositionByVector(
@@ -137,6 +137,8 @@ contract LibCombatTest is DarkSeasTest {
     Coord memory backCorner = LibVector.getPositionByVector(stern, rotation, range, cannonRotation + 10);
 
     assertCoordEq(startingPosition, firingArea[0]);
+    logCoord("starting position:", startingPosition);
+    logCoord("firing area 0", firingArea[0]);
     assertCoordEq(stern, firingArea[1]);
     assertCoordEq(backCorner, firingArea[2]);
     assertCoordEq(frontCorner, firingArea[3]);
@@ -158,7 +160,7 @@ contract LibCombatTest is DarkSeasTest {
     uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
     uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(cannonEntity);
 
-    Coord[3] memory firingArea = LibCombat.getFiringAreaPivot(components, shipEntity, cannonEntity);
+    Coord[] memory firingArea = LibCombat.getFiringArea(components, shipEntity, cannonEntity);
     Coord memory frontCorner = LibVector.getPositionByVector(
       startingPosition,
       rotation,
@@ -189,7 +191,7 @@ contract LibCombatTest is DarkSeasTest {
     uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
     Coord memory stern = LibVector.getSternPosition(startingPosition, rotation, length);
 
-    Coord[3] memory firingArea = LibCombat.getFiringAreaPivot(components, shipEntity, cannonEntity);
+    Coord[] memory firingArea = LibCombat.getFiringArea(components, shipEntity, cannonEntity);
     Coord memory frontCorner = LibVector.getPositionByVector(stern, rotation, range, (cannonRotation + 350) % 360);
     Coord memory backCorner = LibVector.getPositionByVector(stern, rotation, range, cannonRotation + 10);
 

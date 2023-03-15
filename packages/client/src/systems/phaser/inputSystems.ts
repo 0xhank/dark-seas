@@ -40,7 +40,6 @@ export function inputSystems(MUD: SetupResult) {
       if (!ship) return shipKeyRegistry.set(NumberKeyNames[i], entity);
     }
   });
-  console.log("input:", input);
   const clickSub = input.click$.subscribe((p) => {
     const pointer = p as Phaser.Input.Pointer;
     const tilePos = pixelCoordToTileCoord({ x: pointer.worldX, y: pointer.worldY }, tileWidth, tileHeight);
@@ -65,7 +64,7 @@ export function inputSystems(MUD: SetupResult) {
         setComponent(SelectedShip, godEntity, { value: shipEntity });
         const position = getComponentValue(Position, shipEntity);
         if (!position) return;
-        camera.centerOn(position.x * POS_WIDTH, position.y * POS_HEIGHT + 400);
+        camera.centerOn(position.x * POS_WIDTH, position.y * POS_HEIGHT);
       }
     );
   }

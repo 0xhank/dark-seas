@@ -1,8 +1,6 @@
-import { EntityID, EntityIndex } from "@latticexyz/recs";
-import { setupMUDNetwork } from "@latticexyz/std-client";
-
 import { createFaucetService, GodID } from "@latticexyz/network";
 import { createPhaserEngine } from "@latticexyz/phaserx";
+import { EntityID, EntityIndex } from "@latticexyz/recs";
 import { createActionSystem } from "@latticexyz/std-client";
 import { ethers } from "ethers";
 import { SystemAbis } from "../../contracts/types/SystemAbis.mjs";
@@ -12,6 +10,7 @@ import { clientComponents, components } from "./mud/components";
 import { config } from "./mud/config";
 import { createUtilities } from "./mud/utilities";
 import { setupDevSystems } from "./mud/utilities/setupDevSystems";
+import { setupMUDNetwork } from "./mud/utilities/setupMUDNetwork";
 import { world } from "./mud/world";
 import { phaserConfig } from "./phaser/config";
 import { Action, Move } from "./types";
@@ -27,6 +26,7 @@ export async function setupMUD() {
 
   const res = await setupMUDNetwork<typeof components, SystemTypes>(config, world, components, SystemAbis, {
     fetchSystemCalls: true,
+    // initialGasPrice: 10000,
   });
 
   const { systems, network, systemCallStreams, txReduced$, encoders } = res;

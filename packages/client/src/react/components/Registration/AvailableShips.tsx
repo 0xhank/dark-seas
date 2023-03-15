@@ -22,7 +22,7 @@ export function AvailableShips({ flex }: { flex: number }) {
       <Title>Available Ships</Title>
       <ShipButtons>
         {prototypes.map((prototypeEntity) => (
-          <Fragment key={`available-ship-${prototypeEntity}`}>
+          <Fragment key={`available-ship-${prototypeEntity.entity}`}>
             <ShipButton prototypeEntity={prototypeEntity.entity} />
           </Fragment>
         ))}

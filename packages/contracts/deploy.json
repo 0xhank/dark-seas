@@ -28,7 +28,6 @@
     "BootyComponent"
   ],
   "systems": [
-    { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" },
     {
       "name": "MoveSystem",
       "writeAccess": [
@@ -56,7 +55,12 @@
         "LengthComponent"
       ]
     },
-    { "name": "ComponentDevSystem", "writeAccess": ["*"] },
+    {
+      "name": "ComponentDevSystem",
+      "writeAccess": [
+        "*"
+      ]
+    },
     {
       "name": "PlayerSpawnSystem",
       "writeAccess": [
@@ -95,6 +99,18 @@
         "LengthComponent"
       ]
     },
-    { "name": "CommitSystem", "writeAccess": ["CommitmentComponent"] }
+    {
+      "name": "CommitSystem",
+      "writeAccess": [
+        "CommitmentComponent"
+      ]
+    },
+    {
+      "name": "InitSystem",
+      "writeAccess": [
+        "*"
+      ],
+      "initialize": "abi.encode(block.timestamp, 25, 9, 15, 120, 345676, 60, 0, false, 0, 7)"
+    }
   ]
 }
