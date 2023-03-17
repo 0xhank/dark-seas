@@ -8,7 +8,6 @@ import { getAddressById, addressToEntity } from "solecs/utils.sol";
 
 // Components
 import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
-import { ActionComponent, ID as ActionComponentID, FunctionSelector } from "../components/ActionComponent.sol";
 
 // Types
 import { Action, Phase } from "../libraries/DSTypes.sol";
@@ -32,7 +31,6 @@ contract ActionSystem is System {
     require(LibUtils.playerIdExists(components, playerEntity), "ActionSystem: player does not exist");
 
     LastActionComponent lastActionComponent = LastActionComponent(getAddressById(components, LastActionComponentID));
-    ActionComponent actionComponent = ActionComponent(getAddressById(components, ActionComponentID));
     require(LibTurn.getCurrentPhase(components) == Phase.Action, "ActionSystem: incorrect turn phase");
 
     uint32 currentTurn = LibTurn.getCurrentTurn(components);
@@ -43,21 +41,7 @@ contract ActionSystem is System {
     lastActionComponent.set(playerEntity, currentTurn);
     // iterate through each ship
     for (uint256 i = 0; i < actions.length; i++) {
-      for (uint256 j = 0; j < i; j++) {
-        require(actions[i].shipEntity != actions[j].shipEntity, "ActionSystem: duplicated ships");
-      }
-      for (uint256 k = 0; k < 2; k++) {
-        uint256 actionEntity = actions[i].actionEntities[k];
-        bytes memory metadata = actions[i].metadata[k];
-        console.log("action entity:", actionEntity);
-        if (actionEntity == 0) continue;
-        FunctionSelector memory functionSelector = actionComponent.getValue(actionEntity);
-
-        (bool success, bytes memory content) = functionSelector.contr.call(
-          bytes.concat(functionSelector.func, abi.encode(actions[i].shipEntity, metadata))
-        );
-        require(success, "action failed");
-      }
+      LibAction.executeActions(components, actions[i]);
     }
   }
 

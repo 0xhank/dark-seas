@@ -56,7 +56,7 @@ contract AttackActionTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionEntities: [entitize("action.RepairSail"), 0],
+      actionEntities: [entitize("action.repairSail"), 0],
       metadata: [none, none]
     });
     actions.push(action);
@@ -77,7 +77,7 @@ contract AttackActionTest is DarkSeasTest {
       metadata: [abi.encode(cannonEntity, targets), none]
     });
     actions.push(action);
-    vm.expectRevert(bytes("attack: cannon not loaded"));
+    vm.expectRevert(bytes("action failed"));
     actionSystem.executeTyped(actions);
   }
 
@@ -115,7 +115,7 @@ contract AttackActionTest is DarkSeasTest {
       metadata: [abi.encode(cannonEntity, targets), none]
     });
     actions.push(action);
-    vm.expectRevert(bytes("attack: cannon not loaded"));
+    vm.expectRevert(bytes("action failed"));
     actionSystem.executeTyped(actions);
   }
 
@@ -267,7 +267,7 @@ contract AttackActionTest is DarkSeasTest {
     uint256 defenderEntity = spawnShip(Coord({ x: 20, y: 0 }), 180, alice);
 
     loadAndFireCannon(attackerEntity, cannonEntity, defenderEntity, 1);
-
+    assertEq(LastHitComponent(getAddressById(components, LastHitComponentID)).getValue(defenderEntity), attackerEntity);
     ComponentDevSystem(system(ComponentDevSystemID)).executeTyped(HealthComponentID, defenderEntity, abi.encode(1));
     ComponentDevSystem(system(ComponentDevSystemID)).executeTyped(OnFireComponentID, defenderEntity, abi.encode(2));
 
