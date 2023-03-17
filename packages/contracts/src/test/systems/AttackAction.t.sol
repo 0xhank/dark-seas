@@ -24,7 +24,7 @@ import "../../libraries/LibTurn.sol";
 import "../../libraries/LibUtils.sol";
 import "../../libraries/LibSpawn.sol";
 
-import { Coord, Action, ActionType, Move } from "../../libraries/DSTypes.sol";
+import { Coord, Action, Move } from "../../libraries/DSTypes.sol";
 
 contract AttackActionTest is DarkSeasTest {
   constructor() DarkSeasTest(new Deploy()) {}
@@ -56,7 +56,7 @@ contract AttackActionTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.RepairSail, ActionType.None],
+      actionEntities: [entitize("action.RepairSail"), 0],
       metadata: [none, none]
     });
     actions.push(action);
@@ -73,7 +73,7 @@ contract AttackActionTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.Fire, ActionType.None],
+      actionEntities: [entitize("action.fire"), 0],
       metadata: [abi.encode(cannonEntity, targets), none]
     });
     actions.push(action);
@@ -90,7 +90,7 @@ contract AttackActionTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.Load, ActionType.Fire],
+      actionEntities: [entitize("action.load"), entitize("action.fire")],
       metadata: [abi.encode(cannonEntity), abi.encode(cannonEntity, targets)]
     });
     actions.push(action);
@@ -111,7 +111,7 @@ contract AttackActionTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.Fire, ActionType.None],
+      actionEntities: [entitize("action.fire"), 0],
       metadata: [abi.encode(cannonEntity, targets), none]
     });
     actions.push(action);
@@ -279,7 +279,7 @@ contract AttackActionTest is DarkSeasTest {
     vm.startPrank(alice);
     Action memory action = Action({
       shipEntity: defenderEntity,
-      actionTypes: [ActionType.None, ActionType.None],
+      actionEntities: [uint256(0), uint256(0)],
       metadata: [none, none]
     });
     actions.push(action);
@@ -352,10 +352,12 @@ contract AttackActionTest is DarkSeasTest {
     uint32 turn
   ) internal {
     vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Action));
-
+    console.log("fireid:", uint256(keccak256("action.fire")));
+    console.log("fireid", entitize("action.fire"));
+    console.log("loadid", entitize("action.load"));
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.Load, ActionType.None],
+      actionEntities: [entitize("action.load"), 0],
       metadata: [abi.encode(cannonEntity), none]
     });
     actions.push(action);
@@ -363,11 +365,11 @@ contract AttackActionTest is DarkSeasTest {
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, turn + 1, Phase.Action));
     delete actions;
-
+    console.log("hello");
     targets.push(targetEntity);
     action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.Fire, ActionType.None],
+      actionEntities: [entitize("action.fire"), 0],
       metadata: [abi.encode(cannonEntity, targets), none]
     });
     actions.push(action);

@@ -19,7 +19,7 @@ import { PositionComponent, ID as PositionComponentID } from "../../components/P
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
 
 // Types
-import { Action, ActionType, Coord, Move } from "../../libraries/DSTypes.sol";
+import { Action, Coord, Move } from "../../libraries/DSTypes.sol";
 
 // Libraries
 import "../../libraries/LibTurn.sol";
@@ -48,7 +48,7 @@ contract DamageTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: attackerEntity,
-      actionTypes: [ActionType.RepairCannons, ActionType.None],
+      actionEntities: [entitize("action.repairCannons"), 0],
       metadata: [none, none]
     });
     actions.push(action);
@@ -78,7 +78,7 @@ contract DamageTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.ExtinguishFire, ActionType.None],
+      actionEntities: [entitize("action.extinguishFire"), 0],
       metadata: [none, none]
     });
     actions.push(action);
@@ -102,7 +102,7 @@ contract DamageTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.None, ActionType.None],
+      actionEntities: [uint256(0), uint256(0)],
       metadata: [none, none]
     });
     actions.push(action);

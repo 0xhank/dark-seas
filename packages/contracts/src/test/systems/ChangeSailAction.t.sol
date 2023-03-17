@@ -10,7 +10,7 @@ import { SailPositionComponent, ID as SailPositionComponentID } from "../../comp
 // Systems
 import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.sol";
 
-import { Action, ActionType, Move, Coord } from "../../libraries/DSTypes.sol";
+import { Action, Move, Coord } from "../../libraries/DSTypes.sol";
 
 // Libraries
 import "../../libraries/LibTurn.sol";
@@ -34,7 +34,7 @@ contract ChangeSailActionTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.LowerSail, ActionType.None],
+      actionEntities: [entitize("action.lowerSail"), 0],
       metadata: [none, none]
     });
     actions.push(action);
@@ -57,7 +57,7 @@ contract ChangeSailActionTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.RaiseSail, ActionType.None],
+      actionEntities: [entitize("action.raiseSail"), 0],
       metadata: [none, none]
     });
     actions.push(action);
@@ -72,7 +72,7 @@ contract ChangeSailActionTest is DarkSeasTest {
 
     action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.LowerSail, ActionType.None],
+      actionEntities: [entitize("action.lowerSail"), 0],
       metadata: [none, none]
     });
 

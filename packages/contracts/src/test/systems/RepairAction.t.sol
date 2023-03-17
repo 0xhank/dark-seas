@@ -14,7 +14,7 @@ import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../../
 import { SailPositionComponent, ID as SailPositionComponentID } from "../../components/SailPositionComponent.sol";
 
 // Types
-import { Action, ActionType, Coord } from "../../libraries/DSTypes.sol";
+import { Action, Coord } from "../../libraries/DSTypes.sol";
 
 // Internal
 import "../../libraries/LibTurn.sol";
@@ -46,7 +46,7 @@ contract RepairActionTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.ExtinguishFire, ActionType.None],
+      actionEntities: [entitize("action.extinguishFire"), 0],
       metadata: [none, none]
     });
     actions.push(action);
@@ -67,7 +67,7 @@ contract RepairActionTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.RepairSail, ActionType.None],
+      actionEntities: [entitize("action.repairSail"), 0],
       metadata: [none, none]
     });
     actions.push(action);
@@ -91,7 +91,7 @@ contract RepairActionTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.RepairCannons, ActionType.None],
+      actionEntities: [entitize("action.repairCannons"), 0],
       metadata: [none, none]
     });
     actions.push(action);

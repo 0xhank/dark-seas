@@ -8,6 +8,7 @@ import { getAddressById, addressToEntity } from "solecs/utils.sol";
 
 // Components
 import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
+import { ActionComponent, ID as ActionComponentID, staticcallFunctionSelector } from "../components/ActionComponent.sol";
 
 // Types
 import { Action, Phase } from "../libraries/DSTypes.sol";
@@ -16,6 +17,7 @@ import { Action, Phase } from "../libraries/DSTypes.sol";
 import "../libraries/LibAction.sol";
 import "../libraries/LibTurn.sol";
 import "../libraries/LibUtils.sol";
+import "../libraries/LibCombat.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Action"));
 
@@ -30,6 +32,7 @@ contract ActionSystem is System {
     require(LibUtils.playerIdExists(components, playerEntity), "ActionSystem: player does not exist");
 
     LastActionComponent lastActionComponent = LastActionComponent(getAddressById(components, LastActionComponentID));
+    ActionComponent actionComponent = ActionComponent(getAddressById(components, ActionComponentID));
     require(LibTurn.getCurrentPhase(components) == Phase.Action, "ActionSystem: incorrect turn phase");
 
     uint32 currentTurn = LibTurn.getCurrentTurn(components);
@@ -43,11 +46,52 @@ contract ActionSystem is System {
       for (uint256 j = 0; j < i; j++) {
         require(actions[i].shipEntity != actions[j].shipEntity, "ActionSystem: duplicated ships");
       }
-      LibAction.executeActions(components, actions[i]);
+      for (uint256 k = 0; k < 2; k++) {
+        uint256 actionEntity = actions[i].actionEntities[k];
+        bytes memory metadata = actions[i].metadata[k];
+        if (actionEntity == 0) continue;
+        console.log("action entity:", actionEntity);
+        (bool success, bytes memory content) = staticcallFunctionSelector(
+          actionComponent.getValue(actionEntity),
+          abi.encode(actions[i].shipEntity, metadata)
+        );
+        require(success, "action failed");
+      }
     }
   }
 
   function executeTyped(Action[] calldata actions) public returns (bytes memory) {
     return execute(abi.encode(actions));
+  }
+
+  function load(uint256 shipEntity, bytes memory metadata) public {
+    uint256 cannonEntity = abi.decode(metadata, (uint256));
+    console.log("ship entity:", shipEntity);
+    LibCombat.load(components, shipEntity, cannonEntity);
+  }
+
+  function fire(uint256 shipEntity, bytes memory metadata) public {
+    (uint256 cannonEntity, uint256[] memory targetEntities) = abi.decode(metadata, (uint256, uint256[]));
+    LibCombat.attack(components, shipEntity, cannonEntity, targetEntities);
+  }
+
+  function raiseSail(uint256 shipEntity, bytes memory metadata) public {
+    LibAction.raiseSail(components, shipEntity);
+  }
+
+  function lowerSail(uint256 shipEntity, bytes memory metadata) public {
+    LibAction.lowerSail(components, shipEntity);
+  }
+
+  function repairSail(uint256 shipEntity, bytes memory metadata) public {
+    LibAction.repairSail(components, shipEntity);
+  }
+
+  function extinguishFire(uint256 shipEntity, bytes memory metadata) public {
+    LibAction.extinguishFire(components, shipEntity);
+  }
+
+  function repairCannons(uint256 shipEntity, bytes memory metadata) public {
+    LibAction.repairCannons(components, shipEntity);
   }
 }
