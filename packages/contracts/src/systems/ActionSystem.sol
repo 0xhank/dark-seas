@@ -8,7 +8,7 @@ import { getAddressById, addressToEntity } from "solecs/utils.sol";
 
 // Components
 import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
-import { ActionComponent, ID as ActionComponentID, staticcallFunctionSelector } from "../components/ActionComponent.sol";
+import { ActionComponent, ID as ActionComponentID, FunctionSelector } from "../components/ActionComponent.sol";
 
 // Types
 import { Action, Phase } from "../libraries/DSTypes.sol";
@@ -49,11 +49,12 @@ contract ActionSystem is System {
       for (uint256 k = 0; k < 2; k++) {
         uint256 actionEntity = actions[i].actionEntities[k];
         bytes memory metadata = actions[i].metadata[k];
-        if (actionEntity == 0) continue;
         console.log("action entity:", actionEntity);
-        (bool success, bytes memory content) = staticcallFunctionSelector(
-          actionComponent.getValue(actionEntity),
-          abi.encode(actions[i].shipEntity, metadata)
+        if (actionEntity == 0) continue;
+        FunctionSelector memory functionSelector = actionComponent.getValue(actionEntity);
+
+        (bool success, bytes memory content) = functionSelector.contr.call(
+          bytes.concat(functionSelector.func, abi.encode(actions[i].shipEntity, metadata))
         );
         require(success, "action failed");
       }
@@ -66,7 +67,6 @@ contract ActionSystem is System {
 
   function load(uint256 shipEntity, bytes memory metadata) public {
     uint256 cannonEntity = abi.decode(metadata, (uint256));
-    console.log("ship entity:", shipEntity);
     LibCombat.load(components, shipEntity, cannonEntity);
   }
 

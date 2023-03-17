@@ -61,7 +61,6 @@ library LibCombat {
     );
 
     LoadedComponent loadedComponent = LoadedComponent(getAddressById(components, LoadedComponentID));
-    console.log("loaded component address:", getAddressById(components, LoadedComponentID));
     require(!loadedComponent.has(cannonEntity), "attack: cannon already loaded");
     loadedComponent.set(cannonEntity);
   }
