@@ -5,7 +5,7 @@ pragma solidity >=0.8.0;
 import "solecs/System.sol";
 import { IWorld } from "solecs/interfaces/IWorld.sol";
 import { getAddressById, addressToEntity } from "solecs/utils.sol";
-
+import { console } from "forge-std/console.sol";
 // Components
 import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
 
@@ -50,32 +50,39 @@ contract ActionSystem is System {
   }
 
   function load(uint256 shipEntity, bytes memory metadata) public {
+    require(msg.sender == address(this), "load: can only be called by ActionSystem");
     uint256 cannonEntity = abi.decode(metadata, (uint256));
     LibCombat.load(components, shipEntity, cannonEntity);
   }
 
   function fire(uint256 shipEntity, bytes memory metadata) public {
+    require(msg.sender == address(this), "fire: can only be called by ActionSystem");
     (uint256 cannonEntity, uint256[] memory targetEntities) = abi.decode(metadata, (uint256, uint256[]));
     LibCombat.attack(components, shipEntity, cannonEntity, targetEntities);
   }
 
   function raiseSail(uint256 shipEntity, bytes memory metadata) public {
+    require(msg.sender == address(this), "raiseSail: can only be called by ActionSystem");
     LibAction.raiseSail(components, shipEntity);
   }
 
   function lowerSail(uint256 shipEntity, bytes memory metadata) public {
+    require(msg.sender == address(this), "lowerSail: can only be called by ActionSystem");
     LibAction.lowerSail(components, shipEntity);
   }
 
   function repairSail(uint256 shipEntity, bytes memory metadata) public {
+    require(msg.sender == address(this), "repairSail: can only be called by ActionSystem");
     LibAction.repairSail(components, shipEntity);
   }
 
   function extinguishFire(uint256 shipEntity, bytes memory metadata) public {
+    require(msg.sender == address(this), "extinguishFire: can only be called by ActionSystem");
     LibAction.extinguishFire(components, shipEntity);
   }
 
   function repairCannons(uint256 shipEntity, bytes memory metadata) public {
+    require(msg.sender == address(this), "repairCannons: can only be called by ActionSystem");
     LibAction.repairCannons(components, shipEntity);
   }
 }
