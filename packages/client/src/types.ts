@@ -1,5 +1,5 @@
 import { EntityID, EntityIndex } from "@latticexyz/recs";
-import { Coord } from "@latticexyz/utils";
+import { Coord, keccak256 } from "@latticexyz/utils";
 export const DELAY = 5000;
 export type Action = {
   shipEntity: EntityID;
@@ -28,7 +28,6 @@ export type CannonPrototype = {
   firepower: number;
   range: number;
 };
-
 export enum ActionType {
   None,
   Load,
@@ -39,6 +38,16 @@ export enum ActionType {
   RepairCannons,
   RepairSail,
 }
+export const ActionHashes: Record<ActionType, string> = {
+  [ActionType.None]: "0",
+  [ActionType.Load]: keccak256("action.load"),
+  [ActionType.Fire]: keccak256("action.fire"),
+  [ActionType.RaiseSail]: keccak256("action.raiseSail"),
+  [ActionType.LowerSail]: keccak256("action.lowerSail"),
+  [ActionType.ExtinguishFire]: keccak256("action.ExtinguishFire"),
+  [ActionType.RepairCannons]: keccak256("action.repairCannons"),
+  [ActionType.RepairSail]: keccak256("action.repairSail"),
+};
 
 export enum Phase {
   Commit,
@@ -58,6 +67,7 @@ export const ActionNames: Record<number, string> = {
 };
 
 export const ActionImg: Record<number, string> = {
+  [ActionType.None]: "",
   [ActionType.Fire]: "/icons/fire-forward.svg",
   [ActionType.Load]: "/icons/load.svg",
   [ActionType.RaiseSail]: "/icons/sail.svg",

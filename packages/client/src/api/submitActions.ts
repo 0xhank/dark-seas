@@ -6,7 +6,7 @@ import { ActionStruct } from "../../../contracts/types/ethers-contracts/ActionSy
 import { SystemTypes } from "../../../contracts/types/SystemTypes";
 import { components } from "../mud/components";
 import { world } from "../mud/world";
-import { Action, ActionType, TxType } from "../types";
+import { Action, ActionHashes, ActionType, TxType } from "../types";
 
 export function submitActions(
   systems: TxQueue<SystemTypes>,
@@ -54,7 +54,7 @@ export function submitActions(
 
         shipStruct.push({
           shipEntity: action.shipEntity,
-          actionTypes: action.actionTypes,
+          actionEntities: [ActionHashes[action.actionTypes[0]], ActionHashes[action.actionTypes[1]]],
           metadata: [metadata[0], metadata[1]] as [string, string],
         });
       });

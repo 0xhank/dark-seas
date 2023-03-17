@@ -23,7 +23,7 @@ import {
 } from "../../phaser/constants";
 import { SetupResult } from "../../setupMUD";
 import { Category } from "../../sound";
-import { ActionType, Sprites } from "../../types";
+import { ActionHashes, ActionType, Sprites } from "../../types";
 import { distance } from "../../utils/distance";
 import { getMidpoint, midpoint } from "../../utils/trig";
 
@@ -93,8 +93,13 @@ export function createSuccessfulActionSystem(MUD: SetupResult) {
       }
       // iterate through ship actions
 
-      const executedActions = action.actionTypes.map((a, i) => {
-        const actionType = a as ActionType;
+      const executedActions = action.actionEntities.map((a, i) => {
+        const actionStr = BigNumber.from(a).toHexString();
+        const actionTypeStr = Object.keys(ActionHashes).find(
+          (key) => ActionHashes[Number(key) as ActionType] == actionStr
+        );
+        if (!actionTypeStr) return ActionType.None;
+        const actionType = Number(actionTypeStr);
         completeAction(shipEntity, actionType, action.metadata[i], shipUpdates);
         return actionType;
       });
