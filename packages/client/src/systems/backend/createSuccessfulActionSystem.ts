@@ -9,7 +9,7 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
-import { BigNumber } from "ethers";
+import { BigNumber, utils } from "ethers";
 import { BytesLike, defaultAbiCoder as abi } from "ethers/lib/utils";
 import { ActionStruct } from "../../../../contracts/types/ethers-contracts/ActionSystem";
 import {
@@ -93,10 +93,9 @@ export function createSuccessfulActionSystem(MUD: SetupResult) {
       }
       // iterate through ship actions
 
-      const executedActions = action.actionEntities.map((a, i) => {
-        const actionStr = BigNumber.from(a).toHexString();
+      const executedActions = action.actions.map((a, i) => {
         const actionTypeStr = Object.keys(ActionHashes).find(
-          (key) => ActionHashes[Number(key) as ActionType] == actionStr
+          (key) => ActionHashes[Number(key) as ActionType] == utils.toUtf8String(a)
         );
         if (!actionTypeStr) return ActionType.None;
         const actionType = Number(actionTypeStr);

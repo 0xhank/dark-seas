@@ -1,5 +1,5 @@
 import { EntityID, EntityIndex } from "@latticexyz/recs";
-import { Coord, keccak256 } from "@latticexyz/utils";
+import { Coord } from "@latticexyz/utils";
 export const DELAY = 5000;
 export type Action = {
   shipEntity: EntityID;
@@ -39,14 +39,14 @@ export enum ActionType {
   RepairSail,
 }
 export const ActionHashes: Record<ActionType, string> = {
-  [ActionType.None]: "0",
-  [ActionType.Load]: keccak256("action.load"),
-  [ActionType.Fire]: keccak256("action.fire"),
-  [ActionType.RaiseSail]: keccak256("action.raiseSail"),
-  [ActionType.LowerSail]: keccak256("action.lowerSail"),
-  [ActionType.ExtinguishFire]: keccak256("action.ExtinguishFire"),
-  [ActionType.RepairCannons]: keccak256("action.repairCannons"),
-  [ActionType.RepairSail]: keccak256("action.repairSail"),
+  [ActionType.None]: "action.none",
+  [ActionType.Load]: "action.load",
+  [ActionType.Fire]: "action.fire",
+  [ActionType.RaiseSail]: "action.raiseSail",
+  [ActionType.LowerSail]: "action.lowerSail",
+  [ActionType.ExtinguishFire]: "action.ExtinguishFire",
+  [ActionType.RepairCannons]: "action.repairCannons",
+  [ActionType.RepairSail]: "action.repairSail",
 };
 
 export enum Phase {

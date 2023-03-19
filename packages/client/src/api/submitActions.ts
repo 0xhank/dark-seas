@@ -1,6 +1,7 @@
 import { TxQueue } from "@latticexyz/network";
 import { EntityID, EntityIndex, getComponentValue } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
+import { utils } from "ethers";
 import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { ActionStruct } from "../../../contracts/types/ethers-contracts/ActionSystem";
 import { SystemTypes } from "../../../contracts/types/SystemTypes";
@@ -54,7 +55,10 @@ export function submitActions(
 
         shipStruct.push({
           shipEntity: action.shipEntity,
-          actionEntities: [ActionHashes[action.actionTypes[0]], ActionHashes[action.actionTypes[1]]],
+          actions: [
+            utils.toUtf8Bytes(ActionHashes[action.actionTypes[0]]),
+            utils.toUtf8Bytes(ActionHashes[action.actionTypes[1]]),
+          ],
           metadata: [metadata[0], metadata[1]] as [string, string],
         });
       });
