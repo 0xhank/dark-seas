@@ -81,7 +81,7 @@ export function stagedMoveSystems(MUD: SetupResult) {
     if (!ship) return;
     ship.setDepth(RenderDepth.Foreground6);
     ship.setInteractive({ cursor: "pointer" });
-    ship.on("pointerdown", () => {
+    ship.on("pointerup", () => {
       setComponent(SelectedShip, godEntity, { value: shipEntity });
     });
 

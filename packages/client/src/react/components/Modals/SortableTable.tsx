@@ -79,9 +79,11 @@ export function SortableTable<T>({
     <Table
       paginated={paginated}
       headerStyle={{
-        // backgroundColor: dfstyles.colors.background,
+        backgroundColor: colors.tan,
         position: "sticky",
         top: 0,
+        display: "relative",
+        zIndex: 101,
       }}
       rows={sortedRows}
       headers={headers.map((originalHeader, i) => (

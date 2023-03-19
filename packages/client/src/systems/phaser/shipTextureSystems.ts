@@ -131,7 +131,7 @@ export function shipTextureSystems(MUD: SetupResult) {
     const object = getSpriteObject(update.entity);
 
     if (update.type == UpdateType.Exit) {
-      object.off("pointerdown");
+      object.off("pointerup");
       object.off("pointerover");
       object.off("pointerout");
       object.disableInteractive();

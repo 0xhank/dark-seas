@@ -680,7 +680,7 @@ export async function createUtilities(
       const acted = getComponentValue(components.LastAction, shipOwner)?.value == currentTurn;
       if (damagedCannons || !myShip || acted || (cannotAdd && !cannonSelected) || phase !== Phase.Action) return;
       firingPolygon.setInteractive(firingPolygon.geom, Phaser.Geom.Polygon.Contains);
-      firingPolygon.on("pointerdown", () => handleNewActionsCannon(actionType, cannonEntity));
+      firingPolygon.on("pointerup", () => handleNewActionsCannon(actionType, cannonEntity));
       firingPolygon.on("pointerover", () =>
         setComponent(clientComponents.HoveredAction, godEntity, { shipEntity, actionType, specialEntity: cannonEntity })
       );

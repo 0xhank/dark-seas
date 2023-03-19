@@ -57,7 +57,7 @@ export function localHealthSystems(MUD: SetupResult) {
 
     shipObject.setInteractive({ cursor: "pointer" });
     shipObject.on("pointerover", () => setComponent(HoveredShip, godEntity, { value: shipEntity }));
-    shipObject.off("pointerdown");
+    shipObject.off("pointerup");
     shipObject.on("pointerout", () => removeComponent(HoveredShip, godEntity));
     if (health <= 0) {
       const contractHealth = getComponentValueStrict(Health, shipEntity).value;
@@ -78,7 +78,7 @@ export function localHealthSystems(MUD: SetupResult) {
     } else {
       shipObject.setAlpha(1);
       shipObject.setDepth(RenderDepth.Foreground3);
-      shipObject.on("pointerdown", () => setComponent(SelectedShip, godEntity, { value: shipEntity }));
+      shipObject.on("pointerup", () => setComponent(SelectedShip, godEntity, { value: shipEntity }));
 
       if (oldHealth > 0 && health > oldHealth) {
         console.log(`${shipEntity} health increase: old ${oldHealth} new ${health}`);

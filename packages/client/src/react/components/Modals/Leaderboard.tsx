@@ -98,7 +98,11 @@ export function Leaderboard() {
     (ship: ShipData) => <p>{ship.health}</p>,
     (ship: ShipData) => <p>{ship.kills}</p>,
     (ship: ShipData) => <p>{ship.owner}</p>,
-    (ship: ShipData) => <Button onClick={() => focusShip(ship.entity)}>view</Button>,
+    (ship: ShipData) => (
+      <Button onClick={() => focusShip(ship.entity)} style={{ zIndex: -1 }}>
+        view
+      </Button>
+    ),
   ];
   const shipSort = [
     (a: ShipData, b: ShipData) => a.name.localeCompare(b.name),
@@ -109,24 +113,28 @@ export function Leaderboard() {
   return (
     <>
       <LeaderboardContainer onClick={(e) => e.stopPropagation()}>
-        <p style={{ fontSize: "2rem" }}>Player Leaderboard</p>
-        <SortableTable
-          rows={players}
-          headers={["", "Ships", "Kills"]}
-          columns={playerColumns}
-          sortFunctions={playerSort}
-          alignments={["c", "c", "c"]}
-        />
+        <div style={{ overflow: "auto" }}>
+          <p style={{ fontSize: "2rem" }}>Player Leaderboard</p>
+          <SortableTable
+            rows={players}
+            headers={["Name", "Ships", "Kills"]}
+            columns={playerColumns}
+            sortFunctions={playerSort}
+            alignments={["c", "c", "c"]}
+          />
+        </div>
       </LeaderboardContainer>
       <LeaderboardContainer onClick={(e) => e.stopPropagation()}>
-        <p style={{ fontSize: "2rem" }}>Ship Leaderboard</p>
-        <SortableTable
-          rows={ships}
-          headers={["", "Health", "Kills", "Owner"]}
-          columns={shipColumns}
-          sortFunctions={shipSort}
-          alignments={["c", "c", "c", "c"]}
-        />
+        <div style={{ overflow: "auto" }}>
+          <p style={{ fontSize: "2rem", position: "sticky" }}>Ship Leaderboard</p>
+          <SortableTable
+            rows={ships}
+            headers={["Name", "Health", "Kills", "Owner", ""]}
+            columns={shipColumns}
+            sortFunctions={shipSort}
+            alignments={["c", "c", "c", "c"]}
+          />
+        </div>
       </LeaderboardContainer>
     </>
   );
@@ -145,4 +153,20 @@ const LeaderboardContainer = styled.div`
   justify-content: flex-start;
   align-items: center;
   flex-direction: column;
+  ::-webkit-scrollbar {
+    width: 10px;
+    margin: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border: solid 3px transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border: solid 3px transparent;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+  overflow: hidden;
 `;
