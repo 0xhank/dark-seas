@@ -17,24 +17,13 @@ struct Line {
 
 struct Action {
   uint256 shipEntity;
-  ActionType[2] actionTypes;
+  bytes[2] actions;
   bytes[2] metadata;
 }
 
 struct Move {
   uint256 shipEntity;
   uint256 moveCardEntity;
-}
-
-enum ActionType {
-  None,
-  Load,
-  Fire,
-  RaiseSail,
-  LowerSail,
-  ExtinguishFire,
-  RepairCannons,
-  RepairSail
 }
 
 enum Phase {

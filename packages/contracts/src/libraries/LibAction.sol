@@ -12,8 +12,9 @@ import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../com
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
+import { ActionComponent, ID as ActionComponentID, FunctionSelector } from "../components/ActionComponent.sol";
 // Types
-import { Action, ActionType } from "../libraries/DSTypes.sol";
+import { Action } from "../libraries/DSTypes.sol";
 
 // Libraries
 import "./LibCombat.sol";
@@ -21,16 +22,16 @@ import "./LibCombat.sol";
 library LibAction {
   /**
    * @notice  executes submitted action
-   * @param   components  world components
-   * @param   action  set of actions to execute
+   * @param   components  world components * @param   action  set of actions to execute
    */
   function executeActions(IUint256Component components, Action memory action) public {
     // iterate through each action of each ship
-    uint256 cannonEntity1;
+    ActionComponent actionComponent = ActionComponent(getAddressById(components, ActionComponentID));
     for (uint256 i = 0; i < 2; i++) {
-      ActionType actionType = action.actionTypes[i];
+      bytes memory actionId = action.actions[i];
+      uint256 actionHash = uint256(keccak256(actionId));
       bytes memory metadata = action.metadata[i];
-      if (actionType == ActionType.None) continue;
+      if (!actionComponent.has(actionHash)) continue;
       require(
         OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(action.shipEntity) ==
           addressToEntity(msg.sender),
@@ -46,35 +47,23 @@ library LibAction {
         HealthComponent(getAddressById(components, HealthComponentID)).getValue(action.shipEntity) > 0,
         "ActionSystem: Entity is dead"
       );
-
-      // todo: fix ensure action hasn't already been made
-      if (i == 1 && actionType != ActionType.Fire && actionType != ActionType.Load) {
-        require(action.actionTypes[0] != actionType, "ActionSystem: action already used");
+      if (i == 1) {
+        if (actionHash != uint256(keccak256("action.fire")) && actionHash != uint256(keccak256("action.load"))) {
+          require(uint256(keccak256(action.actions[0])) != actionHash, "ActionSystem: action already used");
+        } else {
+          require(
+            abi.decode(action.metadata[0], (uint256)) != abi.decode(action.metadata[i], (uint256)),
+            "ActionSystem: cannon already acted"
+          );
+        }
       }
-      if (actionType == ActionType.Load) {
-        uint256 cannonEntity = abi.decode(metadata, (uint256));
-        if (i == 0) cannonEntity1 = cannonEntity;
-        else require(cannonEntity != cannonEntity1, "ActionSystem: cannon already acted");
+      FunctionSelector memory functionSelector = ActionComponent(getAddressById(components, ActionComponentID))
+        .getValue(actionHash);
 
-        LibCombat.load(components, action.shipEntity, cannonEntity);
-      } else if (actionType == ActionType.Fire) {
-        (uint256 cannonEntity, uint256[] memory targetEntities) = abi.decode(metadata, (uint256, uint256[]));
-        if (i == 0) cannonEntity1 = cannonEntity;
-        else require(cannonEntity != cannonEntity1, "ActionSystem: cannon already acted");
-        LibCombat.attack(components, action.shipEntity, cannonEntity, targetEntities);
-      } else if (actionType == ActionType.RaiseSail) {
-        raiseSail(components, action.shipEntity);
-      } else if (actionType == ActionType.LowerSail) {
-        lowerSail(components, action.shipEntity);
-      } else if (actionType == ActionType.ExtinguishFire) {
-        extinguishFire(components, action.shipEntity);
-      } else if (actionType == ActionType.RepairCannons) {
-        repairMast(components, action.shipEntity);
-      } else if (actionType == ActionType.RepairSail) {
-        repairSail(components, action.shipEntity);
-      } else {
-        revert("ActionSystem: invalid action");
-      }
+      (bool success, bytes memory content) = functionSelector.contr.call(
+        bytes.concat(functionSelector.func, abi.encode(action.shipEntity, metadata))
+      );
+      require(success, "action failed");
     }
 
     // todo: apply damage to all ships every turn instead of only if they act
@@ -86,7 +75,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  entity to apply damage to
    */
-  function applySpecialDamage(IUint256Component components, uint256 shipEntity) private {
+  function applySpecialDamage(IUint256Component components, uint256 shipEntity) public {
     OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
 
     // if ship has a damaged mast, reduce hull health by 1
@@ -100,7 +89,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  entity of which to raise sail
    */
-  function raiseSail(IUint256Component components, uint256 shipEntity) private {
+  function raiseSail(IUint256Component components, uint256 shipEntity) public {
     SailPositionComponent sailPositionComponent = SailPositionComponent(
       getAddressById(components, SailPositionComponentID)
     );
@@ -117,7 +106,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  entity of which to lower sail
    */
-  function lowerSail(IUint256Component components, uint256 shipEntity) private {
+  function lowerSail(IUint256Component components, uint256 shipEntity) public {
     SailPositionComponent sailPositionComponent = SailPositionComponent(
       getAddressById(components, SailPositionComponentID)
     );
@@ -134,7 +123,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  ship to extinguish
    */
-  function extinguishFire(IUint256Component components, uint256 shipEntity) private {
+  function extinguishFire(IUint256Component components, uint256 shipEntity) public {
     OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
 
     if (!onFireComponent.has(shipEntity)) return;
@@ -150,7 +139,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  ship to repair
    */
-  function repairMast(IUint256Component components, uint256 shipEntity) private {
+  function repairCannons(IUint256Component components, uint256 shipEntity) public {
     DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
       getAddressById(components, DamagedCannonsComponentID)
     );
@@ -169,7 +158,7 @@ library LibAction {
    * @param   components  world components
    * @param   shipEntity  ship to repair
    */
-  function repairSail(IUint256Component components, uint256 shipEntity) private {
+  function repairSail(IUint256Component components, uint256 shipEntity) public {
     SailPositionComponent sailPositionComponent = SailPositionComponent(
       getAddressById(components, SailPositionComponentID)
     );

@@ -28,7 +28,6 @@ export type CannonPrototype = {
   firepower: number;
   range: number;
 };
-
 export enum ActionType {
   None,
   Load,
@@ -39,6 +38,16 @@ export enum ActionType {
   RepairCannons,
   RepairSail,
 }
+export const ActionHashes: Record<ActionType, string> = {
+  [ActionType.None]: "action.none",
+  [ActionType.Load]: "action.load",
+  [ActionType.Fire]: "action.fire",
+  [ActionType.RaiseSail]: "action.raiseSail",
+  [ActionType.LowerSail]: "action.lowerSail",
+  [ActionType.ExtinguishFire]: "action.ExtinguishFire",
+  [ActionType.RepairCannons]: "action.repairCannons",
+  [ActionType.RepairSail]: "action.repairSail",
+};
 
 export enum Phase {
   Commit,
@@ -58,6 +67,7 @@ export const ActionNames: Record<number, string> = {
 };
 
 export const ActionImg: Record<number, string> = {
+  [ActionType.None]: "",
   [ActionType.Fire]: "/icons/fire-forward.svg",
   [ActionType.Load]: "/icons/load.svg",
   [ActionType.RaiseSail]: "/icons/sail.svg",

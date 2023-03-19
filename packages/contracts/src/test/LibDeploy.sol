@@ -42,6 +42,7 @@ import { ShipPrototypeComponent, ID as ShipPrototypeComponentID } from "componen
 import { KillsComponent, ID as KillsComponentID } from "components/KillsComponent.sol";
 import { LastHitComponent, ID as LastHitComponentID } from "components/LastHitComponent.sol";
 import { BootyComponent, ID as BootyComponentID } from "components/BootyComponent.sol";
+import { ActionComponent, ID as ActionComponentID } from "components/ActionComponent.sol";
 
 // Systems (requires 'systems=...' remapping in project's remappings.txt)
 import { MoveSystem, ID as MoveSystemID } from "systems/MoveSystem.sol";
@@ -180,6 +181,10 @@ library LibDeploy {
       console.log("Deploying BootyComponent");
       comp = new BootyComponent(address(result.world));
       console.log(address(comp));
+
+      console.log("Deploying ActionComponent");
+      comp = new ActionComponent(address(result.world));
+      console.log(address(comp));
     }
 
     // Deploy systems
@@ -266,6 +271,7 @@ library LibDeploy {
     authorizeWriter(components, KillsComponentID, address(system));
     authorizeWriter(components, LastHitComponentID, address(system));
     authorizeWriter(components, BootyComponentID, address(system));
+    authorizeWriter(components, ActionComponentID, address(system));
     console.log(address(system));
 
     console.log("Deploying PlayerSpawnSystem");
@@ -341,7 +347,8 @@ library LibDeploy {
     authorizeWriter(components, KillsComponentID, address(system));
     authorizeWriter(components, LastHitComponentID, address(system));
     authorizeWriter(components, BootyComponentID, address(system));
-    if (init) system.execute(abi.encode(block.timestamp, 25, 9, 25, 200, 32104676, 10, 9, false, 700, 6));
+    authorizeWriter(components, ActionComponentID, address(system));
+    if (init) system.execute(abi.encode(block.timestamp, 25, 9, 25, 90, 345676, 3, 9, false, 400, 6));
     console.log(address(system));
   }
 }

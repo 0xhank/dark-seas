@@ -1842,7 +1842,12 @@
   resolved "https://registry.yarnpkg.com/@latticexyz/std-client/-/std-client-1.40.0.tgz#5b5d471b9c449a6dbf69fec63355dd0c84199370"
   integrity sha512-hiUITjjQGILHpBUTJNfWTMamJc9L6OeySNMqD0PpFjTLc8fYgBX9pcxtiwZGtetZ6Htsv1Gs4yZ7HuLdqdx2lA==
 
-"@latticexyz/std-contracts@1.40.0", "@latticexyz/std-contracts@^1.39.0":
+"@latticexyz/std-contracts@1.41.0":
+  version "1.41.0"
+  resolved "https://registry.yarnpkg.com/@latticexyz/std-contracts/-/std-contracts-1.41.0.tgz#77cdffcf4d2a6ca84632debe0e15aa003b33899b"
+  integrity sha512-TxiN7mGag3hadziblOfQi9/IwP09ninnpf5jz36DCFjramweg5woEGcd+/y8d19jRk0iPD/TioeuzN+LhXNFVg==
+
+"@latticexyz/std-contracts@^1.39.0":
   version "1.40.0"
   resolved "https://registry.yarnpkg.com/@latticexyz/std-contracts/-/std-contracts-1.40.0.tgz#574fa87b980812a52a2e0514f66a7de54f559715"
   integrity sha512-ipaYeVNr7mZS16Fry4id5wBTyg6FZR/S3kGwW2RxULZm0YuzptPi0FM69R7lO8woe1UlvOo3N4YZLkhPDbLHtg==

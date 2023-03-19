@@ -45,9 +45,6 @@ contract RespawnTest is DarkSeasTest {
   function testRevertNotDed() public prank(deployer) {
     uint256[] memory shipEntities = setup();
 
-    for (uint256 i = 0; i < shipEntities.length; i++) {
-      console.log("shipEntity:", shipEntities[i]);
-    }
     vm.expectRevert(bytes("RespawnSystem: ship is not ded"));
     respawnSystem.executeTyped(shipEntities);
   }

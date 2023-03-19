@@ -5,7 +5,6 @@ pragma solidity ^0.8.0;
 import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 import { getAddressById } from "solecs/utils.sol";
 import "std-contracts/components/Uint32Component.sol";
-
 // Components
 import { RangeComponent, ID as RangeComponentID } from "../components/RangeComponent.sol";
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
@@ -61,7 +60,6 @@ library LibCombat {
     );
 
     LoadedComponent loadedComponent = LoadedComponent(getAddressById(components, LoadedComponentID));
-
     require(!loadedComponent.has(cannonEntity), "attack: cannon already loaded");
     loadedComponent.set(cannonEntity);
   }

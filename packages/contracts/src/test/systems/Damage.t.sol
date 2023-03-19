@@ -19,7 +19,7 @@ import { PositionComponent, ID as PositionComponentID } from "../../components/P
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
 
 // Types
-import { Action, ActionType, Coord, Move } from "../../libraries/DSTypes.sol";
+import { Action, Coord, Move } from "../../libraries/DSTypes.sol";
 
 // Libraries
 import "../../libraries/LibTurn.sol";
@@ -48,7 +48,7 @@ contract DamageTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: attackerEntity,
-      actionTypes: [ActionType.RepairCannons, ActionType.None],
+      actions: [bytes("action.repairCannons"), none],
       metadata: [none, none]
     });
     actions.push(action);
@@ -78,7 +78,7 @@ contract DamageTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.ExtinguishFire, ActionType.None],
+      actions: [bytes("action.extinguishFire"), none],
       metadata: [none, none]
     });
     actions.push(action);
@@ -100,11 +100,7 @@ contract DamageTest is DarkSeasTest {
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 69, Phase.Action));
 
-    Action memory action = Action({
-      shipEntity: shipEntity,
-      actionTypes: [ActionType.None, ActionType.None],
-      metadata: [none, none]
-    });
+    Action memory action = Action({ shipEntity: shipEntity, actions: [none, none], metadata: [none, none] });
     actions.push(action);
 
     actionSystem.executeTyped(actions);

@@ -8,7 +8,8 @@ import { getAddressById } from "solecs/utils.sol";
 // Components
 import { MoveCardComponent, ID as MoveCardComponentID } from "../components/MoveCardComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
-
+import { ActionComponent, ID as ActionComponentID, FunctionSelector } from "../components/ActionComponent.sol";
+import { ActionSystem, ID as ActionSystemID } from "../systems/ActionSystem.sol";
 // Types
 import { GodID, MoveCard, GameConfig, ShipPrototype, CannonPrototype } from "../libraries/DSTypes.sol";
 
@@ -21,10 +22,16 @@ contract InitSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
-    MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
     GameConfigComponent gameConfigComponent = GameConfigComponent(getAddressById(components, GameConfigComponentID));
 
     gameConfigComponent.set(GodID, abi.decode(arguments, (GameConfig)));
+
+    createShips();
+    createMoveCards();
+    createActions();
+  }
+
+  function createShips() private {
     CannonPrototype[] memory cannon6 = new CannonPrototype[](6);
     CannonPrototype[] memory cannon5 = new CannonPrototype[](5);
     CannonPrototype[] memory cannon4 = new CannonPrototype[](4);
@@ -113,10 +120,12 @@ contract InitSystem is System {
       components,
       ShipPrototype({ price: 5, length: 13, maxHealth: 8, speed: 110, cannons: cannon5, name: "Victory" })
     );
+  }
 
+  function createMoveCards() private {
     // Initialize Prototypes
+    MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
     uint256 moveEntity1 = uint256(keccak256("ds.prototype.moveEntity1"));
-
     moveCardComponent.set(moveEntity1, MoveCard({ direction: 0, distance: 50, rotation: 0 }));
 
     uint256 moveEntity2 = uint256(keccak256("ds.prototype.moveEntity2"));
@@ -134,5 +143,33 @@ contract InitSystem is System {
     uint256 moveEntity5 = uint256(keccak256("ds.prototype.moveEntity5"));
 
     moveCardComponent.set(moveEntity5, MoveCard({ direction: 333, distance: 40, rotation: 315 }));
+  }
+
+  function createActions() private {
+    ActionComponent actionComponent = ActionComponent(getAddressById(components, ActionComponentID));
+    ActionSystem actionSystem = ActionSystem(getAddressById(world.systems(), ActionSystemID));
+    uint256 LoadID = uint256(keccak256("action.load"));
+    actionComponent.set(LoadID, FunctionSelector(address(actionSystem), actionSystem.load.selector));
+
+    uint256 FireID = uint256(keccak256("action.fire"));
+    actionComponent.set(FireID, FunctionSelector(address(actionSystem), actionSystem.fire.selector));
+
+    uint256 RaiseSailID = uint256(keccak256("action.raiseSail"));
+    actionComponent.set(RaiseSailID, FunctionSelector(address(actionSystem), actionSystem.raiseSail.selector));
+
+    uint256 LowerSailID = uint256(keccak256("action.lowerSail"));
+    actionComponent.set(LowerSailID, FunctionSelector(address(actionSystem), actionSystem.lowerSail.selector));
+
+    uint256 RepairSailID = uint256(keccak256("action.repairSail"));
+    actionComponent.set(RepairSailID, FunctionSelector(address(actionSystem), actionSystem.repairSail.selector));
+
+    uint256 ExtinguishFireID = uint256(keccak256("action.extinguishFire"));
+    actionComponent.set(
+      ExtinguishFireID,
+      FunctionSelector(address(actionSystem), actionSystem.extinguishFire.selector)
+    );
+
+    uint256 RepairCannonsID = uint256(keccak256("action.repairCannons"));
+    actionComponent.set(RepairCannonsID, FunctionSelector(address(actionSystem), actionSystem.repairCannons.selector));
   }
 }

@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
-import { console } from "forge-std/console.sol";
 
 // External
 import { getAddressById } from "solecs/utils.sol";
