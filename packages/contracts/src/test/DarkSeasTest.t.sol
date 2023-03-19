@@ -97,10 +97,6 @@ contract DarkSeasTest is MudTest {
     return shipEntity;
   }
 
-  function entitize(bytes memory input) internal returns (uint256 ret) {
-    ret = uint256(keccak256(input));
-  }
-
   function assertCoordEq(Coord memory a, Coord memory b) internal {
     assertEq(a.x, b.x, "different x value");
     assertEq(a.y, b.y, "different y value");

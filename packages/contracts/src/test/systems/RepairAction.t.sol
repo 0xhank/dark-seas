@@ -46,7 +46,7 @@ contract RepairActionTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionEntities: [entitize("action.extinguishFire"), 0],
+      actions: [bytes("action.extinguishFire"), none],
       metadata: [none, none]
     });
     actions.push(action);
@@ -67,7 +67,7 @@ contract RepairActionTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionEntities: [entitize("action.repairSail"), 0],
+      actions: [bytes("action.repairSail"), none],
       metadata: [none, none]
     });
     actions.push(action);
@@ -91,7 +91,7 @@ contract RepairActionTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionEntities: [entitize("action.repairCannons"), 0],
+      actions: [bytes("action.repairCannons"), none],
       metadata: [none, none]
     });
     actions.push(action);

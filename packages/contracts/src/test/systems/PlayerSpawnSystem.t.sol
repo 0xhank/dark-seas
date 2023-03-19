@@ -70,8 +70,6 @@ contract PlayerSpawnTest is DarkSeasTest {
   function testSpawn() public prank(deployer) {
     setup();
 
-    console.log("msg.sender: ", msg.sender);
-    console.log("deployer: ", deployer);
     GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
       GodID
     );

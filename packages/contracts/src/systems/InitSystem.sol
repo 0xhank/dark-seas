@@ -149,14 +149,12 @@ contract InitSystem is System {
     ActionComponent actionComponent = ActionComponent(getAddressById(components, ActionComponentID));
     ActionSystem actionSystem = ActionSystem(getAddressById(world.systems(), ActionSystemID));
     uint256 LoadID = uint256(keccak256("action.load"));
-    console.log("action system address:", address(actionSystem));
     actionComponent.set(LoadID, FunctionSelector(address(actionSystem), actionSystem.load.selector));
 
     uint256 FireID = uint256(keccak256("action.fire"));
     actionComponent.set(FireID, FunctionSelector(address(actionSystem), actionSystem.fire.selector));
 
     uint256 RaiseSailID = uint256(keccak256("action.raiseSail"));
-    console.log("raise said id: ", RaiseSailID);
     actionComponent.set(RaiseSailID, FunctionSelector(address(actionSystem), actionSystem.raiseSail.selector));
 
     uint256 LowerSailID = uint256(keccak256("action.lowerSail"));

@@ -48,7 +48,7 @@ contract DamageTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: attackerEntity,
-      actionEntities: [entitize("action.repairCannons"), 0],
+      actions: [bytes("action.repairCannons"), none],
       metadata: [none, none]
     });
     actions.push(action);
@@ -78,7 +78,7 @@ contract DamageTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionEntities: [entitize("action.extinguishFire"), 0],
+      actions: [bytes("action.extinguishFire"), none],
       metadata: [none, none]
     });
     actions.push(action);
@@ -100,11 +100,7 @@ contract DamageTest is DarkSeasTest {
 
     vm.warp(LibTurn.getTurnAndPhaseTime(components, 69, Phase.Action));
 
-    Action memory action = Action({
-      shipEntity: shipEntity,
-      actionEntities: [uint256(0), uint256(0)],
-      metadata: [none, none]
-    });
+    Action memory action = Action({ shipEntity: shipEntity, actions: [none, none], metadata: [none, none] });
     actions.push(action);
 
     actionSystem.executeTyped(actions);

@@ -17,7 +17,7 @@ struct Line {
 
 struct Action {
   uint256 shipEntity;
-  uint256[2] actionEntities;
+  bytes[2] actions;
   bytes[2] metadata;
 }
 

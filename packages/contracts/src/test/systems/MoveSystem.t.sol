@@ -170,11 +170,7 @@ contract MoveSystemTest is DarkSeasTest {
     commitAndExecuteMove(1, moves);
 
     MoveCard memory moveCard = moveCardComponent.getValue(moveCardEntity);
-    console.log("distance:", moveCard.distance);
-    console.log("sail position", sailPositionComponent.getValue(shipEntity));
     moveCard = LibMove.getMoveWithSails(moveCard, speedComponent.getValue(shipEntity), sailPosition);
-
-    console.log("distance 2:", moveCard.distance);
 
     Coord memory expectedPosition = LibVector.getPositionByVector(
       position,
@@ -329,9 +325,6 @@ contract MoveSystemTest is DarkSeasTest {
     int128 perlinResult = Perlin.noise2d(input.x, input.y, denom, precision);
 
     finalResult = int32(Math.muli(perlinResult, 100));
-
-    // console.logCoord(input);
-    console.logInt(finalResult);
   }
 
   function testMoveSuicide() public prank(deployer) {

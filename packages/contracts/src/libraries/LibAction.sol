@@ -22,16 +22,16 @@ import "./LibCombat.sol";
 library LibAction {
   /**
    * @notice  executes submitted action
-   * @param   components  world components
-   * @param   action  set of actions to execute
+   * @param   components  world components * @param   action  set of actions to execute
    */
   function executeActions(IUint256Component components, Action memory action) public {
     // iterate through each action of each ship
-    uint256 cannonEntity1;
+    ActionComponent actionComponent = ActionComponent(getAddressById(components, ActionComponentID));
     for (uint256 i = 0; i < 2; i++) {
-      uint256 actionEntity = action.actionEntities[i];
+      bytes memory actionId = action.actions[i];
+      uint256 actionHash = uint256(keccak256(actionId));
       bytes memory metadata = action.metadata[i];
-      if (actionEntity == 0) continue;
+      if (!actionComponent.has(actionHash)) continue;
       require(
         OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(action.shipEntity) ==
           addressToEntity(msg.sender),
@@ -47,19 +47,18 @@ library LibAction {
         HealthComponent(getAddressById(components, HealthComponentID)).getValue(action.shipEntity) > 0,
         "ActionSystem: Entity is dead"
       );
-
-      if (
-        i == 1 && actionEntity != uint256(keccak256("action.fire")) && actionEntity != uint256(keccak256("action.load"))
-      ) {
-        require(action.actionEntities[0] != actionEntity, "ActionSystem: action already used");
-      } else if (i == 1) {
-        require(
-          abi.decode(action.metadata[0], (uint256)) != abi.decode(action.metadata[i], (uint256)),
-          "ActionSystem: cannon already acted"
-        );
+      if (i == 1) {
+        if (actionHash != uint256(keccak256("action.fire")) && actionHash != uint256(keccak256("action.load"))) {
+          require(uint256(keccak256(action.actions[0])) != actionHash, "ActionSystem: action already used");
+        } else {
+          require(
+            abi.decode(action.metadata[0], (uint256)) != abi.decode(action.metadata[i], (uint256)),
+            "ActionSystem: cannon already acted"
+          );
+        }
       }
       FunctionSelector memory functionSelector = ActionComponent(getAddressById(components, ActionComponentID))
-        .getValue(actionEntity);
+        .getValue(actionHash);
 
       (bool success, bytes memory content) = functionSelector.contr.call(
         bytes.concat(functionSelector.func, abi.encode(action.shipEntity, metadata))

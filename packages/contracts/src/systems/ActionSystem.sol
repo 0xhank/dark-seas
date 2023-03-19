@@ -5,7 +5,6 @@ pragma solidity >=0.8.0;
 import "solecs/System.sol";
 import { IWorld } from "solecs/interfaces/IWorld.sol";
 import { getAddressById, addressToEntity } from "solecs/utils.sol";
-import { console } from "forge-std/console.sol";
 // Components
 import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
 

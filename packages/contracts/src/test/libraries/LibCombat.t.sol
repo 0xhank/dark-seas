@@ -83,14 +83,9 @@ contract LibCombatTest is DarkSeasTest {
 
     uint256 shipEntity = spawnShip(startingPosition, 0, deployer);
 
-    console.log("shipEntity", shipEntity);
-
     CannonComponent cannonComponent = CannonComponent(getAddressById(components, CannonComponentID));
-    console.log("writer", cannonComponent.owner());
 
     uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 270, 50, 80);
-
-    console.log("hello1");
 
     uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
     uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
@@ -99,14 +94,12 @@ contract LibCombatTest is DarkSeasTest {
 
     uint32 rightRange = (cannonRotation + 10) % 360;
     uint32 leftRange = (cannonRotation - 10) % 360;
-    console.log("hello2");
 
     Coord[] memory firingArea = LibCombat.getFiringArea(components, shipEntity, cannonEntity);
 
     Coord memory stern = LibVector.getSternPosition(startingPosition, rotation, length);
     Coord memory backCorner = LibVector.getPositionByVector(stern, rotation, range, leftRange);
     Coord memory frontCorner = LibVector.getPositionByVector(startingPosition, rotation, range, rightRange);
-    console.log("hello3");
 
     assertCoordEq(startingPosition, firingArea[0]);
     assertCoordEq(stern, firingArea[1]);
@@ -151,8 +144,6 @@ contract LibCombatTest is DarkSeasTest {
     uint256 shipEntity = spawnShip(startingPosition, 0, deployer);
     RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
     address owner = rotationComponent.owner();
-    console.log("owner:", owner);
-    console.log("deployer:", deployer);
 
     uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 0, 50, 80);
 
@@ -180,8 +171,6 @@ contract LibCombatTest is DarkSeasTest {
     uint256 shipEntity = spawnShip(startingPosition, 0, deployer);
     RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
     address owner = rotationComponent.owner();
-    console.log("owner:", owner);
-    console.log("deployer:", deployer);
 
     uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 180, 50, 80);
 

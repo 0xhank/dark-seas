@@ -157,8 +157,6 @@ library LibSpawn {
 
     require(shipPrototypeComponent.has(shipPrototypeEntity), "spawnShip: ship prototype does not exist");
 
-    console.log(shipPrototypeComponent.getValue(shipPrototypeEntity));
-
     ShipPrototype memory shipPrototype = abi.decode(
       bytes(shipPrototypeComponent.getValue(shipPrototypeEntity)),
       (ShipPrototype)

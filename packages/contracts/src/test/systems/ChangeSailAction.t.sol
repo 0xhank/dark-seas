@@ -34,7 +34,7 @@ contract ChangeSailActionTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionEntities: [entitize("action.lowerSail"), 0],
+      actions: [bytes("action.lowerSail"), none],
       metadata: [none, none]
     });
     actions.push(action);
@@ -57,7 +57,7 @@ contract ChangeSailActionTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionEntities: [entitize("action.raiseSail"), 0],
+      actions: [bytes("action.raiseSail"), none],
       metadata: [none, none]
     });
     actions.push(action);
@@ -70,11 +70,7 @@ contract ChangeSailActionTest is DarkSeasTest {
 
     delete actions;
 
-    action = Action({
-      shipEntity: shipEntity,
-      actionEntities: [entitize("action.lowerSail"), 0],
-      metadata: [none, none]
-    });
+    action = Action({ shipEntity: shipEntity, actions: [bytes("action.lowerSail"), none], metadata: [none, none] });
 
     actions.push(action);
 
