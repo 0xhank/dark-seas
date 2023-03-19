@@ -58,9 +58,7 @@
     },
     {
       "name": "ComponentDevSystem",
-      "writeAccess": [
-        "*"
-      ]
+      "writeAccess": ["*"]
     },
     {
       "name": "PlayerSpawnSystem",
@@ -102,15 +100,11 @@
     },
     {
       "name": "CommitSystem",
-      "writeAccess": [
-        "CommitmentComponent"
-      ]
+      "writeAccess": ["CommitmentComponent"]
     },
     {
       "name": "InitSystem",
-      "writeAccess": [
-        "*"
-      ],
+      "writeAccess": ["*"],
       "initialize": "abi.encode(block.timestamp, 25, 9, 25, 90, 345676, 3, 9, false, 400, 6)"
     }
   ]
