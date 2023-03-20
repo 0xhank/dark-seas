@@ -8,6 +8,10 @@ import { IWorld } from "solecs/interfaces/IWorld.sol";
 import { UpgradeComponent, ID as UpgradeComponentID } from "../components/UpgradeComponent.sol";
 import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
+import { ID as HealthComponentID } from "../components/HealthComponent.sol";
+import { ID as LengthComponentID } from "../components/LengthComponent.sol";
+import { ID as FirepowerComponentID } from "../components/FirepowerComponent.sol";
+import { ID as SpeedComponentID } from "../components/SpeedComponent.sol";
 
 // Types
 import { Upgrade, Coord } from "./DSTypes.sol";
@@ -17,15 +21,23 @@ import "./LibVector.sol";
 import "./LibUtils.sol";
 
 library LibDrop {
-  function createDrop(
-    IWorld world,
-    Upgrade calldata upgrade,
-    Coord memory position
-  ) public {
+  function createDrop(IWorld world, Coord memory position) public {
     uint256 dropEntity = world.getUniqueEntityId();
 
+    uint256 componentSeed = getByteUInt(dropEntity, 2, 0);
+    uint256 componentId;
+    if (componentSeed == 0) componentId = HealthComponentID;
+    else if (componentSeed == 1) componentId = LengthComponentID;
+    else if (componentSeed == 2) componentId = FirepowerComponentID;
+    else if (componentSeed == 3) componentId = SpeedComponentID;
+
+    uint256 amount = getByteUInt(dropEntity, 1, 2);
+
     PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(dropEntity, position);
-    UpgradeComponent(LibUtils.addressById(world, UpgradeComponentID)).set(dropEntity, upgrade);
+    UpgradeComponent(LibUtils.addressById(world, UpgradeComponentID)).set(
+      dropEntity,
+      Upgrade({ componentId: componentId, amount: amount })
+    );
   }
 
   function claimDrop(
