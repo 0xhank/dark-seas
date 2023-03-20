@@ -2,8 +2,8 @@
 pragma solidity >=0.8.0;
 
 // External
-import "solecs/System.sol";
 import { getAddressById } from "solecs/utils.sol";
+import "solecs/System.sol";
 
 // Components
 import { MoveCardComponent, ID as MoveCardComponentID } from "../components/MoveCardComponent.sol";
@@ -16,13 +16,14 @@ import { GodID, MoveCard, GameConfig, ShipPrototype, CannonPrototype } from "../
 uint256 constant ID = uint256(keccak256("ds.system.Init"));
 
 import "../libraries/LibCreateShip.sol";
+import "../libraries/LibUtils.sol";
 
 // @todo: make this admin only
 contract InitSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
-    GameConfigComponent gameConfigComponent = GameConfigComponent(getAddressById(components, GameConfigComponentID));
+    GameConfigComponent gameConfigComponent = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID));
 
     gameConfigComponent.set(GodID, abi.decode(arguments, (GameConfig)));
 
@@ -44,14 +45,14 @@ contract InitSystem is System {
     cannon2[1] = CannonPrototype({ rotation: 270, firepower: 35, range: 50 });
 
     LibCreateShip.createShip(
-      components,
+      world,
       ShipPrototype({ price: 1, length: 6, maxHealth: 3, speed: 80, cannons: cannon2, name: "Leaky Canoe" })
     );
 
     // Wet Blanket
     cannon1[0] = CannonPrototype({ rotation: 0, firepower: 40, range: 72 });
     LibCreateShip.createShip(
-      components,
+      world,
       ShipPrototype({ price: 1, length: 6, maxHealth: 3, speed: 80, cannons: cannon1, name: "Wet Blanket" })
     );
 
@@ -59,7 +60,7 @@ contract InitSystem is System {
     cannon2[0] = CannonPrototype({ rotation: 45, firepower: 50, range: 70 });
     cannon2[1] = CannonPrototype({ rotation: 315, firepower: 50, range: 70 });
     LibCreateShip.createShip(
-      components,
+      world,
       ShipPrototype({ price: 2, length: 7, maxHealth: 3, speed: 150, cannons: cannon2, name: "Waterski" })
     );
 
@@ -67,7 +68,7 @@ contract InitSystem is System {
     cannon2[0] = CannonPrototype({ rotation: 0, firepower: 40, range: 70 });
     cannon2[1] = CannonPrototype({ rotation: 180, firepower: 40, range: 70 });
     LibCreateShip.createShip(
-      components,
+      world,
       ShipPrototype({ price: 2, length: 8, maxHealth: 5, speed: 50, cannons: cannon2, name: "Tugboat" })
     );
 
@@ -76,7 +77,7 @@ contract InitSystem is System {
     cannon3[1] = CannonPrototype({ rotation: 270, firepower: 45, range: 80 });
     cannon3[2] = CannonPrototype({ rotation: 0, firepower: 55, range: 80 });
     LibCreateShip.createShip(
-      components,
+      world,
       ShipPrototype({ price: 3, length: 9, maxHealth: 5, speed: 100, cannons: cannon3, name: "Dolphin" })
     );
 
@@ -86,7 +87,7 @@ contract InitSystem is System {
     cannon4[2] = CannonPrototype({ rotation: 30, firepower: 60, range: 70 });
     cannon4[3] = CannonPrototype({ rotation: 330, firepower: 60, range: 70 });
     LibCreateShip.createShip(
-      components,
+      world,
       ShipPrototype({ price: 3, length: 9, maxHealth: 4, speed: 80, cannons: cannon4, name: "Defiance" })
     );
 
@@ -94,7 +95,7 @@ contract InitSystem is System {
     cannon2[0] = CannonPrototype({ rotation: 90, firepower: 90, range: 110 });
     cannon2[1] = CannonPrototype({ rotation: 270, firepower: 90, range: 110 });
     LibCreateShip.createShip(
-      components,
+      world,
       ShipPrototype({ price: 4, length: 7, maxHealth: 4, speed: 120, cannons: cannon2, name: "The Raven" })
     );
 
@@ -106,7 +107,7 @@ contract InitSystem is System {
     cannon6[4] = CannonPrototype({ rotation: 150, firepower: 50, range: 52 });
     cannon6[5] = CannonPrototype({ rotation: 210, firepower: 50, range: 52 });
     LibCreateShip.createShip(
-      components,
+      world,
       ShipPrototype({ price: 4, length: 12, maxHealth: 6, speed: 50, cannons: cannon6, name: "The Tank" })
     );
 
@@ -117,14 +118,14 @@ contract InitSystem is System {
     cannon5[3] = CannonPrototype({ rotation: 315, firepower: 60, range: 60 });
     cannon5[4] = CannonPrototype({ rotation: 0, firepower: 60, range: 60 });
     LibCreateShip.createShip(
-      components,
+      world,
       ShipPrototype({ price: 5, length: 13, maxHealth: 8, speed: 110, cannons: cannon5, name: "Victory" })
     );
   }
 
   function createMoveCards() private {
     // Initialize Prototypes
-    MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
+    MoveCardComponent moveCardComponent = MoveCardComponent(LibUtils.addressById(world, MoveCardComponentID));
     uint256 moveEntity1 = uint256(keccak256("ds.prototype.moveEntity1"));
     moveCardComponent.set(moveEntity1, MoveCard({ direction: 0, distance: 50, rotation: 0 }));
 
@@ -146,7 +147,7 @@ contract InitSystem is System {
   }
 
   function createActions() private {
-    ActionComponent actionComponent = ActionComponent(getAddressById(components, ActionComponentID));
+    ActionComponent actionComponent = ActionComponent(LibUtils.addressById(world, ActionComponentID));
     ActionSystem actionSystem = ActionSystem(getAddressById(world.systems(), ActionSystemID));
     uint256 LoadID = uint256(keccak256("action.load"));
     actionComponent.set(LoadID, FunctionSelector(address(actionSystem), actionSystem.load.selector));

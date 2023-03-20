@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 // External
 import "solecs/System.sol";
 import { IWorld } from "solecs/interfaces/IWorld.sol";
-import { getAddressById, getSystemAddressById, addressToEntity } from "solecs/utils.sol";
+import { getSystemAddressById, addressToEntity } from "solecs/utils.sol";
 
 // Components
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
@@ -22,25 +22,21 @@ contract MoveSystem is System {
 
   function execute(bytes memory arguments) public returns (bytes memory) {
     uint256 playerEntity = addressToEntity(msg.sender);
-
     require(
       uint256(keccak256(arguments)) ==
-        CommitmentComponent(getAddressById(components, CommitmentComponentID)).getValue(playerEntity),
+        CommitmentComponent(LibUtils.addressById(world, CommitmentComponentID)).getValue(playerEntity),
       "MoveSystem: commitment doesn't match move"
     );
 
     (Move[] memory moves, ) = abi.decode(arguments, (Move[], uint256));
 
-    require(
-      LibTurn.getCurrentPhase(components) != Phase.Action,
-      "MoveSystem: cannot complete move during Action phase"
-    );
+    require(LibTurn.getCurrentPhase(world) != Phase.Action, "MoveSystem: cannot complete move during Action phase");
 
-    require(LibUtils.playerIdExists(components, playerEntity), "MoveSystem: player does not exist");
+    require(LibUtils.playerIdExists(world, playerEntity), "MoveSystem: player does not exist");
 
-    LastMoveComponent lastMoveComponent = LastMoveComponent(getAddressById(components, LastMoveComponentID));
+    LastMoveComponent lastMoveComponent = LastMoveComponent(LibUtils.addressById(world, LastMoveComponentID));
 
-    uint32 currentTurn = LibTurn.getCurrentTurn(components);
+    uint32 currentTurn = LibTurn.getCurrentTurn(world);
     require(lastMoveComponent.getValue(playerEntity) < currentTurn, "MoveSystem: already moved this turn");
 
     // iterate through each ship entity
@@ -48,7 +44,7 @@ contract MoveSystem is System {
       for (uint256 j = 0; j < i; j++) {
         require(moves[i].shipEntity != moves[j].shipEntity, "MoveSystem: ship already moved");
       }
-      LibMove.moveShip(components, moves[i], playerEntity);
+      LibMove.moveShip(world, moves[i], playerEntity);
     }
 
     lastMoveComponent.set(playerEntity, currentTurn);

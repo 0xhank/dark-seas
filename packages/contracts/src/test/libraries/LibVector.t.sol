@@ -32,7 +32,7 @@ contract LibVectorTest is DarkSeasTest {
     uint32 startingRotation = 45;
     uint256 shipEntity = spawnShip(startingPosition, startingRotation, deployer);
 
-    (Coord memory bow, Coord memory stern) = LibVector.getShipBowAndSternPosition(components, shipEntity);
+    (Coord memory bow, Coord memory stern) = LibVector.getShipBowAndSternPosition(world, shipEntity);
 
     assertCoordEq(startingPosition, bow);
     Coord memory expectedStern = Coord({ x: -7, y: -7 });
@@ -158,7 +158,7 @@ contract LibVectorTest is DarkSeasTest {
   }
 
   function testShrinkingWorld() public prank(deployer) {
-    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+    GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
       GodID
     );
 

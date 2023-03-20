@@ -51,19 +51,19 @@ contract RespawnTest is DarkSeasTest {
 
   function testRespawn() public prank(deployer) {
     uint256[] memory shipEntities = setup();
-    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+    GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
       GodID
     );
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
     SailPositionComponent sailPositionComponent = SailPositionComponent(
-      getAddressById(components, SailPositionComponentID)
+      LibUtils.addressById(world, SailPositionComponentID)
     );
 
-    KillsComponent killsComponent = KillsComponent(getAddressById(components, KillsComponentID));
-    BootyComponent bootyComponent = BootyComponent(getAddressById(components, BootyComponentID));
-    OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
+    KillsComponent killsComponent = KillsComponent(LibUtils.addressById(world, KillsComponentID));
+    BootyComponent bootyComponent = BootyComponent(LibUtils.addressById(world, BootyComponentID));
+    OnFireComponent onFireComponent = OnFireComponent(LibUtils.addressById(world, OnFireComponentID));
     DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
-      getAddressById(components, DamagedCannonsComponentID)
+      LibUtils.addressById(world, DamagedCannonsComponentID)
     );
 
     for (uint256 i = 0; i < shipEntities.length; i++) {
@@ -81,7 +81,7 @@ contract RespawnTest is DarkSeasTest {
       uint256 shipEntity = shipEntities[i];
       assertEq(
         healthComponent.getValue(shipEntity),
-        MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).getValue(shipEntity)
+        MaxHealthComponent(LibUtils.addressById(world, MaxHealthComponentID)).getValue(shipEntity)
       );
       assertEq(killsComponent.getValue(shipEntity), 0);
       assertEq(bootyComponent.getValue(shipEntity), gameConfig.buyin);
@@ -97,13 +97,13 @@ contract RespawnTest is DarkSeasTest {
     uint256 shipId = createShipPrototype(1);
     ships.push(shipId);
     playerSpawnSystem.executeTyped("Jamaican me crazy", ships);
-    GameConfigComponent gameConfigComponent = GameConfigComponent(getAddressById(components, GameConfigComponentID));
+    GameConfigComponent gameConfigComponent = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID));
     GameConfig memory gameConfig = gameConfigComponent.getValue(GodID);
     gameConfig.respawnAllowed = true;
 
     gameConfigComponent.set(GodID, gameConfig);
 
-    (shipEntities, ) = LibUtils.getEntityWith(components, ShipComponentID);
+    (shipEntities, ) = LibUtils.getEntityWith(world, ShipComponentID);
 
     return shipEntities;
   }

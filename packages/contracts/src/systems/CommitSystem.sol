@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 // External
 import "solecs/System.sol";
 import { IWorld } from "solecs/interfaces/IWorld.sol";
-import { getAddressById, addressToEntity } from "solecs/utils.sol";
+import { addressToEntity } from "solecs/utils.sol";
 
 // Components
 import { CommitmentComponent, ID as CommitmentComponentID } from "../components/CommitmentComponent.sol";
@@ -20,11 +20,11 @@ contract CommitSystem is System {
 
   function execute(bytes memory arguments) public returns (bytes memory) {
     uint256 playerEntity = addressToEntity(msg.sender);
-    require(LibUtils.playerIdExists(components, playerEntity), "MoveSystem: player does not exist");
-    require(LibTurn.getCurrentPhase(components) == Phase.Commit, "CommitSystem: incorrect turn phase");
+    require(LibUtils.playerIdExists(world, playerEntity), "MoveSystem: player does not exist");
+    require(LibTurn.getCurrentPhase(world) == Phase.Commit, "CommitSystem: incorrect turn phase");
 
     uint256 commitment = abi.decode(arguments, (uint256));
-    CommitmentComponent(getAddressById(components, CommitmentComponentID)).set(playerEntity, commitment);
+    CommitmentComponent(LibUtils.addressById(world, CommitmentComponentID)).set(playerEntity, commitment);
   }
 
   function executeTyped(uint256 commitment) public returns (bytes memory) {

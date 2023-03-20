@@ -32,7 +32,7 @@ contract RepairActionTest is DarkSeasTest {
 
   function testExtinguishFire() public prank(deployer) {
     setup();
-    OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
+    OnFireComponent onFireComponent = OnFireComponent(LibUtils.addressById(world, OnFireComponentID));
 
     uint256 shipEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
 
@@ -40,7 +40,7 @@ contract RepairActionTest is DarkSeasTest {
 
     assertTrue(onFireComponent.has(shipEntity));
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
+    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Action));
 
     delete actions;
 
@@ -71,7 +71,7 @@ contract RepairActionTest is DarkSeasTest {
       metadata: [none, none]
     });
     actions.push(action);
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
+    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Action));
 
     actionSystem.executeTyped(actions);
 
@@ -81,7 +81,7 @@ contract RepairActionTest is DarkSeasTest {
   function testRepairCannons() public prank(deployer) {
     setup();
     DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
-      getAddressById(components, DamagedCannonsComponentID)
+      LibUtils.addressById(world, DamagedCannonsComponentID)
     );
     uint256 shipEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
     componentDevSystem.executeTyped(DamagedCannonsComponentID, shipEntity, abi.encode(1));
@@ -95,7 +95,7 @@ contract RepairActionTest is DarkSeasTest {
       metadata: [none, none]
     });
     actions.push(action);
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
+    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Action));
 
     actionSystem.executeTyped(actions);
 
@@ -110,6 +110,6 @@ contract RepairActionTest is DarkSeasTest {
     actionSystem = ActionSystem(system(ActionSystemID));
     componentDevSystem = ComponentDevSystem(system(ComponentDevSystemID));
 
-    sailPositionComponent = SailPositionComponent(getAddressById(components, SailPositionComponentID));
+    sailPositionComponent = SailPositionComponent(LibUtils.addressById(world, SailPositionComponentID));
   }
 }

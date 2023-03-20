@@ -32,11 +32,11 @@ contract PlayerSpawnTest is DarkSeasTest {
   function testRevertTooLate() public prank(deployer) {
     setup();
 
-    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+    GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
       GodID
     );
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, gameConfig.entryCutoffTurns + 1, Phase.Commit));
+    vm.warp(LibTurn.getTurnAndPhaseTime(world, gameConfig.entryCutoffTurns + 1, Phase.Commit));
 
     vm.expectRevert(bytes("PlayerSpawnSystem: entry period has ended"));
     playerSpawnSystem.executeTyped("Jamaican me crazy", shipPrototypes);
@@ -44,7 +44,7 @@ contract PlayerSpawnTest is DarkSeasTest {
 
   function testRevertTooExpensive() public prank(deployer) {
     setup();
-    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+    GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
       GodID
     );
 
@@ -70,10 +70,10 @@ contract PlayerSpawnTest is DarkSeasTest {
   function testSpawn() public prank(deployer) {
     setup();
 
-    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+    GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
       GodID
     );
-    BootyComponent bootyComponent = BootyComponent(getAddressById(components, BootyComponentID));
+    BootyComponent bootyComponent = BootyComponent(LibUtils.addressById(world, BootyComponentID));
     uint256 playerEntity = addressToEntity(deployer);
 
     uint256 encodedShip = createShipPrototype(1);
@@ -81,7 +81,7 @@ contract PlayerSpawnTest is DarkSeasTest {
     shipPrototypes.push(encodedShip);
     playerSpawnSystem.executeTyped("Jamaican me crazy", shipPrototypes);
 
-    (uint256[] memory entities, ) = LibUtils.getEntityWith(components, ShipComponentID);
+    (uint256[] memory entities, ) = LibUtils.getEntityWith(world, ShipComponentID);
 
     assertEq(entities.length, shipPrototypes.length, "incorrect number of ships");
 
@@ -105,8 +105,8 @@ contract PlayerSpawnTest is DarkSeasTest {
 
   function setup() internal {
     playerSpawnSystem = PlayerSpawnSystem(system(PlayerSpawnSystemID));
-    nameComponent = NameComponent(getAddressById(components, NameComponentID));
-    GameConfigComponent gameConfigComponent = GameConfigComponent(getAddressById(components, GameConfigComponentID));
+    nameComponent = NameComponent(LibUtils.addressById(world, NameComponentID));
+    GameConfigComponent gameConfigComponent = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID));
     GameConfig memory gameConfig = gameConfigComponent.getValue(GodID);
     gameConfig.respawnAllowed = true;
 

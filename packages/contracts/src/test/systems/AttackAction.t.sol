@@ -52,7 +52,7 @@ contract AttackActionTest is DarkSeasTest {
     uint256 shipEntity = spawnShip(Coord(0, 0), 0, alice);
     spawnShip(Coord(0, 0), 0, deployer);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
+    vm.warp(LibTurn.getTurnAndPhaseTime(world, 2, Phase.Action));
 
     Action memory action = Action({
       shipEntity: shipEntity,
@@ -67,9 +67,9 @@ contract AttackActionTest is DarkSeasTest {
   function testRevertNotLoaded() public prank(deployer) {
     setup();
     uint256 shipEntity = spawnShip(Coord(0, 0), 0, deployer);
-    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 90, 50, 80);
+    uint256 cannonEntity = LibSpawn.spawnCannon(world, shipEntity, 90, 50, 80);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
+    vm.warp(LibTurn.getTurnAndPhaseTime(world, 2, Phase.Action));
 
     Action memory action = Action({
       shipEntity: shipEntity,
@@ -84,9 +84,9 @@ contract AttackActionTest is DarkSeasTest {
   function testRevertSameCannon() public prank(deployer) {
     setup();
     uint256 shipEntity = spawnShip(Coord(0, 0), 0, deployer);
-    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 90, 50, 80);
+    uint256 cannonEntity = LibSpawn.spawnCannon(world, shipEntity, 90, 50, 80);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
+    vm.warp(LibTurn.getTurnAndPhaseTime(world, 2, Phase.Action));
 
     Action memory action = Action({
       shipEntity: shipEntity,
@@ -101,13 +101,13 @@ contract AttackActionTest is DarkSeasTest {
   function testRevertUnloaded() public prank(deployer) {
     setup();
     uint256 shipEntity = spawnShip(Coord(0, 0), 0, deployer);
-    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 90, 50, 80);
+    uint256 cannonEntity = LibSpawn.spawnCannon(world, shipEntity, 90, 50, 80);
     uint256 defenderId = spawnShip(Coord(69, 69), 69, deployer);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
+    vm.warp(LibTurn.getTurnAndPhaseTime(world, 2, Phase.Action));
 
     loadAndFireCannon(shipEntity, cannonEntity, defenderId, 2);
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 4, Phase.Action));
+    vm.warp(LibTurn.getTurnAndPhaseTime(world, 4, Phase.Action));
 
     Action memory action = Action({
       shipEntity: shipEntity,
@@ -122,12 +122,12 @@ contract AttackActionTest is DarkSeasTest {
   function testAttackAction() public prank(deployer) {
     setup();
 
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 rotation = 0;
     uint256 attackerId = spawnShip(startingPosition, 350, deployer);
-    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, attackerId, 90, 50, 80);
+    uint256 cannonEntity = LibSpawn.spawnCannon(world, attackerId, 90, 50, 80);
 
     startingPosition = Coord({ x: -25, y: -25 });
     uint256 defender2Id = spawnShip(startingPosition, rotation, deployer);
@@ -158,7 +158,7 @@ contract AttackActionTest is DarkSeasTest {
 
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint256 attackerEntity = spawnShip(startingPosition, 0, deployer);
-    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, attackerEntity, 90, 50, 80);
+    uint256 cannonEntity = LibSpawn.spawnCannon(world, attackerEntity, 90, 50, 80);
 
     uint256 moveStraightEntity = uint256(keccak256("ds.prototype.moveEntity1"));
 
@@ -171,7 +171,7 @@ contract AttackActionTest is DarkSeasTest {
     uint32 origHealth = healthComponent.getValue(defenderEntity);
     uint32 attackerHealth = healthComponent.getValue(attackerEntity);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
+    vm.warp(LibTurn.getTurnAndPhaseTime(world, 2, Phase.Action));
 
     loadAndFireCannon(attackerEntity, cannonEntity, defenderEntity, 2);
 
@@ -185,11 +185,11 @@ contract AttackActionTest is DarkSeasTest {
   function testCombatPrecise() public prank(deployer) {
     setup();
 
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
 
     uint256 attackerEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
 
-    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, attackerEntity, 90, 50, 80);
+    uint256 cannonEntity = LibSpawn.spawnCannon(world, attackerEntity, 90, 50, 80);
 
     uint256 defenderEntity = spawnShip(Coord({ x: 9, y: 25 }), 0, alice);
 
@@ -207,11 +207,11 @@ contract AttackActionTest is DarkSeasTest {
   function testCombatForward() public prank(deployer) {
     setup();
 
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
 
     uint256 attackerEntity = spawnShip(Coord({ x: 0, y: 0 }), 0, deployer);
 
-    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, attackerEntity, 0, 50, 80);
+    uint256 cannonEntity = LibSpawn.spawnCannon(world, attackerEntity, 0, 50, 80);
 
     uint256 defenderEntity = spawnShip(Coord({ x: 20, y: 0 }), 180, alice);
 
@@ -227,10 +227,10 @@ contract AttackActionTest is DarkSeasTest {
 
   function testKill() public prank(deployer) {
     setup();
-    KillsComponent killsComponent = KillsComponent(getAddressById(components, KillsComponentID));
-    BootyComponent bootyComponent = BootyComponent(getAddressById(components, BootyComponentID));
-    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    KillsComponent killsComponent = KillsComponent(LibUtils.addressById(world, KillsComponentID));
+    BootyComponent bootyComponent = BootyComponent(LibUtils.addressById(world, BootyComponentID));
+    OwnedByComponent ownedByComponent = OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID));
+    HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
 
     uint256 attackerEntity = spawnShip(Coord({ x: 0, y: 0 }), 0, deployer);
     uint256 ownerEntity = ownedByComponent.getValue(attackerEntity);
@@ -240,7 +240,7 @@ contract AttackActionTest is DarkSeasTest {
     uint256 defenderBooty = bootyComponent.getValue(defenderEntity);
     uint256 ownerBooty = bootyComponent.getValue(ownerEntity);
 
-    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, attackerEntity, 0, 50, 80);
+    uint256 cannonEntity = LibSpawn.spawnCannon(world, attackerEntity, 0, 50, 80);
 
     healthComponent.set(defenderEntity, 1);
     healthComponent.set(attackerEntity, 1);
@@ -258,20 +258,23 @@ contract AttackActionTest is DarkSeasTest {
 
   function testFireDeathPriorAttacker() public prank(deployer) {
     setup();
-    KillsComponent killsComponent = KillsComponent(getAddressById(components, KillsComponentID));
-    BootyComponent bootyComponent = BootyComponent(getAddressById(components, BootyComponentID));
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    KillsComponent killsComponent = KillsComponent(LibUtils.addressById(world, KillsComponentID));
+    BootyComponent bootyComponent = BootyComponent(LibUtils.addressById(world, BootyComponentID));
+    HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
     uint256 attackerEntity = spawnShip(Coord({ x: 0, y: 0 }), 0, deployer);
-    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, attackerEntity, 0, 50, 80);
+    uint256 cannonEntity = LibSpawn.spawnCannon(world, attackerEntity, 0, 50, 80);
 
     uint256 defenderEntity = spawnShip(Coord({ x: 20, y: 0 }), 180, alice);
 
     loadAndFireCannon(attackerEntity, cannonEntity, defenderEntity, 1);
-    assertEq(LastHitComponent(getAddressById(components, LastHitComponentID)).getValue(defenderEntity), attackerEntity);
+    assertEq(
+      LastHitComponent(LibUtils.addressById(world, LastHitComponentID)).getValue(defenderEntity),
+      attackerEntity
+    );
     ComponentDevSystem(system(ComponentDevSystemID)).executeTyped(HealthComponentID, defenderEntity, abi.encode(1));
     ComponentDevSystem(system(ComponentDevSystemID)).executeTyped(OnFireComponentID, defenderEntity, abi.encode(2));
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 69, Phase.Action));
+    vm.warp(LibTurn.getTurnAndPhaseTime(world, 69, Phase.Action));
     uint256 attackerBooty = bootyComponent.getValue(attackerEntity);
     uint256 defenderBooty = bootyComponent.getValue(defenderEntity);
     uint256 ownerBooty = bootyComponent.getValue(addressToEntity(deployer));
@@ -298,13 +301,13 @@ contract AttackActionTest is DarkSeasTest {
     commitSystem = CommitSystem(system(CommitSystemID));
     moveSystem = MoveSystem(system(MoveSystemID));
 
-    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+    GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
       GodID
     );
 
     gameConfig.entryCutoffTurns = 0;
 
-    GameConfigComponent(getAddressById(components, GameConfigComponentID)).set(GodID, gameConfig);
+    GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).set(GodID, gameConfig);
     delete moves;
     delete actions;
     delete targets;
@@ -315,13 +318,13 @@ contract AttackActionTest is DarkSeasTest {
     uint256 cannonEntity,
     uint256 defenderEntity
   ) public view returns (uint32) {
-    uint32 kills = KillsComponent(getAddressById(components, KillsComponentID)).getValue(attackerEntity);
-    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
+    uint32 kills = KillsComponent(LibUtils.addressById(world, KillsComponentID)).getValue(attackerEntity);
+    uint32 firepower = FirepowerComponent(LibUtils.addressById(world, FirepowerComponentID)).getValue(cannonEntity);
     firepower = (firepower * (kills + 10)) / 10;
-    (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternPosition(components, defenderEntity);
+    (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternPosition(world, defenderEntity);
 
     uint256 randomness = LibUtils.randomness(attackerEntity, defenderEntity);
-    Coord[] memory firingRange = LibCombat.getFiringArea(components, attackerEntity, cannonEntity);
+    Coord[] memory firingRange = LibCombat.getFiringArea(world, attackerEntity, cannonEntity);
 
     if (
       LibVector.withinPolygon(aft, firingRange) ||
@@ -333,11 +336,11 @@ contract AttackActionTest is DarkSeasTest {
   }
 
   function commitAndExecuteMove(uint32 turn, Move[] memory _moves) internal {
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Commit));
+    vm.warp(LibTurn.getTurnAndPhaseTime(world, turn, Phase.Commit));
     uint256 commitment = uint256(keccak256(abi.encode(_moves, 69)));
     commitSystem.executeTyped(commitment);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Reveal));
+    vm.warp(LibTurn.getTurnAndPhaseTime(world, turn, Phase.Reveal));
     moveSystem.executeTyped(_moves, 69);
   }
 
@@ -347,7 +350,7 @@ contract AttackActionTest is DarkSeasTest {
     uint256 targetEntity,
     uint32 turn
   ) internal {
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Action));
+    vm.warp(LibTurn.getTurnAndPhaseTime(world, turn, Phase.Action));
     Action memory action = Action({
       shipEntity: shipEntity,
       actions: [bytes("action.load"), none],
@@ -356,7 +359,7 @@ contract AttackActionTest is DarkSeasTest {
     actions.push(action);
     actionSystem.executeTyped(actions);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, turn + 1, Phase.Action));
+    vm.warp(LibTurn.getTurnAndPhaseTime(world, turn + 1, Phase.Action));
     delete actions;
     targets.push(targetEntity);
     action = Action({
