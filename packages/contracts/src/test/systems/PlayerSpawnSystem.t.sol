@@ -36,7 +36,7 @@ contract PlayerSpawnTest is DarkSeasTest {
       GodID
     );
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, gameConfig.entryCutoffTurns + 1, Phase.Commit));
+    vm.warp(getTurnAndPhaseTime(world, gameConfig.entryCutoffTurns + 1, Phase.Commit));
 
     vm.expectRevert(bytes("PlayerSpawnSystem: entry period has ended"));
     playerSpawnSystem.executeTyped("Jamaican me crazy", shipPrototypes);

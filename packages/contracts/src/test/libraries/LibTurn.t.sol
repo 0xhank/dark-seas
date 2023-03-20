@@ -24,12 +24,12 @@ contract LibTurnTest is DarkSeasTest {
 
     assertEq(turn, 0);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Commit));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Commit));
     turn = LibTurn.getCurrentTurn(world);
 
     assertEq(LibTurn.getCurrentTurn(world), 1);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 2, Phase.Commit));
+    vm.warp(getTurnAndPhaseTime(world, 2, Phase.Commit));
 
     assertEq(LibTurn.getCurrentTurn(world), 2);
   }
@@ -41,13 +41,13 @@ contract LibTurnTest is DarkSeasTest {
 
     assertTrue(phase == Phase.Commit);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Reveal));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Reveal));
 
     phase = LibTurn.getCurrentPhase(world);
 
     assertTrue(phase == Phase.Reveal);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Action));
 
     phase = LibTurn.getCurrentPhase(world);
 
@@ -63,13 +63,13 @@ contract LibTurnTest is DarkSeasTest {
     assertTrue(phase == Phase.Commit);
 
     // turn length: 70, start time: 1, commit phase: 30 -> 101
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Reveal));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Reveal));
 
     (turn, phase) = LibTurn.getCurrentTurnAndPhase(world);
     assertEq(turn, 1, "incorrect turn");
     assertTrue(phase == Phase.Reveal, "incorrect phase");
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 2, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 2, Phase.Action));
 
     (turn, phase) = LibTurn.getCurrentTurnAndPhase(world);
     assertEq(turn, 2, "incorrect turn");

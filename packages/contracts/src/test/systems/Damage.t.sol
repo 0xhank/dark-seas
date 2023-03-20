@@ -34,8 +34,6 @@ contract DamageTest is DarkSeasTest {
   Action[] actions;
   Move[] moves;
 
-  bytes none = abi.encode(0);
-
   function testDamagedCannonsEffect() public prank(deployer) {
     setup();
     DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
@@ -53,7 +51,7 @@ contract DamageTest is DarkSeasTest {
     });
     actions.push(action);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Action));
 
     actionSystem.executeTyped(actions);
     assertTrue(damagedCannonsComponent.has(attackerEntity));
@@ -83,7 +81,7 @@ contract DamageTest is DarkSeasTest {
     });
     actions.push(action);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Action));
 
     actionSystem.executeTyped(actions);
     assertTrue(onFireComponent.has(shipEntity));
@@ -98,7 +96,7 @@ contract DamageTest is DarkSeasTest {
     componentDevSystem.executeTyped(HealthComponentID, shipEntity, abi.encode(1));
     componentDevSystem.executeTyped(OnFireComponentID, shipEntity, abi.encode(2));
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 69, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 69, Phase.Action));
 
     Action memory action = Action({ shipEntity: shipEntity, actions: [none, none], metadata: [none, none] });
     actions.push(action);
@@ -124,11 +122,11 @@ contract DamageTest is DarkSeasTest {
     Move memory move = Move({ shipEntity: shipEntity, moveCardEntity: moveStraightEntity });
 
     moves.push(move);
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 2, Phase.Commit));
+    vm.warp(getTurnAndPhaseTime(world, 2, Phase.Commit));
     uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
     CommitSystem(system(CommitSystemID)).executeTyped(commitment);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 2, Phase.Reveal));
+    vm.warp(getTurnAndPhaseTime(world, 2, Phase.Reveal));
     MoveSystem(system(MoveSystemID)).executeTyped(moves, 69);
 
     assertCoordEq(positionComponent.getValue(shipEntity), position);

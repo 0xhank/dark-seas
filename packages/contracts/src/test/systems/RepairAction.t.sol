@@ -28,8 +28,6 @@ contract RepairActionTest is DarkSeasTest {
 
   Action[] actions;
 
-  bytes none = abi.encode(0);
-
   function testExtinguishFire() public prank(deployer) {
     setup();
     OnFireComponent onFireComponent = OnFireComponent(LibUtils.addressById(world, OnFireComponentID));
@@ -40,7 +38,7 @@ contract RepairActionTest is DarkSeasTest {
 
     assertTrue(onFireComponent.has(shipEntity));
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Action));
 
     delete actions;
 
@@ -71,7 +69,7 @@ contract RepairActionTest is DarkSeasTest {
       metadata: [none, none]
     });
     actions.push(action);
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Action));
 
     actionSystem.executeTyped(actions);
 
@@ -95,7 +93,7 @@ contract RepairActionTest is DarkSeasTest {
       metadata: [none, none]
     });
     actions.push(action);
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Action));
 
     actionSystem.executeTyped(actions);
 

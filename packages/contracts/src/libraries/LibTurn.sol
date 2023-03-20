@@ -65,24 +65,4 @@ library LibTurn {
     );
     return gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
   }
-
-  function getTurnAndPhaseTime(
-    IWorld world,
-    uint32 turn,
-    Phase phase
-  ) internal view returns (uint256) {
-    GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
-      GodID
-    );
-
-    uint256 startOffset = gameConfig.startTime;
-
-    uint32 phaseOffset = 0;
-    if (phase == Phase.Reveal) phaseOffset = gameConfig.commitPhaseLength;
-    else if (phase == Phase.Action) phaseOffset = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength;
-
-    uint32 turnOffset = turnLength(world) * turn;
-
-    return startOffset + phaseOffset + turnOffset;
-  }
 }

@@ -10,6 +10,7 @@ import { Deploy } from "./Deploy.sol";
 // Components
 import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
+import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 import "../libraries/LibTurn.sol";
 import "../libraries/LibSpawn.sol";
@@ -20,6 +21,7 @@ import { CannonPrototype, ShipPrototype } from "../libraries/DSTypes.sol";
 contract DarkSeasTest is MudTest {
   constructor(IDeploy deploy) MudTest(deploy) {}
 
+  bytes none = abi.encode(0);
   modifier prank(address prankster) {
     vm.startPrank(prankster);
     _;
@@ -188,5 +190,25 @@ contract DarkSeasTest is MudTest {
       emit log_named_string("Error", err);
       assertApproxEqAbs(a, b, maxDelta);
     }
+  }
+
+  function getTurnAndPhaseTime(
+    IWorld world,
+    uint32 turn,
+    Phase phase
+  ) internal view returns (uint256) {
+    GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
+      GodID
+    );
+
+    uint256 startOffset = gameConfig.startTime;
+
+    uint32 phaseOffset = 0;
+    if (phase == Phase.Reveal) phaseOffset = gameConfig.commitPhaseLength;
+    else if (phase == Phase.Action) phaseOffset = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength;
+
+    uint32 turnOffset = LibTurn.turnLength(world) * turn;
+
+    return startOffset + phaseOffset + turnOffset;
   }
 }

@@ -52,12 +52,12 @@ contract MoveSystemTest is DarkSeasTest {
 
     moves.push(Move({ moveCardEntity: moveStraightEntity, shipEntity: shipEntity }));
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Commit));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Commit));
 
     uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
     commitSystem.executeTyped(commitment);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Reveal));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Reveal));
     moveSystem.executeTyped(moves, 69);
   }
 
@@ -72,12 +72,12 @@ contract MoveSystemTest is DarkSeasTest {
 
     moves.push(Move({ moveCardEntity: moveStraightEntity, shipEntity: shipEntity }));
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Commit));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Commit));
 
     uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
     commitSystem.executeTyped(commitment);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Reveal));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Reveal));
     vm.expectRevert(bytes("MoveSystem: commitment doesn't match move"));
     moveSystem.executeTyped(moves, 420);
   }
@@ -96,11 +96,11 @@ contract MoveSystemTest is DarkSeasTest {
 
     componentDevSystem.executeTyped(HealthComponentID, shipEntity, abi.encode(0));
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Commit));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Commit));
     uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
     commitSystem.executeTyped(commitment);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Reveal));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Reveal));
 
     vm.expectRevert(bytes("MoveSystem: ship is sunk"));
     moveSystem.executeTyped(moves, 69);
@@ -109,7 +109,7 @@ contract MoveSystemTest is DarkSeasTest {
   function testRevertNotPlayer() public prank(deployer) {
     setup();
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Commit));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Commit));
     uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
     vm.expectRevert(bytes("MoveSystem: player does not exist"));
     commitSystem.executeTyped(commitment);
@@ -125,11 +125,11 @@ contract MoveSystemTest is DarkSeasTest {
 
     spawnShip(Coord(0, 0), 0, deployer);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Commit));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Commit));
     uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
     commitSystem.executeTyped(commitment);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Reveal));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Reveal));
 
     vm.expectRevert(bytes("MoveSystem: you don't own this ship"));
     moveSystem.executeTyped(moves, 69);
@@ -145,11 +145,11 @@ contract MoveSystemTest is DarkSeasTest {
 
     moves.push(Move({ moveCardEntity: moveStraightEntity, shipEntity: shipEntity }));
     uint32 health = HealthComponent(LibUtils.addressById(world, HealthComponentID)).getValue(shipEntity);
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Commit));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Commit));
     uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
     commitSystem.executeTyped(commitment);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 1, Phase.Reveal));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Reveal));
 
     moveSystem.executeTyped(moves, 69);
 
@@ -369,11 +369,11 @@ contract MoveSystemTest is DarkSeasTest {
   }
 
   function commitAndExecuteMove(uint32 turn, Move[] memory _moves) internal {
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, turn, Phase.Commit));
+    vm.warp(getTurnAndPhaseTime(world, turn, Phase.Commit));
     uint256 commitment = uint256(keccak256(abi.encode(_moves, 69)));
     commitSystem.executeTyped(commitment);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, turn, Phase.Reveal));
+    vm.warp(getTurnAndPhaseTime(world, turn, Phase.Reveal));
     moveSystem.executeTyped(_moves, 69);
   }
 }

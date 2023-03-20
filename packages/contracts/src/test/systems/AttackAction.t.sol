@@ -38,8 +38,6 @@ contract AttackActionTest is DarkSeasTest {
   Action[] actions;
   uint256[] targets;
 
-  bytes none = abi.encode(0);
-
   function testRevertNotPlayer() public prank(deployer) {
     setup();
 
@@ -53,7 +51,7 @@ contract AttackActionTest is DarkSeasTest {
     uint256 shipEntity = spawnShip(Coord(0, 0), 0, alice);
     spawnShip(Coord(0, 0), 0, deployer);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 2, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 2, Phase.Action));
 
     Action memory action = Action({
       shipEntity: shipEntity,
@@ -70,7 +68,7 @@ contract AttackActionTest is DarkSeasTest {
     uint256 shipEntity = spawnShip(Coord(0, 0), 0, deployer);
     uint256 cannonEntity = LibSpawn.spawnCannon(world, shipEntity, 90, 50, 80);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 2, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 2, Phase.Action));
 
     Action memory action = Action({
       shipEntity: shipEntity,
@@ -87,7 +85,7 @@ contract AttackActionTest is DarkSeasTest {
     uint256 shipEntity = spawnShip(Coord(0, 0), 0, deployer);
     uint256 cannonEntity = LibSpawn.spawnCannon(world, shipEntity, 90, 50, 80);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 2, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 2, Phase.Action));
 
     Action memory action = Action({
       shipEntity: shipEntity,
@@ -105,10 +103,10 @@ contract AttackActionTest is DarkSeasTest {
     uint256 cannonEntity = LibSpawn.spawnCannon(world, shipEntity, 90, 50, 80);
     uint256 defenderId = spawnShip(Coord(69, 69), 69, deployer);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 2, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 2, Phase.Action));
 
     loadAndFireCannon(shipEntity, cannonEntity, defenderId, 2);
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 4, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 4, Phase.Action));
 
     Action memory action = Action({
       shipEntity: shipEntity,
@@ -172,7 +170,7 @@ contract AttackActionTest is DarkSeasTest {
     uint32 origHealth = healthComponent.getValue(defenderEntity);
     uint32 attackerHealth = healthComponent.getValue(attackerEntity);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 2, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 2, Phase.Action));
 
     loadAndFireCannon(attackerEntity, cannonEntity, defenderEntity, 2);
 
@@ -266,7 +264,7 @@ contract AttackActionTest is DarkSeasTest {
     ComponentDevSystem(system(ComponentDevSystemID)).executeTyped(HealthComponentID, defenderEntity, abi.encode(1));
     ComponentDevSystem(system(ComponentDevSystemID)).executeTyped(OnFireComponentID, defenderEntity, abi.encode(2));
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, 69, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 69, Phase.Action));
     vm.stopPrank();
     vm.startPrank(alice);
     Action memory action = Action({ shipEntity: defenderEntity, actions: [none, none], metadata: [none, none] });
@@ -326,11 +324,11 @@ contract AttackActionTest is DarkSeasTest {
   }
 
   function commitAndExecuteMove(uint32 turn, Move[] memory _moves) internal {
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, turn, Phase.Commit));
+    vm.warp(getTurnAndPhaseTime(world, turn, Phase.Commit));
     uint256 commitment = uint256(keccak256(abi.encode(_moves, 69)));
     commitSystem.executeTyped(commitment);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, turn, Phase.Reveal));
+    vm.warp(getTurnAndPhaseTime(world, turn, Phase.Reveal));
     moveSystem.executeTyped(_moves, 69);
   }
 
@@ -340,7 +338,7 @@ contract AttackActionTest is DarkSeasTest {
     uint256 targetEntity,
     uint32 turn
   ) internal {
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, turn, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, turn, Phase.Action));
     Action memory action = Action({
       shipEntity: shipEntity,
       actions: [bytes("action.load"), none],
@@ -349,7 +347,7 @@ contract AttackActionTest is DarkSeasTest {
     actions.push(action);
     actionSystem.executeTyped(actions);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(world, turn + 1, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, turn + 1, Phase.Action));
     delete actions;
     targets.push(targetEntity);
     action = Action({
