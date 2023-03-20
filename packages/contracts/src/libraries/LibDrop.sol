@@ -34,8 +34,9 @@ library LibDrop {
     uint256 dropEntity
   ) public {
     PositionComponent positionComponent = PositionComponent(LibUtils.addressById(world, PositionComponentID));
-    Coord memory shipPosition = positionComponent.getValue(shipEntity);
+    require(positionComponent.has(dropEntity), "claimDrop: drop already claimed");
     Coord memory dropPosition = positionComponent.getValue(dropEntity);
+    Coord memory shipPosition = positionComponent.getValue(shipEntity);
 
     require(LibVector.distance(shipPosition, dropPosition) < 20, "claimDrop: too far away");
 
@@ -43,5 +44,7 @@ library LibDrop {
     Uint32Component component = Uint32Component(LibUtils.addressById(world, upgrade.componentId));
     uint32 value = component.getValue(shipEntity);
     component.set(shipEntity, value + upgrade.amount);
+
+    positionComponent.remove(dropEntity);
   }
 }

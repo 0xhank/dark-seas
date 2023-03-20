@@ -24,6 +24,65 @@ contract ClaimDropActionTest is DarkSeasTest {
   ActionSystem actionSystem;
   Action[] actions;
 
+  function testRevertTooFar() public prank(deployer) {
+    setup();
+    uint256 dropEntity = world.getUniqueEntityId();
+    ComponentDevSystem(system(ComponentDevSystemID)).executeTyped(
+      UpgradeComponentID,
+      dropEntity,
+      abi.encode(Upgrade({ componentId: HealthComponentID, amount: 1 }))
+    );
+    Coord memory position = Coord(0, 0);
+    PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(dropEntity, position);
+
+    uint256 shipEntity = spawnShip(Coord(21, 0), 0, deployer);
+
+    Action memory action = Action({
+      shipEntity: shipEntity,
+      actions: [bytes("action.claimDrop"), none],
+      metadata: [abi.encode(dropEntity), none]
+    });
+    actions.push(action);
+
+    vm.warp(getTurnAndPhaseTime(world, 2, Phase.Action));
+
+    vm.expectRevert();
+    actionSystem.executeTyped(actions);
+  }
+
+  function testRevertAlreadyClaimed() public prank(deployer) {
+    setup();
+
+    uint256 dropEntity = world.getUniqueEntityId();
+    ComponentDevSystem(system(ComponentDevSystemID)).executeTyped(
+      UpgradeComponentID,
+      dropEntity,
+      abi.encode(Upgrade({ componentId: HealthComponentID, amount: 1 }))
+    );
+    Coord memory position = Coord(0, 0);
+    PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(dropEntity, position);
+
+    uint256 shipEntity = spawnShip(Coord(0, 0), 0, deployer);
+
+    Action memory action = Action({
+      shipEntity: shipEntity,
+      actions: [bytes("action.claimDrop"), none],
+      metadata: [abi.encode(dropEntity), none]
+    });
+    actions.push(action);
+
+    vm.warp(getTurnAndPhaseTime(world, 2, Phase.Action));
+    actionSystem.executeTyped(actions);
+
+    shipEntity = spawnShip(Coord(0, 0), 0, alice);
+
+    vm.stopPrank();
+    vm.startPrank(alice);
+
+    vm.expectRevert();
+    actionSystem.executeTyped(actions);
+  }
+
   function testClaimDrop() public prank(deployer) {
     setup();
 

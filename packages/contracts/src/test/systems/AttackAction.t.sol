@@ -18,6 +18,7 @@ import { KillsComponent, ID as KillsComponentID } from "../../components/KillsCo
 import { OwnedByComponent, ID as OwnedByComponentID } from "../../components/OwnedByComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 import { UpgradeComponent, ID as UpgradeComponentID } from "../../components/UpgradeComponent.sol";
+import { PositionComponent, ID as PositionComponentID } from "../../components/PositionComponent.sol";
 // Libraries
 import "../../libraries/LibVector.sol";
 import "../../libraries/LibCombat.sol";
@@ -229,6 +230,7 @@ contract AttackActionTest is DarkSeasTest {
     KillsComponent killsComponent = KillsComponent(LibUtils.addressById(world, KillsComponentID));
     OwnedByComponent ownedByComponent = OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID));
     HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
+    PositionComponent positionComponent = PositionComponent(LibUtils.addressById(world, PositionComponentID));
 
     uint256 attackerEntity = spawnShip(Coord({ x: 0, y: 0 }), 0, deployer);
     uint256 ownerEntity = ownedByComponent.getValue(attackerEntity);
@@ -244,6 +246,10 @@ contract AttackActionTest is DarkSeasTest {
     assertEq(healthComponent.getValue(defenderEntity), 0);
     assertEq(killsComponent.getValue(attackerEntity), 1);
     assertEq(healthComponent.getValue(attackerEntity), 1);
+    (uint256[] memory upgrades, ) = LibUtils.getEntityWith(world, UpgradeComponentID);
+    assertEq(upgrades.length, 1);
+
+    assertCoordEq(positionComponent.getValue(defenderEntity), positionComponent.getValue(upgrades[0]));
   }
 
   function testFireDeathPriorAttacker() public prank(deployer) {
@@ -275,9 +281,6 @@ contract AttackActionTest is DarkSeasTest {
       LastHitComponent(LibUtils.addressById(world, LastHitComponentID)).getValue(defenderEntity),
       attackerEntity
     );
-
-    (uint256[] memory upgrades, ) = LibUtils.getEntityWith(world, UpgradeComponentID);
-    assertEq(upgrades.length, 1);
   }
 
   /**
