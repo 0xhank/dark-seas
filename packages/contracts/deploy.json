@@ -39,7 +39,8 @@
         "HealthComponent",
         "SailPositionComponent",
         "BootyComponent",
-        "LengthComponent"
+        "LengthComponent",
+        "UpgradeComponent"
       ]
     },
     {
@@ -54,7 +55,9 @@
         "KillsComponent",
         "LastHitComponent",
         "BootyComponent",
-        "LengthComponent"
+        "LengthComponent",
+        "UpgradeComponent",
+        "PositionComponent"
       ]
     },
     {

@@ -17,6 +17,7 @@ import { BootyComponent, ID as BootyComponentID } from "../../components/BootyCo
 import { KillsComponent, ID as KillsComponentID } from "../../components/KillsComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../../components/OwnedByComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
+import { UpgradeComponent, ID as UpgradeComponentID } from "../../components/UpgradeComponent.sol";
 // Libraries
 import "../../libraries/LibVector.sol";
 import "../../libraries/LibCombat.sol";
@@ -228,17 +229,12 @@ contract AttackActionTest is DarkSeasTest {
   function testKill() public prank(deployer) {
     setup();
     KillsComponent killsComponent = KillsComponent(LibUtils.addressById(world, KillsComponentID));
-    BootyComponent bootyComponent = BootyComponent(LibUtils.addressById(world, BootyComponentID));
     OwnedByComponent ownedByComponent = OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID));
     HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
 
     uint256 attackerEntity = spawnShip(Coord({ x: 0, y: 0 }), 0, deployer);
     uint256 ownerEntity = ownedByComponent.getValue(attackerEntity);
     uint256 defenderEntity = spawnShip(Coord({ x: 20, y: 0 }), 180, alice);
-
-    uint256 attackerBooty = bootyComponent.getValue(attackerEntity);
-    uint256 defenderBooty = bootyComponent.getValue(defenderEntity);
-    uint256 ownerBooty = bootyComponent.getValue(ownerEntity);
 
     uint256 cannonEntity = LibSpawn.spawnCannon(world, attackerEntity, 0, 50, 80);
 
@@ -249,11 +245,7 @@ contract AttackActionTest is DarkSeasTest {
 
     assertEq(healthComponent.getValue(defenderEntity), 0);
     assertEq(killsComponent.getValue(attackerEntity), 1);
-    assertEq(bootyComponent.getValue(defenderEntity), 0);
-    assertEq(bootyComponent.getValue(attackerEntity), attackerBooty + defenderBooty / 2);
-
-    assertEq(bootyComponent.getValue(ownerEntity), ownerBooty + defenderBooty / 2);
-    assertEq(healthComponent.getValue(attackerEntity), 2);
+    assertEq(healthComponent.getValue(attackerEntity), 1);
   }
 
   function testFireDeathPriorAttacker() public prank(deployer) {
@@ -275,21 +267,19 @@ contract AttackActionTest is DarkSeasTest {
     ComponentDevSystem(system(ComponentDevSystemID)).executeTyped(OnFireComponentID, defenderEntity, abi.encode(2));
 
     vm.warp(LibTurn.getTurnAndPhaseTime(world, 69, Phase.Action));
-    uint256 attackerBooty = bootyComponent.getValue(attackerEntity);
-    uint256 defenderBooty = bootyComponent.getValue(defenderEntity);
-    uint256 ownerBooty = bootyComponent.getValue(addressToEntity(deployer));
     vm.stopPrank();
     vm.startPrank(alice);
     Action memory action = Action({ shipEntity: defenderEntity, actions: [none, none], metadata: [none, none] });
     actions.push(action);
 
     actionSystem.executeTyped(actions);
+    assertEq(
+      LastHitComponent(LibUtils.addressById(world, LastHitComponentID)).getValue(defenderEntity),
+      attackerEntity
+    );
 
-    assertEq(healthComponent.getValue(defenderEntity), 0);
-    assertEq(killsComponent.getValue(attackerEntity), 1);
-    assertEq(bootyComponent.getValue(defenderEntity), 0);
-    assertEq(bootyComponent.getValue(attackerEntity), attackerBooty + defenderBooty / 2);
-    assertEq(bootyComponent.getValue(addressToEntity(deployer)), ownerBooty + defenderBooty / 2);
+    (uint256[] memory upgrades, ) = LibUtils.getEntityWith(world, UpgradeComponentID);
+    assertEq(upgrades.length, 1);
   }
 
   /**
