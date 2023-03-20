@@ -26,7 +26,8 @@
     "KillsComponent",
     "LastHitComponent",
     "BootyComponent",
-    "ActionComponent"
+    "ActionComponent",
+    "UpgradeComponent"
   ],
   "systems": [
     {

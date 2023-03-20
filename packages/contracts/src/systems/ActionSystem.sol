@@ -16,6 +16,7 @@ import "../libraries/LibAction.sol";
 import "../libraries/LibTurn.sol";
 import "../libraries/LibUtils.sol";
 import "../libraries/LibCombat.sol";
+import "../libraries/LibDrop.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Action"));
 
@@ -83,5 +84,11 @@ contract ActionSystem is System {
   function repairCannons(uint256 shipEntity, bytes memory metadata) public {
     require(msg.sender == address(this), "repairCannons: can only be called by ActionSystem");
     LibAction.repairCannons(components, shipEntity);
+  }
+
+  function claimDrop(uint256 shipEntity, bytes memory metadata) public {
+    require(msg.sender == address(this), "repairCannons: can only be called by ActionSystem");
+    uint256 dropEntity = abi.decode(metadata, (uint256));
+    LibDrop.claimDrop(components, shipEntity, dropEntity);
   }
 }
