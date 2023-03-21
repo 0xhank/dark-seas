@@ -13,8 +13,6 @@ import { ComponentDevSystem, ID as ComponentDevSystemID } from "../../systems/Co
 // Components
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
 import { FirepowerComponent, ID as FirepowerComponentID } from "../../components/FirepowerComponent.sol";
-import { BootyComponent, ID as BootyComponentID } from "../../components/BootyComponent.sol";
-import { KillsComponent, ID as KillsComponentID } from "../../components/KillsComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../../components/OwnedByComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 import { UpgradeComponent, ID as UpgradeComponentID } from "../../components/UpgradeComponent.sol";
@@ -127,7 +125,7 @@ contract AttackActionTest is DarkSeasTest {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 rotation = 0;
     uint256 attackerId = spawnShip(startingPosition, 350, deployer);
-    uint256 cannonEntity = LibSpawn.spawnCannon(world, attackerId, 90, 50, 80);
+    uint256 cannonEntity = LibSpawn.spawnCannon(world, attackerId, 90, 10, 80);
 
     startingPosition = Coord({ x: -25, y: -25 });
     uint256 defender2Id = spawnShip(startingPosition, rotation, deployer);
@@ -227,7 +225,6 @@ contract AttackActionTest is DarkSeasTest {
 
   function testKill() public prank(deployer) {
     setup();
-    KillsComponent killsComponent = KillsComponent(LibUtils.addressById(world, KillsComponentID));
     OwnedByComponent ownedByComponent = OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID));
     HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
     PositionComponent positionComponent = PositionComponent(LibUtils.addressById(world, PositionComponentID));
@@ -244,7 +241,6 @@ contract AttackActionTest is DarkSeasTest {
     loadAndFireCannon(attackerEntity, cannonEntity, defenderEntity, 1);
 
     assertEq(healthComponent.getValue(defenderEntity), 0);
-    assertEq(killsComponent.getValue(attackerEntity), 1);
     assertEq(healthComponent.getValue(attackerEntity), 1);
     (uint256[] memory upgrades, ) = LibUtils.getEntityWith(world, UpgradeComponentID);
     assertEq(upgrades.length, 1);
@@ -254,8 +250,6 @@ contract AttackActionTest is DarkSeasTest {
 
   function testFireDeathPriorAttacker() public prank(deployer) {
     setup();
-    KillsComponent killsComponent = KillsComponent(LibUtils.addressById(world, KillsComponentID));
-    BootyComponent bootyComponent = BootyComponent(LibUtils.addressById(world, BootyComponentID));
     HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
     uint256 attackerEntity = spawnShip(Coord({ x: 0, y: 0 }), 0, deployer);
     uint256 cannonEntity = LibSpawn.spawnCannon(world, attackerEntity, 0, 50, 80);
@@ -309,11 +303,10 @@ contract AttackActionTest is DarkSeasTest {
     uint256 cannonEntity,
     uint256 defenderEntity
   ) public view returns (uint32) {
-    uint32 kills = KillsComponent(LibUtils.addressById(world, KillsComponentID)).getValue(attackerEntity);
-    uint32 firepower = FirepowerComponent(LibUtils.addressById(world, FirepowerComponentID)).getValue(cannonEntity);
-    firepower = (firepower * (kills + 10)) / 10;
-    (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternPosition(world, defenderEntity);
+    FirepowerComponent firepowerComponent = FirepowerComponent(LibUtils.addressById(world, FirepowerComponentID));
+    uint32 firepower = firepowerComponent.getValue(cannonEntity) + firepowerComponent.getValue(attackerEntity);
 
+    (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternPosition(world, defenderEntity);
     uint256 randomness = LibUtils.randomness(attackerEntity, defenderEntity);
     Coord[] memory firingRange = LibCombat.getFiringArea(world, attackerEntity, cannonEntity);
 

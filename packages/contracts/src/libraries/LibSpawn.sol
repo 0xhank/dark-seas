@@ -25,8 +25,6 @@ import { CannonComponent, ID as CannonComponentID } from "../components/CannonCo
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedComponent.sol";
 import { ShipPrototypeComponent, ID as ShipPrototypeComponentID } from "../components/ShipPrototypeComponent.sol";
-import { KillsComponent, ID as KillsComponentID } from "../components/KillsComponent.sol";
-import { BootyComponent, ID as BootyComponentID } from "../components/BootyComponent.sol";
 import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireComponent.sol";
 import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../components/DamagedCannonsComponent.sol";
 
@@ -52,7 +50,6 @@ library LibSpawn {
 
     LastActionComponent(LibUtils.addressById(world, LastActionComponentID)).set(playerEntity, 0);
     LastMoveComponent(LibUtils.addressById(world, LastMoveComponentID)).set(playerEntity, 0);
-    BootyComponent(LibUtils.addressById(world, BootyComponentID)).set(playerEntity, 0);
     return playerEntity;
   }
 
@@ -109,7 +106,7 @@ library LibSpawn {
     uint32 rotation = pointKindaTowardsTheCenter(position);
     uint32 spent = 0;
     for (uint256 i = 0; i < shipPrototypes.length; i++) {
-      uint32 price = spawnShip(world, playerEntity, position, rotation, shipPrototypes[i], gameConfig.buyin);
+      uint32 price = spawnShip(world, playerEntity, position, rotation, shipPrototypes[i]);
       spent += price;
 
       require(spent <= gameConfig.budget, "LibSpawn: ships too expensive");
@@ -137,8 +134,7 @@ library LibSpawn {
     uint256 playerEntity,
     Coord memory position,
     uint32 rotation,
-    uint256 shipPrototypeEntity,
-    uint256 startingBooty
+    uint256 shipPrototypeEntity
   ) internal returns (uint32) {
     ShipPrototypeComponent shipPrototypeComponent = ShipPrototypeComponent(
       LibUtils.addressById(world, ShipPrototypeComponentID)
@@ -162,9 +158,8 @@ library LibSpawn {
     LengthComponent(LibUtils.addressById(world, LengthComponentID)).set(shipEntity, shipPrototype.length);
     HealthComponent(LibUtils.addressById(world, HealthComponentID)).set(shipEntity, shipPrototype.maxHealth);
     MaxHealthComponent(LibUtils.addressById(world, MaxHealthComponentID)).set(shipEntity, shipPrototype.maxHealth);
-    KillsComponent(LibUtils.addressById(world, KillsComponentID)).set(shipEntity, 0);
-    BootyComponent(LibUtils.addressById(world, BootyComponentID)).set(shipEntity, startingBooty);
     LastHitComponent(LibUtils.addressById(world, LastHitComponentID)).set(shipEntity, GodID);
+    FirepowerComponent(LibUtils.addressById(world, FirepowerComponentID)).set(shipEntity, 0);
     for (uint256 i = 0; i < shipPrototype.cannons.length; i++) {
       spawnCannon(
         world,
@@ -181,8 +176,7 @@ library LibSpawn {
     IWorld world,
     uint256 shipEntity,
     Coord memory position,
-    uint32 rotation,
-    uint256 booty
+    uint32 rotation
   ) internal {
     PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(shipEntity, position);
     RotationComponent(LibUtils.addressById(world, RotationComponentID)).set(shipEntity, rotation);
@@ -191,8 +185,6 @@ library LibSpawn {
 
     uint32 maxHealth = MaxHealthComponent(LibUtils.addressById(world, MaxHealthComponentID)).getValue(shipEntity);
     HealthComponent(LibUtils.addressById(world, HealthComponentID)).set(shipEntity, maxHealth);
-    KillsComponent(LibUtils.addressById(world, KillsComponentID)).set(shipEntity, 0);
-    BootyComponent(LibUtils.addressById(world, BootyComponentID)).set(shipEntity, booty);
     OnFireComponent(LibUtils.addressById(world, OnFireComponentID)).remove(shipEntity);
     DamagedCannonsComponent(LibUtils.addressById(world, DamagedCannonsComponentID)).remove(shipEntity);
   }

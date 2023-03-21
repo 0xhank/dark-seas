@@ -22,16 +22,16 @@ contract LibCombatTest is DarkSeasTest {
   address zero = address(0);
 
   function testGetBaseHitChance() public prank(deployer) {
-    uint256 baseHitChance = LibCombat.getBaseHitChance(28, 50);
+    uint256 baseHitChance = LibCombat.getBaseHitChance(28, 10);
     assertApproxEqAbs(baseHitChance, 1998, 50, "baseHitChance: 28 and 50 failed");
 
-    baseHitChance = LibCombat.getBaseHitChance(0, 50);
+    baseHitChance = LibCombat.getBaseHitChance(0, 10);
     assertApproxEqAbs(baseHitChance, 2500, 50, "baseHitChance: 0 and 50 failed");
 
-    baseHitChance = LibCombat.getBaseHitChance(14, 90);
+    baseHitChance = LibCombat.getBaseHitChance(14, 18);
     assertApproxEqAbs(baseHitChance, 4023, 50, "baseHitChance: 14 and 90 failed");
 
-    baseHitChance = LibCombat.getBaseHitChance(48, 5);
+    baseHitChance = LibCombat.getBaseHitChance(48, 1);
     assertApproxEqAbs(baseHitChance, 170, 50, "baseHitChance: 48 and 5 failed");
   }
 
@@ -85,7 +85,7 @@ contract LibCombatTest is DarkSeasTest {
 
     CannonComponent cannonComponent = CannonComponent(LibUtils.addressById(world, CannonComponentID));
 
-    uint256 cannonEntity = LibSpawn.spawnCannon(world, shipEntity, 270, 50, 80);
+    uint256 cannonEntity = LibSpawn.spawnCannon(world, shipEntity, 270, 10, 80);
 
     uint32 cannonRotation = RotationComponent(LibUtils.addressById(world, RotationComponentID)).getValue(cannonEntity);
     uint32 rotation = RotationComponent(LibUtils.addressById(world, RotationComponentID)).getValue(shipEntity);
@@ -111,7 +111,7 @@ contract LibCombatTest is DarkSeasTest {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
     uint256 shipEntity = spawnShip(startingPosition, 180, deployer);
-    uint256 cannonEntity = LibSpawn.spawnCannon(world, shipEntity, 90, 50, 80);
+    uint256 cannonEntity = LibSpawn.spawnCannon(world, shipEntity, 90, 10, 80);
 
     uint32 cannonRotation = RotationComponent(LibUtils.addressById(world, RotationComponentID)).getValue(cannonEntity);
     uint32 rotation = RotationComponent(LibUtils.addressById(world, RotationComponentID)).getValue(shipEntity);
@@ -145,7 +145,7 @@ contract LibCombatTest is DarkSeasTest {
     RotationComponent rotationComponent = RotationComponent(LibUtils.addressById(world, RotationComponentID));
     address owner = rotationComponent.owner();
 
-    uint256 cannonEntity = LibSpawn.spawnCannon(world, shipEntity, 0, 50, 80);
+    uint256 cannonEntity = LibSpawn.spawnCannon(world, shipEntity, 0, 10, 80);
 
     uint32 rotation = RotationComponent(LibUtils.addressById(world, RotationComponentID)).getValue(shipEntity);
     uint32 cannonRotation = RotationComponent(LibUtils.addressById(world, RotationComponentID)).getValue(cannonEntity);
@@ -172,7 +172,7 @@ contract LibCombatTest is DarkSeasTest {
     RotationComponent rotationComponent = RotationComponent(LibUtils.addressById(world, RotationComponentID));
     address owner = rotationComponent.owner();
 
-    uint256 cannonEntity = LibSpawn.spawnCannon(world, shipEntity, 180, 50, 80);
+    uint256 cannonEntity = LibSpawn.spawnCannon(world, shipEntity, 180, 10, 80);
 
     uint32 rotation = RotationComponent(LibUtils.addressById(world, RotationComponentID)).getValue(shipEntity);
     uint32 cannonRotation = RotationComponent(LibUtils.addressById(world, RotationComponentID)).getValue(cannonEntity);

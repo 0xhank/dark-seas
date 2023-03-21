@@ -13,8 +13,6 @@ import { RespawnSystem, ID as RespawnSystemID } from "../../systems/RespawnSyste
 import { HealthComponent, ID as HealthComponentID } from "../../components/HealthComponent.sol";
 import { OnFireComponent, ID as OnFireComponentID } from "../../components/OnFireComponent.sol";
 import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../../components/DamagedCannonsComponent.sol";
-import { BootyComponent, ID as BootyComponentID } from "../../components/BootyComponent.sol";
-import { KillsComponent, ID as KillsComponentID } from "../../components/KillsComponent.sol";
 import { MaxHealthComponent, ID as MaxHealthComponentID } from "../../components/MaxHealthComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 
@@ -59,8 +57,6 @@ contract RespawnTest is DarkSeasTest {
       LibUtils.addressById(world, SailPositionComponentID)
     );
 
-    KillsComponent killsComponent = KillsComponent(LibUtils.addressById(world, KillsComponentID));
-    BootyComponent bootyComponent = BootyComponent(LibUtils.addressById(world, BootyComponentID));
     OnFireComponent onFireComponent = OnFireComponent(LibUtils.addressById(world, OnFireComponentID));
     DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
       LibUtils.addressById(world, DamagedCannonsComponentID)
@@ -69,8 +65,6 @@ contract RespawnTest is DarkSeasTest {
     for (uint256 i = 0; i < shipEntities.length; i++) {
       uint256 shipEntity = shipEntities[i];
       healthComponent.set(shipEntity, 0);
-      killsComponent.set(shipEntity, 1000);
-      bootyComponent.set(shipEntity, 1000);
       onFireComponent.set(shipEntity, 3);
       damagedCannonsComponent.set(shipEntity, 4);
       sailPositionComponent.set(shipEntity, 5);
@@ -83,8 +77,6 @@ contract RespawnTest is DarkSeasTest {
         healthComponent.getValue(shipEntity),
         MaxHealthComponent(LibUtils.addressById(world, MaxHealthComponentID)).getValue(shipEntity)
       );
-      assertEq(killsComponent.getValue(shipEntity), 0);
-      assertEq(bootyComponent.getValue(shipEntity), gameConfig.buyin);
       assertTrue(!onFireComponent.has(shipEntity));
       assertTrue(!damagedCannonsComponent.has(shipEntity));
       assertEq(sailPositionComponent.getValue(shipEntity), 2);

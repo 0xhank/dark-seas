@@ -48,7 +48,7 @@ contract RespawnSystem is System {
       );
 
       position = Coord(position.x + 20, position.y);
-      LibSpawn.respawnShip(world, shipEntities[i], position, rotation, gameConfig.buyin);
+      LibSpawn.respawnShip(world, shipEntities[i], position, rotation);
     }
   }
 

@@ -46,12 +46,11 @@ contract DarkSeasTest is MudTest {
     SailPositionComponent(LibUtils.addressById(world, SailPositionComponentID)).set(shipEntity, 2);
     OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID)).set(shipEntity, playerEntity);
     SpeedComponent(LibUtils.addressById(world, SpeedComponentID)).set(shipEntity, 10);
-    KillsComponent(LibUtils.addressById(world, KillsComponentID)).set(shipEntity, 0);
-    BootyComponent(LibUtils.addressById(world, BootyComponentID)).set(shipEntity, 500);
     LastHitComponent(LibUtils.addressById(world, LastHitComponentID)).set(shipEntity, GodID);
-    LibSpawn.spawnCannon(world, shipEntity, 90, 40, 100);
-    LibSpawn.spawnCannon(world, shipEntity, 270, 40, 100);
-    LibSpawn.spawnCannon(world, shipEntity, 0, 40, 100);
+    FirepowerComponent(LibUtils.addressById(world, FirepowerComponentID)).set(shipEntity, 0);
+    LibSpawn.spawnCannon(world, shipEntity, 90, 8, 100);
+    LibSpawn.spawnCannon(world, shipEntity, 270, 8, 100);
+    LibSpawn.spawnCannon(world, shipEntity, 0, 8, 100);
   }
 
   function spawnShip(
@@ -75,10 +74,10 @@ contract DarkSeasTest is MudTest {
     );
 
     CannonPrototype[] memory cannon4 = new CannonPrototype[](4);
-    cannon4[0] = CannonPrototype({ rotation: 90, firepower: 60, range: 60 });
-    cannon4[1] = CannonPrototype({ rotation: 270, firepower: 60, range: 60 });
-    cannon4[2] = CannonPrototype({ rotation: 345, firepower: 50, range: 50 });
-    cannon4[3] = CannonPrototype({ rotation: 15, firepower: 50, range: 50 });
+    cannon4[0] = CannonPrototype({ rotation: 90, firepower: 12, range: 60 });
+    cannon4[1] = CannonPrototype({ rotation: 270, firepower: 12, range: 60 });
+    cannon4[2] = CannonPrototype({ rotation: 345, firepower: 10, range: 50 });
+    cannon4[3] = CannonPrototype({ rotation: 15, firepower: 10, range: 50 });
     ShipPrototype memory shipPrototype = ShipPrototype({
       price: price,
       length: 13,

@@ -15,11 +15,9 @@ import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireCo
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../components/DamagedCannonsComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
-import { KillsComponent, ID as KillsComponentID } from "../components/KillsComponent.sol";
 import { LastHitComponent, ID as LastHitComponentID } from "../components/LastHitComponent.sol";
 import { CannonComponent, ID as CannonComponentID } from "../components/CannonComponent.sol";
 import { LoadedComponent, ID as LoadedComponentID } from "../components/LoadedComponent.sol";
-import { BootyComponent, ID as BootyComponentID } from "../components/BootyComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
@@ -120,9 +118,8 @@ library LibCombat {
     uint256 cannonEntity,
     uint256[] memory targetEntities
   ) private {
-    uint32 firepower = FirepowerComponent(LibUtils.addressById(world, FirepowerComponentID)).getValue(cannonEntity);
-    uint32 kills = KillsComponent(LibUtils.addressById(world, KillsComponentID)).getValue(shipEntity);
-    firepower = (firepower * (10 + kills)) / 10;
+    FirepowerComponent firepowerComponent = FirepowerComponent(LibUtils.addressById(world, FirepowerComponentID));
+    uint32 firepower = firepowerComponent.getValue(cannonEntity) + firepowerComponent.getValue(shipEntity);
 
     // get firing area of ship
     Coord[] memory firingRange = getFiringArea(world, shipEntity, cannonEntity);
@@ -210,19 +207,11 @@ library LibCombat {
    * @param   shipEntity  ship that got killed
    */
   function killShip(IWorld world, uint256 shipEntity) private {
-    KillsComponent killsComponent = KillsComponent(LibUtils.addressById(world, KillsComponentID));
     HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
-    BootyComponent bootyComponent = BootyComponent(LibUtils.addressById(world, BootyComponentID));
-    LengthComponent lengthComponent = LengthComponent(LibUtils.addressById(world, LengthComponentID));
     Coord memory position = PositionComponent(LibUtils.addressById(world, PositionComponentID)).getValue(shipEntity);
     uint256 attackerEntity = LastHitComponent(LibUtils.addressById(world, LastHitComponentID)).getValue(shipEntity);
 
-    healthComponent.set(shipEntity, 0);
-    // update ship kills
-    if (attackerEntity != GodID) {
-      uint32 prevKills = killsComponent.getValue(attackerEntity);
-      killsComponent.set(attackerEntity, prevKills + 1);
-    }
+    HealthComponent(LibUtils.addressById(world, HealthComponentID)).set(shipEntity, 0);
     Upgrade memory upgrade = Upgrade({ componentId: HealthComponentID, amount: 1 });
     LibDrop.createDrop(world, position);
   }
@@ -230,7 +219,7 @@ library LibCombat {
   /*************************************************** UTILITIES **************************************************** */
   /**
    * @notice overview: increases damage as your firepower increases OR distance decreases
-          equation: 50 * e^(-.008 * distance) * (firepower / 100), multiplied by 100 for precision.
+          equation: 25 * e^(-.008 * distance) * (firepower / 10), multiplied by 100 for precision.
           
    * @param   distance  from target
    * @param   firepower  of attacker
@@ -238,8 +227,8 @@ library LibCombat {
    */
   function getBaseHitChance(uint256 distance, uint256 firepower) public pure returns (uint256 hitChance) {
     int128 _scaleInv = Math.exp(Math.divu(distance * 8, 1000));
-    int128 firepowerDebuff = Math.divu(firepower, 100);
-    int128 beforeDebuff = Math.div(Math.fromUInt(5000), _scaleInv);
+    int128 firepowerDebuff = Math.divu(firepower, 10);
+    int128 beforeDebuff = Math.div(Math.fromUInt(2500), _scaleInv);
     hitChance = Math.toUInt(Math.mul(beforeDebuff, firepowerDebuff));
   }
 

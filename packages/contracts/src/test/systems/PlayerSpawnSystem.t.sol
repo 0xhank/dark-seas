@@ -12,7 +12,6 @@ import { PlayerSpawnSystem, ID as PlayerSpawnSystemID } from "../../systems/Play
 import { NameComponent, ID as NameComponentID } from "../../components/NameComponent.sol";
 import { ShipComponent, ID as ShipComponentID } from "../../components/ShipComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
-import { BootyComponent, ID as BootyComponentID } from "../../components/BootyComponent.sol";
 
 // Types
 import { Coord, Phase, CannonPrototype } from "../../libraries/DSTypes.sol";
@@ -73,7 +72,6 @@ contract PlayerSpawnTest is DarkSeasTest {
     GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
       GodID
     );
-    BootyComponent bootyComponent = BootyComponent(LibUtils.addressById(world, BootyComponentID));
     uint256 playerEntity = addressToEntity(deployer);
 
     uint256 encodedShip = createShipPrototype(1);
@@ -86,11 +84,6 @@ contract PlayerSpawnTest is DarkSeasTest {
     assertEq(entities.length, shipPrototypes.length, "incorrect number of ships");
 
     bool hasName = nameComponent.has(playerEntity);
-    for (uint256 i = 0; i < entities.length; i++) {
-      uint256 shipBooty = bootyComponent.getValue(entities[i]);
-
-      assertEq(shipBooty, gameConfig.buyin);
-    }
 
     assertTrue(hasName, "player name not stored");
     if (hasName) {
