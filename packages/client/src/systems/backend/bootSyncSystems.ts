@@ -61,7 +61,7 @@ export function bootSyncSystems(MUD: SetupResult) {
     setComponent(Speed, prototypeEntity, { value: prototype.speed });
     setComponent(MaxHealth, prototypeEntity, { value: prototype.maxHealth });
     setComponent(Name, prototypeEntity, { value: prototype.name });
-    setComponent(Booty, prototypeEntity, { value: prototype.price.toString() });
+    setComponent(Booty, prototypeEntity, { value: prototype.price });
     prototype.cannons.map((cannon) => {
       const cannonEntity = world.registerEntity();
       setComponent(Cannon, cannonEntity, { value: true });

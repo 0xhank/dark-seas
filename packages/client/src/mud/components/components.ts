@@ -46,9 +46,7 @@ export const components = {
     id: "ShipPrototype",
     metadata: { contractId: "ds.component.ShipPrototype" },
   }),
-  Kills: defineNumberComponent(world, { id: "Kills", metadata: { contractId: "ds.component.Kills" } }),
   LastHit: defineStringComponent(world, { id: "LastHit", metadata: { contractId: "ds.component.LastHit" } }),
-  Booty: defineStringComponent(world, { id: "Booty", metadata: { contractId: "ds.component.Booty" } }),
 };
 
 export const clientComponents = {
@@ -94,4 +92,5 @@ export const clientComponents = {
   ActiveShip: defineNumberComponent(world, { id: "ActiveShip" }),
   ActiveCannon: defineNumberComponent(world, { id: "ActiveCannon" }),
   StagedShips: defineComponent(world, { value: Type.NumberArray }, { id: "StagedShips" }),
+  Booty: defineNumberComponent(world, { id: "Booty" }),
 };

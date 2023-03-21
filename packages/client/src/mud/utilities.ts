@@ -292,7 +292,7 @@ export async function createUtilities(
   }
 
   function getBaseHitChance(distance: number, firepower: number) {
-    return (50 * Math.exp(-0.008 * distance) * firepower) / 100;
+    return (25 * Math.exp(-0.008 * distance) * firepower) / 10;
   }
 
   function getDamageLikelihood(cannonEntity: EntityIndex, target: EntityIndex) {
@@ -306,8 +306,7 @@ export async function createUtilities(
     const dist = distance(shipPosition, targetPosition);
 
     const firepower = getCannonFirepower(cannonEntity);
-    const kills = getComponentValueStrict(components.Kills, shipEntity).value;
-    const baseHitChance = getBaseHitChance(dist, firepower * (1 + kills / 10));
+    const baseHitChance = getBaseHitChance(dist, firepower);
 
     const format = (n: number) => Math.min(100, Math.round(n));
     return { 3: format(baseHitChance), 2: format(baseHitChance * 1.7), 1: format(baseHitChance * 6.5) };
@@ -360,24 +359,17 @@ export async function createUtilities(
   }
 
   function getCannonRange(cannonEntity: EntityIndex) {
-    const range = getComponentValue(components.Range, cannonEntity)?.value;
-    const shipEntity = getCannonOwner(cannonEntity);
-    if (!shipEntity) return 0;
-    const kills = getComponentValue(components.Kills, shipEntity)?.value;
-    const boost = kills ? 1 + kills / 10 : 1;
-    if (range == undefined) return 0;
-
-    return range * boost;
+    return getComponentValue(components.Range, cannonEntity)?.value || 0;
   }
 
   function getCannonFirepower(cannonEntity: EntityIndex) {
     const firepower = getComponentValue(components.Firepower, cannonEntity)?.value;
     const shipEntity = getCannonOwner(cannonEntity);
     if (!shipEntity) return 0;
-    const kills = getComponentValue(components.Kills, shipEntity)?.value;
-    if (firepower == undefined || kills == undefined) return 0;
+    const shipFirepower = getComponentValue(components.Firepower, shipEntity)?.value;
+    if (firepower == undefined || shipFirepower == undefined) return 0;
 
-    return firepower * (1 + kills / 10);
+    return firepower + shipFirepower;
   }
 
   const whirlpoolMap = new Map<string, boolean>();
