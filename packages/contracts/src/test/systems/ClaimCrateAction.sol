@@ -18,7 +18,7 @@ import { Coord, Action, Upgrade } from "../../libraries/DSTypes.sol";
 import "../../libraries/LibUtils.sol";
 import "../../libraries/LibUtils.sol";
 
-contract ClaimDropActionTest is DarkSeasTest {
+contract ClaimCrateActionTest is DarkSeasTest {
   constructor() DarkSeasTest(new Deploy()) {}
 
   ActionSystem actionSystem;
@@ -26,21 +26,21 @@ contract ClaimDropActionTest is DarkSeasTest {
 
   function testRevertTooFar() public prank(deployer) {
     setup();
-    uint256 dropEntity = world.getUniqueEntityId();
+    uint256 crateEntity = world.getUniqueEntityId();
     ComponentDevSystem(system(ComponentDevSystemID)).executeTyped(
       UpgradeComponentID,
-      dropEntity,
+      crateEntity,
       abi.encode(Upgrade({ componentId: HealthComponentID, amount: 1 }))
     );
     Coord memory position = Coord(0, 0);
-    PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(dropEntity, position);
+    PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(crateEntity, position);
 
     uint256 shipEntity = spawnShip(Coord(21, 0), 0, deployer);
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actions: [bytes("action.claimDrop"), none],
-      metadata: [abi.encode(dropEntity), none]
+      actions: [bytes("action.claimCrate"), none],
+      metadata: [abi.encode(crateEntity), none]
     });
     actions.push(action);
 
@@ -53,21 +53,21 @@ contract ClaimDropActionTest is DarkSeasTest {
   function testRevertAlreadyClaimed() public prank(deployer) {
     setup();
 
-    uint256 dropEntity = world.getUniqueEntityId();
+    uint256 crateEntity = world.getUniqueEntityId();
     ComponentDevSystem(system(ComponentDevSystemID)).executeTyped(
       UpgradeComponentID,
-      dropEntity,
+      crateEntity,
       abi.encode(Upgrade({ componentId: HealthComponentID, amount: 1 }))
     );
     Coord memory position = Coord(0, 0);
-    PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(dropEntity, position);
+    PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(crateEntity, position);
 
     uint256 shipEntity = spawnShip(Coord(0, 0), 0, deployer);
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actions: [bytes("action.claimDrop"), none],
-      metadata: [abi.encode(dropEntity), none]
+      actions: [bytes("action.claimCrate"), none],
+      metadata: [abi.encode(crateEntity), none]
     });
     actions.push(action);
 
@@ -83,26 +83,26 @@ contract ClaimDropActionTest is DarkSeasTest {
     actionSystem.executeTyped(actions);
   }
 
-  function testClaimDrop() public prank(deployer) {
+  function testClaimCrate() public prank(deployer) {
     setup();
 
     HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
-    uint256 dropEntity = world.getUniqueEntityId();
+    uint256 crateEntity = world.getUniqueEntityId();
     ComponentDevSystem(system(ComponentDevSystemID)).executeTyped(
       UpgradeComponentID,
-      dropEntity,
+      crateEntity,
       abi.encode(Upgrade({ componentId: HealthComponentID, amount: 1 }))
     );
     Coord memory position = Coord(0, 0);
-    PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(dropEntity, position);
+    PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(crateEntity, position);
 
     uint256 shipEntity = spawnShip(Coord(0, 0), 0, deployer);
 
     uint32 health = healthComponent.getValue(shipEntity);
     Action memory action = Action({
       shipEntity: shipEntity,
-      actions: [bytes("action.claimDrop"), none],
-      metadata: [abi.encode(dropEntity), none]
+      actions: [bytes("action.claimCrate"), none],
+      metadata: [abi.encode(crateEntity), none]
     });
     actions.push(action);
 

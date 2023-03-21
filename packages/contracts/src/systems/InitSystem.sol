@@ -173,7 +173,7 @@ contract InitSystem is System {
     uint256 RepairCannonsID = uint256(keccak256("action.repairCannons"));
     actionComponent.set(RepairCannonsID, FunctionSelector(address(actionSystem), actionSystem.repairCannons.selector));
 
-    uint256 ClaimDropID = uint256(keccak256("action.claimDrop"));
-    actionComponent.set(ClaimDropID, FunctionSelector(address(actionSystem), actionSystem.claimDrop.selector));
+    uint256 ClaimCrateID = uint256(keccak256("action.claimCrate"));
+    actionComponent.set(ClaimCrateID, FunctionSelector(address(actionSystem), actionSystem.claimCrate.selector));
   }
 }

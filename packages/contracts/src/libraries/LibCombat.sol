@@ -27,7 +27,7 @@ import { Coord, Line, Upgrade } from "../libraries/DSTypes.sol";
 import "./LibVector.sol";
 import "./LibUtils.sol";
 import "./LibTurn.sol";
-import "./LibDrop.sol";
+import "./LibCrate.sol";
 import { ABDKMath64x64 as Math } from "abdk-libraries-solidity/ABDKMath64x64.sol";
 
 library LibCombat {
@@ -213,7 +213,7 @@ library LibCombat {
 
     HealthComponent(LibUtils.addressById(world, HealthComponentID)).set(shipEntity, 0);
     Upgrade memory upgrade = Upgrade({ componentId: HealthComponentID, amount: 1 });
-    LibDrop.createDrop(world, position);
+    LibCrate.createCrate(world, position);
   }
 
   /*************************************************** UTILITIES **************************************************** */
