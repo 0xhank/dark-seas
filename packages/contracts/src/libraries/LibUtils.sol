@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 
 // External
 import { QueryFragment, QueryType, LibQuery } from "solecs/LibQuery.sol";
-import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 import { IComponent } from "solecs/interfaces/IComponent.sol";
 import { getAddressById, addressToEntity } from "solecs/utils.sol";
 import { IWorld } from "solecs/interfaces/IWorld.sol";

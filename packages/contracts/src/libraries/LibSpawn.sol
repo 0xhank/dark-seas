@@ -3,7 +3,6 @@ pragma solidity >=0.8.0;
 
 // External
 import { IWorld } from "solecs/interfaces/IWorld.sol";
-import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 import { addressToEntity } from "solecs/utils.sol";
 
 // Components

@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
-import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
-import { IWorld } from "solecs/interfaces/IWorld.sol";
 import "std-contracts/components/CoordComponent.sol";
 
 uint256 constant GodID = uint256(0x060D);
