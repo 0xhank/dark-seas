@@ -36,7 +36,7 @@ library LibCrate {
     PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(crateEntity, position);
     UpgradeComponent(LibUtils.addressById(world, UpgradeComponentID)).set(
       crateEntity,
-      Upgrade({ componentId: componentId, amount: amount })
+      Upgrade({ componentId: componentId, amount: amount + 1 })
     );
   }
 

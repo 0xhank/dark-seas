@@ -734,6 +734,24 @@ export async function createUtilities(
   function renderCircle(
     group: Phaser.GameObjects.Group,
     position: Coord,
+    radius: number,
+    tint = colors.whiteHex,
+    alpha = 1
+  ) {
+    const circle = mainScene.add.circle(
+      position.x * POS_HEIGHT,
+      position.y * POS_HEIGHT,
+      radius * POS_HEIGHT,
+      tint,
+      alpha
+    );
+    circle.setDepth(RenderDepth.Foreground5);
+    group.add(circle, true);
+    return circle;
+  }
+  function renderEllipse(
+    group: Phaser.GameObjects.Group,
+    position: Coord,
     length: number,
     rotation: number,
     tint = colors.whiteHex,
@@ -757,6 +775,7 @@ export async function createUtilities(
     circle.setFillStyle(tint, alpha);
 
     group.add(circle, true);
+    return circle;
   }
 
   const nameRegistry = new Map<EntityID, string>();
@@ -829,6 +848,7 @@ export async function createUtilities(
     renderCannonFiringArea,
     renderMovePath,
     renderCircle,
+    renderEllipse,
     moveElement,
     getFiringAreaPixels,
     renderShip,

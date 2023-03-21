@@ -7,7 +7,7 @@ export function shipCircleSystems(MUD: SetupResult) {
   const {
     world,
     components: { Position, Length, Rotation, SelectedShip, HoveredSprite },
-    utils: { getGroupObject, destroyGroupObject, isMyShip, renderCircle },
+    utils: { getGroupObject, destroyGroupObject, isMyShip, renderEllipse },
   } = MUD;
 
   defineComponentSystem(world, SelectedShip, (update) => {
@@ -22,7 +22,7 @@ export function shipCircleSystems(MUD: SetupResult) {
     const rotation = getComponentValueStrict(Rotation, shipEntity).value;
     const shipColor = colors.whiteHex;
 
-    renderCircle(hoveredGroup, position, length, rotation, shipColor, 0.3);
+    renderEllipse(hoveredGroup, position, length, rotation, shipColor, 0.3);
   });
 
   defineComponentSystem(world, HoveredSprite, (update) => {
@@ -37,7 +37,7 @@ export function shipCircleSystems(MUD: SetupResult) {
     const rotation = getComponentValueStrict(Rotation, shipEntity).value;
     const shipColor = colors.whiteHex;
 
-    renderCircle(hoveredGroup, position, length, rotation, shipColor, 0.15);
+    renderEllipse(hoveredGroup, position, length, rotation, shipColor, 0.15);
   });
 
   defineUpdateSystem(world, [Has(Position), Has(Rotation)], (update) => {
