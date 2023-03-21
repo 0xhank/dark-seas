@@ -10,7 +10,7 @@ import styled from "styled-components";
 import { useMUD } from "../../../mud/providers/MUDProvider";
 import { world } from "../../../mud/world";
 import { POS_HEIGHT, POS_WIDTH } from "../../../phaser/constants";
-import { ModalType } from "../../../types";
+import { HoverType, ModalType } from "../../../types";
 import { Button, colors } from "../../styles/global";
 import { SortableTable } from "./SortableTable";
 type ShipData = {
@@ -28,7 +28,7 @@ type PlayerData = {
 
 export function Leaderboard() {
   const {
-    components: { ModalOpen, Ship, HealthLocal, OwnedBy, Name, Position, HoveredShip },
+    components: { ModalOpen, Ship, HealthLocal, OwnedBy, Name, Position, HoveredSprite },
     godEntity,
     scene: { camera },
     utils: { getShipName },
@@ -66,7 +66,7 @@ export function Leaderboard() {
 
   function focusShip(shipEntity: EntityIndex) {
     const position = getComponentValueStrict(Position, shipEntity);
-    setComponent(HoveredShip, godEntity, { value: shipEntity });
+    setComponent(HoveredSprite, HoverType.SHIP, { value: shipEntity });
     camera.centerOn(position.x * POS_WIDTH, position.y * POS_HEIGHT);
     removeComponent(ModalOpen, ModalType.LEADERBOARD);
   }

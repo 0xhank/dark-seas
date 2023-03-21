@@ -14,7 +14,7 @@ import {
 import { sprites } from "../../phaser/config";
 import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../../phaser/constants";
 import { SetupResult } from "../../setupMUD";
-import { Sprites } from "../../types";
+import { HoverType, Sprites } from "../../types";
 import { getShipSprite } from "../../utils/ships";
 
 export function shipTextureSystems(MUD: SetupResult) {
@@ -25,7 +25,7 @@ export function shipTextureSystems(MUD: SetupResult) {
     components: {
       SelectedShip,
       SelectedMove,
-      HoveredShip,
+      HoveredSprite,
       HealthLocal,
       OnFireLocal,
       DamagedCannonsLocal,
@@ -65,8 +65,8 @@ export function shipTextureSystems(MUD: SetupResult) {
 
       object.setInteractive({ cursor: "pointer" });
       object.off("pointerup");
-      object.on("pointerout", () => removeComponent(HoveredShip, godEntity));
-      object.on("pointerover", () => setComponent(HoveredShip, godEntity, { value: shipEntity }));
+      object.on("pointerout", () => removeComponent(HoveredSprite, HoverType.SHIP));
+      object.on("pointerover", () => setComponent(HoveredSprite, HoverType.SHIP, { value: shipEntity }));
       if (health == 0) {
         object.setAlpha(0.5);
         object.setDepth(RenderDepth.Foreground4);

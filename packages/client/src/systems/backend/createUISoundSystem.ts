@@ -13,7 +13,7 @@ export function createUISoundSystem(MUD: SetupResult) {
       HoveredMove,
       SelectedMove,
       SelectedActions,
-      HoveredShip,
+      HoveredSprite,
       SelectedShip,
       Rotation,
       Position,
@@ -114,7 +114,7 @@ export function createUISoundSystem(MUD: SetupResult) {
     return newAddition;
   }
 
-  defineSystem(world, [Has(HoveredShip)], (update) => {
+  defineSystem(world, [Has(HoveredSprite)], (update) => {
     if (!update.value[0]) return;
 
     playSound("button_hover", Category.UI);

@@ -146,6 +146,11 @@ export const ModalType = {
   BOTTOM_BAR: 2 as EntityIndex,
 };
 
+export const HoverType = {
+  SHIP: 0 as EntityIndex,
+  CRATE: 1 as EntityIndex,
+};
+
 export enum TxType {
   Action,
   Commit,

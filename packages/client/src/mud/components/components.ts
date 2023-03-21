@@ -8,6 +8,7 @@ import {
 import { world } from "../world";
 import { GameConfigComponent } from "./GameConfigComponent";
 import { MoveCardComponent } from "./MoveCardComponent";
+import { UpgradeComponent } from "./UpgradeComponent";
 
 export const components = {
   GameConfig: GameConfigComponent,
@@ -47,12 +48,13 @@ export const components = {
     metadata: { contractId: "ds.component.ShipPrototype" },
   }),
   LastHit: defineStringComponent(world, { id: "LastHit", metadata: { contractId: "ds.component.LastHit" } }),
+  Upgrade: UpgradeComponent,
 };
 
 export const clientComponents = {
   SelectedMove: defineNumberComponent(world, { id: "SelectedMove" }),
   SelectedShip: defineNumberComponent(world, { id: "SelectedShip" }),
-  HoveredShip: defineNumberComponent(world, { id: "HoveredShip" }),
+  HoveredSprite: defineNumberComponent(world, { id: "HoveredSprite" }),
   HoveredAction: defineComponent(
     world,
     { shipEntity: Type.Number, actionType: Type.Number, specialEntity: Type.Number },

@@ -1,11 +1,12 @@
 import { defineComponentSystem, defineUpdateSystem, EntityIndex, getComponentValueStrict, Has } from "@latticexyz/recs";
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
+import { HoverType } from "../../types";
 
 export function shipCircleSystems(MUD: SetupResult) {
   const {
     world,
-    components: { Position, Length, Rotation, SelectedShip, HoveredShip },
+    components: { Position, Length, Rotation, SelectedShip, HoveredSprite },
     utils: { getGroupObject, destroyGroupObject, isMyShip, renderCircle },
   } = MUD;
 
@@ -24,7 +25,8 @@ export function shipCircleSystems(MUD: SetupResult) {
     renderCircle(hoveredGroup, position, length, rotation, shipColor, 0.3);
   });
 
-  defineComponentSystem(world, HoveredShip, (update) => {
+  defineComponentSystem(world, HoveredSprite, (update) => {
+    if (update.entity !== HoverType.SHIP) return;
     const shipEntity = update.value[0]?.value as EntityIndex | undefined;
 
     const groupId = "hover-circle";

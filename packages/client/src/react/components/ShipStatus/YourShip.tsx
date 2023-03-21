@@ -2,13 +2,14 @@ import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex, removeComponent, setComponent } from "@latticexyz/recs";
 import styled from "styled-components";
 import { useMUD } from "../../../mud/providers/MUDProvider";
+import { HoverType } from "../../../types";
 import { ShipContainer } from "../../styles/global";
 import { ActionStatus } from "./ActionStatus";
 import { ShipCard } from "./ShipCard";
 
 export const YourShip = ({ shipEntity, selected }: { shipEntity: EntityIndex; selected: boolean }) => {
   const {
-    components: { SelectedShip, HoveredShip },
+    components: { SelectedShip, HoveredSprite },
     godEntity,
     scene: { camera },
     utils: { getSpriteObject },
@@ -21,14 +22,14 @@ export const YourShip = ({ shipEntity, selected }: { shipEntity: EntityIndex; se
 
     setComponent(SelectedShip, godEntity, { value: shipEntity });
   };
-  const hoveredShip = useComponentValue(HoveredShip, godEntity)?.value;
+  const hoveredShip = useComponentValue(HoveredSprite, HoverType.SHIP)?.value;
   const isHovered = hoveredShip == shipEntity;
 
   return (
     <ShipContainer
       onClick={() => selectShip(shipEntity)}
-      onMouseEnter={() => setComponent(HoveredShip, godEntity, { value: shipEntity })}
-      onMouseLeave={() => removeComponent(HoveredShip, godEntity)}
+      onMouseEnter={() => setComponent(HoveredSprite, HoverType.SHIP, { value: shipEntity })}
+      onMouseLeave={() => removeComponent(HoveredSprite, HoverType.SHIP)}
       isSelected={selected}
       isHovered={isHovered}
       key={`move-selection-${shipEntity}`}
