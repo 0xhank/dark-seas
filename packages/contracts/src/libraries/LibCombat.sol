@@ -224,7 +224,7 @@ library LibCombat {
       killsComponent.set(attackerEntity, prevKills + 1);
     }
     Upgrade memory upgrade = Upgrade({ componentId: HealthComponentID, amount: 1 });
-    LibDrop.createDrop(world, upgrade, position);
+    LibDrop.createDrop(world, position);
   }
 
   /*************************************************** UTILITIES **************************************************** */

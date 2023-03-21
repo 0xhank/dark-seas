@@ -260,7 +260,7 @@ contract MoveSystemTest is DarkSeasTest {
 
     MoveCard memory newMoveCard;
 
-    newMoveCard = LibMove.getMoveWithSails(moveCard, 100, sailPosition);
+    newMoveCard = LibMove.getMoveWithSails(moveCard, 10, sailPosition);
     assertEq(moveCard.distance, newMoveCard.distance, "full sails distance failed");
     assertEq(moveCard.rotation, newMoveCard.rotation, "full sails rotation failed");
     assertEq(moveCard.direction, newMoveCard.direction, "full sails angle failed");
@@ -270,7 +270,7 @@ contract MoveSystemTest is DarkSeasTest {
 
     sailPosition = 1;
     uint32 debuff = 70;
-    newMoveCard = LibMove.getMoveWithSails(moveCard, 100, sailPosition);
+    newMoveCard = LibMove.getMoveWithSails(moveCard, 10, sailPosition);
     assertEq(newMoveCard.distance, (moveCard.distance * debuff) / 100, "closed sails distance failed");
     assertEq(newMoveCard.rotation, 360 - (((360 - moveCard.rotation) * 100) / debuff), "closed sails rotation failed");
     assertEq(newMoveCard.direction, 360 - (((360 - moveCard.direction) * 100) / debuff), "closed sails angle failed");
@@ -278,7 +278,7 @@ contract MoveSystemTest is DarkSeasTest {
     moveCard.distance = 100;
     moveCard.rotation = 90;
     moveCard.direction = 45;
-    newMoveCard = LibMove.getMoveWithSails(moveCard, 100, sailPosition);
+    newMoveCard = LibMove.getMoveWithSails(moveCard, 10, sailPosition);
 
     assertEq(newMoveCard.distance, (moveCard.distance * debuff) / 100, "closed sails distance 2 failed");
     assertEq(newMoveCard.rotation, (moveCard.rotation * 100) / debuff, "closed sails 2 rotation failed");

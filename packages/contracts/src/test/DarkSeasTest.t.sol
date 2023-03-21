@@ -45,7 +45,7 @@ contract DarkSeasTest is MudTest {
     MaxHealthComponent(LibUtils.addressById(world, MaxHealthComponentID)).set(shipEntity, maxHealth);
     SailPositionComponent(LibUtils.addressById(world, SailPositionComponentID)).set(shipEntity, 2);
     OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID)).set(shipEntity, playerEntity);
-    SpeedComponent(LibUtils.addressById(world, SpeedComponentID)).set(shipEntity, 100);
+    SpeedComponent(LibUtils.addressById(world, SpeedComponentID)).set(shipEntity, 10);
     KillsComponent(LibUtils.addressById(world, KillsComponentID)).set(shipEntity, 0);
     BootyComponent(LibUtils.addressById(world, BootyComponentID)).set(shipEntity, 500);
     LastHitComponent(LibUtils.addressById(world, LastHitComponentID)).set(shipEntity, GodID);
@@ -83,7 +83,7 @@ contract DarkSeasTest is MudTest {
       price: price,
       length: 13,
       maxHealth: 10,
-      speed: 90,
+      speed: 9,
       cannons: cannon4,
       name: "Johnson"
     });

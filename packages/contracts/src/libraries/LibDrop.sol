@@ -24,14 +24,14 @@ library LibDrop {
   function createDrop(IWorld world, Coord memory position) public {
     uint256 dropEntity = world.getUniqueEntityId();
 
-    uint256 componentSeed = getByteUInt(dropEntity, 2, 0);
+    uint256 componentSeed = LibUtils.getByteUInt(dropEntity, 2, 0);
     uint256 componentId;
     if (componentSeed == 0) componentId = HealthComponentID;
     else if (componentSeed == 1) componentId = LengthComponentID;
     else if (componentSeed == 2) componentId = FirepowerComponentID;
     else if (componentSeed == 3) componentId = SpeedComponentID;
 
-    uint256 amount = getByteUInt(dropEntity, 1, 2);
+    uint32 amount = uint32(LibUtils.getByteUInt(dropEntity, 1, 2));
 
     PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(dropEntity, position);
     UpgradeComponent(LibUtils.addressById(world, UpgradeComponentID)).set(

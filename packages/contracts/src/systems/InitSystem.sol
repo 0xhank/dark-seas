@@ -46,14 +46,14 @@ contract InitSystem is System {
 
     LibCreateShip.createShip(
       world,
-      ShipPrototype({ price: 1, length: 6, maxHealth: 3, speed: 80, cannons: cannon2, name: "Leaky Canoe" })
+      ShipPrototype({ price: 1, length: 6, maxHealth: 3, speed: 8, cannons: cannon2, name: "Leaky Canoe" })
     );
 
     // Wet Blanket
     cannon1[0] = CannonPrototype({ rotation: 0, firepower: 40, range: 72 });
     LibCreateShip.createShip(
       world,
-      ShipPrototype({ price: 1, length: 6, maxHealth: 3, speed: 80, cannons: cannon1, name: "Wet Blanket" })
+      ShipPrototype({ price: 1, length: 6, maxHealth: 3, speed: 8, cannons: cannon1, name: "Wet Blanket" })
     );
 
     // Waterski
@@ -61,7 +61,7 @@ contract InitSystem is System {
     cannon2[1] = CannonPrototype({ rotation: 315, firepower: 50, range: 70 });
     LibCreateShip.createShip(
       world,
-      ShipPrototype({ price: 2, length: 7, maxHealth: 3, speed: 150, cannons: cannon2, name: "Waterski" })
+      ShipPrototype({ price: 2, length: 7, maxHealth: 3, speed: 15, cannons: cannon2, name: "Waterski" })
     );
 
     // Tugboat
@@ -69,7 +69,7 @@ contract InitSystem is System {
     cannon2[1] = CannonPrototype({ rotation: 180, firepower: 40, range: 70 });
     LibCreateShip.createShip(
       world,
-      ShipPrototype({ price: 2, length: 8, maxHealth: 5, speed: 50, cannons: cannon2, name: "Tugboat" })
+      ShipPrototype({ price: 2, length: 8, maxHealth: 5, speed: 5, cannons: cannon2, name: "Tugboat" })
     );
 
     // Dolphin
@@ -78,7 +78,7 @@ contract InitSystem is System {
     cannon3[2] = CannonPrototype({ rotation: 0, firepower: 55, range: 80 });
     LibCreateShip.createShip(
       world,
-      ShipPrototype({ price: 3, length: 9, maxHealth: 5, speed: 100, cannons: cannon3, name: "Dolphin" })
+      ShipPrototype({ price: 3, length: 9, maxHealth: 5, speed: 10, cannons: cannon3, name: "Dolphin" })
     );
 
     // Defiance
@@ -88,7 +88,7 @@ contract InitSystem is System {
     cannon4[3] = CannonPrototype({ rotation: 330, firepower: 60, range: 70 });
     LibCreateShip.createShip(
       world,
-      ShipPrototype({ price: 3, length: 9, maxHealth: 4, speed: 80, cannons: cannon4, name: "Defiance" })
+      ShipPrototype({ price: 3, length: 9, maxHealth: 4, speed: 8, cannons: cannon4, name: "Defiance" })
     );
 
     // The Raven
@@ -96,7 +96,7 @@ contract InitSystem is System {
     cannon2[1] = CannonPrototype({ rotation: 270, firepower: 90, range: 110 });
     LibCreateShip.createShip(
       world,
-      ShipPrototype({ price: 4, length: 7, maxHealth: 4, speed: 120, cannons: cannon2, name: "The Raven" })
+      ShipPrototype({ price: 4, length: 7, maxHealth: 4, speed: 12, cannons: cannon2, name: "The Raven" })
     );
 
     // The Tank
@@ -108,7 +108,7 @@ contract InitSystem is System {
     cannon6[5] = CannonPrototype({ rotation: 210, firepower: 50, range: 52 });
     LibCreateShip.createShip(
       world,
-      ShipPrototype({ price: 4, length: 12, maxHealth: 6, speed: 50, cannons: cannon6, name: "The Tank" })
+      ShipPrototype({ price: 4, length: 12, maxHealth: 6, speed: 5, cannons: cannon6, name: "The Tank" })
     );
 
     // Victory
@@ -119,7 +119,7 @@ contract InitSystem is System {
     cannon5[4] = CannonPrototype({ rotation: 0, firepower: 60, range: 60 });
     LibCreateShip.createShip(
       world,
-      ShipPrototype({ price: 5, length: 13, maxHealth: 8, speed: 110, cannons: cannon5, name: "Victory" })
+      ShipPrototype({ price: 5, length: 13, maxHealth: 8, speed: 11, cannons: cannon5, name: "Victory" })
     );
   }
 
