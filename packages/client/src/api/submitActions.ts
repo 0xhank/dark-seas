@@ -41,7 +41,8 @@ export function submitActions(
 
         const metadata = action.actionTypes.map((actionType, i) => {
           const specialEntity = action.specialEntities[i];
-          if (actionType == ActionType.Load) return abi.encode(["uint256"], [specialEntity]);
+          if (actionType == ActionType.Load || actionType == ActionType.ClaimCrate)
+            return abi.encode(["uint256"], [specialEntity]);
           if (actionType == ActionType.Fire) {
             const cannonEntity = world.entityToIndex.get(specialEntity);
             if (!cannonEntity) return "";

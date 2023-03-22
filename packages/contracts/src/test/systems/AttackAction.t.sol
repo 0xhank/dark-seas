@@ -242,10 +242,10 @@ contract AttackActionTest is DarkSeasTest {
 
     assertEq(healthComponent.getValue(defenderEntity), 0);
     assertEq(healthComponent.getValue(attackerEntity), 1);
-    (uint256[] memory upgrades, ) = LibUtils.getEntityWith(world, UpgradeComponentID);
-    assertEq(upgrades.length, 1);
+    (uint256[] memory crates, ) = LibUtils.getEntityWith(world, UpgradeComponentID);
+    assertEq(crates.length, 1);
 
-    assertCoordEq(positionComponent.getValue(defenderEntity), positionComponent.getValue(upgrades[0]));
+    assertCoordEq(positionComponent.getValue(defenderEntity), positionComponent.getValue(crates[0]));
   }
 
   function testFireDeathPriorAttacker() public prank(deployer) {

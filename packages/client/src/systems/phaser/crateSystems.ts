@@ -7,6 +7,7 @@ import {
   getComponentValueStrict,
   Has,
 } from "@latticexyz/recs";
+import { keccak256 } from "@latticexyz/utils";
 import { world } from "../../mud/world";
 import { sprites } from "../../phaser/config";
 import { POS_HEIGHT, RenderDepth } from "../../phaser/constants";
@@ -16,7 +17,7 @@ import { HoverType, Phase, Sprites } from "../../types";
 import { distance } from "../../utils/distance";
 export function crateSystems(MUD: SetupResult) {
   const {
-    components: { Position, Upgrade, HoveredSprite, SelectedShip },
+    components: { Position, Upgrade, HoveredSprite, SelectedShip, SelectedActions },
     scene: { phaserScene },
     network: { clock },
     utils: {
@@ -28,13 +29,27 @@ export function crateSystems(MUD: SetupResult) {
       renderCircle,
       isMyShip,
       handleNewActionsCrate,
+      getPlayerShipsWithActions,
     },
     godEntity,
   } = MUD;
 
   defineExitSystem(world, [Has(Position)], ({ entity }) => {
+    console.log("no more position");
     destroyGroupObject(entity);
     destroySpriteObject(entity);
+
+    // if the entity was a crate entity and someone else took it, remove it from your staged actions.
+    const selectedActions = getPlayerShipsWithActions();
+    selectedActions.forEach((action) => {
+      const shipEntity = world.entityToIndex.get(action.shipEntity);
+      if (!shipEntity) return;
+      action.specialEntities.forEach((specialEntity) => {
+        if (specialEntity == world.entities[entity]) {
+          handleNewActionsCrate(shipEntity, entity);
+        }
+      });
+    });
   });
   defineEnterSystem(world, [Has(Position), Has(Upgrade)], ({ entity: crateEntity }) => {
     const position = getComponentValueStrict(Position, crateEntity);
@@ -52,7 +67,7 @@ export function crateSystems(MUD: SetupResult) {
 
     spriteObject.setTexture(sprite.assetKey, sprite.frame);
 
-    circle.setInteractive({ cursor: "pointer" });
+    circle.setInteractive();
     circle.setAlpha(0.1);
     spriteObject.setDepth(RenderDepth.Foreground3);
     spriteObject.setScale(5);
@@ -61,7 +76,12 @@ export function crateSystems(MUD: SetupResult) {
 
     spriteObject.setPosition(x, y);
     circle.on("pointerover", () => {
-      circle.setAlpha(0.3);
+      console.log(
+        `component: ${upgrade.componentId} `,
+        [...world.components].find(
+          (component) => keccak256(component.metadata?.contractId as string) == upgrade.componentId
+        )?.id
+      );
       if (getPhase(clock.currentTime) == Phase.Action) {
         const textGroup = getGroupObject("crate-text", true);
         const selectedShip = getComponentValue(SelectedShip, godEntity)?.value as EntityIndex | undefined;
@@ -71,6 +91,8 @@ export function crateSystems(MUD: SetupResult) {
           distance(position, getComponentValueStrict(Position, selectedShip)) > 20
         )
           return;
+        circle.setInteractive({ cursor: "pointer" });
+        circle.setAlpha(0.3);
         const text = phaserScene.add.text(0, 0, "PICK UP CRATE", {
           color: colors.white,
           align: "center",
@@ -88,6 +110,7 @@ export function crateSystems(MUD: SetupResult) {
     });
 
     circle.on("pointerout", () => {
+      circle.setInteractive();
       circle.setAlpha(0.1);
       circle.off("pointerup");
       destroyGroupObject("crate-text");

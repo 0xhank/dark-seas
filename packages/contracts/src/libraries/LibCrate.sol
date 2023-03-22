@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 // External
 import "std-contracts/components/Uint32Component.sol";
+import { console } from "forge-std/console.sol";
 import { IWorld } from "solecs/interfaces/IWorld.sol";
 // Components
 import { UpgradeComponent, ID as UpgradeComponentID } from "../components/UpgradeComponent.sol";
@@ -21,7 +22,7 @@ import "./LibVector.sol";
 import "./LibUtils.sol";
 
 library LibCrate {
-  function createCrate(IWorld world, Coord memory position) public {
+  function createCrate(IWorld world, Coord memory position) internal {
     uint256 crateEntity = world.getUniqueEntityId();
 
     uint256 componentSeed = LibUtils.getByteUInt(crateEntity, 2, 0);
@@ -29,7 +30,7 @@ library LibCrate {
     if (componentSeed == 0) componentId = HealthComponentID;
     else if (componentSeed == 1) componentId = LengthComponentID;
     else if (componentSeed == 2) componentId = FirepowerComponentID;
-    else if (componentSeed == 3) componentId = SpeedComponentID;
+    else componentId = SpeedComponentID;
 
     uint32 amount = uint32(LibUtils.getByteUInt(crateEntity, 1, 2));
 
@@ -44,9 +45,9 @@ library LibCrate {
     IWorld world,
     uint256 shipEntity,
     uint256 crateEntity
-  ) public {
+  ) internal {
     PositionComponent positionComponent = PositionComponent(LibUtils.addressById(world, PositionComponentID));
-    require(positionComponent.has(crateEntity), "claimCrate: crate already claimed");
+    require(positionComponent.has(crateEntity), "claimCrate: crate has no position");
     Coord memory cratePosition = positionComponent.getValue(crateEntity);
     (Coord memory shipPosition, Coord memory aftPosition) = LibVector.getShipBowAndSternPosition(world, shipEntity);
 

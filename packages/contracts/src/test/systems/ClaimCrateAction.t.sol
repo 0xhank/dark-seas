@@ -16,7 +16,7 @@ import { Coord, Action, Upgrade } from "../../libraries/DSTypes.sol";
 
 // Libraries
 import "../../libraries/LibUtils.sol";
-import "../../libraries/LibUtils.sol";
+import "../../libraries/LibCrate.sol";
 
 contract ClaimCrateActionTest is DarkSeasTest {
   constructor() DarkSeasTest(new Deploy()) {}
@@ -81,6 +81,35 @@ contract ClaimCrateActionTest is DarkSeasTest {
 
     vm.expectRevert();
     actionSystem.executeTyped(actions);
+  }
+
+  function testCreateCrate() public prank(deployer) {
+    setup();
+    Coord memory coord = Coord(0, 0);
+    console.log("deployer:", deployer);
+    console.log("this:", address(this));
+    LibCrate.createCrate(world, coord);
+
+    (uint256[] memory crates, ) = LibUtils.getEntityWith(world, UpgradeComponentID);
+    assertEq(crates.length, 1);
+
+    PositionComponent positionComponent = PositionComponent(LibUtils.addressById(world, PositionComponentID));
+    UpgradeComponent upgradeComponent = UpgradeComponent(LibUtils.addressById(world, UpgradeComponentID));
+
+    assertCoordEq(positionComponent.getValue(crates[0]), coord);
+    uint256 componentSeed = LibUtils.getByteUInt(crates[0], 2, 0);
+    uint256 componentId;
+    if (componentSeed == 0) componentId = HealthComponentID;
+    else if (componentSeed == 1) componentId = LengthComponentID;
+    else if (componentSeed == 2) componentId = FirepowerComponentID;
+    else if (componentSeed == 3) componentId = SpeedComponentID;
+    console.log("componentSeed: ", componentSeed);
+    console.log("componentId: ", componentId);
+
+    Upgrade memory upgrade = upgradeComponent.getValue(crates[0]);
+    assertEq(componentId, upgrade.componentId, "id wrong");
+    uint32 amount = uint32(LibUtils.getByteUInt(crates[0], 1, 2));
+    assertEq(amount + 1, upgrade.amount, "amount wrong");
   }
 
   function testClaimCrate() public prank(deployer) {

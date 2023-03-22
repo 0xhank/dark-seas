@@ -11,12 +11,13 @@ import { GameConfigComponent, ID as GameConfigComponentID } from "../components/
 import { ActionComponent, ID as ActionComponentID, FunctionSelector } from "../components/ActionComponent.sol";
 import { ActionSystem, ID as ActionSystemID } from "../systems/ActionSystem.sol";
 // Types
-import { GodID, MoveCard, GameConfig, ShipPrototype, CannonPrototype } from "../libraries/DSTypes.sol";
+import { GodID, MoveCard, GameConfig, ShipPrototype, CannonPrototype, Coord } from "../libraries/DSTypes.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Init"));
 
 import "../libraries/LibCreateShip.sol";
 import "../libraries/LibUtils.sol";
+import "../libraries/LibCrate.sol";
 
 // @todo: make this admin only
 contract InitSystem is System {
@@ -30,6 +31,8 @@ contract InitSystem is System {
     createShips();
     createMoveCards();
     createActions();
+
+    LibCrate.createCrate(world, Coord(0, 0));
   }
 
   function createShips() private {
