@@ -514,6 +514,34 @@ export async function createUtilities(
     setComponent(clientComponents.SelectedShip, godEntity, { value: shipEntity });
   }
 
+  function handleNewActionsCrate(shipEntity: EntityIndex, crateEntity: EntityIndex) {
+    const selectedActions = getComponentValue(clientComponents.SelectedActions, shipEntity) || {
+      actionTypes: [ActionType.None, ActionType.None],
+      specialEntities: ["0" as EntityID, "0" as EntityID],
+    };
+    const actions = structuredClone(selectedActions);
+    const entityID = world.entities[crateEntity];
+    const index = actions.specialEntities.indexOf(entityID);
+
+    // couldn't find the crate
+    console.log("hello");
+    if (index == -1) {
+      const unusedSlot = selectedActions.actionTypes.indexOf(ActionType.None);
+      if (unusedSlot == -1) return;
+      actions.actionTypes[unusedSlot] = ActionType.ClaimCrate;
+      actions.specialEntities[unusedSlot] = entityID;
+    } else {
+      actions.actionTypes[index] = ActionType.None;
+      actions.specialEntities[index] = "0" as EntityID;
+    }
+    console.log("updating selected actions");
+    setComponent(clientComponents.SelectedActions, shipEntity, {
+      actionTypes: actions.actionTypes,
+      specialEntities: actions.specialEntities,
+    });
+    setComponent(clientComponents.SelectedShip, godEntity, { value: shipEntity });
+  }
+
   function getSpriteObject(id: string | number, s?: Phaser.Scene): Phaser.GameObjects.Sprite {
     const scene = s || mainScene;
     const sprite = spriteRegistry.get(id);
@@ -834,6 +862,7 @@ export async function createUtilities(
     playSound,
     handleNewActionsCannon,
     handleNewActionsSpecial,
+    handleNewActionsCrate,
     muteSfx,
     unmuteSfx,
     playMusic,
