@@ -59,10 +59,14 @@ library LibAction {
       FunctionSelector memory functionSelector = ActionComponent(LibUtils.addressById(world, ActionComponentID))
         .getValue(actionHash);
 
-      (bool success, bytes memory content) = functionSelector.contr.call(
+      (bool success, bytes memory result) = functionSelector.contr.call(
         bytes.concat(functionSelector.func, abi.encode(action.shipEntity, metadata))
       );
-      require(success, "action failed");
+      if (!success) {
+        assembly {
+          revert(add(result, 32), mload(result))
+        }
+      }
     }
 
     // todo: apply damage to all ships every turn instead of only if they act

@@ -48,9 +48,12 @@ library LibCrate {
     PositionComponent positionComponent = PositionComponent(LibUtils.addressById(world, PositionComponentID));
     require(positionComponent.has(crateEntity), "claimCrate: crate already claimed");
     Coord memory cratePosition = positionComponent.getValue(crateEntity);
-    Coord memory shipPosition = positionComponent.getValue(shipEntity);
+    (Coord memory shipPosition, Coord memory aftPosition) = LibVector.getShipBowAndSternPosition(world, shipEntity);
 
-    require(LibVector.distance(shipPosition, cratePosition) < 20, "claimCrate: too far away");
+    require(
+      LibVector.distance(shipPosition, cratePosition) < 20 || LibVector.distance(aftPosition, cratePosition) < 20,
+      "claimCrate: too far away"
+    );
 
     Upgrade memory upgrade = UpgradeComponent(LibUtils.addressById(world, UpgradeComponentID)).getValue(crateEntity);
     Uint32Component component = Uint32Component(LibUtils.addressById(world, upgrade.componentId));

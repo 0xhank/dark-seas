@@ -35,7 +35,7 @@ contract ClaimCrateActionTest is DarkSeasTest {
     Coord memory position = Coord(0, 0);
     PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(crateEntity, position);
 
-    uint256 shipEntity = spawnShip(Coord(21, 0), 0, deployer);
+    uint256 shipEntity = spawnShip(Coord(31, 0), 0, deployer);
 
     Action memory action = Action({
       shipEntity: shipEntity,
@@ -87,6 +87,7 @@ contract ClaimCrateActionTest is DarkSeasTest {
     setup();
 
     HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
+    PositionComponent positionComponent = PositionComponent(LibUtils.addressById(world, PositionComponentID));
     uint256 crateEntity = world.getUniqueEntityId();
     ComponentDevSystem(system(ComponentDevSystemID)).executeTyped(
       UpgradeComponentID,
@@ -94,7 +95,7 @@ contract ClaimCrateActionTest is DarkSeasTest {
       abi.encode(Upgrade({ componentId: HealthComponentID, amount: 1 }))
     );
     Coord memory position = Coord(0, 0);
-    PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(crateEntity, position);
+    positionComponent.set(crateEntity, position);
 
     uint256 shipEntity = spawnShip(Coord(0, 0), 0, deployer);
 
@@ -108,8 +109,8 @@ contract ClaimCrateActionTest is DarkSeasTest {
 
     vm.warp(getTurnAndPhaseTime(world, 2, Phase.Action));
     actionSystem.executeTyped(actions);
-
     assertEq(healthComponent.getValue(shipEntity), health + 1);
+    assertTrue(!positionComponent.has(crateEntity));
   }
 
   function setup() internal {

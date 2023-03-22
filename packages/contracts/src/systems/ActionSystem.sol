@@ -87,7 +87,7 @@ contract ActionSystem is System {
   }
 
   function claimCrate(uint256 shipEntity, bytes memory metadata) public {
-    require(msg.sender == address(this), "repairCannons: can only be called by ActionSystem");
+    require(msg.sender == address(this), "claimCrate: can only be called by ActionSystem");
     uint256 crateEntity = abi.decode(metadata, (uint256));
     LibCrate.claimCrate(world, shipEntity, crateEntity);
   }

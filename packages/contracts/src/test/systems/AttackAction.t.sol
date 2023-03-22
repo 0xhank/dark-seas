@@ -75,7 +75,7 @@ contract AttackActionTest is DarkSeasTest {
       metadata: [abi.encode(cannonEntity, targets), none]
     });
     actions.push(action);
-    vm.expectRevert(bytes("action failed"));
+    vm.expectRevert(bytes("attack: cannon not loaded"));
     actionSystem.executeTyped(actions);
   }
 
@@ -113,7 +113,7 @@ contract AttackActionTest is DarkSeasTest {
       metadata: [abi.encode(cannonEntity, targets), none]
     });
     actions.push(action);
-    vm.expectRevert(bytes("action failed"));
+    vm.expectRevert(bytes("attack: cannon not loaded"));
     actionSystem.executeTyped(actions);
   }
 
@@ -130,7 +130,7 @@ contract AttackActionTest is DarkSeasTest {
     startingPosition = Coord({ x: -25, y: -25 });
     uint256 defender2Id = spawnShip(startingPosition, rotation, deployer);
 
-    startingPosition = Coord({ x: 25, y: 25 });
+    startingPosition = Coord({ x: 10, y: 10 });
     uint256 defenderId = spawnShip(startingPosition, rotation, deployer);
 
     uint32 origHealth = healthComponent.getValue(defenderId);
@@ -141,7 +141,7 @@ contract AttackActionTest is DarkSeasTest {
 
     uint32 newHealth = healthComponent.getValue(defenderId);
 
-    assertGe(newHealth, origHealth - 1);
+    assertLe(newHealth, origHealth - 1);
 
     newHealth = healthComponent.getValue(defender2Id);
     assertEq(newHealth, orig2Health);
