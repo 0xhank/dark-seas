@@ -6,8 +6,10 @@ import {
   defineStringComponent,
 } from "@latticexyz/std-client";
 import { world } from "../world";
+import { defineActionComponent } from "./ActionComponent";
 import { GameConfigComponent } from "./GameConfigComponent";
 import { MoveCardComponent } from "./MoveCardComponent";
+import { UpgradeComponent } from "./UpgradeComponent";
 
 export const components = {
   GameConfig: GameConfigComponent,
@@ -46,15 +48,15 @@ export const components = {
     id: "ShipPrototype",
     metadata: { contractId: "ds.component.ShipPrototype" },
   }),
-  Kills: defineNumberComponent(world, { id: "Kills", metadata: { contractId: "ds.component.Kills" } }),
   LastHit: defineStringComponent(world, { id: "LastHit", metadata: { contractId: "ds.component.LastHit" } }),
-  Booty: defineStringComponent(world, { id: "Booty", metadata: { contractId: "ds.component.Booty" } }),
+  Upgrade: UpgradeComponent,
+  Action: defineActionComponent,
 };
 
 export const clientComponents = {
   SelectedMove: defineNumberComponent(world, { id: "SelectedMove" }),
   SelectedShip: defineNumberComponent(world, { id: "SelectedShip" }),
-  HoveredShip: defineNumberComponent(world, { id: "HoveredShip" }),
+  HoveredSprite: defineNumberComponent(world, { id: "HoveredSprite" }),
   HoveredAction: defineComponent(
     world,
     { shipEntity: Type.Number, actionType: Type.Number, specialEntity: Type.Number },
@@ -94,4 +96,5 @@ export const clientComponents = {
   ActiveShip: defineNumberComponent(world, { id: "ActiveShip" }),
   ActiveCannon: defineNumberComponent(world, { id: "ActiveCannon" }),
   StagedShips: defineComponent(world, { value: Type.NumberArray }, { id: "StagedShips" }),
+  Booty: defineNumberComponent(world, { id: "Booty" }),
 };

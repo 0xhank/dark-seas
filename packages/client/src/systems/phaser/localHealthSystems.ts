@@ -12,7 +12,7 @@ import { Animations, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../.
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
 import { Category } from "../../sound";
-import { Sprites } from "../../types";
+import { HoverType, Sprites } from "../../types";
 import { getShipSprite } from "../../utils/ships";
 import { getMidpoint } from "../../utils/trig";
 
@@ -26,7 +26,7 @@ export function localHealthSystems(MUD: SetupResult) {
       HealthLocal,
       SelectedShip,
       HealthBackend,
-      HoveredShip,
+      HoveredSprite,
       Health,
       OwnedBy,
       SelectedActions,
@@ -56,9 +56,9 @@ export function localHealthSystems(MUD: SetupResult) {
     shipObject.setTexture(sprite.assetKey, sprite.frame);
 
     shipObject.setInteractive({ cursor: "pointer" });
-    shipObject.on("pointerover", () => setComponent(HoveredShip, godEntity, { value: shipEntity }));
+    shipObject.on("pointerover", () => setComponent(HoveredSprite, HoverType.SHIP, { value: shipEntity }));
     shipObject.off("pointerup");
-    shipObject.on("pointerout", () => removeComponent(HoveredShip, godEntity));
+    shipObject.on("pointerout", () => removeComponent(HoveredSprite, HoverType.SHIP));
     if (health <= 0) {
       const contractHealth = getComponentValueStrict(Health, shipEntity).value;
       if (contractHealth !== health) {
@@ -69,7 +69,7 @@ export function localHealthSystems(MUD: SetupResult) {
       playDeathAnimation(shipEntity);
       removeComponent(SelectedActions, shipEntity);
       removeComponent(SelectedMove, shipEntity);
-      shipObject.setAlpha(0.5);
+      shipObject.setAlpha(0.2);
       shipObject.setDepth(RenderDepth.Foreground4);
       for (let i = 0; i < 4; i++) {
         const spriteId = `${shipEntity}-fire-${i}`;

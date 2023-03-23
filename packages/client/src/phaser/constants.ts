@@ -23,6 +23,7 @@ export enum Maps {
 export enum Assets {
   DSTileset = "DSTileset",
   MainAtlas = "MainAtlas",
+  Crates = "Crates",
 }
 
 export enum RenderDepth {

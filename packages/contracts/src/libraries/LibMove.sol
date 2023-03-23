@@ -2,10 +2,8 @@
 pragma solidity >=0.8.0;
 
 // External
-import { getAddressById } from "solecs/utils.sol";
-import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 import { Perlin } from "noise/Perlin.sol";
-
+import { IWorld } from "solecs/interfaces/IWorld.sol";
 // Components
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
 import { PositionComponent, ID as PositionComponentID } from "../components/PositionComponent.sol";
@@ -38,7 +36,7 @@ library LibMove {
     uint32 shipSpeed,
     uint32 sailPosition
   ) public pure returns (MoveCard memory) {
-    moveCard.distance = (moveCard.distance * shipSpeed) / 100;
+    moveCard.distance = (moveCard.distance * shipSpeed) / 10;
     if (sailPosition == 2) {
       return getMoveWithBuff(moveCard, 100);
     }
@@ -78,34 +76,34 @@ library LibMove {
 
   /**
    * @notice  moves a ship
-   * @param   components  world components
+   * @param   world world and components
    * @param   move  move to execute
    * @param   playerEntity  owner of ship
    */
   function moveShip(
-    IUint256Component components,
+    IWorld world,
     Move memory move,
     uint256 playerEntity
   ) public {
-    MoveCardComponent moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
-    PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
-    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
+    MoveCardComponent moveCardComponent = MoveCardComponent(LibUtils.addressById(world, MoveCardComponentID));
+    PositionComponent positionComponent = PositionComponent(LibUtils.addressById(world, PositionComponentID));
+    RotationComponent rotationComponent = RotationComponent(LibUtils.addressById(world, RotationComponentID));
     SailPositionComponent sailPositionComponent = SailPositionComponent(
-      getAddressById(components, SailPositionComponentID)
+      LibUtils.addressById(world, SailPositionComponentID)
     );
 
     require(
-      HealthComponent(getAddressById(components, HealthComponentID)).getValue(move.shipEntity) > 0,
+      HealthComponent(LibUtils.addressById(world, HealthComponentID)).getValue(move.shipEntity) > 0,
       "MoveSystem: ship is sunk"
     );
 
     require(
-      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(move.shipEntity) == playerEntity,
+      OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID)).getValue(move.shipEntity) == playerEntity,
       "MoveSystem: you don't own this ship"
     );
     require(moveCardComponent.has(move.moveCardEntity), "MoveSystem: invalid move card entity id");
     require(
-      ShipComponent(getAddressById(components, ShipComponentID)).has(move.shipEntity),
+      ShipComponent(LibUtils.addressById(world, ShipComponentID)).has(move.shipEntity),
       "MoveSystem: invalid ship entity id"
     );
 
@@ -117,7 +115,7 @@ library LibMove {
 
     moveCard = getMoveWithSails(
       moveCard,
-      SpeedComponent(getAddressById(components, SpeedComponentID)).getValue(move.shipEntity),
+      SpeedComponent(LibUtils.addressById(world, SpeedComponentID)).getValue(move.shipEntity),
       sailPositionComponent.getValue(move.shipEntity)
     );
 
@@ -125,38 +123,18 @@ library LibMove {
 
     rotation = (rotation + moveCard.rotation) % 360;
 
-    if (LibVector.outOfBounds(components, position)) {
-      LibCombat.damageHull(components, 1, move.shipEntity);
+    if (LibVector.outOfBounds(world, position)) {
+      LibCombat.damageHull(world, 1, move.shipEntity);
       sailPositionComponent.set(move.shipEntity, 0);
     } else {
-      uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(move.shipEntity);
+      uint32 length = LengthComponent(LibUtils.addressById(world, LengthComponentID)).getValue(move.shipEntity);
       Coord memory sternPosition = LibVector.getSternPosition(position, rotation, length);
-      if (LibVector.outOfBounds(components, sternPosition)) {
-        LibCombat.damageHull(components, 1, move.shipEntity);
+      if (LibVector.outOfBounds(world, sternPosition)) {
+        LibCombat.damageHull(world, 1, move.shipEntity);
         sailPositionComponent.set(move.shipEntity, 0);
       }
     }
     positionComponent.set(move.shipEntity, position);
     rotationComponent.set(move.shipEntity, rotation);
-  }
-
-  /**
-   * @notice  checks if the given position is out of bounds
-   * @param   components  world components
-   * @param   position  position to check if out of bounds
-   * @return  bool  is out of bounds
-   */
-  function outOfBounds(IUint256Component components, Coord memory position) internal view returns (bool) {
-    if (!LibVector.inWorld(components, position)) return true;
-
-    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
-      GodID
-    );
-    int128 denom = 50;
-    int128 depth = Perlin.noise2d(position.x + gameConfig.perlinSeed, position.y + gameConfig.perlinSeed, denom, 64);
-
-    depth = int128(Math.muli(depth, 100));
-
-    return depth < 26;
   }
 }

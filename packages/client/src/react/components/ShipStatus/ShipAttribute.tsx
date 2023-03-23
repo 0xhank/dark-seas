@@ -13,13 +13,7 @@ export default function ShipAttribute({
   updating?: boolean;
 }) {
   if (attribute == undefined) return null;
-  let source = "";
-  if (attributeType == ShipAttributeTypes.Sails) {
-    if (attribute == SailPositions.Torn) source = "/icons/broken-sail.svg";
-    else source = "/icons/sail.svg";
-  } else if (attributeType == ShipAttributeTypes.Booty) {
-    source = "/icons/booty.svg";
-  }
+  const source = attribute == SailPositions.Torn ? "/icons/broken-sail.svg" : "/icons/sail.svg";
 
   return (
     <AttributeContainer>

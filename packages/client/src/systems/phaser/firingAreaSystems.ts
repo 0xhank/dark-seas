@@ -48,15 +48,6 @@ export function firingAreaSystems(MUD: SetupResult) {
     renderCannonFiringArea(hoveredGroup, shipEntity, cannonEntity, undefined, strokeFill);
   });
 
-  defineExitSystem(world, [Has(HoveredAction)], (update) => {
-    const prevValue = update.value[1];
-    if (!prevValue) return;
-
-    const objectId = "hoveredFiringArea";
-
-    destroyGroupObject(objectId);
-  });
-
   defineComponentSystem(world, SelectedActions, ({ value, entity: shipEntity }) => {
     const groupId = "activeShip";
     const cannonSelected = isCannonSelected(value[1], value[0]);

@@ -37,6 +37,8 @@ export enum ActionType {
   ExtinguishFire,
   RepairCannons,
   RepairSail,
+
+  ClaimCrate,
 }
 export const ActionHashes: Record<ActionType, string> = {
   [ActionType.None]: "action.none",
@@ -47,6 +49,7 @@ export const ActionHashes: Record<ActionType, string> = {
   [ActionType.ExtinguishFire]: "action.ExtinguishFire",
   [ActionType.RepairCannons]: "action.repairCannons",
   [ActionType.RepairSail]: "action.repairSail",
+  [ActionType.ClaimCrate]: "action.claimCrate",
 };
 
 export enum Phase {
@@ -64,6 +67,7 @@ export const ActionNames: Record<number, string> = {
   [ActionType.ExtinguishFire]: "Extinguish Fire",
   [ActionType.RepairCannons]: "Repair Cannons",
   [ActionType.RepairSail]: "Repair Sail",
+  [ActionType.ClaimCrate]: "Claim Crate",
 };
 
 export const ActionImg: Record<number, string> = {
@@ -75,6 +79,7 @@ export const ActionImg: Record<number, string> = {
   [ActionType.ExtinguishFire]: "/icons/extinguish.svg",
   [ActionType.RepairCannons]: "/icons/damaged-cannons.svg",
   [ActionType.RepairSail]: "/icons/broken-sail.svg",
+  [ActionType.ClaimCrate]: "",
 };
 
 export type Line = {
@@ -138,12 +143,29 @@ export enum Sprites {
   ShipBlueDead,
   ShipBlueMajor,
   ShipBlueMinor,
+
+  HealthCrate1,
+  HealthCrate2,
+
+  SpeedCrate1,
+  SpeedCrate2,
+
+  SizeCrate1,
+  SizeCrate2,
+
+  FirepowerCrate1,
+  FirepowerCrate2,
 }
 
 export const ModalType = {
   LEADERBOARD: 0 as EntityIndex,
   TUTORIAL: 1 as EntityIndex,
   BOTTOM_BAR: 2 as EntityIndex,
+};
+
+export const HoverType = {
+  SHIP: 0 as EntityIndex,
+  CRATE: 1 as EntityIndex,
 };
 
 export enum TxType {

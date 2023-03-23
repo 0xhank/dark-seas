@@ -27,11 +27,11 @@ export function ShipDetails({ flex }: { flex: number }) {
       Firepower,
       Cannon,
       OwnedBy,
-      Booty,
       Range,
       MaxHealth,
       ActiveCannon,
       Speed,
+      Booty,
     },
     godEntity,
     utils: { getGameConfig, decodeShipPrototype },
@@ -60,7 +60,7 @@ export function ShipDetails({ flex }: { flex: number }) {
   const budget = getGameConfig()?.budget || 0;
   const spent = stagedShips.reduce((prev, curr) => prev + curr.price, 0);
 
-  const price = prototypeEntity ? Number(getComponentValueStrict(Booty, prototypeEntity).value) : 0;
+  const price = prototypeEntity ? getComponentValueStrict(Booty, prototypeEntity).value : 0;
   const length = prototypeEntity ? getComponentValueStrict(Length, prototypeEntity).value : 0;
   const maxHealth = prototypeEntity ? getComponentValueStrict(MaxHealth, prototypeEntity).value : 0;
   const speed = prototypeEntity ? getComponentValueStrict(Speed, prototypeEntity).value : 0;
@@ -140,7 +140,7 @@ export function ShipDetails({ flex }: { flex: number }) {
               <>
                 <PillBar stat={maxHealth} maxStat={Math.max(maxHealth, 10)} title="health" />
                 <PillBar stat={length} maxStat={Math.max(length, 16)} title="length" />
-                <PillBar stat={speed / 10} maxStat={Math.max(speed / 10, 16)} title="speed" />
+                <PillBar stat={speed} maxStat={Math.max(speed, 16)} title="speed" />
               </>
             ) : (
               <p style={{ color: colors.darkGray }}>No ship selected</p>
@@ -160,7 +160,7 @@ export function ShipDetails({ flex }: { flex: number }) {
           >
             {prototypeEntity ? (
               <>
-                <PillBar stat={firepower / 5} maxStat={Math.max(firepower / 5, 16)} title="firepower" />
+                <PillBar stat={firepower} maxStat={Math.max(firepower, 16)} title="firepower" />
                 <PillBar stat={range / 12} maxStat={Math.max(range / 12, 16)} title="range" />
               </>
             ) : (

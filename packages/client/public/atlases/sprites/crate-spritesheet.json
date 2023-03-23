@@ -1,0 +1,195 @@
+{
+  "meta": {
+    "app": "https://www.codeandweb.com/texturepacker",
+    "version": "1.0",
+    "image": "crate-spritesheet.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 134,
+      "h": 136
+    },
+    "scale": "1",
+    "smartupdate": "$TexturePacker:SmartUpdate:08c307f413039692dfc0da16aa39b91c:8bd072ad4b65efc4f2c87e7a1828d09b:cbce6b53f0f49e0bf15173c25c41f876$"
+  },
+  "textures": [
+    {
+      "image": "crate-spritesheet.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 134,
+        "h": 136
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "firepower.png",
+          "frame": {
+            "x": 1,
+            "y": 1,
+            "w": 32,
+            "h": 32
+          },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 32,
+            "h": 32
+          },
+          "sourceSize": {
+            "w": 32,
+            "h": 32
+          }
+        },
+        {
+          "filename": "firepower2.png",
+          "frame": {
+            "x": 35,
+            "y": 1,
+            "w": 64,
+            "h": 32
+          },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 64,
+            "h": 32
+          },
+          "sourceSize": {
+            "w": 64,
+            "h": 32
+          }
+        },
+        {
+          "filename": "health.png",
+          "frame": {
+            "x": 1,
+            "y": 35,
+            "w": 32,
+            "h": 32
+          },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 32,
+            "h": 32
+          },
+          "sourceSize": {
+            "w": 32,
+            "h": 32
+          }
+        },
+        {
+          "filename": "health2.png",
+          "frame": {
+            "x": 35,
+            "y": 35,
+            "w": 64,
+            "h": 32
+          },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 64,
+            "h": 32
+          },
+          "sourceSize": {
+            "w": 64,
+            "h": 32
+          }
+        },
+        {
+          "filename": "size.png",
+          "frame": {
+            "x": 1,
+            "y": 69,
+            "w": 32,
+            "h": 32
+          },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 32,
+            "h": 32
+          },
+          "sourceSize": {
+            "w": 32,
+            "h": 32
+          }
+        },
+        {
+          "filename": "size2.png",
+          "frame": {
+            "x": 35,
+            "y": 69,
+            "w": 64,
+            "h": 32
+          },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 64,
+            "h": 32
+          },
+          "sourceSize": {
+            "w": 64,
+            "h": 32
+          }
+        },
+        {
+          "filename": "speed.png",
+          "frame": {
+            "x": 101,
+            "y": 1,
+            "w": 32,
+            "h": 32
+          },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 32,
+            "h": 32
+          },
+          "sourceSize": {
+            "w": 32,
+            "h": 32
+          }
+        },
+        {
+          "filename": "speed2.png",
+          "frame": {
+            "x": 1,
+            "y": 103,
+            "w": 64,
+            "h": 32
+          },
+          "rotated": false,
+          "trimmed": false,
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 64,
+            "h": 32
+          },
+          "sourceSize": {
+            "w": 64,
+            "h": 32
+          }
+        }
+      ]
+    }
+  ]
+}
