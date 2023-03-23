@@ -157,7 +157,7 @@ export async function createUtilities(
 
     if (!inWorld(timeMs, position)) return true;
 
-    const whirlpool = isWhirlpool(position, Number(gameConfig.perlinSeed));
+    const whirlpool = isWhirlpool(position);
     if (whirlpool) return true;
     return false;
   }
@@ -374,14 +374,16 @@ export async function createUtilities(
 
   const whirlpoolMap = new Map<string, boolean>();
 
-  function isWhirlpool(coord: Coord, perlinSeed: number): boolean {
+  function isWhirlpool(coord: Coord) {
+    const gameConfig = getGameConfig();
+    if (!gameConfig) return;
     const coordStr = `${coord.x}-${coord.y}`;
     const retrievedVal = whirlpoolMap.get(coordStr);
 
     if (retrievedVal != undefined) return retrievedVal;
     const denom = 50;
-    const depth = perlin(coord.x + perlinSeed, coord.y + perlinSeed, 0, denom);
-    const ret = depth * 100 < 35;
+    const depth = perlin(coord.x + gameConfig.perlinSeed, coord.y + gameConfig.perlinSeed, 0, denom);
+    const ret = depth * 100 < gameConfig.islandThreshold + 2;
     whirlpoolMap.set(coordStr, ret);
 
     return ret;

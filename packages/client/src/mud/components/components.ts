@@ -6,6 +6,7 @@ import {
   defineStringComponent,
 } from "@latticexyz/std-client";
 import { world } from "../world";
+import { defineActionComponent } from "./ActionComponent";
 import { GameConfigComponent } from "./GameConfigComponent";
 import { MoveCardComponent } from "./MoveCardComponent";
 import { UpgradeComponent } from "./UpgradeComponent";
@@ -49,6 +50,7 @@ export const components = {
   }),
   LastHit: defineStringComponent(world, { id: "LastHit", metadata: { contractId: "ds.component.LastHit" } }),
   Upgrade: UpgradeComponent,
+  Action: defineActionComponent,
 };
 
 export const clientComponents = {

@@ -137,24 +137,4 @@ library LibMove {
     positionComponent.set(move.shipEntity, position);
     rotationComponent.set(move.shipEntity, rotation);
   }
-
-  /**
-   * @notice  checks if the given position is out of bounds
-   * @param   world world and components
-   * @param   position  position to check if out of bounds
-   * @return  bool  is out of bounds
-   */
-  function outOfBounds(IWorld world, Coord memory position) internal view returns (bool) {
-    if (!LibVector.inWorld(world, position)) return true;
-
-    GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
-      GodID
-    );
-    int128 denom = 50;
-    int128 depth = Perlin.noise2d(position.x + gameConfig.perlinSeed, position.y + gameConfig.perlinSeed, denom, 64);
-
-    depth = int128(Math.muli(depth, 100));
-
-    return depth < 26;
-  }
 }

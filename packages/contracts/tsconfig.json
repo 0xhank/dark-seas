@@ -10,5 +10,5 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "files": ["build-deploy.ts", "src/server/index.ts", "src/server/deploy.ts"]
+  "files": ["build-deploy.ts"]
 }
