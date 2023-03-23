@@ -12,7 +12,7 @@ export function ShipButton({ prototypeEntity }: { prototypeEntity: EntityIndex }
   } = useMUD();
 
   const length = useComponentValue(Length, prototypeEntity, { value: 0 }).value;
-  const price = Number(useComponentValue(Booty, prototypeEntity, { value: "0" }).value);
+  const price = useComponentValue(Booty, prototypeEntity, { value: 0 }).value;
   const name = useComponentValue(Name, prototypeEntity, { value: "" }).value;
 
   const activeShip = useComponentValue(ActiveShip, godEntity)?.value;

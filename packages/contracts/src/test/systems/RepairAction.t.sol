@@ -14,7 +14,7 @@ import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../../
 import { SailPositionComponent, ID as SailPositionComponentID } from "../../components/SailPositionComponent.sol";
 
 // Types
-import { Action, ActionType, Coord } from "../../libraries/DSTypes.sol";
+import { Action, Coord } from "../../libraries/DSTypes.sol";
 
 // Internal
 import "../../libraries/LibTurn.sol";
@@ -28,11 +28,9 @@ contract RepairActionTest is DarkSeasTest {
 
   Action[] actions;
 
-  bytes none = abi.encode(0);
-
   function testExtinguishFire() public prank(deployer) {
     setup();
-    OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
+    OnFireComponent onFireComponent = OnFireComponent(LibUtils.addressById(world, OnFireComponentID));
 
     uint256 shipEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
 
@@ -40,13 +38,13 @@ contract RepairActionTest is DarkSeasTest {
 
     assertTrue(onFireComponent.has(shipEntity));
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Action));
 
     delete actions;
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.ExtinguishFire, ActionType.None],
+      actions: [bytes("action.extinguishFire"), none],
       metadata: [none, none]
     });
     actions.push(action);
@@ -67,11 +65,11 @@ contract RepairActionTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.RepairSail, ActionType.None],
+      actions: [bytes("action.repairSail"), none],
       metadata: [none, none]
     });
     actions.push(action);
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Action));
 
     actionSystem.executeTyped(actions);
 
@@ -81,7 +79,7 @@ contract RepairActionTest is DarkSeasTest {
   function testRepairCannons() public prank(deployer) {
     setup();
     DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
-      getAddressById(components, DamagedCannonsComponentID)
+      LibUtils.addressById(world, DamagedCannonsComponentID)
     );
     uint256 shipEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
     componentDevSystem.executeTyped(DamagedCannonsComponentID, shipEntity, abi.encode(1));
@@ -91,11 +89,11 @@ contract RepairActionTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.RepairCannons, ActionType.None],
+      actions: [bytes("action.repairCannons"), none],
       metadata: [none, none]
     });
     actions.push(action);
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Action));
 
     actionSystem.executeTyped(actions);
 
@@ -110,6 +108,6 @@ contract RepairActionTest is DarkSeasTest {
     actionSystem = ActionSystem(system(ActionSystemID));
     componentDevSystem = ComponentDevSystem(system(ComponentDevSystemID));
 
-    sailPositionComponent = SailPositionComponent(getAddressById(components, SailPositionComponentID));
+    sailPositionComponent = SailPositionComponent(LibUtils.addressById(world, SailPositionComponentID));
   }
 }

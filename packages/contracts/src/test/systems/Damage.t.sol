@@ -19,7 +19,7 @@ import { PositionComponent, ID as PositionComponentID } from "../../components/P
 import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
 
 // Types
-import { Action, ActionType, Coord, Move } from "../../libraries/DSTypes.sol";
+import { Action, Coord, Move } from "../../libraries/DSTypes.sol";
 
 // Libraries
 import "../../libraries/LibTurn.sol";
@@ -34,29 +34,24 @@ contract DamageTest is DarkSeasTest {
   Action[] actions;
   Move[] moves;
 
-  bytes none = abi.encode(0);
-
   function testDamagedCannonsEffect() public prank(deployer) {
     setup();
     DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
-      getAddressById(components, DamagedCannonsComponentID)
+      LibUtils.addressById(world, DamagedCannonsComponentID)
     );
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
     uint256 attackerEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
-    uint256 defenderEntity = spawnShip(Coord({ x: 9, y: 25 }), 0, deployer);
-    uint32 origHealth = healthComponent.getValue(defenderEntity);
 
     componentDevSystem.executeTyped(DamagedCannonsComponentID, attackerEntity, abi.encode(2));
     assertEq(damagedCannonsComponent.getValue(attackerEntity), 2);
 
     Action memory action = Action({
       shipEntity: attackerEntity,
-      actionTypes: [ActionType.RepairCannons, ActionType.None],
+      actions: [bytes("action.repairCannons"), none],
       metadata: [none, none]
     });
     actions.push(action);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Action));
 
     actionSystem.executeTyped(actions);
     assertTrue(damagedCannonsComponent.has(attackerEntity));
@@ -67,9 +62,9 @@ contract DamageTest is DarkSeasTest {
     setup();
     uint256 shipEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
 
-    OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
+    OnFireComponent onFireComponent = OnFireComponent(LibUtils.addressById(world, OnFireComponentID));
 
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
 
     componentDevSystem.executeTyped(OnFireComponentID, shipEntity, abi.encode(2));
 
@@ -81,12 +76,12 @@ contract DamageTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.ExtinguishFire, ActionType.None],
+      actions: [bytes("action.extinguishFire"), none],
       metadata: [none, none]
     });
     actions.push(action);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Action));
 
     actionSystem.executeTyped(actions);
     assertTrue(onFireComponent.has(shipEntity));
@@ -96,19 +91,14 @@ contract DamageTest is DarkSeasTest {
   function testFireDeathNoAttacker() public prank(deployer) {
     setup();
     uint256 shipEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
-    OnFireComponent onFireComponent = OnFireComponent(getAddressById(components, OnFireComponentID));
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
 
     componentDevSystem.executeTyped(HealthComponentID, shipEntity, abi.encode(1));
     componentDevSystem.executeTyped(OnFireComponentID, shipEntity, abi.encode(2));
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 69, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 69, Phase.Action));
 
-    Action memory action = Action({
-      shipEntity: shipEntity,
-      actionTypes: [ActionType.None, ActionType.None],
-      metadata: [none, none]
-    });
+    Action memory action = Action({ shipEntity: shipEntity, actions: [none, none], metadata: [none, none] });
     actions.push(action);
 
     actionSystem.executeTyped(actions);
@@ -119,8 +109,8 @@ contract DamageTest is DarkSeasTest {
   function testDamagedSailEffect() public prank(deployer) {
     setup();
 
-    PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
-    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
+    PositionComponent positionComponent = PositionComponent(LibUtils.addressById(world, PositionComponentID));
+    RotationComponent rotationComponent = RotationComponent(LibUtils.addressById(world, RotationComponentID));
 
     uint256 moveStraightEntity = uint256(keccak256("ds.prototype.moveEntity1"));
 
@@ -132,11 +122,11 @@ contract DamageTest is DarkSeasTest {
     Move memory move = Move({ shipEntity: shipEntity, moveCardEntity: moveStraightEntity });
 
     moves.push(move);
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Commit));
+    vm.warp(getTurnAndPhaseTime(world, 2, Phase.Commit));
     uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
     CommitSystem(system(CommitSystemID)).executeTyped(commitment);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Reveal));
+    vm.warp(getTurnAndPhaseTime(world, 2, Phase.Reveal));
     MoveSystem(system(MoveSystemID)).executeTyped(moves, 69);
 
     assertCoordEq(positionComponent.getValue(shipEntity), position);
@@ -150,7 +140,7 @@ contract DamageTest is DarkSeasTest {
   function setup() internal {
     actionSystem = ActionSystem(system(ActionSystemID));
     componentDevSystem = ComponentDevSystem(system(ComponentDevSystemID));
-    sailPositionComponent = SailPositionComponent(getAddressById(components, SailPositionComponentID));
+    sailPositionComponent = SailPositionComponent(LibUtils.addressById(world, SailPositionComponentID));
     delete moves;
     delete actions;
   }

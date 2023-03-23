@@ -124,6 +124,39 @@ export const sprites = {
     assetKey: Assets.MainAtlas,
     frame: "shipRedMinor.png",
   },
+
+  [Sprites.HealthCrate1]: {
+    assetKey: Assets.Crates,
+    frame: "health.png",
+  },
+  [Sprites.HealthCrate2]: {
+    assetKey: Assets.Crates,
+    frame: "health2.png",
+  },
+  [Sprites.SpeedCrate1]: {
+    assetKey: Assets.Crates,
+    frame: "speed.png",
+  },
+  [Sprites.SpeedCrate2]: {
+    assetKey: Assets.Crates,
+    frame: "speed2.png",
+  },
+  [Sprites.FirepowerCrate1]: {
+    assetKey: Assets.Crates,
+    frame: "firepower.png",
+  },
+  [Sprites.FirepowerCrate2]: {
+    assetKey: Assets.Crates,
+    frame: "firepower2.png",
+  },
+  [Sprites.SizeCrate1]: {
+    assetKey: Assets.Crates,
+    frame: "size.png",
+  },
+  [Sprites.SizeCrate2]: {
+    assetKey: Assets.Crates,
+    frame: "size2.png",
+  },
 };
 export const phaserConfig = {
   sceneConfig: {
@@ -134,6 +167,14 @@ export const phaserConfig = {
           type: AssetType.MultiAtlas,
           key: Assets.MainAtlas,
           path: "/atlases/sprites/atlas.json",
+          options: {
+            imagePath: "/atlases/sprites/",
+          },
+        },
+        [Assets.Crates]: {
+          type: AssetType.MultiAtlas,
+          key: Assets.Crates,
+          path: "/atlases/sprites/crate-spritesheet.json",
           options: {
             imagePath: "/atlases/sprites/",
           },

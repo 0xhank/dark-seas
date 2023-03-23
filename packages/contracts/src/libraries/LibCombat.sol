@@ -2,10 +2,7 @@
 pragma solidity ^0.8.0;
 
 // External
-import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
-import { getAddressById } from "solecs/utils.sol";
-import "std-contracts/components/Uint32Component.sol";
-
+import { IWorld } from "solecs/interfaces/IWorld.sol";
 // Components
 import { RangeComponent, ID as RangeComponentID } from "../components/RangeComponent.sol";
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
@@ -18,20 +15,19 @@ import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireCo
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../components/DamagedCannonsComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
-import { KillsComponent, ID as KillsComponentID } from "../components/KillsComponent.sol";
 import { LastHitComponent, ID as LastHitComponentID } from "../components/LastHitComponent.sol";
 import { CannonComponent, ID as CannonComponentID } from "../components/CannonComponent.sol";
 import { LoadedComponent, ID as LoadedComponentID } from "../components/LoadedComponent.sol";
-import { BootyComponent, ID as BootyComponentID } from "../components/BootyComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
-import { Coord, Line } from "../libraries/DSTypes.sol";
+import { Coord, Line, Upgrade } from "../libraries/DSTypes.sol";
 
 // Libraries
 import "./LibVector.sol";
 import "./LibUtils.sol";
 import "./LibTurn.sol";
+import "./LibCrate.sol";
 import { ABDKMath64x64 as Math } from "abdk-libraries-solidity/ABDKMath64x64.sol";
 
 library LibCombat {
@@ -39,29 +35,28 @@ library LibCombat {
 
   /**a
    * @notice  loads the given cannon
-   * @param   components  world components
+   * @param   world world and components
    * @param   shipEntity  ship controlling cannon
    * @param   cannonEntity  cannon to load
    */
   function load(
-    IUint256Component components,
+    IWorld world,
     uint256 shipEntity,
     uint256 cannonEntity
   ) internal {
-    if (DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).has(shipEntity)) return;
+    if (DamagedCannonsComponent(LibUtils.addressById(world, DamagedCannonsComponentID)).has(shipEntity)) return;
 
     require(
-      CannonComponent(getAddressById(components, CannonComponentID)).has(cannonEntity),
+      CannonComponent(LibUtils.addressById(world, CannonComponentID)).has(cannonEntity),
       "load: entity not a cannon"
     );
 
     require(
-      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(cannonEntity) == shipEntity,
+      OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID)).getValue(cannonEntity) == shipEntity,
       "load: cannon not owned by ship"
     );
 
-    LoadedComponent loadedComponent = LoadedComponent(getAddressById(components, LoadedComponentID));
-
+    LoadedComponent loadedComponent = LoadedComponent(LibUtils.addressById(world, LoadedComponentID));
     require(!loadedComponent.has(cannonEntity), "attack: cannon already loaded");
     loadedComponent.set(cannonEntity);
   }
@@ -69,34 +64,34 @@ library LibCombat {
   /*************************************************** ATTACK **************************************************** */
   /**
    * @notice  fires the given cannon
-   * @param   components  world components
+   * @param   world world and components
    * @param   shipEntity  ship controlling cannon
    * @param   cannonEntity  cannon to load
    */
   function attack(
-    IUint256Component components,
+    IWorld world,
     uint256 shipEntity,
     uint256 cannonEntity,
     uint256[] memory targetEntities
   ) internal {
-    if (DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).has(shipEntity)) return;
+    if (DamagedCannonsComponent(LibUtils.addressById(world, DamagedCannonsComponentID)).has(shipEntity)) return;
 
     require(
-      LibTurn.getCurrentTurn(components) >
-        GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).entryCutoffTurns,
+      LibTurn.getCurrentTurn(world) >
+        GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(GodID).entryCutoffTurns,
       "attack: cannot fire before entry cuts off"
     );
     require(
-      CannonComponent(getAddressById(components, CannonComponentID)).has(cannonEntity),
+      CannonComponent(LibUtils.addressById(world, CannonComponentID)).has(cannonEntity),
       "attack: entity not a cannon"
     );
 
     require(
-      OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(cannonEntity) == shipEntity,
+      OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID)).getValue(cannonEntity) == shipEntity,
       "attack: cannon not owned by ship"
     );
 
-    LoadedComponent loadedComponent = LoadedComponent(getAddressById(components, LoadedComponentID));
+    LoadedComponent loadedComponent = LoadedComponent(LibUtils.addressById(world, LoadedComponentID));
     require(loadedComponent.has(cannonEntity), "attack: cannon not loaded");
     loadedComponent.remove(cannonEntity);
 
@@ -107,40 +102,37 @@ library LibCombat {
       }
     }
 
-    uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
-    executeAttack(components, shipEntity, cannonEntity, targetEntities);
+    executeAttack(world, shipEntity, cannonEntity, targetEntities);
   }
 
   /**
    * @notice  attacks all enemies in forward arc of ship
    * @dev     todo: how can i combi:wne this with attackSide despite different number of vertices in range?
-   * @param   components  world components
+   * @param   world world and components
    * @param   shipEntity  entity performing an attack
    * @param   cannonEntity  .
    */
   function executeAttack(
-    IUint256Component components,
+    IWorld world,
     uint256 shipEntity,
     uint256 cannonEntity,
     uint256[] memory targetEntities
   ) private {
-    OwnedByComponent ownedByComponent = OwnedByComponent(getAddressById(components, OwnedByComponentID));
-    uint32 firepower = FirepowerComponent(getAddressById(components, FirepowerComponentID)).getValue(cannonEntity);
-    uint32 kills = KillsComponent(getAddressById(components, KillsComponentID)).getValue(shipEntity);
-    firepower = (firepower * (10 + kills)) / 10;
+    FirepowerComponent firepowerComponent = FirepowerComponent(LibUtils.addressById(world, FirepowerComponentID));
+    uint32 firepower = firepowerComponent.getValue(cannonEntity) + firepowerComponent.getValue(shipEntity);
 
     // get firing area of ship
-    Coord[] memory firingRange = getFiringArea(components, shipEntity, cannonEntity);
+    Coord[] memory firingRange = getFiringArea(world, shipEntity, cannonEntity);
 
     // iterate through each ship, checking if it is within firing range
     for (uint256 i = 0; i < targetEntities.length; i++) {
-      (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternPosition(components, targetEntities[i]);
+      (Coord memory aft, Coord memory stern) = LibVector.getShipBowAndSternPosition(world, targetEntities[i]);
       if (
         LibVector.withinPolygon(aft, firingRange) ||
         LibVector.lineIntersectsPolygon(Line({ start: stern, end: aft }), firingRange)
       ) {
         uint256 distance = LibVector.distance(firingRange[0], aft);
-        damageEnemy(components, shipEntity, targetEntities[i], distance, firepower);
+        damageEnemy(world, shipEntity, targetEntities[i], distance, firepower);
       }
     }
   }
@@ -148,14 +140,13 @@ library LibCombat {
   /**
    * @notice  damages enemy hull, and special attacks
    * @dev     cheat sheet https://tinyurl.com/ds-math
-   * @param   components  world components
+   * @param   world world and components
    * @param   attackerEntity  attacking entity
-   * @param   defenderEntity  defending entity
    * @param   distance  distance between attacker and defender
    * @param   firepower  firepower of cannon firing
    */
   function damageEnemy(
-    IUint256Component components,
+    IWorld world,
     uint256 attackerEntity,
     uint256 defenderEntity,
     uint256 distance,
@@ -169,40 +160,40 @@ library LibCombat {
     uint32 hullDamage = getHullDamage(baseHitChance, r);
     if (hullDamage == 0) return;
 
-    LastHitComponent(getAddressById(components, LastHitComponentID)).set(defenderEntity, attackerEntity);
-    bool dead = damageHull(components, hullDamage, defenderEntity);
+    LastHitComponent(LibUtils.addressById(world, LastHitComponentID)).set(defenderEntity, attackerEntity);
+    bool dead = damageHull(world, hullDamage, defenderEntity);
 
     if (dead) return;
 
     // perform special damage
     if (getSpecialChance(baseHitChance, hullDamage, r, 0)) {
-      OnFireComponent(getAddressById(components, OnFireComponentID)).set(defenderEntity, 1);
+      OnFireComponent(LibUtils.addressById(world, OnFireComponentID)).set(defenderEntity, 1);
     }
     if (getSpecialChance(baseHitChance, hullDamage, r, 1)) {
-      DamagedCannonsComponent(getAddressById(components, DamagedCannonsComponentID)).set(defenderEntity, 2);
+      DamagedCannonsComponent(LibUtils.addressById(world, DamagedCannonsComponentID)).set(defenderEntity, 2);
     }
     if (getSpecialChance(baseHitChance, hullDamage, r, 2)) {
-      SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(defenderEntity, 0);
+      SailPositionComponent(LibUtils.addressById(world, SailPositionComponentID)).set(defenderEntity, 0);
     }
   }
 
   /**
    * @notice  applies damage to hull
-   * @param   components  world components
+   * @param   world world and components
    * @param   damage  amount of damage applied
    * @param   shipEntity  to apply damage to
    * @return  bool  if the damage killed the boat
    */
   function damageHull(
-    IUint256Component components,
+    IWorld world,
     uint32 damage,
     uint256 shipEntity
   ) public returns (bool) {
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
+    HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
     uint32 health = healthComponent.getValue(shipEntity);
 
     if (health <= damage) {
-      killShip(components, shipEntity);
+      killShip(world, shipEntity);
       return true;
     }
 
@@ -212,48 +203,23 @@ library LibCombat {
 
   /**
    * @notice  kills enemy and rewards the attacker
-   * @param   components  world components
+   * @param   world world and components
    * @param   shipEntity  ship that got killed
    */
-  function killShip(IUint256Component components, uint256 shipEntity) private {
-    KillsComponent killsComponent = KillsComponent(getAddressById(components, KillsComponentID));
-    HealthComponent healthComponent = HealthComponent(getAddressById(components, HealthComponentID));
-    BootyComponent bootyComponent = BootyComponent(getAddressById(components, BootyComponentID));
-    LengthComponent lengthComponent = LengthComponent(getAddressById(components, LengthComponentID));
+  function killShip(IWorld world, uint256 shipEntity) private {
+    HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
+    Coord memory position = PositionComponent(LibUtils.addressById(world, PositionComponentID)).getValue(shipEntity);
+    uint256 attackerEntity = LastHitComponent(LibUtils.addressById(world, LastHitComponentID)).getValue(shipEntity);
 
-    uint256 attackerEntity = LastHitComponent(getAddressById(components, LastHitComponentID)).getValue(shipEntity);
-
-    healthComponent.set(shipEntity, 0);
-    // remove booty from sunk ship -> add half to attacking ship and half to attacking player
-    uint256 booty = bootyComponent.getValue(shipEntity);
-    bootyComponent.set(shipEntity, 0);
-    // update ship kills
-    if (attackerEntity != GodID) {
-      uint32 prevKills = killsComponent.getValue(attackerEntity);
-      killsComponent.set(attackerEntity, prevKills + 1);
-
-      // update ship length
-      uint32 prevLength = lengthComponent.getValue(attackerEntity);
-      lengthComponent.set(attackerEntity, prevLength + 2);
-
-      uint256 oldBooty = bootyComponent.getValue(attackerEntity);
-      bootyComponent.set(attackerEntity, oldBooty + booty / 2);
-
-      uint32 maxHealth = MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).getValue(attackerEntity);
-      uint32 health = healthComponent.getValue(attackerEntity);
-      if (health + 1 >= maxHealth) healthComponent.set(attackerEntity, maxHealth);
-      else healthComponent.set(attackerEntity, health + 1);
-
-      uint256 ownerEntity = OwnedByComponent(getAddressById(components, OwnedByComponentID)).getValue(attackerEntity);
-      oldBooty = bootyComponent.getValue(ownerEntity);
-      bootyComponent.set(ownerEntity, oldBooty + booty / 2);
-    }
+    HealthComponent(LibUtils.addressById(world, HealthComponentID)).set(shipEntity, 0);
+    Upgrade memory upgrade = Upgrade({ componentId: HealthComponentID, amount: 1 });
+    LibCrate.createCrate(world, position);
   }
 
   /*************************************************** UTILITIES **************************************************** */
   /**
    * @notice overview: increases damage as your firepower increases OR distance decreases
-          equation: 50 * e^(-.008 * distance) * (firepower / 100), multiplied by 100 for precision.
+          equation: 25 * e^(-.008 * distance) * (firepower / 10), multiplied by 100 for precision.
           
    * @param   distance  from target
    * @param   firepower  of attacker
@@ -261,8 +227,8 @@ library LibCombat {
    */
   function getBaseHitChance(uint256 distance, uint256 firepower) public pure returns (uint256 hitChance) {
     int128 _scaleInv = Math.exp(Math.divu(distance * 8, 1000));
-    int128 firepowerDebuff = Math.divu(firepower, 100);
-    int128 beforeDebuff = Math.div(Math.fromUInt(5000), _scaleInv);
+    int128 firepowerDebuff = Math.divu(firepower, 10);
+    int128 beforeDebuff = Math.div(Math.fromUInt(2500), _scaleInv);
     hitChance = Math.toUInt(Math.mul(beforeDebuff, firepowerDebuff));
   }
 
@@ -305,25 +271,25 @@ library LibCombat {
   }
 
   function getFiringArea(
-    IUint256Component components,
+    IWorld world,
     uint256 shipEntity,
     uint256 cannonEntity
   ) public view returns (Coord[] memory) {
-    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
+    RotationComponent rotationComponent = RotationComponent(LibUtils.addressById(world, RotationComponentID));
 
-    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(cannonEntity);
-    Coord memory position = PositionComponent(getAddressById(components, PositionComponentID)).getValue(shipEntity);
+    uint32 range = RangeComponent(LibUtils.addressById(world, RangeComponentID)).getValue(cannonEntity);
+    Coord memory position = PositionComponent(LibUtils.addressById(world, PositionComponentID)).getValue(shipEntity);
     uint32 shipRotation = rotationComponent.getValue(shipEntity);
     uint32 cannonRotation = rotationComponent.getValue(cannonEntity);
-    uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
+    uint32 length = LengthComponent(LibUtils.addressById(world, LengthComponentID)).getValue(shipEntity);
+    Coord memory frontCorner;
+    Coord memory backCorner;
+    Coord[] memory ret;
     if (cannonRotation == 90 || cannonRotation == 270) {
       uint32 rightRange = (cannonRotation + 10) % 360;
       uint32 leftRange = (cannonRotation + 350) % 360;
 
       Coord memory sternPosition = LibVector.getSternPosition(position, shipRotation, length);
-
-      Coord memory frontCorner;
-      Coord memory backCorner;
 
       // if the stern is above the bow, switch the corners to ensure the quadrilateral doesn't cross in the middle
       if (cannonRotation % 360 >= 180) {
@@ -333,7 +299,7 @@ library LibCombat {
         frontCorner = LibVector.getPositionByVector(position, shipRotation, range, leftRange);
         backCorner = LibVector.getPositionByVector(sternPosition, shipRotation, range, rightRange);
       }
-      Coord[] memory ret = new Coord[](4);
+      ret = new Coord[](4);
       ret[0] = position;
       ret[1] = sternPosition;
       ret[2] = backCorner;
@@ -344,19 +310,9 @@ library LibCombat {
     if (cannonRotation >= 90 && cannonRotation < 270) {
       position = LibVector.getSternPosition(position, shipRotation, length);
     }
-    Coord memory frontCorner = LibVector.getPositionByVector(
-      position,
-      shipRotation,
-      range,
-      (cannonRotation + 10) % 360
-    );
-    Coord memory backCorner = LibVector.getPositionByVector(
-      position,
-      shipRotation,
-      range,
-      (cannonRotation + 350) % 360
-    );
-    Coord[] memory ret = new Coord[](3);
+    frontCorner = LibVector.getPositionByVector(position, shipRotation, range, (cannonRotation + 10) % 360);
+    backCorner = LibVector.getPositionByVector(position, shipRotation, range, (cannonRotation + 350) % 360);
+    ret = new Coord[](3);
     ret[0] = position;
     ret[1] = backCorner;
     ret[2] = frontCorner;

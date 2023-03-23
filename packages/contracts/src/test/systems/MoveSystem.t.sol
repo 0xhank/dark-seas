@@ -52,12 +52,12 @@ contract MoveSystemTest is DarkSeasTest {
 
     moves.push(Move({ moveCardEntity: moveStraightEntity, shipEntity: shipEntity }));
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Commit));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Commit));
 
     uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
     commitSystem.executeTyped(commitment);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Reveal));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Reveal));
     moveSystem.executeTyped(moves, 69);
   }
 
@@ -72,12 +72,12 @@ contract MoveSystemTest is DarkSeasTest {
 
     moves.push(Move({ moveCardEntity: moveStraightEntity, shipEntity: shipEntity }));
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Commit));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Commit));
 
     uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
     commitSystem.executeTyped(commitment);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Reveal));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Reveal));
     vm.expectRevert(bytes("MoveSystem: commitment doesn't match move"));
     moveSystem.executeTyped(moves, 420);
   }
@@ -96,11 +96,11 @@ contract MoveSystemTest is DarkSeasTest {
 
     componentDevSystem.executeTyped(HealthComponentID, shipEntity, abi.encode(0));
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Commit));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Commit));
     uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
     commitSystem.executeTyped(commitment);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Reveal));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Reveal));
 
     vm.expectRevert(bytes("MoveSystem: ship is sunk"));
     moveSystem.executeTyped(moves, 69);
@@ -109,7 +109,7 @@ contract MoveSystemTest is DarkSeasTest {
   function testRevertNotPlayer() public prank(deployer) {
     setup();
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Commit));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Commit));
     uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
     vm.expectRevert(bytes("MoveSystem: player does not exist"));
     commitSystem.executeTyped(commitment);
@@ -125,11 +125,11 @@ contract MoveSystemTest is DarkSeasTest {
 
     spawnShip(Coord(0, 0), 0, deployer);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Commit));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Commit));
     uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
     commitSystem.executeTyped(commitment);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Reveal));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Reveal));
 
     vm.expectRevert(bytes("MoveSystem: you don't own this ship"));
     moveSystem.executeTyped(moves, 69);
@@ -137,21 +137,23 @@ contract MoveSystemTest is DarkSeasTest {
 
   function testOutOfBounds() public prank(deployer) {
     setup();
-    uint32 worldSize = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(GodID).worldSize;
+    uint32 worldSize = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID))
+      .getValue(GodID)
+      .worldSize;
     uint256 shipEntity = spawnShip(Coord(0, int32(worldSize)), 90, deployer);
     uint256 moveStraightEntity = uint256(keccak256("ds.prototype.moveEntity1"));
 
     moves.push(Move({ moveCardEntity: moveStraightEntity, shipEntity: shipEntity }));
-    uint32 health = HealthComponent(getAddressById(components, HealthComponentID)).getValue(shipEntity);
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Commit));
+    uint32 health = HealthComponent(LibUtils.addressById(world, HealthComponentID)).getValue(shipEntity);
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Commit));
     uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
     commitSystem.executeTyped(commitment);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Reveal));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Reveal));
 
     moveSystem.executeTyped(moves, 69);
 
-    uint32 newHealth = HealthComponent(getAddressById(components, HealthComponentID)).getValue(shipEntity);
+    uint32 newHealth = HealthComponent(LibUtils.addressById(world, HealthComponentID)).getValue(shipEntity);
 
     assertEq(health - 1, newHealth);
   }
@@ -170,11 +172,7 @@ contract MoveSystemTest is DarkSeasTest {
     commitAndExecuteMove(1, moves);
 
     MoveCard memory moveCard = moveCardComponent.getValue(moveCardEntity);
-    console.log("distance:", moveCard.distance);
-    console.log("sail position", sailPositionComponent.getValue(shipEntity));
     moveCard = LibMove.getMoveWithSails(moveCard, speedComponent.getValue(shipEntity), sailPosition);
-
-    console.log("distance 2:", moveCard.distance);
 
     Coord memory expectedPosition = LibVector.getPositionByVector(
       position,
@@ -262,7 +260,7 @@ contract MoveSystemTest is DarkSeasTest {
 
     MoveCard memory newMoveCard;
 
-    newMoveCard = LibMove.getMoveWithSails(moveCard, 100, sailPosition);
+    newMoveCard = LibMove.getMoveWithSails(moveCard, 10, sailPosition);
     assertEq(moveCard.distance, newMoveCard.distance, "full sails distance failed");
     assertEq(moveCard.rotation, newMoveCard.rotation, "full sails rotation failed");
     assertEq(moveCard.direction, newMoveCard.direction, "full sails angle failed");
@@ -272,7 +270,7 @@ contract MoveSystemTest is DarkSeasTest {
 
     sailPosition = 1;
     uint32 debuff = 70;
-    newMoveCard = LibMove.getMoveWithSails(moveCard, 100, sailPosition);
+    newMoveCard = LibMove.getMoveWithSails(moveCard, 10, sailPosition);
     assertEq(newMoveCard.distance, (moveCard.distance * debuff) / 100, "closed sails distance failed");
     assertEq(newMoveCard.rotation, 360 - (((360 - moveCard.rotation) * 100) / debuff), "closed sails rotation failed");
     assertEq(newMoveCard.direction, 360 - (((360 - moveCard.direction) * 100) / debuff), "closed sails angle failed");
@@ -280,7 +278,7 @@ contract MoveSystemTest is DarkSeasTest {
     moveCard.distance = 100;
     moveCard.rotation = 90;
     moveCard.direction = 45;
-    newMoveCard = LibMove.getMoveWithSails(moveCard, 100, sailPosition);
+    newMoveCard = LibMove.getMoveWithSails(moveCard, 10, sailPosition);
 
     assertEq(newMoveCard.distance, (moveCard.distance * debuff) / 100, "closed sails distance 2 failed");
     assertEq(newMoveCard.rotation, (moveCard.rotation * 100) / debuff, "closed sails 2 rotation failed");
@@ -323,21 +321,18 @@ contract MoveSystemTest is DarkSeasTest {
 
   int128 constant _11 = 8 * 2**64;
 
-  function getValue(Coord memory input) public returns (int32 finalResult) {
+  function getValue(Coord memory input) public view returns (int32 finalResult) {
     int128 denom = 15;
     uint8 precision = 64;
     int128 perlinResult = Perlin.noise2d(input.x, input.y, denom, precision);
 
     finalResult = int32(Math.muli(perlinResult, 100));
-
-    // console.logCoord(input);
-    console.logInt(finalResult);
   }
 
   function testMoveSuicide() public prank(deployer) {
     setup();
     ComponentDevSystem componentDevSystem = ComponentDevSystem(system(ComponentDevSystemID));
-    GameConfigComponent gameConfigComponent = GameConfigComponent(getAddressById(components, GameConfigComponentID));
+    GameConfigComponent gameConfigComponent = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID));
 
     GameConfig memory gameConfig = gameConfigComponent.getValue(GodID);
     gameConfig.worldSize = 10;
@@ -353,7 +348,7 @@ contract MoveSystemTest is DarkSeasTest {
 
     commitAndExecuteMove(1, moves);
 
-    uint32 health = HealthComponent(getAddressById(components, HealthComponentID)).getValue(shipEntity);
+    uint32 health = HealthComponent(LibUtils.addressById(world, HealthComponentID)).getValue(shipEntity);
     assertEq(health, 0);
   }
 
@@ -364,21 +359,21 @@ contract MoveSystemTest is DarkSeasTest {
   function setup() internal {
     moveSystem = MoveSystem(system(MoveSystemID));
     commitSystem = CommitSystem(system(CommitSystemID));
-    positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
-    rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
-    moveCardComponent = MoveCardComponent(getAddressById(components, MoveCardComponentID));
-    sailPositionComponent = SailPositionComponent(getAddressById(components, SailPositionComponentID));
-    speedComponent = SpeedComponent(getAddressById(components, SpeedComponentID));
+    positionComponent = PositionComponent(LibUtils.addressById(world, PositionComponentID));
+    rotationComponent = RotationComponent(LibUtils.addressById(world, RotationComponentID));
+    moveCardComponent = MoveCardComponent(LibUtils.addressById(world, MoveCardComponentID));
+    sailPositionComponent = SailPositionComponent(LibUtils.addressById(world, SailPositionComponentID));
+    speedComponent = SpeedComponent(LibUtils.addressById(world, SpeedComponentID));
 
     delete moves;
   }
 
-  function commitAndExecuteMove(uint32 turn, Move[] memory moves) internal {
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Commit));
-    uint256 commitment = uint256(keccak256(abi.encode(moves, 69)));
+  function commitAndExecuteMove(uint32 turn, Move[] memory _moves) internal {
+    vm.warp(getTurnAndPhaseTime(world, turn, Phase.Commit));
+    uint256 commitment = uint256(keccak256(abi.encode(_moves, 69)));
     commitSystem.executeTyped(commitment);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, turn, Phase.Reveal));
-    moveSystem.executeTyped(moves, 69);
+    vm.warp(getTurnAndPhaseTime(world, turn, Phase.Reveal));
+    moveSystem.executeTyped(_moves, 69);
   }
 }

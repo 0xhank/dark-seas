@@ -10,7 +10,7 @@ import {
 import { world } from "../../mud/world";
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
-import { ActionType, Phase } from "../../types";
+import { ActionType } from "../../types";
 
 export function firingAreaSystems(MUD: SetupResult) {
   const {
@@ -46,15 +46,6 @@ export function firingAreaSystems(MUD: SetupResult) {
 
     const strokeFill = { tint: loaded ? colors.cannonReadyHex : colors.goldHex, alpha: 0.5 };
     renderCannonFiringArea(hoveredGroup, shipEntity, cannonEntity, undefined, strokeFill);
-  });
-
-  defineExitSystem(world, [Has(HoveredAction)], (update) => {
-    const prevValue = update.value[1];
-    if (!prevValue) return;
-
-    const objectId = "hoveredFiringArea";
-
-    destroyGroupObject(objectId);
   });
 
   defineComponentSystem(world, SelectedActions, ({ value, entity: shipEntity }) => {
@@ -118,7 +109,6 @@ export function firingAreaSystems(MUD: SetupResult) {
     const shipEntity = update.value[0]?.value as EntityIndex | undefined;
     if (!shipEntity) return;
     const phase = getPhase(clock.currentTime);
-    if (phase == Phase.Commit) return;
     renderShipFiringAreas(shipEntity, groupId);
   });
 

@@ -10,6 +10,7 @@ import { Deploy } from "./Deploy.sol";
 // Components
 import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
+import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 import "../libraries/LibTurn.sol";
 import "../libraries/LibSpawn.sol";
@@ -20,6 +21,7 @@ import { CannonPrototype, ShipPrototype } from "../libraries/DSTypes.sol";
 contract DarkSeasTest is MudTest {
   constructor(IDeploy deploy) MudTest(deploy) {}
 
+  bytes none = abi.encode(0);
   modifier prank(address prankster) {
     vm.startPrank(prankster);
     _;
@@ -27,30 +29,28 @@ contract DarkSeasTest is MudTest {
   }
 
   function spawnBattleship(
-    IUint256Component components,
     IWorld world,
     uint256 playerEntity,
     Coord memory position,
     uint32 rotation
   ) private returns (uint256 shipEntity) {
     shipEntity = world.getUniqueEntityId();
-    ShipComponent(getAddressById(components, ShipComponentID)).set(shipEntity);
+    ShipComponent(LibUtils.addressById(world, ShipComponentID)).set(shipEntity);
 
     uint32 maxHealth = 10;
-    PositionComponent(getAddressById(components, PositionComponentID)).set(shipEntity, position);
-    RotationComponent(getAddressById(components, RotationComponentID)).set(shipEntity, rotation);
-    LengthComponent(getAddressById(components, LengthComponentID)).set(shipEntity, 10);
-    HealthComponent(getAddressById(components, HealthComponentID)).set(shipEntity, maxHealth);
-    MaxHealthComponent(getAddressById(components, MaxHealthComponentID)).set(shipEntity, maxHealth);
-    SailPositionComponent(getAddressById(components, SailPositionComponentID)).set(shipEntity, 2);
-    OwnedByComponent(getAddressById(components, OwnedByComponentID)).set(shipEntity, playerEntity);
-    SpeedComponent(getAddressById(components, SpeedComponentID)).set(shipEntity, 100);
-    KillsComponent(getAddressById(components, KillsComponentID)).set(shipEntity, 0);
-    BootyComponent(getAddressById(components, BootyComponentID)).set(shipEntity, 500);
-    LastHitComponent(getAddressById(components, LastHitComponentID)).set(shipEntity, GodID);
-    LibSpawn.spawnCannon(components, world, shipEntity, 90, 40, 100);
-    LibSpawn.spawnCannon(components, world, shipEntity, 270, 40, 100);
-    LibSpawn.spawnCannon(components, world, shipEntity, 0, 40, 100);
+    PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(shipEntity, position);
+    RotationComponent(LibUtils.addressById(world, RotationComponentID)).set(shipEntity, rotation);
+    LengthComponent(LibUtils.addressById(world, LengthComponentID)).set(shipEntity, 10);
+    HealthComponent(LibUtils.addressById(world, HealthComponentID)).set(shipEntity, maxHealth);
+    MaxHealthComponent(LibUtils.addressById(world, MaxHealthComponentID)).set(shipEntity, maxHealth);
+    SailPositionComponent(LibUtils.addressById(world, SailPositionComponentID)).set(shipEntity, 2);
+    OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID)).set(shipEntity, playerEntity);
+    SpeedComponent(LibUtils.addressById(world, SpeedComponentID)).set(shipEntity, 10);
+    LastHitComponent(LibUtils.addressById(world, LastHitComponentID)).set(shipEntity, GodID);
+    FirepowerComponent(LibUtils.addressById(world, FirepowerComponentID)).set(shipEntity, 0);
+    LibSpawn.spawnCannon(world, shipEntity, 90, 8, 100);
+    LibSpawn.spawnCannon(world, shipEntity, 270, 8, 100);
+    LibSpawn.spawnCannon(world, shipEntity, 0, 8, 100);
   }
 
   function spawnShip(
@@ -60,29 +60,29 @@ contract DarkSeasTest is MudTest {
   ) internal returns (uint256 shipEntity) {
     uint256 playerEntity = addressToEntity(spawner);
 
-    if (!LibUtils.playerIdExists(components, playerEntity)) LibSpawn.createPlayerEntity(components, spawner);
+    if (!LibUtils.playerIdExists(world, playerEntity)) LibSpawn.createPlayerEntity(world, spawner);
 
-    shipEntity = spawnBattleship(components, world, playerEntity, position, rotation);
+    shipEntity = spawnBattleship(world, playerEntity, position, rotation);
 
-    LastActionComponent(getAddressById(components, LastActionComponentID)).set(playerEntity, 0);
-    LastMoveComponent(getAddressById(components, LastMoveComponentID)).set(playerEntity, 0);
+    LastActionComponent(LibUtils.addressById(world, LastActionComponentID)).set(playerEntity, 0);
+    LastMoveComponent(LibUtils.addressById(world, LastMoveComponentID)).set(playerEntity, 0);
   }
 
   function createShipPrototype(uint32 price) internal returns (uint256) {
     ShipPrototypeComponent shipPrototypeComponent = ShipPrototypeComponent(
-      getAddressById(components, ShipPrototypeComponentID)
+      LibUtils.addressById(world, ShipPrototypeComponentID)
     );
 
     CannonPrototype[] memory cannon4 = new CannonPrototype[](4);
-    cannon4[0] = CannonPrototype({ rotation: 90, firepower: 60, range: 60 });
-    cannon4[1] = CannonPrototype({ rotation: 270, firepower: 60, range: 60 });
-    cannon4[2] = CannonPrototype({ rotation: 345, firepower: 50, range: 50 });
-    cannon4[3] = CannonPrototype({ rotation: 15, firepower: 50, range: 50 });
+    cannon4[0] = CannonPrototype({ rotation: 90, firepower: 12, range: 60 });
+    cannon4[1] = CannonPrototype({ rotation: 270, firepower: 12, range: 60 });
+    cannon4[2] = CannonPrototype({ rotation: 345, firepower: 10, range: 50 });
+    cannon4[3] = CannonPrototype({ rotation: 15, firepower: 10, range: 50 });
     ShipPrototype memory shipPrototype = ShipPrototype({
       price: price,
       length: 13,
       maxHealth: 10,
-      speed: 90,
+      speed: 9,
       cannons: cannon4,
       name: "Johnson"
     });
@@ -90,7 +90,7 @@ contract DarkSeasTest is MudTest {
     bytes memory packedShipPrototype = abi.encode(shipPrototype);
     uint256 shipEntity = uint256(keccak256(packedShipPrototype));
     if (shipPrototypeComponent.has(shipEntity)) return shipEntity;
-    ShipPrototypeComponent(getAddressById(components, ShipPrototypeComponentID)).set(
+    ShipPrototypeComponent(LibUtils.addressById(world, ShipPrototypeComponentID)).set(
       shipEntity,
       string(packedShipPrototype)
     );
@@ -114,7 +114,7 @@ contract DarkSeasTest is MudTest {
     assertTrue(!falseAssertion);
   }
 
-  function logCoord(string memory name, Coord memory coord) internal {
+  function logCoord(string memory name, Coord memory coord) internal view {
     console.log(name);
     console.log("x:");
     console.logInt(coord.x);
@@ -122,7 +122,7 @@ contract DarkSeasTest is MudTest {
     console.logInt(coord.y);
   }
 
-  function logCoord(Coord memory coord) internal {
+  function logCoord(Coord memory coord) internal view {
     console.log("x:");
     console.logInt(coord.x);
     console.log("y:");
@@ -189,5 +189,25 @@ contract DarkSeasTest is MudTest {
       emit log_named_string("Error", err);
       assertApproxEqAbs(a, b, maxDelta);
     }
+  }
+
+  function getTurnAndPhaseTime(
+    IWorld world,
+    uint32 turn,
+    Phase phase
+  ) internal view returns (uint256) {
+    GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
+      GodID
+    );
+
+    uint256 startOffset = gameConfig.startTime;
+
+    uint32 phaseOffset = 0;
+    if (phase == Phase.Reveal) phaseOffset = gameConfig.commitPhaseLength;
+    else if (phase == Phase.Action) phaseOffset = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength;
+
+    uint32 turnOffset = LibTurn.turnLength(world) * turn;
+
+    return startOffset + phaseOffset + turnOffset;
   }
 }

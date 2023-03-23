@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
-import { console } from "forge-std/console.sol";
 
 // External
-import { getAddressById } from "solecs/utils.sol";
-import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 import { Perlin } from "noise/Perlin.sol";
+import { IWorld } from "solecs/interfaces/IWorld.sol";
 
 // Components
 import { ShipComponent, ID as ShipComponentID } from "../components/ShipComponent.sol";
@@ -56,22 +54,22 @@ library LibVector {
   /**
    * @notice  retrieves positions of both bow (front) and stern (back) of ship
    * @dev     bow is always the position and stern is calculated using getPositionByVector based on ship's rotation and length
-   * @param   components  world components
+   * @param   world world and components
    * @param   shipEntity  ship's entity id
    * @return  Coord  ship bow
    * @return  Coord  ship stern
    */
-  function getShipBowAndSternPosition(IUint256Component components, uint256 shipEntity)
+  function getShipBowAndSternPosition(IWorld world, uint256 shipEntity)
     public
     view
     returns (Coord memory, Coord memory)
   {
-    ShipComponent shipComponent = ShipComponent(getAddressById(components, ShipComponentID));
+    ShipComponent shipComponent = ShipComponent(LibUtils.addressById(world, ShipComponentID));
     require(shipComponent.has(shipEntity), "LibVector: not a ship");
 
-    PositionComponent positionComponent = PositionComponent(getAddressById(components, PositionComponentID));
-    LengthComponent lengthComponent = LengthComponent(getAddressById(components, LengthComponentID));
-    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
+    PositionComponent positionComponent = PositionComponent(LibUtils.addressById(world, PositionComponentID));
+    LengthComponent lengthComponent = LengthComponent(LibUtils.addressById(world, LengthComponentID));
+    RotationComponent rotationComponent = RotationComponent(LibUtils.addressById(world, RotationComponentID));
 
     uint32 length = lengthComponent.getValue(shipEntity);
     uint32 rotation = rotationComponent.getValue(shipEntity);
@@ -164,16 +162,16 @@ library LibVector {
 
   /**
    * @notice  checks if a position is within the radius of the world
-   * @param   components  world components
+   * @param   world world and components
    * @param   position  position to check if within radius
    * @return  bool  is within radius?
    */
-  function inWorld(IUint256Component components, Coord memory position) public view returns (bool) {
-    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+  function inWorld(IWorld world, Coord memory position) public view returns (bool) {
+    GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
       GodID
     );
 
-    uint32 worldHeight = getWorldHeightAtTurn(gameConfig, LibTurn.getCurrentTurn(components));
+    uint32 worldHeight = getWorldHeightAtTurn(gameConfig, LibTurn.getCurrentTurn(world));
     int32 x = position.x;
     int32 y = position.y;
     uint32 worldWidth = (worldHeight * 16) / 9;
@@ -193,14 +191,14 @@ library LibVector {
 
   /**
    * @notice  checks if the given position is out of bounds
-   * @param   components  world components
+   * @param   world world and components
    * @param   position  position to check if out of bounds
    * @return  bool  is out of bounds
    */
-  function outOfBounds(IUint256Component components, Coord memory position) internal returns (bool) {
-    if (!inWorld(components, position)) return true;
+  function outOfBounds(IWorld world, Coord memory position) internal view returns (bool) {
+    if (!inWorld(world, position)) return true;
 
-    GameConfig memory gameConfig = GameConfigComponent(getAddressById(components, GameConfigComponentID)).getValue(
+    GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
       GodID
     );
     int128 denom = 50;
@@ -208,6 +206,6 @@ library LibVector {
 
     depth = int128(Math.muli(depth, 100));
 
-    return depth < 33;
+    return depth < int8(gameConfig.islandThreshold);
   }
 }

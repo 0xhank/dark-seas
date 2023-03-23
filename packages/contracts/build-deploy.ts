@@ -13,6 +13,7 @@ export type Config = {
   respawnAllowed: boolean;
   shrinkRate: number;
   budget: number;
+  islandThreshold: number;
 };
 program.option("-c, --config <config>", "path to config file");
 
@@ -33,12 +34,13 @@ const config = inputConfig || {
   respawnAllowed: false,
   shrinkRate: 0,
   budget: 5,
+  islandThreshold: 33,
 };
 console.log("config: ", config);
 await generateDeployJson(config, true);
 
 export async function generateDeployJson(config: Config, toMain = false) {
-  const initializerParam = `abi.encode(block.timestamp, ${config.commitPhaseLength}, ${config.revealPhaseLength}, ${config.actionPhaseLength}, ${config.worldSize}, ${config.perlinSeed}, ${config.entryCutoffTurns}, ${config.buyin}, ${config.respawnAllowed}, ${config.shrinkRate}, ${config.budget})`;
+  const initializerParam = `abi.encode(block.timestamp, ${config.commitPhaseLength}, ${config.revealPhaseLength}, ${config.actionPhaseLength}, ${config.worldSize}, ${config.perlinSeed}, ${config.entryCutoffTurns}, ${config.buyin}, ${config.respawnAllowed}, ${config.shrinkRate}, ${config.budget}, ${config.islandThreshold})`;
 
   const data = deployData.systems.find((system) => system.name == "InitSystem");
   if (data) data.initialize = initializerParam;

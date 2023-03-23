@@ -22,16 +22,16 @@ contract LibCombatTest is DarkSeasTest {
   address zero = address(0);
 
   function testGetBaseHitChance() public prank(deployer) {
-    uint256 baseHitChance = LibCombat.getBaseHitChance(28, 50);
+    uint256 baseHitChance = LibCombat.getBaseHitChance(28, 10);
     assertApproxEqAbs(baseHitChance, 1998, 50, "baseHitChance: 28 and 50 failed");
 
-    baseHitChance = LibCombat.getBaseHitChance(0, 50);
+    baseHitChance = LibCombat.getBaseHitChance(0, 10);
     assertApproxEqAbs(baseHitChance, 2500, 50, "baseHitChance: 0 and 50 failed");
 
-    baseHitChance = LibCombat.getBaseHitChance(14, 90);
+    baseHitChance = LibCombat.getBaseHitChance(14, 18);
     assertApproxEqAbs(baseHitChance, 4023, 50, "baseHitChance: 14 and 90 failed");
 
-    baseHitChance = LibCombat.getBaseHitChance(48, 5);
+    baseHitChance = LibCombat.getBaseHitChance(48, 1);
     assertApproxEqAbs(baseHitChance, 170, 50, "baseHitChance: 48 and 5 failed");
   }
 
@@ -83,30 +83,23 @@ contract LibCombatTest is DarkSeasTest {
 
     uint256 shipEntity = spawnShip(startingPosition, 0, deployer);
 
-    console.log("shipEntity", shipEntity);
+    CannonComponent cannonComponent = CannonComponent(LibUtils.addressById(world, CannonComponentID));
 
-    CannonComponent cannonComponent = CannonComponent(getAddressById(components, CannonComponentID));
-    console.log("writer", cannonComponent.owner());
+    uint256 cannonEntity = LibSpawn.spawnCannon(world, shipEntity, 270, 10, 80);
 
-    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 270, 50, 80);
-
-    console.log("hello1");
-
-    uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
-    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
-    uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
-    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(cannonEntity);
+    uint32 cannonRotation = RotationComponent(LibUtils.addressById(world, RotationComponentID)).getValue(cannonEntity);
+    uint32 rotation = RotationComponent(LibUtils.addressById(world, RotationComponentID)).getValue(shipEntity);
+    uint32 length = LengthComponent(LibUtils.addressById(world, LengthComponentID)).getValue(shipEntity);
+    uint32 range = RangeComponent(LibUtils.addressById(world, RangeComponentID)).getValue(cannonEntity);
 
     uint32 rightRange = (cannonRotation + 10) % 360;
     uint32 leftRange = (cannonRotation - 10) % 360;
-    console.log("hello2");
 
-    Coord[] memory firingArea = LibCombat.getFiringArea(components, shipEntity, cannonEntity);
+    Coord[] memory firingArea = LibCombat.getFiringArea(world, shipEntity, cannonEntity);
 
     Coord memory stern = LibVector.getSternPosition(startingPosition, rotation, length);
     Coord memory backCorner = LibVector.getPositionByVector(stern, rotation, range, leftRange);
     Coord memory frontCorner = LibVector.getPositionByVector(startingPosition, rotation, range, rightRange);
-    console.log("hello3");
 
     assertCoordEq(startingPosition, firingArea[0]);
     assertCoordEq(stern, firingArea[1]);
@@ -118,14 +111,14 @@ contract LibCombatTest is DarkSeasTest {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
     uint256 shipEntity = spawnShip(startingPosition, 180, deployer);
-    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 90, 50, 80);
+    uint256 cannonEntity = LibSpawn.spawnCannon(world, shipEntity, 90, 10, 80);
 
-    uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
-    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
-    uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
-    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(cannonEntity);
+    uint32 cannonRotation = RotationComponent(LibUtils.addressById(world, RotationComponentID)).getValue(cannonEntity);
+    uint32 rotation = RotationComponent(LibUtils.addressById(world, RotationComponentID)).getValue(shipEntity);
+    uint32 length = LengthComponent(LibUtils.addressById(world, LengthComponentID)).getValue(shipEntity);
+    uint32 range = RangeComponent(LibUtils.addressById(world, RangeComponentID)).getValue(cannonEntity);
 
-    Coord[] memory firingArea = LibCombat.getFiringArea(components, shipEntity, cannonEntity);
+    Coord[] memory firingArea = LibCombat.getFiringArea(world, shipEntity, cannonEntity);
 
     Coord memory stern = LibVector.getSternPosition(startingPosition, rotation, length);
     Coord memory frontCorner = LibVector.getPositionByVector(
@@ -149,18 +142,16 @@ contract LibCombatTest is DarkSeasTest {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
     uint256 shipEntity = spawnShip(startingPosition, 0, deployer);
-    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
+    RotationComponent rotationComponent = RotationComponent(LibUtils.addressById(world, RotationComponentID));
     address owner = rotationComponent.owner();
-    console.log("owner:", owner);
-    console.log("deployer:", deployer);
 
-    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 0, 50, 80);
+    uint256 cannonEntity = LibSpawn.spawnCannon(world, shipEntity, 0, 10, 80);
 
-    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
-    uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
-    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(cannonEntity);
+    uint32 rotation = RotationComponent(LibUtils.addressById(world, RotationComponentID)).getValue(shipEntity);
+    uint32 cannonRotation = RotationComponent(LibUtils.addressById(world, RotationComponentID)).getValue(cannonEntity);
+    uint32 range = RangeComponent(LibUtils.addressById(world, RangeComponentID)).getValue(cannonEntity);
 
-    Coord[] memory firingArea = LibCombat.getFiringArea(components, shipEntity, cannonEntity);
+    Coord[] memory firingArea = LibCombat.getFiringArea(world, shipEntity, cannonEntity);
     Coord memory frontCorner = LibVector.getPositionByVector(
       startingPosition,
       rotation,
@@ -178,20 +169,18 @@ contract LibCombatTest is DarkSeasTest {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
     uint256 shipEntity = spawnShip(startingPosition, 0, deployer);
-    RotationComponent rotationComponent = RotationComponent(getAddressById(components, RotationComponentID));
+    RotationComponent rotationComponent = RotationComponent(LibUtils.addressById(world, RotationComponentID));
     address owner = rotationComponent.owner();
-    console.log("owner:", owner);
-    console.log("deployer:", deployer);
 
-    uint256 cannonEntity = LibSpawn.spawnCannon(components, world, shipEntity, 180, 50, 80);
+    uint256 cannonEntity = LibSpawn.spawnCannon(world, shipEntity, 180, 10, 80);
 
-    uint32 rotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(shipEntity);
-    uint32 cannonRotation = RotationComponent(getAddressById(components, RotationComponentID)).getValue(cannonEntity);
-    uint32 range = RangeComponent(getAddressById(components, RangeComponentID)).getValue(cannonEntity);
-    uint32 length = LengthComponent(getAddressById(components, LengthComponentID)).getValue(shipEntity);
+    uint32 rotation = RotationComponent(LibUtils.addressById(world, RotationComponentID)).getValue(shipEntity);
+    uint32 cannonRotation = RotationComponent(LibUtils.addressById(world, RotationComponentID)).getValue(cannonEntity);
+    uint32 range = RangeComponent(LibUtils.addressById(world, RangeComponentID)).getValue(cannonEntity);
+    uint32 length = LengthComponent(LibUtils.addressById(world, LengthComponentID)).getValue(shipEntity);
     Coord memory stern = LibVector.getSternPosition(startingPosition, rotation, length);
 
-    Coord[] memory firingArea = LibCombat.getFiringArea(components, shipEntity, cannonEntity);
+    Coord[] memory firingArea = LibCombat.getFiringArea(world, shipEntity, cannonEntity);
     Coord memory frontCorner = LibVector.getPositionByVector(stern, rotation, range, (cannonRotation + 350) % 360);
     Coord memory backCorner = LibVector.getPositionByVector(stern, rotation, range, cannonRotation + 10);
 

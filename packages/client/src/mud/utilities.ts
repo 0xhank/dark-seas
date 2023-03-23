@@ -157,7 +157,7 @@ export async function createUtilities(
 
     if (!inWorld(timeMs, position)) return true;
 
-    const whirlpool = isWhirlpool(position, Number(gameConfig.perlinSeed));
+    const whirlpool = isWhirlpool(position);
     if (whirlpool) return true;
     return false;
   }
@@ -292,7 +292,7 @@ export async function createUtilities(
   }
 
   function getBaseHitChance(distance: number, firepower: number) {
-    return (50 * Math.exp(-0.008 * distance) * firepower) / 100;
+    return (25 * Math.exp(-0.008 * distance) * firepower) / 10;
   }
 
   function getDamageLikelihood(cannonEntity: EntityIndex, target: EntityIndex) {
@@ -306,8 +306,7 @@ export async function createUtilities(
     const dist = distance(shipPosition, targetPosition);
 
     const firepower = getCannonFirepower(cannonEntity);
-    const kills = getComponentValueStrict(components.Kills, shipEntity).value;
-    const baseHitChance = getBaseHitChance(dist, firepower * (1 + kills / 10));
+    const baseHitChance = getBaseHitChance(dist, firepower);
 
     const format = (n: number) => Math.min(100, Math.round(n));
     return { 3: format(baseHitChance), 2: format(baseHitChance * 1.7), 1: format(baseHitChance * 6.5) };
@@ -360,36 +359,31 @@ export async function createUtilities(
   }
 
   function getCannonRange(cannonEntity: EntityIndex) {
-    const range = getComponentValue(components.Range, cannonEntity)?.value;
-    const shipEntity = getCannonOwner(cannonEntity);
-    if (!shipEntity) return 0;
-    const kills = getComponentValue(components.Kills, shipEntity)?.value;
-    const boost = kills ? 1 + kills / 10 : 1;
-    if (range == undefined) return 0;
-
-    return range * boost;
+    return getComponentValue(components.Range, cannonEntity)?.value || 0;
   }
 
   function getCannonFirepower(cannonEntity: EntityIndex) {
     const firepower = getComponentValue(components.Firepower, cannonEntity)?.value;
     const shipEntity = getCannonOwner(cannonEntity);
     if (!shipEntity) return 0;
-    const kills = getComponentValue(components.Kills, shipEntity)?.value;
-    if (firepower == undefined || kills == undefined) return 0;
+    const shipFirepower = getComponentValue(components.Firepower, shipEntity)?.value;
+    if (firepower == undefined || shipFirepower == undefined) return 0;
 
-    return firepower * (1 + kills / 10);
+    return firepower + shipFirepower;
   }
 
   const whirlpoolMap = new Map<string, boolean>();
 
-  function isWhirlpool(coord: Coord, perlinSeed: number): boolean {
+  function isWhirlpool(coord: Coord) {
+    const gameConfig = getGameConfig();
+    if (!gameConfig) return;
     const coordStr = `${coord.x}-${coord.y}`;
     const retrievedVal = whirlpoolMap.get(coordStr);
 
     if (retrievedVal != undefined) return retrievedVal;
     const denom = 50;
-    const depth = perlin(coord.x + perlinSeed, coord.y + perlinSeed, 0, denom);
-    const ret = depth * 100 < 33;
+    const depth = perlin(coord.x + gameConfig.perlinSeed, coord.y + gameConfig.perlinSeed, 0, denom);
+    const ret = depth * 100 < gameConfig.islandThreshold + 2;
     whirlpoolMap.set(coordStr, ret);
 
     return ret;
@@ -522,6 +516,34 @@ export async function createUtilities(
     setComponent(clientComponents.SelectedShip, godEntity, { value: shipEntity });
   }
 
+  function handleNewActionsCrate(shipEntity: EntityIndex, crateEntity: EntityIndex) {
+    const selectedActions = getComponentValue(clientComponents.SelectedActions, shipEntity) || {
+      actionTypes: [ActionType.None, ActionType.None],
+      specialEntities: ["0" as EntityID, "0" as EntityID],
+    };
+    const actions = structuredClone(selectedActions);
+    const entityID = world.entities[crateEntity];
+    const index = actions.specialEntities.indexOf(entityID);
+
+    // couldn't find the crate
+    console.log("hello");
+    if (index == -1) {
+      const unusedSlot = selectedActions.actionTypes.indexOf(ActionType.None);
+      if (unusedSlot == -1) return;
+      actions.actionTypes[unusedSlot] = ActionType.ClaimCrate;
+      actions.specialEntities[unusedSlot] = entityID;
+    } else {
+      actions.actionTypes[index] = ActionType.None;
+      actions.specialEntities[index] = "0" as EntityID;
+    }
+    console.log("updating selected actions");
+    setComponent(clientComponents.SelectedActions, shipEntity, {
+      actionTypes: actions.actionTypes,
+      specialEntities: actions.specialEntities,
+    });
+    setComponent(clientComponents.SelectedShip, godEntity, { value: shipEntity });
+  }
+
   function getSpriteObject(id: string | number, s?: Phaser.Scene): Phaser.GameObjects.Sprite {
     const scene = s || mainScene;
     const sprite = spriteRegistry.get(id);
@@ -557,14 +579,28 @@ export async function createUtilities(
     if (!group || !group.getChildren()?.length) return;
     group.destroy(true, true);
   }
+  function toRadians(angle: number) {
+    return angle * (Math.PI / 180);
+  }
+  function renderMovePath(
+    shipEntity: EntityIndex,
+    objectId: string,
+    direction: number,
+    rotation: number,
+    finalPosition: Coord
+  ) {
+    direction = direction > 180 ? 360 - direction : direction;
+    rotation = rotation > 180 ? 360 - rotation : rotation;
 
-  function renderMovePath(shipEntity: EntityIndex, objectId: string, finalPosition: Coord) {
     const origin = getComponentValueStrict(components.Position, shipEntity);
     const initialRotation = getComponentValueStrict(components.Rotation, shipEntity).value;
-    const midpoint = getPositionByVector(origin, initialRotation, distance(finalPosition, origin) / 2, 0);
+
+    const hypoteneuse = distance(finalPosition, origin);
+    const rightDistance = hypoteneuse * Math.cos(toRadians(direction));
+    const finalDistance = (rightDistance * rotation) / 90;
+    const midpoint = getPositionByVector(origin, initialRotation, finalDistance, 0);
 
     const points = [origin, midpoint, finalPosition].map((coord) => {
-      console.log("point", coord);
       const pixelPos = tileCoordToPixelCoord(coord, POS_HEIGHT, POS_WIDTH);
       return new Phaser.Math.Vector2(pixelPos.x, pixelPos.y);
     });
@@ -573,7 +609,8 @@ export async function createUtilities(
 
     const graphics = mainScene.add.graphics();
     graphics.lineStyle(8, 0xffffff);
-    path.draw(graphics, 16);
+    // path.draw(graphics, 16);
+    path.draw(graphics);
 
     return graphics;
   }
@@ -661,7 +698,7 @@ export async function createUtilities(
       const acted = getComponentValue(components.LastAction, shipOwner)?.value == currentTurn;
       if (damagedCannons || !myShip || acted || (cannotAdd && !cannonSelected) || phase !== Phase.Action) return;
       firingPolygon.setInteractive(firingPolygon.geom, Phaser.Geom.Polygon.Contains);
-      firingPolygon.on("pointerdown", () => handleNewActionsCannon(actionType, cannonEntity));
+      firingPolygon.on("pointerup", () => handleNewActionsCannon(actionType, cannonEntity));
       firingPolygon.on("pointerover", () =>
         setComponent(clientComponents.HoveredAction, godEntity, { shipEntity, actionType, specialEntity: cannonEntity })
       );
@@ -723,6 +760,24 @@ export async function createUtilities(
   function renderCircle(
     group: Phaser.GameObjects.Group,
     position: Coord,
+    radius: number,
+    tint = colors.whiteHex,
+    alpha = 1
+  ) {
+    const circle = mainScene.add.circle(
+      position.x * POS_HEIGHT,
+      position.y * POS_HEIGHT,
+      radius * POS_HEIGHT,
+      tint,
+      alpha
+    );
+    circle.setDepth(RenderDepth.Foreground5);
+    group.add(circle, true);
+    return circle;
+  }
+  function renderEllipse(
+    group: Phaser.GameObjects.Group,
+    position: Coord,
     length: number,
     rotation: number,
     tint = colors.whiteHex,
@@ -746,6 +801,7 @@ export async function createUtilities(
     circle.setFillStyle(tint, alpha);
 
     group.add(circle, true);
+    return circle;
   }
 
   const nameRegistry = new Map<EntityID, string>();
@@ -804,6 +860,7 @@ export async function createUtilities(
     playSound,
     handleNewActionsCannon,
     handleNewActionsSpecial,
+    handleNewActionsCrate,
     muteSfx,
     unmuteSfx,
     playMusic,
@@ -818,6 +875,7 @@ export async function createUtilities(
     renderCannonFiringArea,
     renderMovePath,
     renderCircle,
+    renderEllipse,
     moveElement,
     getFiringAreaPixels,
     renderShip,

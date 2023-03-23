@@ -14,7 +14,7 @@ import {
 import { sprites } from "../../phaser/config";
 import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../../phaser/constants";
 import { SetupResult } from "../../setupMUD";
-import { Sprites } from "../../types";
+import { HoverType, Sprites } from "../../types";
 import { getShipSprite } from "../../utils/ships";
 
 export function shipTextureSystems(MUD: SetupResult) {
@@ -25,7 +25,7 @@ export function shipTextureSystems(MUD: SetupResult) {
     components: {
       SelectedShip,
       SelectedMove,
-      HoveredShip,
+      HoveredSprite,
       HealthLocal,
       OnFireLocal,
       DamagedCannonsLocal,
@@ -65,10 +65,10 @@ export function shipTextureSystems(MUD: SetupResult) {
 
       object.setInteractive({ cursor: "pointer" });
       object.off("pointerup");
-      object.on("pointerout", () => removeComponent(HoveredShip, godEntity));
-      object.on("pointerover", () => setComponent(HoveredShip, godEntity, { value: shipEntity }));
+      object.on("pointerout", () => removeComponent(HoveredSprite, HoverType.SHIP));
+      object.on("pointerover", () => setComponent(HoveredSprite, HoverType.SHIP, { value: shipEntity }));
       if (health == 0) {
-        object.setAlpha(0.5);
+        object.setAlpha(0.2);
         object.setDepth(RenderDepth.Foreground4);
       } else {
         object.setAlpha(1);
@@ -86,7 +86,7 @@ export function shipTextureSystems(MUD: SetupResult) {
       object.setAngle((rotation - 90) % 360);
       object.setPosition(x, y);
 
-      if (playerEntity == ownerEntity) camera.centerOn(position.x * POS_WIDTH, position.y * POS_HEIGHT + 400);
+      if (playerEntity == ownerEntity) camera.centerOn(position.x * POS_WIDTH, position.y * POS_HEIGHT);
 
       const onFire = getComponentValue(OnFire, shipEntity)?.value || 0;
       setComponent(OnFireLocal, shipEntity, { value: onFire });
@@ -131,7 +131,7 @@ export function shipTextureSystems(MUD: SetupResult) {
     const object = getSpriteObject(update.entity);
 
     if (update.type == UpdateType.Exit) {
-      object.off("pointerdown");
+      object.off("pointerup");
       object.off("pointerover");
       object.off("pointerout");
       object.disableInteractive();

@@ -17,7 +17,7 @@ struct Line {
 
 struct Action {
   uint256 shipEntity;
-  ActionType[2] actionTypes;
+  bytes[2] actions;
   bytes[2] metadata;
 }
 
@@ -26,21 +26,15 @@ struct Move {
   uint256 moveCardEntity;
 }
 
-enum ActionType {
-  None,
-  Load,
-  Fire,
-  RaiseSail,
-  LowerSail,
-  ExtinguishFire,
-  RepairCannons,
-  RepairSail
-}
-
 enum Phase {
   Commit,
   Reveal,
   Action
+}
+
+struct Upgrade {
+  uint256 componentId;
+  uint32 amount;
 }
 
 struct GameConfig {
@@ -51,7 +45,7 @@ struct GameConfig {
   uint32 revealPhaseLength;
   uint32 actionPhaseLength;
   uint32 worldSize;
-  int128 perlinSeed;
+  int32 perlinSeed;
   // Number of turns before registration is blocked
   uint32 entryCutoffTurns;
   uint256 buyin;
@@ -61,6 +55,7 @@ struct GameConfig {
   // Shrinking starts once entry is cutoff and ends when the world size is 50.
   uint32 shrinkRate;
   uint32 budget;
+  uint8 islandThreshold;
 }
 
 struct ShipPrototype {

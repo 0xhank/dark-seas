@@ -23,9 +23,9 @@
     "CannonComponent",
     "SpeedComponent",
     "ShipPrototypeComponent",
-    "KillsComponent",
     "LastHitComponent",
-    "BootyComponent"
+    "UpgradeComponent",
+    "ActionComponent"
   ],
   "systems": [
     {
@@ -36,8 +36,8 @@
         "LastMoveComponent",
         "HealthComponent",
         "SailPositionComponent",
-        "BootyComponent",
-        "LengthComponent"
+        "LengthComponent",
+        "UpgradeComponent"
       ]
     },
     {
@@ -49,10 +49,13 @@
         "SailPositionComponent",
         "LastActionComponent",
         "LoadedComponent",
-        "KillsComponent",
         "LastHitComponent",
-        "BootyComponent",
-        "LengthComponent"
+        "LengthComponent",
+        "UpgradeComponent",
+        "PositionComponent",
+        "SpeedComponent",
+        "LengthComponent",
+        "FirepowerComponent"
       ]
     },
     {
@@ -80,9 +83,7 @@
         "PlayerComponent",
         "NameComponent",
         "CannonComponent",
-        "SpeedComponent",
-        "KillsComponent",
-        "BootyComponent"
+        "SpeedComponent"
       ]
     },
     {
@@ -92,8 +93,6 @@
         "RotationComponent",
         "HealthComponent",
         "SailPositionComponent",
-        "KillsComponent",
-        "BootyComponent",
         "OnFireComponent",
         "DamagedCannonsComponent",
         "LengthComponent"
@@ -110,7 +109,7 @@
       "writeAccess": [
         "*"
       ],
-      "initialize": "abi.encode(block.timestamp, 25, 9, 15, 120, 345676, 60, 0, false, 0, 7)"
+      "initialize": "abi.encode(block.timestamp, 25, 9, 25, 90, 345676, 3, 0, false, 400, 6, 33)"
     }
   ]
 }

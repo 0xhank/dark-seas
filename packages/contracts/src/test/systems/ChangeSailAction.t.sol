@@ -10,7 +10,7 @@ import { SailPositionComponent, ID as SailPositionComponentID } from "../../comp
 // Systems
 import { ActionSystem, ID as ActionSystemID } from "../../systems/ActionSystem.sol";
 
-import { Action, ActionType, Move, Coord } from "../../libraries/DSTypes.sol";
+import { Action, Move, Coord } from "../../libraries/DSTypes.sol";
 
 // Libraries
 import "../../libraries/LibTurn.sol";
@@ -24,8 +24,6 @@ contract ChangeSailActionTest is DarkSeasTest {
   Move[] moves;
   Action[] actions;
 
-  bytes none = abi.encode(0);
-
   function testExecute() public prank(deployer) {
     setup();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
@@ -34,12 +32,12 @@ contract ChangeSailActionTest is DarkSeasTest {
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.LowerSail, ActionType.None],
+      actions: [bytes("action.lowerSail"), none],
       metadata: [none, none]
     });
     actions.push(action);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Action));
 
     actionSystem.executeTyped(actions);
 
@@ -53,11 +51,11 @@ contract ChangeSailActionTest is DarkSeasTest {
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
     uint256 shipEntity = spawnShip(startingPosition, startingRotation, deployer);
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 1, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Action));
 
     Action memory action = Action({
       shipEntity: shipEntity,
-      actionTypes: [ActionType.RaiseSail, ActionType.None],
+      actions: [bytes("action.raiseSail"), none],
       metadata: [none, none]
     });
     actions.push(action);
@@ -70,21 +68,17 @@ contract ChangeSailActionTest is DarkSeasTest {
 
     delete actions;
 
-    action = Action({
-      shipEntity: shipEntity,
-      actionTypes: [ActionType.LowerSail, ActionType.None],
-      metadata: [none, none]
-    });
+    action = Action({ shipEntity: shipEntity, actions: [bytes("action.lowerSail"), none], metadata: [none, none] });
 
     actions.push(action);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 2, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 2, Phase.Action));
     actionSystem.executeTyped(actions);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 3, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 3, Phase.Action));
     actionSystem.executeTyped(actions);
 
-    vm.warp(LibTurn.getTurnAndPhaseTime(components, 4, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, 4, Phase.Action));
     actionSystem.executeTyped(actions);
 
     newSailPosition = sailPositionComponent.getValue(shipEntity);
@@ -97,7 +91,7 @@ contract ChangeSailActionTest is DarkSeasTest {
 
   function setup() internal {
     actionSystem = ActionSystem(system(ActionSystemID));
-    sailPositionComponent = SailPositionComponent(getAddressById(components, SailPositionComponentID));
+    sailPositionComponent = SailPositionComponent(LibUtils.addressById(world, SailPositionComponentID));
     delete moves;
     delete actions;
   }

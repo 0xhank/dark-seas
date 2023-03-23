@@ -1,14 +1,36 @@
 import { useComponentValue } from "@latticexyz/react";
-import { getComponentEntities } from "@latticexyz/recs";
+import {
+  EntityIndex,
+  getComponentEntities,
+  getComponentValueStrict,
+  removeComponent,
+  setComponent,
+} from "@latticexyz/recs";
 import styled from "styled-components";
 import { useMUD } from "../../../mud/providers/MUDProvider";
 import { world } from "../../../mud/world";
-import { colors } from "../../styles/global";
-import { PlayerData, ShipData } from "./Modal";
+import { POS_HEIGHT, POS_WIDTH } from "../../../phaser/constants";
+import { HoverType, ModalType } from "../../../types";
+import { Button, colors } from "../../styles/global";
+import { SortableTable } from "./SortableTable";
+type ShipData = {
+  entity: EntityIndex;
+  name: string;
+  health: number;
+  owner: string;
+};
+
+type PlayerData = {
+  playerEntity: EntityIndex;
+  name: string;
+  ships: number;
+};
 
 export function Leaderboard() {
   const {
-    components: { Ship, HealthLocal, Kills, Booty, OwnedBy, Name },
+    components: { ModalOpen, Ship, HealthLocal, OwnedBy, Name, Position, HoveredSprite },
+    godEntity,
+    scene: { camera },
     utils: { getShipName },
   } = useMUD();
   let players: PlayerData[] = [];
@@ -16,47 +38,84 @@ export function Leaderboard() {
 
   [...getComponentEntities(Ship)].forEach((shipEntity) => {
     const health = useComponentValue(HealthLocal, shipEntity)?.value;
-    const kills = useComponentValue(Kills, shipEntity)?.value;
-    const bootyString = useComponentValue(Booty, shipEntity)?.value;
     const ownerId = useComponentValue(OwnedBy, shipEntity)?.value;
 
     if (!ownerId) return;
     const owner = world.entityToIndex.get(ownerId);
     if (!owner) return;
     const name = useComponentValue(Name, owner)?.value;
-    if (health == undefined || kills == undefined || name == undefined || bootyString == undefined) return;
-    const booty = Number(bootyString);
+    if (health == undefined || name == undefined) return;
     const player = players.find((player) => player.playerEntity == owner);
 
     if (!player) {
       players.push({
         playerEntity: owner,
         name,
-        health,
-        kills,
-        booty,
+        ships: health > 0 ? 1 : 0,
       });
     } else {
-      player.health += health;
-      player.kills += kills;
+      if (health > 0) player.ships++;
     }
-
     ships.push({
+      entity: shipEntity,
       name: getShipName(shipEntity),
       health,
-      kills,
       owner: name,
-      booty,
     });
   });
 
+  function focusShip(shipEntity: EntityIndex) {
+    const position = getComponentValueStrict(Position, shipEntity);
+    setComponent(HoveredSprite, HoverType.SHIP, { value: shipEntity });
+    camera.centerOn(position.x * POS_WIDTH, position.y * POS_HEIGHT);
+    removeComponent(ModalOpen, ModalType.LEADERBOARD);
+  }
+  const playerColumns = [(player: PlayerData) => <p>{player.name}</p>, (player: PlayerData) => <p>{player.ships}</p>];
+
+  const playerSort = [
+    (a: PlayerData, b: PlayerData) => a.name.localeCompare(b.name),
+    (a: PlayerData, b: PlayerData) => a.ships - b.ships,
+  ];
+  const shipColumns = [
+    (ship: ShipData) => <p>{ship.name}</p>,
+    (ship: ShipData) => <p>{ship.health}</p>,
+    (ship: ShipData) => <p>{ship.owner}</p>,
+    (ship: ShipData) => (
+      <Button onClick={() => focusShip(ship.entity)} style={{ zIndex: -1 }}>
+        view
+      </Button>
+    ),
+  ];
+  const shipSort = [
+    (a: ShipData, b: ShipData) => a.name.localeCompare(b.name),
+    (a: ShipData, b: ShipData) => a.health - b.health,
+    (a: ShipData, b: ShipData) => a.owner.localeCompare(b.owner),
+  ];
   return (
     <>
       <LeaderboardContainer onClick={(e) => e.stopPropagation()}>
-        <PlayerTable theadData={["", "", "Kills", "Health"]} tbodyData={players} />
+        <div style={{ overflow: "auto" }}>
+          <p style={{ fontSize: "2rem" }}>Player Leaderboard</p>
+          <SortableTable
+            rows={players}
+            headers={["Name", "Ships"]}
+            columns={playerColumns}
+            sortFunctions={playerSort}
+            alignments={["c", "c", "c"]}
+          />
+        </div>
       </LeaderboardContainer>
       <LeaderboardContainer onClick={(e) => e.stopPropagation()}>
-        <ShipTable theadData={["", "Kills", "Health", "Owner"]} tbodyData={ships} />
+        <div style={{ overflow: "auto" }}>
+          <p style={{ fontSize: "2rem", position: "sticky" }}>Ship Leaderboard</p>
+          <SortableTable
+            rows={ships}
+            headers={["Name", "Health", "Owner", ""]}
+            columns={shipColumns}
+            sortFunctions={shipSort}
+            alignments={["c", "c", "c", "c"]}
+          />
+        </div>
       </LeaderboardContainer>
     </>
   );
@@ -75,109 +134,20 @@ const LeaderboardContainer = styled.div`
   justify-content: flex-start;
   align-items: center;
   flex-direction: column;
+  ::-webkit-scrollbar {
+    width: 10px;
+    margin: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border: solid 3px transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border: solid 3px transparent;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+  overflow: hidden;
 `;
-
-const TableContainer = styled.div`
-  overflow-y: auto;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
-
-const TableHeadItem = ({ item }: { item: string }) => {
-  return <td title={item}>{item}</td>;
-};
-
-const ShipTable = ({ theadData, tbodyData }: { theadData: string[]; tbodyData: (ShipData | undefined)[] }) => {
-  return (
-    <TableContainer>
-      <p style={{ fontSize: "2rem" }}>Ship Leaderboard</p>
-
-      <table style={{ textAlign: "center", color: colors.darkBrown }}>
-        <thead>
-          <tr>
-            {theadData.map((h) => {
-              return <TableHeadItem key={`ship-header-${h}`} item={h} />;
-            })}
-          </tr>
-        </thead>
-        <tbody>
-          {tbodyData
-            .sort((a, b) => {
-              if (!a || a.health == 0) return 1;
-              if (!b || b.health == 0) return -1;
-
-              if (a.health == 0 && b.health !== 0) return 1;
-              if (a.health !== 0 && b.health == 0) return -1;
-
-              const kills = b.kills - a.kills;
-              if (kills !== 0) return kills;
-
-              return b.health - a.health;
-            })
-            .map((item, i) => {
-              if (!item) return null;
-              return <ShipTableRow key={`ship-item-${i}`} data={item} />;
-            })}
-        </tbody>
-      </table>
-    </TableContainer>
-  );
-};
-const ShipTableRow = ({ data }: { data: ShipData }) => {
-  return (
-    <tr>
-      <td>{data.name}</td>
-      <td>{data.kills}</td>
-
-      <td>{data.health}</td>
-
-      <td>{data.owner}</td>
-    </tr>
-  );
-};
-
-const PlayerTable = ({ theadData, tbodyData }: { theadData: string[]; tbodyData: (PlayerData | undefined)[] }) => {
-  return (
-    <TableContainer>
-      <p style={{ fontSize: "2rem" }}>Player Leaderboard</p>
-      <table style={{ textAlign: "center", color: colors.darkBrown }}>
-        <thead>
-          <tr>
-            {theadData.map((h) => {
-              return <TableHeadItem key={`player-header-${h}`} item={h} />;
-            })}
-          </tr>
-        </thead>
-        <tbody>
-          {tbodyData
-            .sort((a, b) => {
-              if (!a) return 1;
-              if (!b) return -1;
-
-              if (a.health == 0 && b.health !== 0) return 1;
-              if (a.health !== 0 && b.health == 0) return -1;
-              const kills = b.kills - a.kills;
-              if (kills !== 0) return kills;
-
-              return b.health - a.health;
-            })
-            .map((item, i) => {
-              if (!item) return null;
-              return <PlayerTableRow key={`player-item-${item.playerEntity}`} data={item} index={i} />;
-            })}
-        </tbody>
-      </table>
-    </TableContainer>
-  );
-};
-const PlayerTableRow = ({ data, index }: { data: PlayerData; index: number }) => {
-  return (
-    <tr>
-      <td>{index + 1}</td>
-      <td>{data.name}</td>
-      <td>{data.kills}</td>
-      <td>{data.health}</td>
-    </tr>
-  );
-};

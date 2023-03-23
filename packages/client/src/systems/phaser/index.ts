@@ -1,7 +1,7 @@
 import { SetupResult } from "../../setupMUD";
 import { borderSystems } from "./borderSystems";
 import { createCamera } from "./camera";
-import { cannonFireSystems } from "./cannonFireSystems";
+import { crateSystems } from "./crateSystems";
 import { damageBubbleSystems } from "./damageBubbleSystems";
 import { firingAreaSystems } from "./firingAreaSystems";
 import { inputSystems } from "./inputSystems";
@@ -15,10 +15,8 @@ import { statAnimationSystems } from "./statAnimationSystems";
 import { targetedShipSystems } from "./targetedShipSystems";
 import { tilemapSystems } from "./tilemapSystems";
 import { turnResetSystems } from "./turnResetSystems";
-
 export function createPhaserSystems(MUD: SetupResult) {
   borderSystems(MUD);
-  cannonFireSystems(MUD);
   firingAreaSystems(MUD);
   inputSystems(MUD);
   localHealthSystems(MUD);
@@ -33,4 +31,5 @@ export function createPhaserSystems(MUD: SetupResult) {
   createCamera(MUD);
   raiseLowerSailSystems(MUD);
   damageBubbleSystems(MUD);
+  crateSystems(MUD);
 }
