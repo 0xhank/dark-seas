@@ -32,12 +32,12 @@ library LibCrate {
     else if (componentSeed == 2) componentId = FirepowerComponentID;
     else componentId = SpeedComponentID;
 
-    uint32 amount = uint32(LibUtils.getByteUInt(crateEntity, 1, 2));
+    uint32 amount = uint32(LibUtils.getByteUInt(crateEntity, 2, 2)) == 0 ? 2 : 1;
 
     PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(crateEntity, position);
     UpgradeComponent(LibUtils.addressById(world, UpgradeComponentID)).set(
       crateEntity,
-      Upgrade({ componentId: componentId, amount: amount + 1 })
+      Upgrade({ componentId: componentId, amount: amount })
     );
   }
 

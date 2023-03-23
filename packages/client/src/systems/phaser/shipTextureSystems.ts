@@ -68,7 +68,7 @@ export function shipTextureSystems(MUD: SetupResult) {
       object.on("pointerout", () => removeComponent(HoveredSprite, HoverType.SHIP));
       object.on("pointerover", () => setComponent(HoveredSprite, HoverType.SHIP, { value: shipEntity }));
       if (health == 0) {
-        object.setAlpha(0.5);
+        object.setAlpha(0.2);
         object.setDepth(RenderDepth.Foreground4);
       } else {
         object.setAlpha(1);

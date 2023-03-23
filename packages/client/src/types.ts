@@ -143,6 +143,18 @@ export enum Sprites {
   ShipBlueDead,
   ShipBlueMajor,
   ShipBlueMinor,
+
+  HealthCrate1,
+  HealthCrate2,
+
+  SpeedCrate1,
+  SpeedCrate2,
+
+  SizeCrate1,
+  SizeCrate2,
+
+  FirepowerCrate1,
+  FirepowerCrate2,
 }
 
 export const ModalType = {

@@ -1,3 +1,4 @@
+import { tween } from "@latticexyz/phaserx";
 import {
   defineComponentSystem,
   defineEnterSystem,
@@ -51,30 +52,49 @@ export function crateSystems(MUD: SetupResult) {
       });
     });
   });
-  defineEnterSystem(world, [Has(Position), Has(Upgrade)], ({ entity: crateEntity }) => {
+
+  function getCrateSprite(componentId: string, amount: number) {
+    if (componentId == keccak256("ds.component.Firepower"))
+      return amount == 2 ? Sprites.FirepowerCrate2 : Sprites.FirepowerCrate1;
+    else if (componentId == keccak256("ds.component.Speed"))
+      return amount == 2 ? Sprites.SpeedCrate1 : Sprites.SpeedCrate2;
+    else if (componentId == keccak256("ds.component.Length"))
+      return amount == 2 ? Sprites.SizeCrate1 : Sprites.SizeCrate2;
+    else return amount == 2 ? Sprites.HealthCrate1 : Sprites.HealthCrate2;
+  }
+
+  async function renderCrate(crateEntity: EntityIndex) {
     const position = getComponentValueStrict(Position, crateEntity);
     const upgrade = getComponentValueStrict(Upgrade, crateEntity);
 
     const group = getGroupObject(crateEntity, true);
-    const spriteAsset: Sprites = Sprites.Cannon;
+    const spriteAsset: Sprites = getCrateSprite(upgrade.componentId, upgrade.amount);
     const sprite = sprites[spriteAsset];
-    const spriteObject = phaserScene.add.sprite(position.x, position.y, sprite.assetKey, sprite.frame);
 
+    const spriteObject = phaserScene.add.sprite(position.x, position.y, sprite.assetKey, sprite.frame);
+    spriteObject.setAlpha(0);
+    spriteObject.setTexture(sprite.assetKey, sprite.frame);
+    spriteObject.setDepth(RenderDepth.Foreground3);
+    spriteObject.setScale(2);
+    spriteObject.setOrigin(0.5, 0.5);
+    const { x, y } = pixelCoord(position);
+
+    spriteObject.setPosition(x, y);
+
+    await tween({
+      targets: spriteObject,
+      delay: 2000,
+      duration: 1000,
+      props: { alpha: 1 },
+      ease: Phaser.Math.Easing.Linear,
+    });
     if (crateEntity == undefined) return;
     const radius = 20;
 
     const circle = renderCircle(group, position, radius, colors.whiteHex);
 
-    spriteObject.setTexture(sprite.assetKey, sprite.frame);
-
     circle.setInteractive();
     circle.setAlpha(0.1);
-    spriteObject.setDepth(RenderDepth.Foreground3);
-    spriteObject.setScale(5);
-    spriteObject.setOrigin(0.5, 0.5);
-    const { x, y } = pixelCoord(position);
-
-    spriteObject.setPosition(x, y);
     circle.on("pointerover", () => {
       console.log(
         `component: ${upgrade.componentId} `,
@@ -118,6 +138,9 @@ export function crateSystems(MUD: SetupResult) {
     });
 
     group.add(spriteObject);
+  }
+  defineEnterSystem(world, [Has(Position), Has(Upgrade)], ({ entity: crateEntity }) => {
+    renderCrate(crateEntity);
   });
 
   defineComponentSystem(world, HoveredSprite, (update) => {

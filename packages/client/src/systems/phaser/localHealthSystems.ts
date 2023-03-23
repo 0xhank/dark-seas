@@ -69,7 +69,7 @@ export function localHealthSystems(MUD: SetupResult) {
       playDeathAnimation(shipEntity);
       removeComponent(SelectedActions, shipEntity);
       removeComponent(SelectedMove, shipEntity);
-      shipObject.setAlpha(0.5);
+      shipObject.setAlpha(0.2);
       shipObject.setDepth(RenderDepth.Foreground4);
       for (let i = 0; i < 4; i++) {
         const spriteId = `${shipEntity}-fire-${i}`;

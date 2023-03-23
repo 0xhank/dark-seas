@@ -31,8 +31,6 @@ contract InitSystem is System {
     createShips();
     createMoveCards();
     createActions();
-
-    LibCrate.createCrate(world, Coord(0, 0));
   }
 
   function createShips() private {

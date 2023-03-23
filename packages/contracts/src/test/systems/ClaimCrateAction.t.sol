@@ -86,8 +86,6 @@ contract ClaimCrateActionTest is DarkSeasTest {
   function testCreateCrate() public prank(deployer) {
     setup();
     Coord memory coord = Coord(0, 0);
-    console.log("deployer:", deployer);
-    console.log("this:", address(this));
     LibCrate.createCrate(world, coord);
 
     (uint256[] memory crates, ) = LibUtils.getEntityWith(world, UpgradeComponentID);
@@ -108,8 +106,8 @@ contract ClaimCrateActionTest is DarkSeasTest {
 
     Upgrade memory upgrade = upgradeComponent.getValue(crates[0]);
     assertEq(componentId, upgrade.componentId, "id wrong");
-    uint32 amount = uint32(LibUtils.getByteUInt(crates[0], 1, 2));
-    assertEq(amount + 1, upgrade.amount, "amount wrong");
+    uint32 amount = uint32(LibUtils.getByteUInt(crates[0], 2, 2)) == 0 ? 2 : 1;
+    assertEq(amount, upgrade.amount, "amount wrong");
   }
 
   function testClaimCrate() public prank(deployer) {

@@ -52,7 +52,10 @@
         "LastHitComponent",
         "LengthComponent",
         "UpgradeComponent",
-        "PositionComponent"
+        "PositionComponent",
+        "SpeedComponent",
+        "LengthComponent",
+        "FirepowerComponent"
       ]
     },
     {
@@ -106,7 +109,7 @@
       "writeAccess": [
         "*"
       ],
-      "initialize": "abi.encode(block.timestamp, 25, 9, 25, 90, 345676, 3, 9, false, 400, 6)"
+      "initialize": "abi.encode(block.timestamp, 2, 2, 25, 50, 345676, 10, 9, false, 9, 6)"
     }
   ]
 }
