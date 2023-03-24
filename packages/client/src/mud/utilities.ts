@@ -24,7 +24,7 @@ import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../
 import { colors } from "../react/styles/global";
 import { Category, soundLibrary } from "../sound";
 import { getRangeTintAlpha } from "../systems/phaser/renderShip";
-import { Action, ActionType, DELAY, Move, Phase, ShipPrototype, Sprites } from "../types";
+import { Action, ActionType, DELAY, HoverType, Move, Phase, ShipPrototype, Sprites } from "../types";
 import { distance } from "../utils/distance";
 import { cap, getHash, getShipSprite } from "../utils/ships";
 import {
@@ -37,7 +37,7 @@ import {
 } from "../utils/trig";
 import { adjectives, nouns } from "../wordlist";
 import { clientComponents, components } from "./components";
-import { polygonRegistry, spriteRegistry, world } from "./world";
+import { polygonRegistry, shipRegistry, spriteRegistry, world } from "./world";
 export async function createUtilities(
   godEntity: EntityIndex,
   playerAddress: string,
@@ -526,7 +526,6 @@ export async function createUtilities(
     const index = actions.specialEntities.indexOf(entityID);
 
     // couldn't find the crate
-    console.log("hello");
     if (index == -1) {
       const unusedSlot = selectedActions.actionTypes.indexOf(ActionType.None);
       if (unusedSlot == -1) return;
@@ -536,7 +535,6 @@ export async function createUtilities(
       actions.actionTypes[index] = ActionType.None;
       actions.specialEntities[index] = "0" as EntityID;
     }
-    console.log("updating selected actions");
     setComponent(clientComponents.SelectedActions, shipEntity, {
       actionTypes: actions.actionTypes,
       specialEntities: actions.specialEntities,
@@ -544,6 +542,44 @@ export async function createUtilities(
     setComponent(clientComponents.SelectedShip, godEntity, { value: shipEntity });
   }
 
+  function createShip(shipEntity: EntityIndex, s?: Phaser.Scene) {
+    const container = getShip(shipEntity);
+    const maxHealth = getComponentValueStrict(components.MaxHealth, shipEntity).value;
+    const health = getComponentValueStrict(clientComponents.HealthLocal, shipEntity).value;
+    const length = getComponentValueStrict(components.Length, shipEntity).value;
+
+    const hullSprite = length > 8 ? Sprites.HullLarge : Sprites.HullSmall;
+    const hullObject = getSpriteObject(`${shipEntity}-hull`);
+    hullObject.setInteractive({ cursor: "pointer" });
+    hullObject.off("pointerup");
+    hullObject.on("pointerout", () => removeComponent(clientComponents.HoveredSprite, HoverType.SHIP));
+    hullObject.on("pointerover", () =>
+      setComponent(clientComponents.HoveredSprite, HoverType.SHIP, { value: shipEntity })
+    );
+
+    container.add(hullObject);
+
+    const hullTexture = sprites[hullSprite];
+    hullObject.setOrigin(0.5, 0.92);
+    hullObject.setTexture(hullTexture.assetKey, hullTexture.frame);
+    hullObject.setPosition(0, 0);
+    if (health == 0) {
+      hullObject.setAlpha(0.2);
+      hullObject.setDepth(RenderDepth.Foreground4);
+    } else {
+      hullObject.setAlpha(1);
+      hullObject.setDepth(RenderDepth.ShipHull);
+      hullObject.on("pointerup", () => setComponent(clientComponents.SelectedShip, godEntity, { value: shipEntity }));
+    }
+    const sailTexture = Sprites.SailWhite;
+    const sailSprite = sprites[sailTexture];
+    const sailObject = getSpriteObject(`${shipEntity}-sail`);
+    sailObject.setTexture(sailSprite.assetKey, sailSprite.frame);
+    sailObject.setPosition(0, -length * 7.5);
+    sailObject.setDepth(RenderDepth.ShipSail);
+    container.add(sailObject);
+    return container;
+  }
   function getSpriteObject(id: string | number, s?: Phaser.Scene): Phaser.GameObjects.Sprite {
     const scene = s || mainScene;
     const sprite = spriteRegistry.get(id);
@@ -562,6 +598,15 @@ export async function createUtilities(
     sprite.destroy(true);
   }
 
+  function getShip(id: EntityIndex, s?: Phaser.Scene): Phaser.GameObjects.Container {
+    const scene = s || mainScene;
+    const group = shipRegistry.get(id);
+    if (group) return group;
+
+    const newGroup = scene.add.container();
+    shipRegistry.set(id, newGroup);
+    return newGroup;
+  }
   function getGroupObject(id: string | number, clear = false, s?: Phaser.Scene): Phaser.GameObjects.Group {
     const scene = s || mainScene;
     if (clear) destroyGroupObject(id);
@@ -589,7 +634,6 @@ export async function createUtilities(
     rotation: number,
     finalPosition: Coord
   ) {
-    console.log("rotation: ", rotation);
     direction = direction > 180 ? 360 - direction : direction;
     rotation = rotation > 180 ? 360 - rotation : rotation;
 
@@ -597,11 +641,8 @@ export async function createUtilities(
     const initialRotation = getComponentValueStrict(components.Rotation, shipEntity).value;
 
     const hypoteneuse = distance(finalPosition, origin);
-    console.log("hypoteneuse distance: ", hypoteneuse);
     const rightDistance = hypoteneuse * Math.cos(toRadians(direction));
-    console.log("right distance: ", rightDistance);
     const finalDistance = (rightDistance * rotation) / 90;
-    console.log("final distance: ", finalDistance);
     const midpoint = getPositionByVector(origin, initialRotation, finalDistance, 0);
 
     const points = [origin, midpoint, finalPosition].map((coord) => {
@@ -871,6 +912,8 @@ export async function createUtilities(
     muteMusic,
     inWorld,
     getWorldDimsAtTime,
+    getShip,
+    createShip,
     getSpriteObject,
     getGroupObject,
     destroySpriteObject,

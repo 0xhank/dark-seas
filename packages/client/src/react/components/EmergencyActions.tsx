@@ -51,7 +51,7 @@ export function EmergencyActions() {
 
   const cam = camera.phaserCamera;
 
-  const shipObject = getSpriteObject(shipEntity);
+  const shipObject = getSpriteObject(`${shipEntity}-hull`);
   const front = { x: shipObject.x, y: shipObject.y };
   const angle = shipObject.angle + 90;
   const length = shipObject.displayHeight;

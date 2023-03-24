@@ -144,6 +144,11 @@ export enum Sprites {
   ShipBlueMajor,
   ShipBlueMinor,
 
+  HullSmall,
+  HullLarge,
+
+  SailWhite,
+
   HealthCrate1,
   HealthCrate2,
 

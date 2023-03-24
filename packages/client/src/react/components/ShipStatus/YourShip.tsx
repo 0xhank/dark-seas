@@ -16,7 +16,7 @@ export const YourShip = ({ shipEntity, selected }: { shipEntity: EntityIndex; se
   } = useMUD();
 
   const selectShip = (shipEntity: EntityIndex) => {
-    const shipObject = getSpriteObject(shipEntity);
+    const shipObject = getSpriteObject(`${shipEntity}-hull`);
 
     camera.centerOn(shipObject.x, shipObject.y + 400);
 

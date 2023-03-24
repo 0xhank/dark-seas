@@ -39,7 +39,7 @@ export function DamageChance() {
   const cam = camera.phaserCamera;
 
   const data = getTargetedShips(hoveredAction.specialEntity as EntityIndex).reduce((curr: ShipData[], ship) => {
-    const shipObject = getSpriteObject(ship);
+    const shipObject = getSpriteObject(`${ship}-hull`);
     const front = { x: shipObject.x, y: shipObject.y };
     const angle = shipObject.angle + 90;
     const length = shipObject.displayHeight;

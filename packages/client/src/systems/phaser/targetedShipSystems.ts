@@ -6,17 +6,20 @@ export function targetedShipSystems(MUD: SetupResult) {
   const {
     world,
     components: { Targeted },
-    utils: { getSpriteObject },
+    utils: { getSpriteObject, getShip },
   } = MUD;
 
   defineComponentSystem(world, Targeted, (update) => {
-    const targetedShip = getSpriteObject(update.entity);
+    const targetedHull = getSpriteObject(`${update.entity}-hull`);
+    const targetedSail = getSpriteObject(`${update.entity}-sail`);
 
     const value = update.value[0]?.value;
     if (!value) {
-      targetedShip.clearTint();
+      targetedHull.clearTint();
+      targetedSail.clearTint();
     } else {
-      targetedShip.setTint(colors.redHex);
+      targetedHull.setTint(colors.redHex);
+      targetedSail.setTint(colors.redHex);
     }
   });
 }

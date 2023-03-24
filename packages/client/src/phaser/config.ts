@@ -124,7 +124,18 @@ export const sprites = {
     assetKey: Assets.MainAtlas,
     frame: "shipRedMinor.png",
   },
-
+  [Sprites.HullSmall]: {
+    assetKey: Assets.MainAtlas,
+    frame: "hullSmall.png",
+  },
+  [Sprites.HullLarge]: {
+    assetKey: Assets.MainAtlas,
+    frame: "hullLarge.png",
+  },
+  [Sprites.SailWhite]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailLargeWhite.png",
+  },
   [Sprites.HealthCrate1]: {
     assetKey: Assets.Crates,
     frame: "health.png",

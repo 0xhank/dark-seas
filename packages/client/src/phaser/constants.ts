@@ -36,6 +36,10 @@ export enum RenderDepth {
   Foreground1 = 400,
   Foreground2 = 390,
   Foreground3 = 380,
+
+  ShipHull = 381,
+  ShipSail = 382,
+
   Foreground4 = 370,
   Foreground5 = 360,
   Foreground6 = 350,

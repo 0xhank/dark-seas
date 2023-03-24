@@ -1,4 +1,4 @@
-import { Coord, tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
+import { Coord, tileCoordToPixelCoord } from "@latticexyz/phaserx";
 import {
   defineComponentSystem,
   defineEnterSystem,
@@ -11,17 +11,14 @@ import {
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
-import { sprites } from "../../phaser/config";
-import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../../phaser/constants";
+import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, SHIP_RATIO } from "../../phaser/constants";
 import { SetupResult } from "../../setupMUD";
-import { HoverType, Sprites } from "../../types";
-import { getShipSprite } from "../../utils/ships";
 
 export function shipTextureSystems(MUD: SetupResult) {
   const {
     world,
     godEntity,
-    scene: { config, camera },
+    scene: { config, camera, phaserScene },
     components: {
       SelectedShip,
       SelectedMove,
@@ -39,7 +36,15 @@ export function shipTextureSystems(MUD: SetupResult) {
       SailPosition,
       MaxHealth,
     },
-    utils: { getSpriteObject, destroySpriteObject, destroyGroupObject, getPlayerEntity, outOfBounds, playSound },
+    utils: {
+      createShip,
+      getSpriteObject,
+      destroySpriteObject,
+      destroyGroupObject,
+      getPlayerEntity,
+      outOfBounds,
+      getShip,
+    },
     network: { clock },
   } = MUD;
 
@@ -47,45 +52,21 @@ export function shipTextureSystems(MUD: SetupResult) {
     world,
     [Has(HealthLocal), Has(MaxHealth), Has(Length), Has(Position), Has(Rotation), Has(OwnedBy), Has(SailPosition)],
     ({ entity: shipEntity }) => {
-      const maxHealth = getComponentValueStrict(MaxHealth, shipEntity).value;
-      const health = getComponentValueStrict(HealthLocal, shipEntity).value;
       const position = getComponentValueStrict(Position, shipEntity);
-      const length = getComponentValueStrict(Length, shipEntity).value;
       const rotation = getComponentValueStrict(Rotation, shipEntity).value;
       const ownerId = getComponentValueStrict(OwnedBy, shipEntity).value;
+      const length = getComponentValueStrict(Length, shipEntity).value;
 
       const ownerEntity = getPlayerEntity(ownerId);
       if (!ownerEntity) return;
       const playerEntity = getPlayerEntity();
-      const object = getSpriteObject(shipEntity);
-      const spriteAsset: Sprites = getShipSprite(ownerEntity, health, maxHealth, playerEntity == ownerEntity);
-      const sprite = sprites[spriteAsset];
 
-      object.setTexture(sprite.assetKey, sprite.frame);
-
-      object.setInteractive({ cursor: "pointer" });
-      object.off("pointerup");
-      object.on("pointerout", () => removeComponent(HoveredSprite, HoverType.SHIP));
-      object.on("pointerover", () => setComponent(HoveredSprite, HoverType.SHIP, { value: shipEntity }));
-      if (health == 0) {
-        object.setAlpha(0.2);
-        object.setDepth(RenderDepth.Foreground4);
-      } else {
-        object.setAlpha(1);
-        object.setDepth(RenderDepth.Foreground3);
-        object.on("pointerup", () => setComponent(SelectedShip, godEntity, { value: shipEntity }));
-      }
-
-      const shipLength = length * POS_WIDTH * 1.25;
-      const shipWidth = shipLength / SHIP_RATIO;
-      object.setDisplaySize(shipWidth, shipLength);
-      object.setOrigin(0.5, 0.92);
-
+      const shipObject = createShip(shipEntity);
       const { x, y } = tileCoordToPixelCoord(position, POS_WIDTH, POS_HEIGHT);
 
-      object.setAngle((rotation - 90) % 360);
-      object.setPosition(x, y);
-
+      shipObject.setAngle(rotation - 90);
+      shipObject.setScale(length / 6);
+      shipObject.setPosition(x, y);
       if (playerEntity == ownerEntity) camera.centerOn(position.x * POS_WIDTH, position.y * POS_HEIGHT);
 
       const onFire = getComponentValue(OnFire, shipEntity)?.value || 0;
@@ -102,7 +83,7 @@ export function shipTextureSystems(MUD: SetupResult) {
     if (update.value[0] === undefined || update.value[1] === undefined) return;
 
     const length = update.value[0].value;
-    const object = getSpriteObject(update.entity);
+    const object = getShip(update.entity);
 
     const oldLength = object.displayHeight;
     const newLength = length * POS_WIDTH * 1.25;
@@ -110,7 +91,7 @@ export function shipTextureSystems(MUD: SetupResult) {
 
     const shipWidth = newLength / SHIP_RATIO;
 
-    tween({
+    phaserScene.add.tween({
       targets: object,
       duration: 2000,
       delay: 1000,
@@ -119,7 +100,6 @@ export function shipTextureSystems(MUD: SetupResult) {
       },
       onComplete: () => {
         object.setDisplaySize(shipWidth, newLength);
-        object.setOrigin(0.5, 0.92);
       },
     });
   });
@@ -128,7 +108,7 @@ export function shipTextureSystems(MUD: SetupResult) {
   defineSystem(world, [Has(Position), Has(Rotation)], (update) => {
     if (update.value[0] === undefined || update.value[1] === undefined) return;
 
-    const object = getSpriteObject(update.entity);
+    const object = getShip(update.entity);
 
     if (update.type == UpdateType.Exit) {
       object.off("pointerup");
@@ -151,10 +131,15 @@ export function shipTextureSystems(MUD: SetupResult) {
     move(update.entity, object, position, rotation);
   });
 
-  async function move(shipEntity: EntityIndex, object: Phaser.GameObjects.Sprite, position: Coord, rotation: number) {
+  async function move(
+    shipEntity: EntityIndex,
+    object: Phaser.GameObjects.Container,
+    position: Coord,
+    rotation: number
+  ) {
     const coord = tileCoordToPixelCoord(position, POS_WIDTH, POS_HEIGHT);
 
-    await tween({
+    phaserScene.add.tween({
       targets: object,
       duration: MOVE_LENGTH,
       props: {
@@ -174,13 +159,11 @@ export function shipTextureSystems(MUD: SetupResult) {
           },
         },
       },
-
+      onComplete: () => {
+        object.setAngle((rotation - 90) % 360);
+        object.setPosition(coord.x, coord.y);
+      },
       ease: Phaser.Math.Easing.Sine.InOut,
     });
-
-    const length = getComponentValueStrict(Length, shipEntity).value;
-
-    object.setAngle((rotation - 90) % 360);
-    object.setPosition(coord.x, coord.y);
   }
 }

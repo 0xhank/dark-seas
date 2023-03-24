@@ -152,3 +152,7 @@ export function midpoint(a: Coord, b: Coord): Coord {
 export function isBroadside(rotation: number) {
   return rotation == 90 || rotation == 270;
 }
+
+export function toRadians(angle: number) {
+  return (angle * Math.PI) / 180;
+}
