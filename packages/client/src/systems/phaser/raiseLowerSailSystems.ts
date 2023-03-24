@@ -28,6 +28,7 @@ export function raiseLowerSailSystems(MUD: SetupResult) {
     },
     utils: {
       getGroupObject,
+      getSpriteObject,
       secondsUntilNextPhase,
       destroyGroupObject,
       getPhase,
@@ -43,7 +44,16 @@ export function raiseLowerSailSystems(MUD: SetupResult) {
     godEntity,
   } = MUD;
 
-  defineComponentSystem(world, SailPositionLocal, ({ entity: shipEntity }) => {
+  defineComponentSystem(world, SailPositionLocal, ({ entity: shipEntity, value: [newVal, oldVal] }) => {
+    if (newVal && oldVal) {
+      const shipSprite = getSpriteObject(`${shipEntity}-sail`);
+      phaserScene.add.tween({
+        targets: shipSprite,
+        props: { scaleY: newVal.value / 2 },
+
+        duration: 1000,
+      });
+    }
     renderSailButton(shipEntity);
   });
 

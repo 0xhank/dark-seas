@@ -11,18 +11,17 @@ import {
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
-import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, SHIP_RATIO } from "../../phaser/constants";
+import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth } from "../../phaser/constants";
 import { SetupResult } from "../../setupMUD";
 
 export function shipTextureSystems(MUD: SetupResult) {
   const {
     world,
     godEntity,
-    scene: { config, camera, phaserScene },
+    scene: { camera, phaserScene },
     components: {
       SelectedShip,
       SelectedMove,
-      HoveredSprite,
       HealthLocal,
       OnFireLocal,
       DamagedCannonsLocal,
@@ -36,16 +35,7 @@ export function shipTextureSystems(MUD: SetupResult) {
       SailPosition,
       MaxHealth,
     },
-    utils: {
-      createShip,
-      getSpriteObject,
-      destroySpriteObject,
-      destroyGroupObject,
-      getPlayerEntity,
-      outOfBounds,
-      getShip,
-    },
-    network: { clock },
+    utils: { createShip, destroySpriteObject, destroyGroupObject, getPlayerEntity, getShip },
   } = MUD;
 
   defineEnterSystem(
@@ -66,6 +56,7 @@ export function shipTextureSystems(MUD: SetupResult) {
 
       shipObject.setAngle(rotation - 90);
       shipObject.setScale(length / 6);
+      shipObject.setDepth(RenderDepth.Foreground3);
       shipObject.setPosition(x, y);
       if (playerEntity == ownerEntity) camera.centerOn(position.x * POS_WIDTH, position.y * POS_HEIGHT);
 
@@ -85,21 +76,12 @@ export function shipTextureSystems(MUD: SetupResult) {
     const length = update.value[0].value;
     const object = getShip(update.entity);
 
-    const oldLength = object.displayHeight;
-    const newLength = length * POS_WIDTH * 1.25;
-    const oldScale = object.scale;
-
-    const shipWidth = newLength / SHIP_RATIO;
-
     phaserScene.add.tween({
       targets: object,
       duration: 2000,
       delay: 1000,
       props: {
-        scale: (newLength / oldLength) * oldScale,
-      },
-      onComplete: () => {
-        object.setDisplaySize(shipWidth, newLength);
+        scale: length / 6,
       },
     });
   });

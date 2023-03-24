@@ -574,8 +574,9 @@ export async function createUtilities(
     const sailTexture = Sprites.SailWhite;
     const sailSprite = sprites[sailTexture];
     const sailObject = getSpriteObject(`${shipEntity}-sail`);
+    sailObject.setOrigin(0.5, 0);
     sailObject.setTexture(sailSprite.assetKey, sailSprite.frame);
-    sailObject.setPosition(0, -length * 7.5);
+    sailObject.setPosition(0, length * -9);
     sailObject.setDepth(RenderDepth.ShipSail);
     container.add(sailObject);
     return container;
