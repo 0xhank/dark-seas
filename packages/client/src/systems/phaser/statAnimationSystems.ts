@@ -1,13 +1,5 @@
 import { tileCoordToPixelCoord } from "@latticexyz/phaserx";
-import {
-  defineComponentSystem,
-  defineUpdateSystem,
-  EntityIndex,
-  getComponentValueStrict,
-  Has,
-  HasValue,
-  runQuery,
-} from "@latticexyz/recs";
+import { defineComponentSystem, EntityIndex, getComponentValueStrict, Has, HasValue, runQuery } from "@latticexyz/recs";
 import { Animations, POS_HEIGHT, POS_WIDTH, RenderDepth } from "../../phaser/constants";
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
@@ -21,6 +13,7 @@ export function statAnimationSystems(MUD: SetupResult) {
 
     utils: {
       getSpriteObject,
+      getShip,
       destroySpriteObject,
       getGroupObject,
       destroyGroupObject,
@@ -36,12 +29,13 @@ export function statAnimationSystems(MUD: SetupResult) {
       destroyFire(update.entity);
       return;
     }
-    const position = getComponentValueStrict(Position, update.entity);
+    const position = { x: 0, y: 0 };
     const rotation = getComponentValueStrict(Rotation, update.entity).value;
     const length = getComponentValueStrict(Length, update.entity).value;
-    const sternPosition = getSternPosition(position, rotation, length);
+    const sternPosition = getSternPosition(position, rotation + 90, length);
     const center = midpoint(position, sternPosition);
-    const firePositions = [midpoint(position, center), center, center, midpoint(center, sternPosition)];
+    const firePositions = [midpoint(position, center), center, midpoint(center, sternPosition)];
+    const shipContainer = getShip(update.entity);
     for (let i = 0; i < firePositions.length; i++) {
       const spriteId = `${update.entity}-fire-${i}`;
       const object = getSpriteObject(spriteId);
@@ -54,37 +48,21 @@ export function statAnimationSystems(MUD: SetupResult) {
         object?.play(Animations.Fire);
       }, Math.random() * 1000);
 
-      const xLoc = Math.random();
-      const yLoc = Math.random();
-      object.setOrigin(xLoc, yLoc);
-      object.setScale(2);
+      object.setScale(1.25);
       object.setPosition(x, y);
       object.setDepth(RenderDepth.UI4);
-    }
-  });
-
-  defineUpdateSystem(world, [Has(OnFireLocal), Has(Position), Has(Rotation)], (update) => {
-    const onFire = getComponentValueStrict(OnFireLocal, update.entity).value > 0;
-    if (!onFire) return;
-    const position = getComponentValueStrict(Position, update.entity);
-    const rotation = getComponentValueStrict(Rotation, update.entity).value;
-    const length = getComponentValueStrict(Length, update.entity).value;
-    const sternPosition = getSternPosition(position, rotation, length);
-    const center = midpoint(position, sternPosition);
-    const firePositions = [midpoint(position, center), center, center, midpoint(center, sternPosition)];
-    for (let i = 0; i < firePositions.length; i++) {
-      const spriteId = `${update.entity}-fire-${i}`;
-      const object = getSpriteObject(spriteId);
-
-      const coord = tileCoordToPixelCoord(firePositions[i], POS_WIDTH, POS_HEIGHT);
-
-      moveElement(object, coord);
+      shipContainer.add(object);
     }
   });
 
   function destroyFire(shipEntity: EntityIndex) {
-    for (let i = 0; i < 4; i++) {
+    const container = getShip(shipEntity);
+    for (let i = 0; i < 3; i++) {
       const spriteId = `${shipEntity}-fire-${i}`;
+      console.log("destroying sprite", spriteId);
+      const sprite = getSpriteObject(spriteId);
+
+      container.remove(sprite);
       destroySpriteObject(spriteId);
     }
   }

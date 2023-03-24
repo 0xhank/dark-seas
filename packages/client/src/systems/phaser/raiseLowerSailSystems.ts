@@ -8,6 +8,7 @@ import {
 } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
 import { world } from "../../mud/world";
+import { sprites } from "../../phaser/config";
 import { POS_WIDTH, RenderDepth, SHIP_RATIO } from "../../phaser/constants";
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
@@ -16,6 +17,7 @@ import { getMidpoint } from "../../utils/trig";
 
 export function raiseLowerSailSystems(MUD: SetupResult) {
   const {
+    playerAddress,
     components: {
       SailPositionLocal,
       SelectedShip,
@@ -25,10 +27,14 @@ export function raiseLowerSailSystems(MUD: SetupResult) {
       HoveredAction,
       LastAction,
       SelectedActions,
+      OwnedBy,
+      Health,
+      MaxHealth,
     },
     utils: {
       getGroupObject,
       getSpriteObject,
+      getSailSprite,
       secondsUntilNextPhase,
       destroyGroupObject,
       getPhase,
@@ -46,10 +52,13 @@ export function raiseLowerSailSystems(MUD: SetupResult) {
 
   defineComponentSystem(world, SailPositionLocal, ({ entity: shipEntity, value: [newVal, oldVal] }) => {
     if (newVal && oldVal) {
+      const scaleY = newVal.value == 1 ? 0.6 : newVal.value == 2 ? 1 : 0.1;
+      const sprite = getSailSprite(shipEntity);
+      const texture = sprites[sprite];
       const shipSprite = getSpriteObject(`${shipEntity}-sail`);
       phaserScene.add.tween({
         targets: shipSprite,
-        props: { scaleY: newVal.value / 2 },
+        props: { scaleY },
 
         duration: 1000,
       });

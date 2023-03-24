@@ -23,118 +23,219 @@ export const sprites = {
     assetKey: Assets.MainAtlas,
     frame: "crew.png",
   },
-  [Sprites.ShipGreen]: {
+  [Sprites.SailGreen]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipGreen.png",
+    frame: "sailLargeGreen.png",
   },
-  [Sprites.ShipGreenDead]: {
+  [Sprites.SailGreenDead]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipGreenDead.png",
+    frame: "sailLargeGreenDead.png",
   },
-  [Sprites.ShipGreenMajor]: {
+  [Sprites.SailGreenMajor]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipGreenMajor.png",
+    frame: "sailLargeGreenMajor.png",
   },
-  [Sprites.ShipGreenMinor]: {
+  [Sprites.SailGreenMinor]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipGreenMinor.png",
+    frame: "sailLargeGreenMinor.png",
   },
-
-  [Sprites.ShipWhite]: {
+  [Sprites.SailSmallGreen]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipWhite.png",
+    frame: "sailSmallGreen.png",
   },
-  [Sprites.ShipWhiteDead]: {
+  [Sprites.SailSmallGreenDead]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipWhiteDead.png",
+    frame: "sailSmallGreenDead.png",
   },
-  [Sprites.ShipWhiteMajor]: {
+  [Sprites.SailSmallGreenMajor]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipWhiteMajor.png",
+    frame: "sailSmallGreenMajor.png",
   },
-  [Sprites.ShipWhiteMinor]: {
+  [Sprites.SailSmallGreenMinor]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipWhiteMinor.png",
+    frame: "sailSmallGreenMinor.png",
   },
-
-  [Sprites.ShipBlue]: {
+  [Sprites.SailWhite]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipBlue.png",
+    frame: "sailLargeWhite.png",
   },
-  [Sprites.ShipBlueDead]: {
+  [Sprites.SailWhiteDead]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipBlueDead.png",
+    frame: "sailLargeWhiteDead.png",
   },
-  [Sprites.ShipBlueMajor]: {
+  [Sprites.SailWhiteMajor]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipBlueMajor.png",
+    frame: "sailLargeWhiteMajor.png",
   },
-  [Sprites.ShipBlueMinor]: {
+  [Sprites.SailWhiteMinor]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipBlueMinor.png",
+    frame: "sailLargeWhiteMinor.png",
   },
-
-  [Sprites.ShipBlack]: {
+  [Sprites.SailSmallWhite]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipBlack.png",
+    frame: "sailSmallWhite.png",
   },
-  [Sprites.ShipBlackDead]: {
+  [Sprites.SailSmallWhiteDead]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipBlackDead.png",
+    frame: "sailSmallWhiteDead.png",
   },
-  [Sprites.ShipBlackMajor]: {
+  [Sprites.SailSmallWhiteMajor]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipBlackMajor.png",
+    frame: "sailSmallWhiteMajor.png",
   },
-  [Sprites.ShipBlackMinor]: {
+  [Sprites.SailSmallWhiteMinor]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipBlackMinor.png",
+    frame: "sailSmallWhiteMinor.png",
   },
 
-  [Sprites.ShipYellow]: {
+  [Sprites.SailBlue]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipYellow.png",
+    frame: "sailLargeBlue.png",
   },
-  [Sprites.ShipYellowDead]: {
+  [Sprites.SailBlueDead]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipYellowDead.png",
+    frame: "sailLargeBlueDead.png",
   },
-  [Sprites.ShipYellowMajor]: {
+  [Sprites.SailBlueMajor]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipYellowMajor.png",
+    frame: "sailLargeBlueMajor.png",
   },
-  [Sprites.ShipYellowMinor]: {
+  [Sprites.SailBlueMinor]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipYellowMinor.png",
+    frame: "sailLargeBlueMinor.png",
+  },
+  [Sprites.SailSmallBlue]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailSmallBlue.png",
+  },
+  [Sprites.SailSmallBlueDead]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailSmallBlueDead.png",
+  },
+  [Sprites.SailSmallBlueMajor]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailSmallBlueMajor.png",
+  },
+  [Sprites.SailSmallBlueMinor]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailSmallBlueMinor.png",
+  },
+  [Sprites.SailBlack]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailLargeBlack.png",
+  },
+  [Sprites.SailBlackDead]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailLargeBlackDead.png",
+  },
+  [Sprites.SailBlackMajor]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailLargeBlackMajor.png",
+  },
+  [Sprites.SailBlackMinor]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailLargeBlackMinor.png",
+  },
+  [Sprites.SailSmallBlack]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailSmallBlack.png",
+  },
+  [Sprites.SailSmallBlackDead]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailSmallBlackDead.png",
+  },
+  [Sprites.SailSmallBlackMajor]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailSmallBlackMajor.png",
+  },
+  [Sprites.SailSmallBlackMinor]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailSmallBlackMinor.png",
+  },
+  [Sprites.SailSmallYellow]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailSmallYellow.png",
+  },
+  [Sprites.SailSmallYellowDead]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailSmallYellowDead.png",
+  },
+  [Sprites.SailSmallYellowMajor]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailSmallYellowMajor.png",
+  },
+  [Sprites.SailSmallYellowMinor]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailSmallYellowMinor.png",
   },
 
-  [Sprites.ShipRed]: {
+  [Sprites.SailRed]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipRed.png",
+    frame: "sailLargeRed.png",
   },
-  [Sprites.ShipRedDead]: {
+  [Sprites.SailRedDead]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipRedDead.png",
+    frame: "sailLargeRedDead.png",
   },
-  [Sprites.ShipRedMajor]: {
+  [Sprites.SailRedMajor]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipRedMajor.png",
+    frame: "sailLargeRedMajor.png",
   },
-  [Sprites.ShipRedMinor]: {
+  [Sprites.SailRedMinor]: {
     assetKey: Assets.MainAtlas,
-    frame: "shipRedMinor.png",
+    frame: "sailLargeRedMinor.png",
+  },
+  [Sprites.SailSmallRed]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailLargeRed.png",
+  },
+  [Sprites.SailSmallRedDead]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailLargeRedDead.png",
+  },
+  [Sprites.SailSmallRedMajor]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailLargeRedMajor.png",
+  },
+  [Sprites.SailSmallRedMinor]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailLargeRedMinor.png",
   },
   [Sprites.HullSmall]: {
     assetKey: Assets.MainAtlas,
     frame: "hullSmall.png",
   },
+  [Sprites.HullSmallMinor]: {
+    assetKey: Assets.MainAtlas,
+    frame: "hullSmallMinor.png",
+  },
+  [Sprites.HullSmallMajor]: {
+    assetKey: Assets.MainAtlas,
+    frame: "hullSmallMajor.png",
+  },
+  [Sprites.HullSmallDead]: {
+    assetKey: Assets.MainAtlas,
+    frame: "hullSmallDead.png",
+  },
   [Sprites.HullLarge]: {
     assetKey: Assets.MainAtlas,
     frame: "hullLarge.png",
   },
-  [Sprites.SailWhite]: {
+  [Sprites.HullLargeMinor]: {
     assetKey: Assets.MainAtlas,
-    frame: "sailLargeWhite.png",
+    frame: "hullLargeMinor.png",
+  },
+  [Sprites.HullLargeMajor]: {
+    assetKey: Assets.MainAtlas,
+    frame: "hullLargeMajor.png",
+  },
+  [Sprites.HullLargeDead]: {
+    assetKey: Assets.MainAtlas,
+    frame: "hullLargeDead.png",
+  },
+  [Sprites.CrowsNest]: {
+    assetKey: Assets.MainAtlas,
+    frame: "nest.png",
   },
   [Sprites.HealthCrate1]: {
     assetKey: Assets.Crates,

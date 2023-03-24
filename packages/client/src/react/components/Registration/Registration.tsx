@@ -14,7 +14,7 @@ export function Registration() {
     godEntity,
   } = useMUD();
   const [state, setState] = useState<RegisterState>("Name");
-  return null;
+  // return null;
   return (
     <RegisterContainer>
       {state == "Name" ? (

@@ -2,7 +2,8 @@ import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex, removeComponent, setComponent } from "@latticexyz/recs";
 import styled from "styled-components";
 import { useMUD } from "../../../mud/providers/MUDProvider";
-import { getShipSprite, ShipImages } from "../../../utils/ships";
+import { getSprite } from "../../../types";
+import { ShipImages } from "../../../utils/ships";
 import { BoxImage, colors, OptionButton } from "../../styles/global";
 
 export function ShipButton({ prototypeEntity }: { prototypeEntity: EntityIndex }) {
@@ -42,7 +43,7 @@ export function ShipButton({ prototypeEntity }: { prototypeEntity: EntityIndex }
       <BoxContainer>
         <BoxImage length={length}>
           <img
-            src={ShipImages[getShipSprite(godEntity, 1, 1, true)]}
+            src={ShipImages[getSprite("SailWhite")]}
             style={{
               objectFit: "scale-down",
               left: "50%",

@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { useMUD } from "../../../mud/providers/MUDProvider";
 import { usePlayer } from "../../../mud/providers/PlayerProvider";
 import { ActionType } from "../../../types";
-import { getShipSprite, ShipImages } from "../../../utils/ships";
+import { ShipImages } from "../../../utils/ships";
 import { BoxImage, colors } from "../../styles/global";
 import { ShipAttributeTypes } from "../../types";
 import PillBar from "../PillBar";
@@ -41,7 +41,7 @@ function DamageDisplay({ shipEntity, updates }: { shipEntity: EntityIndex; updat
 
 export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
   const {
-    utils: { getPlayerEntity, getTurn, getShipName },
+    utils: { getSailSprite, getPlayerEntity, getTurn, getShipName },
     components: {
       MaxHealth,
       Rotation,
@@ -91,7 +91,7 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
       <PillBar stat={health} maxStat={maxHealth} />
       <BoxImage length={length}>
         <img
-          src={ShipImages[getShipSprite(ownerEntity, health, maxHealth, ownerEntity == playerEntity)]}
+          src={ShipImages[getSailSprite(shipEntity)]}
           style={{
             objectFit: "scale-down",
             left: "50%",

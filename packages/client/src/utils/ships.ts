@@ -1,4 +1,3 @@
-import { EntityIndex } from "@latticexyz/recs";
 import { Sprites } from "../types";
 
 export function cap(string: string) {
@@ -18,86 +17,39 @@ export function getHash(input: string) {
   return Math.abs(hash);
 }
 
-export function getShipSprite(ownerEntity: EntityIndex, health: number, maxHealth: number, mine: boolean): Sprites {
-  const healthPct = health / maxHealth;
-  if (mine) {
-    if (healthPct > 0.66) return Sprites.ShipWhite;
-    else if (healthPct > 0.33) return Sprites.ShipWhiteMinor;
-    else if (healthPct > 0) return Sprites.ShipWhiteMajor;
-  }
-
-  const color = getShipColor(`${ownerEntity}`);
-
-  if (color == ShipColors.Red) {
-    if (healthPct > 0.66) return Sprites.ShipRed;
-    else if (healthPct > 0.33) return Sprites.ShipRedMinor;
-    else if (healthPct > 0) return Sprites.ShipRedMajor;
-    else return Sprites.ShipRedDead;
-  } else if (color == ShipColors.Yellow) {
-    if (healthPct > 0.66) return Sprites.ShipYellow;
-    else if (healthPct > 0.33) return Sprites.ShipYellowMinor;
-    else if (healthPct > 0) return Sprites.ShipYellowMajor;
-    else return Sprites.ShipYellowDead;
-  } else if (color == ShipColors.Black) {
-    if (healthPct > 0.66) return Sprites.ShipBlack;
-    else if (healthPct > 0.33) return Sprites.ShipBlackMinor;
-    else if (healthPct > 0) return Sprites.ShipBlackMajor;
-    else return Sprites.ShipBlackDead;
-  } else if (color == ShipColors.Blue) {
-    if (healthPct > 0.66) return Sprites.ShipBlue;
-    else if (healthPct > 0.33) return Sprites.ShipBlueMinor;
-    else if (healthPct > 0) return Sprites.ShipBlueMajor;
-    else return Sprites.ShipBlueDead;
-  } else if (color == ShipColors.Green) {
-    if (healthPct > 0.66) return Sprites.ShipGreen;
-    else if (healthPct > 0.33) return Sprites.ShipGreenMinor;
-    else if (healthPct > 0) return Sprites.ShipGreenMajor;
-    else return Sprites.ShipGreenDead;
-  }
-
-  return Sprites.ShipBlack;
+export function getShipColor(src: string) {
+  const hash = getHash(src) % 5;
+  return hash == 0 ? "Black" : hash == 1 ? "Red" : hash == 2 ? "Blue" : hash == 3 ? "Yellow" : "Green";
 }
 
-export function getShipColor(src: string): ShipColors {
-  return getHash(src) % 5;
-}
+export const ShipImages: Record<string, string> = {
+  [Sprites.SailWhite]: "/img/ships/shipWhite.png",
+  [Sprites.SailWhiteDead]: "/img/ships/shipWhiteDead.png",
+  [Sprites.SailWhiteMajor]: "/img/ships/shipWhiteMajor.png",
+  [Sprites.SailWhiteMinor]: "/img/sails/shipWhiteMinor.png",
 
-export enum ShipColors {
-  Black,
-  Red,
-  Blue,
-  Yellow,
-  Green,
-}
+  [Sprites.SailGreen]: "/img/ships/shipGreen.png",
+  [Sprites.SailGreenDead]: "/img/ships/shipGreenDead.png",
+  [Sprites.SailGreenMajor]: "/img/ships/sailGreenMajor.png",
+  [Sprites.SailGreenMinor]: "/img/ships/shipGreenMinor.png",
 
-export const ShipImages: Record<number, string> = {
-  [Sprites.ShipWhite]: "/img/ships/shipWhite.png",
-  [Sprites.ShipWhiteDead]: "/img/ships/shipWhiteDead.png",
-  [Sprites.ShipWhiteMajor]: "/img/ships/shipWhiteMajor.png",
-  [Sprites.ShipWhiteMinor]: "/img/ships/shipWhiteMinor.png",
+  [Sprites.SailBlack]: "/img/ships/shipBlack.png",
+  [Sprites.SailBlackDead]: "/img/ships/shipBlackDead.png",
+  [Sprites.SailBlackMajor]: "/img/ships/shipBlackMajor.png",
+  [Sprites.SailBlackMinor]: "/img/ships/shipBlackMinor.png",
 
-  [Sprites.ShipGreen]: "/img/ships/shipGreen.png",
-  [Sprites.ShipGreenDead]: "/img/ships/shipGreenDead.png",
-  [Sprites.ShipGreenMajor]: "/img/ships/shipGreenMajor.png",
-  [Sprites.ShipGreenMinor]: "/img/ships/shipGreenMinor.png",
+  [Sprites.SailBlue]: "/img/sails/shipBlue.png",
+  [Sprites.SailBlueDead]: "/img/ships/shipBlueDead.png",
+  [Sprites.SailBlueMajor]: "/img/ships/shipBlueMajor.png",
+  [Sprites.SailBlueMinor]: "/img/ships/shipBlueMinor.png",
 
-  [Sprites.ShipBlack]: "/img/ships/shipBlack.png",
-  [Sprites.ShipBlackDead]: "/img/ships/shipBlackDead.png",
-  [Sprites.ShipBlackMajor]: "/img/ships/shipBlackMajor.png",
-  [Sprites.ShipBlackMinor]: "/img/ships/shipBlackMinor.png",
+  [Sprites.SailYellow]: "/img/ships/shipYellow.png",
+  [Sprites.SailYellowDead]: "/img/ships/shipYellowDead.png",
+  [Sprites.SailYellowMajor]: "/img/ships/shipYellowMajor.png",
+  [Sprites.SailYellowMinor]: "/img/ships/shipYellowMinor.png",
 
-  [Sprites.ShipBlue]: "/img/ships/shipBlue.png",
-  [Sprites.ShipBlueDead]: "/img/ships/shipBlueDead.png",
-  [Sprites.ShipBlueMajor]: "/img/ships/shipBlueMajor.png",
-  [Sprites.ShipBlueMinor]: "/img/ships/shipBlueMinor.png",
-
-  [Sprites.ShipYellow]: "/img/ships/shipYellow.png",
-  [Sprites.ShipYellowDead]: "/img/ships/shipYellowDead.png",
-  [Sprites.ShipYellowMajor]: "/img/ships/shipYellowMajor.png",
-  [Sprites.ShipYellowMinor]: "/img/ships/shipYellowMinor.png",
-
-  [Sprites.ShipRed]: "/img/ships/shipRed.png",
-  [Sprites.ShipRedDead]: "/img/ships/shipRedDead.png",
-  [Sprites.ShipRedMajor]: "/img/ships/shipRedMajor.png",
-  [Sprites.ShipRedMinor]: "/img/ships/shipRedMinor.png",
+  [Sprites.SailRed]: "/img/sails/shipRed.png",
+  [Sprites.SailRedDead]: "/img/ships/shipRedDead.png",
+  [Sprites.SailRedMajor]: "/img/ships/shipRedMajor.png",
+  [Sprites.SailRedMinor]: "/img/ships/shipRedMinor.png",
 };

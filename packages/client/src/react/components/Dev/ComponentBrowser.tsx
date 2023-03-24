@@ -7,7 +7,7 @@ export const ComponentBrowser = () => {
   const { world, components, dev } = useMUD();
   const layer: Layer = { world, components };
 
-  const [shown, setShown] = useState(false);
+  const [shown, setShown] = useState(true);
   (window as any).showBrowser = () => setShown(!shown);
 
   return (

@@ -41,7 +41,7 @@ export function shipTextureSystems(MUD: SetupResult) {
   defineEnterSystem(
     world,
     [Has(HealthLocal), Has(MaxHealth), Has(Length), Has(Position), Has(Rotation), Has(OwnedBy), Has(SailPosition)],
-    ({ entity: shipEntity }) => {
+    ({ entity: shipEntity, component }) => {
       const position = getComponentValueStrict(Position, shipEntity);
       const rotation = getComponentValueStrict(Rotation, shipEntity).value;
       const ownerId = getComponentValueStrict(OwnedBy, shipEntity).value;

@@ -13,10 +13,9 @@ import {
 import { filter } from "rxjs";
 import { world } from "../../../mud/world";
 import { phaserConfig, sprites } from "../../../phaser/config";
-import { POS_WIDTH, RenderDepth, SHIP_RATIO } from "../../../phaser/constants";
+import { RenderDepth } from "../../../phaser/constants";
 import { SetupResult } from "../../../setupMUD";
 import { Sprites } from "../../../types";
-import { getShipSprite } from "../../../utils/ships";
 import { colors } from "../../styles/global";
 
 export async function createMinimap() {
@@ -72,8 +71,9 @@ export async function createMinimap() {
 
 export function createMinimapSystems(scene: Phaser.Scene, mud: SetupResult) {
   const {
+    playerAddress,
     components: { Length, MaxHealth, Cannon, OwnedBy, ActiveCannon, ActiveShip },
-    utils: { pixelCoord, getFiringAreaPixels, getShipOwner, destroyGroupObject, getGroupObject },
+    utils: { getSailSprite, getShip, getFiringAreaPixels, getShipOwner, destroyGroupObject, getGroupObject },
     godEntity,
   } = mud;
 
@@ -128,30 +128,45 @@ export function createMinimapSystems(scene: Phaser.Scene, mud: SetupResult) {
 
     return group;
   }
-
-  function renderShip(shipEntity: EntityIndex) {
-    const group = getGroupObject("activeship", true, scene);
-    const object = scene.add.sprite(position.x, position.y, "none");
+  function renderShip(shipEntity: EntityIndex, s?: Phaser.Scene) {
+    scene.children.getByName("activeShip")?.destroy();
+    const container = scene.add.container();
+    container.setName("activeship");
     const length = getComponentValueStrict(Length, shipEntity).value;
-    const maxHealth = getComponentValueStrict(MaxHealth, shipEntity).value;
-    const spriteAsset: Sprites = getShipSprite(godEntity, maxHealth, maxHealth, true);
+    const hullSprite = Sprites.HullLarge;
+    const hullObject = scene.add.sprite(position.x, position.y, "none");
+    hullObject.setInteractive({ cursor: "pointer" });
+    hullObject.off("pointerup");
 
-    const sprite = sprites[spriteAsset];
+    container.add(hullObject);
 
-    const { x, y } = pixelCoord(position);
+    const hullTexture = sprites[hullSprite];
+    hullObject.setOrigin(0.5, 0.92);
+    hullObject.setTexture(hullTexture.assetKey, hullTexture.frame);
+    hullObject.setPosition(0, 0);
+    hullObject.setDepth(RenderDepth.ShipHull);
+    const sailTexture = Sprites.SailWhite;
+    const sailSprite = sprites[sailTexture];
+    const sailObject = scene.add.sprite(position.x, position.y, "none");
+    const middle = -80;
+    sailObject.setOrigin(0.5, 0);
+    sailObject.setTexture(sailSprite.assetKey, sailSprite.frame);
+    sailObject.setPosition(0, middle);
+    sailObject.setDepth(RenderDepth.ShipSail);
+    container.add(sailObject);
 
-    object.setTexture(sprite.assetKey, sprite.frame);
+    const nestTexture = Sprites.CrowsNest;
+    const nestSprite = sprites[nestTexture];
+    const nestObject = scene.add.sprite(position.x, position.y, "none");
+    nestObject.setOrigin(0.5, 0);
+    nestObject.setTexture(nestSprite.assetKey, nestSprite.frame);
+    nestObject.setPosition(0, middle - 8);
+    nestObject.setDepth(RenderDepth.ShipSail);
+    container.add(nestObject);
+    container.setAngle(rotation - 90);
+    container.setScale(length / 6);
+    container.setDepth(RenderDepth.Foreground3);
 
-    const shipLength = length * POS_WIDTH * 1.25;
-    const shipWidth = shipLength / SHIP_RATIO;
-    object.setAngle(rotation - 90);
-    object.setOrigin(0.5, 0.92);
-    object.setDisplaySize(shipWidth, shipLength);
-    object.setPosition(x, y);
-    object.setDepth(RenderDepth.Foreground5);
-    scene.cameras.main.centerOn(position.x, position.y);
-
-    group.add(object);
-    return group;
+    return container;
   }
 }

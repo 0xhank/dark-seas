@@ -12,13 +12,13 @@ import { Animations, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../.
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
 import { Category } from "../../sound";
-import { HoverType, Sprites } from "../../types";
-import { getShipSprite } from "../../utils/ships";
+import { Sprites } from "../../types";
 import { getMidpoint } from "../../utils/trig";
 
 export function localHealthSystems(MUD: SetupResult) {
   const {
     world,
+    playerAddress,
     components: {
       Length,
       Position,
@@ -33,7 +33,7 @@ export function localHealthSystems(MUD: SetupResult) {
       SelectedMove,
       MaxHealth,
     },
-    utils: { isMyShip, getSpriteObject, getPlayerEntity, destroySpriteObject, playSound },
+    utils: { getHullSprite, getSpriteObject, getSailSprite, destroySpriteObject, playSound },
     scene: { phaserScene },
     godEntity,
   } = MUD;
@@ -44,21 +44,19 @@ export function localHealthSystems(MUD: SetupResult) {
     const health = newVal.value;
     const oldHealth = oldVal.value;
     const maxHealth = getComponentValueStrict(MaxHealth, shipEntity)?.value;
-    const shipObject = getSpriteObject(shipEntity);
-    const ownerEntity = getPlayerEntity(getComponentValue(OwnedBy, shipEntity)?.value);
-    const playerEntity = getPlayerEntity();
-    if (!ownerEntity) return null;
+    const owner = getComponentValue(OwnedBy, shipEntity)?.value;
+    if (!owner) return null;
 
-    const spriteAsset: Sprites = getShipSprite(ownerEntity, health, maxHealth, playerEntity == ownerEntity);
+    const hullObject = getSpriteObject(`${shipEntity}-hull`);
+    const hullSprite: Sprites = getHullSprite(shipEntity);
+    const hullTexture = sprites[hullSprite];
 
-    const sprite = sprites[spriteAsset];
+    const sailObject = getSpriteObject(`${shipEntity}-sail`);
+    const sailSprite = getSailSprite(shipEntity);
+    const sailTexture = sprites[sailSprite];
 
-    shipObject.setTexture(sprite.assetKey, sprite.frame);
-
-    shipObject.setInteractive({ cursor: "pointer" });
-    shipObject.on("pointerover", () => setComponent(HoveredSprite, HoverType.SHIP, { value: shipEntity }));
-    shipObject.off("pointerup");
-    shipObject.on("pointerout", () => removeComponent(HoveredSprite, HoverType.SHIP));
+    hullObject.setTexture(hullTexture.assetKey, hullTexture.frame);
+    sailObject.setTexture(sailTexture.assetKey, sailTexture.frame);
     if (health <= 0) {
       const contractHealth = getComponentValueStrict(Health, shipEntity).value;
       if (contractHealth !== health) {
@@ -66,28 +64,27 @@ export function localHealthSystems(MUD: SetupResult) {
         setComponent(HealthBackend, shipEntity, { value: contractHealth });
         return;
       }
+      hullObject.disableInteractive();
+      sailObject.disableInteractive();
       playDeathAnimation(shipEntity);
       removeComponent(SelectedActions, shipEntity);
       removeComponent(SelectedMove, shipEntity);
-      shipObject.setAlpha(0.2);
-      shipObject.setDepth(RenderDepth.Foreground4);
+      hullObject.setAlpha(0.2);
+      sailObject.setAlpha(0.2);
+      hullObject.setDepth(RenderDepth.Foreground4);
+      sailObject.setDepth(RenderDepth.Foreground4);
       for (let i = 0; i < 4; i++) {
         const spriteId = `${shipEntity}-fire-${i}`;
         destroySpriteObject(spriteId);
       }
     } else {
-      shipObject.setAlpha(1);
-      shipObject.setDepth(RenderDepth.Foreground3);
-      shipObject.on("pointerup", () => setComponent(SelectedShip, godEntity, { value: shipEntity }));
-
       if (oldHealth > 0 && health > oldHealth) {
-        console.log(`${shipEntity} health increase: old ${oldHealth} new ${health}`);
         flashGreen(shipEntity);
       }
     }
   });
   async function flashGreen(shipEntity: EntityIndex) {
-    const object = getSpriteObject(shipEntity);
+    const object = getSpriteObject(`${shipEntity}-hull`);
     const delay = 200;
     const repeat = 4;
 
