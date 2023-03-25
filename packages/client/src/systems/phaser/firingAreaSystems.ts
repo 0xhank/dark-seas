@@ -21,7 +21,7 @@ export function firingAreaSystems(MUD: SetupResult) {
       destroyGroupObject,
       getPhase,
       getTargetedShips,
-      isMyShip,
+      destroyShip,
       renderShipFiringAreas,
       renderCannonFiringArea,
     },
@@ -49,7 +49,7 @@ export function firingAreaSystems(MUD: SetupResult) {
   });
 
   defineComponentSystem(world, SelectedActions, ({ value, entity: shipEntity }) => {
-    const groupId = "activeShip";
+    const groupId = "activeCannons";
     const cannonSelected = isCannonSelected(value[1], value[0]);
 
     if (cannonSelected) {
@@ -102,7 +102,7 @@ export function firingAreaSystems(MUD: SetupResult) {
   }
 
   defineComponentSystem(world, SelectedShip, (update) => {
-    const groupId = "activeShip";
+    const groupId = "activeCannons";
 
     destroyGroupObject(groupId);
 
@@ -113,7 +113,7 @@ export function firingAreaSystems(MUD: SetupResult) {
   });
 
   defineExitSystem(world, [Has(SelectedShip)], () => {
-    destroyGroupObject("activeShip");
+    destroyGroupObject("activeCannons");
     destroyGroupObject("hoveredFiringArea");
   });
 }

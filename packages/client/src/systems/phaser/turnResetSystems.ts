@@ -26,6 +26,7 @@ export function turnResetSystems(MUD: SetupResult) {
     utils: {
       destroySpriteObject,
       destroyGroupObject,
+      destroyShip,
       getPlayerEntity,
       getPhase,
       getGameConfig,
@@ -57,10 +58,10 @@ export function turnResetSystems(MUD: SetupResult) {
       // START OF PHASE
       if (timeToNextPhase == gameConfig.commitPhaseLength) {
         getPlayerShips()?.map((ship) => {
-          destroySpriteObject(`projection-${ship}`);
+          destroyShip(`projection-${ship}`);
           destroyGroupObject(`projection-${ship}`);
         });
-        destroyGroupObject("activeShip");
+        destroyGroupObject("activeCannons");
         destroyGroupObject("hoveredFiringArea");
         clearComponent(SelectedActions);
         clearComponent(HoveredAction);
@@ -77,11 +78,11 @@ export function turnResetSystems(MUD: SetupResult) {
         //cleanup
         [...getComponentEntities(MoveCard)].forEach((moveCardEntity) => {
           const objectId = `optionGhost-${moveCardEntity}`;
-          destroySpriteObject(objectId);
+          destroyShip(objectId);
         });
 
-        destroyGroupObject("activeShip");
-        destroySpriteObject("hoverGhost");
+        destroyGroupObject("activeCannons");
+        destroyShip("hoverGhost");
         //commit move
         const encodedCommitment = getComponentValue(EncodedCommitment, godEntity)?.value;
         if (encodedCommitment) return;
@@ -105,7 +106,7 @@ export function turnResetSystems(MUD: SetupResult) {
         clearComponent(CommittedMove);
         clearComponent(SelectedMove);
         const selectedShip = getComponentValue(SelectedShip, godEntity)?.value as EntityIndex | undefined;
-        if (selectedShip) renderShipFiringAreas(selectedShip, "activeShip");
+        if (selectedShip) renderShipFiringAreas(selectedShip, "activeCannons");
       }
       // END OF PHASE
       if (timeToNextPhase == 1) {

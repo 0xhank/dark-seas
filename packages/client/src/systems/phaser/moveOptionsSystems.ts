@@ -28,7 +28,15 @@ export function moveOptionsSystems(MUD: SetupResult) {
       SelectedMove,
       HoveredMove,
     },
-    utils: { destroySpriteObject, getPhase, isMyShip, renderShip, destroyGroupObject, renderShipFiringAreas },
+    utils: {
+      destroySpriteObject,
+      destroyShip,
+      getPhase,
+      isMyShip,
+      renderShip,
+      destroyGroupObject,
+      renderShipFiringAreas,
+    },
     godEntity,
     network: { clock },
   } = MUD;
@@ -51,7 +59,7 @@ export function moveOptionsSystems(MUD: SetupResult) {
     [...getComponentEntities(MoveCard)].forEach((moveCardEntity) => {
       const objectId = `optionGhost-${moveCardEntity}`;
 
-      destroySpriteObject(objectId);
+      destroyShip(objectId);
     });
   });
 
@@ -66,7 +74,7 @@ export function moveOptionsSystems(MUD: SetupResult) {
     const sailPosition = getComponentValueStrict(SailPositionLocal, shipEntity).value;
     const speed = getComponentValueStrict(Speed, shipEntity).value;
     const selectedMove = getComponentValue(SelectedMove, shipEntity)?.value;
-
+    if (sailPosition == 0) return;
     moveCardEntities.map((moveCardEntity) => {
       const moveCard = getComponentValueStrict(MoveCard, moveCardEntity);
       const isSelected = selectedMove && selectedMove == moveCardEntity;
@@ -75,9 +83,7 @@ export function moveOptionsSystems(MUD: SetupResult) {
       const shipColor = colors.whiteHex;
 
       const objectId = `optionGhost-${moveCardEntity}`;
-      destroySpriteObject(objectId);
       const shipObject = renderShip(shipEntity, objectId, finalPosition, finalRotation, shipColor, 0.3);
-      if (!shipObject) return;
       shipObject.setInteractive({ cursor: "pointer" });
       shipObject.on("pointerup", () => {
         if (!isMyShip(shipEntity)) return;
@@ -87,7 +93,7 @@ export function moveOptionsSystems(MUD: SetupResult) {
       shipObject.on("pointerover", () => setComponent(HoveredMove, godEntity, { shipEntity, moveCardEntity }));
       shipObject.on("pointerout", () => {
         removeComponent(HoveredMove, godEntity);
-        destroyGroupObject("activeShip");
+        destroyGroupObject("activeCannons");
       });
     });
   }

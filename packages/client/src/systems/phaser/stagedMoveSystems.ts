@@ -40,6 +40,7 @@ export function stagedMoveSystems(MUD: SetupResult) {
       getPhase,
       outOfBounds,
       renderShip,
+      destroyShip,
       renderShipFiringAreas,
       renderMovePath,
     },
@@ -51,7 +52,7 @@ export function stagedMoveSystems(MUD: SetupResult) {
   defineExitSystem(world, [Has(SelectedMove)], ({ entity: shipEntity }) => {
     const groupId = `projection-${shipEntity}`;
     destroyGroupObject(groupId);
-    destroySpriteObject(groupId);
+    destroyShip(groupId);
   });
 
   defineSystem(world, [Has(SelectedMove)], ({ entity: shipEntity, type, value: [newMoveEntity, oldMoveentity] }) => {
@@ -77,7 +78,7 @@ export function stagedMoveSystems(MUD: SetupResult) {
     const sailPosition = getComponentValueStrict(SailPositionLocal, shipEntity).value;
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
 
-    const ship = renderShip(shipEntity, groupId, finalPosition, finalRotation, colors.darkGrayHex, 0.7, false);
+    const ship = renderShip(shipEntity, groupId, finalPosition, finalRotation, colors.darkGrayHex, 0.8, false);
     if (!ship) return;
     ship.setDepth(RenderDepth.Foreground6);
     ship.setInteractive({ cursor: "pointer" });
@@ -117,7 +118,7 @@ export function stagedMoveSystems(MUD: SetupResult) {
 
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
 
-    renderShipFiringAreas(shipEntity, "activeShip", finalPosition, finalRotation);
+    renderShipFiringAreas(shipEntity, "activeCannons", finalPosition, finalRotation);
 
     const color =
       outOfBounds(currentTime, finalPosition) ||
@@ -125,7 +126,7 @@ export function stagedMoveSystems(MUD: SetupResult) {
         ? colors.redHex
         : colors.whiteHex;
 
-    renderShip(shipEntity, objectId, finalPosition, finalRotation, color, 0.6);
+    renderShip(shipEntity, objectId, finalPosition, finalRotation, color, 0.7);
   });
 
   defineExitSystem(world, [Has(HoveredMove)], (update) => {
@@ -133,6 +134,6 @@ export function stagedMoveSystems(MUD: SetupResult) {
     if (!hoveredMove) return;
     const objectId = "hoverGhost";
 
-    destroySpriteObject(objectId);
+    destroyShip(objectId);
   });
 }

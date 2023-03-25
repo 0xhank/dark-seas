@@ -33,7 +33,7 @@ export function localHealthSystems(MUD: SetupResult) {
       SelectedMove,
       MaxHealth,
     },
-    utils: { getHullSprite, getSpriteObject, getSailSprite, destroySpriteObject, playSound },
+    utils: { getHullSprite, getShip, getSpriteObject, getSailSprite, destroySpriteObject, playSound },
     scene: { phaserScene },
     godEntity,
   } = MUD;
@@ -47,6 +47,7 @@ export function localHealthSystems(MUD: SetupResult) {
     const owner = getComponentValue(OwnedBy, shipEntity)?.value;
     if (!owner) return null;
 
+    const shipObject = getShip(shipEntity);
     const hullObject = getSpriteObject(`${shipEntity}-hull`);
     const hullSprite: Sprites = getHullSprite(shipEntity);
     const hullTexture = sprites[hullSprite];
@@ -64,15 +65,12 @@ export function localHealthSystems(MUD: SetupResult) {
         setComponent(HealthBackend, shipEntity, { value: contractHealth });
         return;
       }
-      hullObject.disableInteractive();
-      sailObject.disableInteractive();
+      shipObject.disableInteractive();
+      shipObject.setAlpha(0.2);
+      shipObject.setDepth(RenderDepth.Foreground5);
       playDeathAnimation(shipEntity);
       removeComponent(SelectedActions, shipEntity);
       removeComponent(SelectedMove, shipEntity);
-      hullObject.setAlpha(0.2);
-      sailObject.setAlpha(0.2);
-      hullObject.setDepth(RenderDepth.Foreground4);
-      sailObject.setDepth(RenderDepth.Foreground4);
       for (let i = 0; i < 4; i++) {
         const spriteId = `${shipEntity}-fire-${i}`;
         destroySpriteObject(spriteId);

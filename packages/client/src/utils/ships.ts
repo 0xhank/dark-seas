@@ -22,11 +22,12 @@ export function getShipColor(src: string) {
   return hash == 0 ? "Black" : hash == 1 ? "Red" : hash == 2 ? "Blue" : hash == 3 ? "Yellow" : "Green";
 }
 
+const prefix = "/img/ships";
 export const ShipImages: Record<string, string> = {
   [Sprites.SailWhite]: "/img/ships/shipWhite.png",
   [Sprites.SailWhiteDead]: "/img/ships/shipWhiteDead.png",
   [Sprites.SailWhiteMajor]: "/img/ships/shipWhiteMajor.png",
-  [Sprites.SailWhiteMinor]: "/img/sails/shipWhiteMinor.png",
+  [Sprites.SailWhiteMinor]: "/img/ships/shipWhiteMinor.png",
 
   [Sprites.SailGreen]: "/img/ships/shipGreen.png",
   [Sprites.SailGreenDead]: "/img/ships/shipGreenDead.png",
@@ -38,7 +39,7 @@ export const ShipImages: Record<string, string> = {
   [Sprites.SailBlackMajor]: "/img/ships/shipBlackMajor.png",
   [Sprites.SailBlackMinor]: "/img/ships/shipBlackMinor.png",
 
-  [Sprites.SailBlue]: "/img/sails/shipBlue.png",
+  [Sprites.SailBlue]: "/img/ships/shipBlue.png",
   [Sprites.SailBlueDead]: "/img/ships/shipBlueDead.png",
   [Sprites.SailBlueMajor]: "/img/ships/shipBlueMajor.png",
   [Sprites.SailBlueMinor]: "/img/ships/shipBlueMinor.png",
@@ -48,7 +49,7 @@ export const ShipImages: Record<string, string> = {
   [Sprites.SailYellowMajor]: "/img/ships/shipYellowMajor.png",
   [Sprites.SailYellowMinor]: "/img/ships/shipYellowMinor.png",
 
-  [Sprites.SailRed]: "/img/sails/shipRed.png",
+  [Sprites.SailRed]: "/img/ships/shipRed.png",
   [Sprites.SailRedDead]: "/img/ships/shipRedDead.png",
   [Sprites.SailRedMajor]: "/img/ships/shipRedMajor.png",
   [Sprites.SailRedMinor]: "/img/ships/shipRedMinor.png",

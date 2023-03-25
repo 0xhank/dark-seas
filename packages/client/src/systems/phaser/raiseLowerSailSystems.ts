@@ -8,7 +8,6 @@ import {
 } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
 import { world } from "../../mud/world";
-import { sprites } from "../../phaser/config";
 import { POS_WIDTH, RenderDepth, SHIP_RATIO } from "../../phaser/constants";
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
@@ -51,14 +50,14 @@ export function raiseLowerSailSystems(MUD: SetupResult) {
   } = MUD;
 
   defineComponentSystem(world, SailPositionLocal, ({ entity: shipEntity, value: [newVal, oldVal] }) => {
-    if (newVal && oldVal) {
-      const scaleY = newVal.value == 1 ? 0.6 : newVal.value == 2 ? 1 : 0.1;
+    if (newVal) {
+      const scaleY = newVal.value == 2 ? 1 : 0.7;
+      const alpha = newVal.value == 0 ? 0.5 : 1;
       const sprite = getSailSprite(shipEntity);
-      const texture = sprites[sprite];
       const shipSprite = getSpriteObject(`${shipEntity}-sail`);
       phaserScene.add.tween({
         targets: shipSprite,
-        props: { scaleY },
+        props: { scaleY, alpha },
 
         duration: 1000,
       });

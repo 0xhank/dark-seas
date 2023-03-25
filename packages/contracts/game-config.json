@@ -1,13 +1,13 @@
 {
   "commitPhaseLength": 25,
   "revealPhaseLength": 9,
-  "actionPhaseLength": 25,
+  "actionPhaseLength": 2,
   "worldSize": 90,
   "perlinSeed": 345676,
-  "entryCutoffTurns": 3,
+  "entryCutoffTurns": 100,
   "buyin": 0,
   "respawnAllowed": false,
-  "shrinkRate": 400,
+  "shrinkRate": 0,
   "budget": 6,
   "islandThreshold": 33
 }

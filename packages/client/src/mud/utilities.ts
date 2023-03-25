@@ -24,7 +24,7 @@ import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../
 import { colors } from "../react/styles/global";
 import { Category, soundLibrary } from "../sound";
 import { getRangeTintAlpha } from "../systems/phaser/renderShip";
-import { Action, ActionType, DELAY, getSprite, HoverType, Move, Phase, ShipPrototype, Sprites } from "../types";
+import { Action, ActionType, DELAY, getSprite, Move, Phase, ShipPrototype, Sprites } from "../types";
 import { distance } from "../utils/distance";
 import { cap, getHash, getShipColor } from "../utils/ships";
 import {
@@ -542,17 +542,18 @@ export async function createUtilities(
     setComponent(clientComponents.SelectedShip, godEntity, { value: shipEntity });
   }
 
-  function createShip(shipEntity: EntityIndex, s?: Phaser.Scene) {
-    const container = getShip(shipEntity);
-    const health = getComponentValueStrict(clientComponents.HealthLocal, shipEntity).value;
+  function renderShip(
+    shipEntity: EntityIndex,
+    objectId: string | EntityIndex,
+    position: Coord,
+    rotation: number,
+    tint = colors.whiteHex,
+    alpha = 1
+  ) {
+    const length = getComponentValueStrict(components.Length, shipEntity).value;
+    const container = getShip(objectId, true);
     const hullSprite = getHullSprite(shipEntity);
-    const hullObject = getSpriteObject(`${shipEntity}-hull`);
-    hullObject.setInteractive({ cursor: "pointer" });
-    hullObject.off("pointerup");
-    hullObject.on("pointerout", () => removeComponent(clientComponents.HoveredSprite, HoverType.SHIP));
-    hullObject.on("pointerover", () =>
-      setComponent(clientComponents.HoveredSprite, HoverType.SHIP, { value: shipEntity })
-    );
+    const hullObject = getSpriteObject(`${objectId}-hull`, true);
 
     container.add(hullObject);
 
@@ -560,17 +561,9 @@ export async function createUtilities(
     hullObject.setOrigin(0.5, 0.92);
     hullObject.setTexture(hullTexture.assetKey, hullTexture.frame);
     hullObject.setPosition(0, 0);
-    if (health == 0) {
-      hullObject.setAlpha(0.2);
-      hullObject.setDepth(RenderDepth.Foreground4);
-    } else {
-      hullObject.setAlpha(1);
-      hullObject.setDepth(RenderDepth.ShipHull);
-      hullObject.on("pointerup", () => setComponent(clientComponents.SelectedShip, godEntity, { value: shipEntity }));
-    }
     const sailTexture = getSailSprite(shipEntity);
     const sailSprite = sprites[sailTexture];
-    const sailObject = getSpriteObject(`${shipEntity}-sail`);
+    const sailObject = getSpriteObject(`${objectId}-sail`, true);
     const middle = -80;
     sailObject.setOrigin(0.5, 0);
     sailObject.setTexture(sailSprite.assetKey, sailSprite.frame);
@@ -578,9 +571,17 @@ export async function createUtilities(
     sailObject.setDepth(RenderDepth.ShipSail);
     container.add(sailObject);
 
+    const { x, y } = tileCoordToPixelCoord(position, POS_WIDTH, POS_HEIGHT);
+
+    container.setAngle((rotation - 90) % 360);
+    container.setScale(length / 6);
+    container.setPosition(x, y);
+    container.setAlpha(alpha);
+    container.setDepth(RenderDepth.Foreground5);
+
     const nestTexture = Sprites.CrowsNest;
     const nestSprite = sprites[nestTexture];
-    const nestObject = getSpriteObject(`${shipEntity}-nest`);
+    const nestObject = getSpriteObject(`${objectId}-nest`, true);
     nestObject.setOrigin(0.5, 0);
     nestObject.setTexture(nestSprite.assetKey, nestSprite.frame);
     nestObject.setPosition(0, middle - 8);
@@ -589,7 +590,28 @@ export async function createUtilities(
 
     return container;
   }
-  function getSpriteObject(id: string | number, s?: Phaser.Scene): Phaser.GameObjects.Sprite {
+
+  function getShip(id: EntityIndex | string, clear = false, s?: Phaser.Scene): Phaser.GameObjects.Container {
+    const scene = s || mainScene;
+    if (clear) destroyShip(id);
+    const group = shipRegistry.get(id);
+    if (group) return group;
+
+    const newGroup = scene.add.container();
+    shipRegistry.set(id, newGroup);
+    return newGroup;
+  }
+
+  function destroyShip(id: string | EntityIndex) {
+    const shipObject = shipRegistry.get(id);
+    shipRegistry.delete(id);
+    if (!shipObject) return;
+
+    shipObject.destroy(true);
+  }
+
+  function getSpriteObject(id: string | number, clear = false, s?: Phaser.Scene): Phaser.GameObjects.Sprite {
+    if (clear) destroySpriteObject(id);
     const scene = s || mainScene;
     const sprite = spriteRegistry.get(id);
     if (sprite) return sprite;
@@ -607,15 +629,6 @@ export async function createUtilities(
     sprite.destroy(true);
   }
 
-  function getShip(id: EntityIndex, s?: Phaser.Scene): Phaser.GameObjects.Container {
-    const scene = s || mainScene;
-    const group = shipRegistry.get(id);
-    if (group) return group;
-
-    const newGroup = scene.add.container();
-    shipRegistry.set(id, newGroup);
-    return newGroup;
-  }
   function getHullSprite(shipEntity: EntityIndex) {
     const absHealth = getComponentValueStrict(clientComponents.HealthLocal, shipEntity).value;
     const maxHealth = getComponentValueStrict(components.MaxHealth, shipEntity).value;
@@ -628,18 +641,17 @@ export async function createUtilities(
   }
 
   function getSailSprite(shipEntity: EntityIndex) {
-    const absHealth = getComponentValueStrict(clientComponents.HealthLocal, shipEntity).value;
-    const maxHealth = getComponentValueStrict(components.MaxHealth, shipEntity).value;
+    const absHealth = getComponentValue(clientComponents.HealthLocal, shipEntity)?.value || 0;
+    const maxHealth = getComponentValue(components.MaxHealth, shipEntity)?.value || 0;
     const health = absHealth / maxHealth;
-    const sailPosition = getComponentValueStrict(clientComponents.SailPositionLocal, shipEntity).value;
-    const owner = getComponentValueStrict(components.OwnedBy, shipEntity).value;
+    const owner = getComponentValue(components.OwnedBy, shipEntity)?.value || "0";
 
     if (health == 0) return Sprites.SailWhiteDead;
     const damage = health > 0.66 ? "" : health > 0.33 ? "Minor" : "Major";
     // const size = sailPosition == 0 ? "Small" : "";
     const size = "";
     const color = owner == playerAddress ? "White" : getShipColor(owner);
-    const name = "Sail" + size + damage + color;
+    const name = "Sail" + size + color + damage;
     const sprite = getSprite(name);
     if (!sprite) throw new Error(`Sprite ${name} not found`);
     return sprite;
@@ -695,45 +707,6 @@ export async function createUtilities(
     path.draw(graphics);
 
     return graphics;
-  }
-
-  function renderShip(
-    shipEntity: EntityIndex,
-    objectId: string,
-    position: Coord,
-    rotation: number,
-    tint = colors.whiteHex,
-    alpha = 1,
-    register = true
-  ) {
-    const object = register ? getSpriteObject(objectId) : mainScene.add.sprite(0, 0, "none");
-
-    const length = getComponentValueStrict(components.Length, shipEntity).value;
-    const health = getComponentValueStrict(clientComponents.HealthLocal, shipEntity).value;
-    const maxHealth = getComponentValueStrict(components.MaxHealth, shipEntity).value;
-    const ownerID = getComponentValueStrict(components.OwnedBy, shipEntity).value;
-    const ownerEntity = world.entityToIndex.get(ownerID);
-    const playerEntity = getPlayerEntity();
-    if (!ownerEntity) return;
-    // const spriteAsset: Sprites = getShipSprite(ownerEntity, health, maxHealth, ownerEntity == playerEntity);
-    const spriteAsset = Sprites.Explosion1;
-    const sprite = sprites[spriteAsset];
-
-    const { x, y } = tileCoordToPixelCoord(position, POS_WIDTH, POS_HEIGHT);
-
-    object.setTexture(sprite.assetKey, sprite.frame);
-
-    object.setAngle((rotation - 90) % 360);
-    const shipLength = length * POS_WIDTH * 1.25;
-    const shipWidth = shipLength / SHIP_RATIO;
-    object.setOrigin(0.5, 0.92);
-    object.setDisplaySize(shipWidth, shipLength);
-    object.setPosition(x, y);
-    object.setAlpha(alpha);
-    object.setTint(tint);
-    object.setDepth(RenderDepth.Foreground5);
-
-    return object;
   }
 
   function getFiringAreaPixels(position: Coord, rotation: number, length: number, cannonEntity: EntityIndex) {
@@ -952,11 +925,11 @@ export async function createUtilities(
     getShip,
     getSailSprite,
     getHullSprite,
-    createShip,
     getSpriteObject,
     getGroupObject,
     destroySpriteObject,
     destroyGroupObject,
+    destroyShip,
     renderShipFiringAreas,
     renderCannonFiringArea,
     renderMovePath,

@@ -13,6 +13,7 @@ import {
 } from "@latticexyz/recs";
 import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth } from "../../phaser/constants";
 import { SetupResult } from "../../setupMUD";
+import { HoverType } from "../../types";
 
 export function shipTextureSystems(MUD: SetupResult) {
   const {
@@ -34,8 +35,9 @@ export function shipTextureSystems(MUD: SetupResult) {
       DamagedCannons,
       SailPosition,
       MaxHealth,
+      HoveredSprite,
     },
-    utils: { createShip, destroySpriteObject, destroyGroupObject, getPlayerEntity, getShip },
+    utils: { renderShip, destroyShip, destroyGroupObject, getPlayerEntity, getShip },
   } = MUD;
 
   defineEnterSystem(
@@ -44,20 +46,25 @@ export function shipTextureSystems(MUD: SetupResult) {
     ({ entity: shipEntity, component }) => {
       const position = getComponentValueStrict(Position, shipEntity);
       const rotation = getComponentValueStrict(Rotation, shipEntity).value;
+      const health = getComponentValueStrict(HealthLocal, shipEntity).value;
       const ownerId = getComponentValueStrict(OwnedBy, shipEntity).value;
-      const length = getComponentValueStrict(Length, shipEntity).value;
 
       const ownerEntity = getPlayerEntity(ownerId);
       if (!ownerEntity) return;
       const playerEntity = getPlayerEntity();
 
-      const shipObject = createShip(shipEntity);
-      const { x, y } = tileCoordToPixelCoord(position, POS_WIDTH, POS_HEIGHT);
+      const ship = renderShip(shipEntity, shipEntity, position, rotation);
+      if (health == 0) {
+        ship.setAlpha(0.2);
+        ship.setDepth(RenderDepth.Foreground5);
+      } else {
+        ship.setDepth(RenderDepth.Foreground3);
+        ship.setInteractive({ cursor: "pointer" });
+        ship.on("pointerup", () => setComponent(SelectedShip, godEntity, { value: shipEntity }));
+        ship.on("pointerout", () => removeComponent(HoveredSprite, HoverType.SHIP));
+        ship.on("pointerover", () => setComponent(HoveredSprite, HoverType.SHIP, { value: shipEntity }));
+      }
 
-      shipObject.setAngle(rotation - 90);
-      shipObject.setScale(length / 6);
-      shipObject.setDepth(RenderDepth.Foreground3);
-      shipObject.setPosition(x, y);
       if (playerEntity == ownerEntity) camera.centerOn(position.x * POS_WIDTH, position.y * POS_HEIGHT);
 
       const onFire = getComponentValue(OnFire, shipEntity)?.value || 0;
@@ -97,8 +104,9 @@ export function shipTextureSystems(MUD: SetupResult) {
       object.off("pointerover");
       object.off("pointerout");
       object.disableInteractive();
-      destroySpriteObject(update.entity);
     }
+
+    destroyShip(`projection=${update.entity}`);
     destroyGroupObject(`projection-${update.entity}`);
     removeComponent(SelectedMove, update.entity);
     if (update.entity == getComponentValue(SelectedShip, godEntity)?.value) {
