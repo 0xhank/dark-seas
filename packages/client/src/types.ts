@@ -1,6 +1,8 @@
 import { EntityID, EntityIndex } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
+import { PhaserLayer } from "./phaser";
 export const DELAY = 5000;
+export type SetupResult = PhaserLayer;
 export type Action = {
   shipEntity: EntityID;
   actionTypes: [ActionType, ActionType];

@@ -9,10 +9,9 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
-import { colors } from "../../react/styles/global";
-import { SetupResult } from "../../setupMUD";
-import { Phase } from "../../types";
-import { getFinalPosition } from "../../utils/directions";
+import { colors } from "../react/styles/global";
+import { Phase, SetupResult } from "../types";
+import { getFinalPosition } from "../utils/directions";
 
 export function moveOptionsSystems(MUD: SetupResult) {
   const {

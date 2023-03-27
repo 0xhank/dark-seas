@@ -1,7 +1,6 @@
 import { defineComponentSystem, defineUpdateSystem, EntityIndex, getComponentValueStrict, Has } from "@latticexyz/recs";
-import { colors } from "../../react/styles/global";
-import { SetupResult } from "../../setupMUD";
-import { HoverType } from "../../types";
+import { colors } from "../react/styles/global";
+import { HoverType, SetupResult } from "../types";
 
 export function shipCircleSystems(MUD: SetupResult) {
   const {

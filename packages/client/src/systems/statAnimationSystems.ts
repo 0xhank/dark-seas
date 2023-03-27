@@ -1,9 +1,9 @@
 import { tileCoordToPixelCoord } from "@latticexyz/phaserx";
 import { defineComponentSystem, EntityIndex, getComponentValueStrict, Has, HasValue, runQuery } from "@latticexyz/recs";
-import { Animations, POS_HEIGHT, POS_WIDTH, RenderDepth } from "../../phaser/constants";
-import { colors } from "../../react/styles/global";
-import { SetupResult } from "../../setupMUD";
-import { getSternPosition, midpoint } from "../../utils/trig";
+import { Animations, POS_HEIGHT, POS_WIDTH, RenderDepth } from "../phaser/constants";
+import { colors } from "../react/styles/global";
+import { SetupResult } from "../types";
+import { getSternPosition, midpoint } from "../utils/trig";
 
 export function statAnimationSystems(MUD: SetupResult) {
   const {

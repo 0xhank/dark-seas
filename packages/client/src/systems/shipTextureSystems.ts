@@ -11,9 +11,8 @@ import {
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
-import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth } from "../../phaser/constants";
-import { SetupResult } from "../../setupMUD";
-import { HoverType } from "../../types";
+import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth } from "../phaser/constants";
+import { HoverType, SetupResult } from "../types";
 
 export function shipTextureSystems(MUD: SetupResult) {
   const {

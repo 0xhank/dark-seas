@@ -13,9 +13,7 @@ export function revealMove(
   override?: boolean
 ) {
   const { Commitment } = components;
-
   // Entity must be owned by the player
-  const prefix = "Reveal Move: ";
   const actionId = `revealMove ${Date.now()}` as EntityID;
   actions.add({
     id: actionId,

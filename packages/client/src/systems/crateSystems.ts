@@ -9,13 +9,12 @@ import {
   Has,
 } from "@latticexyz/recs";
 import { keccak256 } from "@latticexyz/utils";
-import { world } from "../../mud/world";
-import { sprites } from "../../phaser/config";
-import { POS_HEIGHT, RenderDepth } from "../../phaser/constants";
-import { colors } from "../../react/styles/global";
-import { SetupResult } from "../../setupMUD";
-import { HoverType, Phase, Sprites } from "../../types";
-import { distance } from "../../utils/distance";
+import { world } from "../mud/world";
+import { sprites } from "../phaser/config";
+import { POS_HEIGHT, RenderDepth } from "../phaser/constants";
+import { colors } from "../react/styles/global";
+import { HoverType, Phase, SetupResult, Sprites } from "../types";
+import { distance } from "../utils/distance";
 export function crateSystems(MUD: SetupResult) {
   const {
     components: { Position, Upgrade, HoveredSprite, SelectedShip, SelectedActions },

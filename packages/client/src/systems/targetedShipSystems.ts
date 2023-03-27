@@ -1,6 +1,6 @@
 import { defineComponentSystem } from "@latticexyz/recs";
-import { colors } from "../../react/styles/global";
-import { SetupResult } from "../../setupMUD";
+import { colors } from "../react/styles/global";
+import { SetupResult } from "../types";
 
 export function targetedShipSystems(MUD: SetupResult) {
   const {

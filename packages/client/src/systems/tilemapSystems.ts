@@ -1,8 +1,8 @@
 import { defineComponentSystem } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
-import { DSTileset } from "../../phaser/assets/tilesets/dsTilesheet";
-import { POS_HEIGHT, TILE_HEIGHT } from "../../phaser/constants";
-import { SetupResult } from "../../setupMUD";
+import { DSTileset } from "../phaser/assets/tilesets/dsTilesheet";
+import { POS_HEIGHT, TILE_HEIGHT } from "../phaser/constants";
+import { SetupResult } from "../types";
 
 export function tilemapSystems(MUD: SetupResult) {
   const {

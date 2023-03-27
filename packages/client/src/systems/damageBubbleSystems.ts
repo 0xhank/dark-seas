@@ -1,9 +1,9 @@
 import { defineComponentSystem, EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
-import { world } from "../../mud/world";
-import { MOVE_LENGTH, POS_WIDTH, RenderDepth } from "../../phaser/constants";
-import { colors } from "../../react/styles/global";
-import { SetupResult } from "../../setupMUD";
-import { getMidpoint } from "../../utils/trig";
+import { world } from "../mud/world";
+import { MOVE_LENGTH, POS_WIDTH, RenderDepth } from "../phaser/constants";
+import { colors } from "../react/styles/global";
+import { SetupResult } from "../types";
+import { getMidpoint } from "../utils/trig";
 export function damageBubbleSystems(MUD: SetupResult) {
   const {
     components: { SailPositionLocal, DamagedCannonsLocal, OnFireLocal, Position, Length, HealthLocal, Rotation },

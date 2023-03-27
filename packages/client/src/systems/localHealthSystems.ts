@@ -7,13 +7,12 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
-import { sprites } from "../../phaser/config";
-import { Animations, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../../phaser/constants";
-import { colors } from "../../react/styles/global";
-import { SetupResult } from "../../setupMUD";
-import { Category } from "../../sound";
-import { Sprites } from "../../types";
-import { getMidpoint } from "../../utils/trig";
+import { sprites } from "../phaser/config";
+import { Animations, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../phaser/constants";
+import { colors } from "../react/styles/global";
+import { Category } from "../sound";
+import { SetupResult, Sprites } from "../types";
+import { getMidpoint } from "../utils/trig";
 
 export function localHealthSystems(MUD: SetupResult) {
   const {
