@@ -1,8 +1,8 @@
 import { defineComponentSystem, defineEnterSystem, defineSystem, Has, Not, setComponent } from "@latticexyz/recs";
-import { world } from "../../mud/world";
-import { SetupResult } from "../../setupMUD";
+import { world } from "../mud/world";
+import { PhaserLayer } from "../phaser";
 
-export function bootSyncSystems(MUD: SetupResult) {
+export function bootSyncSystems(context: PhaserLayer) {
   const {
     components: {
       HealthBackend,
@@ -27,7 +27,7 @@ export function bootSyncSystems(MUD: SetupResult) {
       Cannon,
     },
     utils: { decodeShipPrototype, destroySpriteObject },
-  } = MUD;
+  } = context;
   defineSystem(world, [Has(Health)], ({ entity, value }) => {
     const health = value[0]?.value as number | undefined;
     const oldHealth = value[1]?.value as number | undefined;

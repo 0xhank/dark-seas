@@ -1,5 +1,5 @@
 import { defineRxSystem, EntityID, setComponent } from "@latticexyz/recs";
-import { SetupResult } from "../../setupMUD";
+import { SetupResult } from "../types";
 
 export function createSuccessfulRespawnSystem(MUD: SetupResult) {
   const {

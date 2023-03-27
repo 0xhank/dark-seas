@@ -1,6 +1,6 @@
 import { defineComponentSystem, getComponentValue, setComponent } from "@latticexyz/recs";
-import { POS_HEIGHT, POS_WIDTH } from "../../../phaser/constants";
-import { SetupResult } from "../../../setupMUD";
+import { POS_HEIGHT, POS_WIDTH } from "../../phaser/constants";
+import { SetupResult } from "../../setupMUD";
 
 export function cameraConstraintSystems(MUD: SetupResult) {
   const {
@@ -14,7 +14,7 @@ export function cameraConstraintSystems(MUD: SetupResult) {
     if (!position) return;
     const bounds = getComponentValue(MapBounds, godEntity);
     if (!bounds) return;
-
+    console.log("herro");
     const pixelX = position.x * POS_WIDTH;
     const pixelY = position.y * POS_HEIGHT;
 

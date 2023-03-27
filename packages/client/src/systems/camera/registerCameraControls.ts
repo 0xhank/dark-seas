@@ -1,7 +1,7 @@
 import { filter } from "rxjs";
-import { phaserConfig } from "../../../phaser/config";
-import { POS_WIDTH } from "../../../phaser/constants";
-import { SetupResult } from "../../../setupMUD";
+import { phaserConfig } from "../../phaser/config";
+import { POS_WIDTH } from "../../phaser/constants";
+import { SetupResult } from "../../setupMUD";
 
 export function cameraControlSystems(MUD: SetupResult) {
   const {
@@ -10,7 +10,7 @@ export function cameraControlSystems(MUD: SetupResult) {
     utils: { getWorldDimsAtTime },
     network: { clock },
   } = MUD;
-
+  console.log("input: ", input);
   input.pointermove$.pipe(filter(({ pointer }) => pointer.isDown)).subscribe(({ pointer }) => {
     camera.setScroll(
       camera.phaserCamera.scrollX - (pointer.x - pointer.prevPosition.x) / camera.phaserCamera.zoom,

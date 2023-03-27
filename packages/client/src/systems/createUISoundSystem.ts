@@ -1,8 +1,7 @@
 import { defineComponentSystem, defineSystem, EntityID, Has, Not } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
-import { SetupResult } from "../../setupMUD";
-import { Category } from "../../sound";
-import { ActionType, TxType } from "../../types";
+import { Category } from "../sound";
+import { ActionType, SetupResult, TxType } from "../types";
 
 export function createUISoundSystem(MUD: SetupResult) {
   const {

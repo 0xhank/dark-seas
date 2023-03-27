@@ -1,7 +1,7 @@
 import { defineComponentSystem, defineRxSystem, setComponent } from "@latticexyz/recs";
-import { POS_HEIGHT, POS_WIDTH, RenderDepth } from "../../phaser/constants";
-import { colors } from "../../react/styles/global";
-import { SetupResult } from "../../setupMUD";
+import { POS_HEIGHT, POS_WIDTH, RenderDepth } from "../phaser/constants";
+import { colors } from "../react/styles/global";
+import { SetupResult } from "../types";
 
 export function borderSystems(MUD: SetupResult) {
   const {
