@@ -82,15 +82,22 @@ export function moveOptionsSystems(MUD: SetupResult) {
       const shipColor = colors.whiteHex;
 
       const objectId = `optionGhost-${moveCardEntity}`;
-      const shipObject = renderShip(shipEntity, objectId, finalPosition, finalRotation, shipColor, 0.3);
-      shipObject.setInteractive({ cursor: "pointer" });
-      shipObject.on("pointerup", () => {
+      const { container: ship, hitBox } = renderShip(
+        shipEntity,
+        objectId,
+        finalPosition,
+        finalRotation,
+        shipColor,
+        0.3
+      );
+      ship.setInteractive(hitBox, Phaser.Geom.Rectangle.Contains);
+      ship.on("pointerup", () => {
         if (!isMyShip(shipEntity)) return;
         if (isSelected) return removeComponent(SelectedMove, shipEntity);
         setComponent(SelectedMove, shipEntity, { value: moveCardEntity });
       });
-      shipObject.on("pointerover", () => setComponent(HoveredMove, godEntity, { shipEntity, moveCardEntity }));
-      shipObject.on("pointerout", () => {
+      ship.on("pointerover", () => setComponent(HoveredMove, godEntity, { shipEntity, moveCardEntity }));
+      ship.on("pointerout", () => {
         removeComponent(HoveredMove, godEntity);
         destroyGroupObject("activeCannons");
       });

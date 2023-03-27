@@ -20,8 +20,7 @@ import { filter } from "rxjs";
 import { world } from "../../../mud/world";
 import { phaserConfig, sprites } from "../../../phaser/config";
 import { POS_HEIGHT, POS_WIDTH, RenderDepth } from "../../../phaser/constants";
-import { SetupResult } from "../../../setupMUD";
-import { Sprites } from "../../../types";
+import { SetupResult, Sprites } from "../../../types";
 import { colors } from "../../styles/global";
 
 export async function createMinimap() {

@@ -52,13 +52,13 @@ export function shipTextureSystems(MUD: SetupResult) {
       if (!ownerEntity) return;
       const playerEntity = getPlayerEntity();
 
-      const ship = renderShip(shipEntity, shipEntity, position, rotation);
+      const { container: ship, hitBox } = renderShip(shipEntity, shipEntity, position, rotation);
       if (health == 0) {
         ship.setAlpha(0.2);
         ship.setDepth(RenderDepth.Foreground5);
       } else {
         ship.setDepth(RenderDepth.Foreground3);
-        ship.setInteractive({ cursor: "pointer" });
+        ship.setInteractive(hitBox, Phaser.Geom.Rectangle.Contains);
         ship.on("pointerup", () => setComponent(SelectedShip, godEntity, { value: shipEntity }));
         ship.on("pointerout", () => removeComponent(HoveredSprite, HoverType.SHIP));
         ship.on("pointerover", () => setComponent(HoveredSprite, HoverType.SHIP, { value: shipEntity }));

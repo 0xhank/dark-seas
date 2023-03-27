@@ -77,10 +77,16 @@ export function stagedMoveSystems(MUD: SetupResult) {
     const sailPosition = getComponentValueStrict(SailPositionLocal, shipEntity).value;
     const { finalPosition, finalRotation } = getFinalPosition(moveCard, position, rotation, speed, sailPosition);
 
-    const ship = renderShip(shipEntity, groupId, finalPosition, finalRotation, colors.darkGrayHex, 0.8, false);
-    if (!ship) return;
+    const { container: ship, hitBox } = renderShip(
+      shipEntity,
+      groupId,
+      finalPosition,
+      finalRotation,
+      colors.darkGrayHex,
+      0.8
+    );
     ship.setDepth(RenderDepth.Foreground6);
-    ship.setInteractive({ cursor: "pointer" });
+    ship.setInteractive(hitBox, Phaser.Geom.Rectangle.Contains);
     ship.on("pointerup", () => {
       setComponent(SelectedShip, godEntity, { value: shipEntity });
     });

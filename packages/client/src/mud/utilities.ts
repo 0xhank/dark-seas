@@ -591,7 +591,14 @@ export async function createUtilities(
     nestObject.setDepth(RenderDepth.ShipSail);
     container.add(nestObject);
 
-    return container;
+    const hitBox = mainScene.add.rectangle(
+      hullObject.getTopLeft().x,
+      hullObject.getTopLeft().y,
+      hullObject.width,
+      hullObject.height
+    );
+    container.add(hitBox);
+    return { container, hitBox };
   }
 
   function getShip(id: EntityIndex | string, clear = false, s?: Phaser.Scene): Phaser.GameObjects.Container {

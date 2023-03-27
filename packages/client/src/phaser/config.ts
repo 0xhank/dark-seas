@@ -10,7 +10,7 @@ import dsTileset from "./assets/tilesets/ds-tilesheet.png";
 import { DSTileset } from "./assets/tilesets/dsTilesheet";
 import { Animations, Assets, Maps, Scenes, TILE_HEIGHT, TILE_WIDTH } from "./constants";
 const ANIMATION_INTERVAL = 200;
-export const sprites = {
+export const sprites: Record<Sprites, { assetKey: string; frame: string }> = {
   [Sprites.Cannon]: {
     assetKey: Assets.MainAtlas,
     frame: "cannon.png",
@@ -152,6 +152,22 @@ export const sprites = {
     assetKey: Assets.MainAtlas,
     frame: "sailSmallBlackMinor.png",
   },
+  [Sprites.SailYellow]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailSmallYellow.png",
+  },
+  [Sprites.SailYellowDead]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailSmallYellowDead.png",
+  },
+  [Sprites.SailYellowMajor]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailSmallYellowMajor.png",
+  },
+  [Sprites.SailYellowMinor]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sailSmallYellowMinor.png",
+  },
   [Sprites.SailSmallYellow]: {
     assetKey: Assets.MainAtlas,
     frame: "sailSmallYellow.png",
@@ -268,6 +284,26 @@ export const sprites = {
   [Sprites.SizeCrate2]: {
     assetKey: Assets.Crates,
     frame: "size2.png",
+  },
+  [Sprites.Explosion1]: {
+    assetKey: "none",
+    frame: "none",
+  },
+  [Sprites.Explosion2]: {
+    assetKey: "none",
+    frame: "none",
+  },
+  [Sprites.Explosion3]: {
+    assetKey: "none",
+    frame: "none",
+  },
+  [Sprites.Fire2]: {
+    assetKey: "none",
+    frame: "none",
+  },
+  [Sprites.Fire1]: {
+    assetKey: "none",
+    frame: "none",
   },
 };
 export const phaserConfig = {
