@@ -81,7 +81,6 @@ export function localHealthSystems(MUD: SetupResult) {
       shipObject.on("pointerup", () => setComponent(SelectedShip, godEntity, { value: shipEntity }));
 
       if (oldHealth > 0 && health > oldHealth) {
-        console.log(`${shipEntity} health increase: old ${oldHealth} new ${health}`);
         flashGreen(shipEntity);
       }
     }

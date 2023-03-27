@@ -29,6 +29,9 @@ export function firingAreaSystems(MUD: SetupResult) {
 
   defineComponentSystem(world, HoveredAction, ({ value }) => {
     const hoveredAction = value[0];
+    const objectId = "hoveredFiringArea";
+
+    const hoveredGroup = getGroupObject(objectId, true);
 
     if (!hoveredAction) return;
     const actionType = hoveredAction.actionType;
@@ -37,9 +40,6 @@ export function firingAreaSystems(MUD: SetupResult) {
     const shipEntity = hoveredAction.shipEntity as EntityIndex;
     const cannonEntity = hoveredAction.specialEntity as EntityIndex;
 
-    const objectId = "hoveredFiringArea";
-
-    const hoveredGroup = getGroupObject(objectId, true);
     if (!shipEntity || !cannonEntity) return;
 
     const loaded = getComponentValue(Loaded, cannonEntity)?.value;

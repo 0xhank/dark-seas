@@ -526,7 +526,6 @@ export async function createUtilities(
     const index = actions.specialEntities.indexOf(entityID);
 
     // couldn't find the crate
-    console.log("hello");
     if (index == -1) {
       const unusedSlot = selectedActions.actionTypes.indexOf(ActionType.None);
       if (unusedSlot == -1) return;
@@ -536,7 +535,6 @@ export async function createUtilities(
       actions.actionTypes[index] = ActionType.None;
       actions.specialEntities[index] = "0" as EntityID;
     }
-    console.log("updating selected actions");
     setComponent(clientComponents.SelectedActions, shipEntity, {
       actionTypes: actions.actionTypes,
       specialEntities: actions.specialEntities,
@@ -589,7 +587,6 @@ export async function createUtilities(
     rotation: number,
     finalPosition: Coord
   ) {
-    console.log("rotation: ", rotation);
     direction = direction > 180 ? 360 - direction : direction;
     rotation = rotation > 180 ? 360 - rotation : rotation;
 
@@ -597,11 +594,8 @@ export async function createUtilities(
     const initialRotation = getComponentValueStrict(components.Rotation, shipEntity).value;
 
     const hypoteneuse = distance(finalPosition, origin);
-    console.log("hypoteneuse distance: ", hypoteneuse);
     const rightDistance = hypoteneuse * Math.cos(toRadians(direction));
-    console.log("right distance: ", rightDistance);
     const finalDistance = (rightDistance * rotation) / 90;
-    console.log("final distance: ", finalDistance);
     const midpoint = getPositionByVector(origin, initialRotation, finalDistance, 0);
 
     const points = [origin, midpoint, finalPosition].map((coord) => {
@@ -706,7 +700,9 @@ export async function createUtilities(
       firingPolygon.on("pointerover", () =>
         setComponent(clientComponents.HoveredAction, godEntity, { shipEntity, actionType, specialEntity: cannonEntity })
       );
-      firingPolygon.on("pointerout", () => removeComponent(clientComponents.HoveredAction, godEntity));
+      firingPolygon.on("pointerout", () => {
+        removeComponent(clientComponents.HoveredAction, godEntity);
+      });
     });
   }
 

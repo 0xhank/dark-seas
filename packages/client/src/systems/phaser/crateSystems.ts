@@ -1,12 +1,12 @@
-import { tween } from "@latticexyz/phaserx";
 import {
-  defineComponentSystem,
   defineEnterSystem,
   defineExitSystem,
+  defineRxSystem,
   EntityIndex,
   getComponentValue,
   getComponentValueStrict,
   Has,
+  runQuery,
 } from "@latticexyz/recs";
 import { keccak256 } from "@latticexyz/utils";
 import { world } from "../../mud/world";
@@ -14,7 +14,7 @@ import { sprites } from "../../phaser/config";
 import { POS_HEIGHT, RenderDepth } from "../../phaser/constants";
 import { colors } from "../../react/styles/global";
 import { SetupResult } from "../../setupMUD";
-import { HoverType, Phase, Sprites } from "../../types";
+import { Phase, Sprites } from "../../types";
 import { distance } from "../../utils/distance";
 export function crateSystems(MUD: SetupResult) {
   const {
@@ -27,16 +27,18 @@ export function crateSystems(MUD: SetupResult) {
       pixelCoord,
       getPhase,
       getGroupObject,
+      getPlayerShips,
       renderCircle,
       isMyShip,
       handleNewActionsCrate,
       getPlayerShipsWithActions,
+      getGameConfig,
+      secondsUntilNextPhase,
     },
     godEntity,
   } = MUD;
 
   defineExitSystem(world, [Has(Position)], ({ entity }) => {
-    console.log("no more position");
     destroyGroupObject(entity);
     destroySpriteObject(entity);
 
@@ -53,6 +55,28 @@ export function crateSystems(MUD: SetupResult) {
     });
   });
 
+  defineRxSystem(world, clock.time$, (time) => {
+    const phase = getPhase(time);
+    const gameConfig = getGameConfig();
+    const timeToNextPhase = secondsUntilNextPhase(time);
+    const crateEntities = [...runQuery([Has(Upgrade), Has(Position)])];
+    if (phase == Phase.Reveal && timeToNextPhase == 1) {
+      const myShips = getPlayerShips();
+      crateEntities.forEach((crateEntity) => {
+        const position = getComponentValueStrict(Position, crateEntity);
+        const ship = myShips.find((ship) => {
+          const shipPosition = getComponentValueStrict(Position, ship);
+          return distance(shipPosition, position) < 20;
+        });
+        renderCrate(crateEntity, ship);
+      });
+    } else if (phase == Phase.Commit && timeToNextPhase == gameConfig?.commitPhaseLength) {
+      crateEntities.forEach((crateEntity) => {
+        renderCrate(crateEntity, undefined);
+      });
+    }
+  });
+
   function getCrateSprite(componentId: string, amount: number) {
     if (componentId == keccak256("ds.component.Firepower"))
       return amount == 2 ? Sprites.FirepowerCrate2 : Sprites.FirepowerCrate1;
@@ -63,16 +87,14 @@ export function crateSystems(MUD: SetupResult) {
     else return amount == 2 ? Sprites.HealthCrate1 : Sprites.HealthCrate2;
   }
 
-  async function renderCrate(crateEntity: EntityIndex) {
+  async function renderCrate(crateEntity: EntityIndex, ship: EntityIndex | undefined) {
     const position = getComponentValueStrict(Position, crateEntity);
     const upgrade = getComponentValueStrict(Upgrade, crateEntity);
-
     const group = getGroupObject(crateEntity, true);
     const spriteAsset: Sprites = getCrateSprite(upgrade.componentId, upgrade.amount);
     const sprite = sprites[spriteAsset];
 
     const spriteObject = phaserScene.add.sprite(position.x, position.y, sprite.assetKey, sprite.frame);
-    spriteObject.setAlpha(0);
     spriteObject.setTexture(sprite.assetKey, sprite.frame);
     spriteObject.setDepth(RenderDepth.Foreground3);
     spriteObject.setScale(2);
@@ -81,99 +103,57 @@ export function crateSystems(MUD: SetupResult) {
 
     spriteObject.setPosition(x, y);
 
-    await tween({
-      targets: spriteObject,
-      delay: 2000,
-      duration: 1000,
-      props: { alpha: 1 },
-      ease: Phaser.Math.Easing.Linear,
-    });
     if (crateEntity == undefined) return;
     const radius = 20;
 
     const circle = renderCircle(group, position, radius, colors.whiteHex);
 
-    circle.setInteractive();
     circle.setAlpha(0.1);
-    circle.on("pointerover", () => {
-      console.log(
-        `component: ${upgrade.componentId} `,
-        [...world.components].find(
-          (component) => keccak256(component.metadata?.contractId as string) == upgrade.componentId
-        )?.id
-      );
-      if (getPhase(clock.currentTime) == Phase.Action) {
-        const textGroup = getGroupObject("crate-text", true);
-        const selectedShip = getComponentValue(SelectedShip, godEntity)?.value as EntityIndex | undefined;
-        if (
-          !selectedShip ||
-          !isMyShip(selectedShip) ||
-          distance(position, getComponentValueStrict(Position, selectedShip)) > 20
-        )
-          return;
-        circle.setInteractive({ cursor: "pointer" });
-        circle.setAlpha(0.3);
-        const text = phaserScene.add.text(0, 0, "PICK UP CRATE", {
-          color: colors.white,
-          align: "center",
-          fontFamily: "Inknut Antiqua",
-          fontSize: "40px",
-        });
+    if (ship) {
+      circle.setAlpha(0.25);
+      circle.setInteractive({ cursor: "pointer" });
 
-        text.setPosition(position.x * POS_HEIGHT - text.displayWidth / 2, position.y * POS_HEIGHT + 80);
-        circle.setInteractive();
-        circle.on("pointerup", () => handleNewActionsCrate(selectedShip, crateEntity));
-
-        textGroup.add(text);
-        textGroup.setDepth(RenderDepth.Foreground2);
-      }
-    });
-
-    circle.on("pointerout", () => {
-      circle.setInteractive();
-      circle.setAlpha(0.1);
-      circle.off("pointerup");
-      destroyGroupObject("crate-text");
-      destroyGroupObject("crate-circle");
-    });
-
-    group.add(spriteObject);
-  }
-  defineEnterSystem(world, [Has(Position), Has(Upgrade)], ({ entity: crateEntity }) => {
-    renderCrate(crateEntity);
-  });
-
-  defineComponentSystem(world, HoveredSprite, (update) => {
-    if (update.entity !== HoverType.CRATE) return;
-    const crateEntity = update.value[0]?.value as EntityIndex | undefined;
-    const groupId = "hover-circle";
-    const hoveredGroup = getGroupObject(groupId, true);
-    if (crateEntity == undefined) return;
-    const position = getComponentValueStrict(Position, crateEntity);
-    const radius = 20;
-
-    const circle = renderCircle(hoveredGroup, position, radius, colors.whiteHex, 0.1);
-    if (getPhase(clock.currentTime) == Phase.Action) {
-      const selectedShip = getComponentValue(SelectedShip, godEntity)?.value as EntityIndex | undefined;
-      if (
-        !selectedShip ||
-        !isMyShip(selectedShip) ||
-        distance(position, getComponentValueStrict(Position, selectedShip)) > 20
-      )
-        return;
-      const textGroup = phaserScene.add.text(0, 0, "PICKUP CRATE", {
+      const text = phaserScene.add.text(0, 0, "PICK UP CRATE", {
         color: colors.white,
         align: "center",
         fontFamily: "Inknut Antiqua",
         fontSize: "40px",
       });
 
-      textGroup.setPosition(position.x * POS_HEIGHT - textGroup.displayWidth / 2, position.y * POS_HEIGHT + 80);
-      circle.setInteractive();
-      circle.on("pointerup", () => handleNewActionsCrate(selectedShip, crateEntity));
+      text.setPosition(position.x * POS_HEIGHT - text.displayWidth / 2, position.y * POS_HEIGHT + 80);
+      group.add(text);
 
-      hoveredGroup.add(textGroup);
-      hoveredGroup.setDepth(RenderDepth.Foreground2);
+      circle.on("pointerover", () => {
+        circle.setAlpha(0.5);
+        circle.on("pointerup", () => {
+          const active = getComponentValue(SelectedActions, ship)?.specialEntities.find(
+            (entity) => entity == world.entities[crateEntity]
+          );
+          handleNewActionsCrate(ship, crateEntity);
+
+          circle.setFillStyle(active ? colors.whiteHex : colors.goldHex);
+        });
+      });
+
+      circle.on("pointerout", () => {
+        circle.setAlpha(circle.fillColor == colors.goldHex ? 0.4 : 0.25);
+        circle.off("pointerup");
+      });
+    }
+    group.add(spriteObject);
+    group.setDepth(RenderDepth.Foreground7);
+  }
+  defineEnterSystem(world, [Has(Position), Has(Upgrade)], ({ entity: crateEntity }) => {
+    if (getPhase(clock.currentTime) == Phase.Action) {
+      const myShips = getPlayerShips();
+      const position = getComponentValueStrict(Position, crateEntity);
+      const ship = myShips.find((ship) => {
+        const shipPosition = getComponentValueStrict(Position, ship);
+        return distance(shipPosition, position) < 20;
+      });
+      renderCrate(crateEntity, ship);
+    } else {
+      renderCrate(crateEntity, undefined);
     }
   });
 }

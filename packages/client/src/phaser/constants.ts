@@ -39,6 +39,7 @@ export enum RenderDepth {
   Foreground4 = 370,
   Foreground5 = 360,
   Foreground6 = 350,
+  Foreground7 = 340,
   Background1 = 20,
   Background2 = 10,
   Background3 = 0, // tilemap sits here
