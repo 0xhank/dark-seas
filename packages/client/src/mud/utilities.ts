@@ -23,7 +23,7 @@ import { sprites } from "../phaser/config";
 import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../phaser/constants";
 import { colors } from "../react/styles/global";
 import { Category, soundLibrary } from "../sound";
-import { getRangeTintAlpha } from "../systems/phaser/renderShip";
+import { getRangeTintAlpha } from "../systems/renderShip";
 import { Action, ActionType, DELAY, Move, Phase, ShipPrototype, Sprites } from "../types";
 import { distance } from "../utils/distance";
 import { cap, getHash, getShipSprite } from "../utils/ships";
@@ -37,7 +37,7 @@ import {
 } from "../utils/trig";
 import { adjectives, nouns } from "../wordlist";
 import { clientComponents, components } from "./components";
-import { polygonRegistry, spriteRegistry, world } from "./world";
+import { musicRegistry, polygonRegistry, prototypeRegistry, soundRegistry, spriteRegistry, world } from "./world";
 export async function createUtilities(
   godEntity: EntityIndex,
   playerAddress: string,
@@ -196,8 +196,6 @@ export async function createUtilities(
 
     return true;
   }
-
-  const prototypeRegistry = new Map<EntityIndex, ShipPrototype>();
 
   function decodeShipPrototype(prototypeEntity: EntityIndex) {
     const retrieved = prototypeRegistry.get(prototypeEntity);
@@ -388,9 +386,6 @@ export async function createUtilities(
 
     return ret;
   }
-
-  const soundRegistry = new Map<string, Howl>();
-  const musicRegistry = new Map<string, Howl>();
 
   function playSound(id: string, category: Category, loop = false, fade?: number) {
     const volume = getComponentValueStrict(clientComponents.Volume, godEntity).value;
@@ -589,7 +584,6 @@ export async function createUtilities(
     rotation: number,
     finalPosition: Coord
   ) {
-    console.log("rotation: ", rotation);
     direction = direction > 180 ? 360 - direction : direction;
     rotation = rotation > 180 ? 360 - rotation : rotation;
 
@@ -597,11 +591,8 @@ export async function createUtilities(
     const initialRotation = getComponentValueStrict(components.Rotation, shipEntity).value;
 
     const hypoteneuse = distance(finalPosition, origin);
-    console.log("hypoteneuse distance: ", hypoteneuse);
     const rightDistance = hypoteneuse * Math.cos(toRadians(direction));
-    console.log("right distance: ", rightDistance);
     const finalDistance = (rightDistance * rotation) / 90;
-    console.log("final distance: ", finalDistance);
     const midpoint = getPositionByVector(origin, initialRotation, finalDistance, 0);
 
     const points = [origin, midpoint, finalPosition].map((coord) => {

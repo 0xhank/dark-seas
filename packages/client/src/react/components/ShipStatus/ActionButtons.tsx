@@ -10,7 +10,7 @@ import { Button, Success } from "../../styles/global";
 export function ActionButtons({ tooEarly, turn }: { tooEarly: boolean; turn: number }) {
   const {
     components: { SelectedActions, LastAction },
-    utils: { getPlayerShipsWithActions, playSound, clearComponent },
+    utils: { getPlayerShipsWithActions, playSound, getTargetedShips },
     actions: { Action },
     api: { submitActions },
   } = useMUD();
@@ -29,7 +29,7 @@ export function ActionButtons({ tooEarly, turn }: { tooEarly: boolean; turn: num
     if (!shipsAndActions) return;
     playSound("click", Category.UI);
 
-    submitActions(shipsAndActions);
+    submitActions(shipsAndActions, getTargetedShips);
   };
 
   const txExecuting = !![...runQuery([Has(Action)])].find((entity) => {

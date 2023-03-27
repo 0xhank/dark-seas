@@ -1,6 +1,5 @@
 import { defineRxSystem, EntityIndex, getComponentEntities, getComponentValue } from "@latticexyz/recs";
-import { SetupResult } from "../../setupMUD";
-import { Phase } from "../../types";
+import { Phase, SetupResult } from "../types";
 
 export function turnResetSystems(MUD: SetupResult) {
   const {
@@ -36,6 +35,7 @@ export function turnResetSystems(MUD: SetupResult) {
       getPlayerShips,
       renderShipFiringAreas,
       clearComponent,
+      getTargetedShips,
     },
   } = MUD;
 
@@ -69,7 +69,6 @@ export function turnResetSystems(MUD: SetupResult) {
         clearComponent(Targeted);
       }
     }
-
     // START OF PHASE: reveal moves
     // note: contract-side this occurs during the commit phase
     if (phase == Phase.Reveal) {
@@ -95,7 +94,6 @@ export function turnResetSystems(MUD: SetupResult) {
         if (encoding) revealMove(encoding);
       }
     }
-
     // START OF PHASE: clear move commitments
     // END OF PHASE: submit actions
     if (phase == Phase.Action) {
@@ -113,7 +111,7 @@ export function turnResetSystems(MUD: SetupResult) {
         if (lastAction == turn) return;
         const shipsAndActions = getPlayerShipsWithActions();
 
-        if (shipsAndActions) submitActions(shipsAndActions);
+        if (shipsAndActions) submitActions(shipsAndActions, getTargetedShips);
       }
     }
   });

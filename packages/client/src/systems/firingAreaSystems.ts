@@ -7,10 +7,9 @@ import {
   Has,
   setComponent,
 } from "@latticexyz/recs";
-import { world } from "../../mud/world";
-import { colors } from "../../react/styles/global";
-import { SetupResult } from "../../setupMUD";
-import { ActionType } from "../../types";
+import { world } from "../mud/world";
+import { colors } from "../react/styles/global";
+import { ActionType, SetupResult } from "../types";
 
 export function firingAreaSystems(MUD: SetupResult) {
   const {

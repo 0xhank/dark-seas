@@ -6,10 +6,9 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
-import { MOVE_LENGTH } from "../../phaser/constants";
-import { SetupResult } from "../../setupMUD";
-import { Category } from "../../sound";
-import { Move, TxType } from "../../types";
+import { MOVE_LENGTH } from "../phaser/constants";
+import { Category } from "../sound";
+import { Move, SetupResult, TxType } from "../types";
 
 export function createSuccessfulMoveSystem(MUD: SetupResult) {
   const {

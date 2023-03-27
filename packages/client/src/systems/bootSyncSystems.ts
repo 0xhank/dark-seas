@@ -1,6 +1,6 @@
 import { defineComponentSystem, defineEnterSystem, defineSystem, Has, Not, setComponent } from "@latticexyz/recs";
-import { world } from "../../mud/world";
-import { SetupResult } from "../../setupMUD";
+import { world } from "../mud/world";
+import { SetupResult } from "../types";
 
 export function bootSyncSystems(MUD: SetupResult) {
   const {

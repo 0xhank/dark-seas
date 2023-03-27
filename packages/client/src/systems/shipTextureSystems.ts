@@ -11,11 +11,10 @@ import {
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
-import { sprites } from "../../phaser/config";
-import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../../phaser/constants";
-import { SetupResult } from "../../setupMUD";
-import { HoverType, Sprites } from "../../types";
-import { getShipSprite } from "../../utils/ships";
+import { sprites } from "../phaser/config";
+import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../phaser/constants";
+import { HoverType, SetupResult, Sprites } from "../types";
+import { getShipSprite } from "../utils/ships";
 
 export function shipTextureSystems(MUD: SetupResult) {
   const {

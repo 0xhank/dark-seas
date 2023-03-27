@@ -9,12 +9,11 @@ import {
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
-import { RenderDepth } from "../../phaser/constants";
-import { colors } from "../../react/styles/global";
-import { SetupResult } from "../../setupMUD";
-import { Phase } from "../../types";
-import { getFinalPosition } from "../../utils/directions";
-import { getSternPosition } from "../../utils/trig";
+import { RenderDepth } from "../phaser/constants";
+import { colors } from "../react/styles/global";
+import { Phase, SetupResult } from "../types";
+import { getFinalPosition } from "../utils/directions";
+import { getSternPosition } from "../utils/trig";
 
 export function stagedMoveSystems(MUD: SetupResult) {
   const {

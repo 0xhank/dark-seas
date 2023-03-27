@@ -8,8 +8,8 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
-import { POS_HEIGHT, POS_WIDTH } from "../../phaser/constants";
-import { SetupResult } from "../../setupMUD";
+import { POS_HEIGHT, POS_WIDTH } from "../phaser/constants";
+import { SetupResult } from "../types";
 
 export function inputSystems(MUD: SetupResult) {
   const {
