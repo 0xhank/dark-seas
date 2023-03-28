@@ -11,7 +11,7 @@ import { GameConfigComponent, ID as GameConfigComponentID } from "../components/
 import { ActionComponent, ID as ActionComponentID, FunctionSelector } from "../components/ActionComponent.sol";
 import { ActionSystem, ID as ActionSystemID } from "../systems/ActionSystem.sol";
 // Types
-import { GodID, MoveCard, GameConfig, ShipPrototype, CannonPrototype, Coord } from "../libraries/DSTypes.sol";
+import { MoveCard, GameConfig, ShipPrototype, CannonPrototype, Coord } from "../libraries/DSTypes.sol";
 
 uint256 constant ID = uint256(keccak256("ds.system.Init"));
 
@@ -26,11 +26,19 @@ contract InitSystem is System {
   function execute(bytes memory arguments) public returns (bytes memory) {
     GameConfigComponent gameConfigComponent = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID));
 
-    gameConfigComponent.set(GodID, abi.decode(arguments, (GameConfig)));
+    uint256 gameId = world.getUniqueEntityId();
+
+    gameConfigComponent.set(gameId, abi.decode(arguments, (GameConfig)));
 
     createShips();
     createMoveCards();
     createActions();
+
+    return abi.encode(gameId);
+  }
+
+  function executeTyped(GameConfig calldata gameConfig) public returns (bytes memory) {
+    return execute(abi.encode(gameConfig));
   }
 
   function createShips() private {

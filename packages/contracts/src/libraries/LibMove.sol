@@ -14,6 +14,7 @@ import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedB
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedComponent.sol";
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
+import { CurrentGameComponent, ID as CurrentGameComponentID } from "../components/CurrentGameComponent.sol";
 
 // Types
 import { MoveCard, Move, Coord } from "./DSTypes.sol";
@@ -80,16 +81,25 @@ library LibMove {
    * @param   move  move to execute
    * @param   playerEntity  owner of ship
    */
-  function moveShip(
-    IWorld world,
-    Move memory move,
-    uint256 playerEntity
-  ) public {
+  /**
+   * @notice  .
+   * @dev     .
+   * @param   world  .
+   * @param   gameId  .
+   * @param   move  .
+   * @param   playerEntity  .
+   */
+  function moveShip(IWorld world, uint256 gameId, Move memory move, uint256 playerEntity) public {
     MoveCardComponent moveCardComponent = MoveCardComponent(LibUtils.addressById(world, MoveCardComponentID));
     PositionComponent positionComponent = PositionComponent(LibUtils.addressById(world, PositionComponentID));
     RotationComponent rotationComponent = RotationComponent(LibUtils.addressById(world, RotationComponentID));
     SailPositionComponent sailPositionComponent = SailPositionComponent(
       LibUtils.addressById(world, SailPositionComponentID)
+    );
+
+    require(
+      CurrentGameComponent(LibUtils.addressById(world, CurrentGameComponentID)).getValue(move.shipEntity) == gameId,
+      "MoveSystem: ship is not in current game"
     );
 
     require(
@@ -123,13 +133,13 @@ library LibMove {
 
     rotation = (rotation + moveCard.rotation) % 360;
 
-    if (LibVector.outOfBounds(world, position)) {
+    if (LibVector.outOfBounds(world, gameId, position)) {
       LibCombat.damageHull(world, 1, move.shipEntity);
       sailPositionComponent.set(move.shipEntity, 0);
     } else {
       uint32 length = LengthComponent(LibUtils.addressById(world, LengthComponentID)).getValue(move.shipEntity);
       Coord memory sternPosition = LibVector.getSternPosition(position, rotation, length);
-      if (LibVector.outOfBounds(world, sternPosition)) {
+      if (LibVector.outOfBounds(world, gameId, sternPosition)) {
         LibCombat.damageHull(world, 1, move.shipEntity);
         sailPositionComponent.set(move.shipEntity, 0);
       }

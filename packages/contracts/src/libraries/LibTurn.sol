@@ -8,19 +8,19 @@ import { IWorld } from "solecs/interfaces/IWorld.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
-import { GodID, GameConfig, Phase } from "./DSTypes.sol";
+import { GameConfig, Phase } from "./DSTypes.sol";
 
 // Libraries
 import "./LibUtils.sol";
 
 library LibTurn {
-  function getCurrentTurn(IWorld world) internal view returns (uint32) {
-    return getTurnAt(world, block.timestamp);
+  function getCurrentTurn(IWorld world, uint256 gameId) internal view returns (uint32) {
+    return getTurnAt(world, gameId, block.timestamp);
   }
 
-  function getTurnAt(IWorld world, uint256 atTime) internal view returns (uint32) {
+  function getTurnAt(IWorld world, uint256 gameId, uint256 atTime) internal view returns (uint32) {
     GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
-      GodID
+      gameId
     );
     require(atTime >= gameConfig.startTime, "invalid atTime");
 
@@ -29,13 +29,13 @@ library LibTurn {
     return uint32(secondsSinceAction / _turnLength);
   }
 
-  function getCurrentPhase(IWorld world) internal view returns (Phase) {
-    return getPhaseAt(world, block.timestamp);
+  function getCurrentPhase(IWorld world, uint256 gameId) internal view returns (Phase) {
+    return getPhaseAt(world, gameId, block.timestamp);
   }
 
-  function getPhaseAt(IWorld world, uint256 atTime) internal view returns (Phase) {
+  function getPhaseAt(IWorld world, uint256 gameId, uint256 atTime) internal view returns (Phase) {
     GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
-      GodID
+      gameId
     );
     require(atTime >= gameConfig.startTime, "invalid atTime");
 
@@ -48,20 +48,13 @@ library LibTurn {
     else return Phase.Action;
   }
 
-  function getCurrentTurnAndPhase(IWorld world) internal view returns (uint32, Phase) {
-    return getTurnAndPhaseAt(world, block.timestamp);
+  function getCurrentTurnAndPhase(IWorld world, uint256 gameId) internal view returns (uint32, Phase) {
+    return getTurnAndPhaseAt(world, gameId, block.timestamp);
   }
 
-  function getTurnAndPhaseAt(IWorld world, uint256 atTime) internal view returns (uint32, Phase) {
-    uint32 turn = getTurnAt(world, atTime);
-    Phase phase = getPhaseAt(world, atTime);
+  function getTurnAndPhaseAt(IWorld world, uint256 gameId, uint256 atTime) internal view returns (uint32, Phase) {
+    uint32 turn = getTurnAt(world, gameId, atTime);
+    Phase phase = getPhaseAt(world, gameId, atTime);
     return (turn, phase);
-  }
-
-  function turnLength(IWorld world) internal view returns (uint32) {
-    GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
-      GodID
-    );
-    return gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
   }
 }

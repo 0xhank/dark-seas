@@ -13,12 +13,13 @@ import {
 } from "../api/index";
 import { Action, Move } from "../types";
 import { components } from "./components";
-import { config } from "./config";
+import { getNetworkConfig } from "./config.js";
 import { setupDevSystems } from "./utilities/setupDevSystems";
 import { setupMUDNetwork } from "./utilities/setupMUDNetwork";
 import { world } from "./world";
 
-export async function createNetworkLayer() {
+export async function createNetworkLayer(worldAddress?: string, block?: number) {
+  const config = getNetworkConfig({ worldAddress, block });
   const networkWorld = namespaceWorld(world, "network");
   const {
     systems,

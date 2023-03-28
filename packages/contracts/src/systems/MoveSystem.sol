@@ -21,6 +21,7 @@ contract MoveSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
+    (uint256 gameId, Move[] memory moves) = abi.decode(arguments, (uint256, Move[]));
     uint256 playerEntity = addressToEntity(msg.sender);
     require(
       uint256(keccak256(arguments)) ==
@@ -28,15 +29,16 @@ contract MoveSystem is System {
       "MoveSystem: commitment doesn't match move"
     );
 
-    (Move[] memory moves, ) = abi.decode(arguments, (Move[], uint256));
-
-    require(LibTurn.getCurrentPhase(world) != Phase.Action, "MoveSystem: cannot complete move during Action phase");
+    require(
+      LibTurn.getCurrentPhase(world, gameId) != Phase.Action,
+      "MoveSystem: cannot complete move during Action phase"
+    );
 
     require(LibUtils.playerIdExists(world, playerEntity), "MoveSystem: player does not exist");
 
     LastMoveComponent lastMoveComponent = LastMoveComponent(LibUtils.addressById(world, LastMoveComponentID));
 
-    uint32 currentTurn = LibTurn.getCurrentTurn(world);
+    uint32 currentTurn = LibTurn.getCurrentTurn(world, gameId);
     require(lastMoveComponent.getValue(playerEntity) < currentTurn, "MoveSystem: already moved this turn");
 
     // iterate through each ship entity
@@ -44,13 +46,13 @@ contract MoveSystem is System {
       for (uint256 j = 0; j < i; j++) {
         require(moves[i].shipEntity != moves[j].shipEntity, "MoveSystem: ship already moved");
       }
-      LibMove.moveShip(world, moves[i], playerEntity);
+      LibMove.moveShip(world, gameId, moves[i], playerEntity);
     }
 
     lastMoveComponent.set(playerEntity, currentTurn);
   }
 
-  function executeTyped(Move[] calldata moves, uint256 salt) public returns (bytes memory) {
-    return execute(abi.encode(moves, salt));
+  function executeTyped(uint256 gameId, Move[] calldata moves, uint256 salt) public returns (bytes memory) {
+    return execute(abi.encode(gameId, moves, salt));
   }
 }

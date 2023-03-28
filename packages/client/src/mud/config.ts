@@ -24,9 +24,8 @@ export const getChainSpec = (): ChainSpec => {
 };
 
 const chainId = getChainSpec().chainId;
-const params = new URLSearchParams(window.location.search);
 
-export const config = {
+export const getNetworkConfig = ({ worldAddress, block }: { worldAddress?: string; block?: number }) => ({
   clock: {
     period: 1000,
     initialTime: 0,
@@ -37,12 +36,12 @@ export const config = {
     wsRpcUrl: getChainSpec().wsRpc,
     chainId,
   },
-  privateKey: params.get("privateKey") ?? getBurnerWallet().privateKey,
+  privateKey: getBurnerWallet().privateKey,
   chainId,
   snapshotServiceUrl: getChainSpec().snapshot,
   faucetServiceUrl: getChainSpec().faucet,
-  initialBlockNumber: Number(params.get("block")) || 0,
-  worldAddress: params.get("worldAddress") || "0x69",
+  initialBlockNumber: block || 0,
+  worldAddress: worldAddress || "0x69",
   devMode: dev,
   encoders: true,
-};
+});

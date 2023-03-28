@@ -8,7 +8,7 @@ import "../DarkSeasTest.t.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 
 // Types
-import { Coord, GodID } from "../../libraries/DSTypes.sol";
+import { Coord } from "../../libraries/DSTypes.sol";
 
 // Libraries
 import "../../libraries/LibVector.sol";
@@ -28,9 +28,11 @@ contract LibVectorTest is DarkSeasTest {
   }
 
   function testGetShipBowAndSternPosition() public prank(deployer) {
+    uint256 gameId = setup();
+
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
-    uint256 shipEntity = spawnShip(startingPosition, startingRotation, deployer);
+    uint256 shipEntity = spawnShip(gameId, startingPosition, startingRotation, deployer);
 
     (Coord memory bow, Coord memory stern) = LibVector.getShipBowAndSternPosition(world, shipEntity);
 
@@ -158,8 +160,9 @@ contract LibVectorTest is DarkSeasTest {
   }
 
   function testShrinkingWorld() public prank(deployer) {
+    uint256 gameId = setup();
     GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
-      GodID
+      gameId
     );
 
     gameConfig.entryCutoffTurns = 0;
@@ -178,5 +181,11 @@ contract LibVectorTest is DarkSeasTest {
     assertEq(LibVector.getWorldHeightAtTurn(gameConfig, 1), 100, "shrinkrate 50 failed");
     assertEq(LibVector.getWorldHeightAtTurn(gameConfig, 2), 99, "testShrink 50 failed");
     assertEq(LibVector.getWorldHeightAtTurn(gameConfig, 102), 50, "shrinkrate 50 min failed");
+  }
+
+  function setup() private returns (uint256 gameId) {
+    bytes memory id = InitSystem(system(InitSystemID)).executeTyped(baseGameConfig);
+    gameId = abi.decode(id, (uint256));
+    return gameId;
   }
 }

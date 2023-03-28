@@ -14,7 +14,7 @@ import { Settings } from "./Settings";
 import { SideBar } from "./SideBar";
 import { TurnTimer } from "./TurnTimer";
 
-export function Game() {
+export function GameWindow() {
   const {
     components: { LoadingState, Player },
     godEntity,

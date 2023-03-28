@@ -24,16 +24,16 @@ contract ActionSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
-    Action[] memory actions = abi.decode(arguments, (Action[]));
+    (uint256 gameId, Action[] memory actions) = abi.decode(arguments, (uint256, Action[]));
 
     uint256 playerEntity = addressToEntity(msg.sender);
 
     require(LibUtils.playerIdExists(world, playerEntity), "ActionSystem: player does not exist");
 
     LastActionComponent lastActionComponent = LastActionComponent(LibUtils.addressById(world, LastActionComponentID));
-    require(LibTurn.getCurrentPhase(world) == Phase.Action, "ActionSystem: incorrect turn phase");
+    require(LibTurn.getCurrentPhase(world, gameId) == Phase.Action, "ActionSystem: incorrect turn phase");
 
-    uint32 currentTurn = LibTurn.getCurrentTurn(world);
+    uint32 currentTurn = LibTurn.getCurrentTurn(world, gameId);
     require(
       lastActionComponent.getValue(addressToEntity(msg.sender)) < currentTurn,
       "ActionSystem: already acted this turn"
@@ -41,12 +41,12 @@ contract ActionSystem is System {
     lastActionComponent.set(playerEntity, currentTurn);
     // iterate through each ship
     for (uint256 i = 0; i < actions.length; i++) {
-      LibAction.executeActions(world, actions[i]);
+      LibAction.executeActions(world, gameId, actions[i]);
     }
   }
 
-  function executeTyped(Action[] calldata actions) public returns (bytes memory) {
-    return execute(abi.encode(actions));
+  function executeTyped(uint256 gameId, Action[] calldata actions) public returns (bytes memory) {
+    return execute(abi.encode(gameId, actions));
   }
 
   function load(uint256 shipEntity, bytes memory metadata) public {

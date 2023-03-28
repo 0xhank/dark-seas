@@ -13,7 +13,7 @@ import { RotationComponent, ID as RotationComponentID } from "../components/Rota
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
-import { Coord, Line, GodID, GameConfig } from "../libraries/DSTypes.sol";
+import { Coord, Line, GameConfig } from "../libraries/DSTypes.sol";
 
 // Libraries
 import { ABDKMath64x64 as Math } from "abdk-libraries-solidity/ABDKMath64x64.sol";
@@ -59,11 +59,10 @@ library LibVector {
    * @return  Coord  ship bow
    * @return  Coord  ship stern
    */
-  function getShipBowAndSternPosition(IWorld world, uint256 shipEntity)
-    public
-    view
-    returns (Coord memory, Coord memory)
-  {
+  function getShipBowAndSternPosition(
+    IWorld world,
+    uint256 shipEntity
+  ) public view returns (Coord memory, Coord memory) {
     ShipComponent shipComponent = ShipComponent(LibUtils.addressById(world, ShipComponentID));
     require(shipComponent.has(shipEntity), "LibVector: not a ship");
 
@@ -156,22 +155,17 @@ library LibVector {
    * @return  uint256  distance
    */
   function distance(Coord memory a, Coord memory b) public pure returns (uint256) {
-    int128 distanceSquared = (a.x - b.x)**2 + (a.y - b.y)**2;
+    int128 distanceSquared = (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
     return Math.toUInt(Math.sqrt(Math.fromInt(distanceSquared)));
   }
 
-  /**
-   * @notice  checks if a position is within the radius of the world
-   * @param   world world and components
-   * @param   position  position to check if within radius
-   * @return  bool  is within radius?
-   */
-  function inWorld(IWorld world, Coord memory position) public view returns (bool) {
-    GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
-      GodID
-    );
-
-    uint32 worldHeight = getWorldHeightAtTurn(gameConfig, LibTurn.getCurrentTurn(world));
+  function inWorld(
+    IWorld world,
+    GameConfig memory gameConfig,
+    uint256 gameId,
+    Coord memory position
+  ) public view returns (bool) {
+    uint32 worldHeight = getWorldHeightAtTurn(gameConfig, LibTurn.getCurrentTurn(world, gameId));
     int32 x = position.x;
     int32 y = position.y;
     uint32 worldWidth = (worldHeight * 16) / 9;
@@ -195,12 +189,20 @@ library LibVector {
    * @param   position  position to check if out of bounds
    * @return  bool  is out of bounds
    */
-  function outOfBounds(IWorld world, Coord memory position) internal view returns (bool) {
-    if (!inWorld(world, position)) return true;
-
+  /**
+   * @notice  .
+   * @dev     .
+   * @param   world  .
+   * @param   gameId  .
+   * @param   position  .
+   * @return  bool  .
+   */
+  function outOfBounds(IWorld world, uint256 gameId, Coord memory position) internal view returns (bool) {
     GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
-      GodID
+      gameId
     );
+    if (!inWorld(world, gameConfig, gameId, position)) return true;
+
     int128 denom = 50;
     int128 depth = Perlin.noise2d(position.x + gameConfig.perlinSeed, position.y + gameConfig.perlinSeed, denom, 64);
 

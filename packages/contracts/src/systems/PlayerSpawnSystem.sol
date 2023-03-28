@@ -8,7 +8,7 @@ import { NameComponent, ID as NameComponentID } from "../components/NameComponen
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
-import { Coord, GameConfig, GodID } from "../libraries/DSTypes.sol";
+import { Coord, GameConfig } from "../libraries/DSTypes.sol";
 
 // Libraries
 import "../libraries/LibUtils.sol";
@@ -21,14 +21,17 @@ contract PlayerSpawnSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
+    (uint256 gameId, string memory name, uint256[] memory ships) = abi.decode(arguments, (uint256, string, uint256[]));
     GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
-      GodID
+      gameId
     );
 
-    require(LibTurn.getCurrentTurn(world) <= gameConfig.entryCutoffTurns, "PlayerSpawnSystem: entry period has ended");
+    require(
+      LibTurn.getCurrentTurn(world, gameId) <= gameConfig.entryCutoffTurns,
+      "PlayerSpawnSystem: entry period has ended"
+    );
     require(!LibUtils.playerAddrExists(world, msg.sender), "PlayerSpawnSystem: player has already spawned");
 
-    (string memory name, uint256[] memory ships) = abi.decode(arguments, (string, uint256[]));
     require(bytes(name).length > 0, "PlayerSpawnSystem: name is blank");
     require(ships.length > 0, "PlayerSpawnSystem: no ships spawned");
 
@@ -36,11 +39,15 @@ contract PlayerSpawnSystem is System {
     uint256 playerEntity = LibSpawn.createPlayerEntity(world, msg.sender);
     NameComponent(LibUtils.addressById(world, NameComponentID)).set(playerEntity, name);
 
-    LibSpawn.spawn(world, playerEntity, ships);
+    LibSpawn.spawn(world, gameId, playerEntity, ships);
   }
 
-  function executeTyped(string calldata name, uint256[] calldata shipPrototypes) public returns (bytes memory) {
-    return execute(abi.encode(name, shipPrototypes));
+  function executeTyped(
+    uint256 gameId,
+    string calldata name,
+    uint256[] calldata shipPrototypes
+  ) public returns (bytes memory) {
+    return execute(abi.encode(gameId, name, shipPrototypes));
   }
 
   function getType(ShipPrototype calldata entry) public pure {}

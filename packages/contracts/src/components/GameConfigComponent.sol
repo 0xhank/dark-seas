@@ -2,7 +2,6 @@
 pragma solidity >=0.8.0;
 import "solecs/Component.sol";
 
-uint256 constant GodID = uint256(0x060D);
 uint256 constant ID = uint256(keccak256("ds.component.GameConfig"));
 
 import { GameConfig } from "../libraries/DSTypes.sol";
@@ -11,8 +10,8 @@ contract GameConfigComponent is Component {
   constructor(address world) Component(world, ID) {}
 
   function getSchema() public pure override returns (string[] memory keys, LibTypes.SchemaValue[] memory values) {
-    keys = new string[](12);
-    values = new LibTypes.SchemaValue[](12);
+    keys = new string[](11);
+    values = new LibTypes.SchemaValue[](11);
 
     keys[0] = "startTime";
     values[0] = LibTypes.SchemaValue.UINT256;
@@ -38,17 +37,14 @@ contract GameConfigComponent is Component {
     keys[7] = "buyin";
     values[7] = LibTypes.SchemaValue.UINT256;
 
-    keys[8] = "respawnAllowed";
-    values[8] = LibTypes.SchemaValue.BOOL;
+    keys[8] = "shrinkRate";
+    values[8] = LibTypes.SchemaValue.UINT32;
 
-    keys[9] = "shrinkRate";
+    keys[9] = "budget";
     values[9] = LibTypes.SchemaValue.UINT32;
 
-    keys[10] = "budget";
-    values[10] = LibTypes.SchemaValue.UINT32;
-
-    keys[11] = "islandThreshold";
-    values[11] = LibTypes.SchemaValue.UINT8;
+    keys[10] = "islandThreshold";
+    values[10] = LibTypes.SchemaValue.UINT8;
   }
 
   function set(uint256 entity, GameConfig calldata config) public {
@@ -65,13 +61,12 @@ contract GameConfigComponent is Component {
       int32 perlinSeed,
       uint32 entryCutoffTurns,
       uint256 buyin,
-      bool respawnAllowed,
       uint32 shrinkRate,
       uint32 budget,
       uint8 islandThreshold
     ) = abi.decode(
         getRawValue(entity),
-        (uint256, uint32, uint32, uint32, uint32, int32, uint32, uint256, bool, uint32, uint32, uint8)
+        (uint256, uint32, uint32, uint32, uint32, int32, uint32, uint256, uint32, uint32, uint8)
       );
     return
       GameConfig({
@@ -83,7 +78,6 @@ contract GameConfigComponent is Component {
         perlinSeed: perlinSeed,
         entryCutoffTurns: entryCutoffTurns,
         buyin: buyin,
-        respawnAllowed: respawnAllowed,
         shrinkRate: shrinkRate,
         budget: budget,
         islandThreshold: islandThreshold
@@ -105,7 +99,6 @@ contract GameConfigComponent is Component {
         config.perlinSeed,
         config.entryCutoffTurns,
         config.buyin,
-        config.respawnAllowed,
         config.shrinkRate,
         config.budget,
         config.islandThreshold

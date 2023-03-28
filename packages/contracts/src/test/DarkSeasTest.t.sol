@@ -11,6 +11,8 @@ import { Deploy } from "./Deploy.sol";
 import { LastActionComponent, ID as LastActionComponentID } from "../components/LastActionComponent.sol";
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
+import { CurrentGameComponent, ID as CurrentGameComponentID } from "../components/CurrentGameComponent.sol";
+import { InitSystem, ID as InitSystemID } from "../systems/InitSystem.sol";
 
 import "../libraries/LibTurn.sol";
 import "../libraries/LibSpawn.sol";
@@ -21,6 +23,20 @@ import { CannonPrototype, ShipPrototype } from "../libraries/DSTypes.sol";
 contract DarkSeasTest is MudTest {
   constructor(IDeploy deploy) MudTest(deploy) {}
 
+  GameConfig baseGameConfig =
+    GameConfig({
+      startTime: block.timestamp,
+      commitPhaseLength: 24,
+      revealPhaseLength: 9,
+      actionPhaseLength: 25,
+      worldSize: 100,
+      perlinSeed: 69,
+      entryCutoffTurns: 3,
+      buyin: 0,
+      shrinkRate: 400,
+      budget: 10,
+      islandThreshold: 33
+    });
   bytes none = abi.encode(0);
   modifier prank(address prankster) {
     vm.startPrank(prankster);
@@ -30,6 +46,7 @@ contract DarkSeasTest is MudTest {
 
   function spawnBattleship(
     IWorld world,
+    uint256 gameId,
     uint256 playerEntity,
     Coord memory position,
     uint32 rotation
@@ -48,12 +65,14 @@ contract DarkSeasTest is MudTest {
     SpeedComponent(LibUtils.addressById(world, SpeedComponentID)).set(shipEntity, 10);
     LastHitComponent(LibUtils.addressById(world, LastHitComponentID)).set(shipEntity, GodID);
     FirepowerComponent(LibUtils.addressById(world, FirepowerComponentID)).set(shipEntity, 0);
+    CurrentGameComponent(LibUtils.addressById(world, CurrentGameComponentID)).set(shipEntity, gameId);
     LibSpawn.spawnCannon(world, shipEntity, 90, 8, 100);
     LibSpawn.spawnCannon(world, shipEntity, 270, 8, 100);
     LibSpawn.spawnCannon(world, shipEntity, 0, 8, 100);
   }
 
   function spawnShip(
+    uint256 gameId,
     Coord memory position,
     uint32 rotation,
     address spawner
@@ -62,7 +81,7 @@ contract DarkSeasTest is MudTest {
 
     if (!LibUtils.playerIdExists(world, playerEntity)) LibSpawn.createPlayerEntity(world, spawner);
 
-    shipEntity = spawnBattleship(world, playerEntity, position, rotation);
+    shipEntity = spawnBattleship(world, gameId, playerEntity, position, rotation);
 
     LastActionComponent(LibUtils.addressById(world, LastActionComponentID)).set(playerEntity, 0);
     LastMoveComponent(LibUtils.addressById(world, LastMoveComponentID)).set(playerEntity, 0);
@@ -129,11 +148,7 @@ contract DarkSeasTest is MudTest {
     console.logInt(coord.y);
   }
 
-  function assertApproxEqAbs(
-    uint256 a,
-    uint256 b,
-    uint256 maxDelta
-  ) internal {
+  function assertApproxEqAbs(uint256 a, uint256 b, uint256 maxDelta) internal {
     uint256 delta = a > b ? a - b : b - a;
 
     if (delta > maxDelta) {
@@ -146,12 +161,7 @@ contract DarkSeasTest is MudTest {
     }
   }
 
-  function assertApproxEqAbs(
-    uint256 a,
-    uint256 b,
-    uint256 maxDelta,
-    string memory err
-  ) internal {
+  function assertApproxEqAbs(uint256 a, uint256 b, uint256 maxDelta, string memory err) internal {
     uint256 delta = a > b ? a - b : b - a;
 
     if (delta > maxDelta) {
@@ -160,11 +170,7 @@ contract DarkSeasTest is MudTest {
     }
   }
 
-  function assertApproxEqAbs(
-    int256 a,
-    int256 b,
-    uint256 maxDelta
-  ) internal {
+  function assertApproxEqAbs(int256 a, int256 b, uint256 maxDelta) internal {
     uint256 delta = uint256(a > b ? a - b : b - a);
 
     if (delta > maxDelta) {
@@ -177,12 +183,7 @@ contract DarkSeasTest is MudTest {
     }
   }
 
-  function assertApproxEqAbs(
-    int256 a,
-    int256 b,
-    uint256 maxDelta,
-    string memory err
-  ) internal {
+  function assertApproxEqAbs(int256 a, int256 b, uint256 maxDelta, string memory err) internal {
     uint256 delta = uint256(a > b ? a - b : b - a);
 
     if (delta > maxDelta) {
@@ -191,22 +192,18 @@ contract DarkSeasTest is MudTest {
     }
   }
 
-  function getTurnAndPhaseTime(
-    IWorld world,
-    uint32 turn,
-    Phase phase
-  ) internal view returns (uint256) {
+  function getTurnAndPhaseTime(IWorld world, uint256 gameId, uint32 turn, Phase phase) internal view returns (uint256) {
     GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
-      GodID
+      gameId
     );
-
+    uint32 turnLength = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength + gameConfig.actionPhaseLength;
     uint256 startOffset = gameConfig.startTime;
 
     uint32 phaseOffset = 0;
     if (phase == Phase.Reveal) phaseOffset = gameConfig.commitPhaseLength;
     else if (phase == Phase.Action) phaseOffset = gameConfig.commitPhaseLength + gameConfig.revealPhaseLength;
 
-    uint32 turnOffset = LibTurn.turnLength(world) * turn;
+    uint32 turnOffset = turn * turnLength;
 
     return startOffset + phaseOffset + turnOffset;
   }
