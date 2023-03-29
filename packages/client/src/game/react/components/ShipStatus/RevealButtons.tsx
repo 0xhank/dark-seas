@@ -1,8 +1,8 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { getComponentValueStrict, Has, runQuery } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
-import { useMUD } from "../../../mud/providers/MUDProvider";
-import { usePlayer } from "../../../mud/providers/PlayerProvider";
+import { useGame } from "../../../../mud/providers/GameProvider";
+import { usePlayer } from "../../../../mud/providers/PlayerProvider";
 import { Button, Success } from "../../styles/global";
 
 export function RevealButtons({ tooEarly, turn }: { tooEarly: boolean; turn: number }) {
@@ -11,7 +11,7 @@ export function RevealButtons({ tooEarly, turn }: { tooEarly: boolean; turn: num
     actions: { Action },
     api: { revealMove },
     godEntity,
-  } = useMUD();
+  } = useGame();
 
   const encodedCommitment = useComponentValue(EncodedCommitment, godEntity)?.value;
   const encoding = useComponentValue(EncodedCommitment, godEntity)?.value;

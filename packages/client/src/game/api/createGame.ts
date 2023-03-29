@@ -1,24 +1,24 @@
 import { TxQueue } from "@latticexyz/network";
-import { EntityID, EntityIndex, getComponentValue } from "@latticexyz/recs";
+import { EntityID, getComponentValue } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
 import { utils } from "ethers";
 import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { ActionStruct } from "../../../../contracts/types/ethers-contracts/ActionSystem";
+import { GameConfigStruct } from "../../../../contracts/types/ethers-contracts/InitSystem";
 import { SystemTypes } from "../../../../contracts/types/SystemTypes";
 import { components } from "../../components";
 import { world } from "../../world";
-import { Action, ActionHashes, ActionType, TxType } from "../types";
+import { ActionHashes, ActionType, TxType } from "../types";
 
-export function submitActions(
+export function createGame(
   systems: TxQueue<SystemTypes>,
   actions: ActionSystem,
-  getTargetedShips: (cannonEntity: EntityIndex) => EntityIndex[],
-  shipActions: Action[],
+  config: GameConfigStruct,
   override?: boolean
 ) {
   const { OwnedBy } = components;
 
-  const actionId = `submitActions ${Date.now()}` as EntityID;
+  const actionId = `create game${Date.now()}` as EntityID;
   actions.add({
     id: actionId,
     awaitConfirmation: true,

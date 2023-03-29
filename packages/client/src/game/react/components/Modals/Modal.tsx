@@ -1,7 +1,7 @@
 import { useComponentValue } from "@latticexyz/react";
 import { removeComponent } from "@latticexyz/recs";
-import { ModalType } from "../../../game/types";
-import { useMUD } from "../../../mud/providers/MUDProvider";
+import { useGame } from "../../../../mud/providers/GameProvider";
+import { ModalType } from "../../..//types";
 import { Container } from "../../styles/global";
 import { Cell } from "../Cell";
 import { Leaderboard } from "./Leaderboard";
@@ -16,7 +16,7 @@ const gridConfig = {
 export function Modal() {
   const {
     components: { ModalOpen },
-  } = useMUD();
+  } = useGame();
 
   const showTutorial = !!useComponentValue(ModalOpen, ModalType.TUTORIAL)?.value;
   const showLeaderboard = !!useComponentValue(ModalOpen, ModalType.LEADERBOARD)?.value;

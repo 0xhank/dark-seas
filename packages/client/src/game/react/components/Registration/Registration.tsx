@@ -1,7 +1,7 @@
 import { removeComponent } from "@latticexyz/recs";
 import { useState } from "react";
 import styled from "styled-components";
-import { useMUD } from "../../../mud/providers/MUDProvider";
+import { useGame } from "../../../../mud/providers/GameProvider";
 import { ShipContainer } from "../../styles/global";
 import { FleetPage } from "./FleetPage";
 import { NamePage } from "./NamePage";
@@ -12,7 +12,7 @@ export function Registration() {
   const {
     components: { ActiveShip },
     godEntity,
-  } = useMUD();
+  } = useGame();
   const [state, setState] = useState<RegisterState>("Name");
 
   return (

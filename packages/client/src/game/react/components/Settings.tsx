@@ -1,8 +1,8 @@
 import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex, setComponent } from "@latticexyz/recs";
 import styled from "styled-components";
-import { ModalType } from "../../game/types";
-import { useMUD } from "../../mud/providers/MUDProvider";
+import { useGame } from "../../../mud/providers/GameProvider";
+import { ModalType } from "../..//types";
 import { Button, Img } from "../styles/global";
 
 const gridConfig = {
@@ -16,7 +16,7 @@ export function Settings() {
     utils: { muteSfx, unmuteSfx, playMusic, muteMusic },
     components: { Volume, ModalOpen },
     godEntity,
-  } = useMUD();
+  } = useGame();
 
   const openLeaderboard = () => setComponent(ModalOpen, ModalType.LEADERBOARD, { value: true });
   const openTutorial = () => setComponent(ModalOpen, ModalType.TUTORIAL, { value: true });

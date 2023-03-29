@@ -1,10 +1,10 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { EntityID, EntityIndex } from "@latticexyz/recs";
 import styled from "styled-components";
-import { ActionType } from "../../../game/types";
-import { getShipSprite, ShipImages } from "../../../game/utils/ships";
-import { useMUD } from "../../../mud/providers/MUDProvider";
-import { usePlayer } from "../../../mud/providers/PlayerProvider";
+import { useGame } from "../../../../mud/providers/GameProvider";
+import { usePlayer } from "../../../../mud/providers/PlayerProvider";
+import { ActionType } from "../../..//types";
+import { getShipSprite, ShipImages } from "../../..//utils/ships";
 import { BoxImage, colors } from "../../styles/global";
 import { ShipAttributeTypes } from "../../types";
 import PillBar from "../PillBar";
@@ -14,7 +14,7 @@ import ShipDamage from "./ShipDamage";
 function DamageDisplay({ shipEntity, updates }: { shipEntity: EntityIndex; updates: ActionType[] | undefined }) {
   const {
     components: { DamagedCannonsLocal, OnFireLocal, HealthLocal, SailPositionLocal },
-  } = useMUD();
+  } = useGame();
   const damagedCannons = useComponentValue(DamagedCannonsLocal, shipEntity, { value: 0 }).value;
   const onFire = useComponentValue(OnFireLocal, shipEntity, { value: 0 }).value;
   const health = useComponentValue(HealthLocal, shipEntity, { value: 0 }).value;
@@ -54,7 +54,7 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
       SailPositionLocal,
     },
     network: { clock },
-  } = useMUD();
+  } = useGame();
 
   const playerEntity = usePlayer();
   const fakeOwner = "0" as EntityID;

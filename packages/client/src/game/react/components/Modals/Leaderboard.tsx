@@ -7,9 +7,9 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import styled from "styled-components";
+import { useGame } from "../../../../mud/providers/GameProvider";
 import { world } from "../../../../world";
-import { HoverType, ModalType } from "../../../game/types";
-import { useMUD } from "../../../mud/providers/MUDProvider";
+import { HoverType, ModalType } from "../../..//types";
 import { POS_HEIGHT, POS_WIDTH } from "../../../phaser/constants";
 import { Button, colors } from "../../styles/global";
 import { SortableTable } from "./SortableTable";
@@ -32,7 +32,7 @@ export function Leaderboard() {
     godEntity,
     scene: { camera },
     utils: { getShipName },
-  } = useMUD();
+  } = useGame();
   let players: PlayerData[] = [];
   let ships: ShipData[] = [];
 

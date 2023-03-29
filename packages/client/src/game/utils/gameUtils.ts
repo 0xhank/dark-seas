@@ -27,8 +27,8 @@ import { colors } from "../react/styles/global";
 import { Category, soundLibrary } from "../sound";
 import { getRangeTintAlpha } from "../systems/renderShip";
 import { Action, ActionType, DELAY, Move, Phase, ShipPrototype, Sprites } from "../types";
-import { distance } from "../utils/distance";
-import { cap, getHash, getShipSprite } from "../utils/ships";
+import { distance } from "./distance";
+import { cap, getHash, getShipSprite } from "./ships";
 import {
   getFiringArea,
   getPolygonCenter,
@@ -36,9 +36,9 @@ import {
   getSternPosition,
   inFiringArea,
   isBroadside,
-} from "../utils/trig";
-import { adjectives, nouns } from "../utils/wordlist";
-export async function createUtilities(
+} from "./trig";
+import { adjectives, nouns } from "./wordlist";
+export async function createGameUtilities(
   godEntity: EntityIndex,
   playerAddress: string,
   clock: Clock,

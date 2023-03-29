@@ -9,10 +9,10 @@ import {
 } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
 import { merge } from "rxjs";
+import { useGame } from "../../../../mud/providers/GameProvider";
+import { usePlayer } from "../../../../mud/providers/PlayerProvider";
 import { world } from "../../../../world";
-import { Category } from "../../../game/sound";
-import { useMUD } from "../../../mud/providers/MUDProvider";
-import { usePlayer } from "../../../mud/providers/PlayerProvider";
+import { Category } from "../../..//sound";
 import { Button, Success } from "../../styles/global";
 
 export function CommitButtons({ tooEarly }: { tooEarly: boolean }) {
@@ -22,7 +22,7 @@ export function CommitButtons({ tooEarly }: { tooEarly: boolean }) {
     actions: { Action },
     api: { commitMove },
     godEntity,
-  } = useMUD();
+  } = useGame();
 
   useObservableValue(merge(SelectedMove.update$, CommittedMove.update$));
   const encodedCommitment = useComponentValue(EncodedCommitment, godEntity)?.value;

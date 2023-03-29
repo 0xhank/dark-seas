@@ -1,15 +1,15 @@
 import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex, removeComponent, setComponent } from "@latticexyz/recs";
 import styled from "styled-components";
-import { getShipSprite, ShipImages } from "../../../game/utils/ships";
-import { useMUD } from "../../../mud/providers/MUDProvider";
+import { useGame } from "../../../../mud/providers/GameProvider";
+import { getShipSprite, ShipImages } from "../../..//utils/ships";
 import { BoxImage, colors, OptionButton } from "../../styles/global";
 
 export function ShipButton({ prototypeEntity }: { prototypeEntity: EntityIndex }) {
   const {
     components: { ActiveShip, Length, Booty, Name },
     godEntity,
-  } = useMUD();
+  } = useGame();
 
   const length = useComponentValue(Length, prototypeEntity, { value: 0 }).value;
   const price = useComponentValue(Booty, prototypeEntity, { value: 0 }).value;

@@ -11,9 +11,9 @@ import {
 import { ActionState } from "@latticexyz/std-client";
 import { merge } from "rxjs";
 import styled from "styled-components";
+import { useGame } from "../../../../mud/providers/GameProvider";
 import { world } from "../../../../world";
-import { formatTime } from "../../../game/utils/directions";
-import { useMUD } from "../../../mud/providers/MUDProvider";
+import { formatTime } from "../../..//utils/directions";
 import { Button, colors, Container } from "../../styles/global";
 import { ShipButton } from "./ShipButton";
 
@@ -25,7 +25,7 @@ export function YourFleet({ flex }: { flex: number }) {
     api: { spawnPlayer },
     network: { clock },
     godEntity,
-  } = useMUD();
+  } = useGame();
 
   useObservableValue(merge(ShipPrototype.update$, Action.update$));
 

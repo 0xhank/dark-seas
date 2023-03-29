@@ -3,8 +3,8 @@ import { EntityIndex } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
 import { merge } from "rxjs";
 import styled from "styled-components";
-import { getMidpoint } from "../../game/utils/trig";
-import { useMUD } from "../../mud/providers/MUDProvider";
+import { useGame } from "../../../mud/providers/GameProvider";
+import { getMidpoint } from "../..//utils/trig";
 import { colors } from "../styles/global";
 
 type ShipData = {
@@ -27,7 +27,7 @@ export function DamageChance() {
     utils: { getTargetedShips, getDamageLikelihood, getSpriteObject },
     godEntity,
     scene: { camera },
-  } = useMUD();
+  } = useGame();
   useObservableValue(merge(camera.worldView$, camera.zoom$));
 
   const hoveredAction = useComponentValue(HoveredAction, godEntity);

@@ -1,10 +1,10 @@
 import { Browser as ECSBrowser } from "@latticexyz/ecs-browser";
 import { Layer } from "@latticexyz/recs";
 import { useState } from "react";
-import { useMUD } from "../../../mud/providers/MUDProvider";
+import { useGame } from "../../../../mud/providers/GameProvider";
 
 export const ComponentBrowser = () => {
-  const { world, components, dev } = useMUD();
+  const { world, components, dev } = useGame();
   const layer: Layer = { world, components };
 
   const [shown, setShown] = useState(false);

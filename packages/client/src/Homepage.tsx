@@ -1,8 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { BackgroundImg, colors } from "../styles/global";
+import { BackgroundImg, colors } from "./game/react/styles/global";
 
-export function HomePage() {
+export function HomePage({ showButton }: { showButton?: boolean }) {
+  const { worldAddress, block } = useParams<{ worldAddress: string | undefined; block: string | undefined }>();
+  console.log("worldAddress", worldAddress);
+  console.log("block", block);
   return (
     <Container>
       <BackgroundImg style={{ zIndex: -1 }} />
@@ -16,9 +19,13 @@ export function HomePage() {
         }}
       >
         <Logo src="/img/ds-logo.png" />
-        <div style={{ display: "flex", width: "100%", gap: "6px" }}>
-          <EnterButton to="/app">Enter</EnterButton>
-        </div>
+        {showButton && (
+          <div style={{ display: "flex", width: "100%", gap: "6px" }}>
+            <EnterButton to={`/app`} state={{ worldAddress, block }}>
+              Enter
+            </EnterButton>
+          </div>
+        )}
       </div>
     </Container>
   );

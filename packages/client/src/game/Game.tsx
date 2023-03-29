@@ -2,8 +2,8 @@ import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { HomePage } from "../Homepage";
-import { createNetworkLayer as createNetworkLayerImport, NetworkLayer } from "./mud";
-import { MUDProvider } from "./mud/providers/MUDProvider";
+import { createNetworkLayer as createNetworkLayerImport, NetworkLayer } from "../mud";
+import { GameProvider } from "../mud/providers/GameProvider";
 import { createPhaserLayer as createPhaserLayerImport, PhaserLayer } from "./phaser";
 import { GameWindow } from "./react/components/GameWindow";
 import { SetupResult } from "./types";
@@ -36,7 +36,7 @@ export const Game = () => {
   useEffect(() => {
     if (!worldAddress) return;
     if (import.meta.hot) {
-      import.meta.hot.accept("./mud/index.ts", async (module) => {
+      import.meta.hot.accept("./../mud/index.ts", async (module) => {
         console.log("reloading network");
         if (!module) return;
         createNetworkLayer = module.createNetworkLayer;
@@ -62,9 +62,9 @@ export const Game = () => {
 
   if (MUD)
     return (
-      <MUDProvider {...MUD}>
+      <GameProvider {...MUD}>
         <GameWindow />
-      </MUDProvider>
+      </GameProvider>
     );
   return <HomePage />;
 };

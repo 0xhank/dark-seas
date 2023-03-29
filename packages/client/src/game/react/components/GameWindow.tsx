@@ -1,8 +1,8 @@
 import { SyncState } from "@latticexyz/network";
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import styled from "styled-components";
-import { useMUD } from "../../mud/providers/MUDProvider";
-import { PlayerProvider } from "../../mud/providers/PlayerProvider";
+import { useGame } from "../../../mud/providers/GameProvider";
+import { PlayerProvider } from "../../../mud/providers/PlayerProvider";
 import { BootScreen } from "./BootScreen";
 import { DamageChance } from "./DamageChance";
 import { ComponentBrowser } from "./Dev/ComponentBrowser";
@@ -19,7 +19,7 @@ export function GameWindow() {
     components: { LoadingState, Player },
     godEntity,
     utils: { getPlayerEntity },
-  } = useMUD();
+  } = useGame();
 
   // re render when a player is added
   useObservableValue(Player.update$);

@@ -1,11 +1,11 @@
 import { useObservableValue } from "@latticexyz/react";
 import { getComponentValue } from "@latticexyz/recs";
 import styled, { keyframes } from "styled-components";
-import { Category } from "../../game/sound";
-import { Phase } from "../../game/types";
-import { formatTime } from "../../game/utils/directions";
-import { useMUD } from "../../mud/providers/MUDProvider";
-import { usePlayer } from "../../mud/providers/PlayerProvider";
+import { useGame } from "../../../mud/providers/GameProvider";
+import { usePlayer } from "../../../mud/providers/PlayerProvider";
+import { Category } from "../../sound";
+import { Phase } from "../../types";
+import { formatTime } from "../../utils/directions";
 import { colors } from "../styles/global";
 import { Cell } from "./Cell";
 
@@ -20,7 +20,7 @@ export function TurnTimer() {
     utils: { playSound },
     components: { EncodedCommitment },
     godEntity,
-  } = useMUD();
+  } = useGame();
 
   const time = useObservableValue(clock.time$) || 0;
   const gameConfig = getGameConfig();

@@ -1,9 +1,9 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { EntityID, setComponent } from "@latticexyz/recs";
+import { useGame } from "../../../../mud/providers/GameProvider";
 import { world } from "../../../../world";
-import { ModalType } from "../../../game/types";
-import { formatTime } from "../../../game/utils/directions";
-import { useMUD } from "../../../mud/providers/MUDProvider";
+import { ModalType } from "../../..//types";
+import { formatTime } from "../../..//utils/directions";
 import { Button, colors, Input } from "../../styles/global";
 
 export function NamePage({ selectFleet }: { selectFleet: () => void }) {
@@ -12,7 +12,7 @@ export function NamePage({ selectFleet }: { selectFleet: () => void }) {
     playerAddress,
     godEntity,
     network: { clock },
-  } = useMUD();
+  } = useGame();
 
   const name = useComponentValue(Name, godEntity, { value: "" }).value;
 

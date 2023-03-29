@@ -2,21 +2,23 @@ import { createFaucetService, SingletonID } from "@latticexyz/network";
 import { EntityID, EntityIndex, namespaceWorld } from "@latticexyz/recs";
 import { createActionSystem } from "@latticexyz/std-client";
 import { parseEther } from "ethers/lib/utils.js";
-import { SystemAbis } from "../../../../contracts/types/SystemAbis.mjs";
-import { SystemTypes } from "../../../../contracts/types/SystemTypes";
-import { components } from "../../components";
-import { world } from "../../world";
+import { GameConfigStruct } from "../../../contracts/types/ethers-contracts/InitSystem.js";
+import { SystemAbis } from "../../../contracts/types/SystemAbis.mjs";
+import { SystemTypes } from "../../../contracts/types/SystemTypes";
+import { components } from "../components";
 import {
   commitMoveAction,
+  createGameAction,
   respawnAction,
   revealMoveAction,
   spawnPlayerAction,
   submitActionsAction,
-} from "../api/index";
-import { Action, Move } from "../types";
-import { setupDevSystems } from "../utils/setupDevSystems";
-import { setupMUDNetwork } from "../utils/setupMUDNetwork";
+} from "../game/api/index";
+import { Action, Move } from "../game/types.js";
+import { world } from "../world";
 import { getNetworkConfig } from "./config.js";
+import { setupDevSystems } from "./utils/setupDevSystems";
+import { setupMUDNetwork } from "./utils/setupMUDNetwork";
 export async function createNetworkLayer(worldAddress?: string, block?: number) {
   const config = getNetworkConfig({ worldAddress, block });
   const networkWorld = namespaceWorld(world, "network");
@@ -89,6 +91,10 @@ export async function createNetworkLayer(worldAddress?: string, block?: number) 
       override?: boolean
     ) => {
       submitActionsAction(systems, actions, getTargetedShips, playerActions, override);
+    },
+
+    createGame: (gameConfig: GameConfigStruct, override?: boolean) => {
+      createGameAction(systems, gameConfig, override);
     },
   };
 

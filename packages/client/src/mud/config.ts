@@ -1,6 +1,6 @@
-import devChainSpec from "../../../../contracts/chainSpec.dev.json";
-import chainSpec from "../../../../contracts/chainSpec.json";
-import { getBurnerWallet } from "../utils/getBurnerWallet";
+import devChainSpec from "../../../contracts/chainSpec.dev.json";
+import chainSpec from "../../../contracts/chainSpec.json";
+import { getBurnerWallet } from "./utils/getBurnerWallet";
 
 export type ChainSpec = {
   dev: boolean;

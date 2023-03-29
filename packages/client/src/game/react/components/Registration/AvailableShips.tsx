@@ -1,14 +1,14 @@
 import { EntityIndex, getComponentEntities, getComponentValue } from "@latticexyz/recs";
 import { Fragment } from "react";
 import styled from "styled-components";
-import { useMUD } from "../../../mud/providers/MUDProvider";
+import { useGame } from "../../../../mud/providers/GameProvider";
 import { Container } from "../../styles/global";
 import { ShipButton } from "./ShipButton";
 
 export function AvailableShips({ flex }: { flex: number }) {
   const {
     components: { ShipPrototype, Booty },
-  } = useMUD();
+  } = useGame();
 
   const prototypes = [...getComponentEntities(ShipPrototype)]
     .map((entity) => ({

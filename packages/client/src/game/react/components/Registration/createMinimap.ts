@@ -12,11 +12,10 @@ import {
 } from "@latticexyz/recs";
 import { filter } from "rxjs";
 import { world } from "../../../../world";
-import { Sprites } from "../../../game/types";
-import { getShipSprite } from "../../../game/utils/ships";
+import { SetupResult, Sprites } from "../../..//types";
+import { getShipSprite } from "../../..//utils/ships";
 import { phaserConfig, sprites } from "../../../phaser/config";
 import { POS_WIDTH, RenderDepth, SHIP_RATIO } from "../../../phaser/constants";
-import { SetupResult } from "../../../setupMUD";
 import { colors } from "../../styles/global";
 
 export async function createMinimap() {

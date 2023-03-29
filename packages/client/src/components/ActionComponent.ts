@@ -1,5 +1,5 @@
 import { defineComponent, Type } from "@latticexyz/recs";
-import { world } from "../mud/world";
+import { world } from "../world";
 
 export const defineActionComponent = defineComponent(
   world,

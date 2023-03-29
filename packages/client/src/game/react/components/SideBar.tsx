@@ -1,9 +1,9 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { EntityIndex, Has, HasValue, NotValue, runQuery } from "@latticexyz/recs";
 import styled from "styled-components";
+import { useGame } from "../../../mud/providers/GameProvider";
+import { usePlayer } from "../../../mud/providers/PlayerProvider";
 import { world } from "../../../world";
-import { useMUD } from "../../mud/providers/MUDProvider";
-import { usePlayer } from "../../mud/providers/PlayerProvider";
 import { Button, colors } from "../styles/global";
 import { ConfirmButtons } from "./ShipStatus/ConfirmButtons";
 import { YourShip } from "./ShipStatus/YourShip";
@@ -15,7 +15,7 @@ export function SideBar() {
     api: { respawn: apiRespawn },
     utils: { getGameConfig },
     godEntity,
-  } = useMUD();
+  } = useGame();
 
   const playerEntity = usePlayer();
   const name = useComponentValue(Name, playerEntity)?.value;

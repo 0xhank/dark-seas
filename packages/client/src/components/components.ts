@@ -5,7 +5,7 @@ import {
   defineNumberComponent,
   defineStringComponent,
 } from "@latticexyz/std-client";
-import { world } from "../mud/world";
+import { world } from "../world";
 import { defineActionComponent } from "./ActionComponent";
 import { GameConfigComponent } from "./GameConfigComponent";
 import { MoveCardComponent } from "./MoveCardComponent";

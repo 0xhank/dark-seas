@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { SailPositions } from "../../../game/types";
+import { SailPositions } from "../../..//types";
 import { colors } from "../../styles/global";
 import { ShipAttributeTypes } from "../../types";
 

@@ -2,10 +2,10 @@ import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { EntityID, EntityIndex, removeComponent, setComponent } from "@latticexyz/recs";
 import { merge } from "rxjs";
 import styled from "styled-components";
-import { ActionImg, ActionNames, ActionType, Phase } from "../../game/types";
-import { getMidpoint } from "../../game/utils/trig";
-import { useMUD } from "../../mud/providers/MUDProvider";
-import { usePlayer } from "../../mud/providers/PlayerProvider";
+import { useGame } from "../../../mud/providers/GameProvider";
+import { usePlayer } from "../../../mud/providers/PlayerProvider";
+import { ActionImg, ActionNames, ActionType, Phase } from "../..//types";
+import { getMidpoint } from "../..//utils/trig";
 import { colors, Img, OptionButton } from "../styles/global";
 
 export function EmergencyActions() {
@@ -24,7 +24,7 @@ export function EmergencyActions() {
     network: { clock },
 
     scene: { camera },
-  } = useMUD();
+  } = useGame();
 
   const playerEntity = usePlayer();
 

@@ -1,7 +1,7 @@
 import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex } from "@latticexyz/recs";
-import { HoverType } from "../../game/types";
-import { useMUD } from "../../mud/providers/MUDProvider";
+import { useGame } from "../../../mud/providers/GameProvider";
+import { HoverType } from "../..//types";
 import { ShipContainer } from "../styles/global";
 import { Cell } from "./Cell";
 import { ShipCard } from "./ShipStatus/ShipCard";
@@ -11,7 +11,7 @@ export function HoveredShip() {
   const {
     components: { HoveredSprite },
     godEntity,
-  } = useMUD();
+  } = useGame();
 
   const shipEntity = useComponentValue(HoveredSprite, HoverType.SHIP)?.value as EntityIndex | undefined;
   if (!shipEntity) return null;
