@@ -94,7 +94,7 @@ export async function createNetworkLayer(worldAddress?: string, block?: number) 
     },
 
     createGame: (gameConfig: GameConfigStruct, override?: boolean) => {
-      createGameAction(systems, gameConfig, override);
+      createGameAction(systems, actions, gameConfig, override);
     },
   };
 

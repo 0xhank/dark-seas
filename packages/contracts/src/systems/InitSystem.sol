@@ -27,8 +27,11 @@ contract InitSystem is System {
     GameConfigComponent gameConfigComponent = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID));
 
     uint256 gameId = world.getUniqueEntityId();
-
-    gameConfigComponent.set(gameId, abi.decode(arguments, (GameConfig)));
+    GameConfig gameConfig = abi.decode(arguments, (GameConfig));
+    if (gameConfig.startTime == 0) {
+      gameConfig.startTime = block.timestamp;
+    }
+    gameConfigComponent.set(gameId, gameConfig);
 
     createShips();
     createMoveCards();

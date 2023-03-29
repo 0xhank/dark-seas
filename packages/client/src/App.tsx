@@ -5,11 +5,11 @@ import { HomePage } from "./Homepage";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <HomePage showButton />,
+    element: <HomePage />,
   },
   {
     path: "/:worldAddress/:block?",
-    element: <HomePage />,
+    element: <HomePage showButton />,
   },
   {
     path: "/app",
