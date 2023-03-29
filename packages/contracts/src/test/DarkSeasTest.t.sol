@@ -12,7 +12,7 @@ import { LastActionComponent, ID as LastActionComponentID } from "../components/
 import { LastMoveComponent, ID as LastMoveComponentID } from "../components/LastMoveComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 import { CurrentGameComponent, ID as CurrentGameComponentID } from "../components/CurrentGameComponent.sol";
-import { InitSystem, ID as InitSystemID } from "../systems/InitSystem.sol";
+import { CreateGameSystem, ID as CreateGameSystemID } from "../systems/CreateGameSystem.sol";
 
 import "../libraries/LibTurn.sol";
 import "../libraries/LibSpawn.sol";

@@ -19,29 +19,13 @@ import "../libraries/LibCreateShip.sol";
 import "../libraries/LibUtils.sol";
 import "../libraries/LibCrate.sol";
 
-// @todo: make this admin only
 contract InitSystem is System {
   constructor(IWorld _world, address _components) System(_world, _components) {}
 
   function execute(bytes memory arguments) public returns (bytes memory) {
-    GameConfigComponent gameConfigComponent = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID));
-
-    uint256 gameId = world.getUniqueEntityId();
-    GameConfig gameConfig = abi.decode(arguments, (GameConfig));
-    if (gameConfig.startTime == 0) {
-      gameConfig.startTime = block.timestamp;
-    }
-    gameConfigComponent.set(gameId, gameConfig);
-
     createShips();
     createMoveCards();
     createActions();
-
-    return abi.encode(gameId);
-  }
-
-  function executeTyped(GameConfig calldata gameConfig) public returns (bytes memory) {
-    return execute(abi.encode(gameConfig));
   }
 
   function createShips() private {

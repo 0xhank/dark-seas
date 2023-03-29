@@ -30,6 +30,10 @@
   ],
   "systems": [
     {
+      "name": "CreateGameSystem",
+      "writeAccess": ["*"]
+    },
+    {
       "name": "MoveSystem",
       "writeAccess": [
         "PositionComponent",
@@ -95,7 +99,8 @@
     },
     {
       "name": "InitSystem",
-      "writeAccess": ["*"]
+      "writeAccess": ["*"],
+      "initialize": "new bytes(0)"
     }
   ]
 }

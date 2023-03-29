@@ -282,7 +282,7 @@ contract AttackActionTest is DarkSeasTest {
    */
 
   function setup() internal returns (uint256 gameId) {
-    bytes memory id = InitSystem(system(InitSystemID)).executeTyped(baseGameConfig);
+    bytes memory id = CreateGameSystem(system(CreateGameSystemID)).executeTyped(baseGameConfig);
     gameId = abi.decode(id, (uint256));
 
     actionSystem = ActionSystem(system(ActionSystemID));
