@@ -1,4 +1,3 @@
-// Visit https://aka.ms/tsconfig.json for all config options
 {
   "compilerOptions": {
     "target": "es2021",
@@ -9,6 +8,5 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
-  },
-  "files": ["build-deploy.ts"]
+  }
 }
