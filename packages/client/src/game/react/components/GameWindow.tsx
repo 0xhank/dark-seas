@@ -17,7 +17,7 @@ import { TurnTimer } from "./TurnTimer";
 export function GameWindow() {
   const {
     components: { LoadingState, Player },
-    godEntity,
+    singletonEntity,
     utils: { getPlayerEntity },
   } = useGame();
 
@@ -25,7 +25,7 @@ export function GameWindow() {
   useObservableValue(Player.update$);
   const playerEntity = getPlayerEntity();
   const spectating = useComponentValue(Player, playerEntity)?.value == -1;
-  const loadingState = useComponentValue(LoadingState, godEntity, {
+  const loadingState = useComponentValue(LoadingState, singletonEntity, {
     state: SyncState.CONNECTING,
     msg: "Connecting",
     percentage: 0,
@@ -34,7 +34,7 @@ export function GameWindow() {
   const progression =
     loadingState.state == SyncState.INITIAL ? loadingState.percentage : loadingState.state == SyncState.LIVE ? 100 : 0;
   if (loadingState.state !== SyncState.LIVE) return <BootScreen progression={progression} />;
-
+  console.log(loadingState);
   return (
     <UIGrid
       onMouseDown={(e) => e.stopPropagation()}

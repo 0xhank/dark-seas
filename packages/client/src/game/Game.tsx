@@ -1,9 +1,11 @@
+import { EntityID } from "@latticexyz/recs";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { HomePage } from "../Homepage";
 import { NetworkLayer, createNetworkLayer as createNetworkLayerImport } from "../mud";
 import { GameProvider } from "../mud/providers/GameProvider";
+import { Link } from "../styles/global";
 import { PhaserLayer, createPhaserLayer as createPhaserLayerImport } from "./phaser";
 import { GameWindow } from "./react/components/GameWindow";
 import { SetupResult } from "./types";
@@ -13,16 +15,21 @@ let createPhaserLayer = createPhaserLayerImport;
 export const Game = () => {
   const [MUD, setMUD] = useState<SetupResult>();
   const { state } = useLocation();
-  const { worldAddress, block } = state as { worldAddress: string | undefined; block: string | undefined };
-  console.log(worldAddress, block);
-  if (!worldAddress || !ethers.utils.isAddress(worldAddress)) throw new Error("invalid world address");
+  const { worldAddress, gameId, block } = state as {
+    worldAddress: string | undefined;
+    gameId: EntityID | undefined;
+    block: string | undefined;
+  };
+
+  if (!worldAddress || !ethers.utils.isAddress(worldAddress) || !gameId) throw new Error("invalid world address");
   let network: NetworkLayer | undefined = undefined;
   let phaser: PhaserLayer | undefined = undefined;
 
   async function bootGame() {
+    if (!gameId) throw new Error("no game id");
     console.log("rebooting game");
     if (!network) {
-      network = await createNetworkLayer(worldAddress, Number(block ? block : 0));
+      network = await createNetworkLayer(worldAddress, 0, gameId);
       network.startSync();
       phaser = await createPhaserLayer(network);
     }
@@ -64,6 +71,17 @@ export const Game = () => {
   if (MUD)
     return (
       <GameProvider {...MUD}>
+        <div style={{ position: "fixed", top: "12px", left: "12px" }}>
+          <Link
+            onClick={() => {
+              MUD.world.dispose();
+            }}
+            to="/app"
+            state={{ worldAddress, block }}
+          >
+            Home
+          </Link>
+        </div>
         <GameWindow />
       </GameProvider>
     );

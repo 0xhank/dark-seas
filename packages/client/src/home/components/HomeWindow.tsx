@@ -4,18 +4,19 @@ import { Has, getComponentValueStrict } from "@latticexyz/recs";
 import styled from "styled-components";
 import { BootScreen } from "../../game/react/components/BootScreen";
 import { useHome } from "../../mud/providers/HomeProvider";
-import { Button, Link, colors } from "../../styles/global";
+import { BackgroundImg, Button, Link } from "../../styles/global";
 import { world } from "../../world";
 
 export function HomeWindow() {
   const {
+    singletonEntity,
+    worldAddress,
     components: { LoadingState, GameConfig },
     api: { createGame },
-    godEntity,
   } = useHome();
 
   const games = useEntityQuery([Has(GameConfig)]);
-  const loadingState = useComponentValue(LoadingState, godEntity, {
+  const loadingState = useComponentValue(LoadingState, singletonEntity, {
     state: SyncState.CONNECTING,
     msg: "Connecting",
     percentage: 0,
@@ -27,17 +28,7 @@ export function HomeWindow() {
 
   return (
     <HomeContainer>
-      <h1>Games</h1>
-      <ButtonsContainer>
-        {games.map((game) => {
-          const config = getComponentValueStrict(GameConfig, game);
-          return (
-            <Link key={game} to={"/game"} state={{ worldAddress: world.entities[game], block: config.startBlock }}>
-              Game {game}
-            </Link>
-          );
-        })}
-      </ButtonsContainer>
+      <BackgroundImg src="img/ship-background.png" style={{ zIndex: -1 }} />
       <Button
         secondary
         onClick={() => {
@@ -60,6 +51,23 @@ export function HomeWindow() {
       >
         Create Game
       </Button>
+
+      <h1>Games</h1>
+      <ButtonsContainer>
+        {games.map((game) => {
+          const config = getComponentValueStrict(GameConfig, game);
+          console.log("game:", game, config);
+          return (
+            <Link
+              key={game}
+              to={"/game"}
+              state={{ worldAddress, gameId: world.entities[game], block: config.startBlock }}
+            >
+              Game {game}
+            </Link>
+          );
+        })}
+      </ButtonsContainer>
     </HomeContainer>
   );
 }
@@ -67,9 +75,9 @@ export function HomeWindow() {
 const HomeContainer = styled.div`
   width: 100vw;
   height: 100vh;
-  background: ${colors.blue};
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
   gap: 6px;
 `;

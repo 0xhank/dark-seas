@@ -103,13 +103,13 @@ export const Success = styled.div`
   filter: drop-shadow(0px 1px 3px ${colors.black});
 `;
 
-export const BackgroundImg = styled.div`
+export const BackgroundImg = styled.div<{ src?: string }>`
   position: fixed;
   left: -25;
   top: -25;
   z-index: 500;
   display: block;
-  background-image: url(img/ds-background.jpg);
+  background-image: ${({ src }) => `url(${src ?? "img/ds-background.jpg"})`};
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
