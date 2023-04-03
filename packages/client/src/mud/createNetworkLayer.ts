@@ -9,7 +9,6 @@ import { components } from "../components";
 import {
   commitMoveAction,
   createGameAction,
-  respawnAction,
   revealMoveAction,
   spawnPlayerAction,
   submitActionsAction,
@@ -71,10 +70,6 @@ export async function createNetworkLayer(worldAddress?: string, block?: number) 
   const api = {
     spawnPlayer: (name: string, ships: EntityID[], override?: boolean) => {
       spawnPlayerAction(systems, actions, name, ships, override);
-    },
-
-    respawn: (ships: EntityIndex[], override?: boolean) => {
-      respawnAction(systems, actions, ships, override);
     },
 
     commitMove: (moves: Move[], override?: boolean) => {

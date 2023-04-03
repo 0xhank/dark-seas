@@ -1,6 +1,7 @@
 import { SyncState } from "@latticexyz/network";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { Has } from "@latticexyz/recs";
+import styled from "styled-components";
 import { BootScreen } from "../../game/react/components/BootScreen";
 import { Button, colors } from "../../game/react/styles/global";
 import { useHome } from "../../mud/providers/HomeProvider";
@@ -24,9 +25,15 @@ export function HomeWindow() {
   if (loadingState.state !== SyncState.LIVE) return <BootScreen progression={progression} />;
 
   return (
-    <div style={{ background: colors.blue }}>
-      <h1>Home</h1>
+    <HomeContainer>
+      <h1>Games</h1>
+      <ButtonsContainer>
+        {games.map((game) => {
+          return <Button key={game}>Game {game}</Button>;
+        })}
+      </ButtonsContainer>
       <Button
+        secondary
         onClick={() => {
           createGame({
             startTime: 0,
@@ -42,12 +49,25 @@ export function HomeWindow() {
             islandThreshold: 33,
           });
         }}
+        style={{ width: "100px" }}
       >
         Create Game
       </Button>
-      {games.map((game) => {
-        return <Button key={game}>{game}</Button>;
-      })}
-    </div>
+    </HomeContainer>
   );
 }
+
+const HomeContainer = styled.div`
+  width: 100vw;
+  height: 100vh;
+  background: ${colors.blue};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+`;
+
+const ButtonsContainer = styled.div`
+  display: flex;
+  gap: 12px;
+`;

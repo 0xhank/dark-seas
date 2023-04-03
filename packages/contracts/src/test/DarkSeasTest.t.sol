@@ -26,6 +26,7 @@ contract DarkSeasTest is MudTest {
   GameConfig baseGameConfig =
     GameConfig({
       startTime: block.timestamp,
+      startBlock: block.number,
       commitPhaseLength: 24,
       revealPhaseLength: 9,
       actionPhaseLength: 25,

@@ -1,10 +1,10 @@
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { HomePage } from "../Homepage";
-import { createNetworkLayer as createNetworkLayerImport, NetworkLayer } from "../mud";
+import { NetworkLayer, createNetworkLayer as createNetworkLayerImport } from "../mud";
 import { GameProvider } from "../mud/providers/GameProvider";
-import { createPhaserLayer as createPhaserLayerImport, PhaserLayer } from "./phaser";
+import { PhaserLayer, createPhaserLayer as createPhaserLayerImport } from "./phaser";
 import { GameWindow } from "./react/components/GameWindow";
 import { SetupResult } from "./types";
 let createNetworkLayer = createNetworkLayerImport;
@@ -12,7 +12,8 @@ let createPhaserLayer = createPhaserLayerImport;
 
 export const Game = () => {
   const [MUD, setMUD] = useState<SetupResult>();
-  const { worldAddress, block } = useParams<{ worldAddress: string | undefined; block: string | undefined }>();
+  const { state } = useLocation();
+  const { worldAddress, block } = state as { worldAddress: string | undefined };
   console.log(worldAddress, block);
   if (!worldAddress || !ethers.utils.isAddress(worldAddress)) throw new Error("invalid world address");
   let network: NetworkLayer | undefined = undefined;
@@ -21,7 +22,7 @@ export const Game = () => {
   async function bootGame() {
     console.log("rebooting game");
     if (!network) {
-      network = await createNetworkLayer(worldAddress, Number(block));
+      network = await createNetworkLayer(worldAddress, Number(block ? block : 0));
       network.startSync();
       phaser = await createPhaserLayer(network);
     }

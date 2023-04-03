@@ -38,7 +38,7 @@ export function createGame(
     updates: () => [],
     execute: (gameConfig) => {
       console.log("submitting actions:", actions);
-      return systems["ds.system.Init"].executeTyped(gameConfig, {
+      return systems["ds.system.CreateGame"].executeTyped(gameConfig, {
         gasLimit: 10_000_000,
       });
     },

@@ -40,6 +40,7 @@ struct Upgrade {
 struct GameConfig {
   // Block timestamp when the game started
   uint256 startTime;
+  uint256 startBlock;
   // Number of seconds
   uint32 commitPhaseLength;
   uint32 revealPhaseLength;
