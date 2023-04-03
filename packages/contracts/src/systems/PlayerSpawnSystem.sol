@@ -30,16 +30,24 @@ contract PlayerSpawnSystem is System {
       LibTurn.getCurrentTurn(world, gameId) <= gameConfig.entryCutoffTurns,
       "PlayerSpawnSystem: entry period has ended"
     );
-    require(!LibUtils.playerAddrExists(world, msg.sender), "PlayerSpawnSystem: player has already spawned");
+
+    uint256 playerEntity = uint256(keccak256((abi.encode(gameId, msg.sender))));
+    require(!LibUtils.playerIdExists(world, playerEntity), "PlayerSpawnSystem: player has already spawned");
+    LibSpawn.createPlayerEntity(world, playerEntity);
+
+    require(
+      !PlayerComponent(LibUtils.addressById(world, PlayerComponentID)).has(playerEntity),
+      "PlayerSpawnSystem: player has already spawned"
+    );
 
     require(bytes(name).length > 0, "PlayerSpawnSystem: name is blank");
     require(ships.length > 0, "PlayerSpawnSystem: no ships spawned");
 
     // create entity for player and name it
-    uint256 playerEntity = LibSpawn.createPlayerEntity(world, msg.sender);
-    NameComponent(LibUtils.addressById(world, NameComponentID)).set(playerEntity, name);
+    uint256 ownerEntity = addressToEntity(msg.sender);
+    NameComponent(LibUtils.addressById(world, NameComponentID)).set(ownerEntity, name);
 
-    LibSpawn.spawn(world, gameId, playerEntity, ships);
+    LibSpawn.spawn(world, gameId, playerEntity, ownerEntity, ships);
   }
 
   function executeTyped(
@@ -49,6 +57,4 @@ contract PlayerSpawnSystem is System {
   ) public returns (bytes memory) {
     return execute(abi.encode(gameId, name, shipPrototypes));
   }
-
-  function getType(ShipPrototype calldata entry) public pure {}
 }

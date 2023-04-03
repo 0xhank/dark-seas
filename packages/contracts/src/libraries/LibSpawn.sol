@@ -39,14 +39,11 @@ library LibSpawn {
   /**
    * @notice  create and return an entityId corresponding to a player's address
    * @param   world world and components
-   * @param   playerAddress  player address
+   * @param   playerEntity player entity Id
    * @return  uint256  player entity Id
    */
-  function createPlayerEntity(IWorld world, address playerAddress) internal returns (uint256) {
-    uint256 playerEntity = addressToEntity(playerAddress);
-    uint32 playerId = uint32(LibUtils.getExistingPlayers(world).length + 1);
-
-    PlayerComponent(LibUtils.addressById(world, PlayerComponentID)).set(playerEntity, playerId);
+  function createPlayerEntity(IWorld world, uint256 playerEntity) internal returns (uint256) {
+    PlayerComponent(LibUtils.addressById(world, PlayerComponentID)).set(playerEntity);
 
     LastActionComponent(LibUtils.addressById(world, LastActionComponentID)).set(playerEntity, 0);
     LastMoveComponent(LibUtils.addressById(world, LastMoveComponentID)).set(playerEntity, 0);
@@ -92,7 +89,13 @@ library LibSpawn {
     return 135;
   }
 
-  function spawn(IWorld world, uint256 gameId, uint256 playerEntity, uint256[] memory shipPrototypes) public {
+  function spawn(
+    IWorld world,
+    uint256 gameId,
+    uint256 playerEntity,
+    uint256 ownerEntity,
+    uint256[] memory shipPrototypes
+  ) public {
     GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
       gameId
     );
@@ -102,7 +105,7 @@ library LibSpawn {
     uint32 rotation = pointKindaTowardsTheCenter(position);
     uint32 spent = 0;
     for (uint256 i = 0; i < shipPrototypes.length; i++) {
-      uint32 price = spawnShip(world, gameId, playerEntity, position, rotation, shipPrototypes[i]);
+      uint32 price = spawnShip(world, gameId, ownerEntity, position, rotation, shipPrototypes[i]);
       spent += price;
 
       require(spent <= gameConfig.budget, "LibSpawn: ships too expensive");
@@ -115,6 +118,7 @@ library LibSpawn {
 
     LastActionComponent(LibUtils.addressById(world, LastActionComponentID)).set(playerEntity, 0);
     LastMoveComponent(LibUtils.addressById(world, LastMoveComponentID)).set(playerEntity, 0);
+    OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID)).set(playerEntity, ownerEntity);
   }
 
   /**

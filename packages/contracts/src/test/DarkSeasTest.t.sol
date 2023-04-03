@@ -80,7 +80,7 @@ contract DarkSeasTest is MudTest {
   ) internal returns (uint256 shipEntity) {
     uint256 playerEntity = addressToEntity(spawner);
 
-    if (!LibUtils.playerIdExists(world, playerEntity)) LibSpawn.createPlayerEntity(world, spawner);
+    // if (!LibUtils.playerIdExists(world, playerEntity)) LibSpawn.createPlayerEntity(world, spawner);
 
     shipEntity = spawnBattleship(world, gameId, playerEntity, position, rotation);
 

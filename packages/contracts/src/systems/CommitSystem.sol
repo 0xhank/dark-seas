@@ -20,7 +20,7 @@ contract CommitSystem is System {
 
   function execute(bytes memory arguments) public returns (bytes memory) {
     (uint256 gameId, uint256 commitment) = abi.decode(arguments, (uint256, uint256));
-    uint256 playerEntity = addressToEntity(msg.sender);
+    uint256 playerEntity = uint256(keccak256((abi.encode(gameId, msg.sender))));
     require(LibUtils.playerIdExists(world, playerEntity), "MoveSystem: player does not exist");
     require(LibTurn.getCurrentPhase(world, gameId) == Phase.Commit, "CommitSystem: incorrect turn phase");
 

@@ -26,7 +26,7 @@ contract ActionSystem is System {
   function execute(bytes memory arguments) public returns (bytes memory) {
     (uint256 gameId, Action[] memory actions) = abi.decode(arguments, (uint256, Action[]));
 
-    uint256 playerEntity = addressToEntity(msg.sender);
+    uint256 playerEntity = uint256(keccak256((abi.encode(gameId, msg.sender))));
 
     require(LibUtils.playerIdExists(world, playerEntity), "ActionSystem: player does not exist");
 
