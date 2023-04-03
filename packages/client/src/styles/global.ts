@@ -1,4 +1,5 @@
 import color from "color";
+import { Link as RouterLink } from "react-router-dom";
 import styled from "styled-components";
 
 const lightGold = "hsl(45,100%,60%)";
@@ -133,6 +134,31 @@ export const Button = styled.button<{ secondary?: boolean }>`
 
   :hover {
     background: ${({ secondary }) => `${secondary ? brown : lightGold}`};
+  }
+
+  :disabled {
+    opacity: 40%;
+    cursor: not-allowed;
+  }
+`;
+
+export const Link = styled(RouterLink)`
+  width: 100%;
+  font-size: 1.5rem;
+  text-decoration: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background: gold;
+  border: 1px solid ${colors.gold};
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  pointer-events: all;
+  color: ${colors.darkBrown};
+  :hover {
+    background: ${colors.lightGold};
   }
 
   :disabled {

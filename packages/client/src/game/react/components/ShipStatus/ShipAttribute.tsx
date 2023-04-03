@@ -1,6 +1,6 @@
 import styled from "styled-components";
+import { colors } from "../../../../styles/global";
 import { SailPositions } from "../../..//types";
-import { colors } from "../../styles/global";
 import { ShipAttributeTypes } from "../../types";
 
 export default function ShipAttribute({

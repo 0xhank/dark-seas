@@ -1,6 +1,6 @@
 import { defineComponentSystem, defineRxSystem, setComponent } from "@latticexyz/recs";
+import { colors } from "../../styles/global";
 import { POS_HEIGHT, POS_WIDTH, RenderDepth } from "../phaser/constants";
-import { colors } from "../react/styles/global";
 import { SetupResult } from "../types";
 
 export function borderSystems(MUD: SetupResult) {

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { colors, ShipContainer } from "../../styles/global";
+import { colors, ShipContainer } from "../../../../styles/global";
 
 export function Tutorial() {
   return (

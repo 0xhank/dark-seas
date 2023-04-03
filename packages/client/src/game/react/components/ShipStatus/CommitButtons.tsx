@@ -1,19 +1,19 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import {
+  Has,
+  HasValue,
   getComponentEntities,
   getComponentValue,
   getComponentValueStrict,
-  Has,
-  HasValue,
   runQuery,
 } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
 import { merge } from "rxjs";
 import { useGame } from "../../../../mud/providers/GameProvider";
 import { usePlayer } from "../../../../mud/providers/PlayerProvider";
+import { Button, Success } from "../../../../styles/global";
 import { world } from "../../../../world";
 import { Category } from "../../..//sound";
-import { Button, Success } from "../../styles/global";
 
 export function CommitButtons({ tooEarly }: { tooEarly: boolean }) {
   const {

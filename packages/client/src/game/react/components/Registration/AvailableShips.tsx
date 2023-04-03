@@ -2,7 +2,7 @@ import { EntityIndex, getComponentEntities, getComponentValue } from "@latticexy
 import { Fragment } from "react";
 import styled from "styled-components";
 import { useGame } from "../../../../mud/providers/GameProvider";
-import { Container } from "../../styles/global";
+import { Container } from "../../../../styles/global";
 import { ShipButton } from "./ShipButton";
 
 export function AvailableShips({ flex }: { flex: number }) {

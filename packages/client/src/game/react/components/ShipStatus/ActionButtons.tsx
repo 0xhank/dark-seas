@@ -3,9 +3,9 @@ import { getComponentEntities, getComponentValueStrict, Has, runQuery } from "@l
 import { ActionState } from "@latticexyz/std-client";
 import { useGame } from "../../../../mud/providers/GameProvider";
 import { usePlayer } from "../../../../mud/providers/PlayerProvider";
+import { Button, Success } from "../../../../styles/global";
 import { Category } from "../../..//sound";
 import { ActionType } from "../../..//types";
-import { Button, Success } from "../../styles/global";
 
 export function ActionButtons({ tooEarly, turn }: { tooEarly: boolean; turn: number }) {
   const {

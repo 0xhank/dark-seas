@@ -12,8 +12,8 @@ import {
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useGame } from "../../../../mud/providers/GameProvider";
+import { Button, colors, Container } from "../../../../styles/global";
 import { world } from "../../../../world";
-import { Button, colors, Container } from "../../styles/global";
 import PillBar from "../PillBar";
 import { createMinimap, createMinimapSystems } from "./createMinimap";
 

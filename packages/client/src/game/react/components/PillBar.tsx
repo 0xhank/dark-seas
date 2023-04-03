@@ -1,6 +1,6 @@
 import { chunk } from "lodash";
 import styled from "styled-components";
-import { colors } from "../styles/global";
+import { colors } from "../../../styles/global";
 export default function PillBar({ maxStat, stat, title }: { stat: number | string; maxStat: number; title?: string }) {
   let content = null;
   let color = colors.red;

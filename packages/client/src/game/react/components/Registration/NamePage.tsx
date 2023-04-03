@@ -1,10 +1,10 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { EntityID, setComponent } from "@latticexyz/recs";
 import { useGame } from "../../../../mud/providers/GameProvider";
+import { Button, Input, colors } from "../../../../styles/global";
 import { world } from "../../../../world";
 import { ModalType } from "../../..//types";
 import { formatTime } from "../../..//utils/directions";
-import { Button, colors, Input } from "../../styles/global";
 
 export function NamePage({ selectFleet }: { selectFleet: () => void }) {
   const {

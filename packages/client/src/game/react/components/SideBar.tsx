@@ -3,8 +3,8 @@ import { EntityIndex, Has, HasValue, NotValue, runQuery } from "@latticexyz/recs
 import styled from "styled-components";
 import { useGame } from "../../../mud/providers/GameProvider";
 import { usePlayer } from "../../../mud/providers/PlayerProvider";
+import { colors } from "../../../styles/global";
 import { world } from "../../../world";
-import { Button, colors } from "../styles/global";
 import { ConfirmButtons } from "./ShipStatus/ConfirmButtons";
 import { YourShip } from "./ShipStatus/YourShip";
 const gridConfig = { gridRowStart: 1, gridRowEnd: 12, gridColumnStart: 1, gridColumnEnd: 12 };
@@ -12,8 +12,6 @@ const gridConfig = { gridRowStart: 1, gridRowEnd: 12, gridColumnStart: 1, gridCo
 export function SideBar() {
   const {
     components: { Name, Ship, OwnedBy, HealthLocal, SelectedShip },
-    api: { respawn: apiRespawn },
-    utils: { getGameConfig },
     godEntity,
   } = useGame();
 
@@ -29,18 +27,6 @@ export function SideBar() {
     ]),
   ];
 
-  const respawn = () => {
-    const deadShips = [
-      ...runQuery([
-        Has(Ship),
-        HasValue(OwnedBy, { value: world.entities[playerEntity] }),
-        HasValue(HealthLocal, { value: 0 }),
-      ]),
-    ];
-
-    apiRespawn(deadShips);
-  };
-  const respawnAllowed = !!getGameConfig()?.respawnAllowed;
   const selectedShip = useComponentValue(SelectedShip, godEntity)?.value as EntityIndex | undefined;
 
   return (
@@ -55,7 +41,6 @@ export function SideBar() {
           {aliveShips.length == 0 ? (
             <div style={{ display: "flex", flexDirection: "column" }}>
               <span style={{ color: colors.white, fontSize: "2rem" }}>You have no ships!</span>
-              {respawnAllowed && <Button onClick={respawn}>Respawn</Button>}
             </div>
           ) : (
             aliveShips.map((shipEntity) => (

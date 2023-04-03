@@ -1,7 +1,7 @@
 import { EntityIndex } from "@latticexyz/recs";
 import { chunk } from "lodash";
 import styled from "styled-components";
-import { colors } from "../../styles/global";
+import { colors } from "../../../../styles/global";
 export default function HealthBar({
   health,
   maxHealth,

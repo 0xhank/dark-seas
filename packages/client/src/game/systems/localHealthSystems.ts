@@ -1,15 +1,15 @@
 import { Coord, tileCoordToPixelCoord } from "@latticexyz/phaserx";
 import {
-  defineComponentSystem,
   EntityIndex,
+  defineComponentSystem,
   getComponentValue,
   getComponentValueStrict,
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
+import { colors } from "../../styles/global";
 import { sprites } from "../phaser/config";
 import { Animations, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../phaser/constants";
-import { colors } from "../react/styles/global";
 import { SetupResult } from "../setupMUD";
 import { Category } from "../sound";
 import { HoverType, Sprites } from "../types";

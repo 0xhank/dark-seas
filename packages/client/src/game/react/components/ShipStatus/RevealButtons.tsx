@@ -1,9 +1,9 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
-import { getComponentValueStrict, Has, runQuery } from "@latticexyz/recs";
+import { Has, getComponentValueStrict, runQuery } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
 import { useGame } from "../../../../mud/providers/GameProvider";
 import { usePlayer } from "../../../../mud/providers/PlayerProvider";
-import { Button, Success } from "../../styles/global";
+import { Button, Success } from "../../../../styles/global";
 
 export function RevealButtons({ tooEarly, turn }: { tooEarly: boolean; turn: number }) {
   const {

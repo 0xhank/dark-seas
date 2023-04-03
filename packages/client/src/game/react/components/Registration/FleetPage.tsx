@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Button } from "../../styles/global";
+import { Button } from "../../../../styles/global";
 import { AvailableShips } from "./AvailableShips";
 import { ShipDetails } from "./ShipDetails";
 import { YourFleet } from "./YourFleet";

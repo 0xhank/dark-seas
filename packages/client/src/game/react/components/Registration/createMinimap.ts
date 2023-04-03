@@ -1,22 +1,22 @@
 import { createPhaserEngine, defineCameraConfig, defineScaleConfig } from "@latticexyz/phaserx";
 import {
-  defineComponentSystem,
   EntityIndex,
-  getComponentValue,
-  getComponentValueStrict,
   Has,
   HasValue,
+  defineComponentSystem,
+  getComponentValue,
+  getComponentValueStrict,
   removeComponent,
   runQuery,
   setComponent,
 } from "@latticexyz/recs";
 import { filter } from "rxjs";
+import { colors } from "../../../../styles/global";
 import { world } from "../../../../world";
 import { SetupResult, Sprites } from "../../..//types";
 import { getShipSprite } from "../../..//utils/ships";
 import { phaserConfig, sprites } from "../../../phaser/config";
 import { POS_WIDTH, RenderDepth, SHIP_RATIO } from "../../../phaser/constants";
-import { colors } from "../../styles/global";
 
 export async function createMinimap() {
   const { game, scenes, dispose } = await createPhaserEngine({

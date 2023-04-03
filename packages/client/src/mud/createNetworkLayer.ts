@@ -2,7 +2,7 @@ import { createFaucetService, SingletonID } from "@latticexyz/network";
 import { EntityID, EntityIndex, namespaceWorld } from "@latticexyz/recs";
 import { createActionSystem } from "@latticexyz/std-client";
 import { parseEther } from "ethers/lib/utils.js";
-import { GameConfigStruct } from "../../../contracts/types/ethers-contracts/InitSystem.js";
+import { GameConfigStruct } from "../../../contracts/types/ethers-contracts/CreateGameSystem.js";
 import { SystemAbis } from "../../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../../contracts/types/SystemTypes";
 import { components } from "../components";

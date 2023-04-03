@@ -2,7 +2,7 @@ import { removeComponent } from "@latticexyz/recs";
 import { useState } from "react";
 import styled from "styled-components";
 import { useGame } from "../../../../mud/providers/GameProvider";
-import { ShipContainer } from "../../styles/global";
+import { ShipContainer } from "../../../../styles/global";
 import { FleetPage } from "./FleetPage";
 import { NamePage } from "./NamePage";
 

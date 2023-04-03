@@ -4,8 +4,8 @@ import { Coord } from "@latticexyz/utils";
 import { merge } from "rxjs";
 import styled from "styled-components";
 import { useGame } from "../../../mud/providers/GameProvider";
+import { colors } from "../../../styles/global";
 import { getMidpoint } from "../..//utils/trig";
-import { colors } from "../styles/global";
 
 type ShipData = {
   position: Coord;

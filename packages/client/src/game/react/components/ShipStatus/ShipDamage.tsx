@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { colors, Container } from "../../styles/global";
+import { colors, Container } from "../../../../styles/global";
 
 export default function ShipDamage({
   message,

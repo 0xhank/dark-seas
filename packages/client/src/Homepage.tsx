@@ -1,6 +1,6 @@
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import { BackgroundImg, colors } from "./game/react/styles/global";
+import { BackgroundImg, Link } from "./styles/global";
 
 export function HomePage({ showButton }: { showButton?: boolean }) {
   const { worldAddress, block } = useParams<{ worldAddress: string | undefined; block: string | undefined }>();
@@ -21,9 +21,9 @@ export function HomePage({ showButton }: { showButton?: boolean }) {
         <Logo src="/img/ds-logo.png" />
         {showButton && (
           <div style={{ display: "flex", width: "100%", gap: "6px" }}>
-            <EnterButton to={`/app`} state={{ worldAddress, block }}>
+            <Link to={`/app`} state={{ worldAddress, block }}>
               Enter
-            </EnterButton>
+            </Link>
           </div>
         )}
       </div>
@@ -31,30 +31,6 @@ export function HomePage({ showButton }: { showButton?: boolean }) {
   );
 }
 
-const EnterButton = styled(Link)`
-  width: 100%;
-  font-size: 1.5rem;
-  text-decoration: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  background: gold;
-  border: 1px solid ${colors.gold};
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 6px;
-  pointer-events: all;
-  color: ${colors.darkBrown};
-  :hover {
-    background: ${colors.lightGold};
-  }
-
-  :disabled {
-    opacity: 40%;
-    cursor: not-allowed;
-  }
-`;
 const Logo = styled.img`
   height: 74%;
 `;

@@ -2,7 +2,7 @@ import { useObservableValue } from "@latticexyz/react";
 import { getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
 import { ActionState, ActionStateString } from "@latticexyz/std-client";
 import { useGame } from "../../../../mud/providers/GameProvider";
-import { Container } from "../../styles/global";
+import { Container } from "../../../../styles/global";
 import { Cell } from "../Cell";
 
 const gridConfig = {

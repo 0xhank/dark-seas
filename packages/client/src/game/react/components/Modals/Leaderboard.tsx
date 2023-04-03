@@ -8,10 +8,10 @@ import {
 } from "@latticexyz/recs";
 import styled from "styled-components";
 import { useGame } from "../../../../mud/providers/GameProvider";
+import { Button, colors } from "../../../../styles/global";
 import { world } from "../../../../world";
 import { HoverType, ModalType } from "../../..//types";
 import { POS_HEIGHT, POS_WIDTH } from "../../../phaser/constants";
-import { Button, colors } from "../../styles/global";
 import { SortableTable } from "./SortableTable";
 type ShipData = {
   entity: EntityIndex;

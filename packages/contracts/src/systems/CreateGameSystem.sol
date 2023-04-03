@@ -28,6 +28,9 @@ contract CreateGameSystem is System {
     if (gameConfig.startTime == 0) {
       gameConfig.startTime = block.timestamp;
     }
+    if (gameConfig.startBlock == 0) {
+      gameConfig.startBlock = block.number;
+    }
     GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).set(gameId, gameConfig);
 
     return abi.encode(gameId);

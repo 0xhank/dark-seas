@@ -9,7 +9,7 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
-import { colors } from "../react/styles/global";
+import { colors } from "../../styles/global";
 import { Phase, SetupResult } from "../types";
 import { getFinalPosition } from "../utils/directions";
 

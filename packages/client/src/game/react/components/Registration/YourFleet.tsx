@@ -1,9 +1,9 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import {
   EntityIndex,
+  Has,
   getComponentValue,
   getComponentValueStrict,
-  Has,
   removeComponent,
   runQuery,
   setComponent,
@@ -12,9 +12,9 @@ import { ActionState } from "@latticexyz/std-client";
 import { merge } from "rxjs";
 import styled from "styled-components";
 import { useGame } from "../../../../mud/providers/GameProvider";
+import { Button, Container, colors } from "../../../../styles/global";
 import { world } from "../../../../world";
 import { formatTime } from "../../..//utils/directions";
-import { Button, colors, Container } from "../../styles/global";
 import { ShipButton } from "./ShipButton";
 
 export function YourFleet({ flex }: { flex: number }) {

@@ -2,8 +2,8 @@ import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex, removeComponent, setComponent } from "@latticexyz/recs";
 import styled from "styled-components";
 import { useGame } from "../../../../mud/providers/GameProvider";
-import { getShipSprite, ShipImages } from "../../..//utils/ships";
-import { BoxImage, colors, OptionButton } from "../../styles/global";
+import { BoxImage, OptionButton, colors } from "../../../../styles/global";
+import { ShipImages, getShipSprite } from "../../..//utils/ships";
 
 export function ShipButton({ prototypeEntity }: { prototypeEntity: EntityIndex }) {
   const {

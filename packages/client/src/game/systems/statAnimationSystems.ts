@@ -8,8 +8,8 @@ import {
   HasValue,
   runQuery,
 } from "@latticexyz/recs";
+import { colors } from "../../styles/global";
 import { Animations, POS_HEIGHT, POS_WIDTH, RenderDepth } from "../phaser/constants";
-import { colors } from "../react/styles/global";
 import { SetupResult } from "../types";
 import { getSternPosition, midpoint } from "../utils/trig";
 

@@ -1,4 +1,4 @@
-import { colors } from "../react/styles/global";
+import { colors } from "../../styles/global";
 
 export function getRangeTintAlpha(loaded: boolean, selected: boolean, damaged: boolean) {
   if (damaged) return { tint: colors.blackHex, alpha: 0.2 };

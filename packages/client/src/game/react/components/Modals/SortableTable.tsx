@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import styled, { css } from "styled-components";
-import { colors } from "../../styles/global";
+import { colors } from "../../../../styles/global";
 import { Table } from "./Table";
 
 const TableCell = styled.div`

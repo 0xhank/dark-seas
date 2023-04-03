@@ -5,6 +5,7 @@ export const GameConfigComponent = defineComponent(
   world,
   {
     startTime: Type.String,
+    startBlock: Type.String,
     commitPhaseLength: Type.Number,
     revealPhaseLength: Type.Number,
     actionPhaseLength: Type.Number,
@@ -12,7 +13,6 @@ export const GameConfigComponent = defineComponent(
     perlinSeed: Type.Number,
     entryCutoffTurns: Type.Number,
     buyin: Type.String,
-    respawnAllowed: Type.Boolean,
     shrinkRate: Type.Number,
     budget: Type.Number,
     islandThreshold: Type.Number,

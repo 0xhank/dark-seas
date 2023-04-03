@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Game } from "./game/Game";
+import { Home } from "./home/Home";
 import { HomePage } from "./Homepage";
 
 const router = createBrowserRouter([
@@ -14,6 +15,10 @@ const router = createBrowserRouter([
   {
     path: "/game",
     element: <Game />,
+  },
+  {
+    path: "/app",
+    element: <Home />,
   },
 ]);
 

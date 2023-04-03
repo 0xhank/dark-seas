@@ -1,6 +1,6 @@
 import React, { CSSProperties, useState } from "react";
 import styled from "styled-components";
-import { Button } from "../../styles/global";
+import { Button } from "../../../../styles/global";
 
 const TableElement = styled.table`
   width: 100%;

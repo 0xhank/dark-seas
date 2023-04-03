@@ -1,8 +1,8 @@
 import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex } from "@latticexyz/recs";
 import { useGame } from "../../../mud/providers/GameProvider";
+import { ShipContainer } from "../../../styles/global";
 import { HoverType } from "../..//types";
-import { ShipContainer } from "../styles/global";
 import { Cell } from "./Cell";
 import { ShipCard } from "./ShipStatus/ShipCard";
 

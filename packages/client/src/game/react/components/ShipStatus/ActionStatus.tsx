@@ -1,10 +1,10 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
-import { EntityIndex, getComponentValueStrict, Has, runQuery } from "@latticexyz/recs";
+import { EntityIndex, Has, getComponentValueStrict, runQuery } from "@latticexyz/recs";
 import styled from "styled-components";
 import { useGame } from "../../../../mud/providers/GameProvider";
 import { usePlayer } from "../../../../mud/providers/PlayerProvider";
+import { colors } from "../../../../styles/global";
 import { ActionNames, ActionType, Phase } from "../../..//types";
-import { colors } from "../../styles/global";
 import { ActionComponent } from "./Action";
 
 function CommitStatus({ shipEntity, txExecuting }: { shipEntity: EntityIndex; txExecuting: boolean }) {

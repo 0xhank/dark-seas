@@ -13,7 +13,7 @@ let createPhaserLayer = createPhaserLayerImport;
 export const Game = () => {
   const [MUD, setMUD] = useState<SetupResult>();
   const { state } = useLocation();
-  const { worldAddress, block } = state as { worldAddress: string | undefined };
+  const { worldAddress, block } = state as { worldAddress: string | undefined; block: string | undefined };
   console.log(worldAddress, block);
   if (!worldAddress || !ethers.utils.isAddress(worldAddress)) throw new Error("invalid world address");
   let network: NetworkLayer | undefined = undefined;

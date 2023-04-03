@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { HomePage } from "../Homepage";
-import { createNetworkLayer as createNetworkLayerImport, NetworkLayer } from "../mud";
+import { NetworkLayer, createNetworkLayer as createNetworkLayerImport } from "../mud";
 import { HomeProvider } from "../mud/providers/HomeProvider";
 import { HomeWindow } from "./components/HomeWindow";
 
@@ -11,10 +11,12 @@ export const Home = () => {
   const { state } = useLocation();
   const { worldAddress, block } = state as { worldAddress: string | undefined; block: string | undefined };
   console.log("home", worldAddress, block);
+  const startBlock = Number(block) || 0;
   let network: NetworkLayer | undefined = undefined;
+
   async function bootGame() {
     if (!network) {
-      network = await createNetworkLayer(worldAddress, Number(block));
+      network = await createNetworkLayer(worldAddress, startBlock);
       network.startSync();
       setMUD(network);
     }

@@ -1,7 +1,7 @@
 import { defineComponentSystem, EntityIndex, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
+import { colors } from "../../styles/global";
 import { world } from "../../world";
 import { MOVE_LENGTH, POS_WIDTH, RenderDepth } from "../phaser/constants";
-import { colors } from "../react/styles/global";
 import { SetupResult } from "../types";
 import { getMidpoint } from "../utils/trig";
 export function damageBubbleSystems(MUD: SetupResult) {

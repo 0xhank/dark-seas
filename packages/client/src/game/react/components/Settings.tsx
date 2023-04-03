@@ -2,8 +2,8 @@ import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex, setComponent } from "@latticexyz/recs";
 import styled from "styled-components";
 import { useGame } from "../../../mud/providers/GameProvider";
+import { Button, Img } from "../../../styles/global";
 import { ModalType } from "../..//types";
-import { Button, Img } from "../styles/global";
 
 const gridConfig = {
   gridRowStart: 1,

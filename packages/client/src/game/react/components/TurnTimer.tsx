@@ -3,10 +3,10 @@ import { getComponentValue } from "@latticexyz/recs";
 import styled, { keyframes } from "styled-components";
 import { useGame } from "../../../mud/providers/GameProvider";
 import { usePlayer } from "../../../mud/providers/PlayerProvider";
+import { colors } from "../../../styles/global";
 import { Category } from "../../sound";
 import { Phase } from "../../types";
 import { formatTime } from "../../utils/directions";
-import { colors } from "../styles/global";
 import { Cell } from "./Cell";
 
 const gridConfig = { gridRowStart: 1, gridRowEnd: 1, gridColumnStart: 5, gridColumnEnd: 9 };

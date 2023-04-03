@@ -1,5 +1,5 @@
 import { defineComponentSystem } from "@latticexyz/recs";
-import { colors } from "../react/styles/global";
+import { colors } from "../../styles/global";
 import { SetupResult } from "../types";
 
 export function targetedShipSystems(MUD: SetupResult) {

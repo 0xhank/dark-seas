@@ -1,5 +1,5 @@
 import styled, { keyframes } from "styled-components";
-import { colors } from "../../styles/global";
+import { colors } from "../../../../styles/global";
 
 export function ActionComponent({ name, status }: { name: string; status: number }) {
   const color =

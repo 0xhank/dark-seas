@@ -9,8 +9,8 @@ import {
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
+import { colors } from "../../styles/global";
 import { RenderDepth } from "../phaser/constants";
-import { colors } from "../react/styles/global";
 import { Phase, SetupResult } from "../types";
 import { getFinalPosition } from "../utils/directions";
 import { getSternPosition } from "../utils/trig";

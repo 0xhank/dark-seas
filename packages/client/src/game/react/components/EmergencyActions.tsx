@@ -4,9 +4,9 @@ import { merge } from "rxjs";
 import styled from "styled-components";
 import { useGame } from "../../../mud/providers/GameProvider";
 import { usePlayer } from "../../../mud/providers/PlayerProvider";
+import { Img, OptionButton, colors } from "../../../styles/global";
 import { ActionImg, ActionNames, ActionType, Phase } from "../..//types";
 import { getMidpoint } from "../..//utils/trig";
-import { colors, Img, OptionButton } from "../styles/global";
 
 export function EmergencyActions() {
   const {

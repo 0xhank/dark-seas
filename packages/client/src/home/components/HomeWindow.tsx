@@ -1,10 +1,11 @@
 import { SyncState } from "@latticexyz/network";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
-import { Has } from "@latticexyz/recs";
+import { Has, getComponentValueStrict } from "@latticexyz/recs";
 import styled from "styled-components";
 import { BootScreen } from "../../game/react/components/BootScreen";
-import { Button, colors } from "../../game/react/styles/global";
 import { useHome } from "../../mud/providers/HomeProvider";
+import { Button, Link, colors } from "../../styles/global";
+import { world } from "../../world";
 
 export function HomeWindow() {
   const {
@@ -29,7 +30,12 @@ export function HomeWindow() {
       <h1>Games</h1>
       <ButtonsContainer>
         {games.map((game) => {
-          return <Button key={game}>Game {game}</Button>;
+          const config = getComponentValueStrict(GameConfig, game);
+          return (
+            <Link key={game} to={"/game"} state={{ worldAddress: world.entities[game], block: config.startBlock }}>
+              Game {game}
+            </Link>
+          );
         })}
       </ButtonsContainer>
       <Button
@@ -37,6 +43,7 @@ export function HomeWindow() {
         onClick={() => {
           createGame({
             startTime: 0,
+            startBlock: 0,
             commitPhaseLength: 25,
             revealPhaseLength: 9,
             actionPhaseLength: 25,

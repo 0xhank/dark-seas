@@ -1,8 +1,8 @@
 import { useComponentValue } from "@latticexyz/react";
 import { removeComponent } from "@latticexyz/recs";
 import { useGame } from "../../../../mud/providers/GameProvider";
+import { Container } from "../../../../styles/global";
 import { ModalType } from "../../..//types";
-import { Container } from "../../styles/global";
 import { Cell } from "../Cell";
 import { Leaderboard } from "./Leaderboard";
 import { Tutorial } from "./Tutorial";
