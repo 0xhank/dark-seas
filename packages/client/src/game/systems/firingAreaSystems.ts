@@ -13,14 +13,13 @@ import { ActionType, SetupResult } from "../types";
 
 export function firingAreaSystems(MUD: SetupResult) {
   const {
-    components: { Position, Length, Rotation, Loaded, SelectedActions, SelectedShip, HoveredAction, Targeted },
+    components: { Loaded, SelectedActions, SelectedShip, HoveredAction, Targeted },
     network: { clock },
     utils: {
       getGroupObject,
       destroyGroupObject,
       getPhase,
       getTargetedShips,
-      isMyShip,
       renderShipFiringAreas,
       renderCannonFiringArea,
     },

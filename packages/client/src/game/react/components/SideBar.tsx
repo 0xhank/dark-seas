@@ -11,7 +11,8 @@ const gridConfig = { gridRowStart: 1, gridRowEnd: 12, gridColumnStart: 1, gridCo
 
 export function SideBar() {
   const {
-    components: { Name, Ship, OwnedBy, HealthLocal, SelectedShip },
+    components: { Name, Ship, OwnedBy, HealthLocal, SelectedShip, CurrentGame },
+    gameId,
     gameEntity,
   } = useGame();
 
@@ -22,6 +23,7 @@ export function SideBar() {
   const aliveShips = [
     ...runQuery([
       Has(Ship),
+      HasValue(CurrentGame, { value: gameId }),
       HasValue(OwnedBy, { value: world.entities[ownerEntity] }),
       NotValue(HealthLocal, { value: 0 }),
     ]),
