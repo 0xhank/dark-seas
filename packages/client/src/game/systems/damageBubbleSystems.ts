@@ -7,7 +7,7 @@ import { getMidpoint } from "../utils/trig";
 export function damageBubbleSystems(MUD: SetupResult) {
   const {
     components: { SailPositionLocal, DamagedCannonsLocal, OnFireLocal, Position, Length, HealthLocal, Rotation },
-    utils: { destroyGroupObject, getGroupObject, pixelCoord },
+    utils: { destroyGroupObject, getGroupObject, pixelCoord, inGame },
     scene: { phaserScene },
   } = MUD;
 
@@ -33,6 +33,7 @@ export function damageBubbleSystems(MUD: SetupResult) {
   });
 
   defineComponentSystem(world, Position, ({ entity: shipEntity, value: [newVal, oldVal] }) => {
+    if (!inGame(shipEntity)) return;
     if (!newVal) return;
     if (getComponentValue(HealthLocal, shipEntity)?.value == 0) return;
     const damagedCannons = getComponentValue(DamagedCannonsLocal, shipEntity)?.value || 0;
@@ -50,6 +51,7 @@ export function damageBubbleSystems(MUD: SetupResult) {
   });
 
   defineComponentSystem(world, HealthLocal, ({ entity: shipEntity, value: [newVal] }) => {
+    if (!newVal) return;
     if (newVal == undefined || newVal.value !== 0) return;
 
     destroyGroupObject(`${shipEntity}-cannonsbubble`);

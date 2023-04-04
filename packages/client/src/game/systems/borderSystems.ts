@@ -13,7 +13,8 @@ export function borderSystems(MUD: SetupResult) {
     network: { clock },
   } = MUD;
 
-  defineComponentSystem(world, GameConfig, () => {
+  defineComponentSystem(world, GameConfig, ({ entity }) => {
+    if (entity != gameEntity) return;
     const time = clock.currentTime;
     const dims = getWorldDimsAtTime(time);
     const borderGroup = getGroupObject("borderGroup", true);

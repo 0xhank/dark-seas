@@ -14,7 +14,6 @@ export function cameraConstraintSystems(MUD: SetupResult) {
     if (!position) return;
     const bounds = getComponentValue(MapBounds, gameEntity);
     if (!bounds) return;
-    console.log("herro");
     const pixelX = position.x * POS_WIDTH;
     const pixelY = position.y * POS_HEIGHT;
 

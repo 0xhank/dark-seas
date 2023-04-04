@@ -18,7 +18,7 @@ import { world } from "../world";
 import { getNetworkConfig } from "./config.js";
 import { setupDevSystems } from "./utils/setupDevSystems";
 import { setupMUDNetwork } from "./utils/setupMUDNetwork";
-export async function createNetworkLayer(worldAddress?: string, block?: number, gameId?: EntityID) {
+export async function createNetworkLayer(worldAddress?: string, block?: number, gameId?: EntityID = SingletonID) {
   console.log("worldAddress", worldAddress, "block", block, "gameId", gameId);
   const config = getNetworkConfig({ worldAddress, block });
   const networkWorld = namespaceWorld(world, "network");
@@ -36,7 +36,7 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
   });
   // For LoadingState updates
   const singletonEntity = networkWorld.registerEntity({ id: SingletonID });
-  const gameEntity = networkWorld.registerEntity({ id: gameId ?? SingletonID });
+  const gameEntity = networkWorld.registerEntity({ id: gameId });
 
   // Register player entity
   const playerAddress = network.connectedAddress.get();

@@ -41,6 +41,7 @@ export function createSuccessfulActionSystem(MUD: SetupResult) {
       SelectedActions,
       HoveredAction,
     },
+    gameId,
     utils: { isMyShip, clearComponent, bigNumToEntityID },
     systemCallStreams,
     scene: { config, phaserScene },
@@ -67,10 +68,12 @@ export function createSuccessfulActionSystem(MUD: SetupResult) {
 
   defineRxSystem(world, systemCallStreams["ds.system.Action"], (systemCall) => {
     const { args, systemId, updates } = systemCall;
-    const { actions: rawActions } = args as {
+    const { gameId: systemGameId, actions: rawActions } = args as {
+      gameId: BigNumber;
       actions: ActionStruct[];
     };
 
+    if (gameId != systemGameId?.toString()) return;
     const shipUpdates: Map<string, ComponentValue> = new Map();
     updates.forEach((update) => {
       const entity = update.entity;

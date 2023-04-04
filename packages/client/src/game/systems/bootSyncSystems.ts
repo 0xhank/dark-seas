@@ -26,9 +26,10 @@ export function bootSyncSystems(MUD: SetupResult) {
       Booty,
       Cannon,
     },
-    utils: { decodeShipPrototype, destroySpriteObject },
+    utils: { decodeShipPrototype, destroySpriteObject, inGame },
   } = MUD;
   defineSystem(world, [Has(Health)], ({ entity, value }) => {
+    if (!inGame(entity)) return;
     const health = value[0]?.value as number | undefined;
     const oldHealth = value[1]?.value as number | undefined;
     if (health == undefined || !!oldHealth) return;
@@ -37,18 +38,21 @@ export function bootSyncSystems(MUD: SetupResult) {
   });
 
   defineEnterSystem(world, [Has(OnFire), Not(OnFireLocal)], ({ entity, value }) => {
+    if (!inGame(entity)) return;
     const health = value[0]?.value as number | undefined;
     if (!health) return;
     setComponent(OnFireLocal, entity, { value: health });
   });
 
   defineEnterSystem(world, [Has(DamagedCannons), Not(DamagedCannonsLocal)], ({ entity, value }) => {
+    if (!inGame(entity)) return;
     const health = value[0]?.value as number | undefined;
     if (!health) return;
     setComponent(DamagedCannonsLocal, entity, { value: health });
   });
 
   defineEnterSystem(world, [Has(SailPosition), Not(SailPositionLocal)], ({ entity, value }) => {
+    if (!inGame(entity)) return;
     const health = value[0]?.value as number | undefined;
     if (!health) return;
     setComponent(SailPositionLocal, entity, { value: health });

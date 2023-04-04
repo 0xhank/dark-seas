@@ -67,6 +67,11 @@ export async function createGameUtilities(
     return playerEntity;
   }
 
+  function inGame(shipEntity: EntityIndex) {
+    const currentGame = getComponentValue(components.CurrentGame, shipEntity)?.value;
+    return currentGame == world.entities[gameEntity];
+  }
+
   function pixelCoord(coord: Coord) {
     return tileCoordToPixelCoord(coord, POS_HEIGHT, POS_WIDTH);
   }
@@ -848,6 +853,7 @@ export async function createGameUtilities(
     getPhase,
     getGamePhaseAt,
     getTurn,
+    inGame,
     decodeShipPrototype,
     secondsUntilNextPhase,
     secondsIntoTurn,

@@ -3,6 +3,7 @@ import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { EntityIndex, Has, getComponentValueStrict } from "@latticexyz/recs";
 import styled from "styled-components";
 import { BootScreen } from "../../game/react/components/BootScreen";
+import { ActionQueue } from "../../game/react/components/Dev/ActionQueue";
 import { cap, getHash } from "../../game/utils/ships";
 import { adjectives, nouns } from "../../game/utils/wordlist";
 import { useHome } from "../../mud/providers/HomeProvider";
@@ -41,6 +42,7 @@ export function HomeWindow() {
   return (
     <HomeContainer>
       <BackgroundImg src="img/ship-background.png" style={{ zIndex: -1 }} />
+      <ActionQueue home />
       <RegisterContainer>
         <CreateGame />
         <div

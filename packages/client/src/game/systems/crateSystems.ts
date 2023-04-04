@@ -30,11 +30,13 @@ export function crateSystems(MUD: SetupResult) {
       isMyShip,
       handleNewActionsCrate,
       getPlayerShipsWithActions,
+      inGame,
     },
     gameEntity,
   } = MUD;
 
   defineExitSystem(world, [Has(Position)], ({ entity }) => {
+    if (!inGame(entity)) return;
     console.log("no more position");
     destroyGroupObject(entity);
     destroySpriteObject(entity);
@@ -139,10 +141,12 @@ export function crateSystems(MUD: SetupResult) {
     group.add(spriteObject);
   }
   defineEnterSystem(world, [Has(Position), Has(Upgrade)], ({ entity: crateEntity }) => {
+    if (!inGame(crateEntity)) return;
     renderCrate(crateEntity);
   });
 
   defineComponentSystem(world, HoveredSprite, (update) => {
+    if (!inGame(update.entity)) return;
     if (update.entity !== HoverType.CRATE) return;
     const crateEntity = update.value[0]?.value as EntityIndex | undefined;
     const groupId = "hover-circle";

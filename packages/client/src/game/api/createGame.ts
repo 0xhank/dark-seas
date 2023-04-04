@@ -30,6 +30,7 @@ export function createGame(
           config.shrinkRate < BigNumber.from(0) ||
           config.worldSize < BigNumber.from(0)
         ) {
+          console.log("cancelling");
           actions.cancel(actionId);
           return null;
         }

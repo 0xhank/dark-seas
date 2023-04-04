@@ -23,20 +23,19 @@ export function createSuccessfulMoveSystem(MUD: SetupResult) {
       HealthBackend,
       SailPositionLocal,
     },
+
     utils: { playSound, clearComponent },
     actions: { Action },
     gameEntity,
+    gameId,
   } = MUD;
 
   defineComponentSystem(world, Action, ({ value }) => {
     const newAction = value[0];
-    const oldAction = value[1];
     if (!newAction || !newAction.metadata) return;
-
     const { type, metadata } = newAction.metadata as { type: TxType; metadata: any };
     if (type !== TxType.Commit) return;
-    const { moves, encoding } = metadata as { moves: Move[]; encoding: string };
-
+    const { moves, encoding } = metadata as { gameId: string; moves: Move[]; encoding: string };
     if (newAction.state == ActionState.WaitingForTxEvents || newAction.state == ActionState.Complete) {
       setComponent(EncodedCommitment, gameEntity, { value: encoding });
 
@@ -54,8 +53,12 @@ export function createSuccessfulMoveSystem(MUD: SetupResult) {
   });
 
   defineRxSystem(world, systemCallStreams["ds.system.Move"], (systemCall) => {
-    const { updates } = systemCall;
+    const { updates, args } = systemCall;
 
+    const { gameId: systemGameId, moves } = args as { gameId: string; moves: Move[] };
+    console.log("game id: ", gameId);
+    console.log("system game id: ", systemGameId);
+    if (gameId !== systemGameId) return;
     updates.forEach(async ({ entity: shipEntity, component, value: newComponent }) => {
       await new Promise((resolve) => setTimeout(resolve, MOVE_LENGTH));
       if (newComponent == undefined) return;

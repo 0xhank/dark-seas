@@ -37,15 +37,26 @@ export function shipTextureSystems(MUD: SetupResult) {
       DamagedCannons,
       SailPosition,
       MaxHealth,
+      CurrentGame,
     },
-    utils: { getSpriteObject, destroySpriteObject, destroyGroupObject, getOwnerEntity, outOfBounds, playSound },
-    network: { clock },
+    utils: { getSpriteObject, destroySpriteObject, destroyGroupObject, getOwnerEntity, inGame },
   } = MUD;
 
   defineEnterSystem(
     world,
-    [Has(HealthLocal), Has(MaxHealth), Has(Length), Has(Position), Has(Rotation), Has(OwnedBy), Has(SailPosition)],
-    ({ entity: shipEntity }) => {
+    [
+      Has(HealthLocal),
+      Has(MaxHealth),
+      Has(Length),
+      Has(Position),
+      Has(Rotation),
+      Has(OwnedBy),
+      Has(SailPosition),
+      Has(CurrentGame),
+    ],
+    ({ entity: shipEntity, component }) => {
+      console.log("in game: ", inGame(shipEntity));
+      if (!inGame(shipEntity)) return;
       const maxHealth = getComponentValueStrict(MaxHealth, shipEntity).value;
       const health = getComponentValueStrict(HealthLocal, shipEntity).value;
       const position = getComponentValueStrict(Position, shipEntity);

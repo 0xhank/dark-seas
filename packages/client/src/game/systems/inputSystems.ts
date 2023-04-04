@@ -15,7 +15,7 @@ export function inputSystems(MUD: SetupResult) {
   const {
     world,
     components: { SelectedShip, Position, OwnedBy },
-    utils: { getOwnerEntity },
+    utils: { getOwnerEntity, inGame },
     gameEntity,
     scene: {
       input,
@@ -30,6 +30,7 @@ export function inputSystems(MUD: SetupResult) {
   const NumberKeyNames: Key[] = ["ONE", "TWO", "THREE", "FOUR", "FIVE"];
 
   defineEnterSystem(world, [Has(Position), Has(OwnedBy)], ({ entity }) => {
+    if (!inGame(entity)) return;
     const owner = getComponentValueStrict(OwnedBy, entity).value;
     const ownerEntity = getOwnerEntity();
     if (!ownerEntity) return;

@@ -63,8 +63,8 @@ export function CreateGame() {
     <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: "6px" }}>
       <p style={{ fontSize: "1.25rem", width: "100%", textAlign: "center" }}>Create game </p>
       <div style={{ display: "flex", flexDirection: "column", gap: "6px", overflow: "auto" }}>
-        {_.chunk(settings, 2).map((row) => (
-          <div key={`row-${row}`} style={{ display: "flex", gap: "24px" }}>
+        {_.chunk(settings, 2).map((row, i) => (
+          <div key={`row-${i}`} style={{ display: "flex", gap: "24px" }}>
             {row.map((setting) => (
               <div style={{ flex: 1 }} key={`setting-${setting.name}`}>
                 <P>{setting.name}</P>

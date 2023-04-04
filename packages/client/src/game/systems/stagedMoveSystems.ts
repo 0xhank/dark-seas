@@ -30,7 +30,6 @@ export function stagedMoveSystems(MUD: SetupResult) {
       SelectedMove,
       HoveredMove,
       SailPositionLocal,
-      DamagedCannonsLocal,
     },
     utils: {
       destroySpriteObject,
@@ -41,6 +40,7 @@ export function stagedMoveSystems(MUD: SetupResult) {
       renderShip,
       renderShipFiringAreas,
       renderMovePath,
+      inGame,
     },
     network: { clock },
     gameEntity,

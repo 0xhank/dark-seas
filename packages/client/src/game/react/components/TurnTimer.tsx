@@ -39,23 +39,26 @@ export function TurnTimer() {
       ? gameConfig.revealPhaseLength
       : gameConfig.actionPhaseLength;
 
-  if (!ownerEntity || !phaseLength) return null;
+  if (!phaseLength) return null;
 
   if (secsLeft < 6 && !getComponentValue(EncodedCommitment, gameEntity)) {
     playSound("tick", Category.UI);
   }
   const playerEntity = getPlayerEntity(ownerEntity);
+
+  if (playerEntity) {
+    const lastAction = getComponentValue(LastAction, playerEntity)?.value;
+    if (secsLeft < 6 && lastAction !== turn) {
+      playSound("tick", Category.UI);
+    }
+  }
+
   let str = null;
   if (phase == Phase.Commit) {
     str = <Text secsLeft={secsLeft}>Choose your moves</Text>;
   } else if (phase == Phase.Reveal) str = <PulsingText>Waiting for Players to Reveal Moves...</PulsingText>;
-  else if (phase == Phase.Action && playerEntity) {
+  else if (phase == Phase.Action) {
     str = <Text secsLeft={secsLeft}>Choose 2 actions per ship</Text>;
-    const lastAction = getComponentValue(LastAction, playerEntity)?.value;
-
-    if (secsLeft < 6 && lastAction !== turn) {
-      playSound("tick", Category.UI);
-    }
   }
   const closeTime =
     Number(gameConfig.startTime) +

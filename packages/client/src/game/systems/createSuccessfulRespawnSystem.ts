@@ -6,14 +6,16 @@ export function createSuccessfulRespawnSystem(MUD: SetupResult) {
     world,
     components: { HealthLocal, HealthBackend, Health },
     systemCallStreams,
+    gameId,
   } = MUD;
 
   defineRxSystem(world, systemCallStreams["ds.system.Respawn"], (systemCall) => {
     const { args, systemId, updates } = systemCall;
-    const { shipEntities } = args as {
+    const { gameId: systemGameId, shipEntities } = args as {
+      gameId: string;
       shipEntities: EntityID[];
     };
-
+    if (systemGameId != gameId) return;
     shipEntities.forEach((shipID) => {
       const shipEntity = world.entityToIndex.get(shipID);
       if (!shipEntity) return;

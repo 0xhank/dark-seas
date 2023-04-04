@@ -166,6 +166,7 @@ library LibSpawn {
     uint256 shipEntity = world.getUniqueEntityId();
     ShipComponent(LibUtils.addressById(world, ShipComponentID)).set(shipEntity);
 
+    CurrentGameComponent(LibUtils.addressById(world, CurrentGameComponentID)).set(shipEntity, gameId);
     PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(shipEntity, position);
     RotationComponent(LibUtils.addressById(world, RotationComponentID)).set(shipEntity, rotation);
     SailPositionComponent(LibUtils.addressById(world, SailPositionComponentID)).set(shipEntity, 2);
@@ -176,7 +177,6 @@ library LibSpawn {
     MaxHealthComponent(LibUtils.addressById(world, MaxHealthComponentID)).set(shipEntity, shipPrototype.maxHealth);
     LastHitComponent(LibUtils.addressById(world, LastHitComponentID)).set(shipEntity, GodID);
     FirepowerComponent(LibUtils.addressById(world, FirepowerComponentID)).set(shipEntity, 0);
-    CurrentGameComponent(LibUtils.addressById(world, CurrentGameComponentID)).set(shipEntity, gameId);
     for (uint256 i = 0; i < shipPrototype.cannons.length; i++) {
       spawnCannon(
         world,

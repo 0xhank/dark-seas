@@ -5,7 +5,7 @@ import { ActionType, SetupResult, TxType } from "../types";
 
 export function createUISoundSystem(MUD: SetupResult) {
   const {
-    utils: { playSound },
+    utils: { playSound, inGame },
     world,
     components: {
       HoveredAction,
@@ -40,6 +40,7 @@ export function createUISoundSystem(MUD: SetupResult) {
   });
 
   defineComponentSystem(world, Position, (update) => {
+    if (!inGame(update.entity)) return;
     if (!update.value[0] || !update.value[1]) return;
 
     playSound("whoosh", Category.Move);

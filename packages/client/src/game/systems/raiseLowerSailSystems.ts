@@ -47,6 +47,7 @@ export function raiseLowerSailSystems(MUD: SetupResult) {
     renderSailButton(shipEntity);
   });
 
+  // todo: track this properly
   defineComponentSystem(world, LastAction, ({ entity: shipEntity }) => {
     renderSailButton(shipEntity);
   });
