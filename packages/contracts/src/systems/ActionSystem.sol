@@ -34,10 +34,7 @@ contract ActionSystem is System {
     require(LibTurn.getCurrentPhase(world, gameId) == Phase.Action, "ActionSystem: incorrect turn phase");
 
     uint32 currentTurn = LibTurn.getCurrentTurn(world, gameId);
-    require(
-      lastActionComponent.getValue(addressToEntity(msg.sender)) < currentTurn,
-      "ActionSystem: already acted this turn"
-    );
+    require(lastActionComponent.getValue(playerEntity) < currentTurn, "ActionSystem: already acted this turn");
     lastActionComponent.set(playerEntity, currentTurn);
     // iterate through each ship
     for (uint256 i = 0; i < actions.length; i++) {

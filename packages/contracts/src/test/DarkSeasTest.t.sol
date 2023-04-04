@@ -78,14 +78,16 @@ contract DarkSeasTest is MudTest {
     uint32 rotation,
     address spawner
   ) internal returns (uint256 shipEntity) {
-    uint256 playerEntity = addressToEntity(spawner);
-
+    uint256 playerEntity = uint256(keccak256(abi.encode(gameId, spawner)));
+    LibSpawn.createPlayerEntity(world, playerEntity);
+    uint256 ownerEntity = addressToEntity(spawner);
     // if (!LibUtils.playerIdExists(world, playerEntity)) LibSpawn.createPlayerEntity(world, spawner);
 
-    shipEntity = spawnBattleship(world, gameId, playerEntity, position, rotation);
+    shipEntity = spawnBattleship(world, gameId, ownerEntity, position, rotation);
 
     LastActionComponent(LibUtils.addressById(world, LastActionComponentID)).set(playerEntity, 0);
     LastMoveComponent(LibUtils.addressById(world, LastMoveComponentID)).set(playerEntity, 0);
+    OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID)).set(playerEntity, ownerEntity);
   }
 
   function createShipPrototype(uint32 price) internal returns (uint256) {

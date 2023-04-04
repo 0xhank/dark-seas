@@ -33,13 +33,13 @@ contract PlayerSpawnSystem is System {
 
     uint256 playerEntity = uint256(keccak256((abi.encode(gameId, msg.sender))));
     require(!LibUtils.playerIdExists(world, playerEntity), "PlayerSpawnSystem: player has already spawned");
-    LibSpawn.createPlayerEntity(world, playerEntity);
 
     require(
       !PlayerComponent(LibUtils.addressById(world, PlayerComponentID)).has(playerEntity),
       "PlayerSpawnSystem: player has already spawned"
     );
 
+    LibSpawn.createPlayerEntity(world, playerEntity);
     require(bytes(name).length > 0, "PlayerSpawnSystem: name is blank");
     require(ships.length > 0, "PlayerSpawnSystem: no ships spawned");
 
