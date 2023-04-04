@@ -28,7 +28,7 @@ export function moveOptionsSystems(MUD: SetupResult) {
       HoveredMove,
     },
     utils: { destroySpriteObject, getPhase, isMyShip, renderShip, destroyGroupObject, renderShipFiringAreas },
-    godEntity,
+    gameEntity,
     network: { clock },
   } = MUD;
   /* ---------------------------------------------- Move Options update ------------------------------------------- */
@@ -83,9 +83,9 @@ export function moveOptionsSystems(MUD: SetupResult) {
         if (isSelected) return removeComponent(SelectedMove, shipEntity);
         setComponent(SelectedMove, shipEntity, { value: moveCardEntity });
       });
-      shipObject.on("pointerover", () => setComponent(HoveredMove, godEntity, { shipEntity, moveCardEntity }));
+      shipObject.on("pointerover", () => setComponent(HoveredMove, gameEntity, { shipEntity, moveCardEntity }));
       shipObject.on("pointerout", () => {
-        removeComponent(HoveredMove, godEntity);
+        removeComponent(HoveredMove, gameEntity);
         destroyGroupObject("activeShip");
       });
     });

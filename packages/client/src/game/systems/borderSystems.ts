@@ -6,7 +6,7 @@ import { SetupResult } from "../types";
 export function borderSystems(MUD: SetupResult) {
   const {
     world,
-    godEntity,
+    gameEntity,
     components: { GameConfig, MapBounds },
     scene: { phaserScene, camera },
     utils: { getGroupObject, secondsIntoTurn, getWorldDimsAtTime },
@@ -32,7 +32,7 @@ export function borderSystems(MUD: SetupResult) {
 
     camera.phaserCamera.setBounds(minX, minY, maxX - minX, maxY - minY);
 
-    setComponent(MapBounds, godEntity, { left: minX - 1000, top: minY, right: maxX, bottom: maxY });
+    setComponent(MapBounds, gameEntity, { left: minX - 1000, top: minY, right: maxX, bottom: maxY });
   });
 
   defineRxSystem(world, clock.time$, () => {

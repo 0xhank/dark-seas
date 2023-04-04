@@ -8,19 +8,19 @@ import { ShipImages, getShipSprite } from "../../..//utils/ships";
 export function ShipButton({ prototypeEntity }: { prototypeEntity: EntityIndex }) {
   const {
     components: { ActiveShip, Length, Booty, Name },
-    godEntity,
+    gameEntity,
   } = useGame();
 
   const length = useComponentValue(Length, prototypeEntity, { value: 0 }).value;
   const price = useComponentValue(Booty, prototypeEntity, { value: 0 }).value;
   const name = useComponentValue(Name, prototypeEntity, { value: "" }).value;
 
-  const activeShip = useComponentValue(ActiveShip, godEntity)?.value;
+  const activeShip = useComponentValue(ActiveShip, gameEntity)?.value;
   const handleSelection = () => {
     if (prototypeEntity == activeShip) {
-      removeComponent(ActiveShip, godEntity);
+      removeComponent(ActiveShip, gameEntity);
     } else {
-      setComponent(ActiveShip, godEntity, { value: prototypeEntity });
+      setComponent(ActiveShip, gameEntity, { value: prototypeEntity });
     }
   };
 
@@ -42,7 +42,7 @@ export function ShipButton({ prototypeEntity }: { prototypeEntity: EntityIndex }
       <BoxContainer>
         <BoxImage length={length}>
           <img
-            src={ShipImages[getShipSprite(godEntity, 1, 1, true)]}
+            src={ShipImages[getShipSprite(gameEntity, 1, 1, true)]}
             style={{
               objectFit: "scale-down",
               left: "50%",

@@ -2,7 +2,7 @@ import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { EntityIndex, Has, HasValue, NotValue, runQuery } from "@latticexyz/recs";
 import styled from "styled-components";
 import { useGame } from "../../../mud/providers/GameProvider";
-import { usePlayer } from "../../../mud/providers/PlayerProvider";
+import { useOwner } from "../../../mud/providers/OwnerProvider";
 import { colors } from "../../../styles/global";
 import { world } from "../../../world";
 import { ConfirmButtons } from "./ShipStatus/ConfirmButtons";
@@ -12,22 +12,22 @@ const gridConfig = { gridRowStart: 1, gridRowEnd: 12, gridColumnStart: 1, gridCo
 export function SideBar() {
   const {
     components: { Name, Ship, OwnedBy, HealthLocal, SelectedShip },
-    godEntity,
+    gameEntity,
   } = useGame();
 
-  const playerEntity = usePlayer();
-  const name = useComponentValue(Name, playerEntity)?.value;
+  const ownerEntity = useOwner();
+  const name = useComponentValue(Name, ownerEntity)?.value;
   useObservableValue(HealthLocal.update$);
 
   const aliveShips = [
     ...runQuery([
       Has(Ship),
-      HasValue(OwnedBy, { value: world.entities[playerEntity] }),
+      HasValue(OwnedBy, { value: world.entities[ownerEntity] }),
       NotValue(HealthLocal, { value: 0 }),
     ]),
   ];
 
-  const selectedShip = useComponentValue(SelectedShip, godEntity)?.value as EntityIndex | undefined;
+  const selectedShip = useComponentValue(SelectedShip, gameEntity)?.value as EntityIndex | undefined;
 
   return (
     <TopBarContainer>

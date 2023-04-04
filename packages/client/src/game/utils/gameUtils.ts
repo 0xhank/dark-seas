@@ -14,9 +14,9 @@ import {
   runQuery,
   setComponent,
 } from "@latticexyz/recs";
-import { defaultAbiCoder as abi } from "ethers/lib/utils";
+import { defaultAbiCoder as abi, defaultAbiCoder } from "ethers/lib/utils";
 
-import { Coord } from "@latticexyz/utils";
+import { Coord, keccak256 } from "@latticexyz/utils";
 import { BigNumber, BigNumberish } from "ethers";
 import { Howl } from "howler";
 import { clientComponents, components } from "../../components";
@@ -39,7 +39,7 @@ import {
 } from "./trig";
 import { adjectives, nouns } from "./wordlist";
 export async function createGameUtilities(
-  godEntity: EntityIndex,
+  gameEntity: EntityIndex,
   playerAddress: string,
   clock: Clock,
   mainScene: Phaser.Scene
@@ -51,10 +51,17 @@ export async function createGameUtilities(
   }
 
   const getGameConfig = () => {
-    return getComponentValue(components.GameConfig, godEntity);
+    return getComponentValue(components.GameConfig, gameEntity);
   };
 
-  function getPlayerEntity(address?: string): EntityIndex | undefined {
+  function getPlayerEntity(ownerEntity: EntityIndex) {
+    const gameId = world.entities[gameEntity];
+    const ownerId = world.entities[ownerEntity];
+    const playerId = keccak256(defaultAbiCoder.encode(["uint256", "address"], [gameId, ownerId]));
+    return world.entityToIndex.get(playerId as EntityID);
+  }
+
+  function getOwnerEntity(address?: string): EntityIndex | undefined {
     if (!address) address = playerAddress;
     const playerEntity = world.entityToIndex.get(address as EntityID);
     return playerEntity;
@@ -229,7 +236,7 @@ export async function createGameUtilities(
   }
 
   function getPlayerShips(player?: EntityIndex) {
-    if (!player) player = getPlayerEntity();
+    if (!player) player = getOwnerEntity();
     if (!player) return [];
     const ships = [
       ...runQuery([Has(components.Ship), HasValue(components.OwnedBy, { value: world.entities[player] })]),
@@ -238,7 +245,7 @@ export async function createGameUtilities(
     return ships;
   }
   function getPlayerShipsWithMoves(player?: EntityIndex): Move[] | undefined {
-    if (!player) player = getPlayerEntity();
+    if (!player) player = getOwnerEntity();
     if (!player) return;
     const ships = [
       ...runQuery([
@@ -259,7 +266,7 @@ export async function createGameUtilities(
 
   function getTargetedShips(cannonEntity: EntityIndex): EntityIndex[] {
     const shipID = getComponentValue(components.OwnedBy, cannonEntity)?.value;
-    const playerEntity = getPlayerEntity();
+    const playerEntity = getOwnerEntity();
     if (!shipID || !playerEntity) return [];
     const shipEntity = world.entityToIndex.get(shipID);
 
@@ -311,7 +318,7 @@ export async function createGameUtilities(
   }
 
   function getPlayerShipsWithActions(player?: EntityIndex): Action[] {
-    if (!player) player = getPlayerEntity();
+    if (!player) player = getOwnerEntity();
     if (!player) return [];
     const ships = [
       ...runQuery([
@@ -388,7 +395,7 @@ export async function createGameUtilities(
   }
 
   function playSound(id: string, category: Category, loop = false, fade?: number) {
-    const volume = getComponentValueStrict(clientComponents.Volume, godEntity).value;
+    const volume = getComponentValueStrict(clientComponents.Volume, gameEntity).value;
     const sound = new Howl({
       src: [soundLibrary[category][id].src],
       volume: soundLibrary[category][id].volume * volume,
@@ -409,7 +416,7 @@ export async function createGameUtilities(
   }
 
   function unmuteSfx() {
-    setComponent(clientComponents.Volume, godEntity, { value: 1 });
+    setComponent(clientComponents.Volume, gameEntity, { value: 1 });
     localStorage.setItem("volume", "1");
     playSound("ocean", Category.Ambience, true);
   }
@@ -417,14 +424,14 @@ export async function createGameUtilities(
     [...soundRegistry.values()].forEach((entry) => {
       entry.pause();
     });
-    setComponent(clientComponents.Volume, godEntity, { value: 0 });
+    setComponent(clientComponents.Volume, gameEntity, { value: 0 });
     localStorage.setItem("volume", "0");
   }
 
   function startEnvironmentSoundSystem() {
     const volumeStr = localStorage.getItem("volume");
     const volume = volumeStr ? Number(volumeStr) : 1;
-    setComponent(clientComponents.Volume, godEntity, { value: volume });
+    setComponent(clientComponents.Volume, gameEntity, { value: volume });
 
     playSound("ocean", Category.Ambience, true);
   }
@@ -478,7 +485,7 @@ export async function createGameUtilities(
       actionTypes: actions.actionTypes,
       specialEntities: actions.specialEntities,
     });
-    setComponent(clientComponents.SelectedShip, godEntity, { value: shipEntity });
+    setComponent(clientComponents.SelectedShip, gameEntity, { value: shipEntity });
   }
 
   function handleNewActionsCannon(action: ActionType, cannonEntity: EntityIndex) {
@@ -508,7 +515,7 @@ export async function createGameUtilities(
       actionTypes: actions.actionTypes,
       specialEntities: actions.specialEntities,
     });
-    setComponent(clientComponents.SelectedShip, godEntity, { value: shipEntity });
+    setComponent(clientComponents.SelectedShip, gameEntity, { value: shipEntity });
   }
 
   function handleNewActionsCrate(shipEntity: EntityIndex, crateEntity: EntityIndex) {
@@ -536,7 +543,7 @@ export async function createGameUtilities(
       actionTypes: actions.actionTypes,
       specialEntities: actions.specialEntities,
     });
-    setComponent(clientComponents.SelectedShip, godEntity, { value: shipEntity });
+    setComponent(clientComponents.SelectedShip, gameEntity, { value: shipEntity });
   }
 
   function getSpriteObject(id: string | number, s?: Phaser.Scene): Phaser.GameObjects.Sprite {
@@ -625,10 +632,10 @@ export async function createGameUtilities(
     const health = getComponentValueStrict(clientComponents.HealthLocal, shipEntity).value;
     const maxHealth = getComponentValueStrict(components.MaxHealth, shipEntity).value;
     const ownerID = getComponentValueStrict(components.OwnedBy, shipEntity).value;
-    const ownerEntity = world.entityToIndex.get(ownerID);
-    const playerEntity = getPlayerEntity();
-    if (!ownerEntity) return;
-    const spriteAsset: Sprites = getShipSprite(ownerEntity, health, maxHealth, ownerEntity == playerEntity);
+    const gameEntity = world.entityToIndex.get(ownerID);
+    const playerEntity = getOwnerEntity();
+    if (!gameEntity) return;
+    const spriteAsset: Sprites = getShipSprite(gameEntity, health, maxHealth, gameEntity == playerEntity);
 
     const sprite = sprites[spriteAsset];
 
@@ -690,14 +697,19 @@ export async function createGameUtilities(
       const currentTurn = getTurn(clock.currentTime);
       const phase = getPhase(clock.currentTime);
       if (!shipOwner) return;
-      const acted = getComponentValue(components.LastAction, shipOwner)?.value == currentTurn;
+      const playerEntity = getPlayerEntity(shipOwner);
+      const acted = !!playerEntity && getComponentValue(components.LastAction, playerEntity)?.value == currentTurn;
       if (damagedCannons || !myShip || acted || (cannotAdd && !cannonSelected) || phase !== Phase.Action) return;
       firingPolygon.setInteractive(firingPolygon.geom, Phaser.Geom.Polygon.Contains);
       firingPolygon.on("pointerup", () => handleNewActionsCannon(actionType, cannonEntity));
       firingPolygon.on("pointerover", () =>
-        setComponent(clientComponents.HoveredAction, godEntity, { shipEntity, actionType, specialEntity: cannonEntity })
+        setComponent(clientComponents.HoveredAction, gameEntity, {
+          shipEntity,
+          actionType,
+          specialEntity: cannonEntity,
+        })
       );
-      firingPolygon.on("pointerout", () => removeComponent(clientComponents.HoveredAction, godEntity));
+      firingPolygon.on("pointerout", () => removeComponent(clientComponents.HoveredAction, gameEntity));
     });
   }
 
@@ -831,6 +843,7 @@ export async function createGameUtilities(
   return {
     getGameConfig,
     getPlayerEntity,
+    getOwnerEntity,
     pixelCoord,
     getPhase,
     getGamePhaseAt,

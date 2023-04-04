@@ -73,7 +73,7 @@ export function createMinimapSystems(scene: Phaser.Scene, mud: SetupResult) {
   const {
     components: { Length, MaxHealth, Cannon, OwnedBy, ActiveCannon, ActiveShip },
     utils: { pixelCoord, getFiringAreaPixels, getShipOwner, destroyGroupObject, getGroupObject },
-    godEntity,
+    gameEntity,
   } = mud;
 
   const position = { x: 0, y: 0 };
@@ -98,7 +98,7 @@ export function createMinimapSystems(scene: Phaser.Scene, mud: SetupResult) {
 
   function renderCannons(activeCannon?: EntityIndex) {
     const group = getGroupObject("cannons", true, scene);
-    const shipEntity = getComponentValue(ActiveShip, godEntity)?.value as EntityIndex | undefined;
+    const shipEntity = getComponentValue(ActiveShip, gameEntity)?.value as EntityIndex | undefined;
     if (!shipEntity) return;
     const cannonEntities = [...runQuery([Has(Cannon), HasValue(OwnedBy, { value: world.entities[shipEntity] })])];
     cannonEntities.forEach((cannonEntity) => {
@@ -112,13 +112,13 @@ export function createMinimapSystems(scene: Phaser.Scene, mud: SetupResult) {
       firingPolygon.setInteractive(firingPolygon.geom, Phaser.Geom.Polygon.Contains);
 
       firingPolygon.on("pointerover", () => {
-        if (getComponentValue(ActiveCannon, godEntity)) return;
-        setComponent(ActiveCannon, godEntity, { value: cannonEntity });
+        if (getComponentValue(ActiveCannon, gameEntity)) return;
+        setComponent(ActiveCannon, gameEntity, { value: cannonEntity });
         firingPolygon.setFillStyle(colors.whiteHex, 0.7);
         firingPolygon.setStrokeStyle(3, colors.goldHex);
       });
       firingPolygon.on("pointerout", () => {
-        removeComponent(ActiveCannon, godEntity);
+        removeComponent(ActiveCannon, gameEntity);
         firingPolygon.setFillStyle(colors.whiteHex, 0.3);
         firingPolygon.setStrokeStyle(0, colors.goldHex);
       });
@@ -133,7 +133,7 @@ export function createMinimapSystems(scene: Phaser.Scene, mud: SetupResult) {
     const object = scene.add.sprite(position.x, position.y, "none");
     const length = getComponentValueStrict(Length, shipEntity).value;
     const maxHealth = getComponentValueStrict(MaxHealth, shipEntity).value;
-    const spriteAsset: Sprites = getShipSprite(godEntity, maxHealth, maxHealth, true);
+    const spriteAsset: Sprites = getShipSprite(gameEntity, maxHealth, maxHealth, true);
 
     const sprite = sprites[spriteAsset];
 

@@ -10,7 +10,7 @@ const gridConfig = { gridRowStart: 2, gridRowEnd: 5, gridColumnStart: 11, gridCo
 export function HoveredShip() {
   const {
     components: { HoveredSprite },
-    godEntity,
+    gameEntity,
   } = useGame();
 
   const shipEntity = useComponentValue(HoveredSprite, HoverType.SHIP)?.value as EntityIndex | undefined;

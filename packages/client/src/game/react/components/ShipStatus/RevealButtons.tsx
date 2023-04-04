@@ -2,7 +2,7 @@ import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { Has, getComponentValueStrict, runQuery } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
 import { useGame } from "../../../../mud/providers/GameProvider";
-import { usePlayer } from "../../../../mud/providers/PlayerProvider";
+import { useOwner } from "../../../../mud/providers/OwnerProvider";
 import { Button, Success } from "../../../../styles/global";
 
 export function RevealButtons({ tooEarly, turn }: { tooEarly: boolean; turn: number }) {
@@ -10,11 +10,12 @@ export function RevealButtons({ tooEarly, turn }: { tooEarly: boolean; turn: num
     components: { EncodedCommitment, LastMove },
     actions: { Action },
     api: { revealMove },
-    godEntity,
+    utils: { getPlayerEntity },
+    gameEntity,
   } = useGame();
 
-  const encodedCommitment = useComponentValue(EncodedCommitment, godEntity)?.value;
-  const encoding = useComponentValue(EncodedCommitment, godEntity)?.value;
+  const encodedCommitment = useComponentValue(EncodedCommitment, gameEntity)?.value;
+  const encoding = useComponentValue(EncodedCommitment, gameEntity)?.value;
 
   useObservableValue(Action.update$);
 
@@ -25,8 +26,8 @@ export function RevealButtons({ tooEarly, turn }: { tooEarly: boolean; turn: num
   const handleSubmitExecute = () => {
     if (encoding) revealMove(encoding);
   };
-  const playerEntity = usePlayer();
-  const acted = useComponentValue(LastMove, playerEntity)?.value == turn;
+  const ownerEntity = useOwner();
+  const acted = useComponentValue(LastMove, getPlayerEntity(ownerEntity))?.value == turn;
 
   const showExecuting = txExecuting && !acted;
 

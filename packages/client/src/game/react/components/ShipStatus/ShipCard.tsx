@@ -2,7 +2,7 @@ import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { EntityID, EntityIndex } from "@latticexyz/recs";
 import styled from "styled-components";
 import { useGame } from "../../../../mud/providers/GameProvider";
-import { usePlayer } from "../../../../mud/providers/PlayerProvider";
+import { useOwner } from "../../../../mud/providers/OwnerProvider";
 import { BoxImage, colors } from "../../../../styles/global";
 import { ActionType } from "../../..//types";
 import { ShipImages, getShipSprite } from "../../..//utils/ships";
@@ -41,7 +41,7 @@ function DamageDisplay({ shipEntity, updates }: { shipEntity: EntityIndex; updat
 
 export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
   const {
-    utils: { getPlayerEntity, getTurn, getShipName },
+    utils: { getOwnerEntity, getTurn, getShipName, getPlayerEntity },
     components: {
       MaxHealth,
       Rotation,
@@ -56,21 +56,21 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
     network: { clock },
   } = useGame();
 
-  const playerEntity = usePlayer();
+  const ownerEntity = useOwner();
   const fakeOwner = "0" as EntityID;
   const ownerId = useComponentValue(OwnedBy, shipEntity, { value: fakeOwner }).value;
-  const ownerEntity = getPlayerEntity(ownerId);
+  const shipOwnerEntity = getOwnerEntity(ownerId);
   const rotation = useComponentValue(Rotation, shipEntity, { value: 0 }).value;
   const health = useComponentValue(HealthLocal, shipEntity, { value: 0 })?.value || 0;
   const maxHealth = useComponentValue(MaxHealth, shipEntity, { value: 0 })?.value || 0;
-  const ownerName = useComponentValue(Name, ownerEntity, { value: fakeOwner })?.value;
+  const ownerName = useComponentValue(Name, shipOwnerEntity, { value: fakeOwner })?.value;
   const selectedActions = useComponentValue(SelectedActions, shipEntity);
   const length = useComponentValue(Length, shipEntity)?.value || 10;
   const sailPosition = useComponentValue(SailPositionLocal, shipEntity, { value: 2 }).value;
 
   const time = useObservableValue(clock.time$) || 0;
   const currentTurn = getTurn(time);
-  const lastAction = useComponentValue(LastAction, playerEntity)?.value;
+  const lastAction = useComponentValue(LastAction, getPlayerEntity(ownerEntity))?.value;
   const actionsExecuted = currentTurn == lastAction;
   const updates = actionsExecuted ? undefined : selectedActions?.actionTypes;
 
@@ -81,17 +81,17 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
     : sailPosition;
 
   const name = getShipName(shipEntity);
-  if (!ownerEntity) return null;
+  if (!shipOwnerEntity) return null;
   return (
     <BoxContainer>
-      {ownerEntity !== playerEntity && (
+      {shipOwnerEntity !== ownerEntity && (
         <span style={{ lineHeight: "0.75rem", fontSize: ".75rem", color: colors.lightBrown }}>{ownerName}'s</span>
       )}
       <span style={{ fontSize: "1.25rem", lineHeight: "2rem" }}>{name}</span>
       <PillBar stat={health} maxStat={maxHealth} />
       <BoxImage length={length}>
         <img
-          src={ShipImages[getShipSprite(ownerEntity, health, maxHealth, ownerEntity == playerEntity)]}
+          src={ShipImages[getShipSprite(shipOwnerEntity, health, maxHealth, shipOwnerEntity == ownerEntity)]}
           style={{
             objectFit: "scale-down",
             left: "50%",

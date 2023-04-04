@@ -1,10 +1,10 @@
 import { Key, pixelCoordToTileCoord } from "@latticexyz/phaserx";
 import {
-  defineEnterSystem,
   EntityIndex,
+  Has,
+  defineEnterSystem,
   getComponentValue,
   getComponentValueStrict,
-  Has,
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
@@ -15,8 +15,8 @@ export function inputSystems(MUD: SetupResult) {
   const {
     world,
     components: { SelectedShip, Position, OwnedBy },
-    utils: { getPlayerEntity },
-    godEntity,
+    utils: { getOwnerEntity },
+    gameEntity,
     scene: {
       input,
       camera,
@@ -31,9 +31,9 @@ export function inputSystems(MUD: SetupResult) {
 
   defineEnterSystem(world, [Has(Position), Has(OwnedBy)], ({ entity }) => {
     const owner = getComponentValueStrict(OwnedBy, entity).value;
-    const playerEntity = getPlayerEntity();
-    if (!playerEntity) return;
-    if (owner != world.entities[playerEntity]) return;
+    const ownerEntity = getOwnerEntity();
+    if (!ownerEntity) return;
+    if (owner != world.entities[ownerEntity]) return;
 
     for (let i = 0; i < 5; i++) {
       const ship = shipKeyRegistry.has(NumberKeyNames[i]);
@@ -51,7 +51,7 @@ export function inputSystems(MUD: SetupResult) {
   input.onKeyPress(
     (keys) => keys.has("ESC"),
     () => {
-      removeComponent(SelectedShip, godEntity);
+      removeComponent(SelectedShip, gameEntity);
     }
   );
 
@@ -61,7 +61,7 @@ export function inputSystems(MUD: SetupResult) {
       () => {
         const shipEntity = shipKeyRegistry.get(key);
         if (!shipEntity) return;
-        setComponent(SelectedShip, godEntity, { value: shipEntity });
+        setComponent(SelectedShip, gameEntity, { value: shipEntity });
         const position = getComponentValue(Position, shipEntity);
         if (!position) return;
         camera.centerOn(position.x * POS_WIDTH, position.y * POS_HEIGHT);
@@ -70,7 +70,7 @@ export function inputSystems(MUD: SetupResult) {
   }
 
   input.rightClick$.subscribe((p) => {
-    removeComponent(SelectedShip, godEntity);
+    removeComponent(SelectedShip, gameEntity);
   });
 
   world.registerDisposer(() => clickSub?.unsubscribe());

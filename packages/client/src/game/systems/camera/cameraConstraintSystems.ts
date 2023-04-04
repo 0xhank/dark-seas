@@ -6,13 +6,13 @@ export function cameraConstraintSystems(MUD: SetupResult) {
   const {
     world,
     components: { MapBounds, Position },
-    godEntity,
+    gameEntity,
     scene: { camera },
   } = MUD;
 
   defineComponentSystem(world, Position, ({ value: [position] }) => {
     if (!position) return;
-    const bounds = getComponentValue(MapBounds, godEntity);
+    const bounds = getComponentValue(MapBounds, gameEntity);
     if (!bounds) return;
     console.log("herro");
     const pixelX = position.x * POS_WIDTH;
@@ -39,7 +39,7 @@ export function cameraConstraintSystems(MUD: SetupResult) {
     if (!boundsChanged) return;
     camera.phaserCamera.setBounds(bounds.left, bounds.top, bounds.right - bounds.left, bounds.bottom - bounds.top);
 
-    setComponent(MapBounds, godEntity, {
+    setComponent(MapBounds, gameEntity, {
       top: bounds.top,
       bottom: bounds.bottom,
       left: bounds.left,

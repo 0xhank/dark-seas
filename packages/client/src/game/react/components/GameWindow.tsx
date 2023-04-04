@@ -2,7 +2,7 @@ import { SyncState } from "@latticexyz/network";
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import styled from "styled-components";
 import { useGame } from "../../../mud/providers/GameProvider";
-import { PlayerProvider } from "../../../mud/providers/PlayerProvider";
+import { OwnerProvider } from "../../../mud/providers/OwnerProvider";
 import { BootScreen } from "./BootScreen";
 import { DamageChance } from "./DamageChance";
 import { ComponentBrowser } from "./Dev/ComponentBrowser";
@@ -18,13 +18,13 @@ export function GameWindow() {
   const {
     components: { LoadingState, Player },
     singletonEntity,
-    utils: { getPlayerEntity },
+    utils: { getOwnerEntity },
   } = useGame();
 
   // re render when a player is added
   useObservableValue(Player.update$);
-  const playerEntity = getPlayerEntity();
-  const spectating = useComponentValue(Player, playerEntity)?.value == -1;
+  const ownerEntity = getOwnerEntity();
+  const spectating = useComponentValue(Player, ownerEntity)?.value == -1;
   const loadingState = useComponentValue(LoadingState, singletonEntity, {
     state: SyncState.CONNECTING,
     msg: "Connecting",
@@ -34,7 +34,6 @@ export function GameWindow() {
   const progression =
     loadingState.state == SyncState.INITIAL ? loadingState.percentage : loadingState.state == SyncState.LIVE ? 100 : 0;
   if (loadingState.state !== SyncState.LIVE) return <BootScreen progression={progression} />;
-  console.log(loadingState);
   return (
     <UIGrid
       onMouseDown={(e) => e.stopPropagation()}
@@ -43,14 +42,14 @@ export function GameWindow() {
       onMouseEnter={(e) => e.stopPropagation()}
       onMouseOver={(e) => e.stopPropagation()}
     >
-      {playerEntity ? (
-        <PlayerProvider value={playerEntity}>
+      {ownerEntity ? (
+        <OwnerProvider value={ownerEntity}>
           <TurnTimer />
           {!spectating && <SideBar />}
           <HoveredShip />
           <DamageChance />
           <EmergencyActions />
-        </PlayerProvider>
+        </OwnerProvider>
       ) : (
         <Registration />
       )}

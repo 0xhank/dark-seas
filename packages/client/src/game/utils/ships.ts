@@ -18,7 +18,7 @@ export function getHash(input: string) {
   return Math.abs(hash);
 }
 
-export function getShipSprite(ownerEntity: EntityIndex, health: number, maxHealth: number, mine: boolean): Sprites {
+export function getShipSprite(gameEntity: EntityIndex, health: number, maxHealth: number, mine: boolean): Sprites {
   const healthPct = health / maxHealth;
   if (mine) {
     if (healthPct > 0.66) return Sprites.ShipWhite;
@@ -26,7 +26,7 @@ export function getShipSprite(ownerEntity: EntityIndex, health: number, maxHealt
     else if (healthPct > 0) return Sprites.ShipWhiteMajor;
   }
 
-  const color = getShipColor(`${ownerEntity}`);
+  const color = getShipColor(`${gameEntity}`);
 
   if (color == ShipColors.Red) {
     if (healthPct > 0.66) return Sprites.ShipRed;

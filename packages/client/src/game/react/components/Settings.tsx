@@ -15,13 +15,13 @@ export function Settings() {
   const {
     utils: { muteSfx, unmuteSfx, playMusic, muteMusic },
     components: { Volume, ModalOpen },
-    godEntity,
+    gameEntity,
   } = useGame();
 
   const openLeaderboard = () => setComponent(ModalOpen, ModalType.LEADERBOARD, { value: true });
   const openTutorial = () => setComponent(ModalOpen, ModalType.TUTORIAL, { value: true });
 
-  const volume = useComponentValue(Volume, godEntity, { value: 0 }).value;
+  const volume = useComponentValue(Volume, gameEntity, { value: 0 }).value;
   const musicVolume = useComponentValue(Volume, 1 as EntityIndex, { value: 0 }).value;
   return (
     <SettingsContainer>

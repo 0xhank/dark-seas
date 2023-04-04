@@ -33,9 +33,9 @@ export function localHealthSystems(MUD: SetupResult) {
       SelectedMove,
       MaxHealth,
     },
-    utils: { isMyShip, getSpriteObject, getPlayerEntity, destroySpriteObject, playSound },
+    utils: { isMyShip, getSpriteObject, getOwnerEntity, destroySpriteObject, playSound },
     scene: { phaserScene },
-    godEntity,
+    gameEntity,
   } = MUD;
 
   // HEALTH UPDATES
@@ -45,11 +45,11 @@ export function localHealthSystems(MUD: SetupResult) {
     const oldHealth = oldVal.value;
     const maxHealth = getComponentValueStrict(MaxHealth, shipEntity)?.value;
     const shipObject = getSpriteObject(shipEntity);
-    const ownerEntity = getPlayerEntity(getComponentValue(OwnedBy, shipEntity)?.value);
-    const playerEntity = getPlayerEntity();
-    if (!ownerEntity) return null;
+    const gameEntity = getOwnerEntity(getComponentValue(OwnedBy, shipEntity)?.value);
+    const ownerEntity = getOwnerEntity();
+    if (!gameEntity) return null;
 
-    const spriteAsset: Sprites = getShipSprite(ownerEntity, health, maxHealth, playerEntity == ownerEntity);
+    const spriteAsset: Sprites = getShipSprite(gameEntity, health, maxHealth, ownerEntity == gameEntity);
 
     const sprite = sprites[spriteAsset];
 
@@ -78,7 +78,7 @@ export function localHealthSystems(MUD: SetupResult) {
     } else {
       shipObject.setAlpha(1);
       shipObject.setDepth(RenderDepth.Foreground3);
-      shipObject.on("pointerup", () => setComponent(SelectedShip, godEntity, { value: shipEntity }));
+      shipObject.on("pointerup", () => setComponent(SelectedShip, gameEntity, { value: shipEntity }));
 
       if (oldHealth > 0 && health > oldHealth) {
         console.log(`${shipEntity} health increase: old ${oldHealth} new ${health}`);

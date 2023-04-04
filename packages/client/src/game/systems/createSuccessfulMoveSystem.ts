@@ -25,7 +25,7 @@ export function createSuccessfulMoveSystem(MUD: SetupResult) {
     },
     utils: { playSound, clearComponent },
     actions: { Action },
-    godEntity,
+    gameEntity,
   } = MUD;
 
   defineComponentSystem(world, Action, ({ value }) => {
@@ -38,7 +38,7 @@ export function createSuccessfulMoveSystem(MUD: SetupResult) {
     const { moves, encoding } = metadata as { moves: Move[]; encoding: string };
 
     if (newAction.state == ActionState.WaitingForTxEvents || newAction.state == ActionState.Complete) {
-      setComponent(EncodedCommitment, godEntity, { value: encoding });
+      setComponent(EncodedCommitment, gameEntity, { value: encoding });
 
       moves?.map((move) => {
         const shipEntity = world.entityToIndex.get(move.shipEntity);
@@ -48,7 +48,7 @@ export function createSuccessfulMoveSystem(MUD: SetupResult) {
       });
     }
     if (newAction.state == ActionState.Failed) {
-      removeComponent(EncodedCommitment, godEntity);
+      removeComponent(EncodedCommitment, gameEntity);
       clearComponent(CommittedMove);
     }
   });

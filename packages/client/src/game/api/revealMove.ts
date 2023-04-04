@@ -20,21 +20,6 @@ export function revealMove(
     awaitConfirmation: true,
     components: { Commitment },
     requirement: ({ Commitment }) => {
-      if (!override) {
-        // const commitment = getComponentValue(Commitment, playerEntity)?.value;
-        // if (!commitment) {
-        //   console.warn(prefix, "no commitment submitted");
-        //   actions.cancel(actionId);
-        //   return null;
-        // }
-        // const hash = keccak256(encodedCommitment);
-        // if (commitment != hash) {
-        //   console.warn(prefix, "commitment does not match stored committed moves");
-        //   actions.cancel(actionId);
-        //   return null;
-        // }
-      }
-
       const [moves, salt] = abi.decode(
         ["tuple(uint256 shipEntity, uint256 moveCardEntity)[]", "uint256"],
         encodedCommitment

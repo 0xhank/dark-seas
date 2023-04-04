@@ -21,7 +21,7 @@ type ShipData = {
 };
 
 type PlayerData = {
-  playerEntity: EntityIndex;
+  ownerEntity: EntityIndex;
   name: string;
   ships: number;
 };
@@ -29,7 +29,7 @@ type PlayerData = {
 export function Leaderboard() {
   const {
     components: { ModalOpen, Ship, HealthLocal, OwnedBy, Name, Position, HoveredSprite },
-    godEntity,
+    gameEntity,
     scene: { camera },
     utils: { getShipName },
   } = useGame();
@@ -45,11 +45,11 @@ export function Leaderboard() {
     if (!owner) return;
     const name = useComponentValue(Name, owner)?.value;
     if (health == undefined || name == undefined) return;
-    const player = players.find((player) => player.playerEntity == owner);
+    const player = players.find((player) => player.ownerEntity == owner);
 
     if (!player) {
       players.push({
-        playerEntity: owner,
+        ownerEntity: owner,
         name,
         ships: health > 0 ? 1 : 0,
       });

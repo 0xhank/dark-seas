@@ -31,7 +31,7 @@ export function crateSystems(MUD: SetupResult) {
       handleNewActionsCrate,
       getPlayerShipsWithActions,
     },
-    godEntity,
+    gameEntity,
   } = MUD;
 
   defineExitSystem(world, [Has(Position)], ({ entity }) => {
@@ -103,7 +103,7 @@ export function crateSystems(MUD: SetupResult) {
       );
       if (getPhase(clock.currentTime) == Phase.Action) {
         const textGroup = getGroupObject("crate-text", true);
-        const selectedShip = getComponentValue(SelectedShip, godEntity)?.value as EntityIndex | undefined;
+        const selectedShip = getComponentValue(SelectedShip, gameEntity)?.value as EntityIndex | undefined;
         if (
           !selectedShip ||
           !isMyShip(selectedShip) ||
@@ -153,7 +153,7 @@ export function crateSystems(MUD: SetupResult) {
 
     const circle = renderCircle(hoveredGroup, position, radius, colors.whiteHex, 0.1);
     if (getPhase(clock.currentTime) == Phase.Action) {
-      const selectedShip = getComponentValue(SelectedShip, godEntity)?.value as EntityIndex | undefined;
+      const selectedShip = getComponentValue(SelectedShip, gameEntity)?.value as EntityIndex | undefined;
       if (
         !selectedShip ||
         !isMyShip(selectedShip) ||

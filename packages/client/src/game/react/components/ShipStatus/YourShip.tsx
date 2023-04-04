@@ -10,7 +10,7 @@ import { ShipCard } from "./ShipCard";
 export const YourShip = ({ shipEntity, selected }: { shipEntity: EntityIndex; selected: boolean }) => {
   const {
     components: { SelectedShip, HoveredSprite },
-    godEntity,
+    gameEntity,
     scene: { camera },
     utils: { getSpriteObject },
   } = useGame();
@@ -20,7 +20,7 @@ export const YourShip = ({ shipEntity, selected }: { shipEntity: EntityIndex; se
 
     camera.centerOn(shipObject.x, shipObject.y + 400);
 
-    setComponent(SelectedShip, godEntity, { value: shipEntity });
+    setComponent(SelectedShip, gameEntity, { value: shipEntity });
   };
   const hoveredShip = useComponentValue(HoveredSprite, HoverType.SHIP)?.value;
   const isHovered = hoveredShip == shipEntity;

@@ -2,7 +2,7 @@ import { useObservableValue } from "@latticexyz/react";
 import { getComponentValue } from "@latticexyz/recs";
 import styled, { keyframes } from "styled-components";
 import { useGame } from "../../../mud/providers/GameProvider";
-import { usePlayer } from "../../../mud/providers/PlayerProvider";
+import { useOwner } from "../../../mud/providers/OwnerProvider";
 import { colors } from "../../../styles/global";
 import { Category } from "../../sound";
 import { Phase } from "../../types";
@@ -14,12 +14,12 @@ const gridConfig = { gridRowStart: 1, gridRowEnd: 1, gridColumnStart: 5, gridCol
 export function TurnTimer() {
   const {
     network: { clock },
-    utils: { getGameConfig, getPhase, secondsUntilNextPhase, getTurn },
+    utils: { getGameConfig, getPhase, secondsUntilNextPhase, getTurn, getPlayerEntity },
     components: { LastAction },
 
     utils: { playSound },
     components: { EncodedCommitment },
-    godEntity,
+    gameEntity,
   } = useGame();
 
   const time = useObservableValue(clock.time$) || 0;
@@ -28,7 +28,7 @@ export function TurnTimer() {
 
   const phase = getPhase(time);
   const turn = getTurn(time);
-  const playerEntity = usePlayer();
+  const ownerEntity = useOwner();
 
   const secsLeft = secondsUntilNextPhase(time) || 0;
 
@@ -39,16 +39,17 @@ export function TurnTimer() {
       ? gameConfig.revealPhaseLength
       : gameConfig.actionPhaseLength;
 
-  if (!playerEntity || !phaseLength) return null;
+  if (!ownerEntity || !phaseLength) return null;
 
-  if (secsLeft < 6 && !getComponentValue(EncodedCommitment, godEntity)) {
+  if (secsLeft < 6 && !getComponentValue(EncodedCommitment, gameEntity)) {
     playSound("tick", Category.UI);
   }
+  const playerEntity = getPlayerEntity(ownerEntity);
   let str = null;
   if (phase == Phase.Commit) {
     str = <Text secsLeft={secsLeft}>Choose your moves</Text>;
   } else if (phase == Phase.Reveal) str = <PulsingText>Waiting for Players to Reveal Moves...</PulsingText>;
-  else if (phase == Phase.Action) {
+  else if (phase == Phase.Action && playerEntity) {
     str = <Text secsLeft={secsLeft}>Choose 2 actions per ship</Text>;
     const lastAction = getComponentValue(LastAction, playerEntity)?.value;
 

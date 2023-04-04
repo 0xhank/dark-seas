@@ -36,9 +36,9 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
   });
   // For LoadingState updates
   const singletonEntity = networkWorld.registerEntity({ id: SingletonID });
-  const godEntity = networkWorld.registerEntity({ id: gameId ?? SingletonID });
+  const gameEntity = networkWorld.registerEntity({ id: gameId ?? SingletonID });
 
-  console.log("singleton entity: ", singletonEntity, "god entity: ", godEntity);
+  console.log("singleton entity: ", singletonEntity, "god entity: ", gameEntity);
   // Register player entity
   const playerAddress = network.connectedAddress.get();
   if (!playerAddress) throw new Error("Not connected");
@@ -101,7 +101,7 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
     worldAddress,
     gameId,
     singletonEntity,
-    godEntity,
+    gameEntity,
     playerAddress,
     systemCallStreams,
     components: networkComponents,

@@ -2,7 +2,7 @@ import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { EntityIndex, Has, getComponentValueStrict, runQuery } from "@latticexyz/recs";
 import styled from "styled-components";
 import { useGame } from "../../../../mud/providers/GameProvider";
-import { usePlayer } from "../../../../mud/providers/PlayerProvider";
+import { useOwner } from "../../../../mud/providers/OwnerProvider";
 import { colors } from "../../../../styles/global";
 import { ActionNames, ActionType, Phase } from "../../..//types";
 import { ActionComponent } from "./Action";
@@ -10,12 +10,12 @@ import { ActionComponent } from "./Action";
 function CommitStatus({ shipEntity, txExecuting }: { shipEntity: EntityIndex; txExecuting: boolean }) {
   const {
     components: { SelectedMove, MoveCard, CommittedMove, EncodedCommitment },
-    godEntity,
+    gameEntity,
   } = useGame();
 
   const committedMove = useComponentValue(CommittedMove, shipEntity)?.value;
   const selectedMove = useComponentValue(SelectedMove, shipEntity)?.value;
-  const encodedCommitment = useComponentValue(EncodedCommitment, godEntity)?.value;
+  const encodedCommitment = useComponentValue(EncodedCommitment, gameEntity)?.value;
 
   const acted = !!encodedCommitment && !!committedMove && committedMove == selectedMove;
 
@@ -48,10 +48,11 @@ function RevealStatus({
 }) {
   const {
     components: { LastMove, CommittedMove, MoveCard },
+    utils: { getPlayerEntity },
   } = useGame();
 
-  const playerEntity = usePlayer();
-  const acted = useComponentValue(LastMove, playerEntity)?.value == turn;
+  const ownerEntity = useOwner();
+  const acted = useComponentValue(LastMove, getPlayerEntity(ownerEntity))?.value == turn;
   const committedMove = useComponentValue(CommittedMove, shipEntity)?.value;
 
   let action1 = <ActionComponent name="" status={-1} />;
@@ -75,11 +76,12 @@ function RevealStatus({
 function ActStatus({ shipEntity, turn, txExecuting }: { shipEntity: EntityIndex; turn: number; txExecuting: boolean }) {
   const {
     components: { LastAction, SelectedActions, ExecutedActions },
+    utils: { getPlayerEntity },
   } = useGame();
 
-  const playerEntity = usePlayer();
+  const ownerEntity = useOwner();
 
-  const acted = useComponentValue(LastAction, playerEntity)?.value == turn;
+  const acted = useComponentValue(LastAction, getPlayerEntity(ownerEntity))?.value == turn;
   const selectedActions = useComponentValue(SelectedActions, shipEntity);
   const executedActions = useComponentValue(ExecutedActions, shipEntity)?.value;
   const status = acted ? 3 : txExecuting ? 2 : 1;

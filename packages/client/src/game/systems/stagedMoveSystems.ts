@@ -43,7 +43,7 @@ export function stagedMoveSystems(MUD: SetupResult) {
       renderMovePath,
     },
     network: { clock },
-    godEntity,
+    gameEntity,
   } = MUD;
 
   /* --------------------------------------------- Selected Move update --------------------------------------------- */
@@ -81,7 +81,7 @@ export function stagedMoveSystems(MUD: SetupResult) {
     ship.setDepth(RenderDepth.Foreground6);
     ship.setInteractive({ cursor: "pointer" });
     ship.on("pointerup", () => {
-      setComponent(SelectedShip, godEntity, { value: shipEntity });
+      setComponent(SelectedShip, gameEntity, { value: shipEntity });
     });
 
     const length = getComponentValueStrict(Length, shipEntity).value;

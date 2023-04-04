@@ -3,7 +3,7 @@ import { EntityID, EntityIndex, removeComponent, setComponent } from "@latticexy
 import { merge } from "rxjs";
 import styled from "styled-components";
 import { useGame } from "../../../mud/providers/GameProvider";
-import { usePlayer } from "../../../mud/providers/PlayerProvider";
+import { useOwner } from "../../../mud/providers/OwnerProvider";
 import { Img, OptionButton, colors } from "../../../styles/global";
 import { ActionImg, ActionNames, ActionType, Phase } from "../..//types";
 import { getMidpoint } from "../..//utils/trig";
@@ -19,16 +19,16 @@ export function EmergencyActions() {
       SailPositionLocal,
       HoveredAction,
     },
-    utils: { handleNewActionsSpecial, getSpriteObject, getPhase, getTurn, isMyShip },
-    godEntity,
+    utils: { handleNewActionsSpecial, getSpriteObject, getPlayerEntity, getPhase, getTurn, isMyShip },
+    gameEntity,
     network: { clock },
 
     scene: { camera },
   } = useGame();
 
-  const playerEntity = usePlayer();
+  const ownerEntity = useOwner();
 
-  const shipEntity = useComponentValue(SelectedShip, godEntity)?.value as EntityIndex | undefined;
+  const shipEntity = useComponentValue(SelectedShip, gameEntity)?.value as EntityIndex | undefined;
   const onFire = !!useComponentValue(OnFireLocal, shipEntity, { value: 0 }).value;
   const damagedCannons = !!useComponentValue(DamagedCannonsLocal, shipEntity, { value: 0 }).value;
   const tornSail = useComponentValue(SailPositionLocal, shipEntity, { value: 2 }).value == 0;
@@ -42,7 +42,7 @@ export function EmergencyActions() {
     specialEntities: ["0" as EntityID, "0" as EntityID],
   };
 
-  const lastAction = useComponentValue(LastAction, playerEntity)?.value;
+  const lastAction = useComponentValue(LastAction, getPlayerEntity(ownerEntity))?.value;
 
   if (phase !== Phase.Action || !shipEntity) return null;
   if (!isMyShip(shipEntity)) return null;
@@ -73,9 +73,9 @@ export function EmergencyActions() {
         disabled={disabled && !selected}
         confirmed={actionsExecuted}
         onMouseEnter={() =>
-          setComponent(HoveredAction, godEntity, { shipEntity: shipEntity, actionType, specialEntity: 0 })
+          setComponent(HoveredAction, gameEntity, { shipEntity: shipEntity, actionType, specialEntity: 0 })
         }
-        onMouseLeave={() => removeComponent(HoveredAction, godEntity)}
+        onMouseLeave={() => removeComponent(HoveredAction, gameEntity)}
         onClick={(e) => {
           e.stopPropagation();
           handleNewActionsSpecial(actionType, shipEntity);

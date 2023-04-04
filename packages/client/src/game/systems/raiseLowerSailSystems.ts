@@ -35,11 +35,12 @@ export function raiseLowerSailSystems(MUD: SetupResult) {
       handleNewActionsSpecial,
       getGameConfig,
       getTurn,
+      getOwnerEntity,
       getPlayerEntity,
     },
     network: { clock },
     scene: { phaserScene },
-    godEntity,
+    gameEntity,
   } = MUD;
 
   defineComponentSystem(world, SailPositionLocal, ({ entity: shipEntity }) => {
@@ -73,7 +74,7 @@ export function raiseLowerSailSystems(MUD: SetupResult) {
 
   defineRxSystem(world, clock.time$, (time) => {
     const gameConfig = getGameConfig();
-    const selectedShip = getComponentValue(SelectedShip, godEntity)?.value as EntityIndex | undefined;
+    const selectedShip = getComponentValue(SelectedShip, gameEntity)?.value as EntityIndex | undefined;
     if (!gameConfig || !selectedShip) return;
     const phase = getPhase(time);
     const timeToNextPhase = secondsUntilNextPhase(time);
@@ -89,7 +90,7 @@ export function raiseLowerSailSystems(MUD: SetupResult) {
 
   function checkRenderReqs(shipEntity: EntityIndex) {
     const phase = getPhase(clock.currentTime);
-    const selectedShip = getComponentValue(SelectedShip, godEntity)?.value;
+    const selectedShip = getComponentValue(SelectedShip, gameEntity)?.value;
     const sailPosition = getComponentValue(SailPositionLocal, shipEntity)?.value;
     const passed = phase == Phase.Action && shipEntity == selectedShip && !!sailPosition && isMyShip(shipEntity);
     return passed;
@@ -118,14 +119,16 @@ export function raiseLowerSailSystems(MUD: SetupResult) {
   }
 
   function renderCircleAndText(shipEntity: EntityIndex, position: Coord, width: number, actionType: ActionType) {
-    const playerEntity = getPlayerEntity();
+    const ownerEntity = getOwnerEntity();
+    if (!ownerEntity) return;
+    const playerEntity = getPlayerEntity(ownerEntity);
     if (!playerEntity) return;
     const lastAction = getComponentValue(LastAction, playerEntity)?.value;
     const selectedActions = getComponentValue(SelectedActions, shipEntity) || {
       actionTypes: [ActionType.None, ActionType.None],
       specialEntities: ["0" as EntityID, "0" as EntityID],
     };
-    const hovered = getComponentValue(HoveredAction, godEntity)?.actionType == actionType;
+    const hovered = getComponentValue(HoveredAction, gameEntity)?.actionType == actionType;
     const actionsExecuted = getTurn(clock.currentTime) == lastAction;
     const selected = !actionsExecuted && selectedActions.actionTypes.includes(actionType);
     const allActionsUsed = selectedActions.actionTypes.every((a) => a !== ActionType.None);
@@ -143,10 +146,10 @@ export function raiseLowerSailSystems(MUD: SetupResult) {
     circle.on("pointerup", () => handleNewActionsSpecial(actionType, shipEntity), phaserScene);
     // circle.on(
     //   "pointerover",
-    //   () => setComponent(HoveredAction, godEntity, { shipEntity, actionType, specialEntity: 0 }),
+    //   () => setComponent(HoveredAction, gameEntity, { shipEntity, actionType, specialEntity: 0 }),
     //   phaserScene
     // );
-    // circle.on("pointerout", () => removeComponent(HoveredAction, godEntity), phaserScene);
+    // circle.on("pointerout", () => removeComponent(HoveredAction, gameEntity), phaserScene);
 
     const text = actionType == ActionType.LowerSail ? "LOWER\nSAIL" : "RAISE\nSAIL";
     const textObject = phaserScene.add.text(position.x, position.y, text, {

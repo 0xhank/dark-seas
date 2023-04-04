@@ -2,7 +2,7 @@ import { useComponentValue } from "@latticexyz/react";
 import { getComponentEntities, getComponentValueStrict, Has, runQuery } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
 import { useGame } from "../../../../mud/providers/GameProvider";
-import { usePlayer } from "../../../../mud/providers/PlayerProvider";
+import { useOwner } from "../../../../mud/providers/OwnerProvider";
 import { Button, Success } from "../../../../styles/global";
 import { Category } from "../../..//sound";
 import { ActionType } from "../../..//types";
@@ -10,7 +10,7 @@ import { ActionType } from "../../..//types";
 export function ActionButtons({ tooEarly, turn }: { tooEarly: boolean; turn: number }) {
   const {
     components: { SelectedActions, LastAction },
-    utils: { getPlayerShipsWithActions, playSound, getTargetedShips },
+    utils: { getPlayerShipsWithActions, playSound, getTargetedShips, getPlayerEntity },
     actions: { Action },
     api: { submitActions },
   } = useGame();
@@ -18,8 +18,8 @@ export function ActionButtons({ tooEarly, turn }: { tooEarly: boolean; turn: num
   const selectedActions = [...getComponentEntities(SelectedActions)].map((entity) =>
     getComponentValueStrict(SelectedActions, entity)
   );
-  const playerEntity = usePlayer();
-  const acted = useComponentValue(LastAction, playerEntity)?.value == turn;
+  const ownerEntity = useOwner();
+  const acted = useComponentValue(LastAction, getPlayerEntity(ownerEntity))?.value == turn;
   const cannotAct =
     !acted &&
     (selectedActions.length == 0 ||

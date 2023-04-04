@@ -10,14 +10,14 @@ export function NamePage({ selectFleet }: { selectFleet: () => void }) {
   const {
     components: { Name, ModalOpen, GameConfig, Player },
     playerAddress,
-    godEntity,
+    gameEntity,
     network: { clock },
   } = useGame();
 
-  const name = useComponentValue(Name, godEntity, { value: "" }).value;
+  const name = useComponentValue(Name, gameEntity, { value: "" }).value;
 
   const time = useObservableValue(clock.time$) || 0;
-  const gameConfig = useComponentValue(GameConfig, godEntity);
+  const gameConfig = useComponentValue(GameConfig, gameEntity);
   if (!gameConfig) return null;
 
   const closeTime =
@@ -30,9 +30,9 @@ export function NamePage({ selectFleet }: { selectFleet: () => void }) {
 
   const openTutorial = () => setComponent(ModalOpen, ModalType.TUTORIAL, { value: true });
   const spectate = () => {
-    const playerEntity = world.registerEntity({ id: playerAddress as EntityID });
+    const ownerEntity = world.registerEntity({ id: playerAddress as EntityID });
     // setting player to -1 tells Game.tsx that we are spectating
-    setComponent(Player, playerEntity, { value: -1 });
+    setComponent(Player, ownerEntity, { value: -1 });
   };
   return (
     <div
@@ -54,7 +54,7 @@ export function NamePage({ selectFleet }: { selectFleet: () => void }) {
         placeholder="Name..."
         value={name}
         onChange={(e) => {
-          if (e.target.value.length < 15) setComponent(Name, godEntity, { value: e.target.value });
+          if (e.target.value.length < 15) setComponent(Name, gameEntity, { value: e.target.value });
         }}
       ></Input>
       {timeUntilRound < 0 ? (

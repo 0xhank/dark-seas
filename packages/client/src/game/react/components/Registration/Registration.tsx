@@ -11,7 +11,7 @@ type RegisterState = "Name" | "Fleet";
 export function Registration() {
   const {
     components: { ActiveShip },
-    godEntity,
+    gameEntity,
   } = useGame();
   const [state, setState] = useState<RegisterState>("Name");
 
@@ -22,7 +22,7 @@ export function Registration() {
       ) : (
         <FleetPage
           back={() => {
-            removeComponent(ActiveShip, godEntity);
+            removeComponent(ActiveShip, gameEntity);
             setState("Name");
           }}
         />

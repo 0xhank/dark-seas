@@ -33,15 +33,15 @@ export function ShipDetails({ flex }: { flex: number }) {
       Speed,
       Booty,
     },
-    godEntity,
+    gameEntity,
     utils: { getGameConfig, decodeShipPrototype },
   } = useGame();
   const mud = useGame();
 
   const [game, setGame] = useState<Phaser.Game>();
-  const prototypeEntity = useComponentValue(ActiveShip, godEntity)?.value as EntityIndex | undefined;
-  const activeCannon = useComponentValue(ActiveCannon, godEntity)?.value as EntityIndex | undefined;
-  const stagedShips = useComponentValue(StagedShips, godEntity, { value: [] }).value.map((ship) => ({
+  const prototypeEntity = useComponentValue(ActiveShip, gameEntity)?.value as EntityIndex | undefined;
+  const activeCannon = useComponentValue(ActiveCannon, gameEntity)?.value as EntityIndex | undefined;
+  const stagedShips = useComponentValue(StagedShips, gameEntity, { value: [] }).value.map((ship) => ({
     entity: ship as EntityIndex,
     ...decodeShipPrototype(ship as EntityIndex),
   }));
@@ -94,13 +94,13 @@ export function ShipDetails({ flex }: { flex: number }) {
 
   const cannotAddShip = !prototypeEntity || spent + price > budget;
   const addShip = () => {
-    const stagedShips = getComponentValue(StagedShips, godEntity)?.value || [];
+    const stagedShips = getComponentValue(StagedShips, gameEntity)?.value || [];
 
     if (!prototypeEntity) return;
     stagedShips.push(prototypeEntity);
-    setComponent(StagedShips, godEntity, { value: stagedShips });
-    removeComponent(ActiveShip, godEntity);
-    removeComponent(ActiveCannon, godEntity);
+    setComponent(StagedShips, gameEntity, { value: stagedShips });
+    removeComponent(ActiveShip, gameEntity);
+    removeComponent(ActiveCannon, gameEntity);
   };
 
   return (

@@ -1,15 +1,15 @@
 import { Coord, tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
 import {
+  EntityIndex,
+  Has,
+  UpdateType,
   defineComponentSystem,
   defineEnterSystem,
   defineSystem,
-  EntityIndex,
   getComponentValue,
   getComponentValueStrict,
-  Has,
   removeComponent,
   setComponent,
-  UpdateType,
 } from "@latticexyz/recs";
 import { sprites } from "../phaser/config";
 import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../phaser/constants";
@@ -19,7 +19,7 @@ import { getShipSprite } from "../utils/ships";
 export function shipTextureSystems(MUD: SetupResult) {
   const {
     world,
-    godEntity,
+    gameEntity,
     scene: { config, camera },
     components: {
       SelectedShip,
@@ -38,7 +38,7 @@ export function shipTextureSystems(MUD: SetupResult) {
       SailPosition,
       MaxHealth,
     },
-    utils: { getSpriteObject, destroySpriteObject, destroyGroupObject, getPlayerEntity, outOfBounds, playSound },
+    utils: { getSpriteObject, destroySpriteObject, destroyGroupObject, getOwnerEntity, outOfBounds, playSound },
     network: { clock },
   } = MUD;
 
@@ -53,11 +53,11 @@ export function shipTextureSystems(MUD: SetupResult) {
       const rotation = getComponentValueStrict(Rotation, shipEntity).value;
       const ownerId = getComponentValueStrict(OwnedBy, shipEntity).value;
 
-      const ownerEntity = getPlayerEntity(ownerId);
-      if (!ownerEntity) return;
-      const playerEntity = getPlayerEntity();
+      const gameEntity = getOwnerEntity(ownerId);
+      if (!gameEntity) return;
+      const ownerEntity = getOwnerEntity();
       const object = getSpriteObject(shipEntity);
-      const spriteAsset: Sprites = getShipSprite(ownerEntity, health, maxHealth, playerEntity == ownerEntity);
+      const spriteAsset: Sprites = getShipSprite(gameEntity, health, maxHealth, ownerEntity == gameEntity);
       const sprite = sprites[spriteAsset];
 
       object.setTexture(sprite.assetKey, sprite.frame);
@@ -72,7 +72,7 @@ export function shipTextureSystems(MUD: SetupResult) {
       } else {
         object.setAlpha(1);
         object.setDepth(RenderDepth.Foreground3);
-        object.on("pointerup", () => setComponent(SelectedShip, godEntity, { value: shipEntity }));
+        object.on("pointerup", () => setComponent(SelectedShip, gameEntity, { value: shipEntity }));
       }
 
       const shipLength = length * POS_WIDTH * 1.25;
@@ -85,7 +85,7 @@ export function shipTextureSystems(MUD: SetupResult) {
       object.setAngle((rotation - 90) % 360);
       object.setPosition(x, y);
 
-      if (playerEntity == ownerEntity) camera.centerOn(position.x * POS_WIDTH, position.y * POS_HEIGHT);
+      if (ownerEntity == gameEntity) camera.centerOn(position.x * POS_WIDTH, position.y * POS_HEIGHT);
 
       const onFire = getComponentValue(OnFire, shipEntity)?.value || 0;
       setComponent(OnFireLocal, shipEntity, { value: onFire });
@@ -138,8 +138,8 @@ export function shipTextureSystems(MUD: SetupResult) {
     }
     destroyGroupObject(`projection-${update.entity}`);
     removeComponent(SelectedMove, update.entity);
-    if (update.entity == getComponentValue(SelectedShip, godEntity)?.value) {
-      removeComponent(SelectedShip, godEntity);
+    if (update.entity == getComponentValue(SelectedShip, gameEntity)?.value) {
+      removeComponent(SelectedShip, gameEntity);
     }
 
     const rotation = getComponentValueStrict(Rotation, update.entity).value;

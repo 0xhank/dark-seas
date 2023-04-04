@@ -25,12 +25,12 @@ export function DamageChance() {
   const {
     components: { Loaded, HoveredAction },
     utils: { getTargetedShips, getDamageLikelihood, getSpriteObject },
-    godEntity,
+    gameEntity,
     scene: { camera },
   } = useGame();
   useObservableValue(merge(camera.worldView$, camera.zoom$));
 
-  const hoveredAction = useComponentValue(HoveredAction, godEntity);
+  const hoveredAction = useComponentValue(HoveredAction, gameEntity);
   const cannonEntity = hoveredAction?.specialEntity as EntityIndex;
   const loaded = useComponentValue(Loaded, cannonEntity)?.value;
 

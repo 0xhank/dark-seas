@@ -10,7 +10,7 @@ import {
 import { ActionState } from "@latticexyz/std-client";
 import { merge } from "rxjs";
 import { useGame } from "../../../../mud/providers/GameProvider";
-import { usePlayer } from "../../../../mud/providers/PlayerProvider";
+import { useOwner } from "../../../../mud/providers/OwnerProvider";
 import { Button, Success } from "../../../../styles/global";
 import { world } from "../../../../world";
 import { Category } from "../../..//sound";
@@ -21,17 +21,17 @@ export function CommitButtons({ tooEarly }: { tooEarly: boolean }) {
     utils: { getPlayerShipsWithMoves, playSound },
     actions: { Action },
     api: { commitMove },
-    godEntity,
+    gameEntity,
   } = useGame();
 
   useObservableValue(merge(SelectedMove.update$, CommittedMove.update$));
-  const encodedCommitment = useComponentValue(EncodedCommitment, godEntity)?.value;
+  const encodedCommitment = useComponentValue(EncodedCommitment, gameEntity)?.value;
   const selectedMoves = [...getComponentEntities(SelectedMove)];
   const acted = encodedCommitment !== undefined;
   const cannotAct = selectedMoves.length == 0;
 
-  const playerEntity = usePlayer();
-  const aliveShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[playerEntity] })])];
+  const ownerEntity = useOwner();
+  const aliveShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[ownerEntity] })])];
   const movesComplete = aliveShips.every((ship) => {
     const committedMove = getComponentValue(CommittedMove, ship)?.value;
     const selectedMove = getComponentValue(SelectedMove, ship)?.value;

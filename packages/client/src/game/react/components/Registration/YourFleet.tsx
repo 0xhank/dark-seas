@@ -24,14 +24,14 @@ export function YourFleet({ flex }: { flex: number }) {
     utils: { decodeShipPrototype, getGameConfig },
     api: { spawnPlayer },
     network: { clock },
-    godEntity,
+    gameEntity,
   } = useGame();
 
   useObservableValue(merge(ShipPrototype.update$, Action.update$));
 
   const budget = getGameConfig()?.budget || 0;
-  const name = useComponentValue(Name, godEntity, { value: "" }).value;
-  const stagedShips = useComponentValue(StagedShips, godEntity, { value: [] }).value.map((ship) => ({
+  const name = useComponentValue(Name, gameEntity, { value: "" }).value;
+  const stagedShips = useComponentValue(StagedShips, gameEntity, { value: [] }).value.map((ship) => ({
     entity: ship as EntityIndex,
     ...decodeShipPrototype(ship as EntityIndex),
   }));
@@ -86,11 +86,11 @@ export function YourFleet({ flex }: { flex: number }) {
   const background = txFailed ? colors.red : colors.gold;
 
   const removeShip = (index: number) => {
-    const ships = getComponentValue(StagedShips, godEntity)?.value;
+    const ships = getComponentValue(StagedShips, gameEntity)?.value;
     if (!ships || index > ships.length) return;
     ships.splice(index, 1);
-    setComponent(StagedShips, godEntity, { value: ships });
-    removeComponent(ActiveShip, godEntity);
+    setComponent(StagedShips, gameEntity, { value: ships });
+    removeComponent(ActiveShip, gameEntity);
   };
 
   return (

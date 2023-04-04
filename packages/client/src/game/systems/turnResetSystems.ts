@@ -4,18 +4,16 @@ import { Phase, SetupResult } from "../types";
 export function turnResetSystems(MUD: SetupResult) {
   const {
     world,
-    godEntity,
+    gameEntity,
     components: {
       SelectedMove,
       SelectedActions,
       EncodedCommitment,
       CommittedMove,
-      HoveredMove,
       HoveredAction,
       Targeted,
       ExecutedActions,
       ExecutedCannon,
-      LastMove,
       LastAction,
       MoveCard,
       SelectedShip,
@@ -25,6 +23,7 @@ export function turnResetSystems(MUD: SetupResult) {
     utils: {
       destroySpriteObject,
       destroyGroupObject,
+      getOwnerEntity,
       getPlayerEntity,
       getPhase,
       getGameConfig,
@@ -48,8 +47,8 @@ export function turnResetSystems(MUD: SetupResult) {
 
     const timeToNextPhase = secondsUntilNextPhase(time);
 
-    const playerEntity = getPlayerEntity();
-    if (!playerEntity) return;
+    const ownerEntity = getOwnerEntity();
+    if (!ownerEntity) return;
 
     // START OF PHASE: clear previous turn's actions
     // END OF PHASE: submit moves
@@ -82,7 +81,7 @@ export function turnResetSystems(MUD: SetupResult) {
         destroyGroupObject("activeShip");
         destroySpriteObject("hoverGhost");
         //commit move
-        const encodedCommitment = getComponentValue(EncodedCommitment, godEntity)?.value;
+        const encodedCommitment = getComponentValue(EncodedCommitment, gameEntity)?.value;
         if (encodedCommitment) return;
         const shipsAndMoves = getPlayerShipsWithMoves();
         if (!shipsAndMoves) return;
@@ -90,7 +89,7 @@ export function turnResetSystems(MUD: SetupResult) {
       }
 
       if (timeToNextPhase == gameConfig.revealPhaseLength - 3) {
-        const encoding = getComponentValue(EncodedCommitment, godEntity)?.value;
+        const encoding = getComponentValue(EncodedCommitment, gameEntity)?.value;
         if (encoding) revealMove(encoding);
       }
     }
@@ -102,11 +101,13 @@ export function turnResetSystems(MUD: SetupResult) {
         clearComponent(EncodedCommitment);
         clearComponent(CommittedMove);
         clearComponent(SelectedMove);
-        const selectedShip = getComponentValue(SelectedShip, godEntity)?.value as EntityIndex | undefined;
+        const selectedShip = getComponentValue(SelectedShip, gameEntity)?.value as EntityIndex | undefined;
         if (selectedShip) renderShipFiringAreas(selectedShip, "activeShip");
       }
       // END OF PHASE
       if (timeToNextPhase == 1) {
+        const playerEntity = getPlayerEntity(ownerEntity);
+        if (!playerEntity) return;
         const lastAction = getComponentValue(LastAction, playerEntity)?.value;
         if (lastAction == turn) return;
         const shipsAndActions = getPlayerShipsWithActions();
