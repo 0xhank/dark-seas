@@ -3,13 +3,14 @@ import { EntityID, EntityIndex, getComponentValue } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
 import { utils } from "ethers";
 import { defaultAbiCoder as abi } from "ethers/lib/utils";
-import { ActionStruct } from "../../../../contracts/types/ethers-contracts/ActionSystem";
 import { SystemTypes } from "../../../../contracts/types/SystemTypes";
+import { ActionStruct } from "../../../../contracts/types/ethers-contracts/ActionSystem";
 import { components } from "../../components";
 import { world } from "../../world";
 import { Action, ActionHashes, ActionType, TxType } from "../types";
 
 export function submitActions(
+  gameId: EntityID,
   systems: TxQueue<SystemTypes>,
   actions: ActionSystem,
   getTargetedShips: (cannonEntity: EntityIndex) => EntityIndex[],
@@ -74,7 +75,7 @@ export function submitActions(
     updates: () => [],
     execute: (actions) => {
       console.log("submitting actions:", actions);
-      return systems["ds.system.Action"].executeTyped(actions, {
+      return systems["ds.system.Action"].executeTyped(gameId, actions, {
         gasLimit: 10_000_000,
       });
     },

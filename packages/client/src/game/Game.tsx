@@ -66,6 +66,7 @@ export const Game = () => {
     }
 
     bootGame();
+    (window as any).ds = phaser;
   }, [worldAddress]);
 
   if (MUD)

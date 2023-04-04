@@ -7,6 +7,7 @@ import { components } from "../../components";
 import { TxType } from "../types";
 
 export function revealMove(
+  gameId: EntityID,
   systems: TxQueue<SystemTypes>,
   actions: ActionSystem,
   encodedCommitment: string,
@@ -20,15 +21,15 @@ export function revealMove(
     awaitConfirmation: true,
     components: { Commitment },
     requirement: ({ Commitment }) => {
-      const [moves, salt] = abi.decode(
-        ["tuple(uint256 shipEntity, uint256 moveCardEntity)[]", "uint256"],
+      const [gameId, moves, salt] = abi.decode(
+        ["uint256", "tuple(uint256 shipEntity, uint256 moveCardEntity)[]", "uint256"],
         encodedCommitment
       );
-      return { moves, salt };
+      return { gameId, moves, salt };
     },
     updates: () => [],
-    execute: ({ moves, salt }) => {
-      return systems["ds.system.Move"].executeTyped(moves, salt, {
+    execute: ({ gameId, moves, salt }) => {
+      return systems["ds.system.Move"].executeTyped(gameId, moves, salt, {
         gasLimit: 5_000_000,
         type: 2,
         gasPrice: undefined,

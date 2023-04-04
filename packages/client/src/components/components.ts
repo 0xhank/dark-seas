@@ -51,6 +51,10 @@ export const components = {
   LastHit: defineStringComponent(world, { id: "LastHit", metadata: { contractId: "ds.component.LastHit" } }),
   Upgrade: UpgradeComponent,
   Action: defineActionComponent,
+  CurrentGame: defineStringComponent(world, {
+    id: "CurrentGame",
+    metadata: { contractId: "ds.component.CurrentGame", metadata: { contractId: "ds.component.CurrentGame" } },
+  }),
 };
 
 export const clientComponents = {

@@ -38,7 +38,6 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
   const singletonEntity = networkWorld.registerEntity({ id: SingletonID });
   const gameEntity = networkWorld.registerEntity({ id: gameId ?? SingletonID });
 
-  console.log("singleton entity: ", singletonEntity, "god entity: ", gameEntity);
   // Register player entity
   const playerAddress = network.connectedAddress.get();
   if (!playerAddress) throw new Error("Not connected");
@@ -72,15 +71,15 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
   const actions = createActionSystem(networkWorld, txReduced$);
   const api = {
     spawnPlayer: (name: string, ships: EntityID[], override?: boolean) => {
-      spawnPlayerAction(systems, actions, name, ships, override);
+      spawnPlayerAction(gameId, systems, actions, name, ships, override);
     },
 
     commitMove: (moves: Move[], override?: boolean) => {
-      commitMoveAction(systems, actions, moves, override);
+      commitMoveAction(gameId, systems, actions, moves, override);
     },
 
     revealMove: (encoding: string, override?: boolean) => {
-      revealMoveAction(systems, actions, encoding, override);
+      revealMoveAction(gameId, systems, actions, encoding, override);
     },
 
     submitActions: (
@@ -88,7 +87,7 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
       getTargetedShips: (cannonEntity: EntityIndex) => EntityIndex[],
       override?: boolean
     ) => {
-      submitActionsAction(systems, actions, getTargetedShips, playerActions, override);
+      submitActionsAction(gameId, systems, actions, getTargetedShips, playerActions, override);
     },
 
     createGame: (gameConfig: GameConfigStruct, override?: boolean) => {

@@ -1,8 +1,8 @@
 import { tileCoordToPixelCoord, tween } from "@latticexyz/phaserx";
 import {
   ComponentValue,
-  defineRxSystem,
   EntityIndex,
+  defineRxSystem,
   getComponentValue,
   getComponentValueStrict,
   removeComponent,
@@ -12,7 +12,6 @@ import { Coord } from "@latticexyz/utils";
 import { BigNumber, utils } from "ethers";
 import { BytesLike, defaultAbiCoder as abi } from "ethers/lib/utils";
 import { ActionStruct } from "../../../../contracts/types/ethers-contracts/ActionSystem";
-import { Category } from "..//sound";
 import {
   Animations,
   CANNON_SHOT_DELAY,
@@ -22,6 +21,7 @@ import {
   RenderDepth,
   SHIP_RATIO,
 } from "../phaser/constants";
+import { Category } from "../sound";
 import { ActionHashes, ActionType, SetupResult, Sprites } from "../types";
 import { distance } from "../utils/distance";
 import { getMidpoint, midpoint } from "../utils/trig";

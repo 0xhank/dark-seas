@@ -1,7 +1,7 @@
 import { filter } from "rxjs";
 import { phaserConfig } from "../../phaser/config";
 import { POS_WIDTH } from "../../phaser/constants";
-import { SetupResult } from "../../setupMUD";
+import { SetupResult } from "../../types";
 
 export function cameraControlSystems(MUD: SetupResult) {
   const {

@@ -4,6 +4,7 @@ import { ActionSystem } from "@latticexyz/std-client";
 import { SystemTypes } from "../../../../contracts/types/SystemTypes";
 
 export function spawnPlayer(
+  gameId: EntityID,
   systems: TxQueue<SystemTypes>,
   actions: ActionSystem,
   name: string,
@@ -20,7 +21,7 @@ export function spawnPlayer(
     },
     updates: () => [],
     execute: (name: string) => {
-      return systems["ds.system.PlayerSpawn"].executeTyped(name, ships, {
+      return systems["ds.system.PlayerSpawn"].executeTyped(gameId, name, ships, {
         gasLimit: 30_000_000,
       });
     },

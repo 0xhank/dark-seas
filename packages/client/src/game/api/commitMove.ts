@@ -6,7 +6,13 @@ import { SystemTypes } from "../../../../contracts/types/SystemTypes";
 import { components } from "../../components";
 import { Move, TxType } from "../types";
 
-export function commitMove(systems: TxQueue<SystemTypes>, actions: ActionSystem, moves: Move[], override?: boolean) {
+export function commitMove(
+  gameId: EntityID,
+  systems: TxQueue<SystemTypes>,
+  actions: ActionSystem,
+  moves: Move[],
+  override?: boolean
+) {
   const { OwnedBy, GameConfig, MoveCard } = components;
   // Entity must be owned by the player
   const actionId = `commitMove ${Date.now()}` as EntityID;
@@ -16,17 +22,23 @@ export function commitMove(systems: TxQueue<SystemTypes>, actions: ActionSystem,
     awaitConfirmation: true,
     components: { OwnedBy, GameConfig, MoveCard },
     requirement: () => {
-      return abi.encode(["tuple(uint256 shipEntity, uint256 moveCardEntity)[]", "uint256"], [moves, 0]);
+      return abi.encode(
+        ["uint256", "tuple(uint256 shipEntity, uint256 moveCardEntity)[]", "uint256"],
+        [gameId, moves, 0]
+      );
     },
     updates: () => [],
     execute: (encoding: string) => {
-      return systems["ds.system.Commit"].executeTyped(keccak256(encoding));
+      return systems["ds.system.Commit"].executeTyped(gameId, keccak256(encoding));
     },
     metadata: {
       type: TxType.Commit,
       metadata: {
         moves,
-        encoding: abi.encode(["tuple(uint256 shipEntity, uint256 moveCardEntity)[]", "uint256"], [moves, 0]),
+        encoding: abi.encode(
+          ["uint256", "tuple(uint256 shipEntity, uint256 moveCardEntity)[]", "uint256"],
+          [gameId, moves, 0]
+        ),
       },
     },
   });
