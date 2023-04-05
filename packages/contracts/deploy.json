@@ -98,6 +98,10 @@
       "writeAccess": ["CommitmentComponent"]
     },
     {
+      "name": "SpawnPlayerSystem",
+      "writeAccess": ["ShipPrototypeComponent", "PlayerComponent", "OwnedByComponent", "NameComponent"]
+    },
+    {
       "name": "InitSystem",
       "writeAccess": ["*"],
       "initialize": "new bytes(0)"

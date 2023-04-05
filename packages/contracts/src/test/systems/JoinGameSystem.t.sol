@@ -9,7 +9,6 @@ import { getAddressById, addressToEntity } from "solecs/utils.sol";
 import { JoinGameSystem, ID as JoinGameSystemID } from "../../systems/JoinGameSystem.sol";
 
 // Components
-import { NameComponent, ID as NameComponentID } from "../../components/NameComponent.sol";
 import { ShipComponent, ID as ShipComponentID } from "../../components/ShipComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../../components/GameConfigComponent.sol";
 
@@ -24,7 +23,6 @@ contract JoinGameTest is DarkSeasTest {
   constructor() DarkSeasTest(new Deploy()) {}
 
   JoinGameSystem joinGameSystem;
-  NameComponent nameComponent;
 
   uint256[] shipPrototypes;
 
@@ -38,7 +36,7 @@ contract JoinGameTest is DarkSeasTest {
     vm.warp(getTurnAndPhaseTime(world, gameId, gameConfig.entryCutoffTurns + 1, Phase.Commit));
 
     vm.expectRevert(bytes("JoinGameSystem: entry period has ended"));
-    joinGameSystem.executeTyped(gameId, "Jamaican me crazy", shipPrototypes);
+    joinGameSystem.executeTyped(gameId, shipPrototypes);
   }
 
   function testRevertTooExpensive() public prank(deployer) {
@@ -53,7 +51,7 @@ contract JoinGameTest is DarkSeasTest {
     shipPrototypes.push(encodedShip);
 
     vm.expectRevert(bytes("LibSpawn: ships too expensive"));
-    joinGameSystem.executeTyped(gameId, "Jamaican me crazy", shipPrototypes);
+    joinGameSystem.executeTyped(gameId, shipPrototypes);
 
     delete shipPrototypes;
 
@@ -77,19 +75,11 @@ contract JoinGameTest is DarkSeasTest {
     uint256 encodedShip = createShipPrototype(1);
 
     shipPrototypes.push(encodedShip);
-    joinGameSystem.executeTyped(gameId, "Jamaican me crazy", shipPrototypes);
+    joinGameSystem.executeTyped(gameId, shipPrototypes);
 
     (uint256[] memory entities, ) = LibUtils.getEntityWith(world, ShipComponentID);
 
     assertEq(entities.length, shipPrototypes.length, "incorrect number of ships");
-
-    bool hasName = nameComponent.has(playerEntity);
-
-    assertTrue(hasName, "player name not stored");
-    if (hasName) {
-      string memory playerName = nameComponent.getValue(playerEntity);
-      assertEq(playerName, "Jamaican me crazy");
-    }
   }
 
   /**
@@ -101,7 +91,6 @@ contract JoinGameTest is DarkSeasTest {
     gameId = abi.decode(id, (uint256));
 
     joinGameSystem = JoinGameSystem(system(JoinGameSystemID));
-    nameComponent = NameComponent(LibUtils.addressById(world, NameComponentID));
     delete shipPrototypes;
   }
 }

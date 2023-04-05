@@ -63,7 +63,7 @@ contract InitSystem is System {
     // Tugboat
     cannon2[0] = CannonPrototype({ rotation: 0, firepower: 8, range: 70 });
     cannon2[1] = CannonPrototype({ rotation: 180, firepower: 8, range: 70 });
-    LibCreateShip.createShip(
+    uint256 ship1 = LibCreateShip.createShip(
       world,
       ShipPrototype({ price: 2, length: 8, maxHealth: 5, speed: 5, cannons: cannon2, name: "Tugboat" })
     );
@@ -82,7 +82,7 @@ contract InitSystem is System {
     cannon4[1] = CannonPrototype({ rotation: 270, firepower: 11, range: 60 });
     cannon4[2] = CannonPrototype({ rotation: 30, firepower: 12, range: 70 });
     cannon4[3] = CannonPrototype({ rotation: 330, firepower: 12, range: 70 });
-    LibCreateShip.createShip(
+    uint256 ship2 = LibCreateShip.createShip(
       world,
       ShipPrototype({ price: 3, length: 9, maxHealth: 4, speed: 8, cannons: cannon4, name: "Defiance" })
     );
@@ -117,6 +117,11 @@ contract InitSystem is System {
       world,
       ShipPrototype({ price: 5, length: 13, maxHealth: 8, speed: 11, cannons: cannon5, name: "Victory" })
     );
+
+    uint256[] memory defaultShips = new uint256[](2);
+    defaultShips[0] = ship1;
+    defaultShips[1] = ship2;
+    LibCreateShip.setDefaultShips(world, defaultShips);
   }
 
   function createMoveCards() private {
