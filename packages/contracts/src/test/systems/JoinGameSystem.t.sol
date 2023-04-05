@@ -6,7 +6,7 @@ import "../DarkSeasTest.t.sol";
 import { getAddressById, addressToEntity } from "solecs/utils.sol";
 
 // Systems
-import { PlayerSpawnSystem, ID as PlayerSpawnSystemID } from "../../systems/PlayerSpawnSystem.sol";
+import { JoinGameSystem, ID as JoinGameSystemID } from "../../systems/JoinGameSystem.sol";
 
 // Components
 import { NameComponent, ID as NameComponentID } from "../../components/NameComponent.sol";
@@ -20,10 +20,10 @@ import { Coord, Phase, CannonPrototype } from "../../libraries/DSTypes.sol";
 import "../../libraries/LibUtils.sol";
 import "../../libraries/LibCreateShip.sol";
 
-contract PlayerSpawnTest is DarkSeasTest {
+contract JoinGameTest is DarkSeasTest {
   constructor() DarkSeasTest(new Deploy()) {}
 
-  PlayerSpawnSystem playerSpawnSystem;
+  JoinGameSystem joinGameSystem;
   NameComponent nameComponent;
 
   uint256[] shipPrototypes;
@@ -37,8 +37,8 @@ contract PlayerSpawnTest is DarkSeasTest {
 
     vm.warp(getTurnAndPhaseTime(world, gameId, gameConfig.entryCutoffTurns + 1, Phase.Commit));
 
-    vm.expectRevert(bytes("PlayerSpawnSystem: entry period has ended"));
-    playerSpawnSystem.executeTyped(gameId, "Jamaican me crazy", shipPrototypes);
+    vm.expectRevert(bytes("JoinGameSystem: entry period has ended"));
+    joinGameSystem.executeTyped(gameId, "Jamaican me crazy", shipPrototypes);
   }
 
   function testRevertTooExpensive() public prank(deployer) {
@@ -53,7 +53,7 @@ contract PlayerSpawnTest is DarkSeasTest {
     shipPrototypes.push(encodedShip);
 
     vm.expectRevert(bytes("LibSpawn: ships too expensive"));
-    playerSpawnSystem.executeTyped(gameId, "Jamaican me crazy", shipPrototypes);
+    joinGameSystem.executeTyped(gameId, "Jamaican me crazy", shipPrototypes);
 
     delete shipPrototypes;
 
@@ -63,7 +63,7 @@ contract PlayerSpawnTest is DarkSeasTest {
     shipPrototypes.push(encodedShip);
     shipPrototypes.push(encodedShip);
     // vm.expectRevert(bytes("LibSpawn: ships too expensive"));
-    // playerSpawnSystem.executeTyped(gameId, "Jamaican me crazy", shipPrototypes);
+    // joinGameSystem.executeTyped(gameId, "Jamaican me crazy", shipPrototypes);
   }
 
   function testSpawn() public prank(deployer) {
@@ -77,7 +77,7 @@ contract PlayerSpawnTest is DarkSeasTest {
     uint256 encodedShip = createShipPrototype(1);
 
     shipPrototypes.push(encodedShip);
-    playerSpawnSystem.executeTyped(gameId, "Jamaican me crazy", shipPrototypes);
+    joinGameSystem.executeTyped(gameId, "Jamaican me crazy", shipPrototypes);
 
     (uint256[] memory entities, ) = LibUtils.getEntityWith(world, ShipComponentID);
 
@@ -100,7 +100,7 @@ contract PlayerSpawnTest is DarkSeasTest {
     bytes memory id = CreateGameSystem(system(CreateGameSystemID)).executeTyped(baseGameConfig);
     gameId = abi.decode(id, (uint256));
 
-    playerSpawnSystem = PlayerSpawnSystem(system(PlayerSpawnSystemID));
+    joinGameSystem = JoinGameSystem(system(JoinGameSystemID));
     nameComponent = NameComponent(LibUtils.addressById(world, NameComponentID));
     delete shipPrototypes;
   }

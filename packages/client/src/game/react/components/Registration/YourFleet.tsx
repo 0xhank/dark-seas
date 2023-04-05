@@ -22,7 +22,7 @@ export function YourFleet({ flex }: { flex: number }) {
     components: { ShipPrototype, Name, StagedShips, ActiveShip },
     actions: { Action },
     utils: { decodeShipPrototype, getGameConfig },
-    api: { spawnPlayer },
+    api: { joinGame },
     network: { clock },
     gameEntity,
   } = useGame();
@@ -52,7 +52,7 @@ export function YourFleet({ flex }: { flex: number }) {
 
   const spawn = () => {
     if (stagedShips.length == 0 || name.length == 0) return;
-    spawnPlayer(
+    joinGame(
       name,
       stagedShips.map((ship) => world.entities[ship.entity])
     );

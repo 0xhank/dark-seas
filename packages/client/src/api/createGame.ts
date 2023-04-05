@@ -2,8 +2,8 @@ import { TxQueue } from "@latticexyz/network";
 import { EntityID } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
 import { BigNumber } from "ethers";
-import { SystemTypes } from "../../../../contracts/types/SystemTypes";
-import { GameConfigStruct } from "../../../../contracts/types/ethers-contracts/CreateGameSystem";
+import { SystemTypes } from "../../../contracts/types/SystemTypes";
+import { GameConfigStruct } from "../../../contracts/types/ethers-contracts/CreateGameSystem";
 
 export function createGame(
   systems: TxQueue<SystemTypes>,

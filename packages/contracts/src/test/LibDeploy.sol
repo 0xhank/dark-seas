@@ -49,7 +49,7 @@ import { CreateGameSystem, ID as CreateGameSystemID } from "systems/CreateGameSy
 import { MoveSystem, ID as MoveSystemID } from "systems/MoveSystem.sol";
 import { ActionSystem, ID as ActionSystemID } from "systems/ActionSystem.sol";
 import { ComponentDevSystem, ID as ComponentDevSystemID } from "systems/ComponentDevSystem.sol";
-import { PlayerSpawnSystem, ID as PlayerSpawnSystemID } from "systems/PlayerSpawnSystem.sol";
+import { JoinGameSystem, ID as JoinGameSystemID } from "systems/JoinGameSystem.sol";
 import { CommitSystem, ID as CommitSystemID } from "systems/CommitSystem.sol";
 import { InitSystem, ID as InitSystemID } from "systems/InitSystem.sol";
 
@@ -307,9 +307,9 @@ library LibDeploy {
     authorizeWriter(components, CurrentGameComponentID, address(system));
     console.log(address(system));
 
-    console.log("Deploying PlayerSpawnSystem");
-    system = new PlayerSpawnSystem(world, address(components));
-    world.registerSystem(address(system), PlayerSpawnSystemID);
+    console.log("Deploying JoinGameSystem");
+    system = new JoinGameSystem(world, address(components));
+    world.registerSystem(address(system), JoinGameSystemID);
     authorizeWriter(components, PositionComponentID, address(system));
     authorizeWriter(components, RotationComponentID, address(system));
     authorizeWriter(components, LengthComponentID, address(system));

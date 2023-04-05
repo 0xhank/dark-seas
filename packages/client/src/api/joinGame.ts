@@ -1,9 +1,9 @@
 import { TxQueue } from "@latticexyz/network";
 import { EntityID } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
-import { SystemTypes } from "../../../../contracts/types/SystemTypes";
+import { SystemTypes } from "../../../contracts/types/SystemTypes";
 
-export function spawnPlayer(
+export function joinGame(
   gameId: EntityID,
   systems: TxQueue<SystemTypes>,
   actions: ActionSystem,
@@ -21,7 +21,7 @@ export function spawnPlayer(
     },
     updates: () => [],
     execute: (name: string) => {
-      return systems["ds.system.PlayerSpawn"].executeTyped(gameId, name, ships, {
+      return systems["ds.system.JoinGame"].executeTyped(gameId, name, ships, {
         gasLimit: 30_000_000,
       });
     },

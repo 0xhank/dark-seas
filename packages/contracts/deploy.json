@@ -70,7 +70,7 @@
       "writeAccess": ["*"]
     },
     {
-      "name": "PlayerSpawnSystem",
+      "name": "JoinGameSystem",
       "writeAccess": [
         "PositionComponent",
         "RotationComponent",

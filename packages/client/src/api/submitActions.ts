@@ -3,11 +3,11 @@ import { EntityID, EntityIndex, getComponentValue } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
 import { utils } from "ethers";
 import { defaultAbiCoder as abi } from "ethers/lib/utils";
-import { SystemTypes } from "../../../../contracts/types/SystemTypes";
-import { ActionStruct } from "../../../../contracts/types/ethers-contracts/ActionSystem";
-import { components } from "../../components";
-import { world } from "../../world";
-import { Action, ActionHashes, ActionType, TxType } from "../types";
+import { SystemTypes } from "../../../contracts/types/SystemTypes";
+import { ActionStruct } from "../../../contracts/types/ethers-contracts/ActionSystem";
+import { components } from "../components";
+import { Action, ActionHashes, ActionType, TxType } from "../game/types";
+import { world } from "../world";
 
 export function submitActions(
   gameId: EntityID,

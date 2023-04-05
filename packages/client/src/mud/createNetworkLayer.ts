@@ -5,14 +5,14 @@ import { parseEther } from "ethers/lib/utils.js";
 import { GameConfigStruct } from "../../../contracts/types/ethers-contracts/CreateGameSystem.js";
 import { SystemAbis } from "../../../contracts/types/SystemAbis.mjs";
 import { SystemTypes } from "../../../contracts/types/SystemTypes";
-import { components } from "../components";
 import {
   commitMoveAction,
   createGameAction,
+  joinGameAction,
   revealMoveAction,
-  spawnPlayerAction,
   submitActionsAction,
-} from "../game/api/index";
+} from "../api/index";
+import { components } from "../components";
 import { Action, Move } from "../game/types.js";
 import { world } from "../world";
 import { getNetworkConfig } from "./config.js";
@@ -70,8 +70,8 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
   }
   const actions = createActionSystem(networkWorld, txReduced$);
   const api = {
-    spawnPlayer: (name: string, ships: EntityID[], override?: boolean) => {
-      spawnPlayerAction(gameId, systems, actions, name, ships, override);
+    joinGame: (name: string, ships: EntityID[], override?: boolean) => {
+      joinGameAction(gameId, systems, actions, name, ships, override);
     },
 
     commitMove: (moves: Move[], override?: boolean) => {

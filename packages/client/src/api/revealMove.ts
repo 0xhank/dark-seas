@@ -2,9 +2,9 @@ import { TxQueue } from "@latticexyz/network";
 import { EntityID } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
 import { defaultAbiCoder as abi } from "ethers/lib/utils";
-import { SystemTypes } from "../../../../contracts/types/SystemTypes";
-import { components } from "../../components";
-import { TxType } from "../types";
+import { SystemTypes } from "../../../contracts/types/SystemTypes";
+import { components } from "../components";
+import { TxType } from "../game/types";
 
 export function revealMove(
   gameId: EntityID,

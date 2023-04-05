@@ -2,9 +2,9 @@ import { TxQueue } from "@latticexyz/network";
 import { EntityID } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
 import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
-import { SystemTypes } from "../../../../contracts/types/SystemTypes";
-import { components } from "../../components";
-import { Move, TxType } from "../types";
+import { SystemTypes } from "../../../contracts/types/SystemTypes";
+import { components } from "../components";
+import { Move, TxType } from "../game/types";
 
 export function commitMove(
   gameId: EntityID,
