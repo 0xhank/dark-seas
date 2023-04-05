@@ -4,10 +4,9 @@ import { AvailableShips } from "./AvailableShips";
 import { ShipDetails } from "./ShipDetails";
 import { YourFleet } from "./YourFleet";
 
-export function FleetPage({ back }: { back: () => void }) {
+export function FleetPage() {
   return (
     <FleetContainer>
-      <BackButton onClick={back}>back</BackButton>
       <Title>Build your fleet</Title>
       <div style={{ display: "flex", height: "100%", overflow: "hidden" }}>
         <AvailableShips flex={1} />

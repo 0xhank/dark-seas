@@ -7,7 +7,6 @@ export function joinGame(
   gameId: EntityID,
   systems: TxQueue<SystemTypes>,
   actions: ActionSystem,
-  name: string,
   ships: EntityID[],
   override?: boolean
 ) {
@@ -17,11 +16,11 @@ export function joinGame(
     awaitConfirmation: true,
     components: {},
     requirement: () => {
-      return name;
+      return gameId;
     },
     updates: () => [],
-    execute: (name: string) => {
-      return systems["ds.system.JoinGame"].executeTyped(gameId, name, ships, {
+    execute: (gameId: string) => {
+      return systems["ds.system.JoinGame"].executeTyped(gameId, ships, {
         gasLimit: 30_000_000,
       });
     },

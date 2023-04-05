@@ -1,34 +1,19 @@
-import { removeComponent } from "@latticexyz/recs";
-import { useState } from "react";
+import { useComponentValue } from "@latticexyz/react";
 import styled from "styled-components";
 import { useGame } from "../../../../mud/providers/GameProvider";
+import { useOwner } from "../../../../mud/providers/OwnerProvider";
 import { ShipContainer } from "../../../../styles/global";
 import { FleetPage } from "./FleetPage";
-import { NamePage } from "./NamePage";
-
-type RegisterState = "Name" | "Fleet";
+import { SpectatePage } from "./SpectatePage";
 
 export function Registration() {
   const {
-    components: { ActiveShip },
-    gameEntity,
+    components: { Name },
   } = useGame();
-  const [state, setState] = useState<RegisterState>("Name");
+  const ownerEntity = useOwner();
+  const name = useComponentValue(Name, ownerEntity)?.value;
 
-  return (
-    <RegisterContainer>
-      {state == "Name" ? (
-        <NamePage selectFleet={() => setState("Fleet")} />
-      ) : (
-        <FleetPage
-          back={() => {
-            removeComponent(ActiveShip, gameEntity);
-            setState("Name");
-          }}
-        />
-      )}
-    </RegisterContainer>
-  );
+  return <RegisterContainer>{!name ? <SpectatePage /> : <FleetPage />}</RegisterContainer>;
 }
 
 const RegisterContainer = styled(ShipContainer)`
