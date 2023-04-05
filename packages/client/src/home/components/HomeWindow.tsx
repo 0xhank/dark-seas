@@ -11,6 +11,7 @@ import { world } from "../../world";
 import { CreateGame } from "./CreateGame";
 import { Games } from "./Games";
 import { RegisterName } from "./RegisterName";
+import { ShipShop } from "./ShipShop";
 import { YourPort } from "./YourPort";
 
 export function HomeWindow() {
@@ -43,10 +44,11 @@ export function HomeWindow() {
           <OwnerProvider value={ownerEntity}>
             <div style={{ display: "flex", flexDirection: "column", textAlign: "center" }}>
               <strong style={{ fontSize: "1.5rem" }}> Welcome, {name}</strong>
-              <div style={{ display: "flex" }}>
+              <div style={{ display: "flex", height: "60vh" }}>
                 <CreateGame />
                 <Games />
                 <YourPort />
+                <ShipShop />
               </div>
             </div>
           </OwnerProvider>
@@ -78,7 +80,6 @@ const RegisterContainer = styled(ShipContainer)`
   padding: 12px;
   cursor: auto;
   pointer-events: all;
-  height: 60%;
   display: flex;
   flex-direction: row;
 `;
