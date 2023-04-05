@@ -52,10 +52,7 @@ export function YourFleet({ flex }: { flex: number }) {
 
   const spawn = () => {
     if (stagedShips.length == 0 || name.length == 0) return;
-    joinGame(
-      name,
-      stagedShips.map((ship) => world.entities[ship.entity])
-    );
+    joinGame(stagedShips.map((ship) => world.entities[ship.entity]));
   };
 
   const time = useObservableValue(clock.time$) || 0;

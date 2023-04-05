@@ -5,11 +5,13 @@ import styled from "styled-components";
 import { BootScreen } from "../../game/react/components/BootScreen";
 import { ActionQueue } from "../../game/react/components/Dev/ActionQueue";
 import { useHome } from "../../mud/providers/HomeProvider";
+import { OwnerProvider } from "../../mud/providers/OwnerProvider";
 import { BackgroundImg, ShipContainer } from "../../styles/global";
 import { world } from "../../world";
 import { CreateGame } from "./CreateGame";
 import { Games } from "./Games";
 import { RegisterName } from "./RegisterName";
+import { YourPort } from "./YourPort";
 
 export function HomeWindow() {
   const {
@@ -37,14 +39,17 @@ export function HomeWindow() {
       <BackgroundImg src="img/ship-background.png" style={{ zIndex: -1 }} />
       <ActionQueue home />
       <RegisterContainer>
-        {name && ownerEntity ? (
-          <div style={{ display: "flex", flexDirection: "column", textAlign: "center" }}>
-            <strong style={{ fontSize: "1.5rem" }}> Welcome, {name}</strong>
-            <div style={{ display: "flex" }}>
-              <CreateGame />
-              <Games />
+        {ownerEntity ? (
+          <OwnerProvider value={ownerEntity}>
+            <div style={{ display: "flex", flexDirection: "column", textAlign: "center" }}>
+              <strong style={{ fontSize: "1.5rem" }}> Welcome, {name}</strong>
+              <div style={{ display: "flex" }}>
+                <CreateGame />
+                <Games />
+                <YourPort />
+              </div>
             </div>
-          </div>
+          </OwnerProvider>
         ) : (
           <RegisterName />
         )}
