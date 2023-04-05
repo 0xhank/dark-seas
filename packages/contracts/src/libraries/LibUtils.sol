@@ -19,11 +19,10 @@ library LibUtils {
    * @return  found whether the query is successful
 
    */
-  function getEntityWith(IWorld world, uint256 componentId)
-    internal
-    view
-    returns (uint256[] memory entity, bool found)
-  {
+  function getEntityWith(
+    IWorld world,
+    uint256 componentId
+  ) internal view returns (uint256[] memory entity, bool found) {
     QueryFragment[] memory fragments = new QueryFragment[](1);
 
     fragments[0] = QueryFragment(QueryType.Has, IComponent(addressById(world, componentId)), new bytes(0));
@@ -41,11 +40,7 @@ library LibUtils {
    * @param   shift  starting position of mask
    * @return  _byteUInt masked bit string
    */
-  function getByteUInt(
-    uint256 _b,
-    uint256 length,
-    uint256 shift
-  ) public pure returns (uint256 _byteUInt) {
+  function getByteUInt(uint256 _b, uint256 length, uint256 shift) public pure returns (uint256 _byteUInt) {
     uint256 mask = ((1 << length) - 1) << shift;
     _byteUInt = (_b & mask) >> shift;
   }
@@ -81,12 +76,12 @@ library LibUtils {
   /**
    * @notice  checks if player with this address exists
    * @param   world world and components
-   * @param   playerAddress  player's address
+   * @param   ownerAddress  player's address
    * @return  bool  does player with this address exist?
    */
-  function playerAddrExists(IWorld world, address playerAddress) internal view returns (bool) {
+  function playerAddrExists(IWorld world, address ownerAddress) internal view returns (bool) {
     PlayerComponent playerComponent = PlayerComponent(LibUtils.addressById(world, PlayerComponentID));
-    return playerComponent.has(addressToEntity(playerAddress));
+    return playerComponent.has(addressToEntity(ownerAddress));
   }
 
   /**

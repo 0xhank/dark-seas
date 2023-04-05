@@ -1,34 +1,27 @@
 import { SyncState } from "@latticexyz/network";
-import { useComponentValue, useEntityQuery } from "@latticexyz/react";
-import { EntityIndex, Has, getComponentValueStrict } from "@latticexyz/recs";
+import { useComponentValue, useObservableValue } from "@latticexyz/react";
+import { EntityID } from "@latticexyz/recs";
 import styled from "styled-components";
 import { BootScreen } from "../../game/react/components/BootScreen";
 import { ActionQueue } from "../../game/react/components/Dev/ActionQueue";
-import { cap, getHash } from "../../game/utils/ships";
-import { adjectives, nouns } from "../../game/utils/wordlist";
 import { useHome } from "../../mud/providers/HomeProvider";
-import { BackgroundImg, Link, ShipContainer } from "../../styles/global";
+import { BackgroundImg, ShipContainer } from "../../styles/global";
 import { world } from "../../world";
 import { CreateGame } from "./CreateGame";
-function getGameName(gameEntity: EntityIndex) {
-  const gameId = world.entities[gameEntity];
+import { Games } from "./Games";
+import { RegisterName } from "./RegisterName";
 
-  const hash = getHash(gameId);
-  const adjective = adjectives[hash % adjectives.length];
-  const newHash = getHash(`${hash}`);
-  const noun = nouns[newHash % nouns.length];
-
-  const name = cap(adjective) + " " + cap(noun);
-  return name;
-}
 export function HomeWindow() {
   const {
     singletonEntity,
     worldAddress,
-    components: { LoadingState, GameConfig },
+    ownerAddress,
+    components: { LoadingState, Player, Name },
   } = useHome();
 
-  const games = useEntityQuery([Has(GameConfig)]);
+  useObservableValue(Player.update$);
+  const ownerEntity = world.entityToIndex.get(ownerAddress as EntityID);
+  const name = useComponentValue(Name, ownerEntity)?.value;
   const loadingState = useComponentValue(LoadingState, singletonEntity, {
     state: SyncState.CONNECTING,
     msg: "Connecting",
@@ -44,33 +37,17 @@ export function HomeWindow() {
       <BackgroundImg src="img/ship-background.png" style={{ zIndex: -1 }} />
       <ActionQueue home />
       <RegisterContainer>
-        <CreateGame />
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flex: 1,
-          }}
-        >
-          <h1>Games</h1>
-          <ButtonsContainer>
-            {games.map((game) => {
-              const config = getComponentValueStrict(GameConfig, game);
-              const name = getGameName(game);
-              return (
-                <Link
-                  key={game}
-                  to={"/game"}
-                  state={{ worldAddress, gameId: world.entities[game], block: config.startBlock }}
-                >
-                  {name}
-                </Link>
-              );
-            })}
-          </ButtonsContainer>
-        </div>
+        {name && ownerEntity ? (
+          <div style={{ display: "flex", flexDirection: "column", textAlign: "center" }}>
+            <strong style={{ fontSize: "1.5rem" }}> Welcome, {name}</strong>
+            <div style={{ display: "flex" }}>
+              <CreateGame />
+              <Games />
+            </div>
+          </div>
+        ) : (
+          <RegisterName />
+        )}
       </RegisterContainer>
     </HomeContainer>
   );
@@ -81,27 +58,22 @@ const HomeContainer = styled.div`
   height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   justify-content: center;
   align-items: center;
   gap: 6px;
 `;
 
-const ButtonsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  overflow-y: scroll;
-  gap: 12px;
-`;
 const RegisterContainer = styled(ShipContainer)`
   position: absolute;
   top: 50%;
   left: 50%;
-  height: 60%;
   overflow: hidden;
   transform: translate(-50%, -50%);
   padding: 12px;
   cursor: auto;
   pointer-events: all;
+  height: 60%;
   display: flex;
   flex-direction: row;
 `;

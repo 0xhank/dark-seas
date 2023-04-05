@@ -7,12 +7,12 @@ import { ModalType } from "../../../types";
 export function SpectatePage() {
   const {
     components: { ModalOpen, Player },
-    playerAddress,
+    ownerAddress,
   } = useGame();
 
   const openTutorial = () => setComponent(ModalOpen, ModalType.TUTORIAL, { value: true });
   const spectate = () => {
-    const ownerEntity = world.registerEntity({ id: playerAddress as EntityID });
+    const ownerEntity = world.registerEntity({ id: ownerAddress as EntityID });
     // setting player to -1 tells Game.tsx that we are spectating
     setComponent(Player, ownerEntity, { value: -1 });
   };

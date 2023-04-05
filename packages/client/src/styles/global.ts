@@ -230,6 +230,6 @@ export const Input = styled.input`
     background: #d07e1a;
   }
   ::placeholder {
-    color: ${darkGray};
+    color: ${darkerGray};
   }
 `;

@@ -14,7 +14,7 @@ export async function createPhaserLayer(network: NetworkLayer) {
   phaserWorld.registerDisposer(disposeRegistries);
   const utils = await createGameUtilities(
     network.gameEntity,
-    network.playerAddress,
+    network.ownerAddress,
     network.network.clock,
     scenes.Main.phaserScene
   );

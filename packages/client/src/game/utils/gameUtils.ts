@@ -40,7 +40,7 @@ import {
 import { adjectives, nouns } from "./wordlist";
 export async function createGameUtilities(
   gameEntity: EntityIndex,
-  playerAddress: string,
+  ownerAddress: string,
   clock: Clock,
   mainScene: Phaser.Scene
 ) {
@@ -62,7 +62,7 @@ export async function createGameUtilities(
   }
 
   function getOwnerEntity(address?: string): EntityIndex | undefined {
-    if (!address) address = playerAddress;
+    if (!address) address = ownerAddress;
     const playerEntity = world.entityToIndex.get(address as EntityID);
     return playerEntity;
   }
@@ -181,7 +181,7 @@ export async function createGameUtilities(
   function isMyShip(shipEntity: EntityIndex): boolean {
     const owner = getComponentValue(components.OwnedBy, shipEntity)?.value;
     if (!owner) return false;
-    return owner == playerAddress;
+    return owner == ownerAddress;
   }
 
   function getShipOwner(shipEntity: EntityIndex) {

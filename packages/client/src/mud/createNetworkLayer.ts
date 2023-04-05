@@ -10,6 +10,7 @@ import {
   createGameAction,
   joinGameAction,
   revealMoveAction,
+  spawnAction,
   submitActionsAction,
 } from "../api/index";
 import { components } from "../components";
@@ -18,7 +19,7 @@ import { world } from "../world";
 import { getNetworkConfig } from "./config.js";
 import { setupDevSystems } from "./utils/setupDevSystems";
 import { setupMUDNetwork } from "./utils/setupMUDNetwork";
-export async function createNetworkLayer(worldAddress?: string, block?: number, gameId?: EntityID = SingletonID) {
+export async function createNetworkLayer(worldAddress?: string, block?: number, gameId: EntityID = SingletonID) {
   console.log("worldAddress", worldAddress, "block", block, "gameId", gameId);
   const config = getNetworkConfig({ worldAddress, block });
   const networkWorld = namespaceWorld(world, "network");
@@ -39,8 +40,8 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
   const gameEntity = networkWorld.registerEntity({ id: gameId });
 
   // Register player entity
-  const playerAddress = network.connectedAddress.get();
-  if (!playerAddress) throw new Error("Not connected");
+  const ownerAddress = network.connectedAddress.get();
+  if (!ownerAddress) throw new Error("Not connected");
 
   // Faucet setup
   const faucetUrl = "https://faucet.testnet-mud-services.linfra.xyz";
@@ -53,12 +54,12 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
       if (playerIsBroke) {
         console.info(`[Dev Faucet]: Player Balance -> ${balance}, dripping funds`);
         // Double drip
-        playerAddress &&
-          (await faucet?.dripDev({ address: playerAddress })) &&
-          (await faucet?.dripDev({ address: playerAddress }));
-        playerAddress &&
-          (await faucet?.dripDev({ address: playerAddress })) &&
-          (await faucet?.dripDev({ address: playerAddress }));
+        ownerAddress &&
+          (await faucet?.dripDev({ address: ownerAddress })) &&
+          (await faucet?.dripDev({ address: ownerAddress }));
+        ownerAddress &&
+          (await faucet?.dripDev({ address: ownerAddress })) &&
+          (await faucet?.dripDev({ address: ownerAddress }));
         const newBalance = await network.signer.get()?.getBalance();
         console.info(`[Dev Faucet]: Player dripped, new balance: ${newBalance}`);
       }
@@ -70,8 +71,11 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
   }
   const actions = createActionSystem(networkWorld, txReduced$);
   const api = {
-    joinGame: (name: string, ships: EntityID[], override?: boolean) => {
-      joinGameAction(gameId, systems, actions, name, ships, override);
+    spawn: (name: string, override?: boolean) => {
+      spawnAction(systems, actions, name, override);
+    },
+    joinGame: (ships: EntityID[], override?: boolean) => {
+      joinGameAction(gameId, systems, actions, ships, override);
     },
 
     commitMove: (moves: Move[], override?: boolean) => {
@@ -101,7 +105,7 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
     gameId,
     singletonEntity,
     gameEntity,
-    playerAddress,
+    ownerAddress,
     systemCallStreams,
     components: networkComponents,
     systems,
