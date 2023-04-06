@@ -376,8 +376,8 @@ export async function createGameUtilities(
     const firepower = getComponentValue(components.Firepower, cannonEntity)?.value;
     const shipEntity = getCannonOwner(cannonEntity);
     if (!shipEntity) return 0;
-    const shipFirepower = getComponentValue(components.Firepower, shipEntity)?.value;
-    if (firepower == undefined || shipFirepower == undefined) return 0;
+    const shipFirepower = getComponentValue(components.Firepower, shipEntity)?.value || 0;
+    if (firepower == undefined) return 0;
 
     return firepower + shipFirepower;
   }

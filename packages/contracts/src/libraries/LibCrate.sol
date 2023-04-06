@@ -23,6 +23,7 @@ import "./LibVector.sol";
 import "./LibUtils.sol";
 
 library LibCrate {
+  // todo: reset length and speed stats after round end
   function createCrate(IWorld world, uint256 gameId, Coord memory position) internal returns (uint256 crateEntity) {
     crateEntity = world.getUniqueEntityId();
 

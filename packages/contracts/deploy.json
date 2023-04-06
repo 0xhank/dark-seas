@@ -26,7 +26,8 @@
     "LastHitComponent",
     "UpgradeComponent",
     "ActionComponent",
-    "CurrentGameComponent"
+    "CurrentGameComponent",
+    "PriceComponent"
   ],
   "systems": [
     {
@@ -34,36 +35,16 @@
       "writeAccess": ["*"]
     },
     {
+      "name": "CommitSystem",
+      "writeAccess": ["*"]
+    },
+    {
       "name": "MoveSystem",
-      "writeAccess": [
-        "PositionComponent",
-        "RotationComponent",
-        "LastMoveComponent",
-        "HealthComponent",
-        "SailPositionComponent",
-        "LengthComponent",
-        "UpgradeComponent",
-        "CurrentGameComponent"
-      ]
+      "writeAccess": ["*"]
     },
     {
       "name": "ActionSystem",
-      "writeAccess": [
-        "HealthComponent",
-        "OnFireComponent",
-        "DamagedCannonsComponent",
-        "SailPositionComponent",
-        "LastActionComponent",
-        "LoadedComponent",
-        "LastHitComponent",
-        "LengthComponent",
-        "UpgradeComponent",
-        "PositionComponent",
-        "SpeedComponent",
-        "LengthComponent",
-        "FirepowerComponent",
-        "CurrentGameComponent"
-      ]
+      "writeAccess": ["*"]
     },
     {
       "name": "ComponentDevSystem",
@@ -71,35 +52,11 @@
     },
     {
       "name": "JoinGameSystem",
-      "writeAccess": [
-        "PositionComponent",
-        "RotationComponent",
-        "LengthComponent",
-        "RangeComponent",
-        "HealthComponent",
-        "MaxHealthComponent",
-        "ShipComponent",
-        "SailPositionComponent",
-        "FirepowerComponent",
-        "LastMoveComponent",
-        "LastActionComponent",
-        "LastHitComponent",
-        "OwnedByComponent",
-        "PlayerComponent",
-        "NameComponent",
-        "CannonComponent",
-        "SpeedComponent",
-        "CurrentGameComponent"
-      ]
-    },
-
-    {
-      "name": "CommitSystem",
-      "writeAccess": ["CommitmentComponent"]
+      "writeAccess": ["*"]
     },
     {
       "name": "SpawnPlayerSystem",
-      "writeAccess": ["ShipPrototypeComponent", "PlayerComponent", "OwnedByComponent", "NameComponent"]
+      "writeAccess": ["*"]
     },
     {
       "name": "InitSystem",

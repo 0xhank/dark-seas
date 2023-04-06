@@ -15,7 +15,7 @@ import { MoveCard, GameConfig, ShipPrototype, CannonPrototype, Coord } from "../
 
 uint256 constant ID = uint256(keccak256("ds.system.CreateGame"));
 
-import "../libraries/LibCreateShip.sol";
+import "../libraries/LibCreateShipPrototype.sol";
 import "../libraries/LibUtils.sol";
 import "../libraries/LibCrate.sol";
 

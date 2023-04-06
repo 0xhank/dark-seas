@@ -11,6 +11,7 @@ import { NameComponent, ID as NameComponentID } from "../../components/NameCompo
 
 // Libraries
 import "../libraries/LibUtils.sol";
+import "../libraries/LibSpawn.sol";
 
 // Types
 import { ShipPrototype, GodID } from "../libraries/DSTypes.sol";
@@ -39,11 +40,7 @@ contract SpawnPlayerSystem is System {
     uint256[] memory defaultShipPrototypeEntities = abi.decode(bytes(encodedDefaultShipPrototypeEntities), (uint256[]));
 
     for (uint256 i = 0; i < defaultShipPrototypeEntities.length; i++) {
-      uint256 shipPrototypeEntity = world.getUniqueEntityId();
-      string memory shipPrototype = shipPrototypeComponent.getValue(defaultShipPrototypeEntities[i]);
-
-      shipPrototypeComponent.set(shipPrototypeEntity, shipPrototype);
-      ownedByComponent.set(shipPrototypeEntity, ownerEntity);
+      LibSpawn.initializeShip(world, defaultShipPrototypeEntities[i]);
     }
   }
 

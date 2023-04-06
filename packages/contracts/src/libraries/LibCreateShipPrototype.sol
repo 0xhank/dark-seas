@@ -8,7 +8,7 @@ import { ShipPrototype } from "../libraries/DSTypes.sol";
 import "../libraries/LibUtils.sol";
 import { GodID } from "../libraries/DSTypes.sol";
 
-library LibCreateShip {
+library LibCreateShipPrototype {
   function setDefaultShips(IWorld world, uint256[] calldata shipPrototypeEntities) public {
     ShipPrototypeComponent shipPrototypeComponent = ShipPrototypeComponent(
       LibUtils.addressById(world, ShipPrototypeComponentID)

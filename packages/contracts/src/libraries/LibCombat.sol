@@ -21,7 +21,7 @@ import { LoadedComponent, ID as LoadedComponentID } from "../components/LoadedCo
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
-import { Coord, Line, Upgrade } from "../libraries/DSTypes.sol";
+import { Coord, Line } from "../libraries/DSTypes.sol";
 
 // Libraries
 import "./LibVector.sol";
@@ -100,7 +100,6 @@ library LibCombat {
 
   /**
    * @notice  attacks all enemies in forward arc of ship
-   * @dev     todo: how can i combi:wne this with attackSide despite different number of vertices in range?
    * @param   world world and components
    * @param   shipEntity  entity performing an attack
    * @param   cannonEntity  .
