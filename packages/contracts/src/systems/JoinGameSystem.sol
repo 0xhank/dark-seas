@@ -46,7 +46,7 @@ contract JoinGameSystem is System {
     LibSpawn.spawn(world, gameId, playerEntity, ownerEntity, ships);
   }
 
-  function executeTyped(uint256 gameId, uint256[] calldata shipPrototypes) public returns (bytes memory) {
-    return execute(abi.encode(gameId, shipPrototypes));
+  function executeTyped(uint256 gameId, uint256[] calldata ships) public returns (bytes memory) {
+    return execute(abi.encode(gameId, ships));
   }
 }

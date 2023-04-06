@@ -17,6 +17,7 @@ import { CreateGameSystem, ID as CreateGameSystemID } from "../systems/CreateGam
 import "../libraries/LibTurn.sol";
 import "../libraries/LibSpawn.sol";
 import "../libraries/LibUtils.sol";
+import "../libraries/LibCreateShipPrototype.sol";
 
 import { CannonPrototype, ShipPrototype } from "../libraries/DSTypes.sol";
 
@@ -91,10 +92,6 @@ contract DarkSeasTest is MudTest {
   }
 
   function createShipPrototype(uint32 price) internal returns (uint256) {
-    ShipPrototypeComponent shipPrototypeComponent = ShipPrototypeComponent(
-      LibUtils.addressById(world, ShipPrototypeComponentID)
-    );
-
     CannonPrototype[] memory cannon4 = new CannonPrototype[](4);
     cannon4[0] = CannonPrototype({ rotation: 90, firepower: 12, range: 60 });
     cannon4[1] = CannonPrototype({ rotation: 270, firepower: 12, range: 60 });
@@ -109,14 +106,8 @@ contract DarkSeasTest is MudTest {
       name: "Johnson"
     });
 
-    bytes memory packedShipPrototype = abi.encode(shipPrototype);
-    uint256 shipEntity = uint256(keccak256(packedShipPrototype));
-    if (shipPrototypeComponent.has(shipEntity)) return shipEntity;
-    ShipPrototypeComponent(LibUtils.addressById(world, ShipPrototypeComponentID)).set(
-      shipEntity,
-      string(packedShipPrototype)
-    );
-    return shipEntity;
+    LibCreateShipPrototype.createShipPrototype(world, shipPrototype);
+    return uint256(keccak256(abi.encode(shipPrototype)));
   }
 
   function assertCoordEq(Coord memory a, Coord memory b) internal {

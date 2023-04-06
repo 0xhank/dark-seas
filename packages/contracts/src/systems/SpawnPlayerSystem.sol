@@ -3,10 +3,11 @@ pragma solidity >=0.8.0;
 
 // External
 import "solecs/System.sol";
+import { console } from "forge-std/console.sol";
 
 // Components
-import { ShipPrototypeComponent, ID as ShipPrototypeComponentID } from "../components/ShipPrototypeComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
+import { OwnerOfComponent, ID as OwnerOfComponentID } from "../components/OwnerOfComponent.sol";
 import { NameComponent, ID as NameComponentID } from "../../components/NameComponent.sol";
 
 // Libraries
@@ -24,10 +25,7 @@ contract SpawnPlayerSystem is System {
   function execute(bytes memory arguments) public returns (bytes memory) {
     string memory name = abi.decode(arguments, (string));
     require(bytes(name).length > 0, "SpawnPlayerSystem: name is blank");
-
-    ShipPrototypeComponent shipPrototypeComponent = ShipPrototypeComponent(
-      LibUtils.addressById(world, ShipPrototypeComponentID)
-    );
+    console.log("spawn player sender:", addressToEntity(msg.sender));
     OwnedByComponent ownedByComponent = OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID));
     uint256 ownerEntity = addressToEntity(msg.sender);
     require(!LibUtils.playerIdExists(world, ownerEntity), "SpawnPlayerSystem: player has already spawned");
@@ -35,9 +33,8 @@ contract SpawnPlayerSystem is System {
     NameComponent(LibUtils.addressById(world, NameComponentID)).set(ownerEntity, name);
     PlayerComponent(LibUtils.addressById(world, PlayerComponentID)).set(ownerEntity);
 
-    string memory encodedDefaultShipPrototypeEntities = shipPrototypeComponent.getValue(GodID);
-
-    uint256[] memory defaultShipPrototypeEntities = abi.decode(bytes(encodedDefaultShipPrototypeEntities), (uint256[]));
+    uint256[] memory defaultShipPrototypeEntities = OwnerOfComponent(LibUtils.addressById(world, OwnerOfComponentID))
+      .getValue(GodID);
 
     for (uint256 i = 0; i < defaultShipPrototypeEntities.length; i++) {
       LibSpawn.initializeShip(world, defaultShipPrototypeEntities[i]);

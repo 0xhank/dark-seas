@@ -3,6 +3,7 @@ pragma solidity >=0.8.0;
 
 // External
 import "../DarkSeasTest.t.sol";
+import { QueryFragment, QueryType, LibQuery } from "solecs/LibQuery.sol";
 
 // Components
 import { NameComponent, ID as NameComponentID } from "../../components/NameComponent.sol";
@@ -23,9 +24,6 @@ contract SpawnPlayerSystemTest is DarkSeasTest {
 
   function testSpawnPlayer() public prank(deployer) {
     setup();
-    ShipPrototypeComponent shipPrototypeComponent = ShipPrototypeComponent(
-      LibUtils.addressById(world, ShipPrototypeComponentID)
-    );
     NameComponent nameComponent = NameComponent(LibUtils.addressById(world, NameComponentID));
     uint256 playerEntity = addressToEntity(deployer);
     SpawnPlayerSystem spawnPlayerSystem = SpawnPlayerSystem(system(SpawnPlayerSystemID));
@@ -33,18 +31,19 @@ contract SpawnPlayerSystemTest is DarkSeasTest {
 
     assertEq(nameComponent.getValue(playerEntity), "test");
 
-    string memory encodedDefaultShipPrototypeEntities = shipPrototypeComponent.getValue(GodID);
+    uint256[] memory defaultShipPrototypeEntities = OwnerOfComponent(LibUtils.addressById(world, OwnerOfComponentID))
+      .getValue(GodID);
 
-    uint256[] memory defaultShipPrototypeEntities = abi.decode(bytes(encodedDefaultShipPrototypeEntities), (uint256[]));
-    (uint256[] memory ownedEntities, ) = LibUtils.getEntityWith(world, OwnedByComponentID);
+    QueryFragment[] memory fragments = new QueryFragment[](1);
 
-    assertEq(ownedEntities.length, defaultShipPrototypeEntities.length);
+    fragments[0] = QueryFragment(
+      QueryType.HasValue,
+      IComponent(LibUtils.addressById(world, OwnedByComponentID)),
+      abi.encode(addressToEntity(deployer))
+    );
+    uint256[] memory playerShips = LibQuery.query(fragments);
 
-    for (uint256 i = 0; i < ownedEntities.length; i++) {
-      string memory ownedEntity = shipPrototypeComponent.getValue(ownedEntities[i]);
-      string memory defaultShipPrototypeEntity = shipPrototypeComponent.getValue(defaultShipPrototypeEntities[i]);
-      assertEq(ownedEntity, defaultShipPrototypeEntity);
-    }
+    assertEq(playerShips.length, defaultShipPrototypeEntities.length);
   }
 
   function setup() internal {}

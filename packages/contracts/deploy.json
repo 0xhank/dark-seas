@@ -27,7 +27,8 @@
     "UpgradeComponent",
     "ActionComponent",
     "CurrentGameComponent",
-    "PriceComponent"
+    "PriceComponent",
+    "OwnerOfComponent"
   ],
   "systems": [
     {
