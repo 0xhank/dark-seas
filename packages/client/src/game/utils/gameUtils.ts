@@ -14,9 +14,9 @@ import {
   runQuery,
   setComponent,
 } from "@latticexyz/recs";
-import { defaultAbiCoder } from "ethers/lib/utils";
+import { defaultAbiCoder, keccak256 } from "ethers/lib/utils";
 
-import { Coord, keccak256 } from "@latticexyz/utils";
+import { Coord } from "@latticexyz/utils";
 import { BigNumber, BigNumberish } from "ethers";
 import { Howl } from "howler";
 import { clientComponents, components } from "../../components";
@@ -57,7 +57,7 @@ export async function createGameUtilities(
   function getPlayerEntity(ownerEntity: EntityIndex) {
     const gameId = world.entities[gameEntity];
     const ownerId = world.entities[ownerEntity];
-    const playerId = keccak256(defaultAbiCoder.encode(["uint256", "address"], [gameId, ownerId]));
+    const playerId = keccak256(defaultAbiCoder.encode(["uint256", "uint256"], [gameId, ownerId]));
     return world.entityToIndex.get(playerId as EntityID);
   }
 

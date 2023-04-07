@@ -89,8 +89,6 @@ contract JoinGameTest is DarkSeasTest {
     SpawnPlayerSystem spawnPlayerSystem = SpawnPlayerSystem(system(SpawnPlayerSystemID));
     spawnPlayerSystem.executeTyped("john cena");
 
-    uint256 playerEntity = addressToEntity(deployer);
-
     QueryFragment[] memory fragments = new QueryFragment[](1);
 
     fragments[0] = QueryFragment(

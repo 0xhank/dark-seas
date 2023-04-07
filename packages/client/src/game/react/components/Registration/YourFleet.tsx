@@ -12,6 +12,7 @@ import { ActionState } from "@latticexyz/std-client";
 import { merge } from "rxjs";
 import styled from "styled-components";
 import { useGame } from "../../../../mud/providers/GameProvider";
+import { useOwner } from "../../../../mud/providers/OwnerProvider";
 import { Button, Container, colors } from "../../../../styles/global";
 import { world } from "../../../../world";
 import { formatTime } from "../../..//utils/directions";
@@ -29,8 +30,9 @@ export function YourFleet({ flex }: { flex: number }) {
 
   useObservableValue(merge(ShipPrototype.update$, Action.update$));
 
+  const ownerEntity = useOwner();
   const budget = getGameConfig()?.budget || 0;
-  const name = useComponentValue(Name, gameEntity, { value: "" }).value;
+  const name = useComponentValue(Name, ownerEntity, { value: "" }).value;
   const stagedShips = useComponentValue(StagedShips, gameEntity, { value: [] }).value as EntityIndex[];
 
   const moneySpent = stagedShips.reduce((prev, curr) => {
@@ -48,7 +50,7 @@ export function YourFleet({ flex }: { flex: number }) {
     !spawning &&
     !!spawnActions.find((action) => {
       const state = getComponentValueStrict(Action, action).state;
-      return state == ActionState.Complete || state == ActionState.Failed;
+      return state == ActionState.Failed;
     });
 
   const spawn = () => {

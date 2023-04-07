@@ -108,11 +108,12 @@ export function shipTextureSystems(MUD: SetupResult) {
   );
 
   // LENGTH UPDATES
-  defineComponentSystem(world, Length, (update) => {
-    if (update.value[0] === undefined || update.value[1] === undefined) return;
+  defineComponentSystem(world, Length, ({ entity: shipEntity, value: [newValue, oldValue] }) => {
+    if (!inGame(shipEntity)) return;
+    if (oldValue === undefined || newValue === undefined) return;
 
-    const length = update.value[0].value;
-    const object = getSpriteObject(update.entity);
+    const length = newValue.value;
+    const object = getSpriteObject(shipEntity);
 
     const oldLength = object.displayHeight;
     const newLength = length * POS_WIDTH * 1.25;
@@ -136,6 +137,7 @@ export function shipTextureSystems(MUD: SetupResult) {
 
   // Position and Rotation updates
   defineSystem(world, [Has(Position), Has(Rotation)], (update) => {
+    if (!inGame(update.entity)) return;
     if (update.value[0] === undefined || update.value[1] === undefined) return;
 
     const object = getSpriteObject(update.entity);
