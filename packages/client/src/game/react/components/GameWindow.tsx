@@ -9,7 +9,8 @@ import { ComponentBrowser } from "./Dev/ComponentBrowser";
 import { EmergencyActions } from "./EmergencyActions";
 import { HoveredShip } from "./HoveredShip";
 import { Modal } from "./Modals/Modal";
-import { Registration } from "./Registration/Registration";
+import { FleetPage } from "./Registration/FleetPage";
+import { SpectatePage } from "./Registration/SpectatePage";
 import { Settings } from "./Settings";
 import { SideBar } from "./SideBar";
 import { TurnTimer } from "./TurnTimer";
@@ -18,12 +19,15 @@ export function GameWindow() {
   const {
     components: { LoadingState, Player },
     singletonEntity,
-    utils: { getOwnerEntity },
+
+    utils: { getOwnerEntity, getPlayerEntity },
   } = useGame();
 
   // re render when a player is added
   useObservableValue(Player.update$);
   const ownerEntity = getOwnerEntity();
+  const playerEntity = ownerEntity ? getPlayerEntity(ownerEntity) : undefined;
+  console.log("player entity: ", playerEntity);
   const spectating = useComponentValue(Player, ownerEntity)?.value == -1;
   const loadingState = useComponentValue(LoadingState, singletonEntity, {
     state: SyncState.CONNECTING,
@@ -44,14 +48,20 @@ export function GameWindow() {
     >
       {ownerEntity ? (
         <OwnerProvider value={ownerEntity}>
-          <TurnTimer />
-          {!spectating && <SideBar />}
-          <HoveredShip />
-          <DamageChance />
-          <EmergencyActions />
+          {playerEntity ? (
+            <>
+              <TurnTimer />
+              {!spectating && <SideBar />}
+              <HoveredShip />
+              <DamageChance />
+              <EmergencyActions />
+            </>
+          ) : (
+            <FleetPage />
+          )}
         </OwnerProvider>
       ) : (
-        <Registration />
+        <SpectatePage />
       )}
       <Modal />
       <Settings />

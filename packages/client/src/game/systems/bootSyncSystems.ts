@@ -1,4 +1,4 @@
-import { defineComponentSystem, defineEnterSystem, defineSystem, Has, Not, setComponent } from "@latticexyz/recs";
+import { defineEnterSystem, defineSystem, Has, Not, setComponent } from "@latticexyz/recs";
 import { world } from "../../world";
 import { SetupResult } from "../types";
 
@@ -14,19 +14,8 @@ export function bootSyncSystems(MUD: SetupResult) {
       DamagedCannonsLocal,
       SailPosition,
       SailPositionLocal,
-      ShipPrototype,
-      Length,
-      Speed,
-      MaxHealth,
-      Firepower,
-      Range,
-      Rotation,
-      OwnedBy,
-      Name,
-      Booty,
-      Cannon,
     },
-    utils: { decodeShipPrototype, destroySpriteObject, inGame },
+    utils: { inGame },
   } = MUD;
   defineSystem(world, [Has(Health)], ({ entity, value }) => {
     if (!inGame(entity)) return;
@@ -56,25 +45,5 @@ export function bootSyncSystems(MUD: SetupResult) {
     const health = value[0]?.value as number | undefined;
     if (!health) return;
     setComponent(SailPositionLocal, entity, { value: health });
-  });
-
-  defineComponentSystem(world, ShipPrototype, ({ entity: prototypeEntity, value: [newVal] }) => {
-    const prototype = decodeShipPrototype(prototypeEntity);
-
-    setComponent(Length, prototypeEntity, { value: prototype.length });
-    setComponent(Speed, prototypeEntity, { value: prototype.speed });
-    setComponent(MaxHealth, prototypeEntity, { value: prototype.maxHealth });
-    setComponent(Name, prototypeEntity, { value: prototype.name });
-    setComponent(Booty, prototypeEntity, { value: prototype.price });
-    prototype.cannons.map((cannon) => {
-      const cannonEntity = world.registerEntity();
-      setComponent(Cannon, cannonEntity, { value: true });
-      setComponent(Rotation, cannonEntity, { value: cannon.rotation });
-      setComponent(Firepower, cannonEntity, { value: cannon.firepower });
-      setComponent(Range, cannonEntity, { value: cannon.range });
-      setComponent(OwnedBy, cannonEntity, { value: world.entities[prototypeEntity] });
-    });
-
-    destroySpriteObject(prototypeEntity);
   });
 }

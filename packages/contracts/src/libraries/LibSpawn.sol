@@ -128,7 +128,7 @@ library LibSpawn {
   ) internal returns (uint256 cannonEntity) {
     cannonEntity = world.getUniqueEntityId();
     RotationComponent rotationComponent = RotationComponent(LibUtils.addressById(world, RotationComponentID));
-    FirepowerComponent firepowerComponent = FirepowerComponent(LibUtils.addressById(world, RotationComponentID));
+    FirepowerComponent firepowerComponent = FirepowerComponent(LibUtils.addressById(world, FirepowerComponentID));
     RangeComponent rangeComponent = RangeComponent(LibUtils.addressById(world, RangeComponentID));
 
     rotationComponent.set(cannonEntity, rotationComponent.getValue(cannonPrototypeEntity));

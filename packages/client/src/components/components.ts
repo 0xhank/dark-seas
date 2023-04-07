@@ -44,10 +44,17 @@ export const components = {
   Cannon: defineBoolComponent(world, { id: "Cannon", metadata: { contractId: "ds.component.Cannon" } }),
   Loaded: defineBoolComponent(world, { id: "Loaded", metadata: { contractId: "ds.component.Loaded" } }),
   Speed: defineNumberComponent(world, { id: "Speed", metadata: { contractId: "ds.component.Speed" } }),
-  ShipPrototype: defineStringComponent(world, {
+  ShipPrototype: defineBoolComponent(world, {
     id: "ShipPrototype",
     metadata: { contractId: "ds.component.ShipPrototype" },
   }),
+  Price: defineNumberComponent(world, { id: "Price", metadata: { contractId: "ds.component.Price" } }),
+  OwnerOf: defineComponent(
+    world,
+    { value: Type.StringArray },
+    { id: "OwnerOf", metadata: { contractId: "ds.component.OwnerOf" } }
+  ),
+
   LastHit: defineStringComponent(world, { id: "LastHit", metadata: { contractId: "ds.component.LastHit" } }),
   Upgrade: UpgradeComponent,
   Action: defineActionComponent,
@@ -100,5 +107,4 @@ export const clientComponents = {
   ActiveShip: defineNumberComponent(world, { id: "ActiveShip" }),
   ActiveCannon: defineNumberComponent(world, { id: "ActiveCannon" }),
   StagedShips: defineComponent(world, { value: Type.NumberArray }, { id: "StagedShips" }),
-  Booty: defineNumberComponent(world, { id: "Booty" }),
 };

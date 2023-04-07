@@ -1,29 +1,27 @@
-import { EntityIndex, getComponentEntities, getComponentValue } from "@latticexyz/recs";
+import { useEntityQuery } from "@latticexyz/react";
+import { Has, HasValue } from "@latticexyz/recs";
 import { Fragment } from "react";
 import styled from "styled-components";
 import { useGame } from "../../../../mud/providers/GameProvider";
+import { useOwner } from "../../../../mud/providers/OwnerProvider";
 import { Container } from "../../../../styles/global";
+import { world } from "../../../../world";
 import { ShipButton } from "./ShipButton";
 
 export function AvailableShips({ flex }: { flex: number }) {
   const {
-    components: { ShipPrototype, Booty },
+    components: { Ship, OwnedBy, Price },
   } = useGame();
-
-  const prototypes = [...getComponentEntities(ShipPrototype)]
-    .map((entity) => ({
-      entity: entity as EntityIndex,
-      price: getComponentValue(Booty, entity)?.value || 0,
-    }))
-    .sort((a, b) => Number(a.price) - Number(b.price));
+  const ownerEntity = useOwner();
+  const yourShips = [...useEntityQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[ownerEntity] })])];
 
   return (
     <Container style={{ flex, overflow: "none" }}>
       <Title>Available Ships</Title>
       <ShipButtons>
-        {prototypes.map((prototypeEntity) => (
-          <Fragment key={`available-ship-${prototypeEntity.entity}`}>
-            <ShipButton prototypeEntity={prototypeEntity.entity} />
+        {yourShips.map((shipEntity) => (
+          <Fragment key={`available-ship-${shipEntity}`}>
+            <ShipButton shipEntity={shipEntity} />
           </Fragment>
         ))}
       </ShipButtons>

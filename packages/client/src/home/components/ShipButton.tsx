@@ -1,6 +1,6 @@
+import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex } from "@latticexyz/recs";
 import styled from "styled-components";
-import { ShipPrototype } from "../../game/types";
 import { ShipImages, cap, getHash, getShipSprite } from "../../game/utils/ships";
 import { adjectives, nouns } from "../../game/utils/wordlist";
 import { useHome } from "../../mud/providers/HomeProvider";
@@ -19,13 +19,15 @@ function getShipName(shipEntity: EntityIndex) {
   return name;
 }
 
-export function ShipButton({ prototype }: { prototype: { entity: EntityIndex } & ShipPrototype }) {
+export function ShipButton({ shipEntity }: { shipEntity: EntityIndex }) {
   const {
-    components: { Length, Name },
     gameEntity,
+    components: { Name, Length },
   } = useHome();
 
-  console.log("image:", ShipImages[getShipSprite(gameEntity, 1, 1, true)]);
+  const name = useComponentValue(Name, shipEntity, { value: "" }).value;
+  const length = useComponentValue(Length, shipEntity, { value: 0 }).value;
+
   return (
     <OptionButton
       style={{
@@ -40,7 +42,7 @@ export function ShipButton({ prototype }: { prototype: { entity: EntityIndex } &
       }}
     >
       <BoxContainer>
-        <BoxImage length={prototype.length}>
+        <BoxImage length={length}>
           <img
             src={ShipImages[getShipSprite(gameEntity, 1, 1, true)]}
             style={{
@@ -51,23 +53,18 @@ export function ShipButton({ prototype }: { prototype: { entity: EntityIndex } &
               margin: "auto",
               transform: `rotate(270deg) translate(-50%, 0%)`,
               transformOrigin: `top left`,
-              maxWidth: `${3.5 * prototype.length}px`,
+              maxWidth: `${3.5 * length}px`,
             }}
           />
         </BoxImage>
       </BoxContainer>
       <div style={{ display: "flex", flexDirection: "column", textAlign: "right", marginRight: "6px" }}>
-        <p style={{ fontSize: "14px" }}>{getShipName(prototype.entity)}</p>
-        <p style={{ fontStyle: "italic" }}>{prototype.name}</p>
+        <p style={{ fontSize: "14px" }}>{getShipName(shipEntity)}</p>
+        <p style={{ fontStyle: "italic" }}>{name}</p>
       </div>
     </OptionButton>
   );
 }
-
-const Title = styled.p`
-  font-size: 3rem;
-  line-height: 4rem;
-`;
 
 const BoxContainer = styled.div`
   display: flex;

@@ -31,21 +31,17 @@ export function ShipDetails({ flex }: { flex: number }) {
       MaxHealth,
       ActiveCannon,
       Speed,
-      Booty,
+      Price,
     },
     gameEntity,
-    utils: { getGameConfig, decodeShipPrototype },
+    utils: { getGameConfig },
   } = useGame();
   const mud = useGame();
 
   const [game, setGame] = useState<Phaser.Game>();
   const prototypeEntity = useComponentValue(ActiveShip, gameEntity)?.value as EntityIndex | undefined;
   const activeCannon = useComponentValue(ActiveCannon, gameEntity)?.value as EntityIndex | undefined;
-  const stagedShips = useComponentValue(StagedShips, gameEntity, { value: [] }).value.map((ship) => ({
-    entity: ship as EntityIndex,
-    ...decodeShipPrototype(ship as EntityIndex),
-  }));
-
+  const stagedShips = useComponentValue(StagedShips, gameEntity, { value: [] }).value as EntityIndex[];
   useEffect(() => {
     if (!game)
       createMinimap().then(({ game, scene }) => {
@@ -58,9 +54,13 @@ export function ShipDetails({ flex }: { flex: number }) {
   }, []);
 
   const budget = getGameConfig()?.budget || 0;
-  const spent = stagedShips.reduce((prev, curr) => prev + curr.price, 0);
 
-  const price = prototypeEntity ? getComponentValueStrict(Booty, prototypeEntity).value : 0;
+  const spent = stagedShips.reduce((prev, curr) => {
+    const price = getComponentValueStrict(Price, curr).value;
+    return prev + price;
+  }, 0);
+
+  const price = prototypeEntity ? getComponentValueStrict(Price, prototypeEntity).value : 0;
   const length = prototypeEntity ? getComponentValueStrict(Length, prototypeEntity).value : 0;
   const maxHealth = prototypeEntity ? getComponentValueStrict(MaxHealth, prototypeEntity).value : 0;
   const speed = prototypeEntity ? getComponentValueStrict(Speed, prototypeEntity).value : 0;

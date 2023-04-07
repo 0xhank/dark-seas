@@ -12,6 +12,7 @@ import { OwnedByComponent, ID as OwnedByComponentID } from "../../components/Own
 
 // Systems
 import { SpawnPlayerSystem, ID as SpawnPlayerSystemID } from "../../systems/SpawnPlayerSystem.sol";
+import { InitSystem, ID as InitSystemID } from "../../systems/InitSystem.sol";
 
 // Types
 import { GodID } from "../../libraries/DSTypes.sol";
@@ -44,6 +45,14 @@ contract SpawnPlayerSystemTest is DarkSeasTest {
     uint256[] memory playerShips = LibQuery.query(fragments);
 
     assertEq(playerShips.length, defaultShipPrototypeEntities.length);
+  }
+
+  function testCreateShips() public prank(deployer) {
+    setup();
+    uint256 gasLeft = gasleft();
+    InitSystem initSystem = InitSystem(system(InitSystemID));
+    initSystem.execute(new bytes(0));
+    console.log("gas used:", gasLeft - gasleft());
   }
 
   function setup() internal {}

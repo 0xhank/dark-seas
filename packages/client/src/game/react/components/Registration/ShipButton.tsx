@@ -5,28 +5,27 @@ import { useGame } from "../../../../mud/providers/GameProvider";
 import { BoxImage, OptionButton, colors } from "../../../../styles/global";
 import { ShipImages, getShipSprite } from "../../..//utils/ships";
 
-export function ShipButton({ prototypeEntity }: { prototypeEntity: EntityIndex }) {
+export function ShipButton({ shipEntity }: { shipEntity: EntityIndex }) {
   const {
-    components: { ActiveShip, Length, Booty, Name },
+    components: { ActiveShip, Length, Name, Price },
     gameEntity,
   } = useGame();
 
-  const length = useComponentValue(Length, prototypeEntity, { value: 0 }).value;
-  const price = useComponentValue(Booty, prototypeEntity, { value: 0 }).value;
-  const name = useComponentValue(Name, prototypeEntity, { value: "" }).value;
-
+  const length = useComponentValue(Length, shipEntity, { value: 0 }).value;
+  const name = useComponentValue(Name, shipEntity, { value: "" }).value;
+  const price = useComponentValue(Price, shipEntity, { value: 0 }).value;
   const activeShip = useComponentValue(ActiveShip, gameEntity)?.value;
   const handleSelection = () => {
-    if (prototypeEntity == activeShip) {
+    if (shipEntity == activeShip) {
       removeComponent(ActiveShip, gameEntity);
     } else {
-      setComponent(ActiveShip, gameEntity, { value: prototypeEntity });
+      setComponent(ActiveShip, gameEntity, { value: shipEntity });
     }
   };
 
   return (
     <OptionButton
-      isSelected={activeShip == prototypeEntity}
+      isSelected={activeShip == shipEntity}
       onClick={handleSelection}
       style={{
         flexDirection: "row",

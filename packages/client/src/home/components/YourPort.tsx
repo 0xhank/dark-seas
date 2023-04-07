@@ -1,8 +1,7 @@
 import { useEntityQuery } from "@latticexyz/react";
-import { EntityIndex, Has, HasValue, getComponentValueStrict } from "@latticexyz/recs";
-import { defaultAbiCoder as abi } from "ethers/lib/utils";
+import { Has, HasValue } from "@latticexyz/recs";
+import { Fragment } from "react";
 import styled from "styled-components";
-import { ShipPrototype } from "../../game/types";
 import { useHome } from "../../mud/providers/HomeProvider";
 import { useOwner } from "../../mud/providers/OwnerProvider";
 import { Container } from "../../styles/global";
@@ -11,49 +10,20 @@ import { ShipButton } from "./ShipButton";
 
 export function YourPort() {
   const {
-    components: { ShipPrototype, OwnedBy },
+    components: { Ship, OwnedBy },
   } = useHome();
   const ownerEntity = useOwner();
   const ownerId = world.entities[ownerEntity];
-  const fleetEntities = useEntityQuery([Has(ShipPrototype), HasValue(OwnedBy, { value: ownerId })]);
+  const shipEntities = useEntityQuery([Has(Ship), HasValue(OwnedBy, { value: ownerId })]);
 
-  function decodeShipPrototype(prototypeEntity: EntityIndex) {
-    const shipPrototypeDataEncoded = getComponentValueStrict(ShipPrototype, prototypeEntity).value;
-
-    const reformattedData = "0x" + shipPrototypeDataEncoded.slice(66);
-
-    const [price, length, maxHealth, speed, rawCannons, name] = abi.decode(
-      [
-        "uint32 price",
-        "uint32 length",
-        "uint32 maxHealth",
-        "uint32 speed",
-        "tuple(uint32 rotation,uint32 firepower,uint32 range)[] cannons",
-        "string name",
-      ],
-      reformattedData
-    );
-
-    const prototype: ShipPrototype = {
-      maxHealth,
-      speed,
-      cannons: rawCannons,
-      price,
-      length,
-      name,
-    };
-    return prototype;
-  }
-  const fleet = fleetEntities.map((ship) => ({
-    entity: ship,
-    ...decodeShipPrototype(ship),
-  }));
   return (
     <Container style={{ width: "auto", flex: 1 }}>
       <div style={{ fontSize: "1.5rem" }}>Your Port</div>
       <ShipButtons>
-        {fleet.map((ship, index) => (
-          <ShipButton prototype={ship} />
+        {shipEntities.map((shipEntity, i) => (
+          <Fragment key={`your-port-ship-${i}`}>
+            <ShipButton shipEntity={shipEntity} />
+          </Fragment>
         ))}
       </ShipButtons>
     </Container>

@@ -19,9 +19,9 @@ import { ShipButton } from "./ShipButton";
 
 export function YourFleet({ flex }: { flex: number }) {
   const {
-    components: { ShipPrototype, Name, StagedShips, ActiveShip },
+    components: { Name, StagedShips, ActiveShip, ShipPrototype, Price },
     actions: { Action },
-    utils: { decodeShipPrototype, getGameConfig },
+    utils: { getGameConfig },
     api: { joinGame },
     network: { clock },
     gameEntity,
@@ -31,12 +31,13 @@ export function YourFleet({ flex }: { flex: number }) {
 
   const budget = getGameConfig()?.budget || 0;
   const name = useComponentValue(Name, gameEntity, { value: "" }).value;
-  const stagedShips = useComponentValue(StagedShips, gameEntity, { value: [] }).value.map((ship) => ({
-    entity: ship as EntityIndex,
-    ...decodeShipPrototype(ship as EntityIndex),
-  }));
+  const stagedShips = useComponentValue(StagedShips, gameEntity, { value: [] }).value as EntityIndex[];
 
-  const moneySpent = stagedShips.reduce((prev, curr) => prev + curr.price, 0);
+  const moneySpent = stagedShips.reduce((prev, curr) => {
+    const price = getComponentValueStrict(Price, curr).value;
+    return prev + price;
+  }, 0);
+
   const spawnActions = [...runQuery([Has(Action)])];
 
   const spawning = !!spawnActions.find((action) => {
@@ -52,7 +53,7 @@ export function YourFleet({ flex }: { flex: number }) {
 
   const spawn = () => {
     if (stagedShips.length == 0 || name.length == 0) return;
-    joinGame(stagedShips.map((ship) => world.entities[ship.entity]));
+    joinGame(stagedShips.map((shipEntity) => world.entities[shipEntity]));
   };
 
   const time = useObservableValue(clock.time$) || 0;
@@ -95,8 +96,8 @@ export function YourFleet({ flex }: { flex: number }) {
       <Title>Your Fleet</Title>
 
       <ShipButtons>
-        {stagedShips.map((ship, index) => (
-          <div style={{ display: "flex", gap: "6px" }} key={`fleet-ship-${ship.entity}`}>
+        {stagedShips.map((shipEntity, index) => (
+          <div style={{ display: "flex", gap: "6px" }} key={`fleet-ship-${shipEntity}`}>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -118,7 +119,7 @@ export function YourFleet({ flex }: { flex: number }) {
                 }}
               />
             </button>
-            <ShipButton prototypeEntity={ship.entity} />
+            <ShipButton shipEntity={shipEntity} />
           </div>
         ))}
       </ShipButtons>

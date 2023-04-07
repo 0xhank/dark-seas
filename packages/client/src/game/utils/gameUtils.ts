@@ -14,19 +14,19 @@ import {
   runQuery,
   setComponent,
 } from "@latticexyz/recs";
-import { defaultAbiCoder as abi, defaultAbiCoder } from "ethers/lib/utils";
+import { defaultAbiCoder } from "ethers/lib/utils";
 
 import { Coord, keccak256 } from "@latticexyz/utils";
 import { BigNumber, BigNumberish } from "ethers";
 import { Howl } from "howler";
 import { clientComponents, components } from "../../components";
 import { colors } from "../../styles/global";
-import { musicRegistry, polygonRegistry, prototypeRegistry, soundRegistry, spriteRegistry, world } from "../../world";
+import { musicRegistry, polygonRegistry, soundRegistry, spriteRegistry, world } from "../../world";
 import { sprites } from "../phaser/config";
 import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../phaser/constants";
 import { Category, soundLibrary } from "../sound";
 import { getRangeTintAlpha } from "../systems/renderShip";
-import { Action, ActionType, DELAY, Move, Phase, ShipPrototype, Sprites } from "../types";
+import { Action, ActionType, DELAY, Move, Phase, Sprites } from "../types";
 import { distance } from "./distance";
 import { cap, getHash, getShipSprite } from "./ships";
 import {
@@ -207,37 +207,6 @@ export async function createGameUtilities(
     if (action == ActionType.RepairSail && sailPosition > 0) return false;
 
     return true;
-  }
-
-  function decodeShipPrototype(prototypeEntity: EntityIndex) {
-    const retrieved = prototypeRegistry.get(prototypeEntity);
-    if (retrieved) return retrieved;
-    const shipPrototypeDataEncoded = getComponentValueStrict(components.ShipPrototype, prototypeEntity).value;
-
-    const reformattedData = "0x" + shipPrototypeDataEncoded.slice(66);
-
-    const [price, length, maxHealth, speed, rawCannons, name] = abi.decode(
-      [
-        "uint32 price",
-        "uint32 length",
-        "uint32 maxHealth",
-        "uint32 speed",
-        "tuple(uint32 rotation,uint32 firepower,uint32 range)[] cannons",
-        "string name",
-      ],
-      reformattedData
-    );
-
-    const prototype: ShipPrototype = {
-      maxHealth,
-      speed,
-      cannons: rawCannons,
-      price,
-      length,
-      name,
-    };
-    prototypeRegistry.set(prototypeEntity, prototype);
-    return prototype;
   }
 
   function getPlayerShips(player?: EntityIndex) {
@@ -854,7 +823,6 @@ export async function createGameUtilities(
     getGamePhaseAt,
     getTurn,
     inGame,
-    decodeShipPrototype,
     secondsUntilNextPhase,
     secondsIntoTurn,
     bigNumToEntityID,

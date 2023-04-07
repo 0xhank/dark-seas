@@ -21,7 +21,6 @@ import { Coord, Phase, CannonPrototype } from "../../libraries/DSTypes.sol";
 
 // Internal
 import "../../libraries/LibUtils.sol";
-import "../../libraries/LibCreateShipPrototype.sol";
 
 contract JoinGameTest is DarkSeasTest {
   constructor() DarkSeasTest(new Deploy()) {}
