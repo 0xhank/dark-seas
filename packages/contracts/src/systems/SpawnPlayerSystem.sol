@@ -8,7 +8,7 @@ import { console } from "forge-std/console.sol";
 // Components
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { OwnerOfComponent, ID as OwnerOfComponentID } from "../components/OwnerOfComponent.sol";
-import { NameComponent, ID as NameComponentID } from "../../components/NameComponent.sol";
+import { NameComponent, ID as NameComponentID } from "../components/NameComponent.sol";
 
 // Libraries
 import "../libraries/LibUtils.sol";

@@ -2,16 +2,16 @@
 pragma solidity ^0.8.0;
 import { IWorld } from "solecs/interfaces/IWorld.sol";
 
-import { ShipPrototypeComponent, ID as ShipPrototypeComponentID } from "../../components/ShipPrototypeComponent.sol";
-import { PriceComponent, ID as PriceComponentID } from "../../components/PriceComponent.sol";
-import { LengthComponent, ID as LengthComponentID } from "../../components/LengthComponent.sol";
-import { MaxHealthComponent, ID as MaxHealthComponentID } from "../../components/MaxHealthComponent.sol";
-import { SpeedComponent, ID as SpeedComponentID } from "../../components/SpeedComponent.sol";
-import { NameComponent, ID as NameComponentID } from "../../components/NameComponent.sol";
-import { RotationComponent, ID as RotationComponentID } from "../../components/RotationComponent.sol";
-import { FirepowerComponent, ID as FirepowerComponentID } from "../../components/FirepowerComponent.sol";
-import { RangeComponent, ID as RangeComponentID } from "../../components/RangeComponent.sol";
-import { OwnerOfComponent, ID as OwnerOfComponentID } from "../../components/OwnerOfComponent.sol";
+import { ShipPrototypeComponent, ID as ShipPrototypeComponentID } from "../components/ShipPrototypeComponent.sol";
+import { PriceComponent, ID as PriceComponentID } from "../components/PriceComponent.sol";
+import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
+import { MaxHealthComponent, ID as MaxHealthComponentID } from "../components/MaxHealthComponent.sol";
+import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedComponent.sol";
+import { NameComponent, ID as NameComponentID } from "../components/NameComponent.sol";
+import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
+import { FirepowerComponent, ID as FirepowerComponentID } from "../components/FirepowerComponent.sol";
+import { RangeComponent, ID as RangeComponentID } from "../components/RangeComponent.sol";
+import { OwnerOfComponent, ID as OwnerOfComponentID } from "../components/OwnerOfComponent.sol";
 
 import { ShipPrototype, CannonPrototype } from "../libraries/DSTypes.sol";
 
