@@ -10,7 +10,6 @@ export const Home = () => {
   const [MUD, setMUD] = useState<NetworkLayer>();
   const { state } = useLocation();
   const { worldAddress, block } = state as { worldAddress: string | undefined; block: string | undefined };
-  console.log("home", worldAddress, block);
   const startBlock = Number(block) || 0;
   let network: NetworkLayer | undefined = undefined;
 
@@ -23,7 +22,6 @@ export const Home = () => {
   }
 
   useEffect(() => {
-    if (!worldAddress) return;
     if (import.meta.hot) {
       import.meta.hot.accept("./../mud/index.ts", async (module) => {
         console.log("reloading network");

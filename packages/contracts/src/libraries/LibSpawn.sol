@@ -29,6 +29,7 @@ import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../com
 import { CurrentGameComponent, ID as CurrentGameComponentID } from "../components/CurrentGameComponent.sol";
 import { PriceComponent, ID as PriceComponentID } from "../components/PriceComponent.sol";
 import { OwnerOfComponent, ID as OwnerOfComponentID } from "../components/OwnerOfComponent.sol";
+import { NameComponent, ID as NameComponentID } from "../components/NameComponent.sol";
 
 // Types
 import { Coord, GodID, ShipPrototype, GameConfig } from "./DSTypes.sol";
@@ -113,7 +114,9 @@ library LibSpawn {
     PriceComponent priceComponent = PriceComponent(LibUtils.addressById(world, PriceComponentID));
     priceComponent.set(shipEntity, priceComponent.getValue(shipPrototypeEntity));
 
-    console.log("price:", priceComponent.getValue(shipPrototypeEntity));
+    NameComponent nameComponent = NameComponent(LibUtils.addressById(world, NameComponentID));
+    nameComponent.set(shipEntity, nameComponent.getValue(shipPrototypeEntity));
+
     uint256[] memory cannonPrototypeEntities = OwnerOfComponent(LibUtils.addressById(world, OwnerOfComponentID))
       .getValue(shipPrototypeEntity);
     for (uint256 i = 0; i < cannonPrototypeEntities.length; i++) {

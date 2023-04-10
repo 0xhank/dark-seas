@@ -6,7 +6,7 @@ import { HomePage } from "./Homepage";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <HomePage />,
+    element: <HomePage showButton />,
   },
   {
     path: "/:worldAddress/:block?",

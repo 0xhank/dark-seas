@@ -4,8 +4,6 @@ import { BackgroundImg, Link } from "./styles/global";
 
 export function HomePage({ showButton }: { showButton?: boolean }) {
   const { worldAddress, block } = useParams<{ worldAddress: string | undefined; block: string | undefined }>();
-  console.log("worldAddress", worldAddress);
-  console.log("block", block);
   return (
     <Container>
       <BackgroundImg style={{ zIndex: -1 }} />

@@ -1,10 +1,12 @@
-import { useEntityQuery } from "@latticexyz/react";
+import { useEntityQuery, useObservableValue } from "@latticexyz/react";
 import { EntityIndex, Has, getComponentValueStrict, getEntitiesWithValue } from "@latticexyz/recs";
+import { useState } from "react";
 import styled from "styled-components";
+import { formatTime } from "../../game/utils/directions";
 import { cap, getHash } from "../../game/utils/ships";
 import { adjectives, nouns } from "../../game/utils/wordlist";
 import { useHome } from "../../mud/providers/HomeProvider";
-import { Link } from "../../styles/global";
+import { Input, Link } from "../../styles/global";
 import { world } from "../../world";
 
 function getGameName(gameEntity: EntityIndex) {
@@ -19,12 +21,26 @@ function getGameName(gameEntity: EntityIndex) {
   return name;
 }
 export function Games() {
+  const [filterClosed, setFilterClosed] = useState(true);
+
   const {
     components: { GameConfig, CurrentGame },
+    network: { clock },
     worldAddress,
   } = useHome();
 
-  const games = useEntityQuery([Has(GameConfig)]);
+  const now = (useObservableValue(clock.time$) || 0) / 1000;
+  const allGames = useEntityQuery([Has(GameConfig)]);
+
+  const games = filterClosed
+    ? allGames.filter((game) => {
+        const config = getComponentValueStrict(GameConfig, game);
+        const closeTime =
+          Number(config.startTime) +
+          config.entryCutoffTurns * (config.commitPhaseLength + config.revealPhaseLength + config.actionPhaseLength);
+        return closeTime - now > 0;
+      })
+    : allGames;
   return (
     <div
       style={{
@@ -34,12 +50,21 @@ export function Games() {
         flex: 1,
       }}
     >
+      <div style={{ display: "flex", gap: "6px" }}>
+        <Input type="checkbox" checked={filterClosed} onChange={() => setFilterClosed(!filterClosed)} />
+        <span>Filter Closed Games</span>
+      </div>
+
       <ButtonsContainer>
         {games.length > 0
           ? games.map((game) => {
               const config = getComponentValueStrict(GameConfig, game);
               const name = getGameName(game);
-              const date = new Date(Number(config.startTime) * 1000);
+              const closeTime =
+                Number(config.startTime) +
+                config.entryCutoffTurns *
+                  (config.commitPhaseLength + config.revealPhaseLength + config.actionPhaseLength);
+              const timeUntilRound = closeTime - now;
               const boats = getEntitiesWithValue(CurrentGame, { value: world.entities[game] });
               return (
                 <Link
@@ -47,12 +72,15 @@ export function Games() {
                   to={"/game"}
                   state={{ worldAddress, gameId: world.entities[game], block: config.startBlock }}
                 >
-                  Name: {name}
+                  {name}
                   <hr />
-                  Start time: {`${date.toLocaleDateString()} ${date.toLocaleTimeString()}`}
+                  {timeUntilRound > 0 ? (
+                    `Round starts in ${formatTime(timeUntilRound)}`
+                  ) : (
+                    <span style={{ color: "red" }}>Registration Closed</span>
+                  )}
                   <hr />
                   Combatants: {[...boats].length}
-                  <hr />
                 </Link>
               );
             })

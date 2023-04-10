@@ -55,7 +55,8 @@ export function HomeWindow() {
                 flexDirection: "column",
                 textAlign: "center",
                 height: "100%",
-                marginTop: "5%",
+                justifyContent: "center",
+                alignItems: "center",
               }}
             >
               <strong style={{ fontSize: "1.5rem" }}> Welcome, {name}</strong>
