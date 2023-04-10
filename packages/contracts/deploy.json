@@ -31,39 +31,15 @@
     "OwnerOfComponent"
   ],
   "systems": [
-    {
-      "name": "CreateGameSystem",
-      "writeAccess": ["*"]
-    },
+    { "name": "CreateGameSystem", "writeAccess": ["*"] },
     { "name": "PurchaseShipSystem", "writeAccess": ["*"] },
-    {
-      "name": "CommitSystem",
-      "writeAccess": ["*"]
-    },
-    {
-      "name": "MoveSystem",
-      "writeAccess": ["*"]
-    },
-    {
-      "name": "ActionSystem",
-      "writeAccess": ["*"]
-    },
-    {
-      "name": "ComponentDevSystem",
-      "writeAccess": ["*"]
-    },
-    {
-      "name": "JoinGameSystem",
-      "writeAccess": ["*"]
-    },
-    {
-      "name": "SpawnPlayerSystem",
-      "writeAccess": ["*"]
-    },
-    {
-      "name": "InitSystem",
-      "writeAccess": ["*"],
-      "initialize": "new bytes(0)"
-    }
+    { "name": "ExtractShipSystem", "writeAccess": ["*"] },
+    { "name": "CommitSystem", "writeAccess": ["*"] },
+    { "name": "MoveSystem", "writeAccess": ["*"] },
+    { "name": "ActionSystem", "writeAccess": ["*"] },
+    { "name": "ComponentDevSystem", "writeAccess": ["*"] },
+    { "name": "JoinGameSystem", "writeAccess": ["*"] },
+    { "name": "SpawnPlayerSystem", "writeAccess": ["*"] },
+    { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" }
   ]
 }
