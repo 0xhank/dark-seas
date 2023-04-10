@@ -58,6 +58,9 @@ import { JoinGameSystem, ID as JoinGameSystemID } from "systems/JoinGameSystem.s
 import { SpawnPlayerSystem, ID as SpawnPlayerSystemID } from "systems/SpawnPlayerSystem.sol";
 import { InitSystem, ID as InitSystemID } from "systems/InitSystem.sol";
 
+// Initializer libraries (requires 'libraries=...' remapping in project's remappings.txt)
+import { LibInit } from "libraries/LibInit.sol";
+
 struct DeployResult {
   IWorld world;
   address deployer;
@@ -207,6 +210,8 @@ library LibDeploy {
     if (!_reuseComponents) {
       // Allow initializers to utilize SystemStorage
       SystemStorage.init(result.world, result.world.components());
+
+      LibInit.init(result.world);
     }
   }
 

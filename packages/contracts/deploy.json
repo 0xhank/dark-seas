@@ -41,5 +41,6 @@
     { "name": "JoinGameSystem", "writeAccess": ["*"] },
     { "name": "SpawnPlayerSystem", "writeAccess": ["*"] },
     { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" }
-  ]
+  ],
+  "initializers": ["LibInit"]
 }
