@@ -24,14 +24,14 @@ export function CreateGame() {
   const [islandThreshold, setIslandThreshold] = useState(33);
 
   const settings: Setting[] = [
-    { name: "Commit phase length (seconds)", value: commitLength, update: setCommitLength },
+    { name: "Commit phase length (s)", value: commitLength, update: setCommitLength },
     {
-      name: "Reveal Phase Length (seconds)",
+      name: "Reveal Phase Length (s)",
       value: revealLength,
       update: setRevealLength,
     },
     {
-      name: "Action Phase Length (seconds)",
+      name: "Action Phase Length (s)",
       value: actionLength,
       update: setActionLength,
     },
@@ -46,12 +46,12 @@ export function CreateGame() {
       update: setPerlinSeed,
     },
     {
-      name: "Entry Cutoff (seconds)",
+      name: "Entry Cutoff (s)",
       value: entryCutoff,
       update: setEntryCutoff,
     },
     {
-      name: "Shrink Rate (seconds)",
+      name: "Shrink Rate (per turn) ",
       value: shrinkRate,
       update: setShrinkRate,
     },
@@ -60,8 +60,7 @@ export function CreateGame() {
   ];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: "6px" }}>
-      <p style={{ fontSize: "1.25rem", width: "100%", textAlign: "center" }}>Create game </p>
+    <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: "6px", maxWidth: "600px" }}>
       <div style={{ display: "flex", flexDirection: "column", gap: "6px", overflow: "auto" }}>
         {_.chunk(settings, 2).map((row, i) => (
           <div key={`row-${i}`} style={{ display: "flex", gap: "24px" }}>

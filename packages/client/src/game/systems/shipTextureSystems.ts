@@ -5,6 +5,7 @@ import {
   UpdateType,
   defineComponentSystem,
   defineEnterSystem,
+  defineExitSystem,
   defineSystem,
   getComponentValue,
   getComponentValueStrict,
@@ -106,6 +107,16 @@ export function shipTextureSystems(MUD: SetupResult) {
       setComponent(SailPositionLocal, shipEntity, { value: sailPosition });
     }
   );
+
+  defineExitSystem(world, [Has(CurrentGame)], ({ entity: shipEntity }) => {
+    destroySpriteObject(shipEntity);
+    destroyGroupObject(shipEntity);
+    destroyGroupObject(`sailbutton-${shipEntity}`);
+    destroySpriteObject(`projection-${shipEntity}`);
+    destroyGroupObject(`projection-${shipEntity}`);
+    destroyGroupObject("activeShip");
+    destroySpriteObject("hoverGhost");
+  });
 
   // LENGTH UPDATES
   defineComponentSystem(world, Length, ({ entity: shipEntity, value: [newValue, oldValue] }) => {

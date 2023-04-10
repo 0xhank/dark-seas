@@ -18,11 +18,10 @@ export function ShipShop() {
 
   return (
     <Container style={{ width: "auto", flex: 1 }}>
-      <div style={{ fontSize: "1.5rem" }}>Available Ships</div>
       <ShipButtons>
         {shipEntities.map((shipEntity, index) => (
           <Fragment key={index}>
-            <ShipButton shipEntity={shipEntity} />
+            <ShipButton shipEntity={shipEntity} showPrice />
           </Fragment>
         ))}
       </ShipButtons>

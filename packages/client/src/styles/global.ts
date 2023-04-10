@@ -75,6 +75,12 @@ export const colors = {
   blackHex,
 };
 
+export const Title = styled.span`
+  font-size: 1.5rem;
+  line-height: 2rem;
+  margin: 2rem;
+`;
+
 export const Container = styled.div`
   width: 100%;
   height: 100%;

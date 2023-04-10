@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { ShipImages, cap, getHash, getShipSprite } from "../../game/utils/ships";
 import { adjectives, nouns } from "../../game/utils/wordlist";
 import { useHome } from "../../mud/providers/HomeProvider";
-import { BoxImage, OptionButton } from "../../styles/global";
+import { BoxImage, OptionButton, colors } from "../../styles/global";
 import { world } from "../../world";
 
 function getShipName(shipEntity: EntityIndex) {
@@ -19,13 +19,22 @@ function getShipName(shipEntity: EntityIndex) {
   return name;
 }
 
-export function ShipButton({ shipEntity }: { shipEntity: EntityIndex }) {
+export function ShipButton({
+  shipEntity,
+  showName = false,
+  showPrice = false,
+}: {
+  shipEntity: EntityIndex;
+  showName?: boolean;
+  showPrice?: boolean;
+}) {
   const {
     gameEntity,
-    components: { Name, Length },
+    components: { Name, Length, Price },
   } = useHome();
-
   const name = useComponentValue(Name, shipEntity, { value: "" }).value;
+  console.log("name: ", name);
+  const price = useComponentValue(Price, shipEntity, { value: 0 }).value;
   const length = useComponentValue(Length, shipEntity, { value: 0 }).value;
 
   return (
@@ -38,6 +47,7 @@ export function ShipButton({ shipEntity }: { shipEntity: EntityIndex }) {
         direction: "ltr",
         marginLeft: "6px",
         position: "relative",
+        minWidth: "200px",
         width: "100%",
       }}
     >
@@ -59,7 +69,13 @@ export function ShipButton({ shipEntity }: { shipEntity: EntityIndex }) {
         </BoxImage>
       </BoxContainer>
       <div style={{ display: "flex", flexDirection: "column", textAlign: "right", marginRight: "6px" }}>
-        <p style={{ fontSize: "14px" }}>{getShipName(shipEntity)}</p>
+        {showName && <p style={{ fontSize: "14px" }}>{getShipName(shipEntity)}</p>}
+        {showPrice && (
+          <div style={{ display: "flex", flexDirection: "column", textAlign: "end" }}>
+            <p style={{ lineHeight: "0.75rem", fontSize: ".75rem", color: colors.lightBrown }}>price</p>
+            <p style={{ fontSize: "3rem", lineHeight: "3.5rem" }}>{price}</p>
+          </div>
+        )}
         <p style={{ fontStyle: "italic" }}>{name}</p>
       </div>
     </OptionButton>

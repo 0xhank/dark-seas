@@ -12,6 +12,7 @@ import { CreateGame } from "./CreateGame";
 import { Games } from "./Games";
 import { RegisterName } from "./RegisterName";
 import { ShipShop } from "./ShipShop";
+import { TabbedView } from "./TabbedView";
 import { YourPort } from "./YourPort";
 
 export function HomeWindow() {
@@ -35,6 +36,12 @@ export function HomeWindow() {
     loadingState.state == SyncState.INITIAL ? loadingState.percentage : loadingState.state == SyncState.LIVE ? 100 : 0;
   if (loadingState.state !== SyncState.LIVE) return <BootScreen progression={progression} />;
 
+  const tabs = [
+    { name: "Live Games", component: <Games /> },
+    { name: "Create Game", component: <CreateGame /> },
+    { name: "Your Port", component: <YourPort /> },
+    { name: "Ship Shop", component: <ShipShop /> },
+  ];
   return (
     <HomeContainer>
       <BackgroundImg src="img/ship-background.png" style={{ zIndex: -1 }} />
@@ -42,14 +49,17 @@ export function HomeWindow() {
       <RegisterContainer>
         {ownerEntity ? (
           <OwnerProvider value={ownerEntity}>
-            <div style={{ display: "flex", flexDirection: "column", textAlign: "center" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                textAlign: "center",
+                height: "100%",
+                marginTop: "5%",
+              }}
+            >
               <strong style={{ fontSize: "1.5rem" }}> Welcome, {name}</strong>
-              <div style={{ display: "flex", height: "60vh" }}>
-                <CreateGame />
-                <Games />
-                <YourPort />
-                <ShipShop />
-              </div>
+              <TabbedView tabs={tabs} />
             </div>
           </OwnerProvider>
         ) : (
@@ -76,10 +86,12 @@ const RegisterContainer = styled(ShipContainer)`
   top: 50%;
   left: 50%;
   overflow: hidden;
+  width: 80%;
+  height: 80%;
   transform: translate(-50%, -50%);
   padding: 12px;
   cursor: auto;
   pointer-events: all;
   display: flex;
-  flex-direction: row;
+  justify-content: center;
 `;

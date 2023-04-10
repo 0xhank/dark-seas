@@ -18,11 +18,10 @@ export function YourPort() {
 
   return (
     <Container style={{ width: "auto", flex: 1 }}>
-      <div style={{ fontSize: "1.5rem" }}>Your Port</div>
       <ShipButtons>
         {shipEntities.map((shipEntity, i) => (
           <Fragment key={`your-port-ship-${i}`}>
-            <ShipButton shipEntity={shipEntity} />
+            <ShipButton shipEntity={shipEntity} showName />
           </Fragment>
         ))}
       </ShipButtons>
