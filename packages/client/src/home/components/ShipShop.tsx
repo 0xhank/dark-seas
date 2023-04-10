@@ -8,6 +8,7 @@ import { ShipButtons } from "./YourPort";
 export function ShipShop() {
   const {
     components: { ShipPrototype, OwnedBy },
+    api: { purchaseShip },
     singletonEntity,
   } = useHome();
 
@@ -21,7 +22,7 @@ export function ShipShop() {
       <ShipButtons>
         {shipEntities.map((shipEntity, index) => (
           <Fragment key={index}>
-            <ShipButton shipEntity={shipEntity} showPrice />
+            <ShipButton shipEntity={shipEntity} showPrice onClick={() => purchaseShip(shipEntity)} />
           </Fragment>
         ))}
       </ShipButtons>

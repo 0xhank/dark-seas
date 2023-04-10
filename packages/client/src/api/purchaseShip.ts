@@ -4,27 +4,25 @@ import { ActionSystem } from "@latticexyz/std-client";
 import { SystemTypes } from "../../../contracts/types/SystemTypes";
 import { world } from "../world";
 
-export function joinGame(
-  gameId: EntityID,
+export function purchaseShip(
   systems: TxQueue<SystemTypes>,
   actions: ActionSystem,
-  ships: EntityIndex[],
+  shipEntity: EntityIndex,
   override?: boolean
 ) {
-  const actionId = `join-game-${Math.random()}` as EntityID;
+  const actionId = `create-game-${Date.now()}` as EntityID;
   actions.add({
     id: actionId,
     awaitConfirmation: true,
     components: {},
     requirement: () => {
-      const shipIds = ships.map((ship) => world.entities[ship]);
-      return shipIds;
+      const shipId = world.entities[shipEntity];
+      if (!shipId) return null;
+      return shipId;
     },
     updates: () => [],
-    execute: (shipIds) => {
-      return systems["ds.system.JoinGame"].executeTyped(gameId, shipIds, {
-        gasLimit: 30_000_000,
-      });
+    execute: (shipId) => {
+      return systems["ds.system.PurchaseShip"].executeTyped(shipId);
     },
   });
 }

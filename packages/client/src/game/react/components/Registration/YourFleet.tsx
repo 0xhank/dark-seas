@@ -14,7 +14,6 @@ import styled from "styled-components";
 import { useGame } from "../../../../mud/providers/GameProvider";
 import { useOwner } from "../../../../mud/providers/OwnerProvider";
 import { Button, Container, colors } from "../../../../styles/global";
-import { world } from "../../../../world";
 import { formatTime } from "../../..//utils/directions";
 import { ShipButton } from "./ShipButton";
 
@@ -55,7 +54,7 @@ export function YourFleet({ flex }: { flex: number }) {
 
   const spawn = () => {
     if (stagedShips.length == 0 || name.length == 0) return;
-    joinGame(stagedShips.map((shipEntity) => world.entities[shipEntity]));
+    joinGame(stagedShips);
   };
 
   const time = useObservableValue(clock.time$) || 0;

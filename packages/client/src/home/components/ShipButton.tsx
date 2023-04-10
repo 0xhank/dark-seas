@@ -23,10 +23,12 @@ export function ShipButton({
   shipEntity,
   showName = false,
   showPrice = false,
+  onClick = () => {},
 }: {
   shipEntity: EntityIndex;
   showName?: boolean;
   showPrice?: boolean;
+  onClick?: () => void;
 }) {
   const {
     gameEntity,
@@ -45,11 +47,11 @@ export function ShipButton({
         minHeight: `${7 * length}px`,
         padding: "18px",
         direction: "ltr",
-        marginLeft: "6px",
         position: "relative",
         minWidth: "200px",
         width: "100%",
       }}
+      onClick={onClick}
     >
       <BoxContainer>
         <BoxImage length={length}>

@@ -9,6 +9,7 @@ import {
   commitMoveAction,
   createGameAction,
   joinGameAction,
+  purchaseShipAction,
   revealMoveAction,
   spawnAction,
   submitActionsAction,
@@ -74,7 +75,7 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
     spawn: (name: string, override?: boolean) => {
       spawnAction(systems, actions, name, override);
     },
-    joinGame: (ships: EntityID[], override?: boolean) => {
+    joinGame: (ships: EntityIndex[], override?: boolean) => {
       joinGameAction(gameId, systems, actions, ships, override);
     },
 
@@ -96,6 +97,10 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
 
     createGame: (gameConfig: GameConfigStruct, override?: boolean) => {
       createGameAction(systems, actions, gameConfig, override);
+    },
+
+    purchaseShip: (shipEntity: EntityIndex, override?: boolean) => {
+      purchaseShipAction(systems, actions, shipEntity, override);
     },
   };
 
