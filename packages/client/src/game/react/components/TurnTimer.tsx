@@ -1,8 +1,8 @@
 import { useObservableValue } from "@latticexyz/react";
 import { getComponentValue } from "@latticexyz/recs";
 import styled, { keyframes } from "styled-components";
-import { useGame } from "../../../mud/providers/GameProvider";
 import { useOwner } from "../../../mud/providers/OwnerProvider";
+import { usePhaser } from "../../../mud/providers/PhaserProvider";
 import { colors } from "../../../styles/global";
 import { Category } from "../../sound";
 import { Phase } from "../../types";
@@ -20,7 +20,7 @@ export function TurnTimer() {
     utils: { playSound },
     components: { EncodedCommitment },
     gameEntity,
-  } = useGame();
+  } = usePhaser();
 
   const time = useObservableValue(clock.time$) || 0;
   const gameConfig = getGameConfig();

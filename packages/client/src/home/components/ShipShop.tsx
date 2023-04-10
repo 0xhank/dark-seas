@@ -1,7 +1,7 @@
 import { useEntityQuery } from "@latticexyz/react";
 import { Has, Not } from "@latticexyz/recs";
 import { Fragment } from "react";
-import { useHome } from "../../mud/providers/HomeProvider";
+import { useNetwork } from "../../mud/providers/NetworkProvider";
 import { ShipButton } from "./ShipButton";
 import { ShipButtons } from "./YourPort";
 
@@ -10,7 +10,7 @@ export function ShipShop() {
     components: { ShipPrototype, OwnedBy },
     api: { purchaseShip },
     singletonEntity,
-  } = useHome();
+  } = useNetwork();
 
   const shipEntities = useEntityQuery([Has(ShipPrototype), Not(OwnedBy)]).filter(
     (entity) => entity !== singletonEntity

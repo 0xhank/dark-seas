@@ -2,7 +2,7 @@ import { useEntityQuery } from "@latticexyz/react";
 import { Has, HasValue } from "@latticexyz/recs";
 import { Fragment } from "react";
 import styled from "styled-components";
-import { useHome } from "../../mud/providers/HomeProvider";
+import { useNetwork } from "../../mud/providers/NetworkProvider";
 import { useOwner } from "../../mud/providers/OwnerProvider";
 import { world } from "../../world";
 import { ShipButton } from "./ShipButton";
@@ -10,7 +10,7 @@ import { ShipButton } from "./ShipButton";
 export function YourPort() {
   const {
     components: { Ship, OwnedBy },
-  } = useHome();
+  } = useNetwork();
   const ownerEntity = useOwner();
   const ownerId = world.entities[ownerEntity];
   const shipEntities = useEntityQuery([Has(Ship), HasValue(OwnedBy, { value: ownerId })]);

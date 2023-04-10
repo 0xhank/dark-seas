@@ -11,11 +11,11 @@ import {
 import { ActionState } from "@latticexyz/std-client";
 import { merge } from "rxjs";
 import styled from "styled-components";
-import { useGame } from "../../../../mud/providers/GameProvider";
+import { ShipButton } from "../../../../home/components/ShipButton";
 import { useOwner } from "../../../../mud/providers/OwnerProvider";
+import { usePhaser } from "../../../../mud/providers/PhaserProvider";
 import { Button, Container, colors } from "../../../../styles/global";
 import { formatTime } from "../../..//utils/directions";
-import { ShipButton } from "./ShipButton";
 
 export function YourFleet({ flex }: { flex: number }) {
   const {
@@ -25,7 +25,7 @@ export function YourFleet({ flex }: { flex: number }) {
     api: { joinGame },
     network: { clock },
     gameEntity,
-  } = useGame();
+  } = usePhaser();
 
   useObservableValue(merge(ShipPrototype.update$, Action.update$));
 

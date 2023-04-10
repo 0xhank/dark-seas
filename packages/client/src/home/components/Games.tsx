@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { formatTime } from "../../game/utils/directions";
 import { cap, getHash } from "../../game/utils/ships";
 import { adjectives, nouns } from "../../game/utils/wordlist";
-import { useHome } from "../../mud/providers/HomeProvider";
+import { useNetwork } from "../../mud/providers/NetworkProvider";
 import { Input, Link } from "../../styles/global";
 import { world } from "../../world";
 
@@ -27,7 +27,7 @@ export function Games() {
     components: { GameConfig, CurrentGame },
     network: { clock },
     worldAddress,
-  } = useHome();
+  } = useNetwork();
 
   const now = (useObservableValue(clock.time$) || 0) / 1000;
   const allGames = useEntityQuery([Has(GameConfig)]);

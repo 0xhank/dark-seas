@@ -1,6 +1,6 @@
 import { useComponentValue } from "@latticexyz/react";
 import { removeComponent } from "@latticexyz/recs";
-import { useGame } from "../../../../mud/providers/GameProvider";
+import { usePhaser } from "../../../../mud/providers/PhaserProvider";
 import { Container } from "../../../../styles/global";
 import { ModalType } from "../../..//types";
 import { Cell } from "../Cell";
@@ -16,7 +16,7 @@ const gridConfig = {
 export function Modal() {
   const {
     components: { ModalOpen },
-  } = useGame();
+  } = usePhaser();
 
   const showTutorial = !!useComponentValue(ModalOpen, ModalType.TUTORIAL)?.value;
   const showLeaderboard = !!useComponentValue(ModalOpen, ModalType.LEADERBOARD)?.value;

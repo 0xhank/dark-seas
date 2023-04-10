@@ -1,8 +1,8 @@
 import { useComponentValue } from "@latticexyz/react";
 import { getComponentEntities, getComponentValueStrict, Has, runQuery } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
-import { useGame } from "../../../../mud/providers/GameProvider";
 import { useOwner } from "../../../../mud/providers/OwnerProvider";
+import { usePhaser } from "../../../../mud/providers/PhaserProvider";
 import { Button, Success } from "../../../../styles/global";
 import { Category } from "../../..//sound";
 import { ActionType } from "../../..//types";
@@ -13,7 +13,7 @@ export function ActionButtons({ tooEarly, turn }: { tooEarly: boolean; turn: num
     utils: { getPlayerShipsWithActions, playSound, getTargetedShips, getPlayerEntity },
     actions: { Action },
     api: { submitActions },
-  } = useGame();
+  } = usePhaser();
 
   const selectedActions = [...getComponentEntities(SelectedActions)].map((entity) =>
     getComponentValueStrict(SelectedActions, entity)

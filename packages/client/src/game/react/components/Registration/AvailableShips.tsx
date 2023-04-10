@@ -1,17 +1,18 @@
 import { useEntityQuery } from "@latticexyz/react";
-import { Has, HasValue } from "@latticexyz/recs";
+import { Has, HasValue, getComponentValue, removeComponent, setComponent } from "@latticexyz/recs";
 import { Fragment } from "react";
 import styled from "styled-components";
-import { useGame } from "../../../../mud/providers/GameProvider";
+import { ShipButton } from "../../../../home/components/ShipButton";
 import { useOwner } from "../../../../mud/providers/OwnerProvider";
+import { usePhaser } from "../../../../mud/providers/PhaserProvider";
 import { Container } from "../../../../styles/global";
 import { world } from "../../../../world";
-import { ShipButton } from "./ShipButton";
 
 export function AvailableShips({ flex }: { flex: number }) {
   const {
-    components: { Ship, OwnedBy, Price },
-  } = useGame();
+    components: { Ship, OwnedBy, ActiveShip },
+    gameEntity,
+  } = usePhaser();
   const ownerEntity = useOwner();
   const yourShips = [...useEntityQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[ownerEntity] })])];
 
@@ -19,11 +20,26 @@ export function AvailableShips({ flex }: { flex: number }) {
     <Container style={{ flex, overflow: "none" }}>
       <Title>Available Ships</Title>
       <ShipButtons>
-        {yourShips.map((shipEntity) => (
-          <Fragment key={`available-ship-${shipEntity}`}>
-            <ShipButton shipEntity={shipEntity} />
-          </Fragment>
-        ))}
+        {yourShips.map((shipEntity) => {
+          const activeShip = getComponentValue(ActiveShip, gameEntity)?.value;
+          const handleSelection = () => {
+            if (shipEntity == activeShip) {
+              removeComponent(ActiveShip, gameEntity);
+            } else {
+              setComponent(ActiveShip, gameEntity, { value: shipEntity });
+            }
+          };
+          return (
+            <Fragment key={`available-ship-${shipEntity}`}>
+              <ShipButton
+                shipEntity={shipEntity}
+                showPrice
+                onClick={handleSelection}
+                active={shipEntity == activeShip}
+              />
+            </Fragment>
+          );
+        })}
       </ShipButtons>
     </Container>
   );

@@ -1,5 +1,5 @@
 import { useObservableValue } from "@latticexyz/react";
-import { useGame } from "../../../../mud/providers/GameProvider";
+import { usePhaser } from "../../../../mud/providers/PhaserProvider";
 import { Phase } from "../../..//types";
 import { ActionButtons } from "./ActionButtons";
 import { CommitButtons } from "./CommitButtons";
@@ -10,7 +10,7 @@ export function ConfirmButtons() {
     network: { clock },
     utils: { getPhase, getTurn },
     actions: { Action },
-  } = useGame();
+  } = usePhaser();
 
   const time = useObservableValue(clock.time$) || 0;
 

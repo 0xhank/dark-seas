@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { useState } from "react";
 import styled from "styled-components";
-import { useHome } from "../../mud/providers/HomeProvider";
+import { useNetwork } from "../../mud/providers/NetworkProvider";
 import { Button, Input } from "../../styles/global";
 interface Setting {
   name: string;
@@ -12,7 +12,7 @@ interface Setting {
 export function CreateGame() {
   const {
     api: { createGame },
-  } = useHome();
+  } = useNetwork();
   const [commitLength, setCommitLength] = useState(25);
   const [revealLength, setRevealLength] = useState(9);
   const [actionLength, setActionLength] = useState(25);

@@ -1,8 +1,8 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { EntityID, EntityIndex } from "@latticexyz/recs";
 import styled from "styled-components";
-import { useGame } from "../../../../mud/providers/GameProvider";
 import { useOwner } from "../../../../mud/providers/OwnerProvider";
+import { usePhaser } from "../../../../mud/providers/PhaserProvider";
 import { BoxImage, colors } from "../../../../styles/global";
 import { ActionType } from "../../..//types";
 import { ShipImages, getShipSprite } from "../../..//utils/ships";
@@ -14,7 +14,7 @@ import ShipDamage from "./ShipDamage";
 function DamageDisplay({ shipEntity, updates }: { shipEntity: EntityIndex; updates: ActionType[] | undefined }) {
   const {
     components: { DamagedCannonsLocal, OnFireLocal, HealthLocal, SailPositionLocal },
-  } = useGame();
+  } = usePhaser();
   const damagedCannons = useComponentValue(DamagedCannonsLocal, shipEntity, { value: 0 }).value;
   const onFire = useComponentValue(OnFireLocal, shipEntity, { value: 0 }).value;
   const health = useComponentValue(HealthLocal, shipEntity, { value: 0 }).value;
@@ -54,7 +54,7 @@ export const ShipCard = ({ shipEntity }: { shipEntity: EntityIndex }) => {
       SailPositionLocal,
     },
     network: { clock },
-  } = useGame();
+  } = usePhaser();
 
   const ownerEntity = useOwner();
   const fakeOwner = "0" as EntityID;

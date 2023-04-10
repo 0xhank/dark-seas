@@ -4,7 +4,7 @@ import { EntityID } from "@latticexyz/recs";
 import styled from "styled-components";
 import { BootScreen } from "../../game/react/components/BootScreen";
 import { ActionQueue } from "../../game/react/components/Dev/ActionQueue";
-import { useHome } from "../../mud/providers/HomeProvider";
+import { useNetwork } from "../../mud/providers/NetworkProvider";
 import { OwnerProvider } from "../../mud/providers/OwnerProvider";
 import { BackgroundImg, ShipContainer } from "../../styles/global";
 import { world } from "../../world";
@@ -21,7 +21,7 @@ export function HomeWindow() {
     worldAddress,
     ownerAddress,
     components: { LoadingState, Player, Name },
-  } = useHome();
+  } = useNetwork();
 
   useObservableValue(Player.update$);
   const ownerEntity = world.entityToIndex.get(ownerAddress as EntityID);
@@ -45,7 +45,7 @@ export function HomeWindow() {
   return (
     <HomeContainer>
       <BackgroundImg src="img/ship-background.png" style={{ zIndex: -1 }} />
-      <ActionQueue home />
+      <ActionQueue />
       <RegisterContainer>
         {ownerEntity ? (
           <OwnerProvider value={ownerEntity}>

@@ -1,21 +1,13 @@
 import { useObservableValue } from "@latticexyz/react";
 import { getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
 import { ActionState, ActionStateString } from "@latticexyz/std-client";
-import { useGame } from "../../../../mud/providers/GameProvider";
-import { useHome } from "../../../../mud/providers/HomeProvider";
+import { useNetwork } from "../../../../mud/providers/NetworkProvider";
 import { Container } from "../../../../styles/global";
 
-const gridConfig = {
-  gridRowStart: 10,
-  gridRowEnd: 13,
-  gridColumnStart: 3,
-  gridColumnEnd: 13,
-};
-export function ActionQueue({ home }: { home?: boolean }) {
-  const hook = home ? useHome : useGame;
+export function ActionQueue() {
   const {
     actions: { Action },
-  } = hook();
+  } = useNetwork();
   useObservableValue(Action.update$);
   return (
     <Container

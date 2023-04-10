@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useHome } from "../../mud/providers/HomeProvider";
+import { useNetwork } from "../../mud/providers/NetworkProvider";
 import { Button, Input } from "../../styles/global";
 
 export function RegisterName() {
@@ -7,7 +7,7 @@ export function RegisterName() {
 
   const {
     api: { spawn },
-  } = useHome();
+  } = useNetwork();
 
   function handleNameChange(event: React.ChangeEvent<HTMLInputElement>) {
     setName(event.target.value);

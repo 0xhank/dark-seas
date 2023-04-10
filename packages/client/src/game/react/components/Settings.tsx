@@ -1,7 +1,7 @@
 import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex, setComponent } from "@latticexyz/recs";
 import styled from "styled-components";
-import { useGame } from "../../../mud/providers/GameProvider";
+import { usePhaser } from "../../../mud/providers/PhaserProvider";
 import { Button, Img } from "../../../styles/global";
 import { ModalType } from "../..//types";
 
@@ -16,7 +16,7 @@ export function Settings() {
     utils: { muteSfx, unmuteSfx, playMusic, muteMusic },
     components: { Volume, ModalOpen },
     gameEntity,
-  } = useGame();
+  } = usePhaser();
 
   const openLeaderboard = () => setComponent(ModalOpen, ModalType.LEADERBOARD, { value: true });
   const openTutorial = () => setComponent(ModalOpen, ModalType.TUTORIAL, { value: true });

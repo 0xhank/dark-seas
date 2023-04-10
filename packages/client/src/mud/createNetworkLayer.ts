@@ -113,7 +113,7 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
 
   return {
     world: networkWorld,
-    worldAddress,
+    worldAddress: config.worldAddress,
     gameId,
     singletonEntity,
     gameEntity,

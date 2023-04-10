@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { HomePage } from "../Homepage";
 import { NetworkLayer, createNetworkLayer as createNetworkLayerImport } from "../mud";
-import { HomeProvider } from "../mud/providers/HomeProvider";
+import { NetworkProvider } from "../mud/providers/NetworkProvider";
 import { HomeWindow } from "./components/HomeWindow";
 
 let createNetworkLayer = createNetworkLayerImport;
@@ -36,8 +36,8 @@ export const Home = () => {
   }, [worldAddress, block]);
   if (!MUD) return <HomePage />;
   return (
-    <HomeProvider {...MUD}>
+    <NetworkProvider {...MUD}>
       <HomeWindow />
-    </HomeProvider>
+    </NetworkProvider>
   );
 };

@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { HomePage } from "../Homepage";
 import { NetworkLayer, createNetworkLayer as createNetworkLayerImport } from "../mud";
-import { GameProvider } from "../mud/providers/GameProvider";
+import { NetworkProvider } from "../mud/providers/NetworkProvider";
+import { PhaserProvider } from "../mud/providers/PhaserProvider";
 import { Link } from "../styles/global";
 import { PhaserLayer, createPhaserLayer as createPhaserLayerImport } from "./phaser";
 import { GameWindow } from "./react/components/GameWindow";
@@ -14,6 +15,7 @@ let createPhaserLayer = createPhaserLayerImport;
 
 export const Game = () => {
   const [MUD, setMUD] = useState<SetupResult>();
+  const [networkLayer, setNetworkLayer] = useState<NetworkLayer>();
   const { state } = useLocation();
   const { worldAddress, gameId, block } = state as {
     worldAddress: string | undefined;
@@ -32,6 +34,7 @@ export const Game = () => {
       network = await createNetworkLayer(worldAddress, 0, gameId);
       network.startSync();
       phaser = await createPhaserLayer(network);
+      setNetworkLayer(network);
     }
     if (!phaser) phaser = await createPhaserLayer(network);
     if (document.querySelectorAll("#phaser-game canvas").length > 1) import.meta.hot?.invalidate();
@@ -69,22 +72,24 @@ export const Game = () => {
     (window as any).ds = phaser;
   }, [worldAddress]);
 
-  if (MUD)
+  if (MUD && networkLayer)
     return (
-      <GameProvider {...MUD}>
-        <div style={{ position: "fixed", top: "12px", left: "12px" }}>
-          <Link
-            onClick={() => {
-              MUD.world.dispose();
-            }}
-            to="/app"
-            state={{ worldAddress, block }}
-          >
-            Home
-          </Link>
-        </div>
-        <GameWindow />
-      </GameProvider>
+      <NetworkProvider {...networkLayer}>
+        <PhaserProvider {...MUD}>
+          <div style={{ position: "fixed", top: "12px", left: "12px" }}>
+            <Link
+              onClick={() => {
+                MUD.world.dispose();
+              }}
+              to="/app"
+              state={{ worldAddress, block }}
+            >
+              Home
+            </Link>
+          </div>
+          <GameWindow />
+        </PhaserProvider>
+      </NetworkProvider>
     );
   return <HomePage />;
 };

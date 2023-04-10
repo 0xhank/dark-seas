@@ -7,7 +7,7 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import styled from "styled-components";
-import { useGame } from "../../../../mud/providers/GameProvider";
+import { usePhaser } from "../../../../mud/providers/PhaserProvider";
 import { Button, colors } from "../../../../styles/global";
 import { world } from "../../../../world";
 import { HoverType, ModalType } from "../../..//types";
@@ -32,7 +32,7 @@ export function Leaderboard() {
     gameEntity,
     scene: { camera },
     utils: { getShipName },
-  } = useGame();
+  } = usePhaser();
   let players: PlayerData[] = [];
   let ships: ShipData[] = [];
 

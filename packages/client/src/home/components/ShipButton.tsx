@@ -3,7 +3,7 @@ import { EntityIndex } from "@latticexyz/recs";
 import styled from "styled-components";
 import { ShipImages, cap, getHash, getShipSprite } from "../../game/utils/ships";
 import { adjectives, nouns } from "../../game/utils/wordlist";
-import { useHome } from "../../mud/providers/HomeProvider";
+import { useNetwork } from "../../mud/providers/NetworkProvider";
 import { BoxImage, OptionButton, colors } from "../../styles/global";
 import { world } from "../../world";
 
@@ -21,11 +21,13 @@ function getShipName(shipEntity: EntityIndex) {
 
 export function ShipButton({
   shipEntity,
+  active = false,
   showName = false,
   showPrice = false,
   onClick = () => {},
 }: {
   shipEntity: EntityIndex;
+  active?: boolean;
   showName?: boolean;
   showPrice?: boolean;
   onClick?: () => void;
@@ -33,7 +35,7 @@ export function ShipButton({
   const {
     gameEntity,
     components: { Name, Length, Price },
-  } = useHome();
+  } = useNetwork();
   const name = useComponentValue(Name, shipEntity, { value: "" }).value;
   console.log("name: ", name);
   const price = useComponentValue(Price, shipEntity, { value: 0 }).value;
@@ -41,6 +43,7 @@ export function ShipButton({
 
   return (
     <OptionButton
+      isSelected={active}
       style={{
         flexDirection: "row",
         justifyContent: "space-between",
