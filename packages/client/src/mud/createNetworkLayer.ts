@@ -8,6 +8,7 @@ import { SystemTypes } from "../../../contracts/types/SystemTypes";
 import {
   commitMoveAction,
   createGameAction,
+  extractShipAction,
   joinGameAction,
   purchaseShipAction,
   revealMoveAction,
@@ -101,6 +102,12 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
 
     purchaseShip: (shipEntity: EntityIndex, override?: boolean) => {
       purchaseShipAction(systems, actions, shipEntity, override);
+    },
+    extractShip: (shipEntity: EntityIndex, override?: boolean) => {
+      extractShipAction(systems, actions, shipEntity, override);
+    },
+    bulkExtract: (shipEntities: EntityIndex[], override?: boolean) => {
+      extractShipAction(systems, actions, shipEntities, override);
     },
   };
 
