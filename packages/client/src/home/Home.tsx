@@ -14,7 +14,6 @@ export const Home = () => {
   let network: NetworkLayer | undefined = undefined;
 
   async function bootGame() {
-    console.log("network: ", network);
     if (!network) {
       network = await createNetworkLayer(worldAddress, startBlock);
       network.startSync();

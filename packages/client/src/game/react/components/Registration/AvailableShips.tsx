@@ -1,5 +1,5 @@
-import { useEntityQuery } from "@latticexyz/react";
-import { Has, HasValue, getComponentValue, removeComponent, setComponent } from "@latticexyz/recs";
+import { useComponentValue, useEntityQuery, useObservableValue } from "@latticexyz/react";
+import { EntityIndex, Has, HasValue, getComponentValue, removeComponent, setComponent } from "@latticexyz/recs";
 import { Fragment } from "react";
 import styled from "styled-components";
 import { ShipButton } from "../../../../home/components/ShipButton";
@@ -10,18 +10,20 @@ import { world } from "../../../../world";
 
 export function AvailableShips({ flex }: { flex: number }) {
   const {
-    components: { Ship, OwnedBy, ActiveShip },
+    components: { Ship, OwnedBy, ActiveShip, StagedShips, CurrentGame },
     gameEntity,
   } = usePhaser();
   const ownerEntity = useOwner();
   const yourShips = [...useEntityQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[ownerEntity] })])];
-
+  const stagedShips = useComponentValue(StagedShips, gameEntity, { value: [] }).value as EntityIndex[];
+  useObservableValue(ActiveShip.update$);
   return (
     <Container style={{ flex, overflow: "none" }}>
       <Title>Available Ships</Title>
       <ShipButtons>
         {yourShips.map((shipEntity) => {
           const activeShip = getComponentValue(ActiveShip, gameEntity)?.value;
+          const inGame = !!getComponentValue(CurrentGame, shipEntity);
           const handleSelection = () => {
             if (shipEntity == activeShip) {
               removeComponent(ActiveShip, gameEntity);
@@ -33,9 +35,11 @@ export function AvailableShips({ flex }: { flex: number }) {
             <Fragment key={`available-ship-${shipEntity}`}>
               <ShipButton
                 shipEntity={shipEntity}
+                showName
                 showPrice
                 onClick={handleSelection}
                 active={shipEntity == activeShip}
+                disabled={stagedShips.includes(shipEntity) || inGame}
               />
             </Fragment>
           );

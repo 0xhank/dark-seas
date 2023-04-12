@@ -22,8 +22,8 @@ import { getNetworkConfig } from "./config.js";
 import { setupDevSystems } from "./utils/setupDevSystems";
 import { setupMUDNetwork } from "./utils/setupMUDNetwork";
 export async function createNetworkLayer(worldAddress?: string, block?: number, gameId: EntityID = SingletonID) {
-  console.log("worldAddress", worldAddress, "block", block, "gameId", gameId);
   const config = getNetworkConfig({ worldAddress, block });
+  console.log("config: ", config);
   const networkWorld = namespaceWorld(world, "network");
   const {
     systems,
@@ -111,7 +111,7 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
     },
   };
 
-  return {
+  const context = {
     world: networkWorld,
     worldAddress: config.worldAddress,
     gameId,
@@ -128,4 +128,7 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
     api,
     dev: setupDevSystems(world, encoders, systems),
   };
+
+  (window as any).network = context;
+  return context;
 }

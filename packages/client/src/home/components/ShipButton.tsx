@@ -20,16 +20,20 @@ function getShipName(shipEntity: EntityIndex) {
 
 export function ShipButton({
   shipEntity,
+  disabled = false,
   active = false,
   showName = false,
   showPrice = false,
+  hidePrototypeName = false,
   showCurrentGame = false,
   onClick = () => {},
 }: {
   shipEntity: EntityIndex;
+  disabled?: boolean;
   active?: boolean;
   showName?: boolean;
   showPrice?: boolean;
+  hidePrototypeName?: boolean;
   showCurrentGame?: boolean;
   onClick?: () => void;
 }) {
@@ -51,12 +55,13 @@ export function ShipButton({
   }
   return (
     <OptionButton
+      disabled={disabled}
       isSelected={active}
       style={{
         flexDirection: "row",
         justifyContent: "space-between",
         minHeight: `${7 * length}px`,
-        padding: "18px",
+        padding: "1rem",
         direction: "ltr",
         position: "relative",
         minWidth: "200px",
@@ -82,17 +87,17 @@ export function ShipButton({
         </BoxImage>
       </BoxContainer>
       <div style={{ display: "flex", flexDirection: "column", textAlign: "right", marginRight: "6px" }}>
-        {showName && <p style={{ fontSize: "14px" }}>{getShipName(shipEntity)}</p>}
         {showPrice && (
           <div style={{ display: "flex", flexDirection: "column", textAlign: "end" }}>
             <p style={{ lineHeight: "0.75rem", fontSize: ".75rem", color: colors.lightBrown }}>price</p>
             <p style={{ fontSize: "3rem", lineHeight: "3.5rem" }}>{price}</p>
           </div>
         )}
+        {showName && <p style={{ fontSize: "1.5rem", lineHeight: "2rem" }}>{getShipName(shipEntity)}</p>}
         {showCurrentGame && gameConfig && (
           <Link to={"/game"} state={{ worldAddress, gameId: currentGame, block: gameConfig.startBlock }}></Link>
         )}
-        <p style={{ fontStyle: "italic" }}>{name}</p>
+        {!hidePrototypeName && <p style={{ fontStyle: "italic" }}>{name}</p>}
       </div>
     </OptionButton>
   );

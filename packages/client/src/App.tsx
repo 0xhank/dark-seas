@@ -13,6 +13,10 @@ const router = createBrowserRouter([
     element: <HomePage showButton />,
   },
   {
+    path: "/game/:worldAddress",
+    element: <Game />,
+  },
+  {
     path: "/game",
     element: <Game />,
   },

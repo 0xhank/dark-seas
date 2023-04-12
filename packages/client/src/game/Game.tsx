@@ -1,12 +1,11 @@
 import { EntityID } from "@latticexyz/recs";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { HomePage } from "../Homepage";
 import { NetworkLayer, createNetworkLayer as createNetworkLayerImport } from "../mud";
 import { NetworkProvider } from "../mud/providers/NetworkProvider";
 import { PhaserProvider } from "../mud/providers/PhaserProvider";
-import { Link } from "../styles/global";
 import { PhaserLayer, createPhaserLayer as createPhaserLayerImport } from "./phaser";
 import { GameWindow } from "./react/components/GameWindow";
 import { SetupResult } from "./types";
@@ -17,12 +16,18 @@ export const Game = () => {
   const [MUD, setMUD] = useState<SetupResult>();
   const [networkLayer, setNetworkLayer] = useState<NetworkLayer>();
   const { state } = useLocation();
-  const { worldAddress, gameId, block } = state as {
+  const { worldAddress: paramsWorldAddress } = useParams();
+  const {
+    worldAddress: stateWorldAddress,
+    gameId,
+    block,
+  } = state as {
     worldAddress: string | undefined;
     gameId: EntityID | undefined;
     block: string | undefined;
   };
 
+  const worldAddress = paramsWorldAddress || stateWorldAddress;
   if (!worldAddress || !ethers.utils.isAddress(worldAddress) || !gameId) throw new Error("invalid world address");
   let network: NetworkLayer | undefined = undefined;
   let phaser: PhaserLayer | undefined = undefined;
@@ -81,17 +86,6 @@ export const Game = () => {
     return (
       <NetworkProvider {...networkLayer}>
         <PhaserProvider {...MUD}>
-          <div style={{ position: "fixed", top: "12px", left: "12px" }}>
-            <Link
-              onClick={() => {
-                MUD.world.dispose();
-              }}
-              to="/app"
-              state={{ worldAddress }}
-            >
-              Home
-            </Link>
-          </div>
           <GameWindow />
         </PhaserProvider>
       </NetworkProvider>

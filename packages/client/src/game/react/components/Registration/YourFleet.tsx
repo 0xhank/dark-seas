@@ -33,7 +33,7 @@ export function YourFleet({ flex }: { flex: number }) {
   const budget = getGameConfig()?.budget || 0;
   const name = useComponentValue(Name, ownerEntity, { value: "" }).value;
   const stagedShips = useComponentValue(StagedShips, gameEntity, { value: [] }).value as EntityIndex[];
-
+  const activeShip = useComponentValue(ActiveShip, gameEntity)?.value;
   const moneySpent = stagedShips.reduce((prev, curr) => {
     const price = getComponentValueStrict(Price, curr).value;
     return prev + price;
@@ -120,7 +120,16 @@ export function YourFleet({ flex }: { flex: number }) {
                 }}
               />
             </button>
-            <ShipButton shipEntity={shipEntity} />
+            <ShipButton
+              shipEntity={shipEntity}
+              showName
+              onClick={() =>
+                activeShip == shipEntity
+                  ? removeComponent(ActiveShip, gameEntity)
+                  : setComponent(ActiveShip, gameEntity, { value: shipEntity })
+              }
+              active={activeShip == shipEntity}
+            />
           </div>
         ))}
       </ShipButtons>

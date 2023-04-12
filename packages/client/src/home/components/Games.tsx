@@ -69,7 +69,7 @@ export function Games() {
               return (
                 <Link
                   key={game}
-                  to={"/game"}
+                  to={`/game/${worldAddress}`}
                   state={{ worldAddress, gameId: world.entities[game], block: config.startBlock }}
                 >
                   {name}

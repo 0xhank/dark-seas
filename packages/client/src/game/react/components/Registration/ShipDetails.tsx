@@ -117,7 +117,7 @@ export function ShipDetails({ flex }: { flex: number }) {
         }}
         id="phaser-cutin"
       >
-        {prototypeEntity && (
+        {prototypeEntity && !stagedShips.includes(prototypeEntity) && (
           <AddButton disabled={cannotAddShip} onClick={addShip}>
             {cannotAddShip ? "Ship Too Expensive" : "Add Ship"}
           </AddButton>
