@@ -33,13 +33,13 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
     encoders,
     startSync,
     components: networkComponents,
-  } = await setupMUDNetwork<typeof components, SystemTypes>(config, networkWorld, components, SystemAbis, {
+  } = await setupMUDNetwork<typeof components, SystemTypes>(config, world, components, SystemAbis, {
     fetchSystemCalls: true,
     // initialGasPrice: 10000,
   });
   // For LoadingState updates
-  const singletonEntity = networkWorld.registerEntity({ id: SingletonID });
-  const gameEntity = networkWorld.registerEntity({ id: gameId });
+  const singletonEntity = world.registerEntity({ id: SingletonID });
+  const gameEntity = world.registerEntity({ id: gameId });
 
   // Register player entity
   const ownerAddress = network.connectedAddress.get();
@@ -71,7 +71,7 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
     // Request a drip every 20 seconds
     setInterval(requestDrip, 5000);
   }
-  const actions = createActionSystem(networkWorld, txReduced$);
+  const actions = createActionSystem(world, txReduced$);
   const api = {
     spawn: (name: string, override?: boolean) => {
       spawnAction(systems, actions, name, override);
@@ -112,8 +112,9 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
   };
 
   const context = {
-    world: networkWorld,
+    world,
     worldAddress: config.worldAddress,
+    startingBlock: config.initialBlockNumber,
     gameId,
     singletonEntity,
     gameEntity,

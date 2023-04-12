@@ -27,6 +27,7 @@ export function Games() {
     components: { GameConfig, CurrentGame },
     network: { clock },
     worldAddress,
+    startingBlock,
   } = useNetwork();
 
   const now = (useObservableValue(clock.time$) || 0) / 1000;
@@ -70,7 +71,7 @@ export function Games() {
                 <Link
                   key={game}
                   to={`/game/${worldAddress}`}
-                  state={{ worldAddress, gameId: world.entities[game], block: config.startBlock }}
+                  state={{ worldAddress, gameId: world.entities[game], block: startingBlock }}
                 >
                   {name}
                   <hr />

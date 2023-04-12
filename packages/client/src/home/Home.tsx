@@ -35,7 +35,7 @@ export const Home = () => {
     bootGame();
 
     return () => {
-      network?.world.dispose();
+      // network?.world.dispose();
       network = undefined;
     };
   }, [worldAddress, block]);
