@@ -156,15 +156,15 @@ export const Link = styled(RouterLink)`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  background: gold;
-  border: 1px solid ${colors.gold};
+  background: ${gold};
+  border: 1px solid ${gold};
   cursor: pointer;
   padding: 4px;
   border-radius: 6px;
   pointer-events: all;
-  color: ${colors.darkBrown};
+  color: ${darkBrown};
   :hover {
-    background: ${colors.lightGold};
+    background: ${lightGold};
   }
 
   :disabled {

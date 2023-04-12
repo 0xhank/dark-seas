@@ -27,15 +27,6 @@ export function Settings() {
   const musicVolume = useComponentValue(Volume, 1 as EntityIndex, { value: 0 }).value;
   return (
     <SettingsContainer>
-      <Link
-        onClick={() => {
-          world.dispose();
-        }}
-        to="/app"
-        state={{ worldAddress }}
-      >
-        Home
-      </Link>
       <Button onClick={openLeaderboard} style={{ width: "40px" }}>
         <Img src={"/icons/podium.svg"} />
       </Button>
@@ -49,6 +40,16 @@ export function Settings() {
       <Button onClick={openTutorial} style={{ width: "40px" }}>
         <Img src={"/icons/help.svg"} />
       </Button>
+      <Link
+        style={{ width: "40px", height: "40px" }}
+        onClick={() => {
+          world.dispose();
+        }}
+        to="/app"
+        state={{ worldAddress }}
+      >
+        <Img src={"/icons/exit.svg"} />
+      </Link>
     </SettingsContainer>
   );
 }
