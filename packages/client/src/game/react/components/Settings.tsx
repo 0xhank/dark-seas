@@ -2,7 +2,7 @@ import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex, setComponent } from "@latticexyz/recs";
 import styled from "styled-components";
 import { usePhaser } from "../../../mud/providers/PhaserProvider";
-import { Button, Img } from "../../../styles/global";
+import { Button, Img, Link } from "../../../styles/global";
 import { ModalType } from "../..//types";
 
 const gridConfig = {
@@ -16,6 +16,8 @@ export function Settings() {
     utils: { muteSfx, unmuteSfx, playMusic, muteMusic },
     components: { Volume, ModalOpen },
     gameEntity,
+    world,
+    worldAddress,
   } = usePhaser();
 
   const openLeaderboard = () => setComponent(ModalOpen, ModalType.LEADERBOARD, { value: true });
@@ -25,6 +27,15 @@ export function Settings() {
   const musicVolume = useComponentValue(Volume, 1 as EntityIndex, { value: 0 }).value;
   return (
     <SettingsContainer>
+      <Link
+        onClick={() => {
+          world.dispose();
+        }}
+        to="/app"
+        state={{ worldAddress }}
+      >
+        Home
+      </Link>
       <Button onClick={openLeaderboard} style={{ width: "40px" }}>
         <Img src={"/icons/podium.svg"} />
       </Button>

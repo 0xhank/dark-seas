@@ -90,12 +90,6 @@ export function createMinimapSystems(scene: Phaser.Scene, mud: SetupResult) {
     scene.cameras.main.centerOn(position.x, position.y);
   });
 
-  defineComponentSystem(world, ActiveCannon, ({ value: [newVal] }) => {
-    console.log("active cannon:", newVal);
-    // if (!newVal) renderCannons();
-    // else renderCannons(newVal.value as EntityIndex);
-  });
-
   function renderCannons(activeCannon?: EntityIndex) {
     const group = getGroupObject("cannons", true, scene);
     const shipEntity = getComponentValue(ActiveShip, gameEntity)?.value as EntityIndex | undefined;

@@ -14,6 +14,7 @@ export const Home = () => {
   let network: NetworkLayer | undefined = undefined;
 
   async function bootGame() {
+    console.log("network: ", network);
     if (!network) {
       network = await createNetworkLayer(worldAddress, startBlock);
       network.startSync();
@@ -33,6 +34,11 @@ export const Home = () => {
       });
     }
     bootGame();
+
+    return () => {
+      network?.world.dispose();
+      network = undefined;
+    };
   }, [worldAddress, block]);
   if (!MUD) return <HomePage />;
   return (

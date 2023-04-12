@@ -10,7 +10,6 @@ export function spawn(systems: TxQueue<SystemTypes>, actions: ActionSystem, name
     awaitConfirmation: true,
     components: {},
     requirement: () => {
-      console.log("here");
       return name;
     },
     updates: () => [],

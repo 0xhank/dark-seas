@@ -29,9 +29,9 @@ export const Game = () => {
 
   async function bootGame() {
     if (!gameId) throw new Error("no game id");
-    console.log("rebooting game");
     if (!network) {
-      network = await createNetworkLayer(worldAddress, 0, gameId);
+      console.log("creating network");
+      network = await createNetworkLayer(worldAddress, block ? Number(block) : undefined, gameId);
       network.startSync();
       phaser = await createPhaserLayer(network);
       setNetworkLayer(network);
@@ -39,12 +39,12 @@ export const Game = () => {
     if (!phaser) phaser = await createPhaserLayer(network);
     if (document.querySelectorAll("#phaser-game canvas").length > 1) import.meta.hot?.invalidate();
     if (!network || !phaser) throw new Error("boot failed: network or phaser layer busted");
-    console.log("result:", phaser);
 
     setMUD(phaser);
   }
 
   useEffect(() => {
+    console.log("booting");
     if (!worldAddress) return;
     if (import.meta.hot) {
       import.meta.hot.accept("./../mud/index.ts", async (module) => {
@@ -69,7 +69,12 @@ export const Game = () => {
     }
 
     bootGame();
-    (window as any).ds = phaser;
+    return () => {
+      network?.world.dispose();
+      network = undefined;
+      phaser?.world.dispose();
+      phaser = undefined;
+    };
   }, [worldAddress]);
 
   if (MUD && networkLayer)
@@ -82,7 +87,7 @@ export const Game = () => {
                 MUD.world.dispose();
               }}
               to="/app"
-              state={{ worldAddress, block }}
+              state={{ worldAddress }}
             >
               Home
             </Link>

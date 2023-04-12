@@ -1,12 +1,11 @@
 import { useComponentValue } from "@latticexyz/react";
-import { EntityIndex } from "@latticexyz/recs";
+import { EntityID, EntityIndex, getComponentValueStrict } from "@latticexyz/recs";
 import styled from "styled-components";
 import { ShipImages, cap, getHash, getShipSprite } from "../../game/utils/ships";
 import { adjectives, nouns } from "../../game/utils/wordlist";
 import { useNetwork } from "../../mud/providers/NetworkProvider";
-import { BoxImage, OptionButton, colors } from "../../styles/global";
+import { BoxImage, Link, OptionButton, colors } from "../../styles/global";
 import { world } from "../../world";
-
 function getShipName(shipEntity: EntityIndex) {
   const shipId = world.entities[shipEntity];
 
@@ -24,23 +23,32 @@ export function ShipButton({
   active = false,
   showName = false,
   showPrice = false,
+  showCurrentGame = false,
   onClick = () => {},
 }: {
   shipEntity: EntityIndex;
   active?: boolean;
   showName?: boolean;
   showPrice?: boolean;
+  showCurrentGame?: boolean;
   onClick?: () => void;
 }) {
   const {
     gameEntity,
-    components: { Name, Length, Price },
+    components: { Name, Length, Price, CurrentGame, GameConfig },
+    worldAddress,
   } = useNetwork();
   const name = useComponentValue(Name, shipEntity, { value: "" }).value;
-  console.log("name: ", name);
   const price = useComponentValue(Price, shipEntity, { value: 0 }).value;
   const length = useComponentValue(Length, shipEntity, { value: 0 }).value;
-
+  const currentGame = useComponentValue(CurrentGame, shipEntity)?.value as EntityID | undefined;
+  let gameConfig = undefined;
+  if (currentGame) {
+    const gameEntity = world.entityToIndex.get(currentGame);
+    if (gameEntity) {
+      gameConfig = getComponentValueStrict(GameConfig, gameEntity);
+    }
+  }
   return (
     <OptionButton
       isSelected={active}
@@ -80,6 +88,9 @@ export function ShipButton({
             <p style={{ lineHeight: "0.75rem", fontSize: ".75rem", color: colors.lightBrown }}>price</p>
             <p style={{ fontSize: "3rem", lineHeight: "3.5rem" }}>{price}</p>
           </div>
+        )}
+        {showCurrentGame && gameConfig && (
+          <Link to={"/game"} state={{ worldAddress, gameId: currentGame, block: gameConfig.startBlock }}></Link>
         )}
         <p style={{ fontStyle: "italic" }}>{name}</p>
       </div>
