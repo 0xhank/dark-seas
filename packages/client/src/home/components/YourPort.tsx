@@ -28,7 +28,7 @@ export function YourPort() {
 export const ShipButtons = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(5, 1fr);
+  grid-template-rows: repeat(4, 1fr);
   overflow-y: auto;
   gap: 8px;
   width: 100%;

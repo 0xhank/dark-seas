@@ -71,11 +71,12 @@ export function ShipButton({
           />
         </BoxImage>
       </BoxContainer>
-      <div style={{ display: "flex", flexDirection: "column", textAlign: "right", marginRight: "6px" }}>
+      <div style={{ display: "flex", flexDirection: "column", textAlign: "right" }}>
         {showPrice && (
           <div style={{ display: "flex", flexDirection: "column", textAlign: "end" }}>
-            <p style={{ lineHeight: "0.75rem", fontSize: ".75rem", color: colors.lightBrown }}>price</p>
-            <p style={{ fontSize: "3rem", lineHeight: "3.5rem" }}>{price}</p>
+            <p style={{ lineHeight: "0.75rem", fontSize: ".75rem", color: colors.lightBrown }}>value</p>
+            <p style={{ fontSize: "3rem", lineHeight: "3rem" }}>{price}</p>
+            <br style={{ lineHeight: "0.75rem" }} />
           </div>
         )}
         {showName && <p style={{ fontSize: "1.5rem", lineHeight: "2rem" }}>{getShipName(shipEntity)}</p>}
@@ -84,8 +85,10 @@ export function ShipButton({
             Go to current game
           </Button>
         )}
-        {!hidePrototypeName && <p style={{ fontStyle: "italic" }}>{name}</p>}
-        {showCount && <p style={{ fontStyle: "italic" }}>{health} left for purchase</p>}
+        {!hidePrototypeName && <p style={{ lineHeight: "1.25rem" }}>{name}</p>}
+        {showCount && (
+          <p style={{ fontStyle: "italic", lineHeight: "1.25rem", color: colors.brown }}>{health} left for purchase</p>
+        )}
       </div>
     </OptionButton>
   );
