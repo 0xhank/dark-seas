@@ -13,6 +13,7 @@ export function ActionButtons({ tooEarly, turn }: { tooEarly: boolean; turn: num
     utils: { getPlayerShipsWithActions, playSound, getTargetedShips, getPlayerEntity },
     actions: { Action },
     api: { submitActions },
+    gameEntity,
   } = useGame();
 
   const selectedActions = [...getComponentEntities(SelectedActions)].map((entity) =>
@@ -29,7 +30,7 @@ export function ActionButtons({ tooEarly, turn }: { tooEarly: boolean; turn: num
     if (!shipsAndActions) return;
     playSound("click", Category.UI);
 
-    submitActions(shipsAndActions, getTargetedShips);
+    submitActions(gameEntity, shipsAndActions, getTargetedShips);
   };
 
   const txExecuting = !![...runQuery([Has(Action)])].find((entity) => {

@@ -91,8 +91,11 @@ export function Games() {
   );
 }
 const ButtonsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  overflow-y: scroll;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  overflow-y: auto;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
 `;

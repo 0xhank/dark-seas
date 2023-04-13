@@ -85,7 +85,7 @@ export function turnResetSystems(MUD: SetupResult) {
         if (encodedCommitment) return;
         const shipsAndMoves = getPlayerShipsWithMoves();
         if (!shipsAndMoves) return;
-        commitMove(shipsAndMoves);
+        commitMove(gameEntity, shipsAndMoves);
       }
 
       if (timeToNextPhase == gameConfig.revealPhaseLength - 3) {
@@ -112,7 +112,7 @@ export function turnResetSystems(MUD: SetupResult) {
         if (lastAction == turn) return;
         const shipsAndActions = getPlayerShipsWithActions();
 
-        if (shipsAndActions) submitActions(shipsAndActions, getTargetedShips);
+        if (shipsAndActions) submitActions(gameEntity, shipsAndActions, getTargetedShips);
       }
     }
   });

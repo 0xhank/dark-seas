@@ -48,7 +48,7 @@ export function CommitButtons({ tooEarly }: { tooEarly: boolean }) {
 
     playSound("click", Category.UI);
 
-    commitMove(shipsAndMoves);
+    commitMove(gameEntity, shipsAndMoves);
   };
 
   const showExecuting = txExecuting && !acted;
