@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { HomePage } from "../Homepage";
 import { GameProvider } from "../mud/providers/GameProvider";
 import { useNetwork } from "../mud/providers/NetworkProvider";
 import { createGameLayer as createGameLayerImport } from "./phaser";
@@ -45,5 +46,5 @@ export const Game = () => {
         <GameWindow />
       </GameProvider>
     );
-  return <>hello</>;
+  return <HomePage />;
 };

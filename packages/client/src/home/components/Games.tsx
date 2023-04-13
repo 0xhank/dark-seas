@@ -83,18 +83,23 @@ export function Games() {
           <ButtonsContainer>{activeGames.map((game) => gameButton(game))}</ButtonsContainer>
         </AnotherContainer>
       )}
-      <AnotherContainer>
-        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-          <p style={{ fontSize: "1.25rem", lineHeight: "1.75rem" }}>Other live games</p>
-          <div>
-            <Input type="checkbox" checked={filterClosed} onChange={() => setFilterClosed(!filterClosed)} />
-            <span>Filter Closed Games</span>
-          </div>
-        </div>
-      </AnotherContainer>
-      <ButtonsContainer>
-        {games.length > 0 ? games.map((game) => gameButton(game)) : "No games played"}
-      </ButtonsContainer>
+      {allGames.length > 0 ? (
+        <>
+          <AnotherContainer>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <p style={{ fontSize: "1.25rem", lineHeight: "1.75rem" }}>Other live games</p>
+              <div>
+                <Input type="checkbox" checked={filterClosed} onChange={() => setFilterClosed(!filterClosed)} />
+                <span>Filter Closed Games</span>
+              </div>
+            </div>
+          </AnotherContainer>
+
+          <ButtonsContainer>{games.map((game) => gameButton(game))}</ButtonsContainer>
+        </>
+      ) : (
+        "No games played"
+      )}
     </div>
   );
 }
