@@ -106,7 +106,7 @@ contract DarkSeasTest is MudTest {
       name: "Johnson"
     });
 
-    LibCreateShipPrototype.createShipPrototype(world, shipPrototype);
+    LibCreateShipPrototype.createShipPrototype(world, shipPrototype, 1000);
     return uint256(keccak256(abi.encode(shipPrototype)));
   }
 
@@ -142,7 +142,11 @@ contract DarkSeasTest is MudTest {
     console.logInt(coord.y);
   }
 
-  function assertApproxEqAbs(uint256 a, uint256 b, uint256 maxDelta) internal {
+  function assertApproxEqAbs(
+    uint256 a,
+    uint256 b,
+    uint256 maxDelta
+  ) internal {
     uint256 delta = a > b ? a - b : b - a;
 
     if (delta > maxDelta) {
@@ -155,7 +159,12 @@ contract DarkSeasTest is MudTest {
     }
   }
 
-  function assertApproxEqAbs(uint256 a, uint256 b, uint256 maxDelta, string memory err) internal {
+  function assertApproxEqAbs(
+    uint256 a,
+    uint256 b,
+    uint256 maxDelta,
+    string memory err
+  ) internal {
     uint256 delta = a > b ? a - b : b - a;
 
     if (delta > maxDelta) {
@@ -164,7 +173,11 @@ contract DarkSeasTest is MudTest {
     }
   }
 
-  function assertApproxEqAbs(int256 a, int256 b, uint256 maxDelta) internal {
+  function assertApproxEqAbs(
+    int256 a,
+    int256 b,
+    uint256 maxDelta
+  ) internal {
     uint256 delta = uint256(a > b ? a - b : b - a);
 
     if (delta > maxDelta) {
@@ -177,7 +190,12 @@ contract DarkSeasTest is MudTest {
     }
   }
 
-  function assertApproxEqAbs(int256 a, int256 b, uint256 maxDelta, string memory err) internal {
+  function assertApproxEqAbs(
+    int256 a,
+    int256 b,
+    uint256 maxDelta,
+    string memory err
+  ) internal {
     uint256 delta = uint256(a > b ? a - b : b - a);
 
     if (delta > maxDelta) {
@@ -186,7 +204,12 @@ contract DarkSeasTest is MudTest {
     }
   }
 
-  function getTurnAndPhaseTime(IWorld world, uint256 gameId, uint32 turn, Phase phase) internal view returns (uint256) {
+  function getTurnAndPhaseTime(
+    IWorld world,
+    uint256 gameId,
+    uint32 turn,
+    Phase phase
+  ) internal view returns (uint256) {
     GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
       gameId
     );

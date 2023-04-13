@@ -22,7 +22,7 @@ export function ShipShop() {
       <ShipButtons>
         {shipEntities.map((shipEntity, index) => (
           <Fragment key={index}>
-            <ShipButton shipEntity={shipEntity} showPrice onClick={() => purchaseShip(shipEntity)} />
+            <ShipButton shipEntity={shipEntity} showPrice showCount onClick={() => purchaseShip(shipEntity)} />
           </Fragment>
         ))}
       </ShipButtons>

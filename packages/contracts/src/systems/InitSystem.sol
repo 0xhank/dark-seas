@@ -41,7 +41,8 @@ contract InitSystem is System {
     cannon2[1] = CannonPrototype({ rotation: 315, firepower: 10, range: 70 });
     uint256 ship1 = LibCreateShipPrototype.createShipPrototype(
       world,
-      ShipPrototype({ price: 2, length: 7, maxHealth: 3, speed: 15, cannons: cannon2, name: "Waterski" })
+      ShipPrototype({ price: 2, length: 7, maxHealth: 3, speed: 15, cannons: cannon2, name: "Waterski" }),
+      1000
     );
 
     // Defiance
@@ -51,7 +52,8 @@ contract InitSystem is System {
     cannon4[3] = CannonPrototype({ rotation: 330, firepower: 12, range: 70 });
     uint256 ship2 = LibCreateShipPrototype.createShipPrototype(
       world,
-      ShipPrototype({ price: 3, length: 9, maxHealth: 4, speed: 8, cannons: cannon4, name: "Defiance" })
+      ShipPrototype({ price: 3, length: 9, maxHealth: 4, speed: 8, cannons: cannon4, name: "Defiance" }),
+      1000
     );
 
     uint256[] memory defaultShips = new uint256[](2);

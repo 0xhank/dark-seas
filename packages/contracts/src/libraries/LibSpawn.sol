@@ -59,7 +59,11 @@ library LibSpawn {
    * @param   r  random seed
    * @return  Coord  randomly generated position
    */
-  function getRandomPosition(IWorld world, uint256 gameId, uint256 r) public view returns (Coord memory) {
+  function getRandomPosition(
+    IWorld world,
+    uint256 gameId,
+    uint256 r
+  ) public view returns (Coord memory) {
     uint32 worldHeight = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID))
       .getValue(gameId)
       .worldSize;
@@ -95,7 +99,12 @@ library LibSpawn {
   function initializeShip(IWorld world, uint256 shipPrototypeEntity) public returns (uint256 shipEntity) {
     shipEntity = world.getUniqueEntityId();
     uint256 ownerEntity = addressToEntity(msg.sender);
-    console.log("owner entity libspawn", ownerEntity);
+
+    HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
+    uint32 shipPrototypeCount = healthComponent.getValue(shipPrototypeEntity);
+    require(shipPrototypeCount > 0, "you cant buy any more of these ships");
+
+    healthComponent.set(shipPrototypeEntity, shipPrototypeCount - 1);
 
     ShipComponent(LibUtils.addressById(world, ShipComponentID)).set(shipEntity);
     OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID)).set(shipEntity, ownerEntity);

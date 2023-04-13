@@ -6,6 +6,7 @@ import { ShipPrototypeComponent, ID as ShipPrototypeComponentID } from "../compo
 import { PriceComponent, ID as PriceComponentID } from "../components/PriceComponent.sol";
 import { LengthComponent, ID as LengthComponentID } from "../components/LengthComponent.sol";
 import { MaxHealthComponent, ID as MaxHealthComponentID } from "../components/MaxHealthComponent.sol";
+import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
 import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedComponent.sol";
 import { NameComponent, ID as NameComponentID } from "../components/NameComponent.sol";
 import { RotationComponent, ID as RotationComponentID } from "../components/RotationComponent.sol";
@@ -26,7 +27,8 @@ library LibCreateShipPrototype {
 
   function createShipPrototype(
     IWorld world,
-    ShipPrototype memory shipPrototype
+    ShipPrototype memory shipPrototype,
+    uint32 number
   ) internal returns (uint256 prototypeEntity) {
     prototypeEntity = uint256(keccak256(abi.encode(shipPrototype)));
     ShipPrototypeComponent shipPrototypeComponent = ShipPrototypeComponent(
@@ -38,6 +40,7 @@ library LibCreateShipPrototype {
     SpeedComponent(LibUtils.addressById(world, SpeedComponentID)).set(prototypeEntity, shipPrototype.speed);
     LengthComponent(LibUtils.addressById(world, LengthComponentID)).set(prototypeEntity, shipPrototype.length);
     MaxHealthComponent(LibUtils.addressById(world, MaxHealthComponentID)).set(prototypeEntity, shipPrototype.maxHealth);
+    HealthComponent(LibUtils.addressById(world, HealthComponentID)).set(prototypeEntity, number);
     NameComponent(LibUtils.addressById(world, NameComponentID)).set(prototypeEntity, shipPrototype.name);
 
     uint256[] memory cannonEntities = new uint256[](shipPrototype.cannons.length);

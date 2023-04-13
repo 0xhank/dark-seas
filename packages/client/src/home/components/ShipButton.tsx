@@ -14,6 +14,7 @@ export function ShipButton({
   showPrice = false,
   hidePrototypeName = false,
   showCurrentGame = false,
+  showCount = false,
   onClick = () => {},
 }: {
   shipEntity: EntityIndex;
@@ -23,16 +24,18 @@ export function ShipButton({
   showPrice?: boolean;
   hidePrototypeName?: boolean;
   showCurrentGame?: boolean;
+  showCount?: boolean;
   onClick?: () => void;
 }) {
   const {
-    components: { Name, Length, Page, Price, CurrentGame },
+    components: { Name, Length, Page, Price, Health, CurrentGame },
     utils: { getShipName },
     singletonEntity,
   } = useNetwork();
   const name = useComponentValue(Name, shipEntity, { value: "" }).value;
   const price = useComponentValue(Price, shipEntity, { value: 0 }).value;
   const length = useComponentValue(Length, shipEntity, { value: 0 }).value;
+  const health = useComponentValue(Health, shipEntity, { value: 0 }).value;
   const currentGame = useComponentValue(CurrentGame, shipEntity)?.value as EntityID | undefined;
   const currentGameEntity = currentGame ? world.entityToIndex.get(currentGame) : undefined;
   return (
@@ -82,6 +85,7 @@ export function ShipButton({
           </Button>
         )}
         {!hidePrototypeName && <p style={{ fontStyle: "italic" }}>{name}</p>}
+        {showCount && <p style={{ fontStyle: "italic" }}>{health} left for purchase</p>}
       </div>
     </OptionButton>
   );
