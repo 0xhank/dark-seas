@@ -2,7 +2,6 @@ import { Clock } from "@latticexyz/network";
 import { createPerlin } from "@latticexyz/noise";
 import { tileCoordToPixelCoord } from "@latticexyz/phaserx";
 import {
-  Component,
   EntityID,
   EntityIndex,
   getComponentValue,
@@ -17,18 +16,12 @@ import {
 import { defaultAbiCoder, keccak256 } from "ethers/lib/utils";
 
 import { Coord } from "@latticexyz/utils";
-import { BigNumber, BigNumberish } from "ethers";
 import { Howl } from "howler";
 import { components, gameComponents } from "../../components";
+import { NetworkUtils } from "../../mud/utils/appUtils";
 import { colors } from "../../styles/global";
-import { musicRegistry, polygonRegistry, soundRegistry, spriteRegistry, world } from "../../world";
-import { sprites } from "../phaser/config";
-import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../phaser/constants";
-import { Category, soundLibrary } from "../sound";
-import { getRangeTintAlpha } from "../systems/renderShip";
-import { Action, ActionType, DELAY, Move, Phase, Sprites } from "../types";
-import { distance } from "./distance";
-import { cap, getHash, getShipSprite } from "./ships";
+import { distance } from "../../utils/distance";
+import { getShipSprite } from "../../utils/ships";
 import {
   getFiringArea,
   getPolygonCenter,
@@ -36,19 +29,22 @@ import {
   getSternPosition,
   inFiringArea,
   isBroadside,
-} from "./trig";
-import { adjectives, nouns } from "./wordlist";
+} from "../../utils/trig";
+import { musicRegistry, polygonRegistry, soundRegistry, spriteRegistry, world } from "../../world";
+import { sprites } from "../phaser/config";
+import { MOVE_LENGTH, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../phaser/constants";
+import { Category, soundLibrary } from "../sound";
+import { getRangeTintAlpha } from "../systems/renderShip";
+import { Action, ActionType, DELAY, Move, Phase, Sprites } from "../types";
 export async function createGameUtilities(
   gameEntity: EntityIndex,
-  ownerAddress: string,
+  networkUtils: NetworkUtils,
   clock: Clock,
   mainScene: Phaser.Scene
 ) {
   const perlin = await createPerlin();
 
-  function bigNumToEntityID(bigNum: BigNumberish): EntityID {
-    return BigNumber.from(bigNum).toHexString() as EntityID;
-  }
+  const { getOwnerEntity, getShipOwner, getCannonRange, isMyShip } = networkUtils;
 
   const getGameConfig = () => {
     return getComponentValue(components.GameConfig, gameEntity);
@@ -59,12 +55,6 @@ export async function createGameUtilities(
     const ownerId = world.entities[ownerEntity];
     const playerId = keccak256(defaultAbiCoder.encode(["uint256", "uint256"], [gameId, ownerId]));
     return world.entityToIndex.get(playerId as EntityID);
-  }
-
-  function getOwnerEntity(address?: string): EntityIndex | undefined {
-    if (!address) address = ownerAddress;
-    const playerEntity = world.entityToIndex.get(address as EntityID);
-    return playerEntity;
   }
 
   function inGame(shipEntity: EntityIndex) {
@@ -174,22 +164,6 @@ export async function createGameUtilities(
     return false;
   }
 
-  function clearComponent(component: Component) {
-    [...component.entities()].forEach((entity) => removeComponent(component, entity));
-  }
-
-  function isMyShip(shipEntity: EntityIndex): boolean {
-    const owner = getComponentValue(components.OwnedBy, shipEntity)?.value;
-    if (!owner) return false;
-    return owner == ownerAddress;
-  }
-
-  function getShipOwner(shipEntity: EntityIndex) {
-    const owner = getComponentValue(components.OwnedBy, shipEntity)?.value;
-    if (!owner) return;
-    return world.entityToIndex.get(owner);
-  }
-
   function checkActionPossible(action: ActionType, ship: EntityIndex): boolean {
     if (isNaN(action)) return false;
     if (action == ActionType.None) return false;
@@ -209,15 +183,6 @@ export async function createGameUtilities(
     return true;
   }
 
-  function getPlayerShips(player?: EntityIndex) {
-    if (!player) player = getOwnerEntity();
-    if (!player) return [];
-    const ships = [
-      ...runQuery([Has(components.Ship), HasValue(components.OwnedBy, { value: world.entities[player] })]),
-    ];
-
-    return ships;
-  }
   function getPlayerShipsWithMoves(player?: EntityIndex): Move[] | undefined {
     if (!player) player = getOwnerEntity();
     if (!player) return;
@@ -270,24 +235,6 @@ export async function createGameUtilities(
   function getBaseHitChance(distance: number, firepower: number) {
     return (25 * Math.exp(-0.008 * distance) * firepower) / 10;
   }
-
-  function getDamageLikelihood(cannonEntity: EntityIndex, target: EntityIndex) {
-    const shipID = getComponentValue(components.OwnedBy, cannonEntity)?.value;
-    if (!shipID) return;
-    const shipEntity = world.entityToIndex.get(shipID);
-    if (!shipEntity) return;
-
-    const shipPosition = getComponentValueStrict(components.Position, shipEntity);
-    const targetPosition = getComponentValueStrict(components.Position, target);
-    const dist = distance(shipPosition, targetPosition);
-
-    const firepower = getCannonFirepower(cannonEntity);
-    const baseHitChance = getBaseHitChance(dist, firepower);
-
-    const format = (n: number) => Math.min(100, Math.round(n));
-    return { 3: format(baseHitChance), 2: format(baseHitChance * 1.7), 1: format(baseHitChance * 6.5) };
-  }
-
   function getPlayerShipsWithActions(player?: EntityIndex): Action[] {
     if (!player) player = getOwnerEntity();
     if (!player) return [];
@@ -332,20 +279,6 @@ export async function createGameUtilities(
     const shipEntity = world.entityToIndex.get(shipID);
     if (!shipEntity) return;
     return shipEntity;
-  }
-
-  function getCannonRange(cannonEntity: EntityIndex) {
-    return getComponentValue(components.Range, cannonEntity)?.value || 0;
-  }
-
-  function getCannonFirepower(cannonEntity: EntityIndex) {
-    const firepower = getComponentValue(components.Firepower, cannonEntity)?.value;
-    const shipEntity = getCannonOwner(cannonEntity);
-    if (!shipEntity) return 0;
-    const shipFirepower = getComponentValue(components.Firepower, shipEntity)?.value || 0;
-    if (firepower == undefined) return 0;
-
-    return firepower + shipFirepower;
   }
 
   const whirlpoolMap = new Map<string, boolean>();
@@ -784,21 +717,6 @@ export async function createGameUtilities(
 
   const nameRegistry = new Map<EntityID, string>();
 
-  function getShipName(shipEntity: EntityIndex) {
-    const shipID = world.entities[shipEntity];
-    const value = nameRegistry.get(shipID);
-    if (value) return value;
-
-    const hash = getHash(shipID);
-    const adjective = adjectives[hash % adjectives.length];
-    const newHash = getHash(`${hash}`);
-    const noun = nouns[newHash % nouns.length];
-
-    const name = cap(adjective) + " " + cap(noun);
-    nameRegistry.set(shipID, name);
-    return name;
-  }
-
   async function moveElement(object: Phaser.GameObjects.GameObject, coord: Coord) {
     mainScene.add.tween({
       targets: object,
@@ -814,7 +732,6 @@ export async function createGameUtilities(
   return {
     getGameConfig,
     getPlayerEntity,
-    getOwnerEntity,
     pixelCoord,
     getPhase,
     getGamePhaseAt,
@@ -822,20 +739,12 @@ export async function createGameUtilities(
     inGame,
     secondsUntilNextPhase,
     secondsIntoTurn,
-    bigNumToEntityID,
     checkActionPossible,
-    getShipOwner,
-    getPlayerShips,
     getPlayerShipsWithMoves,
     getPlayerShipsWithActions,
     getTargetedShips,
-    getCannonRange,
-    getCannonFirepower,
-    isMyShip,
     outOfBounds,
     isWhirlpool,
-    clearComponent,
-    getDamageLikelihood,
     playSound,
     handleNewActionsCannon,
     handleNewActionsSpecial,
@@ -858,6 +767,5 @@ export async function createGameUtilities(
     moveElement,
     getFiringAreaPixels,
     renderShip,
-    getShipName,
   };
 }

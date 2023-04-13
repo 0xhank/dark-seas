@@ -1,5 +1,5 @@
 import { EntityIndex } from "@latticexyz/recs";
-import { Sprites } from "../types";
+import { Sprites } from "../game/types";
 
 export function cap(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);

@@ -10,9 +10,9 @@ import {
   UpdateType,
 } from "@latticexyz/recs";
 import { colors } from "../../styles/global";
+import { getFinalPosition } from "../../utils/directions";
 import { RenderDepth } from "../phaser/constants";
 import { Phase, SetupResult } from "../types";
-import { getFinalPosition } from "../utils/directions";
 import { getSternPosition } from "../utils/trig";
 
 export function stagedMoveSystems(MUD: SetupResult) {

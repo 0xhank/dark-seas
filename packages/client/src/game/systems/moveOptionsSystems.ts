@@ -10,8 +10,8 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import { colors } from "../../styles/global";
+import { getFinalPosition } from "../../utils/directions";
 import { Phase, SetupResult } from "../types";
-import { getFinalPosition } from "../utils/directions";
 
 export function moveOptionsSystems(MUD: SetupResult) {
   const {

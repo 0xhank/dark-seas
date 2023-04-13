@@ -7,10 +7,12 @@ export const polygonRegistry = new Map<string | number, Phaser.GameObjects.Group
 export const spriteRegistry = new Map<string | number, Phaser.GameObjects.Sprite>();
 export const soundRegistry = new Map<string, Howl>();
 export const musicRegistry = new Map<string, Howl>();
+export const whirlpoolMap = new Map<string, boolean>();
 
 export const disposeRegistries = () => {
   polygonRegistry.clear();
   spriteRegistry.clear();
   soundRegistry.clear();
   musicRegistry.clear();
+  whirlpoolMap.clear();
 };

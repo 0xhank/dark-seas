@@ -15,7 +15,7 @@ import { ShipButton } from "../../../../home/components/ShipButton";
 import { useGame } from "../../../../mud/providers/GameProvider";
 import { useOwner } from "../../../../mud/providers/OwnerProvider";
 import { Button, Container, colors } from "../../../../styles/global";
-import { formatTime } from "../../..//utils/directions";
+import { formatTime } from "../../../../utils/directions";
 
 export function YourFleet({ flex }: { flex: number }) {
   const {

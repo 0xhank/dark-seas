@@ -1,22 +1,10 @@
 import { useComponentValue } from "@latticexyz/react";
 import { EntityID, EntityIndex, setComponent } from "@latticexyz/recs";
 import styled from "styled-components";
-import { ShipImages, cap, getHash, getShipSprite } from "../../game/utils/ships";
-import { adjectives, nouns } from "../../game/utils/wordlist";
 import { useNetwork } from "../../mud/providers/NetworkProvider";
 import { BoxImage, Button, OptionButton, colors } from "../../styles/global";
+import { ShipImages, getShipSprite } from "../../utils/ships";
 import { world } from "../../world";
-function getShipName(shipEntity: EntityIndex) {
-  const shipId = world.entities[shipEntity];
-
-  const hash = getHash(shipId);
-  const adjective = adjectives[hash % adjectives.length];
-  const newHash = getHash(`${hash}`);
-  const noun = nouns[newHash % nouns.length];
-
-  const name = cap(adjective) + " " + cap(noun);
-  return name;
-}
 
 export function ShipButton({
   shipEntity,
@@ -39,6 +27,7 @@ export function ShipButton({
 }) {
   const {
     components: { Name, Length, Page, Price, CurrentGame },
+    utils: { getShipName },
     singletonEntity,
   } = useNetwork();
   const name = useComponentValue(Name, shipEntity, { value: "" }).value;

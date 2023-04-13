@@ -1,34 +1,20 @@
 import { useEntityQuery, useObservableValue } from "@latticexyz/react";
-import { EntityIndex, Has, getComponentValueStrict, getEntitiesWithValue, setComponent } from "@latticexyz/recs";
+import { Has, getComponentValueStrict, getEntitiesWithValue, setComponent } from "@latticexyz/recs";
 import { useState } from "react";
 import styled from "styled-components";
-import { formatTime } from "../../game/utils/directions";
-import { cap, getHash } from "../../game/utils/ships";
-import { adjectives, nouns } from "../../game/utils/wordlist";
 import { useNetwork } from "../../mud/providers/NetworkProvider";
 import { Button, Input } from "../../styles/global";
+import { formatTime } from "../../utils/directions";
 import { world } from "../../world";
 
-function getGameName(gameEntity: EntityIndex) {
-  const gameId = world.entities[gameEntity];
-
-  const hash = getHash(gameId);
-  const adjective = adjectives[hash % adjectives.length];
-  const newHash = getHash(`${hash}`);
-  const noun = nouns[newHash % nouns.length];
-
-  const name = cap(adjective) + " " + cap(noun);
-  return name;
-}
 export function Games() {
   const [filterClosed, setFilterClosed] = useState(true);
 
   const {
     components: { GameConfig, CurrentGame, Page },
     network: { clock },
-    worldAddress,
+    utils: { getShipName },
     singletonEntity,
-    startingBlock,
   } = useNetwork();
 
   const now = (useObservableValue(clock.time$) || 0) / 1000;
@@ -43,6 +29,7 @@ export function Games() {
         return closeTime - now > 0;
       })
     : allGames;
+
   return (
     <div
       style={{
@@ -56,12 +43,12 @@ export function Games() {
         <Input type="checkbox" checked={filterClosed} onChange={() => setFilterClosed(!filterClosed)} />
         <span>Filter Closed Games</span>
       </div>
-
+      <ButtonsContainer></ButtonsContainer>
       <ButtonsContainer>
         {games.length > 0
           ? games.map((game) => {
               const config = getComponentValueStrict(GameConfig, game);
-              const name = getGameName(game);
+              const name = getShipName(game);
               const closeTime =
                 Number(config.startTime) +
                 config.entryCutoffTurns *

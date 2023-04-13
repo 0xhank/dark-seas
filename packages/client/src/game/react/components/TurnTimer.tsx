@@ -4,9 +4,9 @@ import styled, { keyframes } from "styled-components";
 import { useGame } from "../../../mud/providers/GameProvider";
 import { useOwner } from "../../../mud/providers/OwnerProvider";
 import { colors } from "../../../styles/global";
+import { formatTime } from "../../../utils/directions";
 import { Category } from "../../sound";
 import { Phase } from "../../types";
-import { formatTime } from "../../utils/directions";
 import { Cell } from "./Cell";
 
 const gridConfig = { gridRowStart: 1, gridRowEnd: 1, gridColumnStart: 5, gridColumnEnd: 9 };

@@ -19,6 +19,7 @@ import { clientComponents, components } from "../components";
 import { Action, Move } from "../game/types.js";
 import { world } from "../world";
 import { getNetworkConfig } from "./config.js";
+import { createAppUtilities } from "./utils/appUtils.js";
 import { setupDevSystems } from "./utils/setupDevSystems";
 import { setupMUDNetwork } from "./utils/setupMUDNetwork";
 export async function createNetworkLayer(worldAddress?: string, block?: number) {
@@ -70,6 +71,8 @@ export async function createNetworkLayer(worldAddress?: string, block?: number) 
     // Request a drip every 20 seconds
     setInterval(requestDrip, 5000);
   }
+
+  const utils = createAppUtilities(ownerAddress);
   const actions = createActionSystem(world, txReduced$);
   const api = {
     spawn: (name: string, override?: boolean) => {
@@ -121,6 +124,7 @@ export async function createNetworkLayer(worldAddress?: string, block?: number) 
     components: { ...networkComponents, ...clientComponents },
     systems,
     txReduced$,
+    utils,
     startSync,
     network,
     actions,

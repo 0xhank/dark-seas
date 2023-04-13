@@ -5,12 +5,6 @@ import { useGame } from "../../../mud/providers/GameProvider";
 import { Button, Img } from "../../../styles/global";
 import { ModalType } from "../..//types";
 
-const gridConfig = {
-  gridRowStart: 1,
-  gridRowEnd: 3,
-  gridColumnStart: 1,
-  gridColumnEnd: 5,
-};
 export function Settings() {
   const {
     utils: { muteSfx, unmuteSfx, playMusic, muteMusic },
@@ -45,7 +39,7 @@ export function Settings() {
         style={{ width: "40px", height: "40px" }}
         onClick={() => {
           world.dispose();
-          setComponent(Page, singletonEntity, { page: "game", gameEntity: singletonEntity });
+          setComponent(Page, singletonEntity, { page: "home", gameEntity: singletonEntity });
         }}
       >
         <Img src={"/icons/exit.svg"} />

@@ -19,12 +19,7 @@ export async function createGameLayer(network: NetworkLayer) {
   const gameID = world.entities[gameEntity];
   if (!gameID) throw new Error("Game entity not found");
 
-  const utils = await createGameUtilities(
-    gameEntity,
-    network.ownerAddress,
-    network.network.clock,
-    scenes.Main.phaserScene
-  );
+  const utils = await createGameUtilities(gameEntity, network.utils, network.network.clock, scenes.Main.phaserScene);
   const context = {
     ...network,
     world: phaserWorld,
@@ -33,7 +28,7 @@ export async function createGameLayer(network: NetworkLayer) {
     gameEntity,
     gameID,
     scene: scenes.Main,
-    utils,
+    utils: { ...utils, ...network.utils },
   };
   createSystems(context);
 
