@@ -18,7 +18,6 @@ import { YourPort } from "./YourPort";
 export function HomeWindow() {
   const {
     singletonEntity,
-    worldAddress,
     ownerAddress,
     components: { LoadingState, Player, Name },
   } = useNetwork();

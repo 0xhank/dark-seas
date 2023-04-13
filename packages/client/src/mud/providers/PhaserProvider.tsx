@@ -1,10 +1,9 @@
 import { createContext, ReactNode, useContext } from "react";
 import { PhaserLayer } from "../../game/phaser";
-import { SetupResult } from "../../game/types";
 
 const PhaserContext = createContext<PhaserLayer | null>(null);
 
-type Props = SetupResult & {
+type Props = PhaserLayer & {
   children: ReactNode;
 };
 
@@ -14,7 +13,7 @@ export const PhaserProvider = ({ children, ...value }: Props) => {
   return <PhaserContext.Provider value={value}>{children}</PhaserContext.Provider>;
 };
 
-export const usePhaser = (): SetupResult => {
+export const usePhaser = (): PhaserLayer => {
   const value = useContext(PhaserContext);
   if (!value) throw new Error("Must be used within a PhaserProvider");
   return value;
