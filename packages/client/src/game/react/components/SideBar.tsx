@@ -1,5 +1,5 @@
-import { useComponentValue, useObservableValue } from "@latticexyz/react";
-import { EntityIndex, Has, HasValue, NotValue, runQuery } from "@latticexyz/recs";
+import { useComponentValue, useEntityQuery, useObservableValue } from "@latticexyz/react";
+import { EntityIndex, Has, HasValue, NotValue } from "@latticexyz/recs";
 import styled from "styled-components";
 import { useGame } from "../../../mud/providers/GameProvider";
 import { useOwner } from "../../../mud/providers/OwnerProvider";
@@ -21,7 +21,7 @@ export function SideBar() {
   useObservableValue(HealthLocal.update$);
 
   const aliveShips = [
-    ...runQuery([
+    ...useEntityQuery([
       Has(Ship),
       HasValue(CurrentGame, { value: gameId }),
       HasValue(OwnedBy, { value: world.entities[ownerEntity] }),

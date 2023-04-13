@@ -19,7 +19,7 @@ export function YourPort() {
     <ShipButtons>
       {shipEntities.map((shipEntity, i) => (
         <Fragment key={`your-port-ship-${i}`}>
-          <ShipButton shipEntity={shipEntity} showName />
+          <ShipButton shipEntity={shipEntity} showName showCurrentGame />
         </Fragment>
       ))}
     </ShipButtons>

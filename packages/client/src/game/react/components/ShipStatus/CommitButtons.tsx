@@ -1,12 +1,5 @@
-import { useComponentValue, useObservableValue } from "@latticexyz/react";
-import {
-  Has,
-  HasValue,
-  getComponentEntities,
-  getComponentValue,
-  getComponentValueStrict,
-  runQuery,
-} from "@latticexyz/recs";
+import { useComponentValue, useEntityQuery, useObservableValue } from "@latticexyz/react";
+import { Has, HasValue, getComponentEntities, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
 import { merge } from "rxjs";
 import { useGame } from "../../../../mud/providers/GameProvider";
@@ -31,14 +24,14 @@ export function CommitButtons({ tooEarly }: { tooEarly: boolean }) {
   const cannotAct = selectedMoves.length == 0;
 
   const ownerEntity = useOwner();
-  const aliveShips = [...runQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[ownerEntity] })])];
+  const aliveShips = [...useEntityQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[ownerEntity] })])];
   const movesComplete = aliveShips.every((ship) => {
     const committedMove = getComponentValue(CommittedMove, ship)?.value;
     const selectedMove = getComponentValue(SelectedMove, ship)?.value;
     return committedMove == selectedMove;
   });
 
-  const txExecuting = !![...runQuery([Has(Action)])].find((entity) => {
+  const txExecuting = !![...useEntityQuery([Has(Action)])].find((entity) => {
     const action = getComponentValueStrict(Action, entity);
     return action.state !== ActionState.TxReduced && Action.world.entities[entity].includes("commit");
   });

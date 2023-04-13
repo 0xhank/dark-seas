@@ -1,5 +1,5 @@
-import { useComponentValue } from "@latticexyz/react";
-import { getComponentEntities, getComponentValueStrict, Has, runQuery } from "@latticexyz/recs";
+import { useComponentValue, useEntityQuery } from "@latticexyz/react";
+import { Has, getComponentEntities, getComponentValueStrict } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
 import { useGame } from "../../../../mud/providers/GameProvider";
 import { useOwner } from "../../../../mud/providers/OwnerProvider";
@@ -33,7 +33,7 @@ export function ActionButtons({ tooEarly, turn }: { tooEarly: boolean; turn: num
     submitActions(gameEntity, shipsAndActions, getTargetedShips);
   };
 
-  const txExecuting = !![...runQuery([Has(Action)])].find((entity) => {
+  const txExecuting = !![...useEntityQuery([Has(Action)])].find((entity) => {
     const action = getComponentValueStrict(Action, entity);
     return action.state !== ActionState.Complete && Action.world.entities[entity].includes("action");
   });

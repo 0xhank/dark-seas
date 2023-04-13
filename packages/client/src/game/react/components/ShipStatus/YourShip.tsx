@@ -2,7 +2,7 @@ import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex, removeComponent, setComponent } from "@latticexyz/recs";
 import styled from "styled-components";
 import { useGame } from "../../../../mud/providers/GameProvider";
-import { ShipContainer } from "../../../../styles/global";
+import { Button, ShipContainer } from "../../../../styles/global";
 import { HoverType } from "../../..//types";
 import { ActionStatus } from "./ActionStatus";
 import { ShipCard } from "./ShipCard";
@@ -13,9 +13,13 @@ export const YourShip = ({ shipEntity, selected }: { shipEntity: EntityIndex; se
     gameEntity,
     scene: { camera },
     utils: { getSpriteObject },
+    api: { extractShip },
   } = useGame();
 
-  const selectShip = (shipEntity: EntityIndex) => {
+  const handleExtraction = () => {
+    extractShip(shipEntity);
+  };
+  const selectShip = () => {
     const shipObject = getSpriteObject(shipEntity);
 
     camera.centerOn(shipObject.x, shipObject.y + 400);
@@ -27,7 +31,7 @@ export const YourShip = ({ shipEntity, selected }: { shipEntity: EntityIndex; se
 
   return (
     <ShipContainer
-      onClick={() => selectShip(shipEntity)}
+      onClick={selectShip}
       onMouseEnter={() => setComponent(HoveredSprite, HoverType.SHIP, { value: shipEntity })}
       onMouseLeave={() => removeComponent(HoveredSprite, HoverType.SHIP)}
       isSelected={selected}
@@ -36,6 +40,7 @@ export const YourShip = ({ shipEntity, selected }: { shipEntity: EntityIndex; se
     >
       <ShipCard shipEntity={shipEntity} />
       <ActionStatus shipEntity={shipEntity} />
+      <Button onClick={handleExtraction}>Extract</Button>
     </ShipContainer>
   );
 };

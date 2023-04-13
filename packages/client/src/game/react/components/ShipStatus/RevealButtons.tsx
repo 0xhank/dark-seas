@@ -1,5 +1,5 @@
-import { useComponentValue, useObservableValue } from "@latticexyz/react";
-import { Has, getComponentValueStrict, runQuery } from "@latticexyz/recs";
+import { useComponentValue, useEntityQuery, useObservableValue } from "@latticexyz/react";
+import { Has, getComponentValueStrict } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
 import { useGame } from "../../../../mud/providers/GameProvider";
 import { useOwner } from "../../../../mud/providers/OwnerProvider";
@@ -19,7 +19,7 @@ export function RevealButtons({ tooEarly, turn }: { tooEarly: boolean; turn: num
 
   useObservableValue(Action.update$);
 
-  const txExecuting = !![...runQuery([Has(Action)])].find((entity) => {
+  const txExecuting = !![...useEntityQuery([Has(Action)])].find((entity) => {
     const action = getComponentValueStrict(Action, entity);
     return action.state !== ActionState.Complete && Action.world.entities[entity].includes("reveal");
   });

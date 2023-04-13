@@ -33,8 +33,8 @@ const Logo = styled.img`
   height: 74%;
 `;
 const Container = styled.div`
-  width: 99vw;
-  height: 99vh;
+  width: 100vw;
+  height: 100vh;
   position: absolute;
   top: -1;
   left: -1;  
