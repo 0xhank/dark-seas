@@ -1,13 +1,14 @@
 import { TxQueue } from "@latticexyz/network";
-import { EntityID } from "@latticexyz/recs";
+import { EntityID, EntityIndex } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
 import { defaultAbiCoder as abi, keccak256 } from "ethers/lib/utils";
 import { SystemTypes } from "../../../contracts/types/SystemTypes";
 import { components } from "../components";
 import { Move, TxType } from "../game/types";
+import { world } from "../world";
 
 export function commitMove(
-  gameId: EntityID,
+  gameIndex: EntityIndex,
   systems: TxQueue<SystemTypes>,
   actions: ActionSystem,
   moves: Move[],
@@ -22,13 +23,15 @@ export function commitMove(
     awaitConfirmation: true,
     components: { OwnedBy, GameConfig, MoveCard },
     requirement: () => {
-      return abi.encode(
+      const gameId = world.entities[gameIndex];
+      const encoding = abi.encode(
         ["uint256", "tuple(uint256 shipEntity, uint256 moveCardEntity)[]", "uint256"],
         [gameId, moves, 0]
       );
+      return { encoding, gameId };
     },
     updates: () => [],
-    execute: (encoding: string) => {
+    execute: ({ gameId, encoding }) => {
       return systems["ds.system.Commit"].executeTyped(gameId, keccak256(encoding));
     },
     metadata: {
@@ -37,7 +40,7 @@ export function commitMove(
         moves,
         encoding: abi.encode(
           ["uint256", "tuple(uint256 shipEntity, uint256 moveCardEntity)[]", "uint256"],
-          [gameId, moves, 0]
+          [world.entities[gameIndex], moves, 0]
         ),
       },
     },

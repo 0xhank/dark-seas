@@ -1,7 +1,7 @@
 import { useComponentValue } from "@latticexyz/react";
 import styled from "styled-components";
+import { useGame } from "../../../../mud/providers/GameProvider";
 import { useOwner } from "../../../../mud/providers/OwnerProvider";
-import { usePhaser } from "../../../../mud/providers/PhaserProvider";
 import { ShipContainer } from "../../../../styles/global";
 import { FleetPage } from "./FleetPage";
 import { SpectatePage } from "./SpectatePage";
@@ -9,7 +9,7 @@ import { SpectatePage } from "./SpectatePage";
 export function Registration() {
   const {
     components: { Name },
-  } = usePhaser();
+  } = useGame();
   const ownerEntity = useOwner();
   const name = useComponentValue(Name, ownerEntity)?.value;
 

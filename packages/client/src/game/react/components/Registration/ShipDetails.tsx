@@ -11,7 +11,7 @@ import {
 } from "@latticexyz/recs";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { usePhaser } from "../../../../mud/providers/PhaserProvider";
+import { useGame } from "../../../../mud/providers/GameProvider";
 import { Button, colors, Container } from "../../../../styles/global";
 import { world } from "../../../../world";
 import PillBar from "../PillBar";
@@ -35,8 +35,8 @@ export function ShipDetails({ flex }: { flex: number }) {
     },
     gameEntity,
     utils: { getGameConfig },
-  } = usePhaser();
-  const mud = usePhaser();
+  } = useGame();
+  const mud = useGame();
 
   const [game, setGame] = useState<Phaser.Game>();
   const prototypeEntity = useComponentValue(ActiveShip, gameEntity)?.value as EntityIndex | undefined;

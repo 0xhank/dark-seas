@@ -65,6 +65,10 @@ export const components = {
 };
 
 export const clientComponents = {
+  Page: defineComponent(world, { page: Type.String, gameEntity: Type.Number }, { id: "Page" }),
+};
+
+export const gameComponents = {
   SelectedMove: defineNumberComponent(world, { id: "SelectedMove" }),
   SelectedShip: defineNumberComponent(world, { id: "SelectedShip" }),
   HoveredSprite: defineNumberComponent(world, { id: "HoveredSprite" }),

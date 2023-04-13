@@ -1,8 +1,8 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { EntityIndex, Has, getComponentValueStrict, runQuery } from "@latticexyz/recs";
 import styled from "styled-components";
+import { useGame } from "../../../../mud/providers/GameProvider";
 import { useOwner } from "../../../../mud/providers/OwnerProvider";
-import { usePhaser } from "../../../../mud/providers/PhaserProvider";
 import { colors } from "../../../../styles/global";
 import { ActionNames, ActionType, Phase } from "../../..//types";
 import { ActionComponent } from "./Action";
@@ -11,7 +11,7 @@ function CommitStatus({ shipEntity, txExecuting }: { shipEntity: EntityIndex; tx
   const {
     components: { SelectedMove, MoveCard, CommittedMove, EncodedCommitment },
     gameEntity,
-  } = usePhaser();
+  } = useGame();
 
   const committedMove = useComponentValue(CommittedMove, shipEntity)?.value;
   const selectedMove = useComponentValue(SelectedMove, shipEntity)?.value;
@@ -49,7 +49,7 @@ function RevealStatus({
   const {
     components: { LastMove, CommittedMove, MoveCard },
     utils: { getPlayerEntity },
-  } = usePhaser();
+  } = useGame();
 
   const ownerEntity = useOwner();
   const acted = useComponentValue(LastMove, getPlayerEntity(ownerEntity))?.value == turn;
@@ -77,7 +77,7 @@ function ActStatus({ shipEntity, turn, txExecuting }: { shipEntity: EntityIndex;
   const {
     components: { LastAction, SelectedActions, ExecutedActions },
     utils: { getPlayerEntity },
-  } = usePhaser();
+  } = useGame();
 
   const ownerEntity = useOwner();
 
@@ -119,7 +119,7 @@ export function ActionStatus({ shipEntity }: { shipEntity: EntityIndex }) {
     network: { clock },
     utils: { getPhase, getTurn },
     actions: { Action },
-  } = usePhaser();
+  } = useGame();
 
   const time = useObservableValue(clock.time$) || 0;
   useObservableValue(Action.update$);

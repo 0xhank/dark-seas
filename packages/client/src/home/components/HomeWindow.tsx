@@ -1,8 +1,6 @@
-import { SyncState } from "@latticexyz/network";
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { EntityID } from "@latticexyz/recs";
 import styled from "styled-components";
-import { BootScreen } from "../../game/react/components/BootScreen";
 import { ActionQueue } from "../../game/react/components/Dev/ActionQueue";
 import { useNetwork } from "../../mud/providers/NetworkProvider";
 import { OwnerProvider } from "../../mud/providers/OwnerProvider";
@@ -17,24 +15,13 @@ import { YourPort } from "./YourPort";
 
 export function HomeWindow() {
   const {
-    singletonEntity,
     ownerAddress,
-    components: { LoadingState, Player, Name },
+    components: { Player, Name },
   } = useNetwork();
 
   useObservableValue(Player.update$);
   const ownerEntity = world.entityToIndex.get(ownerAddress as EntityID);
   const name = useComponentValue(Name, ownerEntity)?.value;
-  const loadingState = useComponentValue(LoadingState, singletonEntity, {
-    state: SyncState.CONNECTING,
-    msg: "Connecting",
-    percentage: 0,
-  });
-
-  const progression =
-    loadingState.state == SyncState.INITIAL ? loadingState.percentage : loadingState.state == SyncState.LIVE ? 100 : 0;
-  if (loadingState.state !== SyncState.LIVE) return <BootScreen progression={progression} />;
-
   const tabs = [
     { name: "Live Games", component: <Games /> },
     { name: "Create Game", component: <CreateGame /> },

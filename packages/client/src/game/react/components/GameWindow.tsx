@@ -1,8 +1,8 @@
 import { SyncState } from "@latticexyz/network";
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import styled from "styled-components";
+import { useGame } from "../../../mud/providers/GameProvider";
 import { OwnerProvider } from "../../../mud/providers/OwnerProvider";
-import { usePhaser } from "../../../mud/providers/PhaserProvider";
 import { BootScreen } from "./BootScreen";
 import { DamageChance } from "./DamageChance";
 import { ComponentBrowser } from "./Dev/ComponentBrowser";
@@ -21,7 +21,7 @@ export function GameWindow() {
     singletonEntity,
 
     utils: { getOwnerEntity, getPlayerEntity },
-  } = usePhaser();
+  } = useGame();
 
   // re render when a player is added
   useObservableValue(Player.update$);

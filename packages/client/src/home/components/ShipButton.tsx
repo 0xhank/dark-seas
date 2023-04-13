@@ -1,10 +1,10 @@
 import { useComponentValue } from "@latticexyz/react";
-import { EntityID, EntityIndex, getComponentValueStrict } from "@latticexyz/recs";
+import { EntityID, EntityIndex, setComponent } from "@latticexyz/recs";
 import styled from "styled-components";
 import { ShipImages, cap, getHash, getShipSprite } from "../../game/utils/ships";
 import { adjectives, nouns } from "../../game/utils/wordlist";
 import { useNetwork } from "../../mud/providers/NetworkProvider";
-import { BoxImage, Link, OptionButton, colors } from "../../styles/global";
+import { BoxImage, Button, OptionButton, colors } from "../../styles/global";
 import { world } from "../../world";
 function getShipName(shipEntity: EntityIndex) {
   const shipId = world.entities[shipEntity];
@@ -38,21 +38,14 @@ export function ShipButton({
   onClick?: () => void;
 }) {
   const {
-    gameEntity,
-    components: { Name, Length, Price, CurrentGame, GameConfig },
-    worldAddress,
+    components: { Name, Length, Page, Price, CurrentGame },
+    singletonEntity,
   } = useNetwork();
   const name = useComponentValue(Name, shipEntity, { value: "" }).value;
   const price = useComponentValue(Price, shipEntity, { value: 0 }).value;
   const length = useComponentValue(Length, shipEntity, { value: 0 }).value;
   const currentGame = useComponentValue(CurrentGame, shipEntity)?.value as EntityID | undefined;
-  let gameConfig = undefined;
-  if (currentGame) {
-    const gameEntity = world.entityToIndex.get(currentGame);
-    if (gameEntity) {
-      gameConfig = getComponentValueStrict(GameConfig, gameEntity);
-    }
-  }
+  const currentGameEntity = currentGame ? world.entityToIndex.get(currentGame) : undefined;
   return (
     <OptionButton
       disabled={disabled}
@@ -72,7 +65,7 @@ export function ShipButton({
       <BoxContainer>
         <BoxImage length={length}>
           <img
-            src={ShipImages[getShipSprite(gameEntity, 1, 1, true)]}
+            src={ShipImages[getShipSprite(0 as EntityIndex, 1, 1, true)]}
             style={{
               objectFit: "scale-down",
               left: "50%",
@@ -94,8 +87,10 @@ export function ShipButton({
           </div>
         )}
         {showName && <p style={{ fontSize: "1.5rem", lineHeight: "2rem" }}>{getShipName(shipEntity)}</p>}
-        {showCurrentGame && gameConfig && (
-          <Link to={"/game"} state={{ worldAddress, gameId: currentGame, block: gameConfig.startBlock }}></Link>
+        {showCurrentGame && currentGameEntity !== undefined && (
+          <Button onClick={() => setComponent(Page, singletonEntity, { page: "game", gameEntity: currentGameEntity })}>
+            Go to current game
+          </Button>
         )}
         {!hidePrototypeName && <p style={{ fontStyle: "italic" }}>{name}</p>}
       </div>

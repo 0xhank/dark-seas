@@ -1,6 +1,6 @@
 import { EntityID, setComponent } from "@latticexyz/recs";
 import styled from "styled-components";
-import { usePhaser } from "../../../../mud/providers/PhaserProvider";
+import { useGame } from "../../../../mud/providers/GameProvider";
 import { Button, ShipContainer } from "../../../../styles/global";
 import { world } from "../../../../world";
 import { ModalType } from "../../../types";
@@ -9,7 +9,7 @@ export function SpectatePage() {
   const {
     components: { ModalOpen, Player },
     ownerAddress,
-  } = usePhaser();
+  } = useGame();
 
   const openTutorial = () => setComponent(ModalOpen, ModalType.TUTORIAL, { value: true });
   const spectate = () => {

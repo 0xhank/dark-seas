@@ -1,4 +1,4 @@
-import { createPhaserLayer } from "./createPhaserLayer";
+import { createGameLayer } from "./createGameLayer";
 
-export { createPhaserLayer };
-export type PhaserLayer = Awaited<ReturnType<typeof createPhaserLayer>>;
+export { createGameLayer };
+export type gameLayer = Awaited<ReturnType<typeof createGameLayer>>;

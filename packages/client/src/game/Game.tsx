@@ -1,45 +1,31 @@
-import { EntityID } from "@latticexyz/recs";
-import { ethers } from "ethers";
 import { useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { GameProvider } from "../mud/providers/GameProvider";
 import { useNetwork } from "../mud/providers/NetworkProvider";
-import { PhaserProvider } from "../mud/providers/PhaserProvider";
-import { createPhaserLayer as createPhaserLayerImport } from "./phaser";
+import { createGameLayer as createGameLayerImport } from "./phaser";
 import { GameWindow } from "./react/components/GameWindow";
 import { SetupResult } from "./types";
-let createPhaserLayer = createPhaserLayerImport;
+let createGameLayer = createGameLayerImport;
 
 export const Game = () => {
   const [MUD, setMUD] = useState<SetupResult>();
 
   const networkLayer = useNetwork();
-  const { state } = useLocation();
-  const { worldAddress: paramsWorldAddress } = useParams();
-  const { worldAddress: stateWorldAddress, gameId } = state as {
-    worldAddress: string | undefined;
-    gameId: EntityID | undefined;
-  };
 
-  const worldAddress = paramsWorldAddress || stateWorldAddress;
-  if (!worldAddress || !ethers.utils.isAddress(worldAddress) || !gameId) throw new Error("invalid world address");
-
-  let phaserLayer: SetupResult | undefined = undefined;
+  let gameLayer: SetupResult | undefined = undefined;
 
   async function bootGame() {
-    if (!gameId) throw new Error("no game id");
-    if (!phaserLayer) phaserLayer = await createPhaserLayer(networkLayer);
+    if (!gameLayer) gameLayer = await createGameLayer(networkLayer);
     if (document.querySelectorAll("#phaser-game canvas").length > 1) import.meta.hot?.invalidate();
-    if (!phaserLayer) throw new Error("boot failed: phaser layer busted");
-    setMUD(phaserLayer);
+    if (!gameLayer) throw new Error("boot failed: phaser layer busted");
+    setMUD(gameLayer);
   }
 
   useEffect(() => {
-    if (!worldAddress) return;
     if (import.meta.hot) {
       import.meta.hot.accept("./phaser/index.ts", async (module) => {
         console.log("reloading phaser");
         if (!module) return;
-        createPhaserLayer = module.createPhaserLayer;
+        createGameLayer = module.createGameLayer;
         MUD?.world.dispose();
         setMUD(undefined);
         bootGame();
@@ -51,14 +37,13 @@ export const Game = () => {
       MUD?.world.dispose();
       setMUD(undefined);
     };
-  }, [worldAddress]);
-  console.log("mud: ", MUD);
+  }, []);
 
   if (MUD)
     return (
-      <PhaserProvider {...MUD}>
+      <GameProvider {...MUD}>
         <GameWindow />
-      </PhaserProvider>
+      </GameProvider>
     );
   return <>hello</>;
 };

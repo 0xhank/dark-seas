@@ -5,7 +5,7 @@ import { SystemTypes } from "../../../contracts/types/SystemTypes";
 import { world } from "../world";
 
 export function joinGame(
-  gameId: EntityID,
+  gameIndex: EntityIndex,
   systems: TxQueue<SystemTypes>,
   actions: ActionSystem,
   ships: EntityIndex[],
@@ -18,10 +18,11 @@ export function joinGame(
     components: {},
     requirement: () => {
       const shipIds = ships.map((ship) => world.entities[ship]);
-      return shipIds;
+      const gameId = world.entities[gameIndex];
+      return { gameId, shipIds };
     },
     updates: () => [],
-    execute: (shipIds) => {
+    execute: ({ shipIds, gameId }) => {
       return systems["ds.system.JoinGame"].executeTyped(gameId, shipIds, {
         gasLimit: 30_000_000,
       });

@@ -1,7 +1,7 @@
 import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex, removeComponent, setComponent } from "@latticexyz/recs";
 import styled from "styled-components";
-import { usePhaser } from "../../../../mud/providers/PhaserProvider";
+import { useGame } from "../../../../mud/providers/GameProvider";
 import { ShipContainer } from "../../../../styles/global";
 import { HoverType } from "../../..//types";
 import { ActionStatus } from "./ActionStatus";
@@ -13,7 +13,7 @@ export const YourShip = ({ shipEntity, selected }: { shipEntity: EntityIndex; se
     gameEntity,
     scene: { camera },
     utils: { getSpriteObject },
-  } = usePhaser();
+  } = useGame();
 
   const selectShip = (shipEntity: EntityIndex) => {
     const shipObject = getSpriteObject(shipEntity);

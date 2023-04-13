@@ -1,5 +1,5 @@
 import { createFaucetService, SingletonID } from "@latticexyz/network";
-import { EntityID, EntityIndex, namespaceWorld } from "@latticexyz/recs";
+import { EntityIndex, namespaceWorld } from "@latticexyz/recs";
 import { createActionSystem } from "@latticexyz/std-client";
 import { parseEther } from "ethers/lib/utils.js";
 import { GameConfigStruct } from "../../../contracts/types/ethers-contracts/CreateGameSystem.js";
@@ -15,13 +15,13 @@ import {
   spawnAction,
   submitActionsAction,
 } from "../api/index";
-import { components } from "../components";
+import { clientComponents, components } from "../components";
 import { Action, Move } from "../game/types.js";
 import { world } from "../world";
 import { getNetworkConfig } from "./config.js";
 import { setupDevSystems } from "./utils/setupDevSystems";
 import { setupMUDNetwork } from "./utils/setupMUDNetwork";
-export async function createNetworkLayer(worldAddress?: string, block?: number, gameId: EntityID = SingletonID) {
+export async function createNetworkLayer(worldAddress?: string, block?: number) {
   const config = getNetworkConfig({ worldAddress, block });
   console.log("config: ", config);
   const networkWorld = namespaceWorld(world, "network");
@@ -39,7 +39,6 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
   });
   // For LoadingState updates
   const singletonEntity = world.registerEntity({ id: SingletonID });
-  const gameEntity = world.registerEntity({ id: gameId });
 
   // Register player entity
   const ownerAddress = network.connectedAddress.get();
@@ -76,24 +75,25 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
     spawn: (name: string, override?: boolean) => {
       spawnAction(systems, actions, name, override);
     },
-    joinGame: (ships: EntityIndex[], override?: boolean) => {
-      joinGameAction(gameId, systems, actions, ships, override);
+    joinGame: (gameEntity: EntityIndex, ships: EntityIndex[], override?: boolean) => {
+      joinGameAction(gameEntity, systems, actions, ships, override);
     },
 
-    commitMove: (moves: Move[], override?: boolean) => {
-      commitMoveAction(gameId, systems, actions, moves, override);
+    commitMove: (gameEntity: EntityIndex, moves: Move[], override?: boolean) => {
+      commitMoveAction(gameEntity, systems, actions, moves, override);
     },
 
     revealMove: (encoding: string, override?: boolean) => {
-      revealMoveAction(gameId, systems, actions, encoding, override);
+      revealMoveAction(systems, actions, encoding, override);
     },
 
     submitActions: (
+      gameEntity: EntityIndex,
       playerActions: Action[],
       getTargetedShips: (cannonEntity: EntityIndex) => EntityIndex[],
       override?: boolean
     ) => {
-      submitActionsAction(gameId, systems, actions, getTargetedShips, playerActions, override);
+      submitActionsAction(gameEntity, systems, actions, getTargetedShips, playerActions, override);
     },
 
     createGame: (gameConfig: GameConfigStruct, override?: boolean) => {
@@ -115,12 +115,10 @@ export async function createNetworkLayer(worldAddress?: string, block?: number, 
     world,
     worldAddress: config.worldAddress,
     startingBlock: config.initialBlockNumber,
-    gameId,
     singletonEntity,
-    gameEntity,
     ownerAddress,
     systemCallStreams,
-    components: networkComponents,
+    components: { ...networkComponents, ...clientComponents },
     systems,
     txReduced$,
     startSync,

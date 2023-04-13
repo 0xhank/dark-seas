@@ -10,7 +10,7 @@ import { Action, ActionHashes, ActionType, TxType } from "../game/types";
 import { world } from "../world";
 
 export function submitActions(
-  gameId: EntityID,
+  gameIndex: EntityIndex,
   systems: TxQueue<SystemTypes>,
   actions: ActionSystem,
   getTargetedShips: (cannonEntity: EntityIndex) => EntityIndex[],
@@ -25,6 +25,7 @@ export function submitActions(
     awaitConfirmation: true,
     components: { OwnedBy },
     requirement: ({ OwnedBy }) => {
+      const gameId = world.entities[gameIndex];
       if (!override) {
         if (shipActions.length == 0) {
           actions.cancel(actionId);
@@ -70,12 +71,12 @@ export function submitActions(
         actions.cancel(actionId);
         return null;
       }
-      return shipStruct;
+      return { shipStruct, gameId };
     },
     updates: () => [],
-    execute: (actions) => {
+    execute: ({ shipStruct, gameId }) => {
       console.log("submitting actions:", actions);
-      return systems["ds.system.Action"].executeTyped(gameId, actions, {
+      return systems["ds.system.Action"].executeTyped(gameId, shipStruct, {
         gasLimit: 10_000_000,
       });
     },

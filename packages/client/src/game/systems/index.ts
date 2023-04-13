@@ -1,4 +1,4 @@
-import { PhaserLayer } from "../phaser";
+import { gameLayer } from "../phaser";
 import { bootSyncSystems } from "./bootSyncSystems";
 import { borderSystems } from "./borderSystems";
 import { createCamera } from "./camera";
@@ -19,7 +19,7 @@ import { statAnimationSystems } from "./statAnimationSystems";
 import { targetedShipSystems } from "./targetedShipSystems";
 import { tilemapSystems } from "./tilemapSystems";
 import { turnResetSystems } from "./turnResetSystems";
-export function createSystems(context: PhaserLayer) {
+export function createSystems(context: gameLayer) {
   bootSyncSystems(context);
   createSuccessfulActionSystem(context);
   createSuccessfulMoveSystem(context);

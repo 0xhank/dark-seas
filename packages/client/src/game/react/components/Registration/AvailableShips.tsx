@@ -3,8 +3,8 @@ import { EntityIndex, Has, HasValue, getComponentValue, removeComponent, setComp
 import { Fragment } from "react";
 import styled from "styled-components";
 import { ShipButton } from "../../../../home/components/ShipButton";
+import { useGame } from "../../../../mud/providers/GameProvider";
 import { useOwner } from "../../../../mud/providers/OwnerProvider";
-import { usePhaser } from "../../../../mud/providers/PhaserProvider";
 import { Container } from "../../../../styles/global";
 import { world } from "../../../../world";
 
@@ -12,7 +12,7 @@ export function AvailableShips({ flex }: { flex: number }) {
   const {
     components: { Ship, OwnedBy, ActiveShip, StagedShips, CurrentGame },
     gameEntity,
-  } = usePhaser();
+  } = useGame();
   const ownerEntity = useOwner();
   const yourShips = [...useEntityQuery([Has(Ship), HasValue(OwnedBy, { value: world.entities[ownerEntity] })])];
   const stagedShips = useComponentValue(StagedShips, gameEntity, { value: [] }).value as EntityIndex[];

@@ -1,10 +1,10 @@
 import { Browser as ECSBrowser } from "@latticexyz/ecs-browser";
 import { Layer } from "@latticexyz/recs";
 import { useState } from "react";
-import { usePhaser } from "../../../../mud/providers/PhaserProvider";
+import { useGame } from "../../../../mud/providers/GameProvider";
 
 export const ComponentBrowser = () => {
-  const { world, components, dev } = usePhaser();
+  const { world, components, dev } = useGame();
   const layer: Layer = { world, components };
 
   const [shown, setShown] = useState(false);

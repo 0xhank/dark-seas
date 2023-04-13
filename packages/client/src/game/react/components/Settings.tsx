@@ -1,8 +1,8 @@
 import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex, setComponent } from "@latticexyz/recs";
 import styled from "styled-components";
-import { usePhaser } from "../../../mud/providers/PhaserProvider";
-import { Button, Img, Link } from "../../../styles/global";
+import { useGame } from "../../../mud/providers/GameProvider";
+import { Button, Img } from "../../../styles/global";
 import { ModalType } from "../..//types";
 
 const gridConfig = {
@@ -14,11 +14,12 @@ const gridConfig = {
 export function Settings() {
   const {
     utils: { muteSfx, unmuteSfx, playMusic, muteMusic },
-    components: { Volume, ModalOpen },
+    components: { Volume, ModalOpen, Page },
+    singletonEntity,
     gameEntity,
     world,
     worldAddress,
-  } = usePhaser();
+  } = useGame();
 
   const openLeaderboard = () => setComponent(ModalOpen, ModalType.LEADERBOARD, { value: true });
   const openTutorial = () => setComponent(ModalOpen, ModalType.TUTORIAL, { value: true });
@@ -40,16 +41,15 @@ export function Settings() {
       <Button onClick={openTutorial} style={{ width: "40px" }}>
         <Img src={"/icons/help.svg"} />
       </Button>
-      <Link
+      <Button
         style={{ width: "40px", height: "40px" }}
         onClick={() => {
           world.dispose();
+          setComponent(Page, singletonEntity, { page: "game", gameEntity: singletonEntity });
         }}
-        to="/app"
-        state={{ worldAddress }}
       >
         <Img src={"/icons/exit.svg"} />
-      </Link>
+      </Button>
     </SettingsContainer>
   );
 }

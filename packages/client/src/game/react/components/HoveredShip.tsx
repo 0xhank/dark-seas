@@ -1,6 +1,6 @@
 import { useComponentValue } from "@latticexyz/react";
 import { EntityIndex } from "@latticexyz/recs";
-import { usePhaser } from "../../../mud/providers/PhaserProvider";
+import { useGame } from "../../../mud/providers/GameProvider";
 import { ShipContainer } from "../../../styles/global";
 import { HoverType } from "../..//types";
 import { Cell } from "./Cell";
@@ -11,7 +11,7 @@ export function HoveredShip() {
   const {
     components: { HoveredSprite },
     gameEntity,
-  } = usePhaser();
+  } = useGame();
 
   const shipEntity = useComponentValue(HoveredSprite, HoverType.SHIP)?.value as EntityIndex | undefined;
   if (!shipEntity) return null;

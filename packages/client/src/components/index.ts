@@ -1,1 +1,1 @@
-export { clientComponents, components } from "./components";
+export { clientComponents, components, gameComponents } from "./components";

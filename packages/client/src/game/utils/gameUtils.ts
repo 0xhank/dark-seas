@@ -19,7 +19,7 @@ import { defaultAbiCoder, keccak256 } from "ethers/lib/utils";
 import { Coord } from "@latticexyz/utils";
 import { BigNumber, BigNumberish } from "ethers";
 import { Howl } from "howler";
-import { clientComponents, components } from "../../components";
+import { components, gameComponents } from "../../components";
 import { colors } from "../../styles/global";
 import { musicRegistry, polygonRegistry, soundRegistry, spriteRegistry, world } from "../../world";
 import { sprites } from "../phaser/config";
@@ -195,13 +195,13 @@ export async function createGameUtilities(
     if (action == ActionType.None) return false;
     if (action == ActionType.Fire) return false;
     if (action == ActionType.Load) return false;
-    if (action == ActionType.ExtinguishFire && !getComponentValue(clientComponents.OnFireLocal, ship)?.value)
+    if (action == ActionType.ExtinguishFire && !getComponentValue(gameComponents.OnFireLocal, ship)?.value)
       return false;
 
-    if (action == ActionType.RepairCannons && !getComponentValue(clientComponents.DamagedCannonsLocal, ship)?.value)
+    if (action == ActionType.RepairCannons && !getComponentValue(gameComponents.DamagedCannonsLocal, ship)?.value)
       return false;
 
-    const sailPosition = getComponentValueStrict(clientComponents.SailPositionLocal, ship).value;
+    const sailPosition = getComponentValueStrict(gameComponents.SailPositionLocal, ship).value;
     if (action == ActionType.LowerSail && sailPosition != 2) return false;
     if (action == ActionType.RaiseSail && sailPosition != 1) return false;
     if (action == ActionType.RepairSail && sailPosition > 0) return false;
@@ -222,14 +222,11 @@ export async function createGameUtilities(
     if (!player) player = getOwnerEntity();
     if (!player) return;
     const ships = [
-      ...runQuery([
-        HasValue(components.OwnedBy, { value: world.entities[player] }),
-        Has(clientComponents.SelectedMove),
-      ]),
+      ...runQuery([HasValue(components.OwnedBy, { value: world.entities[player] }), Has(gameComponents.SelectedMove)]),
     ];
     if (ships.length == 0) return;
     const moves = ships.map((ship) => {
-      const move = getComponentValueStrict(clientComponents.SelectedMove, ship).value as EntityIndex;
+      const move = getComponentValueStrict(gameComponents.SelectedMove, ship).value as EntityIndex;
       return {
         shipEntity: world.entities[ship],
         moveCardEntity: world.entities[move],
@@ -255,7 +252,7 @@ export async function createGameUtilities(
       ...runQuery([Has(components.Ship), NotValue(components.OwnedBy, { value: playerEntityID })]),
     ].filter((targetEntity) => {
       if (targetEntity == shipEntity) return false;
-      if (getComponentValue(clientComponents.HealthLocal, targetEntity)?.value == 0) return false;
+      if (getComponentValue(gameComponents.HealthLocal, targetEntity)?.value == 0) return false;
 
       const enemyPosition = getComponentValueStrict(components.Position, targetEntity);
       const enemyRotation = getComponentValueStrict(components.Rotation, targetEntity).value;
@@ -297,13 +294,13 @@ export async function createGameUtilities(
     const ships = [
       ...runQuery([
         HasValue(components.OwnedBy, { value: world.entities[player] }),
-        Has(clientComponents.SelectedActions),
+        Has(gameComponents.SelectedActions),
       ]),
     ];
     if (ships.length == 0) return [];
 
     return ships.reduce((prevActions: Action[], ship: EntityIndex) => {
-      const actions = getComponentValueStrict(clientComponents.SelectedActions, ship);
+      const actions = getComponentValueStrict(gameComponents.SelectedActions, ship);
       const actionTypes = actions.actionTypes;
       if (actionTypes.length == 0) return prevActions;
       if (actionTypes.every((actionType) => actionType == ActionType.None)) return prevActions;
@@ -369,7 +366,7 @@ export async function createGameUtilities(
   }
 
   function playSound(id: string, category: Category, loop = false, fade?: number) {
-    const volume = getComponentValueStrict(clientComponents.Volume, gameEntity).value;
+    const volume = getComponentValueStrict(gameComponents.Volume, gameEntity).value;
     const sound = new Howl({
       src: [soundLibrary[category][id].src],
       volume: soundLibrary[category][id].volume * volume,
@@ -390,7 +387,7 @@ export async function createGameUtilities(
   }
 
   function unmuteSfx() {
-    setComponent(clientComponents.Volume, gameEntity, { value: 1 });
+    setComponent(gameComponents.Volume, gameEntity, { value: 1 });
     localStorage.setItem("volume", "1");
     playSound("ocean", Category.Ambience, true);
   }
@@ -398,14 +395,14 @@ export async function createGameUtilities(
     [...soundRegistry.values()].forEach((entry) => {
       entry.pause();
     });
-    setComponent(clientComponents.Volume, gameEntity, { value: 0 });
+    setComponent(gameComponents.Volume, gameEntity, { value: 0 });
     localStorage.setItem("volume", "0");
   }
 
   function startEnvironmentSoundSystem() {
     const volumeStr = localStorage.getItem("volume");
     const volume = volumeStr ? Number(volumeStr) : 1;
-    setComponent(clientComponents.Volume, gameEntity, { value: volume });
+    setComponent(gameComponents.Volume, gameEntity, { value: volume });
 
     playSound("ocean", Category.Ambience, true);
   }
@@ -416,7 +413,7 @@ export async function createGameUtilities(
     }
     const volumeStr = localStorage.getItem("music-volume");
     const volume = vol || volumeStr ? Number(volumeStr) : 1;
-    setComponent(clientComponents.Volume, 1 as EntityIndex, { value: volume });
+    setComponent(gameComponents.Volume, 1 as EntityIndex, { value: volume });
 
     const music = new Howl({
       src: [soundLibrary[Category.Music]["sailing"].src],
@@ -434,12 +431,12 @@ export async function createGameUtilities(
     [...musicRegistry.values()].forEach((entry) => {
       entry.pause();
     });
-    setComponent(clientComponents.Volume, 1 as EntityIndex, { value: 0 });
+    setComponent(gameComponents.Volume, 1 as EntityIndex, { value: 0 });
     localStorage.setItem("music-volume", "0");
   }
 
   function handleNewActionsSpecial(action: ActionType, shipEntity: EntityIndex) {
-    const selectedActions = getComponentValue(clientComponents.SelectedActions, shipEntity) || {
+    const selectedActions = getComponentValue(gameComponents.SelectedActions, shipEntity) || {
       actionTypes: [ActionType.None, ActionType.None],
       specialEntities: ["0" as EntityID, "0" as EntityID],
     };
@@ -455,11 +452,11 @@ export async function createGameUtilities(
       actions.actionTypes[index] = ActionType.None;
       actions.specialEntities[index] = "0" as EntityID;
     }
-    setComponent(clientComponents.SelectedActions, shipEntity, {
+    setComponent(gameComponents.SelectedActions, shipEntity, {
       actionTypes: actions.actionTypes,
       specialEntities: actions.specialEntities,
     });
-    setComponent(clientComponents.SelectedShip, gameEntity, { value: shipEntity });
+    setComponent(gameComponents.SelectedShip, gameEntity, { value: shipEntity });
   }
 
   function handleNewActionsCannon(action: ActionType, cannonEntity: EntityIndex) {
@@ -467,7 +464,7 @@ export async function createGameUtilities(
     if (!shipID) return;
     const shipEntity = world.entityToIndex.get(shipID);
     if (!shipEntity) return;
-    const selectedActions = getComponentValue(clientComponents.SelectedActions, shipEntity) || {
+    const selectedActions = getComponentValue(gameComponents.SelectedActions, shipEntity) || {
       actionTypes: [ActionType.None, ActionType.None],
       specialEntities: ["0" as EntityID, "0" as EntityID],
     };
@@ -485,15 +482,15 @@ export async function createGameUtilities(
       actions.actionTypes[index] = ActionType.None;
       actions.specialEntities[index] = "0" as EntityID;
     }
-    setComponent(clientComponents.SelectedActions, shipEntity, {
+    setComponent(gameComponents.SelectedActions, shipEntity, {
       actionTypes: actions.actionTypes,
       specialEntities: actions.specialEntities,
     });
-    setComponent(clientComponents.SelectedShip, gameEntity, { value: shipEntity });
+    setComponent(gameComponents.SelectedShip, gameEntity, { value: shipEntity });
   }
 
   function handleNewActionsCrate(shipEntity: EntityIndex, crateEntity: EntityIndex) {
-    const selectedActions = getComponentValue(clientComponents.SelectedActions, shipEntity) || {
+    const selectedActions = getComponentValue(gameComponents.SelectedActions, shipEntity) || {
       actionTypes: [ActionType.None, ActionType.None],
       specialEntities: ["0" as EntityID, "0" as EntityID],
     };
@@ -513,11 +510,11 @@ export async function createGameUtilities(
       actions.specialEntities[index] = "0" as EntityID;
     }
     console.log("updating selected actions");
-    setComponent(clientComponents.SelectedActions, shipEntity, {
+    setComponent(gameComponents.SelectedActions, shipEntity, {
       actionTypes: actions.actionTypes,
       specialEntities: actions.specialEntities,
     });
-    setComponent(clientComponents.SelectedShip, gameEntity, { value: shipEntity });
+    setComponent(gameComponents.SelectedShip, gameEntity, { value: shipEntity });
   }
 
   function getSpriteObject(id: string | number, s?: Phaser.Scene): Phaser.GameObjects.Sprite {
@@ -603,7 +600,7 @@ export async function createGameUtilities(
     const object = register ? getSpriteObject(objectId) : mainScene.add.sprite(0, 0, "none");
 
     const length = getComponentValueStrict(components.Length, shipEntity).value;
-    const health = getComponentValueStrict(clientComponents.HealthLocal, shipEntity).value;
+    const health = getComponentValueStrict(gameComponents.HealthLocal, shipEntity).value;
     const maxHealth = getComponentValueStrict(components.MaxHealth, shipEntity).value;
     const ownerID = getComponentValueStrict(components.OwnedBy, shipEntity).value;
     const gameEntity = world.entityToIndex.get(ownerID);
@@ -642,13 +639,13 @@ export async function createGameUtilities(
   function renderShipFiringAreas(shipEntity: EntityIndex, groupId: string, position?: Coord, rotation?: number) {
     const activeGroup = getGroupObject(groupId, true);
 
-    const selectedActions = getComponentValue(clientComponents.SelectedActions, shipEntity);
+    const selectedActions = getComponentValue(gameComponents.SelectedActions, shipEntity);
     const cannonEntities = [
       ...runQuery([Has(components.Cannon), HasValue(components.OwnedBy, { value: world.entities[shipEntity] })]),
     ];
     const gameStarted = (getTurn(clock.currentTime) || 0) >= (getGameConfig()?.entryCutoffTurns || 0);
     const damagedCannons =
-      getComponentValue(clientComponents.DamagedCannonsLocal, shipEntity)?.value != 0 || !gameStarted;
+      getComponentValue(gameComponents.DamagedCannonsLocal, shipEntity)?.value != 0 || !gameStarted;
     const myShip = isMyShip(shipEntity);
     cannonEntities.forEach((cannonEntity) => {
       const loaded = getComponentValue(components.Loaded, cannonEntity);
@@ -677,13 +674,13 @@ export async function createGameUtilities(
       firingPolygon.setInteractive(firingPolygon.geom, Phaser.Geom.Polygon.Contains);
       firingPolygon.on("pointerup", () => handleNewActionsCannon(actionType, cannonEntity));
       firingPolygon.on("pointerover", () =>
-        setComponent(clientComponents.HoveredAction, gameEntity, {
+        setComponent(gameComponents.HoveredAction, gameEntity, {
           shipEntity,
           actionType,
           specialEntity: cannonEntity,
         })
       );
-      firingPolygon.on("pointerout", () => removeComponent(clientComponents.HoveredAction, gameEntity));
+      firingPolygon.on("pointerout", () => removeComponent(gameComponents.HoveredAction, gameEntity));
     });
   }
 
@@ -712,7 +709,7 @@ export async function createGameUtilities(
     }
     group.add(firingPolygon, true);
 
-    const damagedCannons = getComponentValue(clientComponents.DamagedCannonsLocal, shipEntity)?.value;
+    const damagedCannons = getComponentValue(gameComponents.DamagedCannonsLocal, shipEntity)?.value;
     const showText = !damagedCannons && getPhase(clock.currentTime) == Phase.Action && isMyShip(shipEntity);
     if (!showText) return firingPolygon;
 

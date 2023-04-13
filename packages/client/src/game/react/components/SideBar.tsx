@@ -1,8 +1,8 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { EntityIndex, Has, HasValue, NotValue, runQuery } from "@latticexyz/recs";
 import styled from "styled-components";
+import { useGame } from "../../../mud/providers/GameProvider";
 import { useOwner } from "../../../mud/providers/OwnerProvider";
-import { usePhaser } from "../../../mud/providers/PhaserProvider";
 import { colors } from "../../../styles/global";
 import { world } from "../../../world";
 import { ConfirmButtons } from "./ShipStatus/ConfirmButtons";
@@ -14,7 +14,7 @@ export function SideBar() {
     components: { Name, Ship, OwnedBy, HealthLocal, SelectedShip, CurrentGame },
     gameId,
     gameEntity,
-  } = usePhaser();
+  } = useGame();
 
   const ownerEntity = useOwner();
   const name = useComponentValue(Name, ownerEntity)?.value;

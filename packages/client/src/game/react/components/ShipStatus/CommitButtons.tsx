@@ -9,8 +9,8 @@ import {
 } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
 import { merge } from "rxjs";
+import { useGame } from "../../../../mud/providers/GameProvider";
 import { useOwner } from "../../../../mud/providers/OwnerProvider";
-import { usePhaser } from "../../../../mud/providers/PhaserProvider";
 import { Button, Success } from "../../../../styles/global";
 import { world } from "../../../../world";
 import { Category } from "../../..//sound";
@@ -22,7 +22,7 @@ export function CommitButtons({ tooEarly }: { tooEarly: boolean }) {
     actions: { Action },
     api: { commitMove },
     gameEntity,
-  } = usePhaser();
+  } = useGame();
 
   useObservableValue(merge(SelectedMove.update$, CommittedMove.update$));
   const encodedCommitment = useComponentValue(EncodedCommitment, gameEntity)?.value;

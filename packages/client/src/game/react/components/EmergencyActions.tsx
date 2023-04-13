@@ -2,8 +2,8 @@ import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { EntityID, EntityIndex, removeComponent, setComponent } from "@latticexyz/recs";
 import { merge } from "rxjs";
 import styled from "styled-components";
+import { useGame } from "../../../mud/providers/GameProvider";
 import { useOwner } from "../../../mud/providers/OwnerProvider";
-import { usePhaser } from "../../../mud/providers/PhaserProvider";
 import { Img, OptionButton, colors } from "../../../styles/global";
 import { ActionImg, ActionNames, ActionType, Phase } from "../..//types";
 import { getMidpoint } from "../..//utils/trig";
@@ -24,7 +24,7 @@ export function EmergencyActions() {
     network: { clock },
 
     scene: { camera },
-  } = usePhaser();
+  } = useGame();
 
   const ownerEntity = useOwner();
 

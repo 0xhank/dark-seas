@@ -1,12 +1,12 @@
 import { useEntityQuery, useObservableValue } from "@latticexyz/react";
-import { EntityIndex, Has, getComponentValueStrict, getEntitiesWithValue } from "@latticexyz/recs";
+import { EntityIndex, Has, getComponentValueStrict, getEntitiesWithValue, setComponent } from "@latticexyz/recs";
 import { useState } from "react";
 import styled from "styled-components";
 import { formatTime } from "../../game/utils/directions";
 import { cap, getHash } from "../../game/utils/ships";
 import { adjectives, nouns } from "../../game/utils/wordlist";
 import { useNetwork } from "../../mud/providers/NetworkProvider";
-import { Input, Link } from "../../styles/global";
+import { Button, Input } from "../../styles/global";
 import { world } from "../../world";
 
 function getGameName(gameEntity: EntityIndex) {
@@ -24,9 +24,10 @@ export function Games() {
   const [filterClosed, setFilterClosed] = useState(true);
 
   const {
-    components: { GameConfig, CurrentGame },
+    components: { GameConfig, CurrentGame, Page },
     network: { clock },
     worldAddress,
+    singletonEntity,
     startingBlock,
   } = useNetwork();
 
@@ -68,10 +69,9 @@ export function Games() {
               const timeUntilRound = closeTime - now;
               const boats = getEntitiesWithValue(CurrentGame, { value: world.entities[game] });
               return (
-                <Link
+                <Button
                   key={game}
-                  to={`/game/${worldAddress}`}
-                  state={{ worldAddress, gameId: world.entities[game], block: startingBlock }}
+                  onClick={() => setComponent(Page, singletonEntity, { page: "game", gameEntity: game })}
                 >
                   {name}
                   <hr />
@@ -82,7 +82,7 @@ export function Games() {
                   )}
                   <hr />
                   Combatants: {[...boats].length}
-                </Link>
+                </Button>
               );
             })
           : "No games played"}

@@ -1,8 +1,8 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { Has, getComponentValueStrict, runQuery } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
+import { useGame } from "../../../../mud/providers/GameProvider";
 import { useOwner } from "../../../../mud/providers/OwnerProvider";
-import { usePhaser } from "../../../../mud/providers/PhaserProvider";
 import { Button, Success } from "../../../../styles/global";
 
 export function RevealButtons({ tooEarly, turn }: { tooEarly: boolean; turn: number }) {
@@ -12,7 +12,7 @@ export function RevealButtons({ tooEarly, turn }: { tooEarly: boolean; turn: num
     api: { revealMove },
     utils: { getPlayerEntity },
     gameEntity,
-  } = usePhaser();
+  } = useGame();
 
   const encodedCommitment = useComponentValue(EncodedCommitment, gameEntity)?.value;
   const encoding = useComponentValue(EncodedCommitment, gameEntity)?.value;

@@ -7,7 +7,6 @@ import { components } from "../components";
 import { TxType } from "../game/types";
 
 export function revealMove(
-  gameId: EntityID,
   systems: TxQueue<SystemTypes>,
   actions: ActionSystem,
   encodedCommitment: string,
