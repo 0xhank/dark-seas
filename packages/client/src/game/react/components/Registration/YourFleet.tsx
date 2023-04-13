@@ -1,15 +1,13 @@
-import { useComponentValue, useObservableValue } from "@latticexyz/react";
+import { useComponentValue, useEntityQuery, useObservableValue } from "@latticexyz/react";
 import {
   EntityIndex,
   Has,
   getComponentValue,
   getComponentValueStrict,
   removeComponent,
-  runQuery,
   setComponent,
 } from "@latticexyz/recs";
 import { ActionState } from "@latticexyz/std-client";
-import { merge } from "rxjs";
 import styled from "styled-components";
 import { ShipButton } from "../../../../home/components/ShipButton";
 import { useGame } from "../../../../mud/providers/GameProvider";
@@ -19,15 +17,13 @@ import { formatTime } from "../../../../utils/directions";
 
 export function YourFleet({ flex }: { flex: number }) {
   const {
-    components: { Name, StagedShips, ActiveShip, ShipPrototype, Price },
+    components: { Name, StagedShips, ActiveShip, Price },
     actions: { Action },
     utils: { getGameConfig },
     api: { joinGame },
     network: { clock },
     gameEntity,
   } = useGame();
-
-  useObservableValue(merge(ShipPrototype.update$, Action.update$));
 
   const ownerEntity = useOwner();
   const budget = getGameConfig()?.budget || 0;
@@ -39,7 +35,7 @@ export function YourFleet({ flex }: { flex: number }) {
     return prev + price;
   }, 0);
 
-  const spawnActions = [...runQuery([Has(Action)])];
+  const spawnActions = [...useEntityQuery([Has(Action)])];
 
   const spawning = !!spawnActions.find((action) => {
     const state = getComponentValueStrict(Action, action).state;

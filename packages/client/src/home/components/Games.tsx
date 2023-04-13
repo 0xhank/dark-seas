@@ -77,10 +77,12 @@ export function Games() {
         flex: 1,
       }}
     >
-      <AnotherContainer>
-        <p style={{ fontSize: "1.25rem", lineHeight: "1.75rem" }}>Games you are currently competing in</p>
-        <ButtonsContainer>{activeGames.length > 0 && activeGames.map((game) => gameButton(game))}</ButtonsContainer>
-      </AnotherContainer>
+      {activeGames.length > 0 && (
+        <AnotherContainer>
+          <p style={{ fontSize: "1.25rem", lineHeight: "1.75rem" }}>Games you are currently competing in</p>
+          <ButtonsContainer>{activeGames.map((game) => gameButton(game))}</ButtonsContainer>
+        </AnotherContainer>
+      )}
       <AnotherContainer>
         <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
           <p style={{ fontSize: "1.25rem", lineHeight: "1.75rem" }}>Other live games</p>
