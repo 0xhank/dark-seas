@@ -8,12 +8,12 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import { colors } from "../../styles/global";
+import { getShipSprite } from "../../utils/ships";
+import { getMidpoint } from "../../utils/trig";
 import { sprites } from "../phaser/config";
 import { Animations, POS_HEIGHT, POS_WIDTH, RenderDepth, SHIP_RATIO } from "../phaser/constants";
 import { Category } from "../sound";
 import { HoverType, SetupResult, Sprites } from "../types";
-import { getShipSprite } from "../utils/ships";
-import { getMidpoint } from "../utils/trig";
 
 export function localHealthSystems(MUD: SetupResult) {
   const {

@@ -11,9 +11,9 @@ import {
 } from "@latticexyz/recs";
 import { colors } from "../../styles/global";
 import { getFinalPosition } from "../../utils/directions";
+import { getSternPosition } from "../../utils/trig";
 import { RenderDepth } from "../phaser/constants";
 import { Phase, SetupResult } from "../types";
-import { getSternPosition } from "../utils/trig";
 
 export function stagedMoveSystems(MUD: SetupResult) {
   const {

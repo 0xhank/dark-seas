@@ -9,9 +9,9 @@ import {
   runQuery,
 } from "@latticexyz/recs";
 import { colors } from "../../styles/global";
+import { getSternPosition, midpoint } from "../../utils/trig";
 import { Animations, POS_HEIGHT, POS_WIDTH, RenderDepth } from "../phaser/constants";
 import { SetupResult } from "../types";
-import { getSternPosition, midpoint } from "../utils/trig";
 
 export function statAnimationSystems(MUD: SetupResult) {
   const {

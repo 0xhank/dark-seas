@@ -8,10 +8,10 @@ import {
 } from "@latticexyz/recs";
 import { Coord } from "@latticexyz/utils";
 import { colors } from "../../styles/global";
+import { getMidpoint } from "../../utils/trig";
 import { world } from "../../world";
 import { POS_WIDTH, RenderDepth, SHIP_RATIO } from "../phaser/constants";
 import { ActionType, Phase, SetupResult } from "../types";
-import { getMidpoint } from "../utils/trig";
 
 export function raiseLowerSailSystems(MUD: SetupResult) {
   const {

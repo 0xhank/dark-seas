@@ -10,11 +10,11 @@ import {
 } from "@latticexyz/recs";
 import { keccak256 } from "@latticexyz/utils";
 import { colors } from "../../styles/global";
+import { distance } from "../../utils/distance";
 import { world } from "../../world";
 import { sprites } from "../phaser/config";
 import { POS_HEIGHT, RenderDepth } from "../phaser/constants";
 import { HoverType, Phase, SetupResult, Sprites } from "../types";
-import { distance } from "../utils/distance";
 export function crateSystems(MUD: SetupResult) {
   const {
     components: { Position, Upgrade, HoveredSprite, SelectedShip, SelectedActions },

@@ -16,8 +16,8 @@ export async function createGameLayer(network: NetworkLayer) {
   const gameEntity = getComponentValueStrict(network.components.Page, network.singletonEntity)
     .gameEntity as EntityIndex;
 
-  const gameID = world.entities[gameEntity];
-  if (!gameID) throw new Error("Game entity not found");
+  const gameId = world.entities[gameEntity];
+  if (!gameId) throw new Error("Game entity not found");
 
   const utils = await createGameUtilities(gameEntity, network.utils, network.network.clock, scenes.Main.phaserScene);
   const context = {
@@ -26,7 +26,7 @@ export async function createGameLayer(network: NetworkLayer) {
     components: { ...gameComponents, ...network.components },
     game,
     gameEntity,
-    gameID,
+    gameId,
     scene: scenes.Main,
     utils: { ...utils, ...network.utils },
   };

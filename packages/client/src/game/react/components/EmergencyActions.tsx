@@ -5,8 +5,8 @@ import styled from "styled-components";
 import { useGame } from "../../../mud/providers/GameProvider";
 import { useOwner } from "../../../mud/providers/OwnerProvider";
 import { Img, OptionButton, colors } from "../../../styles/global";
+import { getMidpoint } from "../../../utils/trig";
 import { ActionImg, ActionNames, ActionType, Phase } from "../..//types";
-import { getMidpoint } from "../..//utils/trig";
 
 export function EmergencyActions() {
   const {

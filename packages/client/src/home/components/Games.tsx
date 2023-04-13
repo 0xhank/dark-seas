@@ -1,5 +1,13 @@
 import { useEntityQuery, useObservableValue } from "@latticexyz/react";
-import { Has, getComponentValueStrict, getEntitiesWithValue, setComponent } from "@latticexyz/recs";
+import {
+  EntityID,
+  EntityIndex,
+  Has,
+  getComponentValue,
+  getComponentValueStrict,
+  getEntitiesWithValue,
+  setComponent,
+} from "@latticexyz/recs";
 import { useState } from "react";
 import styled from "styled-components";
 import { useNetwork } from "../../mud/providers/NetworkProvider";
@@ -13,7 +21,7 @@ export function Games() {
   const {
     components: { GameConfig, CurrentGame, Page },
     network: { clock },
-    utils: { getShipName },
+    utils: { getShipName, getPlayerShips },
     singletonEntity,
   } = useNetwork();
 
@@ -30,6 +38,36 @@ export function Games() {
       })
     : allGames;
 
+  const activeGames = getPlayerShips().reduce((prevGames: EntityIndex[], ship) => {
+    const shipGameId = getComponentValue(CurrentGame, ship)?.value;
+    if (!shipGameId) return prevGames;
+    const shipGameEntity = world.entityToIndex.get(shipGameId as EntityID);
+    if (!shipGameEntity || prevGames.includes(shipGameEntity)) return prevGames;
+    return [...prevGames, shipGameEntity];
+  }, []);
+
+  const gameButton = (game: EntityIndex) => {
+    const config = getComponentValueStrict(GameConfig, game);
+    const name = getShipName(game);
+    const closeTime =
+      Number(config.startTime) +
+      config.entryCutoffTurns * (config.commitPhaseLength + config.revealPhaseLength + config.actionPhaseLength);
+    const timeUntilRound = closeTime - now;
+    const boats = getEntitiesWithValue(CurrentGame, { value: world.entities[game] });
+    return (
+      <Button key={game} onClick={() => setComponent(Page, singletonEntity, { page: "game", gameEntity: game })}>
+        {name}
+        <hr />
+        {timeUntilRound > 0 ? (
+          `Round starts in ${formatTime(timeUntilRound)}`
+        ) : (
+          <span style={{ color: "red" }}>Registration Closed</span>
+        )}
+        <hr />
+        Combatants: {[...boats].length}
+      </Button>
+    );
+  };
   return (
     <div
       style={{
@@ -39,40 +77,21 @@ export function Games() {
         flex: 1,
       }}
     >
-      <div style={{ display: "flex", gap: "6px" }}>
-        <Input type="checkbox" checked={filterClosed} onChange={() => setFilterClosed(!filterClosed)} />
-        <span>Filter Closed Games</span>
-      </div>
-      <ButtonsContainer></ButtonsContainer>
+      <AnotherContainer>
+        <p style={{ fontSize: "1.25rem", lineHeight: "1.75rem" }}>Games you are currently competing in</p>
+        <ButtonsContainer>{activeGames.length > 0 && activeGames.map((game) => gameButton(game))}</ButtonsContainer>
+      </AnotherContainer>
+      <AnotherContainer>
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+          <p style={{ fontSize: "1.25rem", lineHeight: "1.75rem" }}>Other live games</p>
+          <div>
+            <Input type="checkbox" checked={filterClosed} onChange={() => setFilterClosed(!filterClosed)} />
+            <span>Filter Closed Games</span>
+          </div>
+        </div>
+      </AnotherContainer>
       <ButtonsContainer>
-        {games.length > 0
-          ? games.map((game) => {
-              const config = getComponentValueStrict(GameConfig, game);
-              const name = getShipName(game);
-              const closeTime =
-                Number(config.startTime) +
-                config.entryCutoffTurns *
-                  (config.commitPhaseLength + config.revealPhaseLength + config.actionPhaseLength);
-              const timeUntilRound = closeTime - now;
-              const boats = getEntitiesWithValue(CurrentGame, { value: world.entities[game] });
-              return (
-                <Button
-                  key={game}
-                  onClick={() => setComponent(Page, singletonEntity, { page: "game", gameEntity: game })}
-                >
-                  {name}
-                  <hr />
-                  {timeUntilRound > 0 ? (
-                    `Round starts in ${formatTime(timeUntilRound)}`
-                  ) : (
-                    <span style={{ color: "red" }}>Registration Closed</span>
-                  )}
-                  <hr />
-                  Combatants: {[...boats].length}
-                </Button>
-              );
-            })
-          : "No games played"}
+        {games.length > 0 ? games.map((game) => gameButton(game)) : "No games played"}
       </ButtonsContainer>
     </div>
   );
@@ -80,9 +99,14 @@ export function Games() {
 const ButtonsContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  grid-template-rows: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   overflow-y: auto;
   gap: 8px;
   width: 100%;
   height: 100%;
+`;
+
+const AnotherContainer = styled.div`
+  display: flex;
+  flex-direction: column;
 `;

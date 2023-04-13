@@ -12,6 +12,8 @@ import { Coord } from "@latticexyz/utils";
 import { BigNumber, utils } from "ethers";
 import { BytesLike, defaultAbiCoder as abi } from "ethers/lib/utils";
 import { ActionStruct } from "../../../../contracts/types/ethers-contracts/ActionSystem";
+import { distance } from "../../utils/distance";
+import { getMidpoint, midpoint } from "../../utils/trig";
 import {
   Animations,
   CANNON_SHOT_DELAY,
@@ -23,8 +25,6 @@ import {
 } from "../phaser/constants";
 import { Category } from "../sound";
 import { ActionHashes, ActionType, SetupResult, Sprites } from "../types";
-import { distance } from "../utils/distance";
-import { getMidpoint, midpoint } from "../utils/trig";
 
 export function createSuccessfulActionSystem(MUD: SetupResult) {
   const {
