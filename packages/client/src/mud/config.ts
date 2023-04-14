@@ -25,7 +25,7 @@ export const getChainSpec = (): ChainSpec => {
 
 const chainId = getChainSpec().chainId;
 
-export const getNetworkConfig = ({ worldAddress, block }: { worldAddress?: string; block?: number }) => ({
+export const networkConfig = {
   clock: {
     period: 1000,
     initialTime: 0,
@@ -40,8 +40,8 @@ export const getNetworkConfig = ({ worldAddress, block }: { worldAddress?: strin
   chainId,
   snapshotServiceUrl: getChainSpec().snapshot,
   faucetServiceUrl: getChainSpec().faucet,
-  initialBlockNumber: block || Number(import.meta.env.VITE_STARTING_BLOCK) || 0,
-  worldAddress: worldAddress || (import.meta.env.VITE_WORLD_ADDRESS as string) || "0x69",
+  initialBlockNumber: Number(import.meta.env.VITE_STARTING_BLOCK) || 0,
+  worldAddress: (import.meta.env.VITE_WORLD_ADDRESS as string) || "0x69",
   devMode: dev,
   encoders: true,
-});
+};

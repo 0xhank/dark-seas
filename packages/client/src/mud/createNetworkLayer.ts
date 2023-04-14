@@ -18,13 +18,11 @@ import {
 import { clientComponents, components } from "../components";
 import { Action, Move } from "../game/types.js";
 import { world } from "../world";
-import { getNetworkConfig } from "./config.js";
+import { networkConfig } from "./config.js";
 import { createAppUtilities } from "./utils/appUtils.js";
 import { setupDevSystems } from "./utils/setupDevSystems";
 import { setupMUDNetwork } from "./utils/setupMUDNetwork";
-export async function createNetworkLayer(worldAddress?: string, block?: number) {
-  const config = getNetworkConfig({ worldAddress, block });
-  console.log("config: ", config);
+export async function createNetworkLayer() {
   const networkWorld = namespaceWorld(world, "network");
   const {
     systems,
@@ -34,7 +32,7 @@ export async function createNetworkLayer(worldAddress?: string, block?: number) 
     encoders,
     startSync,
     components: networkComponents,
-  } = await setupMUDNetwork<typeof components, SystemTypes>(config, world, components, SystemAbis, {
+  } = await setupMUDNetwork<typeof components, SystemTypes>(networkConfig, world, components, SystemAbis, {
     fetchSystemCalls: true,
     // initialGasPrice: 10000,
   });
@@ -47,7 +45,7 @@ export async function createNetworkLayer(worldAddress?: string, block?: number) 
 
   // Faucet setup
   const faucetUrl = "https://faucet.testnet-mud-services.linfra.xyz";
-  if (!config.devMode) {
+  if (!networkConfig.devMode) {
     const faucet = createFaucetService(faucetUrl);
 
     const requestDrip = async () => {
@@ -116,8 +114,8 @@ export async function createNetworkLayer(worldAddress?: string, block?: number) 
 
   const context = {
     world,
-    worldAddress: config.worldAddress,
-    startingBlock: config.initialBlockNumber,
+    worldAddress: networkConfig.worldAddress,
+    startingBlock: networkConfig.initialBlockNumber,
     singletonEntity,
     ownerAddress,
     systemCallStreams,

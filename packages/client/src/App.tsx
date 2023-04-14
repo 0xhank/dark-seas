@@ -1,7 +1,6 @@
 import { SyncState } from "@latticexyz/network";
 import { useComponentValue } from "@latticexyz/react";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
 import { HomePage } from "./Homepage";
 import { Game } from "./game/Game";
 import { BootScreen } from "./game/react/components/BootScreen";
@@ -13,12 +12,9 @@ let createNetworkLayer = createNetworkLayerImport;
 export const App = () => {
   const [network, setNetwork] = useState<NetworkLayer>();
 
-  const { state } = useLocation();
-  const { worldAddress, block } = state as { worldAddress: string | undefined; block: string | undefined };
-  const startBlock = Number(block) || 0;
   async function bootGame() {
     if (!network) {
-      let newNetwork = await createNetworkLayer(worldAddress, startBlock);
+      let newNetwork = await createNetworkLayer();
       newNetwork.startSync();
       setNetwork(newNetwork);
     }
@@ -41,7 +37,7 @@ export const App = () => {
       network?.world.dispose();
       setNetwork(undefined);
     };
-  }, [worldAddress, block]);
+  }, []);
 
   if (!network) return <HomePage />;
   return (
@@ -50,8 +46,6 @@ export const App = () => {
     </NetworkProvider>
   );
 };
-
-type PageType = "home" | "game";
 
 const AppWindow = () => {
   const {

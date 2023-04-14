@@ -1,7 +1,6 @@
 import { useComponentValue, useObservableValue } from "@latticexyz/react";
 import { EntityID } from "@latticexyz/recs";
 import styled from "styled-components";
-import { ActionQueue } from "../../game/react/components/Dev/ActionQueue";
 import { useNetwork } from "../../mud/providers/NetworkProvider";
 import { OwnerProvider } from "../../mud/providers/OwnerProvider";
 import { BackgroundImg, ShipContainer } from "../../styles/global";
@@ -31,7 +30,7 @@ export function HomeWindow() {
   return (
     <HomeContainer>
       <BackgroundImg src="img/ship-background.png" style={{ zIndex: -1 }} />
-      <ActionQueue />
+      {/* <ActionQueue /> */}
       <RegisterContainer>
         {ownerEntity ? (
           <OwnerProvider value={ownerEntity}>
