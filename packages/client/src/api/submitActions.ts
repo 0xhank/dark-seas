@@ -3,13 +3,14 @@ import { EntityID, EntityIndex, getComponentValue } from "@latticexyz/recs";
 import { ActionSystem } from "@latticexyz/std-client";
 import { utils } from "ethers";
 import { defaultAbiCoder as abi } from "ethers/lib/utils";
-import { ActionStruct } from "../../../contracts/types/ethers-contracts/ActionSystem";
 import { SystemTypes } from "../../../contracts/types/SystemTypes";
-import { components } from "../mud/components";
-import { world } from "../mud/world";
-import { Action, ActionHashes, ActionType, TxType } from "../types";
+import { ActionStruct } from "../../../contracts/types/ethers-contracts/ActionSystem";
+import { components } from "../components";
+import { Action, ActionHashes, ActionType, TxType } from "../game/types";
+import { world } from "../world";
 
 export function submitActions(
+  gameIndex: EntityIndex,
   systems: TxQueue<SystemTypes>,
   actions: ActionSystem,
   getTargetedShips: (cannonEntity: EntityIndex) => EntityIndex[],
@@ -24,6 +25,7 @@ export function submitActions(
     awaitConfirmation: true,
     components: { OwnedBy },
     requirement: ({ OwnedBy }) => {
+      const gameId = world.entities[gameIndex];
       if (!override) {
         if (shipActions.length == 0) {
           actions.cancel(actionId);
@@ -69,12 +71,12 @@ export function submitActions(
         actions.cancel(actionId);
         return null;
       }
-      return shipStruct;
+      return { shipStruct, gameId };
     },
     updates: () => [],
-    execute: (actions) => {
+    execute: ({ shipStruct, gameId }) => {
       console.log("submitting actions:", actions);
-      return systems["ds.system.Action"].executeTyped(actions, {
+      return systems["ds.system.Action"].executeTyped(gameId, shipStruct, {
         gasLimit: 10_000_000,
       });
     },

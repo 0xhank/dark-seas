@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 // External
 import { IWorld } from "solecs/interfaces/IWorld.sol";
 import { addressToEntity } from "solecs/utils.sol";
+import { console } from "forge-std/console.sol";
 
 // Components
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
@@ -23,9 +24,12 @@ import { LastHitComponent, ID as LastHitComponentID } from "../components/LastHi
 import { CannonComponent, ID as CannonComponentID } from "../components/CannonComponent.sol";
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 import { SpeedComponent, ID as SpeedComponentID } from "../components/SpeedComponent.sol";
-import { ShipPrototypeComponent, ID as ShipPrototypeComponentID } from "../components/ShipPrototypeComponent.sol";
 import { OnFireComponent, ID as OnFireComponentID } from "../components/OnFireComponent.sol";
 import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../components/DamagedCannonsComponent.sol";
+import { CurrentGameComponent, ID as CurrentGameComponentID } from "../components/CurrentGameComponent.sol";
+import { PriceComponent, ID as PriceComponentID } from "../components/PriceComponent.sol";
+import { OwnerOfComponent, ID as OwnerOfComponentID } from "../components/OwnerOfComponent.sol";
+import { NameComponent, ID as NameComponentID } from "../components/NameComponent.sol";
 
 // Types
 import { Coord, GodID, ShipPrototype, GameConfig } from "./DSTypes.sol";
@@ -38,14 +42,11 @@ library LibSpawn {
   /**
    * @notice  create and return an entityId corresponding to a player's address
    * @param   world world and components
-   * @param   playerAddress  player address
+   * @param   playerEntity player entity Id
    * @return  uint256  player entity Id
    */
-  function createPlayerEntity(IWorld world, address playerAddress) internal returns (uint256) {
-    uint256 playerEntity = addressToEntity(playerAddress);
-    uint32 playerId = uint32(LibUtils.getExistingPlayers(world).length + 1);
-
-    PlayerComponent(LibUtils.addressById(world, PlayerComponentID)).set(playerEntity, playerId);
+  function createPlayerEntity(IWorld world, uint256 playerEntity) internal returns (uint256) {
+    PlayerComponent(LibUtils.addressById(world, PlayerComponentID)).set(playerEntity);
 
     LastActionComponent(LibUtils.addressById(world, LastActionComponentID)).set(playerEntity, 0);
     LastMoveComponent(LibUtils.addressById(world, LastMoveComponentID)).set(playerEntity, 0);
@@ -58,9 +59,13 @@ library LibSpawn {
    * @param   r  random seed
    * @return  Coord  randomly generated position
    */
-  function getRandomPosition(IWorld world, uint256 r) public view returns (Coord memory) {
+  function getRandomPosition(
+    IWorld world,
+    uint256 gameId,
+    uint256 r
+  ) public view returns (Coord memory) {
     uint32 worldHeight = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID))
-      .getValue(GodID)
+      .getValue(gameId)
       .worldSize;
     uint32 worldWidth = (worldHeight * 16) / 9;
     bool useWidth = r % 2 == 1;
@@ -91,21 +96,78 @@ library LibSpawn {
     return 135;
   }
 
+  function initializeShip(IWorld world, uint256 shipPrototypeEntity) public returns (uint256 shipEntity) {
+    shipEntity = world.getUniqueEntityId();
+    uint256 ownerEntity = addressToEntity(msg.sender);
+
+    HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
+    uint32 shipPrototypeCount = healthComponent.getValue(shipPrototypeEntity);
+    require(shipPrototypeCount > 0, "you cant buy any more of these ships");
+
+    healthComponent.set(shipPrototypeEntity, shipPrototypeCount - 1);
+
+    ShipComponent(LibUtils.addressById(world, ShipComponentID)).set(shipEntity);
+    OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID)).set(shipEntity, ownerEntity);
+    FirepowerComponent(LibUtils.addressById(world, FirepowerComponentID)).set(shipEntity, 0);
+    SailPositionComponent(LibUtils.addressById(world, SailPositionComponentID)).set(shipEntity, 2);
+
+    SpeedComponent speedComponent = SpeedComponent(LibUtils.addressById(world, SpeedComponentID));
+    speedComponent.set(shipEntity, speedComponent.getValue(shipPrototypeEntity));
+
+    LengthComponent lengthComponent = LengthComponent(LibUtils.addressById(world, LengthComponentID));
+    lengthComponent.set(shipEntity, lengthComponent.getValue(shipPrototypeEntity));
+
+    MaxHealthComponent maxHealthComponent = MaxHealthComponent(LibUtils.addressById(world, MaxHealthComponentID));
+    maxHealthComponent.set(shipEntity, maxHealthComponent.getValue(shipPrototypeEntity));
+
+    PriceComponent priceComponent = PriceComponent(LibUtils.addressById(world, PriceComponentID));
+    priceComponent.set(shipEntity, priceComponent.getValue(shipPrototypeEntity));
+
+    NameComponent nameComponent = NameComponent(LibUtils.addressById(world, NameComponentID));
+    nameComponent.set(shipEntity, nameComponent.getValue(shipPrototypeEntity));
+
+    uint256[] memory cannonPrototypeEntities = OwnerOfComponent(LibUtils.addressById(world, OwnerOfComponentID))
+      .getValue(shipPrototypeEntity);
+    for (uint256 i = 0; i < cannonPrototypeEntities.length; i++) {
+      initializeCannon(world, shipEntity, cannonPrototypeEntities[i]);
+    }
+  }
+
+  function initializeCannon(
+    IWorld world,
+    uint256 shipEntity,
+    uint256 cannonPrototypeEntity
+  ) internal returns (uint256 cannonEntity) {
+    cannonEntity = world.getUniqueEntityId();
+    RotationComponent rotationComponent = RotationComponent(LibUtils.addressById(world, RotationComponentID));
+    FirepowerComponent firepowerComponent = FirepowerComponent(LibUtils.addressById(world, FirepowerComponentID));
+    RangeComponent rangeComponent = RangeComponent(LibUtils.addressById(world, RangeComponentID));
+
+    rotationComponent.set(cannonEntity, rotationComponent.getValue(cannonPrototypeEntity));
+    firepowerComponent.set(cannonEntity, firepowerComponent.getValue(cannonPrototypeEntity));
+    rangeComponent.set(cannonEntity, rangeComponent.getValue(cannonPrototypeEntity));
+
+    CannonComponent(LibUtils.addressById(world, CannonComponentID)).set(cannonEntity);
+    OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID)).set(cannonEntity, shipEntity);
+  }
+
   function spawn(
     IWorld world,
+    uint256 gameId,
     uint256 playerEntity,
-    uint256[] memory shipPrototypes
+    uint256 ownerEntity,
+    uint256[] memory ships
   ) public {
     GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
-      GodID
+      gameId
     );
-    // uint256 prototypeRandomness = uint256(keccak256(abi.encode(shipPrototypes)));
-    Coord memory position = getRandomPosition(world, LibUtils.randomness(1, playerEntity));
+    Coord memory position = getRandomPosition(world, gameId, LibUtils.randomness(1, playerEntity));
 
     uint32 rotation = pointKindaTowardsTheCenter(position);
     uint32 spent = 0;
-    for (uint256 i = 0; i < shipPrototypes.length; i++) {
-      uint32 price = spawnShip(world, playerEntity, position, rotation, shipPrototypes[i]);
+    for (uint256 i = 0; i < ships.length; i++) {
+      spawnShip(world, gameId, position, rotation, ships[i]);
+      uint32 price = PriceComponent(LibUtils.addressById(world, PriceComponentID)).getValue(ships[i]);
       spent += price;
 
       require(spent <= gameConfig.budget, "LibSpawn: ships too expensive");
@@ -118,80 +180,50 @@ library LibSpawn {
 
     LastActionComponent(LibUtils.addressById(world, LastActionComponentID)).set(playerEntity, 0);
     LastMoveComponent(LibUtils.addressById(world, LastMoveComponentID)).set(playerEntity, 0);
+    OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID)).set(playerEntity, ownerEntity);
   }
 
   /**
-   * @notice  spawns a basic ship type
-   * @dev todo: move this to shipPrototype and create a couple options for ships
-   * @param   world  world
-   * @param   playerEntity  entity id of ship's owner
-   * @param   position  starting position of ship
-   * @param   rotation  starting rotation of ship
+   * @notice  .
+   * @dev     .
+   * @param   world  .
+   * @param   gameId  .
+   * @param   position  .
+   * @param   rotation  .
    */
   function spawnShip(
     IWorld world,
-    uint256 playerEntity,
+    uint256 gameId,
     Coord memory position,
     uint32 rotation,
-    uint256 shipPrototypeEntity
-  ) internal returns (uint32) {
-    ShipPrototypeComponent shipPrototypeComponent = ShipPrototypeComponent(
-      LibUtils.addressById(world, ShipPrototypeComponentID)
-    );
-
-    require(shipPrototypeComponent.has(shipPrototypeEntity), "spawnShip: ship prototype does not exist");
-
-    ShipPrototype memory shipPrototype = abi.decode(
-      bytes(shipPrototypeComponent.getValue(shipPrototypeEntity)),
-      (ShipPrototype)
-    );
-
-    uint256 shipEntity = world.getUniqueEntityId();
-    ShipComponent(LibUtils.addressById(world, ShipComponentID)).set(shipEntity);
-
-    PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(shipEntity, position);
-    RotationComponent(LibUtils.addressById(world, RotationComponentID)).set(shipEntity, rotation);
-    SailPositionComponent(LibUtils.addressById(world, SailPositionComponentID)).set(shipEntity, 2);
-    OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID)).set(shipEntity, playerEntity);
-    SpeedComponent(LibUtils.addressById(world, SpeedComponentID)).set(shipEntity, shipPrototype.speed);
-    LengthComponent(LibUtils.addressById(world, LengthComponentID)).set(shipEntity, shipPrototype.length);
-    HealthComponent(LibUtils.addressById(world, HealthComponentID)).set(shipEntity, shipPrototype.maxHealth);
-    MaxHealthComponent(LibUtils.addressById(world, MaxHealthComponentID)).set(shipEntity, shipPrototype.maxHealth);
-    LastHitComponent(LibUtils.addressById(world, LastHitComponentID)).set(shipEntity, GodID);
-    FirepowerComponent(LibUtils.addressById(world, FirepowerComponentID)).set(shipEntity, 0);
-    for (uint256 i = 0; i < shipPrototype.cannons.length; i++) {
-      spawnCannon(
-        world,
-        shipEntity,
-        shipPrototype.cannons[i].rotation,
-        shipPrototype.cannons[i].firepower,
-        shipPrototype.cannons[i].range
-      );
-    }
-    return shipPrototype.price;
-  }
-
-  function respawnShip(
-    IWorld world,
-    uint256 shipEntity,
-    Coord memory position,
-    uint32 rotation
+    uint256 shipEntity
   ) internal {
-    PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(shipEntity, position);
-    RotationComponent(LibUtils.addressById(world, RotationComponentID)).set(shipEntity, rotation);
-    LengthComponent(LibUtils.addressById(world, LengthComponentID)).set(shipEntity, 10);
-    SailPositionComponent(LibUtils.addressById(world, SailPositionComponentID)).set(shipEntity, 2);
+    CurrentGameComponent currentGameComponent = CurrentGameComponent(
+      LibUtils.addressById(world, CurrentGameComponentID)
+    );
+    require(!currentGameComponent.has(shipEntity), "SpawnSystem: ship is already playing another game");
+    uint256 ownerEntity = addressToEntity(msg.sender);
+    require(
+      OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID)).getValue(shipEntity) == ownerEntity,
+      "SpawnSystem: you do not own this ship"
+    );
 
-    uint32 maxHealth = MaxHealthComponent(LibUtils.addressById(world, MaxHealthComponentID)).getValue(shipEntity);
-    HealthComponent(LibUtils.addressById(world, HealthComponentID)).set(shipEntity, maxHealth);
+    currentGameComponent.set(shipEntity, gameId);
     OnFireComponent(LibUtils.addressById(world, OnFireComponentID)).remove(shipEntity);
     DamagedCannonsComponent(LibUtils.addressById(world, DamagedCannonsComponentID)).remove(shipEntity);
+    SailPositionComponent(LibUtils.addressById(world, SailPositionComponentID)).set(shipEntity, 2);
+    PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(shipEntity, position);
+    RotationComponent(LibUtils.addressById(world, RotationComponentID)).set(shipEntity, rotation);
+    uint32 maxHealth = MaxHealthComponent(LibUtils.addressById(world, MaxHealthComponentID)).getValue(shipEntity);
+    HealthComponent(LibUtils.addressById(world, HealthComponentID)).set(shipEntity, maxHealth);
+    LastHitComponent(LibUtils.addressById(world, LastHitComponentID)).set(shipEntity, GodID);
+    FirepowerComponent(LibUtils.addressById(world, FirepowerComponentID)).set(shipEntity, 0);
+    RangeComponent(LibUtils.addressById(world, RangeComponentID)).set(shipEntity, 0);
   }
 
   /**
    * @notice  spawns a cannon on the shipEntity provided
    * @param   world world and components
-   * @param   world  in which components reside
    * @param   shipEntity  ship that owns this cannon
    * @param   rotation  of cannon in relation to ship's bow
    * @param   firepower  determines the likelihood of a hit from this ship

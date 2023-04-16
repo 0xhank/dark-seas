@@ -1,6 +1,6 @@
 import devChainSpec from "../../../contracts/chainSpec.dev.json";
 import chainSpec from "../../../contracts/chainSpec.json";
-import { getBurnerWallet } from "./getBurnerWallet";
+import { getBurnerWallet } from "./utils/getBurnerWallet";
 
 export type ChainSpec = {
   dev: boolean;
@@ -24,9 +24,8 @@ export const getChainSpec = (): ChainSpec => {
 };
 
 const chainId = getChainSpec().chainId;
-const params = new URLSearchParams(window.location.search);
 
-export const config = {
+export const networkConfig = {
   clock: {
     period: 1000,
     initialTime: 0,
@@ -37,12 +36,12 @@ export const config = {
     wsRpcUrl: getChainSpec().wsRpc,
     chainId,
   },
-  privateKey: params.get("privateKey") ?? getBurnerWallet().privateKey,
+  privateKey: getBurnerWallet().privateKey,
   chainId,
   snapshotServiceUrl: getChainSpec().snapshot,
   faucetServiceUrl: getChainSpec().faucet,
-  initialBlockNumber: Number(params.get("block")) || 0,
-  worldAddress: params.get("worldAddress") || "0x69",
+  initialBlockNumber: Number(import.meta.env.VITE_STARTING_BLOCK) || 0,
+  worldAddress: (import.meta.env.VITE_WORLD_ADDRESS as string) || "0x69",
   devMode: dev,
   encoders: true,
 };

@@ -25,7 +25,7 @@ contract ClaimCrateActionTest is DarkSeasTest {
   Action[] actions;
 
   function testRevertTooFar() public prank(deployer) {
-    setup();
+    uint256 gameId = setup();
     uint256 crateEntity = world.getUniqueEntityId();
     ComponentDevSystem(system(ComponentDevSystemID)).executeTyped(
       UpgradeComponentID,
@@ -35,7 +35,7 @@ contract ClaimCrateActionTest is DarkSeasTest {
     Coord memory position = Coord(0, 0);
     PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(crateEntity, position);
 
-    uint256 shipEntity = spawnShip(Coord(31, 0), 0, deployer);
+    uint256 shipEntity = spawnShip(gameId, Coord(31, 0), 0, deployer);
 
     Action memory action = Action({
       shipEntity: shipEntity,
@@ -44,25 +44,18 @@ contract ClaimCrateActionTest is DarkSeasTest {
     });
     actions.push(action);
 
-    vm.warp(getTurnAndPhaseTime(world, 2, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, gameId, 2, Phase.Action));
 
     vm.expectRevert();
-    actionSystem.executeTyped(actions);
+    actionSystem.executeTyped(gameId, actions);
   }
 
   function testRevertAlreadyClaimed() public prank(deployer) {
-    setup();
+    uint256 gameId = setup();
 
-    uint256 crateEntity = world.getUniqueEntityId();
-    ComponentDevSystem(system(ComponentDevSystemID)).executeTyped(
-      UpgradeComponentID,
-      crateEntity,
-      abi.encode(Upgrade({ componentId: HealthComponentID, amount: 1 }))
-    );
     Coord memory position = Coord(0, 0);
-    PositionComponent(LibUtils.addressById(world, PositionComponentID)).set(crateEntity, position);
-
-    uint256 shipEntity = spawnShip(Coord(0, 0), 0, deployer);
+    uint256 crateEntity = LibCrate.createCrate(world, gameId, position);
+    uint256 shipEntity = spawnShip(gameId, Coord(0, 0), 0, deployer);
 
     Action memory action = Action({
       shipEntity: shipEntity,
@@ -71,27 +64,30 @@ contract ClaimCrateActionTest is DarkSeasTest {
     });
     actions.push(action);
 
-    vm.warp(getTurnAndPhaseTime(world, 2, Phase.Action));
-    actionSystem.executeTyped(actions);
+    vm.warp(getTurnAndPhaseTime(world, gameId, 2, Phase.Action));
+    actionSystem.executeTyped(gameId, actions);
 
-    shipEntity = spawnShip(Coord(0, 0), 0, alice);
+    shipEntity = spawnShip(gameId, Coord(0, 0), 0, alice);
 
     vm.stopPrank();
     vm.startPrank(alice);
 
     vm.expectRevert();
-    actionSystem.executeTyped(actions);
+    actionSystem.executeTyped(gameId, actions);
   }
 
   function testCreateCrate() public prank(deployer) {
-    setup();
+    uint256 gameId = setup();
     Coord memory coord = Coord(0, 0);
-    LibCrate.createCrate(world, coord);
+    LibCrate.createCrate(world, gameId, coord);
 
     (uint256[] memory crates, ) = LibUtils.getEntityWith(world, UpgradeComponentID);
     assertEq(crates.length, 1);
 
     PositionComponent positionComponent = PositionComponent(LibUtils.addressById(world, PositionComponentID));
+    CurrentGameComponent currentGameComponent = CurrentGameComponent(
+      LibUtils.addressById(world, CurrentGameComponentID)
+    );
     UpgradeComponent upgradeComponent = UpgradeComponent(LibUtils.addressById(world, UpgradeComponentID));
 
     assertCoordEq(positionComponent.getValue(crates[0]), coord);
@@ -108,11 +104,14 @@ contract ClaimCrateActionTest is DarkSeasTest {
     assertEq(componentId, upgrade.componentId, "id wrong");
     uint32 amount = uint32(LibUtils.getByteUInt(crates[0], 2, 2)) == 0 ? 2 : 1;
     assertEq(amount, upgrade.amount, "amount wrong");
+    assertEq(gameId, currentGameComponent.getValue(crates[0]), "gameId wrong");
   }
 
   function testClaimCrate() public prank(deployer) {
-    setup();
-
+    uint256 gameId = setup();
+    CurrentGameComponent currentGameComponent = CurrentGameComponent(
+      LibUtils.addressById(world, CurrentGameComponentID)
+    );
     HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
     PositionComponent positionComponent = PositionComponent(LibUtils.addressById(world, PositionComponentID));
     uint256 crateEntity = world.getUniqueEntityId();
@@ -123,9 +122,10 @@ contract ClaimCrateActionTest is DarkSeasTest {
     );
     Coord memory position = Coord(0, 0);
     positionComponent.set(crateEntity, position);
+    currentGameComponent.set(crateEntity, gameId);
 
-    uint256 shipEntity = spawnShip(Coord(0, 0), 0, deployer);
-
+    uint256 shipEntity = spawnShip(gameId, Coord(0, 0), 0, deployer);
+    assertEq(currentGameComponent.getValue(shipEntity), gameId);
     uint32 health = healthComponent.getValue(shipEntity);
     Action memory action = Action({
       shipEntity: shipEntity,
@@ -134,21 +134,24 @@ contract ClaimCrateActionTest is DarkSeasTest {
     });
     actions.push(action);
 
-    vm.warp(getTurnAndPhaseTime(world, 2, Phase.Action));
-    actionSystem.executeTyped(actions);
+    vm.warp(getTurnAndPhaseTime(world, gameId, 2, Phase.Action));
+    actionSystem.executeTyped(gameId, actions);
     assertEq(healthComponent.getValue(shipEntity), health + 1);
     assertTrue(!positionComponent.has(crateEntity));
   }
 
-  function setup() internal {
+  function setup() internal returns (uint256 gameId) {
+    bytes memory id = CreateGameSystem(system(CreateGameSystemID)).executeTyped(baseGameConfig);
+    gameId = abi.decode(id, (uint256));
+
     actionSystem = ActionSystem(system(ActionSystemID));
     GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
-      GodID
+      gameId
     );
 
     gameConfig.entryCutoffTurns = 0;
 
-    GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).set(GodID, gameConfig);
+    GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).set(gameId, gameConfig);
     delete actions;
   }
 }

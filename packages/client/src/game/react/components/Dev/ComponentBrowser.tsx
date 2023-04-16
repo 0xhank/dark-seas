@@ -1,0 +1,26 @@
+import { Browser as ECSBrowser } from "@latticexyz/ecs-browser";
+import { Layer } from "@latticexyz/recs";
+import { useState } from "react";
+import { useGame } from "../../../../mud/providers/GameProvider";
+
+export const ComponentBrowser = () => {
+  const { world, components, dev } = useGame();
+  const layer: Layer = { world, components };
+
+  const [shown, setShown] = useState(false);
+  (window as any).showBrowser = () => setShown(!shown);
+
+  return (
+    <div style={{ position: "fixed", right: 0, top: "10%", width: "25%", height: "90%", zIndex: -1 }}>
+      {shown ? (
+        <ECSBrowser
+          world={world}
+          layers={{ react: layer }}
+          devHighlightComponent={dev.DevHighlightComponent}
+          hoverHighlightComponent={dev.HoverHighlightComponent}
+          setContractComponentValue={dev.setContractComponentValue}
+        />
+      ) : null}
+    </div>
+  );
+};

@@ -79,9 +79,10 @@ contract LibCombatTest is DarkSeasTest {
   }
 
   function testFiringArea() public prank(deployer) {
+    uint256 gameId = setup();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
-    uint256 shipEntity = spawnShip(startingPosition, 0, deployer);
+    uint256 shipEntity = spawnShip(gameId, startingPosition, 0, deployer);
 
     CannonComponent cannonComponent = CannonComponent(LibUtils.addressById(world, CannonComponentID));
 
@@ -108,9 +109,10 @@ contract LibCombatTest is DarkSeasTest {
   }
 
   function testFiringAreaUpsideDown() public prank(deployer) {
+    uint256 gameId = setup();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
-    uint256 shipEntity = spawnShip(startingPosition, 180, deployer);
+    uint256 shipEntity = spawnShip(gameId, startingPosition, 180, deployer);
     uint256 cannonEntity = LibSpawn.spawnCannon(world, shipEntity, 90, 10, 80);
 
     uint32 cannonRotation = RotationComponent(LibUtils.addressById(world, RotationComponentID)).getValue(cannonEntity);
@@ -138,10 +140,10 @@ contract LibCombatTest is DarkSeasTest {
   }
 
   function testFiringAreaPivot() public prank(deployer) {
-    // setUp();
+    uint256 gameId = setup();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
-    uint256 shipEntity = spawnShip(startingPosition, 0, deployer);
+    uint256 shipEntity = spawnShip(gameId, startingPosition, 0, deployer);
     RotationComponent rotationComponent = RotationComponent(LibUtils.addressById(world, RotationComponentID));
     address owner = rotationComponent.owner();
 
@@ -166,9 +168,10 @@ contract LibCombatTest is DarkSeasTest {
   }
 
   function testFiringAreaPivotBehind() public prank(deployer) {
+    uint256 gameId = setup();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
 
-    uint256 shipEntity = spawnShip(startingPosition, 0, deployer);
+    uint256 shipEntity = spawnShip(gameId, startingPosition, 0, deployer);
     RotationComponent rotationComponent = RotationComponent(LibUtils.addressById(world, RotationComponentID));
     address owner = rotationComponent.owner();
 
@@ -187,5 +190,15 @@ contract LibCombatTest is DarkSeasTest {
     assertCoordEq(stern, firingArea[0]);
     assertCoordEq(frontCorner, firingArea[1]);
     assertCoordEq(backCorner, firingArea[2]);
+  }
+
+  function setup() private returns (uint256 gameId) {
+    bytes memory id = CreateGameSystem(system(CreateGameSystemID)).executeTyped(baseGameConfig);
+    gameId = abi.decode(id, (uint256));
+
+    GameConfig memory gameConfig = GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(
+      gameId
+    );
+    return gameId;
   }
 }

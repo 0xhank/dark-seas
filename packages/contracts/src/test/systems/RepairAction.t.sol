@@ -29,16 +29,16 @@ contract RepairActionTest is DarkSeasTest {
   Action[] actions;
 
   function testExtinguishFire() public prank(deployer) {
-    setup();
+    uint256 gameId = setup();
     OnFireComponent onFireComponent = OnFireComponent(LibUtils.addressById(world, OnFireComponentID));
 
-    uint256 shipEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
+    uint256 shipEntity = spawnShip(gameId, Coord({ x: 0, y: 0 }), 350, deployer);
 
     componentDevSystem.executeTyped(OnFireComponentID, shipEntity, abi.encode(1));
 
     assertTrue(onFireComponent.has(shipEntity));
 
-    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, gameId, 1, Phase.Action));
 
     delete actions;
 
@@ -48,15 +48,15 @@ contract RepairActionTest is DarkSeasTest {
       metadata: [none, none]
     });
     actions.push(action);
-    actionSystem.executeTyped(actions);
+    actionSystem.executeTyped(gameId, actions);
 
     assertFalse(onFireComponent.has(shipEntity));
   }
 
   function testRepairSail() public prank(deployer) {
-    setup();
+    uint256 gameId = setup();
 
-    uint256 shipEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
+    uint256 shipEntity = spawnShip(gameId, Coord({ x: 0, y: 0 }), 350, deployer);
 
     componentDevSystem.executeTyped(SailPositionComponentID, shipEntity, abi.encode(0));
 
@@ -69,19 +69,19 @@ contract RepairActionTest is DarkSeasTest {
       metadata: [none, none]
     });
     actions.push(action);
-    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, gameId, 1, Phase.Action));
 
-    actionSystem.executeTyped(actions);
+    actionSystem.executeTyped(gameId, actions);
 
     assertEq(sailPositionComponent.getValue(shipEntity), 1);
   }
 
   function testRepairCannons() public prank(deployer) {
-    setup();
+    uint256 gameId = setup();
     DamagedCannonsComponent damagedCannonsComponent = DamagedCannonsComponent(
       LibUtils.addressById(world, DamagedCannonsComponentID)
     );
-    uint256 shipEntity = spawnShip(Coord({ x: 0, y: 0 }), 350, deployer);
+    uint256 shipEntity = spawnShip(gameId, Coord({ x: 0, y: 0 }), 350, deployer);
     componentDevSystem.executeTyped(DamagedCannonsComponentID, shipEntity, abi.encode(1));
 
     assertTrue(damagedCannonsComponent.has(shipEntity));
@@ -93,9 +93,9 @@ contract RepairActionTest is DarkSeasTest {
       metadata: [none, none]
     });
     actions.push(action);
-    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, gameId, 1, Phase.Action));
 
-    actionSystem.executeTyped(actions);
+    actionSystem.executeTyped(gameId, actions);
 
     assertFalse(damagedCannonsComponent.has(shipEntity));
   }
@@ -104,7 +104,10 @@ contract RepairActionTest is DarkSeasTest {
    * Helpers
    */
 
-  function setup() internal {
+  function setup() internal returns (uint256 gameId) {
+    bytes memory id = CreateGameSystem(system(CreateGameSystemID)).executeTyped(baseGameConfig);
+    gameId = abi.decode(id, (uint256));
+
     actionSystem = ActionSystem(system(ActionSystemID));
     componentDevSystem = ComponentDevSystem(system(ComponentDevSystemID));
 

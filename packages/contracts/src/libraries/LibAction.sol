@@ -10,6 +10,7 @@ import { DamagedCannonsComponent, ID as DamagedCannonsComponentID } from "../com
 import { SailPositionComponent, ID as SailPositionComponentID } from "../components/SailPositionComponent.sol";
 import { OwnedByComponent, ID as OwnedByComponentID } from "../components/OwnedByComponent.sol";
 import { HealthComponent, ID as HealthComponentID } from "../components/HealthComponent.sol";
+import { CurrentGameComponent, ID as CurrentGameComponentID } from "../components/CurrentGameComponent.sol";
 import { ActionComponent, ID as ActionComponentID, FunctionSelector } from "../components/ActionComponent.sol";
 // Types
 import { Action } from "../libraries/DSTypes.sol";
@@ -23,7 +24,14 @@ library LibAction {
    * @notice  executes submitted action
    * @param   world world and components * @param   action  set of actions to execute
    */
-  function executeActions(IWorld world, Action memory action) public {
+  /**
+   * @notice  .
+   * @dev     .
+   * @param   world  .
+   * @param   gameId  .
+   * @param   action  .
+   */
+  function executeActions(IWorld world, uint256 gameId, Action memory action) public {
     // iterate through each action of each ship
     ActionComponent actionComponent = ActionComponent(LibUtils.addressById(world, ActionComponentID));
     for (uint256 i = 0; i < 2; i++) {
@@ -31,6 +39,10 @@ library LibAction {
       uint256 actionHash = uint256(keccak256(actionId));
       bytes memory metadata = action.metadata[i];
       if (!actionComponent.has(actionHash)) continue;
+      require(
+        CurrentGameComponent(LibUtils.addressById(world, CurrentGameComponentID)).getValue(action.shipEntity) == gameId,
+        "ActionSystem: you don't own this ship"
+      );
       require(
         OwnedByComponent(LibUtils.addressById(world, OwnedByComponentID)).getValue(action.shipEntity) ==
           addressToEntity(msg.sender),

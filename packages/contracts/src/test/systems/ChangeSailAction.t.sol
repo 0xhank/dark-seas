@@ -25,10 +25,10 @@ contract ChangeSailActionTest is DarkSeasTest {
   Action[] actions;
 
   function testExecute() public prank(deployer) {
-    setup();
+    uint256 gameId = setup();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
-    uint256 shipEntity = spawnShip(startingPosition, startingRotation, deployer);
+    uint256 shipEntity = spawnShip(gameId, startingPosition, startingRotation, deployer);
 
     Action memory action = Action({
       shipEntity: shipEntity,
@@ -37,9 +37,9 @@ contract ChangeSailActionTest is DarkSeasTest {
     });
     actions.push(action);
 
-    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Action));
+    vm.warp(getTurnAndPhaseTime(world, gameId, 1, Phase.Action));
 
-    actionSystem.executeTyped(actions);
+    actionSystem.executeTyped(gameId, actions);
 
     uint32 newSailPosition = sailPositionComponent.getValue(shipEntity);
 
@@ -47,11 +47,11 @@ contract ChangeSailActionTest is DarkSeasTest {
   }
 
   function testNoEffect() public prank(deployer) {
-    setup();
+    uint256 gameId = setup();
     Coord memory startingPosition = Coord({ x: 0, y: 0 });
     uint32 startingRotation = 45;
-    uint256 shipEntity = spawnShip(startingPosition, startingRotation, deployer);
-    vm.warp(getTurnAndPhaseTime(world, 1, Phase.Action));
+    uint256 shipEntity = spawnShip(gameId, startingPosition, startingRotation, deployer);
+    vm.warp(getTurnAndPhaseTime(world, gameId, 1, Phase.Action));
 
     Action memory action = Action({
       shipEntity: shipEntity,
@@ -60,7 +60,7 @@ contract ChangeSailActionTest is DarkSeasTest {
     });
     actions.push(action);
 
-    actionSystem.executeTyped(actions);
+    actionSystem.executeTyped(gameId, actions);
 
     uint32 newSailPosition = sailPositionComponent.getValue(shipEntity);
 
@@ -72,14 +72,14 @@ contract ChangeSailActionTest is DarkSeasTest {
 
     actions.push(action);
 
-    vm.warp(getTurnAndPhaseTime(world, 2, Phase.Action));
-    actionSystem.executeTyped(actions);
+    vm.warp(getTurnAndPhaseTime(world, gameId, 2, Phase.Action));
+    actionSystem.executeTyped(gameId, actions);
 
-    vm.warp(getTurnAndPhaseTime(world, 3, Phase.Action));
-    actionSystem.executeTyped(actions);
+    vm.warp(getTurnAndPhaseTime(world, gameId, 3, Phase.Action));
+    actionSystem.executeTyped(gameId, actions);
 
-    vm.warp(getTurnAndPhaseTime(world, 4, Phase.Action));
-    actionSystem.executeTyped(actions);
+    vm.warp(getTurnAndPhaseTime(world, gameId, 4, Phase.Action));
+    actionSystem.executeTyped(gameId, actions);
 
     newSailPosition = sailPositionComponent.getValue(shipEntity);
     assertEq(newSailPosition, 1);
@@ -89,7 +89,10 @@ contract ChangeSailActionTest is DarkSeasTest {
    * Helpers
    */
 
-  function setup() internal {
+  function setup() internal returns (uint256 gameId) {
+    bytes memory id = CreateGameSystem(system(CreateGameSystemID)).executeTyped(baseGameConfig);
+    gameId = abi.decode(id, (uint256));
+
     actionSystem = ActionSystem(system(ActionSystemID));
     sailPositionComponent = SailPositionComponent(LibUtils.addressById(world, SailPositionComponentID));
     delete moves;

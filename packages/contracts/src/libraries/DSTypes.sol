@@ -40,6 +40,7 @@ struct Upgrade {
 struct GameConfig {
   // Block timestamp when the game started
   uint256 startTime;
+  uint256 startBlock;
   // Number of seconds
   uint32 commitPhaseLength;
   uint32 revealPhaseLength;
@@ -49,7 +50,6 @@ struct GameConfig {
   // Number of turns before registration is blocked
   uint32 entryCutoffTurns;
   uint256 buyin;
-  bool respawnAllowed;
   // Calculation: Every turn, the world shrinks by gameConfig.shrinkrate / 100.
   // If shrink rate is 100, the world will shrink by 1 each turn.
   // Shrinking starts once entry is cutoff and ends when the world size is 50.

@@ -1,68 +1,70 @@
+import { SyncState } from "@latticexyz/network";
+import { useComponentValue } from "@latticexyz/react";
 import { useEffect, useState } from "react";
-import { createNetworkLayer as createNetworkLayerImport, NetworkLayer } from "./mud";
-import { MUDProvider } from "./mud/providers/MUDProvider";
-import { createPhaserLayer as createPhaserLayerImport, PhaserLayer } from "./phaser";
-import { Game } from "./react/components/Game";
-import { HomePage } from "./react/Homepage/Homepage";
-import { SetupResult } from "./types";
+import { HomePage } from "./Homepage";
+import { Game } from "./game/Game";
+import { BootScreen } from "./game/react/components/BootScreen";
+import { HomeWindow } from "./home/components/HomeWindow";
+import { NetworkLayer, createNetworkLayer as createNetworkLayerImport } from "./mud";
+import { NetworkProvider, useNetwork } from "./mud/providers/NetworkProvider";
+
 let createNetworkLayer = createNetworkLayerImport;
-let createPhaserLayer = createPhaserLayerImport;
-
 export const App = () => {
-  const [MUD, setMUD] = useState<SetupResult>();
-  const params = new URLSearchParams(window.location.search);
-  const worldAddress = params.get("worldAddress");
-
-  let network: NetworkLayer | undefined = undefined;
-  let phaser: PhaserLayer | undefined = undefined;
+  const [network, setNetwork] = useState<NetworkLayer>();
 
   async function bootGame() {
-    console.log("rebooting game");
     if (!network) {
-      network = await createNetworkLayer();
-      network.startSync();
-      phaser = await createPhaserLayer(network);
+      let newNetwork = await createNetworkLayer();
+      newNetwork.startSync();
+      setNetwork(newNetwork);
     }
-    if (!phaser) phaser = await createPhaserLayer(network);
-    if (document.querySelectorAll("#phaser-game canvas").length > 1) import.meta.hot?.invalidate();
-    if (!network || !phaser) throw new Error("boot failed: network or phaser layer busted");
-    console.log("result:", phaser);
-
-    setMUD(phaser);
   }
 
   useEffect(() => {
-    if (!worldAddress) return;
     if (import.meta.hot) {
-      import.meta.hot.accept("./mud/index.ts", async (module) => {
+      import.meta.hot.accept("./../mud/index.ts", async (module) => {
         console.log("reloading network");
         if (!module) return;
         createNetworkLayer = module.createNetworkLayer;
         network?.world.dispose();
-        network = undefined;
-        phaser?.world.dispose();
-        phaser = undefined;
-        bootGame();
-      });
-
-      import.meta.hot.accept("./phaser/index.ts", async (module) => {
-        console.log("reloading phaser");
-        if (!module) return;
-        createPhaserLayer = module.createPhaserLayer;
-        phaser?.world.dispose();
-        phaser = undefined;
+        setNetwork(undefined);
         bootGame();
       });
     }
-
     bootGame();
-  }, [worldAddress]);
 
-  if (MUD)
-    return (
-      <MUDProvider {...MUD}>
-        <Game />
-      </MUDProvider>
-    );
-  return <HomePage showButtons={!worldAddress} />;
+    return () => {
+      network?.world.dispose();
+      setNetwork(undefined);
+    };
+  }, []);
+
+  if (!network) return <HomePage />;
+  return (
+    <NetworkProvider {...network}>
+      <AppWindow />
+    </NetworkProvider>
+  );
+};
+
+const AppWindow = () => {
+  const {
+    singletonEntity,
+    components: { LoadingState, Page },
+  } = useNetwork();
+
+  const loadingState = useComponentValue(LoadingState, singletonEntity, {
+    state: SyncState.CONNECTING,
+    msg: "Connecting",
+    percentage: 0,
+  });
+
+  const progression =
+    loadingState.state == SyncState.INITIAL ? loadingState.percentage : loadingState.state == SyncState.LIVE ? 100 : 0;
+
+  const currentPage = useComponentValue(Page, singletonEntity, { page: "home", gameEntity: singletonEntity }).page;
+
+  if (loadingState.state !== SyncState.LIVE) return <BootScreen progression={progression} />;
+
+  return currentPage == "home" ? <HomeWindow /> : <Game />;
 };

@@ -21,7 +21,7 @@ import { LoadedComponent, ID as LoadedComponentID } from "../components/LoadedCo
 import { GameConfigComponent, ID as GameConfigComponentID } from "../components/GameConfigComponent.sol";
 
 // Types
-import { Coord, Line, Upgrade } from "../libraries/DSTypes.sol";
+import { Coord, Line } from "../libraries/DSTypes.sol";
 
 // Libraries
 import "./LibVector.sol";
@@ -39,11 +39,7 @@ library LibCombat {
    * @param   shipEntity  ship controlling cannon
    * @param   cannonEntity  cannon to load
    */
-  function load(
-    IWorld world,
-    uint256 shipEntity,
-    uint256 cannonEntity
-  ) internal {
+  function load(IWorld world, uint256 shipEntity, uint256 cannonEntity) internal {
     if (DamagedCannonsComponent(LibUtils.addressById(world, DamagedCannonsComponentID)).has(shipEntity)) return;
 
     require(
@@ -68,17 +64,14 @@ library LibCombat {
    * @param   shipEntity  ship controlling cannon
    * @param   cannonEntity  cannon to load
    */
-  function attack(
-    IWorld world,
-    uint256 shipEntity,
-    uint256 cannonEntity,
-    uint256[] memory targetEntities
-  ) internal {
+  function attack(IWorld world, uint256 shipEntity, uint256 cannonEntity, uint256[] memory targetEntities) internal {
     if (DamagedCannonsComponent(LibUtils.addressById(world, DamagedCannonsComponentID)).has(shipEntity)) return;
 
+    uint256 gameId = CurrentGameComponent(LibUtils.addressById(world, CurrentGameComponentID)).getValue(shipEntity);
+
     require(
-      LibTurn.getCurrentTurn(world) >
-        GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(GodID).entryCutoffTurns,
+      LibTurn.getCurrentTurn(world, gameId) >
+        GameConfigComponent(LibUtils.addressById(world, GameConfigComponentID)).getValue(gameId).entryCutoffTurns,
       "attack: cannot fire before entry cuts off"
     );
     require(
@@ -107,7 +100,6 @@ library LibCombat {
 
   /**
    * @notice  attacks all enemies in forward arc of ship
-   * @dev     todo: how can i combi:wne this with attackSide despite different number of vertices in range?
    * @param   world world and components
    * @param   shipEntity  entity performing an attack
    * @param   cannonEntity  .
@@ -184,11 +176,7 @@ library LibCombat {
    * @param   shipEntity  to apply damage to
    * @return  bool  if the damage killed the boat
    */
-  function damageHull(
-    IWorld world,
-    uint32 damage,
-    uint256 shipEntity
-  ) public returns (bool) {
+  function damageHull(IWorld world, uint32 damage, uint256 shipEntity) public returns (bool) {
     HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
     uint32 health = healthComponent.getValue(shipEntity);
 
@@ -208,12 +196,14 @@ library LibCombat {
    */
   function killShip(IWorld world, uint256 shipEntity) private {
     HealthComponent healthComponent = HealthComponent(LibUtils.addressById(world, HealthComponentID));
+    CurrentGameComponent currentGameComponent = CurrentGameComponent(
+      LibUtils.addressById(world, CurrentGameComponentID)
+    );
     Coord memory position = PositionComponent(LibUtils.addressById(world, PositionComponentID)).getValue(shipEntity);
+    uint256 gameId = currentGameComponent.getValue(shipEntity);
     uint256 attackerEntity = LastHitComponent(LibUtils.addressById(world, LastHitComponentID)).getValue(shipEntity);
-
-    HealthComponent(LibUtils.addressById(world, HealthComponentID)).set(shipEntity, 0);
-    Upgrade memory upgrade = Upgrade({ componentId: HealthComponentID, amount: 1 });
-    LibCrate.createCrate(world, position);
+    currentGameComponent.remove(shipEntity);
+    LibCrate.createCrate(world, gameId, position);
   }
 
   /*************************************************** UTILITIES **************************************************** */
@@ -270,11 +260,7 @@ library LibCombat {
     return (odds <= outcome);
   }
 
-  function getFiringArea(
-    IWorld world,
-    uint256 shipEntity,
-    uint256 cannonEntity
-  ) public view returns (Coord[] memory) {
+  function getFiringArea(IWorld world, uint256 shipEntity, uint256 cannonEntity) public view returns (Coord[] memory) {
     RotationComponent rotationComponent = RotationComponent(LibUtils.addressById(world, RotationComponentID));
 
     uint32 range = RangeComponent(LibUtils.addressById(world, RangeComponentID)).getValue(cannonEntity);

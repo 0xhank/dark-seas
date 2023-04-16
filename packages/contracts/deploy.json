@@ -25,91 +25,22 @@
     "ShipPrototypeComponent",
     "LastHitComponent",
     "UpgradeComponent",
-    "ActionComponent"
+    "ActionComponent",
+    "CurrentGameComponent",
+    "PriceComponent",
+    "OwnerOfComponent"
   ],
   "systems": [
-    {
-      "name": "MoveSystem",
-      "writeAccess": [
-        "PositionComponent",
-        "RotationComponent",
-        "LastMoveComponent",
-        "HealthComponent",
-        "SailPositionComponent",
-        "LengthComponent",
-        "UpgradeComponent"
-      ]
-    },
-    {
-      "name": "ActionSystem",
-      "writeAccess": [
-        "HealthComponent",
-        "OnFireComponent",
-        "DamagedCannonsComponent",
-        "SailPositionComponent",
-        "LastActionComponent",
-        "LoadedComponent",
-        "LastHitComponent",
-        "LengthComponent",
-        "UpgradeComponent",
-        "PositionComponent",
-        "SpeedComponent",
-        "LengthComponent",
-        "FirepowerComponent"
-      ]
-    },
-    {
-      "name": "ComponentDevSystem",
-      "writeAccess": [
-        "*"
-      ]
-    },
-    {
-      "name": "PlayerSpawnSystem",
-      "writeAccess": [
-        "PositionComponent",
-        "RotationComponent",
-        "LengthComponent",
-        "RangeComponent",
-        "HealthComponent",
-        "MaxHealthComponent",
-        "ShipComponent",
-        "SailPositionComponent",
-        "FirepowerComponent",
-        "LastMoveComponent",
-        "LastActionComponent",
-        "LastHitComponent",
-        "OwnedByComponent",
-        "PlayerComponent",
-        "NameComponent",
-        "CannonComponent",
-        "SpeedComponent"
-      ]
-    },
-    {
-      "name": "RespawnSystem",
-      "writeAccess": [
-        "PositionComponent",
-        "RotationComponent",
-        "HealthComponent",
-        "SailPositionComponent",
-        "OnFireComponent",
-        "DamagedCannonsComponent",
-        "LengthComponent"
-      ]
-    },
-    {
-      "name": "CommitSystem",
-      "writeAccess": [
-        "CommitmentComponent"
-      ]
-    },
-    {
-      "name": "InitSystem",
-      "writeAccess": [
-        "*"
-      ],
-      "initialize": "abi.encode(block.timestamp, 25, 9, 25, 90, 345676, 3, 0, false, 400, 6, 33)"
-    }
-  ]
+    { "name": "CreateGameSystem", "writeAccess": ["*"] },
+    { "name": "PurchaseShipSystem", "writeAccess": ["*"] },
+    { "name": "ExtractShipSystem", "writeAccess": ["*"] },
+    { "name": "CommitSystem", "writeAccess": ["*"] },
+    { "name": "MoveSystem", "writeAccess": ["*"] },
+    { "name": "ActionSystem", "writeAccess": ["*"] },
+    { "name": "ComponentDevSystem", "writeAccess": ["*"] },
+    { "name": "JoinGameSystem", "writeAccess": ["*"] },
+    { "name": "SpawnPlayerSystem", "writeAccess": ["*"] },
+    { "name": "InitSystem", "writeAccess": ["*"], "initialize": "new bytes(0)" }
+  ],
+  "initializers": ["LibInit"]
 }

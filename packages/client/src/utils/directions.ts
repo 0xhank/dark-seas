@@ -1,5 +1,5 @@
 import { Coord } from "@latticexyz/utils";
-import { MoveCard } from "../types";
+import { MoveCard } from "../game/types";
 import { getPositionByVector } from "./trig";
 
 export function getMoveWithSails(moveCard: MoveCard, speed: number, sailPosition: number): MoveCard {
